@@ -38,11 +38,10 @@ const TEMAS = [
         id:        'cap03-css',
         numero:    '03',
         titulo:    'El estilo de la página',
-        desc:      'Selectores, colores, tipografía y diseño responsive.',
+        desc:      'Selectores, colores, tipografía, Box Model, Flexbox, variables y responsive.',
         lang:      'css',
         archivo:   'capitulos/cap03-css.html',
-        lecciones: ['🎨 Selector', '🖌️ Propiedad', '📐 Box Model', '📱 Responsive'],
-        bloqueado: true
+        lecciones: ['🎨 CSS', '🎯 Selectores', '🖌️ Propiedades', '📦 Box Model', '↔️ Flexbox', '🔧 Variables', '📱 Responsive', '🌊 Cascada']
       }
     ]
   },
