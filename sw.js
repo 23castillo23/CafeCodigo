@@ -13,7 +13,8 @@ const ARCHIVOS = [
   './js/script.js',
   './manifest.webmanifest',
   './capitulos/cap01-html.html',
-  './capitulos/cap02-javascript.html'
+  './capitulos/cap02-javascript.html',
+  './image/icons/icon-512.png'
 ]
 
 // Instalar — guarda todos los archivos en caché
