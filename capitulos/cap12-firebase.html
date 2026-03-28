@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Cafe Cap 12 Base de Datos en la Nube</title>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="icon" href="../icons/icon.svg" type="image/svg+xml">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body class="pagina-capitulo">
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="logo-group">
+        <a href="../capitulos.html" class="logo-back">&larr; Capitulos</a><span class="logo-icon">&#9749;</span>
+        <div>
+          <h1 class="logo-title">Cafe &lt;/&gt;</h1>
+          <p class="logo-sub">Cap 12 &middot; Base de Datos en la Nube</p>
+        </div>
+      </div><span class="badge badge-js">JS</span>
+    </div>
+  </header>
+  <nav class="sidebar">
+    <p class="nav-label">En este capitulo</p>
+    <ul class="nav-list">
+      <li class="nav-item"><a href="#fb-que">Firebase</a></li>
+      <li class="nav-item"><a href="#fb-config">Configurar</a></li>
+      <li class="nav-item"><a href="#fb-firestore">Firestore</a></li>
+      <li class="nav-item"><a href="#fb-leer">Leer datos</a></li>
+      <li class="nav-item"><a href="#fb-escribir">Escribir datos</a></li>
+      <li class="nav-item"><a href="#fb-tiempo-real">Tiempo real</a></li>
+      <li class="nav-item"><a href="#fb-auth">Autenticacion</a></li>
+      <li class="nav-item"><a href="#fb-conexion">Conexion</a></li>
+    </ul>
+    <div class="nav-separador"></div>
+    <p class="nav-label">Navegacion</p>
+    <ul class="nav-list">
+      <li class="nav-item"><a href="cap00-conceptos.html">← 00 · Antes de empezar</a></li>
+      <li class="nav-item"><a href="cap01-html.html">← 01 · HTML</a></li>
+      <li class="nav-item"><a href="cap02-javascript.html">← 02 · JavaScript</a></li>
+      <li class="nav-item"><a href="cap03-css.html">← 03 · CSS</a></li>
+      <li class="nav-item"><a href="cap04-control.html">← 04 · Estructuras</a></li>      
+      <li class="nav-item"><a href="cap05-datos.html">← 05 · Arreglos</a></li> 
+      <li class="nav-item"><a href="cap06-funciones.html">← 06 · Funciones</a></li>     
+      <li class="nav-item"><a href="cap07-dom.html">← 07 · DOM</a></li>
+      <li class="nav-item"><a href="cap08-formularios.html">&larr; 08 · Formularios</a></li>
+      <li class="nav-item"><a href="cap09-async.html">&larr; 09 · Código</a></li>
+      <li class="nav-item"><a href="cap10-almacenamiento.html">&larr; 10 · Almacenamiento</a></li>
+      <li class="nav-item"><a href="cap11-api.html">&larr; 11 · Conexion</a></li>
+    </ul>
+  </nav>
+  <main class="main-content">
+    <div class="cap-intro" data-lang="js"><span class="cap-numero">12</span>
+      <div><span class="badge badge-js">JavaScript</span>
+        <h2 class="cap-titulo">Base de Datos en la Nube</h2>
+        <p class="cap-desc">Firebase y Firestore - almacenamiento permanente, autenticacion y sincronizacion en tiempo
+          real.</p>
+      </div>
+    </div>
+
+    <article class="leccion" id="fb-que">
+      <div class="leccion-header"><span class="leccion-icono">&#128293;</span>
+        <div>
+          <h3 class="leccion-titulo">Que es Firebase</h3>
+          <p class="leccion-tagline">Backend completo sin escribir codigo de servidor</p>
+        </div>
+      </div>
+      <div class="analogia">&#127970; Como rentar un apartamento totalmente amueblado - <strong>en lugar de construir tu
+          propia casa (servidor, base de datos, autenticacion), Google ya tiene todo listo y solo pagas por lo que
+          usas</strong>. Firebase es el Backend as a Service mas popular del mundo.</div>
+      <p class="leccion-desc">Firebase es una plataforma de Google que provee servicios de backend listos para usar. El
+        mas importante es <strong>Firestore</strong> - una base de datos NoSQL en la nube. Tambien tiene autenticacion,
+        almacenamiento de archivos, hosting y mucho mas. Todo se controla desde JavaScript, sin necesidad de escribir
+        codigo de servidor.</p>
+      <div class="diagrama">
+        <pre>Firebase provee todo esto:
+────────────────────────────────────────
+Firestore    → Base de datos en la nube
+Auth         → Login con email, Google, etc.
+Storage      → Guardar archivos e imagenes
+Hosting      → Publicar tu app en internet
+Functions    → Codigo que corre en el servidor
+                                               
+Todo accesible desde JavaScript en el navegador</pre>
+      </div>
+    </article>
+
+    <article class="leccion" id="fb-config">
+      <div class="leccion-header"><span class="leccion-icono">&#9881;</span>
+        <div>
+          <h3 class="leccion-titulo">Configurar Firebase en tu proyecto</h3>
+          <p class="leccion-tagline">Los pasos para conectar tu app a Firebase</p>
+        </div>
+      </div>
+      <div class="code-block js"><span class="code-lang">JS</span>
+        <pre><span class="c-comment">// Firebase se importa desde su CDN (igual que Google Fonts pero para JS)</span>
+<span class="c-comment">// En tu HTML antes del cierre del body:</span>
+&lt;script type=<span class="c-str">"module"</span>&gt;
+  import { initializeApp } from <span class="c-str">"https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js"</span>
+  import { getFirestore, collection, addDoc, getDocs }
+    from <span class="c-str">"https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js"</span>
+
+  <span class="c-comment">// Tu configuracion — la obtienes al crear un proyecto en console.firebase.google.com</span>
+  <span class="c-key">const</span> firebaseConfig = {
+    apiKey:        <span class="c-str">"AIzaSy..."</span>,
+    authDomain:    <span class="c-str">"mi-proyecto.firebaseapp.com"</span>,
+    projectId:     <span class="c-str">"mi-proyecto"</span>,
+    storageBucket: <span class="c-str">"mi-proyecto.appspot.com"</span>,
+    messagingSenderId: <span class="c-str">"123456789"</span>,
+    appId:         <span class="c-str">"1:123456789:web:abc123"</span>
+  }
+
+  <span class="c-comment">// Inicializar Firebase</span>
+  <span class="c-key">const</span> app = initializeApp(firebaseConfig)
+  <span class="c-key">const</span> db  = getFirestore(app)     <span class="c-comment">// la base de datos</span>
+&lt;/script&gt;</pre>
+      </div>
+    </article>
+
+    <article class="leccion" id="fb-firestore">
+      <div class="leccion-header"><span class="leccion-icono">&#128196;</span>
+        <div>
+          <h3 class="leccion-titulo">Firestore - como organiza los datos</h3>
+          <p class="leccion-tagline">Colecciones y documentos en lugar de tablas y filas</p>
+        </div>
+      </div>
+      <div class="analogia">&#128193; Como un archivero de folders - <strong>cada folder es una coleccion (tipo de
+          datos), y dentro de cada folder hay fichas individuales (documentos)</strong>. Cada ficha tiene su propio
+        contenido (propiedades).</div>
+      <div class="diagrama">
+        <pre>SQL (tabla)                  Firestore (coleccion)
+────────────────             ────────────────────────
+tabla: usuarios              coleccion: usuarios
+┌─────────────────────┐        documento: {
+│ id | nombre | edad  │          id: "abc123",
+│ 1  | Ana   | 25     │          nombre: "Ana",
+│ 2  | Luis  | 17     │          edad: 25
+└─────────────────────┘        }
+                               documento: {
+                                 id: "def456",
+                                 nombre: "Luis",
+                                 edad: 17
+                               }</pre>
+      </div>
+      <p class="leccion-desc">En Firestore no hay tablas ni filas. Hay <strong>colecciones</strong> (como carpetas) que
+        contienen <strong>documentos</strong> (como fichas). Cada documento es un objeto con sus propiedades. Los
+        documentos pueden tener subcolecciones dentro de ellos, lo que permite estructuras muy flexibles.</p>
+    </article>
+
+    <article class="leccion" id="fb-leer">
+      <div class="leccion-header"><span class="leccion-icono">&#128214;</span>
+        <div>
+          <h3 class="leccion-titulo">Leer datos de Firestore</h3>
+          <p class="leccion-tagline">getDocs y getDoc - obtener uno o varios documentos</p>
+        </div>
+      </div>
+      <div class="code-block js"><span class="code-lang">JS</span>
+        <pre><span class="c-comment">// Leer TODOS los documentos de una coleccion</span>
+<span class="c-key">async function</span> leerUsuarios() {
+  <span class="c-key">const</span> referencia    = collection(db, <span class="c-str">"usuarios"</span>)
+  <span class="c-key">const</span> instantanea   = <span class="c-key">await</span> getDocs(referencia)
+
+  <span class="c-comment">// instantanea.docs es un arreglo de documentos</span>
+  instantanea.docs.forEach(doc =&gt; {
+    console.log(doc.id)        <span class="c-comment">// el id del documento</span>
+    console.log(doc.data())    <span class="c-comment">// los datos como objeto</span>
+  })
+}
+
+<span class="c-comment">// Convertir a arreglo de objetos normal</span>
+<span class="c-key">const</span> usuarios = instantanea.docs.map(doc =&gt; ({
+  id: doc.id,
+  ...doc.data()     <span class="c-comment">// spread — expande todas las propiedades</span>
+}))
+<span class="c-comment">// [{ id: "abc123", nombre: "Ana", edad: 25 }, ...]</span>
+
+<span class="c-comment">// Leer UN documento especifico por id</span>
+<span class="c-key">const</span> docRef     = doc(db, <span class="c-str">"usuarios"</span>, <span class="c-str">"abc123"</span>)
+<span class="c-key">const</span> docSnap    = <span class="c-key">await</span> getDoc(docRef)
+
+<span class="c-key">if</span> (docSnap.exists()) {
+  console.log(docSnap.data())   <span class="c-comment">// el objeto con los datos</span>
+} <span class="c-key">else</span> {
+  console.log(<span class="c-str">"No existe ese documento"</span>)
+}</pre>
+      </div>
+    </article>
+
+    <article class="leccion" id="fb-escribir">
+      <div class="leccion-header"><span class="leccion-icono">&#128221;</span>
+        <div>
+          <h3 class="leccion-titulo">Escribir, actualizar y eliminar</h3>
+          <p class="leccion-tagline">Las operaciones de modificacion en Firestore</p>
+        </div>
+      </div>
+      <div class="code-block js"><span class="code-lang">JS</span>
+        <pre><span class="c-comment">// AGREGAR un documento nuevo (Firestore genera el id)</span>
+<span class="c-key">const</span> docCreado = <span class="c-key">await</span> addDoc(collection(db, <span class="c-str">"usuarios"</span>), {
+  nombre: <span class="c-str">"Ana"</span>,
+  edad:   25,
+  activo: <span class="c-val">true</span>
+})
+console.log(<span class="c-str">"ID creado:"</span>, docCreado.id)
+
+<span class="c-comment">// ESTABLECER un documento con id especifico</span>
+<span class="c-key">await</span> setDoc(doc(db, <span class="c-str">"usuarios"</span>, <span class="c-str">"mi-id-personalizado"</span>), {
+  nombre: <span class="c-str">"Luis"</span>,
+  edad:   17
+})
+
+<span class="c-comment">// ACTUALIZAR solo algunas propiedades (sin borrar las demas)</span>
+<span class="c-key">await</span> updateDoc(doc(db, <span class="c-str">"usuarios"</span>, <span class="c-str">"abc123"</span>), {
+  edad: 26    <span class="c-comment">// solo actualiza edad, nombre y activo quedan igual</span>
+})
+
+<span class="c-comment">// ELIMINAR un documento</span>
+<span class="c-key">await</span> deleteDoc(doc(db, <span class="c-str">"usuarios"</span>, <span class="c-str">"abc123"</span>))</pre>
+      </div>
+    </article>
+
+    <article class="leccion" id="fb-tiempo-real">
+      <div class="leccion-header"><span class="leccion-icono">&#128225;</span>
+        <div>
+          <h3 class="leccion-titulo">Tiempo real con onSnapshot</h3>
+          <p class="leccion-tagline">Recibir actualizaciones automaticas cuando los datos cambian</p>
+        </div>
+      </div>
+      <div class="analogia">&#128241; Como las notificaciones del telefono - <strong>no tienes que preguntar cada
+          segundo "hay algo nuevo?", sino que te avisan automaticamente cuando algo cambia</strong>. onSnapshot pone a
+        escuchar tu app para actualizaciones en tiempo real.</div>
+      <div class="code-block js"><span class="code-lang">JS</span>
+        <pre><span class="c-comment">// onSnapshot — escucha cambios en tiempo real</span>
+<span class="c-key">const</span> cancelarEscucha = onSnapshot(
+  collection(db, <span class="c-str">"mensajes"</span>),
+  (snapshot) =&gt; {
+    <span class="c-comment">// esto se ejecuta cada vez que cambia algo en la coleccion</span>
+    snapshot.docs.forEach(doc =&gt; {
+      console.log(doc.data())
+    })
+  }
+)
+
+<span class="c-comment">// cancelarEscucha() — cuando ya no necesitas escuchar mas</span>
+<span class="c-comment">// importante llamarlo para liberar memoria</span>
+
+<span class="c-comment">// Esto es lo que hace WhatsApp, Slack, chats en vivo:</span>
+<span class="c-comment">// cuando alguien manda un mensaje a Firestore,</span>
+<span class="c-comment">// todos los que tienen onSnapshot activo reciben la actualizacion</span>
+<span class="c-comment">// sin necesidad de recargar la pagina</span></pre>
+      </div>
+    </article>
+
+    <article class="leccion" id="fb-auth">
+      <div class="leccion-header"><span class="leccion-icono">&#128272;</span>
+        <div>
+          <h3 class="leccion-titulo">Autenticacion con Firebase Auth</h3>
+          <p class="leccion-tagline">Login de usuarios sin construir tu propio sistema</p>
+        </div>
+      </div>
+      <p class="leccion-desc">Firebase Auth maneja el registro, login, logout y sesiones de usuarios de forma segura.
+        Soporta email/contrasena, Google, Facebook, GitHub y mas. Es uno de los sistemas de autenticacion mas seguros y
+        faciles de implementar disponibles.</p>
+      <div class="code-block js"><span class="code-lang">JS</span>
+        <pre>import { getAuth, createUserWithEmailAndPassword,
+         signInWithEmailAndPassword, signOut, onAuthStateChanged }
+  from <span class="c-str">"https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js"</span>
+
+<span class="c-key">const</span> auth = getAuth(app)
+
+<span class="c-comment">// REGISTRAR un usuario nuevo</span>
+<span class="c-key">async function</span> registrar(correo, contrasena) {
+  <span class="c-key">try</span> {
+    <span class="c-key">const</span> credencial = <span class="c-key">await</span> createUserWithEmailAndPassword(auth, correo, contrasena)
+    console.log(<span class="c-str">"Usuario creado:"</span>, credencial.user.uid)
+  } <span class="c-key">catch</span> (e) {
+    console.log(<span class="c-str">"Error:"</span>, e.message)
+  }
+}
+
+<span class="c-comment">// INICIAR SESION</span>
+<span class="c-key">async function</span> login(correo, contrasena) {
+  <span class="c-key">const</span> cred = <span class="c-key">await</span> signInWithEmailAndPassword(auth, correo, contrasena)
+  console.log(<span class="c-str">"Bienvenido:"</span>, cred.user.email)
+}
+
+<span class="c-comment">// CERRAR SESION</span>
+<span class="c-key">await</span> signOut(auth)
+
+<span class="c-comment">// DETECTAR si hay sesion activa</span>
+onAuthStateChanged(auth, (usuario) =&gt; {
+  <span class="c-key">if</span> (usuario) {
+    console.log(<span class="c-str">"Sesion activa:"</span>, usuario.email)
+  } <span class="c-key">else</span> {
+    console.log(<span class="c-str">"Sin sesion"</span>)
+  }
+})</pre>
+      </div>
+    </article>
+
+    <article class="leccion conexion-box" id="fb-conexion">
+      <h3 style="font-family:Fraunces,serif;font-size:20px;margin-bottom:8px;color:#f7f4ef">&#127881; Completaste el
+        nivel intermedio</h3>
+      <p style="font-size:14px;color:rgba(247,244,239,0.65);margin-bottom:24px">Con Firestore + Auth ya puedes construir
+        apps con usuarios reales y datos persistentes. Este es el mismo stack que usa la primera version de muchas
+        startups.</p>
+      <div class="code-block dark"><span class="code-lang">LO QUE SABES HACER AHORA</span>
+        <pre><span class="c-comment">// Frontend completo</span>
+HTML + CSS + JavaScript     <span class="c-comment">✅ estructura, diseño e interactividad</span>
+Arreglos y objetos         <span class="c-comment">✅ organizar y manipular datos</span>
+DOM                        <span class="c-comment">✅ construir interfaces dinamicas</span>
+Formularios y validacion   <span class="c-comment">✅ recolectar datos del usuario</span>
+Funciones avanzadas        <span class="c-comment">✅ codigo organizado y reutilizable</span>
+
+<span class="c-comment">// Comunicacion</span>
+Codigo asincrono           <span class="c-comment">✅ async/await y Promises</span>
+APIs con fetch             <span class="c-comment">✅ consumir datos del mundo real</span>
+LocalStorage               <span class="c-comment">✅ persistencia en el navegador</span>
+
+<span class="c-comment">// Backend sin servidor</span>
+Firebase Firestore         <span class="c-comment">✅ base de datos en la nube</span>
+Firebase Auth              <span class="c-comment">✅ usuarios y autenticacion</span>
+Tiempo real                <span class="c-comment">✅ datos que se sincronizan solos</span>
+
+<span class="c-comment">// Siguiente paso: construir un proyecto real de principio a fin</span></pre>
+      </div>
+    </article>
+    <div class="cap-navegacion"><a href="cap11-api.html" class="btn-nav-cap btn-nav-prev">&larr; APIs</a>
+      <div class="btn-nav-cap btn-nav-lock">Nivel completado</div>
+    </div>
+  </main>
+  <script src="../js/script.js"></script>
+</body>
+
+</html>

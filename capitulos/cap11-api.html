@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Cafe Cap 11 Conexion con APIs</title>
+  <link rel="manifest" href="../manifest.webmanifest">
+  <link rel="icon" href="../icons/icon.svg" type="image/svg+xml">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+
+<body class="pagina-capitulo">
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="logo-group">
+        <a href="../capitulos.html" class="logo-back">&larr; Capitulos</a><span class="logo-icon">&#9749;</span>
+        <div>
+          <h1 class="logo-title">Cafe &lt;/&gt;</h1>
+          <p class="logo-sub">Cap 11 &middot; Conexion con APIs</p>
+        </div>
+      </div><span class="badge badge-js">JS</span>
+    </div>
+  </header>
+  <nav class="sidebar">
+    <p class="nav-label">En este capitulo</p>
+    <ul class="nav-list">
+      <li class="nav-item"><a href="#api-fetch">fetch</a></li>
+      <li class="nav-item"><a href="#api-json">Procesar JSON</a></li>
+      <li class="nav-item"><a href="#api-metodos">GET y POST</a></li>
+      <li class="nav-item"><a href="#api-errores">Errores HTTP</a></li>
+      <li class="nav-item"><a href="#api-cors">CORS</a></li>
+      <li class="nav-item"><a href="#api-conexion">Conexion</a></li>
+    </ul>
+    <div class="nav-separador"></div>
+    <p class="nav-label">Navegacion</p>
+    <ul class="nav-list">
+      <li class="nav-item"><a href="cap00-conceptos.html">← 00 · Antes de empezar</a></li>
+      <li class="nav-item"><a href="cap01-html.html">← 01 · HTML</a></li>
+      <li class="nav-item"><a href="cap02-javascript.html">← 02 · JavaScript</a></li>
+      <li class="nav-item"><a href="cap03-css.html">← 03 · CSS</a></li>
+      <li class="nav-item"><a href="cap04-control.html">← 04 · Estructuras</a></li>      
+      <li class="nav-item"><a href="cap05-datos.html">← 05 · Arreglos</a></li> 
+      <li class="nav-item"><a href="cap06-funciones.html">← 06 · Funciones</a></li>     
+      <li class="nav-item"><a href="cap07-dom.html">← 07 · DOM</a></li>
+      <li class="nav-item"><a href="cap08-formularios.html">&larr; 08 · Formularios</a></li>
+      <li class="nav-item"><a href="cap09-async.html">&larr; 09 · Código</a></li>
+      <li class="nav-item"><a href="cap10-almacenamiento.html">&larr; 10 · Almacenamiento</a></li>      
+      <li class="nav-item"><a href="cap12-firebase.html">12 · Base de Datos &rarr;</a></li>
+    </ul>
+  </nav>
+  <main class="main-content">
+    <div class="cap-intro" data-lang="js"><span class="cap-numero">11</span>
+      <div><span class="badge badge-js">JavaScript</span>
+        <h2 class="cap-titulo">Conexion con APIs</h2>
+        <p class="cap-desc">fetch, JSON y manejo de errores - como tu app habla con servidores externos.</p>
+      </div>
+    </div>
+
+    <article class="leccion" id="api-fetch">
+      <div class="leccion-header"><span class="leccion-icono">&#127760;</span>
+        <div>
+          <h3 class="leccion-titulo">fetch - hacer peticiones al servidor</h3>
+          <p class="leccion-tagline">La funcion nativa de JavaScript para comunicarse con APIs</p>
+        </div>
+      </div>
+      <div class="analogia">&#128222; Como hacer una llamada telefonica - <strong>marcas el numero (URL), esperas que
+          contesten (la Promise), y cuando contestan recibes la informacion que pediste</strong>. fetch es la funcion
+        que hace esa llamada.</div>
+      <p class="leccion-desc"><code>fetch</code> es una funcion global de JavaScript que hace peticiones HTTP. Devuelve
+        una Promise, por lo que se usa con <code>async/await</code>. Toma la URL de la API como primer argumento y
+        configuracion opcional como segundo.</p>
+      <div class="code-block js"><span class="code-lang">JS</span>
+        <pre><span class="c-comment">// La peticion mas simple posible — GET a una URL</span>
+<span class="c-key">async function</span> obtenerDatos() {
+  <span class="c-key">const</span> respuesta = <span class="c-key">await</span> fetch(<span class="c-str">"https://jsonplaceholder.typicode.com/users/1"</span>)
+  <span class="c-key">const</span> datos     = <span class="c-key">await</span> respuesta.json()
+  console.log(datos)
+}
+
+<span class="c-comment">// fetch devuelve una Promise con el objeto Response</span>
+<span class="c-comment">// Response no es directamente los datos — primero hay que convertirlos</span>
+<span class="c-comment">// .json()  → convierte si la respuesta es JSON (lo mas comun)</span>
+<span class="c-comment">// .text()  → convierte si la respuesta es texto plano</span>
+<span class="c-comment">// .blob()  → convierte si la respuesta es un archivo (imagen, pdf)</span>
+
+<span class="c-comment">// jsonplaceholder.typicode.com es una API de prueba gratuita</span>
+<span class="c-comment">// perfecta para practicar sin necesitar crear tu propio servidor</span></pre>
+      </div>
+    </article>
+
+    <article class="leccion" id="api-json">
+      <div class="leccion-header"><span class="leccion-icono">&#128203;</span>
+        <div>
+          <h3 class="leccion-titulo">Procesar la respuesta JSON</h3>
+          <p class="leccion-tagline">Convertir los datos recibidos en objetos JavaScript</p>
+        </div>
+      </div>
+      <p class="leccion-desc">La respuesta de casi todas las APIs del mundo llega en formato JSON. Una vez convertida
+        con <code>.json()</code>, tienes un objeto o arreglo JavaScript normal que puedes usar con todo lo que
+        aprendiste en capitulos anteriores.</p>
+      <div class="code-block js"><span class="code-lang">JS</span>
+        <pre><span class="c-key">async function</span> listarUsuarios() {
+  <span class="c-key">const</span> res     = <span class="c-key">await</span> fetch(<span class="c-str">"https://jsonplaceholder.typicode.com/users"</span>)
+  <span class="c-key">const</span> usuarios = <span class="c-key">await</span> res.json()
+  <span class="c-comment">// usuarios es un ARREGLO de objetos — todo lo del cap05 aplica aqui</span>
+
+  console.log(usuarios.length)         <span class="c-comment">// cuantos hay</span>
+  console.log(usuarios[0].name)        <span class="c-comment">// nombre del primero</span>
+
+  <span class="c-comment">// Mostrar en pantalla con forEach + DOM</span>
+  <span class="c-key">const</span> contenedor = document.getElementById(<span class="c-str">"lista"</span>)
+
+  usuarios.forEach(user =&gt; {
+    <span class="c-key">const</span> div = document.createElement(<span class="c-str">"div"</span>)
+    div.innerHTML = <span class="c-str">`&lt;strong&gt;${user.name}&lt;/strong&gt; - ${user.email}`</span>
+    contenedor.appendChild(div)
+  })
+}
+
+listarUsuarios()</pre>
+      </div>
+    </article>
+
+    <article class="leccion" id="api-metodos">
+      <div class="leccion-header"><span class="leccion-icono">&#128228;</span>
+        <div>
+          <h3 class="leccion-titulo">GET y POST - los metodos HTTP</h3>
+          <p class="leccion-tagline">Tipos de peticion segun lo que quieres hacer</p>
+        </div>
+      </div>
+      <div class="analogia">&#128393; Como los tipos de mensaje que puedes enviar - <strong>GET es preguntar algo ("dame
+          la lista de usuarios"), POST es enviar algo nuevo ("aqui tienes un usuario nuevo para guardar")</strong>. Cada
+        operacion tiene su metodo apropiado.</div>
+      <div class="code-block js"><span class="code-lang">JS</span>
+        <pre><span class="c-comment">// GET — leer datos (no modifica nada)</span>
+<span class="c-comment">// Es el metodo por defecto de fetch</span>
+<span class="c-key">const</span> res = <span class="c-key">await</span> fetch(<span class="c-str">"https://api.ejemplo.com/usuarios"</span>)
+
+<span class="c-comment">// POST — enviar datos nuevos al servidor</span>
+<span class="c-key">const</span> nuevoUsuario = { nombre: <span class="c-str">"Ana"</span>, correo: <span class="c-str">"ana@mail.com"</span> }
+
+<span class="c-key">const</span> res = <span class="c-key">await</span> fetch(<span class="c-str">"https://api.ejemplo.com/usuarios"</span>, {
+  method:  <span class="c-str">"POST"</span>,
+  headers: { <span class="c-str">"Content-Type"</span>: <span class="c-str">"application/json"</span> },
+  body:    JSON.stringify(nuevoUsuario)
+})
+<span class="c-key">const</span> resultado = <span class="c-key">await</span> res.json()
+
+<span class="c-comment">// PUT — actualizar un recurso existente completo</span>
+<span class="c-key">const</span> res = <span class="c-key">await</span> fetch(<span class="c-str">"https://api.ejemplo.com/usuarios/1"</span>, {
+  method:  <span class="c-str">"PUT"</span>,
+  headers: { <span class="c-str">"Content-Type"</span>: <span class="c-str">"application/json"</span> },
+  body:    JSON.stringify({ nombre: <span class="c-str">"Ana García"</span>, correo: <span class="c-str">"ana@mail.com"</span> })
+})
+
+<span class="c-comment">// DELETE — eliminar un recurso</span>
+<span class="c-key">const</span> res = <span class="c-key">await</span> fetch(<span class="c-str">"https://api.ejemplo.com/usuarios/1"</span>, {
+  method: <span class="c-str">"DELETE"</span>
+})</pre>
+      </div>
+    </article>
+
+    <article class="leccion" id="api-errores">
+      <div class="leccion-header"><span class="leccion-icono">&#128683;</span>
+        <div>
+          <h3 class="leccion-titulo">Manejo de errores HTTP</h3>
+          <p class="leccion-tagline">Que hacer cuando el servidor no responde o responde mal</p>
+        </div>
+      </div>
+      <p class="leccion-desc">Algo importante sobre fetch: si el servidor responde con un error (404, 500, etc.), fetch
+        NO lanza una excepcion automaticamente. Tienes que revisar manualmente si la respuesta fue exitosa con
+        <code>respuesta.ok</code>.</p>
+      <div class="code-block js"><span class="code-lang">JS</span>
+        <pre><span class="c-key">async function</span> obtenerUsuario(id) {
+  <span class="c-key">try</span> {
+    <span class="c-key">const</span> res = <span class="c-key">await</span> fetch(<span class="c-str">"https://api.ejemplo.com/usuarios/"</span> + id)
+
+    <span class="c-comment">// respuesta.ok es true cuando el status es 200-299</span>
+    <span class="c-comment">// Si es 404, 500, etc., ok es false pero fetch NO lanza error</span>
+    <span class="c-key">if</span> (!res.ok) {
+      <span class="c-key">throw new</span> Error(<span class="c-str">"Error del servidor: "</span> + res.status)
+    }
+
+    <span class="c-key">const</span> usuario = <span class="c-key">await</span> res.json()
+    <span class="c-key">return</span> usuario
+
+  } <span class="c-key">catch</span> (error) {
+    <span class="c-key">if</span> (error.name === <span class="c-str">"TypeError"</span>) {
+      <span class="c-comment">// Sin conexion a internet</span>
+      console.log(<span class="c-str">"Sin conexion a internet"</span>)
+    } <span class="c-key">else</span> {
+      <span class="c-comment">// Error del servidor</span>
+      console.log(error.message)
+    }
+  }
+}
+
+<span class="c-comment">// Codigos de status mas comunes:</span>
+<span class="c-comment">// 200 → OK, exito</span>
+<span class="c-comment">// 201 → Created, recurso creado exitosamente</span>
+<span class="c-comment">// 400 → Bad Request, datos enviados incorrectos</span>
+<span class="c-comment">// 401 → Unauthorized, no estas autenticado</span>
+<span class="c-comment">// 403 → Forbidden, no tienes permiso</span>
+<span class="c-comment">// 404 → Not Found, el recurso no existe</span>
+<span class="c-comment">// 500 → Internal Server Error, error del servidor</span></pre>
+      </div>
+    </article>
+
+    <article class="leccion" id="api-cors">
+      <div class="leccion-header"><span class="leccion-icono">&#128274;</span>
+        <div>
+          <h3 class="leccion-titulo">CORS - por que algunas APIs no funcionan</h3>
+          <p class="leccion-tagline">La politica de seguridad que bloquea peticiones entre dominios</p>
+        </div>
+      </div>
+      <div class="analogia">&#127970; Como las reglas de un edificio de oficinas - <strong>puedes entrar a tu oficina
+          libremente, pero para entrar a la oficina de otra empresa del mismo edificio necesitas que ellos te den
+          permiso explicito</strong>. CORS es ese sistema de permisos entre dominios.</div>
+      <p class="leccion-desc">CORS (Cross-Origin Resource Sharing) es una politica de seguridad del navegador. Por
+        defecto, una pagina web no puede hacer peticiones a un dominio diferente al suyo. La API tiene que indicar
+        explicitamente que permite peticiones desde otros dominios.</p>
+      <div class="code-block js"><span class="code-lang">JS</span>
+        <pre><span class="c-comment">// Error tipico de CORS en la consola:</span>
+<span class="c-comment">// "Access to fetch at 'https://api-sin-cors.com' from origin</span>
+<span class="c-comment">// 'https://tudominio.com' has been blocked by CORS policy"</span>
+
+<span class="c-comment">// Que puedes hacer cuando hay error de CORS:</span>
+
+<span class="c-comment">// 1. Usar una API que SI tiene CORS habilitado</span>
+<span class="c-comment">// (jsonplaceholder, openweathermap, etc. lo tienen activado)</span>
+
+<span class="c-comment">// 2. Crear un proxy en tu backend que haga la peticion por ti</span>
+<span class="c-comment">// Tu app -> Tu servidor (mismo dominio) -> API externa</span>
+
+<span class="c-comment">// 3. Si controlas la API, agregar los headers de CORS</span>
+<span class="c-comment">// Access-Control-Allow-Origin: * (en el servidor)</span>
+
+<span class="c-comment">// Para practicar sin problemas de CORS, usa estas APIs gratuitas:</span>
+<span class="c-comment">// https://jsonplaceholder.typicode.com  — datos de prueba</span>
+<span class="c-comment">// https://api.publicapis.org            — lista de APIs publicas</span>
+<span class="c-comment">// https://open-meteo.com               — clima gratuito</span></pre>
+      </div>
+    </article>
+
+    <article class="leccion conexion-box" id="api-conexion">
+      <h3 style="font-family:Fraunces,serif;font-size:20px;margin-bottom:8px;color:#f7f4ef">App completa que consume una
+        API real</h3>
+      <p style="font-size:14px;color:rgba(247,244,239,0.65);margin-bottom:16px">fetch + async/await + DOM + manejo de
+        errores — el patron de cualquier app que consume datos:</p>
+      <div class="code-block dark"><span class="code-lang">JS</span>
+        <pre><span class="c-key">const</span> lista = document.getElementById(<span class="c-str">"lista"</span>)
+<span class="c-key">const</span> buscar = document.getElementById(<span class="c-str">"buscar"</span>)
+
+<span class="c-key">async function</span> cargarPosts() {
+  lista.innerHTML = <span class="c-str">"Cargando..."</span>
+
+  <span class="c-key">try</span> {
+    <span class="c-key">const</span> res   = <span class="c-key">await</span> fetch(<span class="c-str">"https://jsonplaceholder.typicode.com/posts"</span>)
+    <span class="c-key">const</span> posts = <span class="c-key">await</span> res.json()
+    mostrar(posts)
+  } <span class="c-key">catch</span> (e) {
+    lista.textContent = <span class="c-str">"Error al cargar datos"</span>
+  }
+}
+
+<span class="c-key">function</span> mostrar(posts) {
+  lista.innerHTML = <span class="c-str">""</span>
+  posts.slice(0, 10).forEach(post =&gt; {
+    <span class="c-key">const</span> div = document.createElement(<span class="c-str">"div"</span>)
+    div.innerHTML = <span class="c-str">`&lt;h4&gt;${post.title}&lt;/h4&gt;&lt;p&gt;${post.body}&lt;/p&gt;`</span>
+    lista.appendChild(div)
+  })
+}
+
+buscar.addEventListener(<span class="c-str">"input"</span>, (e) =&gt; {
+  <span class="c-comment">// filtrar sin volver a pedir a la API</span>
+})
+
+cargarPosts()</pre>
+      </div>
+    </article>
+    <div class="cap-navegacion"><a href="cap10-almacenamiento.html" class="btn-nav-cap btn-nav-prev">&larr;
+        Almacenamiento</a><a href="cap12-firebase.html" class="btn-nav-cap">Firebase &rarr;</a></div>
+  </main>
+  <script src="../js/script.js"></script>
+</body>
+
+</html>

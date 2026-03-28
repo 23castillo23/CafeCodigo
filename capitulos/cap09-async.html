@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1a1814"><meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Cafe /> Cap 09 Codigo Asincrono</title>
+  <link rel="manifest" href="../manifest.webmanifest"><link rel="icon" href="../icons/icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="pagina-capitulo">
+  <header class="site-header"><div class="header-inner"><div class="logo-group">
+    <a href="../capitulos.html" class="logo-back">&larr; Capitulos</a>
+    <span class="logo-icon">&#9749;</span>
+    <div><h1 class="logo-title">Cafe &lt;/&gt;</h1><p class="logo-sub">Capitulo 09 &middot; Codigo Asincrono</p></div>
+  </div><span class="badge badge-js">JS</span></div></header>
+  <nav class="sidebar">
+    <p class="nav-label">En este capitulo</p>
+    <ul class="nav-list">
+      <li class="nav-item"><a href="#leccion-sincronico">Sincrono vs Asincrono</a></li>
+      <li class="nav-item"><a href="#leccion-callback-async">Callbacks asincronos</a></li>
+      <li class="nav-item"><a href="#leccion-promise">Promises</a></li>
+      <li class="nav-item"><a href="#leccion-async-await">async / await</a></li>
+      <li class="nav-item"><a href="#leccion-errores-async">Manejo de errores</a></li>
+      <li class="nav-item"><a href="#leccion-conexion">Conexion</a></li>
+    </ul>
+    <div class="nav-separador"></div>
+    <p class="nav-label">Navegacion</p>
+    <ul class="nav-list">
+      <li class="nav-item"><a href="cap00-conceptos.html">← 00 · Antes de empezar</a></li>
+      <li class="nav-item"><a href="cap01-html.html">← 01 · HTML</a></li>
+      <li class="nav-item"><a href="cap02-javascript.html">← 02 · JavaScript</a></li>
+      <li class="nav-item"><a href="cap03-css.html">← 03 · CSS</a></li>
+      <li class="nav-item"><a href="cap04-control.html">← 04 · Estructuras</a></li>      
+      <li class="nav-item"><a href="cap05-datos.html">← 05 · Arreglos</a></li> 
+      <li class="nav-item"><a href="cap06-funciones.html">← 06 · Funciones</a></li>     
+      <li class="nav-item"><a href="cap07-dom.html">← 07 · DOM</a></li>
+      <li class="nav-item"><a href="cap08-formularios.html">&larr; 08 · Formularios</a></li>      
+      <li class="nav-item"><a href="cap10-almacenamiento.html">10 · Almacenamiento &rarr;</a></li>
+    </ul>
+  </nav>
+  <main class="main-content">
+    <div class="cap-intro" data-lang="js">
+      <span class="cap-numero">09</span>
+      <div>
+        <span class="badge badge-js">JavaScript</span>
+        <h2 class="cap-titulo">Codigo Asincrono</h2>
+        <p class="cap-desc">Promises y async/await - como JavaScript maneja operaciones lentas sin bloquear la pagina.</p>
+      </div>
+    </div>
+
+    <article class="leccion" id="leccion-sincronico">
+      <div class="leccion-header"><span class="leccion-icono">&#9203;</span><div>
+        <h3 class="leccion-titulo">Sincrono vs Asincrono</h3>
+        <p class="leccion-tagline">La diferencia mas importante que existe en JavaScript</p>
+      </div></div>
+      <div class="analogia">&#127384; Como pedir comida en un restaurante &mdash; <strong>en modo sincrono atiendes a un cliente, lo sirves completo, y solo entonces atiendes al siguiente. En modo asincrono tomas el pedido de todos, mandas todo a la cocina, y sirves a cada uno cuando su comida esta lista</strong>. JavaScript es asincrono por naturaleza.</div>
+      <p class="leccion-desc">El codigo sincrono se ejecuta linea por linea, esperando que cada linea termine antes de pasar a la siguiente. El codigo asincrono puede iniciar una tarea, pasar a la siguiente sin esperar, y retomar cuando la primera termine. Esto es fundamental para trabajar con operaciones lentas como peticiones a internet.</p>
+      <div class="code-block js"><span class="code-lang">JS</span><pre><span class="c-comment">// SINCRONO — espera linea por linea</span>
+console.log(<span class="c-str">"1"</span>)
+console.log(<span class="c-str">"2"</span>)
+console.log(<span class="c-str">"3"</span>)
+<span class="c-comment">// resultado: 1, 2, 3 (en ese orden, siempre)</span>
+
+<span class="c-comment">// ASINCRONO — no espera</span>
+console.log(<span class="c-str">"1"</span>)
+setTimeout(() =&gt; console.log(<span class="c-str">"2"</span>), 1000)   <span class="c-comment">// espera 1 segundo</span>
+console.log(<span class="c-str">"3"</span>)
+<span class="c-comment">// resultado: 1, 3, 2  (3 no espera a 2)</span>
+
+<span class="c-comment">// El problema asincrono clasico</span>
+<span class="c-key">let</span> datos = <span class="c-val">null</span>
+
+<span class="c-comment">// imagina que aqui pides datos a internet (tarda tiempo)</span>
+pedirDatosAlServidor()   <span class="c-comment">// asincrono</span>
+
+console.log(datos)   <span class="c-comment">// null — los datos no llegaron todavia!</span></pre></div>
+      <div class="tip-box"><strong>Por que JavaScript es asincrono:</strong><br><br>JavaScript corre en el navegador en un solo hilo (thread) &mdash; solo puede hacer una cosa a la vez. Si tuviera que esperar cada peticion a internet antes de continuar, el navegador se congelaria completamente mientras espera la respuesta del servidor. El modelo asincrono permite que la pagina siga respondiendo al usuario mientras espera en segundo plano.</div>
+    </article>
+
+    <article class="leccion" id="leccion-callback-async">
+      <div class="leccion-header"><span class="leccion-icono">&#128260;</span><div>
+        <h3 class="leccion-titulo">Callbacks asincronos</h3>
+        <p class="leccion-tagline">La forma original de manejar operaciones que toman tiempo</p>
+      </div></div>
+      <p class="leccion-desc">Antes de que existieran las Promises, la unica forma de saber cuando termino una operacion asincrona era pasarle un callback que se ejecutara al terminar. Hoy en dia casi nadie usa callbacks para esto porque las Promises son mucho mas limpias, pero es importante entenderlos porque apareceran en codigo antiguo.</p>
+      <div class="code-block js"><span class="code-lang">JS</span><pre><span class="c-comment">// Patron de callback asincrono</span>
+<span class="c-key">function</span> cargarDatos(url, callback) {
+  <span class="c-comment">// simula una peticion que tarda 2 segundos</span>
+  setTimeout(() =&gt; {
+    <span class="c-key">const</span> datos = { nombre: <span class="c-str">"Ana"</span>, edad: 25 }
+    callback(datos)   <span class="c-comment">// llama al callback cuando termina</span>
+  }, 2000)
+}
+
+cargarDatos(<span class="c-str">"https://api.ejemplo.com"</span>, (datos) =&gt; {
+  console.log(<span class="c-str">"Datos recibidos:"</span>, datos)
+})
+
+<span class="c-comment">// El problema: "callback hell" — callbacks dentro de callbacks</span>
+cargarUsuario(id, (usuario) =&gt; {
+  cargarPosts(usuario.id, (posts) =&gt; {
+    cargarComentarios(posts[0].id, (comentarios) =&gt; {
+      <span class="c-comment">// ya muy dificil de leer...</span>
+    })
+  })
+})
+<span class="c-comment">// Por eso se inventaron las Promises</span></pre></div>
+    </article>
+
+    <article class="leccion" id="leccion-promise">
+      <div class="leccion-header"><span class="leccion-icono">&#129309;</span><div>
+        <h3 class="leccion-titulo">Promises</h3>
+        <p class="leccion-tagline">Un objeto que representa una operacion que terminara en el futuro</p>
+      </div></div>
+      <div class="analogia">&#127514; Como el numero de turno en un banco &mdash; <strong>te dan un papel que dice "vas a ser atendido"</strong>. No sabes exactamente cuando, pero el papel promete que cuando llegue tu turno te avisaran. Mientras tanto puedes hacer otras cosas.</div>
+      <p class="leccion-desc">Una Promise es un objeto que representa el resultado eventual de una operacion asincrona. Puede estar en tres estados: <strong>pending</strong> (esperando), <strong>fulfilled</strong> (exitosa) o <strong>rejected</strong> (fallida). Cuando termina, llamas a <code>.then()</code> para el exito o <code>.catch()</code> para el error.</p>
+      <div class="code-block js"><span class="code-lang">JS</span><pre><span class="c-comment">// Crear una Promise</span>
+<span class="c-key">const</span> miPromise = <span class="c-key">new</span> Promise((resolve, reject) =&gt; {
+  <span class="c-comment">// operacion asincrona simulada</span>
+  setTimeout(() =&gt; {
+    <span class="c-key">const</span> exito = <span class="c-val">true</span>
+
+    <span class="c-key">if</span> (exito) {
+      resolve(<span class="c-str">"Operacion exitosa"</span>)   <span class="c-comment">// cumplida</span>
+    } <span class="c-key">else</span> {
+      reject(<span class="c-str">"Algo salio mal"</span>)      <span class="c-comment">// rechazada</span>
+    }
+  }, 1000)
+})
+
+<span class="c-comment">// Usar la Promise</span>
+miPromise
+  .then(resultado =&gt; {
+    console.log(<span class="c-str">"Exito:"</span>, resultado)
+  })
+  .catch(error =&gt; {
+    console.log(<span class="c-str">"Error:"</span>, error)
+  })
+  .finally(() =&gt; {
+    console.log(<span class="c-str">"Esto siempre se ejecuta, haya exito o error"</span>)
+  })
+
+<span class="c-comment">// Encadenar Promises — evita el callback hell</span>
+cargarUsuario(id)
+  .then(usuario =&gt; cargarPosts(usuario.id))
+  .then(posts   =&gt; cargarComentarios(posts[0].id))
+  .then(comentarios =&gt; console.log(comentarios))
+  .catch(error  =&gt; console.log(<span class="c-str">"Error en algun paso:"</span>, error))</pre></div>
+    </article>
+
+    <article class="leccion" id="leccion-async-await">
+      <div class="leccion-header"><span class="leccion-icono">&#9203;</span><div>
+        <h3 class="leccion-titulo">async / await</h3>
+        <p class="leccion-tagline">La forma moderna y legible de trabajar con Promises</p>
+      </div></div>
+      <div class="analogia">&#9775; Como leer un libro en lugar de descifrar un mapa del tesoro &mdash; <strong>hace exactamente lo mismo que las Promises pero escrito de forma que parece codigo sincrono normal</strong>. Mucho mas facil de leer y entender.</div>
+      <p class="leccion-desc"><code>async/await</code> es azucar sintactica sobre las Promises &mdash; es la misma tecnologia por debajo, solo escrita diferente. Una funcion marcada con <code>async</code> siempre devuelve una Promise. Dentro de una funcion <code>async</code>, puedes usar <code>await</code> para esperar a que una Promise se resuelva antes de continuar.</p>
+      <div class="code-block js"><span class="code-lang">JS</span><pre><span class="c-comment">// Con Promises (correcto pero verboso)</span>
+<span class="c-key">function</span> cargarDatos() {
+  <span class="c-key">return</span> fetch(<span class="c-str">"https://api.ejemplo.com/datos"</span>)
+    .then(respuesta =&gt; respuesta.json())
+    .then(datos =&gt; console.log(datos))
+    .catch(error =&gt; console.log(error))
+}
+
+<span class="c-comment">// Con async/await (mas limpio, parece codigo normal)</span>
+<span class="c-key">async function</span> cargarDatos() {
+  <span class="c-key">const</span> respuesta = <span class="c-key">await</span> fetch(<span class="c-str">"https://api.ejemplo.com/datos"</span>)
+  <span class="c-key">const</span> datos     = <span class="c-key">await</span> respuesta.json()
+  console.log(datos)
+}
+
+<span class="c-comment">// await le dice a JavaScript: "espera aqui hasta que esta Promise se resuelva"</span>
+<span class="c-comment">// y solo entonces pasa a la siguiente linea</span>
+
+<span class="c-comment">// Arrow function asincrona</span>
+<span class="c-key">const</span> cargarDatos = <span class="c-key">async</span> () =&gt; {
+  <span class="c-key">const</span> respuesta = <span class="c-key">await</span> fetch(<span class="c-str">"https://api.ejemplo.com/datos"</span>)
+  <span class="c-key">return</span> <span class="c-key">await</span> respuesta.json()
+}</pre></div>
+      <div class="tip-box"><strong>Regla importante:</strong><br><br><code>await</code> solo puede usarse dentro de una funcion marcada con <code>async</code>. Si intentas usarlo fuera, JavaScript da un error. Esta es la razon por la que veras <code>async</code> antes de la funcion cuando hay <code>await</code> adentro.</div>
+    </article>
+
+    <article class="leccion" id="leccion-errores-async">
+      <div class="leccion-header"><span class="leccion-icono">&#128683;</span><div>
+        <h3 class="leccion-titulo">Manejo de errores asincronos</h3>
+        <p class="leccion-tagline">Que hacer cuando algo sale mal al pedir datos</p>
+      </div></div>
+      <p class="leccion-desc">Las operaciones asincronas pueden fallar &mdash; el servidor puede no responder, la conexion puede cortarse, los datos pueden venir en formato incorrecto. Siempre hay que anticipar estos casos y manejarlos de forma elegante.</p>
+      <div class="code-block js"><span class="code-lang">JS</span><pre><span class="c-comment">// try/catch con async/await</span>
+<span class="c-key">async function</span> cargarDatos() {
+  <span class="c-key">try</span> {
+    <span class="c-comment">// intenta esto</span>
+    <span class="c-key">const</span> respuesta = <span class="c-key">await</span> fetch(<span class="c-str">"https://api.ejemplo.com"</span>)
+
+    <span class="c-key">if</span> (!respuesta.ok) {
+      <span class="c-key">throw new</span> Error(<span class="c-str">"Error del servidor: "</span> + respuesta.status)
+    }
+
+    <span class="c-key">const</span> datos = <span class="c-key">await</span> respuesta.json()
+    console.log(<span class="c-str">"Datos:"</span>, datos)
+
+  } <span class="c-key">catch</span> (error) {
+    <span class="c-comment">// si algo falla, viene aqui</span>
+    console.log(<span class="c-str">"Algo salio mal:"</span>, error.message)
+    <span class="c-comment">// mostrar mensaje al usuario, reintentar, etc.</span>
+
+  } <span class="c-key">finally</span> {
+    <span class="c-comment">// esto siempre se ejecuta — util para ocultar un spinner</span>
+    console.log(<span class="c-str">"Operacion terminada"</span>)
+  }
+}</pre></div>
+    </article>
+
+    <article class="leccion conexion-box" id="leccion-conexion">
+      <h3 style="font-family:Fraunces,serif;font-size:20px;margin-bottom:8px;color:#f7f4ef">Asincrono completo en un ejemplo real</h3>
+      <p style="font-size:14px;color:rgba(247,244,239,0.65);margin-bottom:16px">async/await + try/catch + DOM — el patron que usaras en todo proyecto:</p>
+      <div class="code-block dark"><span class="code-lang">JS</span><pre><span class="c-key">async function</span> mostrarUsuario(id) {
+  <span class="c-key">const</span> contenedor = document.getElementById(<span class="c-str">"usuario"</span>)
+  contenedor.textContent = <span class="c-str">"Cargando..."</span>
+
+  <span class="c-key">try</span> {
+    <span class="c-key">const</span> res   = <span class="c-key">await</span> fetch(<span class="c-str">"https://api.ejemplo.com/usuarios/"</span> + id)
+    <span class="c-key">const</span> user  = <span class="c-key">await</span> res.json()
+    contenedor.innerHTML = <span class="c-str">"Hola, "</span> + user.nombre
+  } <span class="c-key">catch</span> (e) {
+    contenedor.textContent = <span class="c-str">"No se pudo cargar el usuario"</span>
+  }
+}
+
+mostrarUsuario(42)</pre></div>
+    </article>
+    <div class="cap-navegacion">
+      <a href="cap08-formularios.html" class="btn-nav-cap btn-nav-prev">&larr; Anterior: Formularios</a>
+      <a href="cap10-almacenamiento.html" class="btn-nav-cap">Siguiente: Almacenamiento &rarr;</a>
+    </div>
+  </main>
+  <script src="../js/script.js"></script>
+</body>
+</html>

@@ -23,7 +23,7 @@ const TEMAS = [
         desc:      'Qué es programar, qué son HTML, CSS y JavaScript, cómo funciona el navegador y la lógica básica.',
         lang:      'gen',
         archivo:   'capitulos/cap00-conceptos.html',
-        lecciones: ['💡 ¿Qué es programar?', '🗣️ Lenguajes', '🏷️ HTML', '🎨 CSS', '⚙️ JavaScript', '🌐 Navegador', '✏️ Editor', '🐛 Errores', '🧠 Lógica']
+        lecciones: ['💡 ¿Qué es programar?', '🗣️ Lenguajes', '🏷️ HTML', '🎨 CSS', '⚙️ JS', '🌐 Navegador', '✏️ Editor', '🐛 Errores', '🧠 Lógica', '🏗️ Front/Back', '🤝 Cliente/Servidor', '🔌 API', '⌨️ Terminal', '📸 Git', '🗄️ BD', '🧩 Frameworks', '📖 Glosario']
       }
     ]
   },
@@ -86,7 +86,7 @@ const TEMAS = [
     numero: '02',
     titulo: 'Nivel Intermedio',
     desc:   'Funciones avanzadas, manipulación del DOM en profundidad, formularios, validaciones y comunicación con servidores.',
-    bloqueado: true,
+    bloqueado: false,
     capitulos: [
       {
         id:        'cap06-funciones',
@@ -96,7 +96,7 @@ const TEMAS = [
         lang:      'js',
         archivo:   'capitulos/cap06-funciones.html',
         lecciones: ['➡️ Arrow fn', '🔄 Callback', '📦 Scope', '🔒 Closure'],
-        bloqueado: true
+        bloqueado: false
       },
       {
         id:        'cap07-dom',
@@ -106,7 +106,7 @@ const TEMAS = [
         lang:      'js',
         archivo:   'capitulos/cap07-dom.html',
         lecciones: ['➕ Crear nodos', '✂️ Eliminar', '🔍 Buscar', '📋 Clonar'],
-        bloqueado: true
+        bloqueado: false
       },
       {
         id:        'cap08-formularios',
@@ -116,7 +116,7 @@ const TEMAS = [
         lang:      'js',
         archivo:   'capitulos/cap08-formularios.html',
         lecciones: ['📝 Inputs', '✅ Validar', '🚫 Errores', '📤 Enviar'],
-        bloqueado: true
+        bloqueado: false
       },
       {
         id:        'cap09-async',
@@ -126,7 +126,7 @@ const TEMAS = [
         lang:      'js',
         archivo:   'capitulos/cap09-async.html',
         lecciones: ['⏳ Síncrono', '🔀 Asíncrono', '🤝 Promise', '⏱️ async/await'],
-        bloqueado: true
+        bloqueado: false
       },
       {
         id:        'cap10-almacenamiento',
@@ -136,7 +136,7 @@ const TEMAS = [
         lang:      'js',
         archivo:   'capitulos/cap10-almacenamiento.html',
         lecciones: ['💾 localStorage', '🗑️ Eliminar', '📋 JSON', '🔄 Sincronizar'],
-        bloqueado: true
+        bloqueado: false
       }
     ]
   },
@@ -145,7 +145,7 @@ const TEMAS = [
     numero: '03',
     titulo: 'Proyectos Reales',
     desc:   'Construir apps completas, conectar con APIs externas, bases de datos y despliegue.',
-    bloqueado: true,
+    bloqueado: false,
     capitulos: [
       {
         id:        'cap11-api',
@@ -155,7 +155,7 @@ const TEMAS = [
         lang:      'js',
         archivo:   'capitulos/cap11-api.html',
         lecciones: ['🌐 fetch', '📡 JSON', '⏳ async/await', '🛡️ Errores'],
-        bloqueado: true
+        bloqueado: false
       },
       {
         id:        'cap12-firebase',
@@ -165,7 +165,7 @@ const TEMAS = [
         lang:      'js',
         archivo:   'capitulos/cap12-firebase.html',
         lecciones: ['🔥 Firebase', '💾 Firestore', '🔐 Auth', '📡 Tiempo real'],
-        bloqueado: true
+        bloqueado: false
       }
     ]
   }
