@@ -10,6 +10,24 @@
 
 const TEMAS = [
   {
+    id:     'inicio',
+    numero: '00',
+    titulo: 'Antes de Empezar',
+    desc:   'Conceptos, vocabulario y lógica — todo lo que necesitas entender antes de escribir tu primera línea de código.',
+    bloqueado: false,
+    capitulos: [
+      {
+        id:        'cap00-conceptos',
+        numero:    '00',
+        titulo:    'Antes de empezar',
+        desc:      'Qué es programar, qué son HTML, CSS y JavaScript, cómo funciona el navegador y la lógica básica.',
+        lang:      'gen',
+        archivo:   'capitulos/cap00-conceptos.html',
+        lecciones: ['💡 ¿Qué es programar?', '🗣️ Lenguajes', '🏷️ HTML', '🎨 CSS', '⚙️ JavaScript', '🌐 Navegador', '✏️ Editor', '🐛 Errores', '🧠 Lógica']
+      }
+    ]
+  },
+  {
     id:     'fundamentos',
     numero: '01',
     titulo: 'Fundamentos Web',
@@ -42,6 +60,24 @@ const TEMAS = [
         lang:      'css',
         archivo:   'capitulos/cap03-css.html',
         lecciones: ['🎨 CSS', '🎯 Selectores', '🖌️ Propiedades', '📦 Box Model', '↔️ Flexbox', '🔧 Variables', '📱 Responsive', '🌊 Cascada']
+      },
+      {
+        id:        'cap04-control',
+        numero:    '04',
+        titulo:    'Estructuras de control',
+        desc:      'if/else, bucles y operadores — cómo el código toma decisiones y repite tareas.',
+        lang:      'js',
+        archivo:   'capitulos/cap04-control.html',
+        lecciones: ['✅ Booleanos', '⚖️ Comparación', '🔗 Lógicos', '🔀 if/else', '🪜 else if', '🎛️ switch', '🔁 for', '⏳ while', '📋 forEach']
+      },
+      {
+        id:        'cap05-datos',
+        numero:    '05',
+        titulo:    'Arreglos y Objetos',
+        desc:      'Cómo guardar y organizar colecciones de datos — la base de cualquier app real.',
+        lang:      'js',
+        archivo:   'capitulos/cap05-datos.html',
+        lecciones: ['📚 Arreglos', '🔑 Acceso', '🛠️ Métodos', '🗃️ Objetos', '📌 Propiedades', '🪆 Anidados']
       }
     ]
   },
@@ -49,27 +85,57 @@ const TEMAS = [
     id:     'intermedio',
     numero: '02',
     titulo: 'Nivel Intermedio',
-    desc:   'Lógica de programación, manipulación del DOM, formularios y conexión con APIs.',
+    desc:   'Funciones avanzadas, manipulación del DOM en profundidad, formularios, validaciones y comunicación con servidores.',
     bloqueado: true,
     capitulos: [
       {
-        id:        'cap04-control',
-        numero:    '04',
-        titulo:    'Estructuras de control',
-        desc:      'if/else, bucles y cómo tomar decisiones en código.',
+        id:        'cap06-funciones',
+        numero:    '06',
+        titulo:    'Funciones avanzadas',
+        desc:      'Arrow functions, callbacks, scope, closures — cómo el código se organiza en piezas reutilizables.',
         lang:      'js',
-        archivo:   'capitulos/cap04-control.html',
-        lecciones: ['🔀 if / else', '🔁 for', '🔄 while'],
+        archivo:   'capitulos/cap06-funciones.html',
+        lecciones: ['➡️ Arrow fn', '🔄 Callback', '📦 Scope', '🔒 Closure'],
         bloqueado: true
       },
       {
-        id:        'cap05-datos',
-        numero:    '05',
-        titulo:    'Arreglos y objetos',
-        desc:      'Cómo guardar y organizar muchos datos a la vez.',
+        id:        'cap07-dom',
+        numero:    '07',
+        titulo:    'DOM en profundidad',
+        desc:      'Crear, eliminar y modificar elementos en la página desde JavaScript.',
         lang:      'js',
-        archivo:   'capitulos/cap05-datos.html',
-        lecciones: ['📚 Arreglos', '🗃️ Objetos', '🔍 Métodos'],
+        archivo:   'capitulos/cap07-dom.html',
+        lecciones: ['➕ Crear nodos', '✂️ Eliminar', '🔍 Buscar', '📋 Clonar'],
+        bloqueado: true
+      },
+      {
+        id:        'cap08-formularios',
+        numero:    '08',
+        titulo:    'Formularios y validaciones',
+        desc:      'Cómo recolectar, validar y enviar datos que el usuario escribe.',
+        lang:      'js',
+        archivo:   'capitulos/cap08-formularios.html',
+        lecciones: ['📝 Inputs', '✅ Validar', '🚫 Errores', '📤 Enviar'],
+        bloqueado: true
+      },
+      {
+        id:        'cap09-async',
+        numero:    '09',
+        titulo:    'Código asíncrono',
+        desc:      'Promises, async/await — cómo JavaScript espera sin bloquear todo lo demás.',
+        lang:      'js',
+        archivo:   'capitulos/cap09-async.html',
+        lecciones: ['⏳ Síncrono', '🔀 Asíncrono', '🤝 Promise', '⏱️ async/await'],
+        bloqueado: true
+      },
+      {
+        id:        'cap10-almacenamiento',
+        numero:    '10',
+        titulo:    'Almacenamiento local',
+        desc:      'localStorage y sessionStorage — guardar datos en el navegador sin necesitar un servidor.',
+        lang:      'js',
+        archivo:   'capitulos/cap10-almacenamiento.html',
+        lecciones: ['💾 localStorage', '🗑️ Eliminar', '📋 JSON', '🔄 Sincronizar'],
         bloqueado: true
       }
     ]
@@ -78,27 +144,27 @@ const TEMAS = [
     id:     'proyectos',
     numero: '03',
     titulo: 'Proyectos Reales',
-    desc:   'Construir apps completas, conectar con APIs, bases de datos y más.',
+    desc:   'Construir apps completas, conectar con APIs externas, bases de datos y despliegue.',
     bloqueado: true,
     capitulos: [
       {
-        id:        'cap06-api',
-        numero:    '06',
+        id:        'cap11-api',
+        numero:    '11',
         titulo:    'Conexión con APIs',
-        desc:      'Cómo tu app habla con servidores externos.',
+        desc:      'Cómo tu app habla con servidores externos y consume datos reales.',
         lang:      'js',
-        archivo:   'capitulos/cap06-api.html',
-        lecciones: ['🌐 fetch', '📡 JSON', '⏳ async/await'],
+        archivo:   'capitulos/cap11-api.html',
+        lecciones: ['🌐 fetch', '📡 JSON', '⏳ async/await', '🛡️ Errores'],
         bloqueado: true
       },
       {
-        id:        'cap07-firebase',
-        numero:    '07',
-        titulo:    'Base de datos',
-        desc:      'Firebase y Firestore — como en tu FotoApuntes.',
+        id:        'cap12-firebase',
+        numero:    '12',
+        titulo:    'Base de datos en la nube',
+        desc:      'Firebase y Firestore — almacenar datos en la nube y sincronizarlos en tiempo real.',
         lang:      'js',
-        archivo:   'capitulos/cap07-firebase.html',
-        lecciones: ['🔥 Firebase', '💾 Firestore', '🔐 Auth'],
+        archivo:   'capitulos/cap12-firebase.html',
+        lecciones: ['🔥 Firebase', '💾 Firestore', '🔐 Auth', '📡 Tiempo real'],
         bloqueado: true
       }
     ]
@@ -139,16 +205,29 @@ function construirBiblioteca() {
     const grid = document.getElementById(`grid-${tema.id}`)
     tema.capitulos.forEach(cap => {
       const card = document.createElement('a')
-      card.className = `cap-card ${cap.lang} ${cap.bloqueado ? 'bloqueada' : ''}`
+
+      // El cap00 usa 'gen' como lang — asignamos clase css especial
+      const langClass = cap.lang === 'gen' ? 'gen' : cap.lang
+      card.className = `cap-card ${langClass} ${cap.bloqueado ? 'bloqueada' : ''}`
       card.href = cap.bloqueado ? '#' : cap.archivo
+
+      // Estilo borde hover para cap gen
+      if (cap.lang === 'gen' && !cap.bloqueado) {
+        card.style.setProperty('--hover-border', 'var(--gen)')
+      }
 
       const pills = cap.lecciones
         .map(l => `<span class="leccion-pill">${l}</span>`)
         .join('')
 
+      // Badge especial para cap gen
+      const badgeHtml = cap.lang === 'gen'
+        ? `<span class="badge" style="background:var(--gen-bg);color:var(--gen);border:1px solid var(--gen-border);">INTRO</span>`
+        : `<span class="badge badge-${cap.lang}">${cap.lang.toUpperCase()}</span>`
+
       card.innerHTML = `
         <div class="cap-card-num">${cap.numero}</div>
-        <span class="badge badge-${cap.lang}">${cap.lang.toUpperCase()}</span>
+        ${badgeHtml}
         <h4 class="cap-card-titulo">${cap.titulo}</h4>
         <p class="cap-card-desc">${cap.desc}</p>
         <div class="cap-card-lecciones">${pills}</div>

@@ -3,7 +3,7 @@
    Hace que la app funcione sin internet
    ============================================ */
 
-const CACHE = 'cafe-codigo-v1'
+const CACHE = 'cafe-codigo-v4'
 
 const ARCHIVOS = [
   './',
@@ -12,9 +12,12 @@ const ARCHIVOS = [
   './css/style.css',
   './js/script.js',
   './manifest.webmanifest',
+  './capitulos/cap00-conceptos.html',
   './capitulos/cap01-html.html',
   './capitulos/cap02-javascript.html',
-  './image/icons/icon-512.png'
+  './capitulos/cap03-css.html',
+  './capitulos/cap04-control.html',
+  './capitulos/cap05-datos.html'
 ]
 
 // Instalar — guarda todos los archivos en caché
