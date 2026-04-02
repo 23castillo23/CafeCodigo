@@ -166,6 +166,16 @@ const TEMAS = [
         archivo:   'capitulos/cap12-firebase.html',
         lecciones: ['🔥 Firebase', '💾 Firestore', '🔐 Auth', '📡 Tiempo real'],
         bloqueado: false
+      },
+      {
+        id:        'cap13-herramientas',
+        numero:    '13',
+        titulo:    'Herramientas del Desarrollador',
+        desc:      'VS Code, extensiones, Live Server, DevTools y flujo de trabajo diario — el kit completo del desarrollador.',
+        lang:      'gen',
+        archivo:   'capitulos/cap13-herramientas.html',
+        lecciones: ['✏️ VS Code', '🧩 Extensiones', '🔴 Live Server', '🔍 DevTools', '⌨️ Consola', '🏗️ Inspector', '🌐 Network', '⚡ Atajos', '🔄 Flujo diario'],
+        bloqueado: false
       }
     ]
   }
