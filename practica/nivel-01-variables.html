@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Café </> · Práctica · Nivel 01 — Variables</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f7f4ef;
+      color: #1a1814;
+      padding: 32px 20px 80px;
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    /* ENCABEZADO */
+    .nivel-header {
+      background: #1a1814;
+      color: #f7f4ef;
+      border-radius: 14px;
+      padding: 28px 32px;
+      margin-bottom: 32px;
+    }
+
+    .nivel-badge {
+      display: inline-block;
+      background: #b07010;
+      color: white;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+    }
+
+    .nivel-titulo {
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .nivel-desc {
+      font-size: 14px;
+      color: rgba(247,244,239,0.65);
+      line-height: 1.6;
+    }
+
+    .nivel-meta {
+      display: flex;
+      gap: 20px;
+      margin-top: 16px;
+      font-size: 13px;
+      color: rgba(247,244,239,0.5);
+    }
+
+    /* EJERCICIOS */
+    .ejercicio {
+      background: white;
+      border: 1px solid #e8e4de;
+      border-radius: 14px;
+      padding: 28px;
+      margin-bottom: 20px;
+    }
+
+    .ejercicio-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .ejercicio-num {
+      background: #f0ece6;
+      color: #8a8480;
+      font-size: 12px;
+      font-weight: 600;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .ejercicio-titulo {
+      font-size: 17px;
+      font-weight: 600;
+    }
+
+    .ejercicio-instruccion {
+      font-size: 14px;
+      color: #4a4640;
+      line-height: 1.7;
+      margin-bottom: 16px;
+      padding: 12px 16px;
+      background: #f7f4ef;
+      border-radius: 8px;
+      border-left: 3px solid #c44a2a;
+    }
+
+    /* BLOQUE DE CÓDIGO EDITABLE */
+    .codigo-container {
+      position: relative;
+      margin-bottom: 14px;
+    }
+
+    .codigo-label {
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #8a8480;
+      margin-bottom: 6px;
+      font-family: monospace;
+    }
+
+    .codigo {
+      background: #1a1814;
+      color: #f0ece6;
+      border-radius: 10px;
+      padding: 18px 20px;
+      font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+      font-size: 14px;
+      line-height: 1.8;
+      white-space: pre;
+      overflow-x: auto;
+    }
+
+    .c-comment { color: rgba(240,236,230,0.4); }
+    .c-key     { color: #FAC775; }
+    .c-str     { color: #9FE1CB; }
+    .c-num     { color: #79C0FF; }
+    .c-blank   {
+      display: inline-block;
+      background: rgba(196,74,42,0.25);
+      border: 1px dashed rgba(196,74,42,0.6);
+      border-radius: 4px;
+      min-width: 120px;
+      color: rgba(240,236,230,0.3);
+      font-style: italic;
+      padding: 0 8px;
+    }
+
+    /* ÁREA DE RESPUESTA */
+    .respuesta-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #4a4640;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .respuesta-label::before {
+      content: '✏️';
+      font-size: 14px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      background: #1a1814;
+      color: #f0ece6;
+      border: 2px solid #3a3630;
+      border-radius: 10px;
+      padding: 16px 18px;
+      font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+      font-size: 14px;
+      line-height: 1.8;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    textarea:focus {
+      border-color: #c44a2a;
+    }
+
+    textarea::placeholder {
+      color: rgba(240,236,230,0.25);
+    }
+
+    /* BOTONES */
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn-ejecutar {
+      background: #c44a2a;
+      color: white;
+      border: none;
+      padding: 10px 22px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+    }
+
+    .btn-ejecutar:hover  { background: #a33b21; }
+    .btn-ejecutar:active { transform: scale(0.97); }
+
+    .btn-pista {
+      background: transparent;
+      color: #8a8480;
+      border: 1px solid #e8e4de;
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .btn-pista:hover { border-color: #8a8480; color: #4a4640; }
+
+    .btn-reset {
+      background: transparent;
+      color: #8a8480;
+      border: none;
+      padding: 10px 12px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .btn-reset:hover { color: #c44a2a; }
+
+    /* RESULTADO */
+    .resultado {
+      margin-top: 14px;
+      border-radius: 10px;
+      padding: 14px 18px;
+      font-size: 14px;
+      line-height: 1.6;
+      display: none;
+      font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    }
+
+    .resultado.ok {
+      background: #edf7f3;
+      border: 1px solid #b8e0d0;
+      color: #1a7a5a;
+      display: block;
+    }
+
+    .resultado.error {
+      background: #fdf0ec;
+      border: 1px solid #f0c4b8;
+      color: #c44a2a;
+      display: block;
+    }
+
+    .resultado.info {
+      background: #eef2fa;
+      border: 1px solid #c0cce8;
+      color: #3a5a9a;
+      display: block;
+    }
+
+    /* PISTA */
+    .pista-box {
+      display: none;
+      margin-top: 12px;
+      padding: 14px 18px;
+      background: #fdf6e8;
+      border: 1px solid #f0d898;
+      border-radius: 10px;
+      font-size: 13px;
+      color: #b07010;
+      line-height: 1.7;
+    }
+
+    .pista-box.visible { display: block; }
+
+    /* NIVEL COMPLETADO */
+    .nivel-completado {
+      display: none;
+      background: #1a1814;
+      color: #f7f4ef;
+      border-radius: 14px;
+      padding: 32px;
+      text-align: center;
+      margin-top: 32px;
+    }
+
+    .nivel-completado.visible { display: block; }
+
+    .completado-emoji { font-size: 48px; margin-bottom: 12px; }
+
+    .completado-titulo {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .completado-desc {
+      font-size: 14px;
+      color: rgba(247,244,239,0.65);
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+
+    .btn-siguiente {
+      display: inline-block;
+      background: #c44a2a;
+      color: white;
+      padding: 14px 28px;
+      border-radius: 999px;
+      font-size: 15px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+
+    .btn-siguiente:hover { background: #a33b21; }
+
+    /* PROGRESO */
+    .progreso-bar {
+      background: #e8e4de;
+      border-radius: 999px;
+      height: 6px;
+      margin-bottom: 28px;
+      overflow: hidden;
+    }
+
+    .progreso-fill {
+      background: #c44a2a;
+      height: 100%;
+      border-radius: 999px;
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+
+    .progreso-texto {
+      font-size: 12px;
+      color: #8a8480;
+      margin-bottom: 8px;
+    }
+
+    .nav-nivel {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .nav-nivel a {
+      font-size: 13px;
+      color: #8a8480;
+      text-decoration: none;
+      padding: 6px 14px;
+      border: 1px solid #e8e4de;
+      border-radius: 999px;
+    }
+
+    .nav-nivel a:hover {
+      color: #1a1814;
+      border-color: #8a8480;
+    }
+
+
+  </style>
+</head>
+<body>
+
+  <div class="nav-nivel">
+    <a href="index.html">← Practicas</a>
+    <a href="nivel-02-condicionales.html">Nivel 02 →</a>
+  </div>
+
+
+  <!-- ENCABEZADO -->
+  <div class="nivel-header">
+    <div class="nivel-badge">JavaScript · Nivel 01</div>
+    <h1 class="nivel-titulo">Variables — Las cajas con nombre</h1>
+    <p class="nivel-desc">
+      Aprende a crear variables, guardar diferentes tipos de datos y usarlos.
+      Cada ejercicio es un pequeño reto — escribe el código, ejecútalo y ve el resultado.
+    </p>
+    <div class="nivel-meta">
+      <span>📝 8 ejercicios</span>
+      <span>⏱️ ~20 minutos</span>
+      <span>📈 Nivel: Principiante</span>
+    </div>
+  </div>
+
+  <!-- PROGRESO -->
+  <p class="progreso-texto" id="progresoTexto">0 de 8 ejercicios completados</p>
+  <div class="progreso-bar">
+    <div class="progreso-fill" id="progresoFill"></div>
+  </div>
+
+  <!-- ==============================
+       EJERCICIO 1
+       ============================== -->
+  <div class="ejercicio" id="ej1">
+    <div class="ejercicio-header">
+      <div class="ejercicio-num">1</div>
+      <h2 class="ejercicio-titulo">Tu primera variable</h2>
+    </div>
+
+    <div class="ejercicio-instruccion">
+      📌 Crea una variable llamada <strong>nombre</strong> que guarde tu nombre como texto.
+      Luego usa <code>console.log()</code> para mostrarlo.
+    </div>
+
+    <div class="codigo-container">
+      <p class="codigo-label">Así se ve en código:</p>
+      <div class="codigo"><span class="c-comment">// Así se crea una variable con texto:</span>
+<span class="c-key">const</span> ciudad = <span class="c-str">"Córdoba"</span>
+console.log(ciudad)   <span class="c-comment">// muestra: Córdoba</span></div>
+    </div>
+
+    <p class="respuesta-label">Ahora escribe tu código aquí:</p>
+    <textarea id="code1" placeholder="const nombre = ...
+console.log(nombre)"></textarea>
+
+    <div class="btn-row">
+      <button class="btn-ejecutar" onclick="ejecutar(1)">▶ Ejecutar</button>
+      <button class="btn-pista" onclick="togglePista(1)">💡 Pista</button>
+      <button class="btn-reset" onclick="resetEj(1)">↺ Limpiar</button>
+    </div>
+
+    <div class="pista-box" id="pista1">
+      💡 El texto siempre va entre comillas. Puedes usar comillas dobles "hola" o simples 'hola'.<br>
+      El nombre de la variable lo inventas tú — en este caso ya te digo que se llame <code>nombre</code>.
+    </div>
+
+    <div class="resultado" id="resultado1"></div>
+  </div>
+
+  <!-- ==============================
+       EJERCICIO 2
+       ============================== -->
+  <div class="ejercicio" id="ej2">
+    <div class="ejercicio-header">
+      <div class="ejercicio-num">2</div>
+      <h2 class="ejercicio-titulo">Tres tipos de datos</h2>
+    </div>
+
+    <div class="ejercicio-instruccion">
+      📌 Crea tres variables:<br>
+      • <strong>miNombre</strong> — tu nombre (texto)<br>
+      • <strong>miEdad</strong> — tu edad (número, sin comillas)<br>
+      • <strong>estudiando</strong> — si estás estudiando (true o false)<br>
+      Muestra las tres con <code>console.log()</code>.
+    </div>
+
+    <div class="codigo-container">
+      <p class="codigo-label">Recuerda — los tres tipos básicos:</p>
+      <div class="codigo"><span class="c-key">const</span> texto  = <span class="c-str">"hola"</span>      <span class="c-comment">← texto: entre comillas</span>
+<span class="c-key">const</span> numero = <span class="c-num">25</span>         <span class="c-comment">← número: sin comillas</span>
+<span class="c-key">const</span> logico = <span class="c-key">true</span>        <span class="c-comment">← booleano: true o false</span></div>
+    </div>
+
+    <p class="respuesta-label">Escribe tu código:</p>
+    <textarea id="code2" placeholder="const miNombre = ...
+const miEdad = ...
+const estudiando = ...
+console.log(miNombre)
+..."></textarea>
+
+    <div class="btn-row">
+      <button class="btn-ejecutar" onclick="ejecutar(2)">▶ Ejecutar</button>
+      <button class="btn-pista" onclick="togglePista(2)">💡 Pista</button>
+      <button class="btn-reset" onclick="resetEj(2)">↺ Limpiar</button>
+    </div>
+
+    <div class="pista-box" id="pista2">
+      💡 Los números van sin comillas: <code>const miEdad = 17</code><br>
+      Los booleanos solo pueden ser exactamente <code>true</code> o <code>false</code> (sin comillas, en minúsculas).
+    </div>
+
+    <div class="resultado" id="resultado2"></div>
+  </div>
+
+  <!-- ==============================
+       EJERCICIO 3
+       ============================== -->
+  <div class="ejercicio" id="ej3">
+    <div class="ejercicio-header">
+      <div class="ejercicio-num">3</div>
+      <h2 class="ejercicio-titulo">const vs let</h2>
+    </div>
+
+    <div class="ejercicio-instruccion">
+      📌 Crea una variable con <code>let</code> llamada <strong>puntos</strong> que empiece en 0.
+      Luego cámbiala a 10. Luego cámbiala a 25.
+      Muestra el valor final con <code>console.log()</code>.
+    </div>
+
+    <div class="codigo-container">
+      <p class="codigo-label">const no cambia — let sí cambia:</p>
+      <div class="codigo"><span class="c-key">let</span> contador = <span class="c-num">0</span>
+contador = <span class="c-num">5</span>    <span class="c-comment">← funciona con let</span>
+contador = <span class="c-num">10</span>   <span class="c-comment">← y otra vez</span>
+console.log(contador)  <span class="c-comment">// 10</span></div>
+    </div>
+
+    <p class="respuesta-label">Escribe tu código:</p>
+    <textarea id="code3" placeholder="let puntos = 0
+// cambia el valor...
+console.log(puntos)"></textarea>
+
+    <div class="btn-row">
+      <button class="btn-ejecutar" onclick="ejecutar(3)">▶ Ejecutar</button>
+      <button class="btn-pista" onclick="togglePista(3)">💡 Pista</button>
+      <button class="btn-reset" onclick="resetEj(3)">↺ Limpiar</button>
+    </div>
+
+    <div class="pista-box" id="pista3">
+      💡 Para cambiar el valor no escribes <code>let</code> de nuevo — solo el nombre y el nuevo valor:<br>
+      <code>puntos = 10</code>  (sin let, ya existe)
+    </div>
+
+    <div class="resultado" id="resultado3"></div>
+  </div>
+
+  <!-- ==============================
+       EJERCICIO 4
+       ============================== -->
+  <div class="ejercicio" id="ej4">
+    <div class="ejercicio-header">
+      <div class="ejercicio-num">4</div>
+      <h2 class="ejercicio-titulo">Unir textos</h2>
+    </div>
+
+    <div class="ejercicio-instruccion">
+      📌 Crea variables para <strong>nombre</strong> y <strong>apellido</strong>.
+      Luego crea una tercera variable <strong>nombreCompleto</strong> que las una con un espacio en medio.
+      Muéstrala con <code>console.log()</code>.
+    </div>
+
+    <div class="codigo-container">
+      <p class="codigo-label">Unir textos con + o con template literals:</p>
+      <div class="codigo"><span class="c-key">const</span> saludo = <span class="c-str">"Hola"</span>
+<span class="c-key">const</span> quien  = <span class="c-str">"mundo"</span>
+
+<span class="c-comment">// Forma 1 — con +</span>
+<span class="c-key">const</span> mensaje1 = saludo + <span class="c-str">" "</span> + quien
+
+<span class="c-comment">// Forma 2 — con template literal (más limpio)</span>
+<span class="c-key">const</span> mensaje2 = <span class="c-str">`${saludo} ${quien}`</span>
+
+console.log(mensaje1)  <span class="c-comment">// "Hola mundo"</span>
+console.log(mensaje2)  <span class="c-comment">// "Hola mundo"</span></div>
+    </div>
+
+    <p class="respuesta-label">Escribe tu código:</p>
+    <textarea id="code4" placeholder="const nombre = &quot;...&quot;
+const apellido = &quot;...&quot;
+const nombreCompleto = ...
+console.log(nombreCompleto)"></textarea>
+
+    <div class="btn-row">
+      <button class="btn-ejecutar" onclick="ejecutar(4)">▶ Ejecutar</button>
+      <button class="btn-pista" onclick="togglePista(4)">💡 Pista</button>
+      <button class="btn-reset" onclick="resetEj(4)">↺ Limpiar</button>
+    </div>
+
+    <div class="pista-box" id="pista4">
+      💡 Para el espacio en medio: <code>nombre + " " + apellido</code><br>
+      O con template literal: <code>`${nombre} ${apellido}`</code><br>
+      Los backticks (`) no son comillas normales — en el teclado están con Alt+96 o cerca del 1.
+    </div>
+
+    <div class="resultado" id="resultado4"></div>
+  </div>
+
+  <!-- ==============================
+       EJERCICIO 5
+       ============================== -->
+  <div class="ejercicio" id="ej5">
+    <div class="ejercicio-header">
+      <div class="ejercicio-num">5</div>
+      <h2 class="ejercicio-titulo">Operaciones con números</h2>
+    </div>
+
+    <div class="ejercicio-instruccion">
+      📌 Crea dos variables numéricas: <strong>precio</strong> (100) y <strong>descuento</strong> (15).
+      Calcula el <strong>precioFinal</strong> restando el descuento al precio.
+      Muestra un mensaje que diga: <em>"El precio final es: 85"</em>
+    </div>
+
+    <div class="codigo-container">
+      <p class="codigo-label">Operaciones matemáticas en JavaScript:</p>
+      <div class="codigo"><span class="c-key">const</span> a = <span class="c-num">10</span>
+<span class="c-key">const</span> b = <span class="c-num">3</span>
+
+console.log(a + b)   <span class="c-comment">// 13 — suma</span>
+console.log(a - b)   <span class="c-comment">// 7  — resta</span>
+console.log(a * b)   <span class="c-comment">// 30 — multiplicación</span>
+console.log(a / b)   <span class="c-comment">// 3.33 — división</span>
+console.log(a % b)   <span class="c-comment">// 1  — resto de la división</span></div>
+    </div>
+
+    <p class="respuesta-label">Escribe tu código:</p>
+    <textarea id="code5" placeholder="const precio = 100
+const descuento = 15
+const precioFinal = ...
+console.log(&quot;El precio final es: &quot; + precioFinal)"></textarea>
+
+    <div class="btn-row">
+      <button class="btn-ejecutar" onclick="ejecutar(5)">▶ Ejecutar</button>
+      <button class="btn-pista" onclick="togglePista(5)">💡 Pista</button>
+      <button class="btn-reset" onclick="resetEj(5)">↺ Limpiar</button>
+    </div>
+
+    <div class="pista-box" id="pista5">
+      💡 <code>const precioFinal = precio - descuento</code><br>
+      Para el mensaje puedes usar: <code>"El precio final es: " + precioFinal</code><br>
+      O con template literal: <code>`El precio final es: ${precioFinal}`</code>
+    </div>
+
+    <div class="resultado" id="resultado5"></div>
+  </div>
+
+  <!-- ==============================
+       EJERCICIO 6
+       ============================== -->
+  <div class="ejercicio" id="ej6">
+    <div class="ejercicio-header">
+      <div class="ejercicio-num">6</div>
+      <h2 class="ejercicio-titulo">typeof — saber qué tipo es</h2>
+    </div>
+
+    <div class="ejercicio-instruccion">
+      📌 Crea 4 variables: una con texto, una con número, una con booleano y una con null.
+      Usa <code>typeof</code> para mostrar el tipo de cada una.
+    </div>
+
+    <div class="codigo-container">
+      <p class="codigo-label">typeof dice de qué tipo es un valor:</p>
+      <div class="codigo"><span class="c-key">const</span> x = <span class="c-str">"hola"</span>
+console.log(<span class="c-key">typeof</span> x)   <span class="c-comment">// "string"</span>
+
+<span class="c-key">const</span> y = <span class="c-num">42</span>
+console.log(<span class="c-key">typeof</span> y)   <span class="c-comment">// "number"</span>
+
+<span class="c-key">const</span> z = <span class="c-key">true</span>
+console.log(<span class="c-key">typeof</span> z)   <span class="c-comment">// "boolean"</span></div>
+    </div>
+
+    <p class="respuesta-label">Escribe tu código:</p>
+    <textarea id="code6" placeholder="const a = &quot;texto&quot;
+const b = 42
+const c = true
+const d = null
+console.log(typeof a)
+..."></textarea>
+
+    <div class="btn-row">
+      <button class="btn-ejecutar" onclick="ejecutar(6)">▶ Ejecutar</button>
+      <button class="btn-pista" onclick="togglePista(6)">💡 Pista</button>
+      <button class="btn-reset" onclick="resetEj(6)">↺ Limpiar</button>
+    </div>
+
+    <div class="pista-box" id="pista6">
+      💡 <code>typeof null</code> devuelve "object" — eso es un bug histórico de JavaScript que nunca se corrigió para no romper sitios viejos. No es error tuyo, es un comportamiento conocido del lenguaje.
+    </div>
+
+    <div class="resultado" id="resultado6"></div>
+  </div>
+
+  <!-- ==============================
+       EJERCICIO 7
+       ============================== -->
+  <div class="ejercicio" id="ej7">
+    <div class="ejercicio-header">
+      <div class="ejercicio-num">7</div>
+      <h2 class="ejercicio-titulo">Convertir tipos</h2>
+    </div>
+
+    <div class="ejercicio-instruccion">
+      📌 Tienes el texto <strong>"42"</strong> (número guardado como texto).
+      Conviértelo a número real con <code>Number()</code> y súmale 8.
+      El resultado debe ser 50, no "428".
+    </div>
+
+    <div class="codigo-container">
+      <p class="codigo-label">Convertir entre tipos:</p>
+      <div class="codigo"><span class="c-key">const</span> textoNum = <span class="c-str">"10"</span>
+<span class="c-key">const</span> numero   = Number(textoNum)   <span class="c-comment">// 10 (número real)</span>
+
+<span class="c-comment">// Sin convertir:</span>
+console.log(textoNum + <span class="c-num">5</span>)    <span class="c-comment">// "105" ← concatena texto</span>
+
+<span class="c-comment">// Con conversión:</span>
+console.log(numero + <span class="c-num">5</span>)      <span class="c-comment">// 15 ← suma real</span></div>
+    </div>
+
+    <p class="respuesta-label">Escribe tu código:</p>
+    <textarea id="code7" placeholder="const texto = &quot;42&quot;
+const numero = Number(texto)
+const resultado = numero + 8
+console.log(resultado)"></textarea>
+
+    <div class="btn-row">
+      <button class="btn-ejecutar" onclick="ejecutar(7)">▶ Ejecutar</button>
+      <button class="btn-pista" onclick="togglePista(7)">💡 Pista</button>
+      <button class="btn-reset" onclick="resetEj(7)">↺ Limpiar</button>
+    </div>
+
+    <div class="pista-box" id="pista7">
+      💡 <code>Number("42")</code> convierte el texto "42" al número 42.<br>
+      También existe <code>parseInt("42")</code> para enteros y <code>parseFloat("3.14")</code> para decimales.<br>
+      El más común en la práctica es <code>Number()</code> o <code>parseInt()</code>.
+    </div>
+
+    <div class="resultado" id="resultado7"></div>
+  </div>
+
+  <!-- ==============================
+       EJERCICIO 8 — RETO FINAL
+       ============================== -->
+  <div class="ejercicio" id="ej8">
+    <div class="ejercicio-header">
+      <div class="ejercicio-num">8</div>
+      <h2 class="ejercicio-titulo">🏆 Reto final — Tu tarjeta de presentación</h2>
+    </div>
+
+    <div class="ejercicio-instruccion">
+      📌 Usando solo variables, construye una "tarjeta de presentación" en la consola.
+      Debe mostrar exactamente esto (con tus datos):<br><br>
+      <code>
+        ─────────────────────<br>
+        Nombre: Carlos García<br>
+        Edad: 17 años<br>
+        Estudia: Programación web<br>
+        Nivel actual: Principiante<br>
+        Meta: Ser desarrollador<br>
+        ─────────────────────
+      </code>
+    </div>
+
+    <p class="respuesta-label">Escribe tu código — usa variables para cada dato:</p>
+    <textarea id="code8" style="min-height:200px" placeholder="const nombre = &quot;...&quot;
+const apellido = &quot;...&quot;
+const edad = ...
+const materia = &quot;...&quot;
+const nivel = &quot;...&quot;
+const meta = &quot;...&quot;
+
+console.log(&quot;─────────────────────&quot;)
+console.log(&quot;Nombre: &quot; + nombre + &quot; &quot; + apellido)
+// ... completa el resto"></textarea>
+
+    <div class="btn-row">
+      <button class="btn-ejecutar" onclick="ejecutar(8)">▶ Ejecutar</button>
+      <button class="btn-pista" onclick="togglePista(8)">💡 Pista</button>
+      <button class="btn-reset" onclick="resetEj(8)">↺ Limpiar</button>
+    </div>
+
+    <div class="pista-box" id="pista8">
+      💡 El guión largo ─ se puede copiar directamente.<br>
+      O puedes usar guiones normales: <code>"---------------------"</code><br>
+      Para el mensaje de edad: <code>"Edad: " + edad + " años"</code><br>
+      O con template literal: <code>`Edad: ${edad} años`</code>
+    </div>
+
+    <div class="resultado" id="resultado8"></div>
+  </div>
+
+  <!-- NIVEL COMPLETADO -->
+  <div class="nivel-completado" id="nivelCompletado">
+    <div class="completado-emoji">🎉</div>
+    <h2 class="completado-titulo">¡Nivel 01 completado!</h2>
+    <p class="completado-desc">
+      Aprendiste a crear variables con <code>const</code> y <code>let</code>,
+      los tres tipos básicos de datos, unir textos, hacer operaciones matemáticas
+      y convertir entre tipos.<br><br>
+      Eso es la base de todo JavaScript. En el siguiente nivel usamos
+      estas variables para tomar decisiones con <code>if/else</code>.
+    </p>
+    <a href="nivel-02-condicionales.html" class="btn-siguiente">
+      Nivel 02 — Condicionales →
+    </a>
+  </div>
+
+  <script>
+    // ============================================
+    // SISTEMA DE EJERCICIOS
+    // ============================================
+
+    const TOTAL = 8
+    let completados = new Set()
+
+    // Cargar progreso guardado
+    const guardado = localStorage.getItem('cafe-practica-n01')
+    if (guardado) completados = new Set(JSON.parse(guardado))
+    actualizarProgreso()
+
+    function ejecutar(num) {
+      const code    = document.getElementById('code' + num).value.trim()
+      const resEl   = document.getElementById('resultado' + num)
+
+      if (!code) {
+        mostrarResultado(num, 'error', '⚠️ Escribe algo primero antes de ejecutar.')
+        return
+      }
+
+      // Capturar console.log
+      const logs = []
+      const consoleTmp = { log: (...args) => logs.push(args.map(a => String(a)).join(' ')) }
+
+      try {
+        // Ejecutar el código del usuario
+        const fn = new Function('console', code)
+        fn(consoleTmp)
+
+        if (logs.length === 0) {
+          mostrarResultado(num, 'info', '⚠️ El código corrió sin errores pero no mostró nada.\n¿Olvidaste el console.log()?')
+          return
+        }
+
+        const salida = logs.join('\n')
+        mostrarResultado(num, 'ok', '✅ Resultado:\n' + salida)
+
+        // Marcar como completado
+        if (!completados.has(num)) {
+          completados.add(num)
+          localStorage.setItem('cafe-practica-n01', JSON.stringify([...completados]))
+          actualizarProgreso()
+        }
+
+      } catch (e) {
+        mostrarResultado(num, 'error',
+          '❌ Error: ' + e.message + '\n\n' +
+          '💡 Revisa la sintaxis — ¿falta alguna comilla, paréntesis o punto y coma?'
+        )
+      }
+    }
+
+    function mostrarResultado(num, tipo, texto) {
+      const el = document.getElementById('resultado' + num)
+      el.className = 'resultado ' + tipo
+      el.style.whiteSpace = 'pre-wrap'
+      el.textContent = texto
+    }
+
+    function togglePista(num) {
+      const el = document.getElementById('pista' + num)
+      el.classList.toggle('visible')
+    }
+
+    function resetEj(num) {
+      document.getElementById('code' + num).value = ''
+      const res = document.getElementById('resultado' + num)
+      res.className = 'resultado'
+      res.textContent = ''
+      const pista = document.getElementById('pista' + num)
+      pista.classList.remove('visible')
+    }
+
+    function actualizarProgreso() {
+      const n    = completados.size
+      const pct  = Math.round((n / TOTAL) * 100)
+      document.getElementById('progresoFill').style.width  = pct + '%'
+      document.getElementById('progresoTexto').textContent = n + ' de ' + TOTAL + ' ejercicios completados'
+
+      if (n === TOTAL) {
+        document.getElementById('nivelCompletado').classList.add('visible')
+      }
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Café </> · Práctica</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f7f4ef;
+      color: #1a1814;
+      padding: 32px 20px 80px;
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    /* HEADER */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 36px;
+    }
+    .header a {
+      font-size: 13px;
+      color: #8a8480;
+      text-decoration: none;
+      padding: 6px 14px;
+      border: 1px solid #e8e4de;
+      border-radius: 999px;
+      transition: all 0.15s;
+    }
+    .header a:hover { color: #1a1814; border-color: #8a8480; }
+    .header-logo {
+      font-size: 22px;
+      font-weight: 700;
+      font-family: Georgia, serif;
+    }
+    .header-logo span { color: #c44a2a; font-style: italic; }
+
+    /* HERO */
+    .hero {
+      background: #1a1814;
+      border-radius: 16px;
+      padding: 36px 32px;
+      margin-bottom: 40px;
+      color: #f7f4ef;
+    }
+    .hero-badge {
+      display: inline-block;
+      background: #c44a2a;
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      padding: 4px 12px;
+      border-radius: 999px;
+      margin-bottom: 14px;
+      text-transform: uppercase;
+    }
+    .hero h1 {
+      font-family: Georgia, serif;
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .hero p {
+      font-size: 15px;
+      color: rgba(247,244,239,0.65);
+      line-height: 1.7;
+      max-width: 520px;
+    }
+    .hero-stats {
+      display: flex;
+      gap: 28px;
+      margin-top: 20px;
+    }
+    .stat { text-align: center; }
+    .stat-n {
+      font-family: Georgia, serif;
+      font-size: 30px;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .stat-l {
+      font-size: 12px;
+      color: rgba(247,244,239,0.5);
+      margin-top: 4px;
+    }
+
+    /* SECCIÓN */
+    .seccion-label {
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #8a8480;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #e8e4de;
+    }
+
+    /* TARJETAS DE NIVEL */
+    .niveles-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 40px;
+    }
+    @media (max-width: 560px) { .niveles-grid { grid-template-columns: 1fr; } }
+
+    .nivel-card {
+      background: white;
+      border: 1px solid #e8e4de;
+      border-radius: 14px;
+      padding: 22px;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+      transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+      position: relative;
+      overflow: hidden;
+    }
+    .nivel-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      border-color: #c44a2a;
+    }
+    .nivel-card.bloqueada {
+      opacity: 0.45;
+      pointer-events: none;
+      cursor: not-allowed;
+    }
+
+    .nivel-num {
+      font-family: Georgia, serif;
+      font-size: 40px;
+      font-weight: 700;
+      color: #e8e4de;
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+    .nivel-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 999px;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .badge-js   { background: #fdf6e8; color: #b07010; border: 1px solid #f0d898; }
+    .badge-html { background: #fdf0ec; color: #c44a2a; border: 1px solid #f0c4b8; }
+    .badge-css  { background: #edf7f3; color: #1a7a5a; border: 1px solid #b8e0d0; }
+    .badge-mix  { background: #eef2fa; color: #3a5a9a; border: 1px solid #c0cce8; }
+
+    .nivel-titulo {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+    .nivel-desc {
+      font-size: 13px;
+      color: #8a8480;
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+    .nivel-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    .pill {
+      font-size: 11px;
+      background: #f7f4ef;
+      border: 1px solid #e8e4de;
+      border-radius: 999px;
+      padding: 2px 8px;
+      color: #4a4640;
+    }
+    .nivel-lock {
+      position: absolute;
+      top: 14px; right: 14px;
+      font-size: 16px;
+    }
+    .nivel-progreso {
+      margin-top: 10px;
+      font-size: 11px;
+      color: #c44a2a;
+      font-weight: 600;
+    }
+
+    /* CÓMO FUNCIONA */
+    .como-funciona {
+      background: white;
+      border: 1px solid #e8e4de;
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 40px;
+    }
+    .como-titulo {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+    .pasos {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 560px) { .pasos { grid-template-columns: 1fr; } }
+
+    .paso {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .paso-num {
+      width: 28px;
+      height: 28px;
+      background: #c44a2a;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .paso p { font-size: 13px; color: #4a4640; line-height: 1.5; }
+    .paso strong { color: #1a1814; }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <div class="header">
+    <a href="../capitulos.html">← Capítulos</a>
+    <span class="header-logo">Café <span>&lt;/&gt;</span></span>
+  </div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-badge">🏋️ Zona de Práctica</div>
+    <h1>Aprende haciendo</h1>
+    <p>Escribe código real, ejecútalo y ve el resultado al instante — sin instalar nada extra. Cada nivel construye sobre el anterior.</p>
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="stat-n" id="totalNiveles">5</div>
+        <div class="stat-l">Niveles</div>
+      </div>
+      <div class="stat">
+        <div class="stat-n" id="totalEjercicios">40+</div>
+        <div class="stat-l">Ejercicios</div>
+      </div>
+      <div class="stat">
+        <div class="stat-n" id="completados">0</div>
+        <div class="stat-l">Completados</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CÓMO FUNCIONA -->
+  <div class="como-funciona">
+    <p class="como-titulo">¿Cómo funciona cada ejercicio?</p>
+    <div class="pasos">
+      <div class="paso">
+        <div class="paso-num">1</div>
+        <p><strong>Lee la instrucción</strong> — qué tienes que hacer en ese ejercicio</p>
+      </div>
+      <div class="paso">
+        <div class="paso-num">2</div>
+        <p><strong>Escribe tu código</strong> en el área oscura del ejercicio</p>
+      </div>
+      <div class="paso">
+        <div class="paso-num">3</div>
+        <p><strong>Haz clic en Ejecutar</strong> — ves el resultado ahí mismo</p>
+      </div>
+      <div class="paso">
+        <div class="paso-num">4</div>
+        <p><strong>Si te atascas</strong> — usa el botón 💡 Pista y sigue intentando</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- NIVELES -->
+  <p class="seccion-label">Todos los niveles</p>
+  <div class="niveles-grid">
+
+    <a href="nivel-01-variables.html" class="nivel-card">
+      <div class="nivel-num">01</div>
+      <span class="nivel-badge badge-js">JavaScript</span>
+      <h3 class="nivel-titulo">Variables</h3>
+      <p class="nivel-desc">const, let, tipos de datos, unir textos y operaciones básicas.</p>
+      <div class="nivel-pills">
+        <span class="pill">const / let</span>
+        <span class="pill">Tipos de datos</span>
+        <span class="pill">typeof</span>
+        <span class="pill">Conversión</span>
+      </div>
+      <p class="nivel-progreso" id="prog1"></p>
+    </a>
+
+    <a href="nivel-02-condicionales.html" class="nivel-card">
+      <div class="nivel-num">02</div>
+      <span class="nivel-badge badge-js">JavaScript</span>
+      <h3 class="nivel-titulo">Condicionales</h3>
+      <p class="nivel-desc">if/else, else if, switch, operadores lógicos y ternario.</p>
+      <div class="nivel-pills">
+        <span class="pill">if / else</span>
+        <span class="pill">switch</span>
+        <span class="pill">&amp;&amp; y ||</span>
+        <span class="pill">Ternario</span>
+      </div>
+      <p class="nivel-progreso" id="prog2"></p>
+    </a>
+
+    <a href="nivel-03-funciones.html" class="nivel-card">
+      <div class="nivel-num">03</div>
+      <span class="nivel-badge badge-js">JavaScript</span>
+      <h3 class="nivel-titulo">Funciones</h3>
+      <p class="nivel-desc">Crear funciones, parámetros, return y arrow functions.</p>
+      <div class="nivel-pills">
+        <span class="pill">function</span>
+        <span class="pill">return</span>
+        <span class="pill">Arrow fn</span>
+        <span class="pill">Parámetros</span>
+      </div>
+      <p class="nivel-progreso" id="prog3"></p>
+    </a>
+
+    <a href="nivel-04-bucles.html" class="nivel-card">
+      <div class="nivel-num">04</div>
+      <span class="nivel-badge badge-js">JavaScript</span>
+      <h3 class="nivel-titulo">Bucles y Arreglos</h3>
+      <p class="nivel-desc">for, while, forEach, map, filter y reduce.</p>
+      <div class="nivel-pills">
+        <span class="pill">for / while</span>
+        <span class="pill">forEach</span>
+        <span class="pill">map / filter</span>
+        <span class="pill">reduce</span>
+      </div>
+      <p class="nivel-progreso" id="prog4"></p>
+    </a>
+
+    <a href="nivel-05-dom.html" class="nivel-card">
+      <div class="nivel-num">05</div>
+      <span class="nivel-badge badge-mix">HTML + JS</span>
+      <h3 class="nivel-titulo">DOM — La página viva</h3>
+      <p class="nivel-desc">Modificar la página en tiempo real con JavaScript.</p>
+      <div class="nivel-pills">
+        <span class="pill">querySelector</span>
+        <span class="pill">createElement</span>
+        <span class="pill">eventos</span>
+        <span class="pill">classList</span>
+      </div>
+      <p class="nivel-progreso" id="prog5"></p>
+    </a>
+
+    <a href="nivel-06-proyecto.html" class="nivel-card">
+      <div class="nivel-num">06</div>
+      <span class="nivel-badge badge-mix">Proyecto</span>
+      <h3 class="nivel-titulo">Proyecto — Lista de Tareas</h3>
+      <p class="nivel-desc">Construye una app completa paso a paso con todo lo aprendido.</p>
+      <div class="nivel-pills">
+        <span class="pill">DOM</span>
+        <span class="pill">Eventos</span>
+        <span class="pill">localStorage</span>
+        <span class="pill">App completa</span>
+      </div>
+      <p class="nivel-progreso" id="prog6"></p>
+    </a>
+
+  </div>
+
+  <script>
+    // Mostrar progreso guardado de cada nivel
+    const configs = [
+      { id: 'prog1', key: 'cafe-practica-n01', total: 8 },
+      { id: 'prog2', key: 'cafe-practica-n02', total: 8 },
+      { id: 'prog3', key: 'cafe-practica-n03', total: 8 },
+      { id: 'prog4', key: 'cafe-practica-n04', total: 8 },
+      { id: 'prog5', key: 'cafe-practica-n05', total: 8 },
+      { id: 'prog6', key: 'cafe-practica-n06', total: 5 },
+    ]
+
+    let totalCompletados = 0
+
+    configs.forEach(({ id, key, total }) => {
+      const el = document.getElementById(id)
+      if (!el) return
+      try {
+        const guardado = localStorage.getItem(key)
+        if (guardado) {
+          const n = JSON.parse(guardado).length
+          totalCompletados += n
+          if (n === total) {
+            el.textContent = '✅ Completado'
+            el.style.color = '#1a7a5a'
+          } else if (n > 0) {
+            el.textContent = `▶ ${n}/${total} ejercicios`
+          }
+        }
+      } catch(e) {}
+    })
+
+    document.getElementById('completados').textContent = totalCompletados
+  </script>
+
+</body>
+</html>
