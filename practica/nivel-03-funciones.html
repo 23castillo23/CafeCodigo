@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Café </> · Nivel 03 — Funciones</title>
+  <style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',sans-serif;background:#f7f4ef;color:#1a1814;padding:32px 20px 80px;max-width:760px;margin:0 auto}
+.nivel-header{background:#1a1814;color:#f7f4ef;border-radius:14px;padding:28px 32px;margin-bottom:32px}
+.nivel-badge{display:inline-block;background:#b07010;color:white;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:4px 12px;border-radius:999px;margin-bottom:12px}
+.nivel-titulo{font-size:26px;font-weight:700;margin-bottom:8px}
+.nivel-desc{font-size:14px;color:rgba(247,244,239,.65);line-height:1.6}
+.nivel-meta{display:flex;gap:20px;margin-top:16px;font-size:13px;color:rgba(247,244,239,.5)}
+.nav-nivel{display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap}
+.nav-nivel a{font-size:13px;color:#8a8480;text-decoration:none;padding:6px 14px;border:1px solid #e8e4de;border-radius:999px}
+.nav-nivel a:hover{color:#1a1814;border-color:#8a8480}
+.ejercicio{background:white;border:1px solid #e8e4de;border-radius:14px;padding:28px;margin-bottom:20px}
+.ejercicio-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.ejercicio-num{background:#f0ece6;color:#8a8480;font-size:12px;font-weight:600;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ejercicio-titulo{font-size:17px;font-weight:600}
+.instruccion{font-size:14px;color:#4a4640;line-height:1.7;margin-bottom:16px;padding:12px 16px;background:#f7f4ef;border-radius:8px;border-left:3px solid #c44a2a}
+.codigo-label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#8a8480;margin-bottom:6px;font-family:monospace}
+.codigo{background:#1a1814;color:#f0ece6;border-radius:10px;padding:18px 20px;font-family:'Cascadia Code','Fira Code',Consolas,monospace;font-size:13px;line-height:1.8;white-space:pre;overflow-x:auto;margin-bottom:14px}
+.c-comment{color:rgba(240,236,230,.4)}.c-key{color:#FAC775}.c-str{color:#9FE1CB}.c-num{color:#79C0FF}
+.respuesta-label{font-size:12px;font-weight:600;color:#4a4640;margin-bottom:6px}
+textarea{width:100%;min-height:140px;background:#1a1814;color:#f0ece6;border:2px solid #3a3630;border-radius:10px;padding:16px 18px;font-family:'Cascadia Code','Fira Code',Consolas,monospace;font-size:13px;line-height:1.8;resize:vertical;outline:none;transition:border-color .15s}
+textarea:focus{border-color:#c44a2a}
+textarea::placeholder{color:rgba(240,236,230,.25)}
+.btn-row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.btn-ejecutar{background:#c44a2a;color:white;border:none;padding:10px 22px;border-radius:999px;font-size:14px;font-weight:600;cursor:pointer}
+.btn-ejecutar:hover{background:#a33b21}
+.btn-pista{background:transparent;color:#8a8480;border:1px solid #e8e4de;padding:10px 18px;border-radius:999px;font-size:13px;cursor:pointer}
+.btn-pista:hover{border-color:#8a8480;color:#4a4640}
+.btn-reset{background:transparent;color:#8a8480;border:none;padding:10px 12px;font-size:13px;cursor:pointer}
+.resultado{margin-top:14px;border-radius:10px;padding:14px 18px;font-size:13px;line-height:1.6;display:none;font-family:'Cascadia Code','Fira Code',Consolas,monospace;white-space:pre-wrap}
+.resultado.ok{background:#edf7f3;border:1px solid #b8e0d0;color:#1a7a5a;display:block}
+.resultado.error{background:#fdf0ec;border:1px solid #f0c4b8;color:#c44a2a;display:block}
+.resultado.info{background:#eef2fa;border:1px solid #c0cce8;color:#3a5a9a;display:block}
+.pista-box{display:none;margin-top:12px;padding:14px 18px;background:#fdf6e8;border:1px solid #f0d898;border-radius:10px;font-size:13px;color:#b07010;line-height:1.7}
+.pista-box.visible{display:block}
+.nivel-completado{display:none;background:#1a1814;color:#f7f4ef;border-radius:14px;padding:32px;text-align:center;margin-top:32px}
+.nivel-completado.visible{display:block}
+.completado-emoji{font-size:48px;margin-bottom:12px}
+.completado-titulo{font-size:22px;font-weight:700;margin-bottom:8px}
+.completado-desc{font-size:14px;color:rgba(247,244,239,.65);margin-bottom:24px;line-height:1.6}
+.btn-siguiente{display:inline-block;background:#c44a2a;color:white;padding:14px 28px;border-radius:999px;font-size:15px;font-weight:600;text-decoration:none}
+.progreso-bar{background:#e8e4de;border-radius:999px;height:6px;margin-bottom:28px;overflow:hidden}
+.progreso-fill{background:#c44a2a;height:100%;border-radius:999px;width:0%;transition:width .4s}
+.progreso-texto{font-size:12px;color:#8a8480;margin-bottom:8px}
+</style>
+</head>
+<body>
+  <div class="nav-nivel">
+    <a href="index.html">← Todos los niveles</a>
+    <a href="nivel-02-condicionales.html">← Nivel 02</a>
+    <a href="nivel-04-bucles.html">Nivel 04 →</a>
+  </div>
+  <div class="nivel-header">
+    <div class="nivel-badge">JavaScript · Nivel 03</div>
+    <h1 class="nivel-titulo">Funciones — Las recetas del código</h1>
+    <p class="nivel-desc">Crea funciones propias, usa parámetros, devuelve resultados con return y escribe arrow functions. Las funciones son la herramienta más usada en cualquier proyecto.</p>
+    <div class="nivel-meta"><span>📝 8 ejercicios</span><span>⏱️ ~30 minutos</span><span>📈 Nivel: Principiante-Intermedio</span></div>
+  </div>
+  <p class="progreso-texto" id="progresoTexto">0 de 8 ejercicios completados</p>
+  <div class="progreso-bar"><div class="progreso-fill" id="progresoFill"></div></div>
+  
+  <div class="ejercicio" id="ej1">
+    <div class="ejercicio-header"><div class="ejercicio-num">1</div><h2 class="ejercicio-titulo">Tu primera función</h2></div>
+    <div class="instruccion">📌 Crea una función llamada <strong>saludar</strong> que muestre '¡Hola! Bienvenido al nivel 03' cuando la llames. Llámala dos veces.</div>
+    <p class="codigo-label">Estructura básica:</p><div class="codigo"><span class="c-key">function</span> nombre() {
+  <span class="c-comment">// instrucciones</span>
+}
+nombre()   <span class="c-comment">← así se llama</span></div>
+    <p class="respuesta-label">✏️ Escribe tu código:</p>
+    <textarea id="code1" style="min-height:140px" placeholder="function saludar() {
+  console.log(...)
+}
+
+saludar()
+saludar()"></textarea>
+    <div class="btn-row">
+      <button class="btn-ejecutar" onclick="ejecutar(1)">▶ Ejecutar</button>
+      <button class="btn-pista" onclick="togglePista(1)">💡 Pista</button>
+      <button class="btn-reset" onclick="resetEj(1)">↺ Limpiar</button>
+    </div>
+    <div class="pista-box" id="pista1">💡 Dentro de las llaves va el <code>console.log()</code>.<br>Para llamarla: <code>saludar()</code> — nombre + paréntesis.</div>
+    <div class="resultado" id="resultado1"></div>
+  </div>
+  <div class="ejercicio" id="ej2">
+    <div class="ejercicio-header"><div class="ejercicio-num">2</div><h2 class="ejercicio-titulo">Función con parámetro</h2></div>
+    <div class="instruccion">📌 Crea una función <strong>saludarPersona</strong> que reciba un nombre y muestre 'Hola, [nombre]!'. Llámala con tres nombres diferentes.</div>
+    <p class="codigo-label">Parámetros:</p><div class="codigo"><span class="c-key">function</span> saludar(nombre) {
+  console.log(<span class="c-str">`Hola, ${nombre}!`</span>)
+}
+saludar(<span class="c-str">"Ana"</span>)</div>
+    <p class="respuesta-label">✏️ Escribe tu código:</p>
+    <textarea id="code2" style="min-height:140px" placeholder="function saludarPersona(nombre) {
+  console.log(...)
+}
+
+saludarPersona("Ana")
+saludarPersona("...")
+saludarPersona("...")"></textarea>
+    <div class="btn-row">
+      <button class="btn-ejecutar" onclick="ejecutar(2)">▶ Ejecutar</button>
+      <button class="btn-pista" onclick="togglePista(2)">💡 Pista</button>
+      <button class="btn-reset" onclick="resetEj(2)">↺ Limpiar</button>
+    </div>
+    <div class="pista-box" id="pista2">💡 El parámetro es una variable temporal solo dentro de la función.<br>Usa template literal: <code>`Hola, ${nombre}!`</code></div>
+    <div class="resultado" id="resultado2"></div>
+  </div>
+  <div class="ejercicio" id="ej3">
+    <div class="ejercicio-header"><div class="ejercicio-num">3</div><h2 class="ejercicio-titulo">Función con return</h2></div>
+    <div class="instruccion">📌 Crea una función <strong>sumar</strong> que reciba dos números y <strong>devuelva</strong> su suma. Guarda el resultado en una variable y muéstralo.</div>
+    <p class="codigo-label">return devuelve el resultado:</p><div class="codigo"><span class="c-key">function</span> doblar(n) {
+  <span class="c-key">return</span> n * <span class="c-num">2</span>   <span class="c-comment">← devuelve</span>
+}
+<span class="c-key">const</span> r = doblar(<span class="c-num">5</span>)
+console.log(r)   <span class="c-comment">← 10</span></div>
+    <p class="respuesta-label">✏️ Escribe tu código:</p>
+    <textarea id="code3" style="min-height:140px" placeholder="function sumar(a, b) {
+  return ...
+}
+
+const resultado = sumar(8, 5)
+console.log('La suma es: ' + resultado)"></textarea>
+    <div class="btn-row">
+      <button class="btn-ejecutar" onclick="ejecutar(3)">▶ Ejecutar</button>
+      <button class="btn-pista" onclick="togglePista(3)">💡 Pista</button>
+      <button class="btn-reset" onclick="resetEj(3)">↺ Limpiar</button>
+    </div>
+    <div class="pista-box" id="pista3">💡 <code>return a + b</code><br>La diferencia: <code>console.log</code> muestra, <code>return</code> devuelve el valor para usarlo después.</div>
+    <div class="resultado" id="resultado3"></div>
+  </div>
+  <div class="ejercicio" id="ej4">
+    <div class="ejercicio-header"><div class="ejercicio-num">4</div><h2 class="ejercicio-titulo">Varios parámetros</h2></div>
+    <div class="instruccion">📌 Crea una función <strong>calcularArea</strong> que reciba <strong>base</strong> y <strong>altura</strong> y devuelva el área (base × altura). Pruébala con base=10, altura=5.</div>
+    
+    <p class="respuesta-label">✏️ Escribe tu código:</p>
+    <textarea id="code4" style="min-height:140px" placeholder="function calcularArea(base, altura) {
+  return ...
+}
+
+const area = calcularArea(10, 5)
+console.log('Area: ' + area)"></textarea>
+    <div class="btn-row">
+      <button class="btn-ejecutar" onclick="ejecutar(4)">▶ Ejecutar</button>
+      <button class="btn-pista" onclick="togglePista(4)">💡 Pista</button>
+      <button class="btn-reset" onclick="resetEj(4)">↺ Limpiar</button>
+    </div>
+    <div class="pista-box" id="pista4">💡 Área de rectángulo: <code>return base * altura</code><br>¿Qué pasa si una medida es 0? ¿Y si es negativa?</div>
+    <div class="resultado" id="resultado4"></div>
+  </div>
+  <div class="ejercicio" id="ej5">
+    <div class="ejercicio-header"><div class="ejercicio-num">5</div><h2 class="ejercicio-titulo">Arrow functions</h2></div>
+    <div class="instruccion">📌 Reescribe como arrow functions:<br>• <code>function cuadrado(n) { return n * n }</code><br>• <code>function esMayor(a, b) { return a > b }</code></div>
+    <p class="codigo-label">De función normal a arrow function:</p><div class="codigo"><span class="c-comment">// Normal</span>
+<span class="c-key">function</span> sumar(a,b) { <span class="c-key">return</span> a+b }
+
+<span class="c-comment">// Arrow — mismo resultado</span>
+<span class="c-key">const</span> sumar = (a,b) =&gt; a+b
+
+<span class="c-comment">// Un parámetro — sin paréntesis</span>
+<span class="c-key">const</span> doblar = n =&gt; n*<span class="c-num">2</span></div>
+    <p class="respuesta-label">✏️ Escribe tu código:</p>
+    <textarea id="code5" style="min-height:140px" placeholder="const cuadrado = n => ...
+const esMayor  = (a,b) => ...
+
+console.log(cuadrado(5))      // 25
+console.log(esMayor(10, 3))   // true
+console.log(esMayor(2, 8))    // false"></textarea>
+    <div class="btn-row">
+      <button class="btn-ejecutar" onclick="ejecutar(5)">▶ Ejecutar</button>
+      <button class="btn-pista" onclick="togglePista(5)">💡 Pista</button>
+      <button class="btn-reset" onclick="resetEj(5)">↺ Limpiar</button>
+    </div>
+    <div class="pista-box" id="pista5">💡 <code>const cuadrado = n => n * n</code><br><code>const esMayor = (a, b) => a > b</code><br>Cuando hay un solo parámetro no necesita paréntesis.</div>
+    <div class="resultado" id="resultado5"></div>
+  </div>
+  <div class="ejercicio" id="ej6">
+    <div class="ejercicio-header"><div class="ejercicio-num">6</div><h2 class="ejercicio-titulo">Función que llama a otra</h2></div>
+    <div class="instruccion">📌 Crea dos funciones:<br>• <strong>celsiusAFahrenheit(c)</strong> — fórmula: c × 9/5 + 32<br>• <strong>describir(temp)</strong> — llama a la anterior y muestra: '20°C = 68°F'</div>
+    
+    <p class="respuesta-label">✏️ Escribe tu código:</p>
+    <textarea id="code6" style="min-height:170px" placeholder="function celsiusAFahrenheit(c) {
+  return ...
+}
+
+function describir(temp) {
+  const f = celsiusAFahrenheit(temp)
+  console.log(temp + '°C = ' + f + '°F')
+}
+
+describir(20)
+describir(0)
+describir(100)"></textarea>
+    <div class="btn-row">
+      <button class="btn-ejecutar" onclick="ejecutar(6)">▶ Ejecutar</button>
+      <button class="btn-pista" onclick="togglePista(6)">💡 Pista</button>
+      <button class="btn-reset" onclick="resetEj(6)">↺ Limpiar</button>
+    </div>
+    <div class="pista-box" id="pista6">💡 Fórmula: <code>return c * 9/5 + 32</code><br>0°C=32°F · 100°C=212°F · 20°C=68°F<br>Usa <code>.toFixed(1)</code> para un decimal.</div>
+    <div class="resultado" id="resultado6"></div>
+  </div>
+  <div class="ejercicio" id="ej7">
+    <div class="ejercicio-header"><div class="ejercicio-num">7</div><h2 class="ejercicio-titulo">Parámetros por defecto</h2></div>
+    <div class="instruccion">📌 Crea una función <strong>presentar</strong> que reciba <strong>nombre</strong> y <strong>rol</strong> (por defecto 'estudiante'). Llámala con y sin el segundo parámetro.</div>
+    <p class="codigo-label">Valores por defecto:</p><div class="codigo"><span class="c-key">function</span> saludar(nombre, idioma = <span class="c-str">"español"</span>) {
+  console.log(<span class="c-str">`Hola en ${idioma}, ${nombre}`</span>)
+}
+saludar(<span class="c-str">"Ana"</span>)          <span class="c-comment">← usa "español"</span>
+saludar(<span class="c-str">"Ana"</span>, <span class="c-str">"inglés"</span>) <span class="c-comment">← usa "inglés"</span></div>
+    <p class="respuesta-label">✏️ Escribe tu código:</p>
+    <textarea id="code7" style="min-height:140px" placeholder="function presentar(nombre, rol = "estudiante") {
+  console.log(...)
+}
+
+presentar("Carlos")
+presentar("Ana", "desarrolladora")
+presentar("Luis", "diseñador")"></textarea>
+    <div class="btn-row">
+      <button class="btn-ejecutar" onclick="ejecutar(7)">▶ Ejecutar</button>
+      <button class="btn-pista" onclick="togglePista(7)">💡 Pista</button>
+      <button class="btn-reset" onclick="resetEj(7)">↺ Limpiar</button>
+    </div>
+    <div class="pista-box" id="pista7">💡 El valor por defecto se usa solo cuando no pasas ese argumento.<br>Mensaje ejemplo: <code>`${nombre} es ${rol}`</code></div>
+    <div class="resultado" id="resultado7"></div>
+  </div>
+  <div class="ejercicio" id="ej8">
+    <div class="ejercicio-header"><div class="ejercicio-num">8</div><h2 class="ejercicio-titulo">🏆 Reto final — Calculadora</h2></div>
+    <div class="instruccion">📌 Crea 4 arrow functions: <strong>sumar, restar, multiplicar, dividir</strong>.<br>Luego una función <strong>calcular(a, op, b)</strong> que llame a la correcta y muestre: '10 + 5 = 15'.</div>
+    
+    <p class="respuesta-label">✏️ Escribe tu código:</p>
+    <textarea id="code8" style="min-height:220px" placeholder="const sumar       = (a,b) => a + b
+const restar      = (a,b) => a - b
+const multiplicar = (a,b) => ...
+const dividir     = (a,b) => ...
+
+function calcular(a, op, b) {
+  let r
+  if (op === '+') r = sumar(a,b)
+  else if (op === '-') r = restar(a,b)
+  // completa...
+  console.log(a + ' ' + op + ' ' + b + ' = ' + r)
+}
+
+calcular(10, '+', 5)
+calcular(10, '-', 3)
+calcular(4,  '*', 7)
+calcular(20, '/', 4)"></textarea>
+    <div class="btn-row">
+      <button class="btn-ejecutar" onclick="ejecutar(8)">▶ Ejecutar</button>
+      <button class="btn-pista" onclick="togglePista(8)">💡 Pista</button>
+      <button class="btn-reset" onclick="resetEj(8)">↺ Limpiar</button>
+    </div>
+    <div class="pista-box" id="pista8">💡 Usa if/else if para cada operación.<br>O un objeto como mapa: <code>const ops = {'+':sumar, '-':restar, '*':multiplicar, '/':dividir}</code><br>Luego: <code>const r = ops[op](a,b)</code></div>
+    <div class="resultado" id="resultado8"></div>
+  </div>
+  <div class="nivel-completado" id="nivelCompletado">
+    <div class="completado-emoji">🎉</div>
+    <h2 class="completado-titulo">¡Nivel 03 — Funciones completado!</h2>
+    <p class="completado-desc">Ahora sabes crear funciones, pasar parámetros y devolver resultados. En el siguiente nivel aprendes bucles y a manipular listas de datos.</p>
+    <a href="nivel-04-bucles.html" class="btn-siguiente">Siguiente nivel →</a>
+  </div>
+  <script>
+const TOTAL=8,CLAVE='cafe-practica-n03';
+const completados=new Set();
+const g=localStorage.getItem(CLAVE);
+if(g)JSON.parse(g).forEach(v=>completados.add(v));
+actualizar();
+function ejecutar(n){{
+  const code=document.getElementById('code'+n).value.trim();
+  if(!code){{mostrar(n,'error','Escribe algo primero.');return}}
+  const logs=[];
+  const con={{log:(...a)=>logs.push(a.map(x=>String(x)).join(' '))}};
+  try{{
+    new Function('console',code)(con);
+    if(!logs.length){{mostrar(n,'info','Codigo sin errores pero sin output.\n¿Olvidaste console.log()?');return}}
+    mostrar(n,'ok','Resultado:\n'+logs.join('\n'));
+    if(!completados.has(n)){{completados.add(n);localStorage.setItem(CLAVE,JSON.stringify([...completados]));actualizar()}}
+  }}catch(e){{mostrar(n,'error','Error: '+e.message+'\n\nRevisa la sintaxis.')}}
+}}
+function mostrar(n,t,txt){{const e=document.getElementById('resultado'+n);e.className='resultado '+t;e.textContent=txt}}
+function togglePista(n){{document.getElementById('pista'+n).classList.toggle('visible')}}
+function resetEj(n){{document.getElementById('code'+n).value='';const r=document.getElementById('resultado'+n);r.className='resultado';r.textContent='';document.getElementById('pista'+n).classList.remove('visible')}}
+function actualizar(){{const n=completados.size;document.getElementById('progresoFill').style.width=Math.round(n/TOTAL*100)+'%';document.getElementById('progresoTexto').textContent=n+' de '+TOTAL+' ejercicios completados';if(n===TOTAL)document.getElementById('nivelCompletado').classList.add('visible')}}
+</script>
+</body>
+</html>

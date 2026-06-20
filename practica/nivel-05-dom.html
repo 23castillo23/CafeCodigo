@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Café </> · Nivel 05 — DOM</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',sans-serif;background:#f7f4ef;color:#1a1814;padding:32px 20px 80px;max-width:760px;margin:0 auto}
+    .nivel-header{background:#1a1814;color:#f7f4ef;border-radius:14px;padding:28px 32px;margin-bottom:32px}
+    .nivel-badge{display:inline-block;background:#2a6496;color:white;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:4px 12px;border-radius:999px;margin-bottom:12px}
+    .nivel-titulo{font-size:26px;font-weight:700;margin-bottom:8px}
+    .nivel-desc{font-size:14px;color:rgba(247,244,239,.65);line-height:1.6}
+    .nivel-meta{display:flex;gap:20px;margin-top:16px;font-size:13px;color:rgba(247,244,239,.5)}
+    .nav-nivel{display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap}
+    .nav-nivel a{font-size:13px;color:#8a8480;text-decoration:none;padding:6px 14px;border:1px solid #e8e4de;border-radius:999px}
+    .nav-nivel a:hover{color:#1a1814;border-color:#8a8480}
+    .ejercicio{background:white;border:1px solid #e8e4de;border-radius:14px;padding:28px;margin-bottom:20px}
+    .ejercicio-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+    .ejercicio-num{background:#f0ece6;color:#8a8480;font-size:12px;font-weight:600;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .ejercicio-titulo{font-size:17px;font-weight:600}
+    .instruccion{font-size:14px;color:#4a4640;line-height:1.7;margin-bottom:16px;padding:12px 16px;background:#f7f4ef;border-radius:8px;border-left:3px solid #2a6496}
+    .zona-visual{background:#eef2fa;border:2px dashed #c0cce8;border-radius:10px;padding:20px;margin-bottom:16px;min-height:60px}
+    .zona-label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#3a5a9a;margin-bottom:10px;font-family:monospace}
+    .codigo-label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#8a8480;margin-bottom:6px;font-family:monospace}
+    .codigo{background:#1a1814;color:#f0ece6;border-radius:10px;padding:18px 20px;font-family:'Cascadia Code','Fira Code',Consolas,monospace;font-size:13px;line-height:1.8;white-space:pre;overflow-x:auto;margin-bottom:14px}
+    .c-comment{color:rgba(240,236,230,.4)}.c-key{color:#FAC775}.c-str{color:#9FE1CB}.c-num{color:#79C0FF}
+    .respuesta-label{font-size:12px;font-weight:600;color:#4a4640;margin-bottom:6px}
+    textarea{width:100%;min-height:140px;background:#1a1814;color:#f0ece6;border:2px solid #3a3630;border-radius:10px;padding:16px 18px;font-family:'Cascadia Code','Fira Code',Consolas,monospace;font-size:13px;line-height:1.8;resize:vertical;outline:none;transition:border-color .15s}
+    textarea:focus{border-color:#2a6496}
+    textarea::placeholder{color:rgba(240,236,230,.25)}
+    .btn-row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+    .btn-ejecutar{background:#2a6496;color:white;border:none;padding:10px 22px;border-radius:999px;font-size:14px;font-weight:600;cursor:pointer}
+    .btn-ejecutar:hover{background:#1e4d73}
+    .btn-pista{background:transparent;color:#8a8480;border:1px solid #e8e4de;padding:10px 18px;border-radius:999px;font-size:13px;cursor:pointer}
+    .btn-pista:hover{border-color:#8a8480;color:#4a4640}
+    .btn-reset{background:transparent;color:#8a8480;border:none;padding:10px 12px;font-size:13px;cursor:pointer}
+    .btn-reset:hover{color:#c44a2a}
+    .resultado{margin-top:14px;border-radius:10px;padding:14px 18px;font-size:13px;line-height:1.6;display:none;font-family:'Cascadia Code','Fira Code',Consolas,monospace;white-space:pre-wrap}
+    .resultado.ok{background:#edf7f3;border:1px solid #b8e0d0;color:#1a7a5a;display:block}
+    .resultado.error{background:#fdf0ec;border:1px solid #f0c4b8;color:#c44a2a;display:block}
+    .pista-box{display:none;margin-top:12px;padding:14px 18px;background:#fdf6e8;border:1px solid #f0d898;border-radius:10px;font-size:13px;color:#b07010;line-height:1.7}
+    .pista-box.visible{display:block}
+    .nivel-completado{display:none;background:#1a1814;color:#f7f4ef;border-radius:14px;padding:32px;text-align:center;margin-top:32px}
+    .nivel-completado.visible{display:block}
+    .completado-emoji{font-size:48px;margin-bottom:12px}
+    .completado-titulo{font-size:22px;font-weight:700;margin-bottom:8px}
+    .completado-desc{font-size:14px;color:rgba(247,244,239,.65);margin-bottom:24px;line-height:1.6}
+    .btn-siguiente{display:inline-block;background:#c44a2a;color:white;padding:14px 28px;border-radius:999px;font-size:15px;font-weight:600;text-decoration:none}
+    .progreso-bar{background:#e8e4de;border-radius:999px;height:6px;margin-bottom:28px;overflow:hidden}
+    .progreso-fill{background:#2a6496;height:100%;border-radius:999px;width:0%;transition:width .4s}
+    .progreso-texto{font-size:12px;color:#8a8480;margin-bottom:8px}
+    /* estilos para demos */
+    #demo3-lista{list-style:none;padding:0}
+    #demo3-lista li{padding:8px 12px;border-bottom:1px solid #e8e4de;font-size:14px}
+    #demo4-contador{font-size:48px;font-weight:700;font-family:Georgia,serif;color:#1a1814;line-height:1}
+    #demo5-caja{padding:16px;border-radius:10px;background:white;border:2px solid #e8e4de;transition:all .3s;font-size:14px}
+    #demo5-caja.oscuro{background:#1a1814;color:#f7f4ef;border-color:#3a3630}
+    .demo6-item{padding:6px 14px;border-radius:999px;border:2px solid #2a6496;color:#2a6496;font-size:13px;cursor:pointer;transition:all .2s;display:inline-block}
+    .demo6-item.seleccionado{background:#2a6496;color:white}
+    #demo7-lista{list-style:none;padding:0}
+    #demo7-lista li{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid #e8e4de;font-size:14px}
+    #demo7-lista li button{background:none;border:none;color:#c44a2a;cursor:pointer;font-size:16px}
+  </style>
+</head>
+<body>
+
+  <div class="nav-nivel">
+    <a href="index.html">← Todos los niveles</a>
+    <a href="nivel-04-bucles.html">← Nivel 04</a>
+    <a href="nivel-06-proyecto.html">Nivel 06 →</a>
+  </div>
+
+  <div class="nivel-header">
+    <div class="nivel-badge">HTML + JS · Nivel 05</div>
+    <h1 class="nivel-titulo">DOM — La página viva</h1>
+    <p class="nivel-desc">Aquí dejas de trabajar solo en la consola. Ahora modificas la página en tiempo real — cambias textos, colores, creas elementos y respondes a clics. Esto es lo que hace útil a JavaScript de verdad.</p>
+    <div class="nivel-meta"><span>📝 8 ejercicios</span><span>⏱️ ~35 minutos</span><span>📈 Nivel: Intermedio</span></div>
+  </div>
+
+  <p class="progreso-texto" id="progresoTexto">0 de 8 ejercicios completados</p>
+  <div class="progreso-bar"><div class="progreso-fill" id="progresoFill"></div></div>
+
+  <!-- EJ 1 -->
+  <div class="ejercicio" id="ej1">
+    <div class="ejercicio-header"><div class="ejercicio-num">1</div><h2 class="ejercicio-titulo">Cambiar el texto de un elemento</h2></div>
+    <div class="instruccion">📌 El párrafo de abajo dice "Texto original". Escribe código que lo cambie a "¡Lo cambié con JavaScript!"</div>
+    <div class="zona-visual">
+      <p class="zona-label">Zona de resultado — aquí verás el cambio:</p>
+      <p id="demo1-texto" style="font-size:18px;padding:8px;background:white;border-radius:6px;border:1px solid #e8e4de;display:inline-block">Texto original</p>
+    </div>
+    <p class="codigo-label">Seleccionar y modificar un elemento:</p>
+    <div class="codigo"><span class="c-key">const</span> el = document.querySelector(<span class="c-str">"#miId"</span>)
+el.textContent = <span class="c-str">"Nuevo texto"</span>
+<span class="c-comment">// querySelector acepta cualquier selector CSS</span>
+<span class="c-comment">// #id    → por id</span>
+<span class="c-comment">// .clase → por clase</span>
+<span class="c-comment">// p      → por etiqueta</span></div>
+    <p class="respuesta-label">✏️ Escribe tu código:</p>
+    <textarea id="code1" placeholder="const parrafo = document.querySelector('#demo1-texto')
+parrafo.textContent = '¡Lo cambié con JavaScript!'"></textarea>
+    <div class="btn-row">
+      <button class="btn-ejecutar" onclick="ejecutarDOM(1)">▶ Ejecutar</button>
+      <button class="btn-pista" onclick="togglePista(1)">💡 Pista</button>
+      <button class="btn-reset" onclick="resetEj(1)">↺ Limpiar</button>
+    </div>
+    <div class="pista-box" id="pista1">💡 El id del párrafo es <code>demo1-texto</code>.<br>Selecciónalo con: <code>document.querySelector('#demo1-texto')</code><br>El <code>#</code> significa "buscar por id" — igual que en CSS.</div>
+    <div class="resultado" id="resultado1"></div>
+  </div>
+
+  <!-- EJ 2 -->
+  <div class="ejercicio" id="ej2">
+    <div class="ejercicio-header"><div class="ejercicio-num">2</div><h2 class="ejercicio-titulo">Cambiar estilos con JavaScript</h2></div>
+    <div class="instruccion">📌 La caja de abajo es roja. Cámbiala a azul (<code>#2a6496</code>), texto blanco y cambia el texto a "¡Azul!"</div>
+    <div class="zona-visual">
+      <p class="zona-label">Zona de resultado:</p>
+      <div id="demo2-caja" style="background:#c44a2a;color:white;padding:12px 20px;border-radius:8px;display:inline-block;font-weight:600">Soy roja</div>
+    </div>
+    <p class="codigo-label">Cambiar estilos — camelCase:</p>
+    <div class="codigo"><span class="c-key">const</span> el = document.querySelector(<span class="c-str">"#elId"</span>)
+el.style.backgroundColor = <span class="c-str">"blue"</span>   <span class="c-comment">← background-color</span>
+el.style.fontSize         = <span class="c-str">"20px"</span>   <span class="c-comment">← font-size</span>
+el.style.color            = <span class="c-str">"white"</span>
+el.textContent            = <span class="c-str">"Nuevo"</span></div>
+    <p class="respuesta-label">✏️ Escribe tu código:</p>
+    <textarea id="code2" placeholder="const caja = document.querySelector('#demo2-caja')
+caja.style.backgroundColor = '#2a6496'
+caja.style.color = 'white'
+caja.textContent = '¡Azul!'"></textarea>
+    <div class="btn-row">
+      <button class="btn-ejecutar" onclick="ejecutarDOM(2)">▶ Ejecutar</button>
+      <button class="btn-pista" onclick="togglePista(2)">💡 Pista</button>
+      <button class="btn-reset" onclick="resetEj(2)">↺ Limpiar</button>
+    </div>
+    <div class="pista-box" id="pista2">💡 El id de la caja es <code>demo2-caja</code>.<br>En JavaScript las propiedades CSS se escriben en camelCase: <code>backgroundColor</code> no <code>background-color</code>.<br>Los colores van entre comillas: <code>'#2a6496'</code></div>
+    <div class="resultado" id="resultado2"></div>
+  </div>
+
+  <!-- EJ 3 -->
+  <div class="ejercicio" id="ej3">
+    <div class="ejercicio-header"><div class="ejercicio-num">3</div><h2 class="ejercicio-titulo">Crear elementos nuevos</h2></div>
+    <div class="instruccion">📌 La lista de abajo está vacía. Escribe código que agregue 3 elementos: "HTML", "CSS" y "JavaScript".</div>
+    <div class="zona-visual">
+      <p class="zona-label">Zona de resultado:</p>
+      <ul id="demo3-lista"></ul>
+    </div>
+    <p class="codigo-label">Crear y agregar elementos:</p>
+    <div class="codigo"><span class="c-comment">// 1. Crear el elemento</span>
+<span class="c-key">const</span> li = document.createElement(<span class="c-str">"li"</span>)
+<span class="c-comment">// 2. Configurarlo</span>
+li.textContent = <span class="c-str">"Nuevo item"</span>
+<span class="c-comment">// 3. Agregarlo a la página</span>
+<span class="c-key">const</span> lista = document.querySelector(<span class="c-str">"#miLista"</span>)
+lista.appendChild(li)</div>
+    <p class="respuesta-label">✏️ Escribe tu código:</p>
+    <textarea id="code3" style="min-height:170px" placeholder="const lista = document.querySelector('#demo3-lista')
+const temas = ['HTML', 'CSS', 'JavaScript']
+
+temas.forEach(tema => {
+  const li = document.createElement('li')
+  li.textContent = tema
+  lista.appendChild(li)
+})"></textarea>
+    <div class="btn-row">
+      <button class="btn-ejecutar" onclick="ejecutarDOM(3)">▶ Ejecutar</button>
+      <button class="btn-pista" onclick="togglePista(3)">💡 Pista</button>
+      <button class="btn-reset" onclick="resetEj(3)">↺ Limpiar</button>
+    </div>
+    <div class="pista-box" id="pista3">💡 Usa un arreglo con los 3 temas y forEach para crear un li por cada uno.<br>Cada vuelta: crear li → poner texto → appendChild al ul.</div>
+    <div class="resultado" id="resultado3"></div>
+  </div>
+
+  <!-- EJ 4 -->
+  <div class="ejercicio" id="ej4">
+    <div class="ejercicio-header"><div class="ejercicio-num">4</div><h2 class="ejercicio-titulo">Responder a un clic — contador</h2></div>
+    <div class="instruccion">📌 Haz que al hacer clic en el botón, el número aumente en 1 cada vez.</div>
+    <div class="zona-visual">
+      <p class="zona-label">Zona de resultado — haz clic en el botón:</p>
+      <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+        <div id="demo4-contador">0</div>
+        <button id="demo4-btn" style="background:#2a6496;color:white;border:none;padding:10px 24px;border-radius:999px;font-size:15px;cursor:pointer;font-weight:600">+1</button>
+      </div>
+    </div>
+    <p class="codigo-label">addEventListener — escuchar eventos:</p>
+    <div class="codigo"><span class="c-key">const</span> btn = document.querySelector(<span class="c-str">"#miBtn"</span>)
+btn.addEventListener(<span class="c-str">"click"</span>, () =&gt; {
+  <span class="c-comment">// se ejecuta cada vez que hacen clic</span>
+})</div>
+    <p class="respuesta-label">✏️ Escribe tu código:</p>
+    <textarea id="code4" placeholder="let contador = 0
+const btn     = document.querySelector('#demo4-btn')
+const display = document.querySelector('#demo4-contador')
+
+btn.addEventListener('click', () => {
+  contador++
+  display.textContent = contador
+})"></textarea>
+    <div class="btn-row">
+      <button class="btn-ejecutar" onclick="ejecutarDOM(4)">▶ Ejecutar</button>
+      <button class="btn-pista" onclick="togglePista(4)">💡 Pista</button>
+      <button class="btn-reset" onclick="resetEj(4)">↺ Limpiar</button>
+    </div>
+    <div class="pista-box" id="pista4">💡 Necesitas una variable <code>let</code> para guardar el número (no <code>const</code> porque cambia).<br><code>contador++</code> es lo mismo que <code>contador = contador + 1</code>.<br>Después actualiza el textContent del display.</div>
+    <div class="resultado" id="resultado4"></div>
+  </div>
+
+  <!-- EJ 5 -->
+  <div class="ejercicio" id="ej5">
+    <div class="ejercicio-header"><div class="ejercicio-num">5</div><h2 class="ejercicio-titulo">classList.toggle — alternar clases</h2></div>
+    <div class="instruccion">📌 Haz que al hacer clic en el botón, la caja alterne entre tema claro y oscuro usando <code>classList.toggle</code>.</div>
+    <div class="zona-visual">
+      <p class="zona-label">Zona de resultado — haz clic en el botón:</p>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div id="demo5-caja">Soy una caja — haz clic para cambiarme</div>
+        <button id="demo5-btn" style="background:#1a1814;color:white;border:none;padding:8px 20px;border-radius:999px;font-size:13px;cursor:pointer;align-self:flex-start;font-weight:600">Cambiar tema</button>
+      </div>
+    </div>
+    <p class="codigo-label">classList — manejar clases CSS desde JS:</p>
+    <div class="codigo">el.classList.add(<span class="c-str">"activo"</span>)       <span class="c-comment">← agrega</span>
+el.classList.remove(<span class="c-str">"activo"</span>)    <span class="c-comment">← quita</span>
+el.classList.toggle(<span class="c-str">"activo"</span>)    <span class="c-comment">← si la tiene la quita, si no la pone</span>
+el.classList.contains(<span class="c-str">"activo"</span>) <span class="c-comment">← true/false</span></div>
+    <p class="respuesta-label">✏️ Escribe tu código:</p>
+    <textarea id="code5" placeholder="const caja = document.querySelector('#demo5-caja')
+const btn  = document.querySelector('#demo5-btn')
+
+btn.addEventListener('click', () => {
+  caja.classList.toggle('oscuro')
+})"></textarea>
+    <div class="btn-row">
+      <button class="btn-ejecutar" onclick="ejecutarDOM(5)">▶ Ejecutar</button>
+      <button class="btn-pista" onclick="togglePista(5)">💡 Pista</button>
+      <button class="btn-reset" onclick="resetEj(5)">↺ Limpiar</button>
+    </div>
+    <div class="pista-box" id="pista5">💡 <code>toggle('oscuro')</code> agrega la clase si no la tiene, la quita si ya la tiene.<br>La clase CSS <code>.oscuro</code> ya está definida en este archivo — cambia el fondo a negro.<br>Haz clic varias veces para ver que alterna.</div>
+    <div class="resultado" id="resultado5"></div>
+  </div>
+
+  <!-- EJ 6 -->
+  <div class="ejercicio" id="ej6">
+    <div class="ejercicio-header"><div class="ejercicio-num">6</div><h2 class="ejercicio-titulo">querySelectorAll — seleccionar varios</h2></div>
+    <div class="instruccion">📌 Haz que al hacer clic en cada etiqueta, se marque como seleccionada y las demás se desmarquen.</div>
+    <div class="zona-visual">
+      <p class="zona-label">Zona de resultado — haz clic en las etiquetas:</p>
+      <div id="demo6-items" style="display:flex;flex-wrap:wrap;gap:8px">
+        <span class="demo6-item">HTML</span>
+        <span class="demo6-item">CSS</span>
+        <span class="demo6-item">JavaScript</span>
+        <span class="demo6-item">Python</span>
+        <span class="demo6-item">Firebase</span>
+      </div>
+    </div>
+    <p class="codigo-label">querySelectorAll devuelve todos los que coinciden:</p>
+    <div class="codigo"><span class="c-key">const</span> todos = document.querySelectorAll(<span class="c-str">".miClase"</span>)
+<span class="c-comment">// NodeList — se recorre con forEach</span>
+todos.forEach(el =&gt; {
+  el.addEventListener(<span class="c-str">"click"</span>, () =&gt; {
+    console.log(el.textContent)
+  })
+})</div>
+    <p class="respuesta-label">✏️ Escribe tu código:</p>
+    <textarea id="code6" style="min-height:160px" placeholder="const items = document.querySelectorAll('.demo6-item')
+
+items.forEach(item => {
+  item.addEventListener('click', () => {
+    // quitar 'seleccionado' de todos
+    items.forEach(i => i.classList.remove('seleccionado'))
+    // agregar 'seleccionado' al que se hizo clic
+    item.classList.add('seleccionado')
+  })
+})"></textarea>
+    <div class="btn-row">
+      <button class="btn-ejecutar" onclick="ejecutarDOM(6)">▶ Ejecutar</button>
+      <button class="btn-pista" onclick="togglePista(6)">💡 Pista</button>
+      <button class="btn-reset" onclick="resetEj(6)">↺ Limpiar</button>
+    </div>
+    <div class="pista-box" id="pista6">💡 El truco: primero quitar la clase de TODOS, luego agregar solo al que se hizo clic.<br>Dentro del evento tienes acceso a <code>items</code> (todos) y <code>item</code> (el clicado).</div>
+    <div class="resultado" id="resultado6"></div>
+  </div>
+
+  <!-- EJ 7 -->
+  <div class="ejercicio" id="ej7">
+    <div class="ejercicio-header"><div class="ejercicio-num">7</div><h2 class="ejercicio-titulo">Eliminar elementos del DOM</h2></div>
+    <div class="instruccion">📌 Cada elemento de la lista tiene un botón ✕. Haz que al hacer clic en ese botón, se elimine ese elemento completo.</div>
+    <div class="zona-visual">
+      <p class="zona-label">Zona de resultado — haz clic en ✕ para eliminar:</p>
+      <ul id="demo7-lista">
+        <li>Aprender HTML <button>✕</button></li>
+        <li>Aprender CSS <button>✕</button></li>
+        <li>Aprender JavaScript <button>✕</button></li>
+        <li>Hacer un proyecto <button>✕</button></li>
+      </ul>
+    </div>
+    <p class="codigo-label">Eliminar un elemento:</p>
+    <div class="codigo"><span class="c-comment">// El elemento se elimina a sí mismo</span>
+elemento.remove()
+
+<span class="c-comment">// Desde un hijo, eliminar el padre:</span>
+boton.addEventListener(<span class="c-str">"click"</span>, (e) =&gt; {
+  e.target.parentElement.remove()
+})</div>
+    <p class="respuesta-label">✏️ Escribe tu código:</p>
+    <textarea id="code7" placeholder="const botones = document.querySelectorAll('#demo7-lista button')
+
+botones.forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    e.target.parentElement.remove()
+  })
+})"></textarea>
+    <div class="btn-row">
+      <button class="btn-ejecutar" onclick="ejecutarDOM(7)">▶ Ejecutar</button>
+      <button class="btn-pista" onclick="togglePista(7)">💡 Pista</button>
+      <button class="btn-reset" onclick="resetEj(7)">↺ Limpiar</button>
+    </div>
+    <div class="pista-box" id="pista7">💡 <code>e.target</code> es el botón que se hizo clic.<br><code>e.target.parentElement</code> es el &lt;li&gt; que contiene ese botón.<br><code>.remove()</code> lo elimina completamente de la página.</div>
+    <div class="resultado" id="resultado7"></div>
+  </div>
+
+  <!-- EJ 8 -->
+  <div class="ejercicio" id="ej8">
+    <div class="ejercicio-header"><div class="ejercicio-num">8</div><h2 class="ejercicio-titulo">🏆 Reto final — Tarjetas dinámicas</h2></div>
+    <div class="instruccion">📌 Lee el texto del input, crea una tarjeta con ese texto y agrégala al contenedor. Si el input está vacío no hagas nada. Cada tarjeta debe tener un botón × para eliminarse.</div>
+    <div class="zona-visual">
+      <p class="zona-label">Zona de resultado:</p>
+      <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+        <input id="demo8-input" type="text" placeholder="Escribe algo..." style="flex:1;min-width:180px;padding:8px 14px;border:2px solid #e8e4de;border-radius:999px;font-size:14px;outline:none;font-family:inherit">
+        <button id="demo8-btn" style="background:#2a6496;color:white;border:none;padding:8px 20px;border-radius:999px;font-size:14px;cursor:pointer;font-weight:600">Agregar</button>
+      </div>
+      <div id="demo8-contenedor" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+    </div>
+    <p class="respuesta-label">✏️ Escribe tu código:</p>
+    <textarea id="code8" style="min-height:220px" placeholder="const input      = document.querySelector('#demo8-input')
+const btn        = document.querySelector('#demo8-btn')
+const contenedor = document.querySelector('#demo8-contenedor')
+
+btn.addEventListener('click', () => {
+  const texto = input.value.trim()
+  if (!texto) return
+
+  const tarjeta = document.createElement('div')
+  tarjeta.style.cssText = 'background:#1a1814;color:#f7f4ef;padding:8px 14px;border-radius:999px;font-size:13px;display:flex;gap:8px;align-items:center'
+
+  const span = document.createElement('span')
+  span.textContent = texto
+
+  const btnX = document.createElement('button')
+  btnX.textContent = '×'
+  btnX.style.cssText = 'background:none;border:none;color:rgba(247,244,239,.6);cursor:pointer;font-size:18px;line-height:1'
+  btnX.addEventListener('click', () => tarjeta.remove())
+
+  tarjeta.appendChild(span)
+  tarjeta.appendChild(btnX)
+  contenedor.appendChild(tarjeta)
+
+  input.value = ''
+  input.focus()
+})"></textarea>
+    <div class="btn-row">
+      <button class="btn-ejecutar" onclick="ejecutarDOM(8)">▶ Ejecutar</button>
+      <button class="btn-pista" onclick="togglePista(8)">💡 Pista</button>
+      <button class="btn-reset" onclick="resetEj(8)">↺ Limpiar</button>
+    </div>
+    <div class="pista-box" id="pista8">💡 Pasos: 1) leer input.value.trim() 2) si está vacío return 3) crear div tarjeta 4) crear botón × con evento que hace tarjeta.remove() 5) appendear todo 6) limpiar el input.<br>Al final: <code>input.value = ''</code> y <code>input.focus()</code> para que quede listo para el siguiente.</div>
+    <div class="resultado" id="resultado8"></div>
+  </div>
+
+  <div class="nivel-completado" id="nivelCompletado">
+    <div class="completado-emoji">🎉</div>
+    <h2 class="completado-titulo">¡Nivel 05 completado!</h2>
+    <p class="completado-desc">Ahora puedes modificar cualquier cosa de una página web desde JavaScript — textos, estilos, clases, crear elementos y responder a clics.<br><br>En el último nivel construyes una app completa con todo lo aprendido.</p>
+    <a href="nivel-06-proyecto.html" class="btn-siguiente">Nivel 06 — Proyecto Final →</a>
+  </div>
+
+  <script>
+    const TOTAL = 8, CLAVE = 'cafe-practica-n05';
+    const completados = new Set();
+    const g = localStorage.getItem(CLAVE);
+    if (g) JSON.parse(g).forEach(v => completados.add(v));
+    actualizar();
+
+    // Estados iniciales para resetear demos
+    const resetDemos = {
+      1: () => { document.getElementById('demo1-texto').textContent = 'Texto original' },
+      2: () => { const c=document.getElementById('demo2-caja'); c.style.backgroundColor='#c44a2a'; c.style.color='white'; c.textContent='Soy roja' },
+      3: () => { document.getElementById('demo3-lista').innerHTML = '' },
+      4: () => { document.getElementById('demo4-contador').textContent = '0' },
+      5: () => { document.getElementById('demo5-caja').classList.remove('oscuro') },
+      6: () => { document.querySelectorAll('.demo6-item').forEach(i => i.classList.remove('seleccionado')) },
+      7: () => { document.getElementById('demo7-lista').innerHTML = '<li>Aprender HTML <button>✕</button></li><li>Aprender CSS <button>✕</button></li><li>Aprender JavaScript <button>✕</button></li><li>Hacer un proyecto <button>✕</button></li>' },
+      8: () => { document.getElementById('demo8-contenedor').innerHTML = ''; document.getElementById('demo8-input').value = '' }
+    };
+
+    function ejecutarDOM(num) {
+      const code = document.getElementById('code'+num).value.trim();
+      if (!code) { mostrar(num,'error','⚠️ Escribe algo primero.'); return }
+      if (resetDemos[num]) resetDemos[num]();
+      try {
+        new Function(code)();
+        mostrar(num, 'ok', '✅ Código ejecutado — mira la zona azul arriba para ver el resultado.');
+        if (!completados.has(num)) {
+          completados.add(num);
+          localStorage.setItem(CLAVE, JSON.stringify([...completados]));
+          actualizar();
+        }
+      } catch(e) {
+        mostrar(num, 'error', '❌ Error: ' + e.message + '\n\n💡 Revisa la sintaxis.');
+      }
+    }
+
+    function mostrar(n,t,txt) { const e=document.getElementById('resultado'+n); e.className='resultado '+t; e.textContent=txt }
+    function togglePista(n) { document.getElementById('pista'+n).classList.toggle('visible') }
+    function resetEj(n) {
+      document.getElementById('code'+n).value = '';
+      const r = document.getElementById('resultado'+n); r.className='resultado'; r.textContent='';
+      document.getElementById('pista'+n).classList.remove('visible');
+      if (resetDemos[n]) resetDemos[n]();
+    }
+    function actualizar() {
+      const n = completados.size;
+      document.getElementById('progresoFill').style.width = Math.round(n/TOTAL*100)+'%';
+      document.getElementById('progresoTexto').textContent = n+' de '+TOTAL+' ejercicios completados';
+      if (n === TOTAL) document.getElementById('nivelCompletado').classList.add('visible');
+    }
+  </script>
+</body>
+</html>

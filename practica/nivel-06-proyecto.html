@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Café </> · Nivel 06 — Proyecto Lista de Tareas</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Segoe UI',sans-serif;background:#f7f4ef;color:#1a1814;padding:32px 20px 80px;max-width:800px;margin:0 auto}
+    .nivel-header{background:#1a1814;color:#f7f4ef;border-radius:14px;padding:28px 32px;margin-bottom:32px}
+    .nivel-badge{display:inline-block;background:#c44a2a;color:white;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:4px 12px;border-radius:999px;margin-bottom:12px}
+    .nivel-titulo{font-size:26px;font-weight:700;margin-bottom:8px}
+    .nivel-desc{font-size:14px;color:rgba(247,244,239,.65);line-height:1.6}
+    .nivel-meta{display:flex;gap:20px;margin-top:16px;font-size:13px;color:rgba(247,244,239,.5);flex-wrap:wrap}
+    .nav-nivel{display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap}
+    .nav-nivel a{font-size:13px;color:#8a8480;text-decoration:none;padding:6px 14px;border:1px solid #e8e4de;border-radius:999px}
+    .nav-nivel a:hover{color:#1a1814;border-color:#8a8480}
+
+    /* PASO */
+    .paso{background:white;border:1px solid #e8e4de;border-radius:14px;margin-bottom:24px;overflow:hidden}
+    .paso-header{padding:24px 28px 0;display:flex;align-items:flex-start;gap:14px}
+    .paso-num{background:#c44a2a;color:white;font-size:13px;font-weight:700;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+    .paso-info{flex:1}
+    .paso-titulo{font-size:18px;font-weight:700;margin-bottom:4px}
+    .paso-subtitulo{font-size:13px;color:#8a8480}
+    .paso-body{padding:20px 28px 24px}
+    .instruccion{font-size:14px;color:#4a4640;line-height:1.7;margin-bottom:16px;padding:12px 16px;background:#f7f4ef;border-radius:8px;border-left:3px solid #c44a2a}
+
+    /* APP DEMO */
+    .app-demo{background:#f0ece6;border-radius:10px;padding:20px;margin-bottom:16px}
+    .app-demo-label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#8a8480;margin-bottom:12px;font-family:monospace}
+
+    /* CÓDIGO */
+    .codigo-label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#8a8480;margin-bottom:6px;font-family:monospace}
+    .codigo{background:#1a1814;color:#f0ece6;border-radius:10px;padding:16px 20px;font-family:'Cascadia Code','Fira Code',Consolas,monospace;font-size:13px;line-height:1.8;white-space:pre;overflow-x:auto;margin-bottom:14px}
+    .c-comment{color:rgba(240,236,230,.4)}.c-key{color:#FAC775}.c-str{color:#9FE1CB}.c-num{color:#79C0FF}
+
+    /* EDITOR */
+    .respuesta-label{font-size:12px;font-weight:600;color:#4a4640;margin-bottom:6px}
+    textarea{width:100%;background:#1a1814;color:#f0ece6;border:2px solid #3a3630;border-radius:10px;padding:16px 18px;font-family:'Cascadia Code','Fira Code',Consolas,monospace;font-size:13px;line-height:1.8;resize:vertical;outline:none;transition:border-color .15s;min-height:120px}
+    textarea:focus{border-color:#c44a2a}
+    textarea::placeholder{color:rgba(240,236,230,.25)}
+    .btn-row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+    .btn-ejecutar{background:#c44a2a;color:white;border:none;padding:10px 22px;border-radius:999px;font-size:14px;font-weight:600;cursor:pointer;transition:background .15s}
+    .btn-ejecutar:hover{background:#a33b21}
+    .btn-pista{background:transparent;color:#8a8480;border:1px solid #e8e4de;padding:10px 18px;border-radius:999px;font-size:13px;cursor:pointer}
+    .btn-pista:hover{border-color:#8a8480;color:#4a4640}
+    .btn-reset{background:transparent;color:#8a8480;border:none;padding:10px 12px;font-size:13px;cursor:pointer}
+    .resultado{margin-top:14px;border-radius:10px;padding:14px 18px;font-size:13px;line-height:1.6;display:none;white-space:pre-wrap}
+    .resultado.ok{background:#edf7f3;border:1px solid #b8e0d0;color:#1a7a5a;display:block}
+    .resultado.error{background:#fdf0ec;border:1px solid #f0c4b8;color:#c44a2a;display:block}
+    .pista-box{display:none;margin-top:12px;padding:14px 18px;background:#fdf6e8;border:1px solid #f0d898;border-radius:10px;font-size:13px;color:#b07010;line-height:1.7}
+    .pista-box.visible{display:block}
+
+    /* PROGRESO */
+    .progreso-bar{background:#e8e4de;border-radius:999px;height:6px;margin-bottom:28px;overflow:hidden}
+    .progreso-fill{background:#c44a2a;height:100%;border-radius:999px;width:0%;transition:width .4s}
+    .progreso-texto{font-size:12px;color:#8a8480;margin-bottom:8px}
+
+    /* LA APP FINAL */
+    .app-final{background:white;border:2px solid #e8e4de;border-radius:14px;overflow:hidden;margin-bottom:16px}
+    .app-final-header{background:#1a1814;padding:20px 24px}
+    .app-final-titulo{color:#f7f4ef;font-size:20px;font-weight:700;margin-bottom:4px}
+    .app-final-stats{font-size:13px;color:rgba(247,244,239,.5)}
+    .app-final-form{padding:20px 24px;border-bottom:1px solid #f0ece6;display:flex;gap:10px}
+    .app-final-form input{flex:1;padding:10px 16px;border:2px solid #e8e4de;border-radius:999px;font-size:14px;outline:none;font-family:inherit;transition:border-color .15s}
+    .app-final-form input:focus{border-color:#c44a2a}
+    .app-final-form button{background:#c44a2a;color:white;border:none;padding:10px 20px;border-radius:999px;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap}
+    .app-final-lista{padding:8px 0;min-height:80px}
+    .app-final-lista .vacio{text-align:center;padding:32px;color:#8a8480;font-size:14px}
+    .tarea-item{display:flex;align-items:center;gap:12px;padding:12px 24px;border-bottom:1px solid #f7f4ef;transition:background .15s}
+    .tarea-item:hover{background:#fafafa}
+    .tarea-item:last-child{border-bottom:none}
+    .tarea-check{width:20px;height:20px;border:2px solid #e8e4de;border-radius:50%;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s;background:white}
+    .tarea-check.done{background:#c44a2a;border-color:#c44a2a;color:white;font-size:11px}
+    .tarea-texto{flex:1;font-size:14px;transition:all .2s}
+    .tarea-texto.done{text-decoration:line-through;color:#8a8480}
+    .tarea-del{background:none;border:none;color:#e8e4de;cursor:pointer;font-size:18px;padding:0 4px;transition:color .15s}
+    .tarea-del:hover{color:#c44a2a}
+    .app-final-footer{padding:12px 24px;background:#f7f4ef;display:flex;gap:8px;flex-wrap:wrap}
+    .filtro-btn{background:transparent;border:1px solid #e8e4de;padding:5px 14px;border-radius:999px;font-size:12px;cursor:pointer;transition:all .15s}
+    .filtro-btn.activo{background:#1a1814;color:white;border-color:#1a1814}
+
+    /* COMPLETADO FINAL */
+    .fin{display:none;background:#1a1814;color:#f7f4ef;border-radius:14px;padding:40px 32px;text-align:center;margin-top:32px}
+    .fin.visible{display:block}
+    .fin-emoji{font-size:56px;margin-bottom:16px}
+    .fin-titulo{font-size:26px;font-weight:700;margin-bottom:12px;font-family:Georgia,serif}
+    .fin-desc{font-size:15px;color:rgba(247,244,239,.65);line-height:1.8;margin-bottom:28px;max-width:500px;margin-left:auto;margin-right:auto}
+    .fin-logros{display:flex;justify-content:center;gap:32px;margin-bottom:32px;flex-wrap:wrap}
+    .logro{text-align:center}
+    .logro-n{font-size:32px;font-weight:700;font-family:Georgia,serif;color:#c44a2a}
+    .logro-l{font-size:12px;color:rgba(247,244,239,.5);margin-top:4px}
+    .fin-volver{display:inline-block;background:white;color:#1a1814;padding:14px 28px;border-radius:999px;font-size:15px;font-weight:600;text-decoration:none}
+    .fin-volver:hover{background:#f0ece6}
+  </style>
+</head>
+<body>
+
+  <div class="nav-nivel">
+    <a href="index.html">← Todos los niveles</a>
+    <a href="nivel-05-dom.html">← Nivel 05</a>
+  </div>
+
+  <div class="nivel-header">
+    <div class="nivel-badge">🏆 Proyecto Final · Nivel 06</div>
+    <h1 class="nivel-titulo">Lista de Tareas — Tu primera app real</h1>
+    <p class="nivel-desc">Construyes una app completa paso a paso. Cada paso agrega una funcionalidad nueva. Al terminar tendrás una app que funciona de verdad, con datos que se guardan aunque cierres el navegador.</p>
+    <div class="nivel-meta">
+      <span>🔨 5 pasos</span>
+      <span>⏱️ ~45 minutos</span>
+      <span>📈 Usa todo lo aprendido</span>
+      <span>💾 Con localStorage</span>
+    </div>
+  </div>
+
+  <p class="progreso-texto" id="progresoTexto">0 de 5 pasos completados</p>
+  <div class="progreso-bar"><div class="progreso-fill" id="progresoFill"></div></div>
+
+  <!-- ================================
+       PASO 1 — HTML de la app
+       ================================ -->
+  <div class="paso" id="paso1">
+    <div class="paso-header">
+      <div class="paso-num">1</div>
+      <div class="paso-info">
+        <h2 class="paso-titulo">La estructura HTML</h2>
+        <p class="paso-subtitulo">Primero el esqueleto — qué elementos necesita la app</p>
+      </div>
+    </div>
+    <div class="paso-body">
+      <div class="instruccion">
+        📌 Antes de escribir JavaScript, necesitas el HTML. Una lista de tareas necesita:<br><br>
+        • Un <strong>input</strong> para escribir la tarea<br>
+        • Un <strong>botón</strong> para agregarla<br>
+        • Una <strong>lista</strong> donde aparecen las tareas<br><br>
+        Observa la estructura y responde: ¿qué id tiene el input? ¿Y la lista?
+      </div>
+      <p class="codigo-label">HTML de la app:</p>
+      <div class="codigo"><span class="c-comment">&lt;!-- La app completa en HTML --&gt;</span>
+&lt;<span class="c-key">div</span> class=<span class="c-str">"app"</span>&gt;
+
+  &lt;<span class="c-key">h1</span>&gt;Mis Tareas&lt;/<span class="c-key">h1</span>&gt;
+
+  &lt;<span class="c-comment">&lt;!-- Formulario para agregar --&gt;</span>
+  &lt;<span class="c-key">div</span> class=<span class="c-str">"form-agregar"</span>&gt;
+    &lt;<span class="c-key">input</span> type=<span class="c-str">"text"</span> id=<span class="c-str">"inputTarea"</span> placeholder=<span class="c-str">"Nueva tarea..."</span>&gt;
+    &lt;<span class="c-key">button</span> id=<span class="c-str">"btnAgregar"</span>&gt;Agregar&lt;/<span class="c-key">button</span>&gt;
+  &lt;/<span class="c-key">div</span>&gt;
+
+  &lt;<span class="c-comment">&lt;!-- Lista donde aparecen las tareas --&gt;</span>
+  &lt;<span class="c-key">ul</span> id=<span class="c-str">"listaTareas"</span>&gt;&lt;/<span class="c-key">ul</span>&gt;
+
+&lt;/<span class="c-key">div</span>&gt;</div>
+      <div class="instruccion" style="border-color:#1a7a5a;background:#edf7f3;color:#1a7a5a">
+        ✅ Regla fundamental antes de escribir JavaScript:<br>
+        <strong>Siempre escribe primero el HTML y asígnale ids a los elementos que vas a necesitar desde JavaScript.</strong>
+        Sin esos ids no puedes seleccionarlos con querySelector.
+      </div>
+      <p class="respuesta-label">✏️ ¿Qué id tiene el input? ¿Qué id tiene la lista? Escríbelo:</p>
+      <textarea id="code1" style="min-height:80px" placeholder="// El input tiene id: ...
+// La lista tiene id: ...
+// El botón tiene id: ...
+console.log('El input es: inputTarea')
+console.log('La lista es: listaTareas')
+console.log('El boton es: btnAgregar')"></textarea>
+      <div class="btn-row">
+        <button class="btn-ejecutar" onclick="ejecutar(1)">▶ Ejecutar</button>
+        <button class="btn-pista" onclick="togglePista(1)">💡 Pista</button>
+      </div>
+      <div class="pista-box" id="pista1">💡 Mira el HTML de arriba. Cada elemento que necesitas desde JS tiene un <code>id</code>.<br>El input: <code>id="inputTarea"</code> → seleccionas con <code>querySelector('#inputTarea')</code><br>La lista: <code>id="listaTareas"</code> → seleccionas con <code>querySelector('#listaTareas')</code></div>
+      <div class="resultado" id="resultado1"></div>
+    </div>
+  </div>
+
+  <!-- ================================
+       PASO 2 — Agregar tareas
+       ================================ -->
+  <div class="paso" id="paso2">
+    <div class="paso-header">
+      <div class="paso-num">2</div>
+      <div class="paso-info">
+        <h2 class="paso-titulo">Agregar tareas</h2>
+        <p class="paso-subtitulo">Leer el input, crear el elemento y agregarlo a la lista</p>
+      </div>
+    </div>
+    <div class="paso-body">
+      <div class="instruccion">
+        📌 Cuando el usuario hace clic en "Agregar":<br>
+        1. Leer el texto del input<br>
+        2. Si está vacío, no hacer nada<br>
+        3. Crear un &lt;li&gt; con ese texto<br>
+        4. Agregarlo a la lista<br>
+        5. Limpiar el input<br><br>
+        Escribe la función <strong>agregarTarea()</strong> y conéctala al botón.
+      </div>
+      <div class="app-demo">
+        <p class="app-demo-label">Demo interactiva — prueba tu código aquí:</p>
+        <div style="display:flex;gap:10px;margin-bottom:12px">
+          <input id="p2-input" type="text" placeholder="Nueva tarea..." style="flex:1;padding:8px 14px;border:2px solid #e8e4de;border-radius:999px;font-size:14px;outline:none;font-family:inherit">
+          <button id="p2-btn" style="background:#c44a2a;color:white;border:none;padding:8px 18px;border-radius:999px;font-size:14px;font-weight:600;cursor:pointer">Agregar</button>
+        </div>
+        <ul id="p2-lista" style="list-style:none;padding:0"></ul>
+      </div>
+      <p class="codigo-label">La lógica paso a paso:</p>
+      <div class="codigo"><span class="c-key">function</span> agregarTarea() {
+  <span class="c-comment">// 1. Leer el input</span>
+  <span class="c-key">const</span> texto = document.querySelector(<span class="c-str">'#inputTarea'</span>).value.trim()
+
+  <span class="c-comment">// 2. Validar que no esté vacío</span>
+  <span class="c-key">if</span> (!texto) <span class="c-key">return</span>
+
+  <span class="c-comment">// 3. Crear el elemento de lista</span>
+  <span class="c-key">const</span> li = document.createElement(<span class="c-str">'li'</span>)
+  li.textContent = texto
+
+  <span class="c-comment">// 4. Agregarlo a la lista</span>
+  document.querySelector(<span class="c-str">'#listaTareas'</span>).appendChild(li)
+
+  <span class="c-comment">// 5. Limpiar el input</span>
+  document.querySelector(<span class="c-str">'#inputTarea'</span>).value = <span class="c-str">''</span>
+}
+
+<span class="c-comment">// Conectar al botón</span>
+document.querySelector(<span class="c-str">'#btnAgregar'</span>).addEventListener(<span class="c-str">'click'</span>, agregarTarea)</div>
+      <p class="respuesta-label">✏️ Adapta el código para la demo (usa los ids p2-input, p2-btn, p2-lista):</p>
+      <textarea id="code2" style="min-height:180px" placeholder="function agregarTarea() {
+  const texto = document.querySelector('#p2-input').value.trim()
+  if (!texto) return
+
+  const li = document.createElement('li')
+  li.textContent = texto
+  li.style.padding = '8px 0'
+  li.style.borderBottom = '1px solid #e8e4de'
+
+  document.querySelector('#p2-lista').appendChild(li)
+  document.querySelector('#p2-input').value = ''
+}
+
+document.querySelector('#p2-btn').addEventListener('click', agregarTarea)"></textarea>
+      <div class="btn-row">
+        <button class="btn-ejecutar" onclick="ejecutarDOM(2)">▶ Ejecutar y probar</button>
+        <button class="btn-pista" onclick="togglePista(2)">💡 Pista</button>
+        <button class="btn-reset" onclick="resetPaso(2)">↺ Limpiar</button>
+      </div>
+      <div class="pista-box" id="pista2">💡 La diferencia de los ids en la demo: usa <code>#p2-input</code>, <code>#p2-btn</code>, <code>#p2-lista</code>.<br>El código es exactamente igual — solo cambian los ids.<br>Después de ejecutar, escribe algo en el input y haz clic en Agregar.</div>
+      <div class="resultado" id="resultado2"></div>
+    </div>
+  </div>
+
+  <!-- ================================
+       PASO 3 — Marcar y eliminar
+       ================================ -->
+  <div class="paso" id="paso3">
+    <div class="paso-header">
+      <div class="paso-num">3</div>
+      <div class="paso-info">
+        <h2 class="paso-titulo">Marcar como hecha y eliminar</h2>
+        <p class="paso-subtitulo">Cada tarea tiene un botón para completar y otro para borrar</p>
+      </div>
+    </div>
+    <div class="paso-body">
+      <div class="instruccion">
+        📌 Ahora cada tarea necesita dos acciones:<br>
+        • <strong>✓ Marcar</strong> — tachado con clase CSS<br>
+        • <strong>✕ Eliminar</strong> — remover el &lt;li&gt; completo<br><br>
+        En lugar de crear solo un &lt;li&gt; con texto, crearás una estructura más completa con los botones incluidos.
+      </div>
+      <div class="app-demo">
+        <p class="app-demo-label">Demo — agrega tareas y prueba los botones:</p>
+        <div style="display:flex;gap:10px;margin-bottom:12px">
+          <input id="p3-input" type="text" placeholder="Nueva tarea..." style="flex:1;padding:8px 14px;border:2px solid #e8e4de;border-radius:999px;font-size:14px;outline:none;font-family:inherit">
+          <button id="p3-btn" style="background:#c44a2a;color:white;border:none;padding:8px 18px;border-radius:999px;font-size:14px;font-weight:600;cursor:pointer">Agregar</button>
+        </div>
+        <ul id="p3-lista" style="list-style:none;padding:0"></ul>
+      </div>
+      <p class="codigo-label">Crear una tarea con botones:</p>
+      <div class="codigo"><span class="c-key">function</span> crearTarea(texto) {
+  <span class="c-key">const</span> li = document.createElement(<span class="c-str">'li'</span>)
+  li.style.cssText = <span class="c-str">'display:flex;gap:8px;padding:8px 0;border-bottom:1px solid #f0ece6'</span>
+
+  <span class="c-comment">// Botón de completar</span>
+  <span class="c-key">const</span> btnCheck = document.createElement(<span class="c-str">'button'</span>)
+  btnCheck.textContent = <span class="c-str">'✓'</span>
+  btnCheck.addEventListener(<span class="c-str">'click'</span>, () =&gt; {
+    span.classList.toggle(<span class="c-str">'hecha'</span>)
+  })
+
+  <span class="c-comment">// Texto de la tarea</span>
+  <span class="c-key">const</span> span = document.createElement(<span class="c-str">'span'</span>)
+  span.textContent = texto
+  span.style.flex = <span class="c-str">'1'</span>
+
+  <span class="c-comment">// Botón de eliminar</span>
+  <span class="c-key">const</span> btnDel = document.createElement(<span class="c-str">'button'</span>)
+  btnDel.textContent = <span class="c-str">'✕'</span>
+  btnDel.addEventListener(<span class="c-str">'click'</span>, () =&gt; li.remove())
+
+  li.appendChild(btnCheck)
+  li.appendChild(span)
+  li.appendChild(btnDel)
+  <span class="c-key">return</span> li
+}</div>
+      <p class="respuesta-label">✏️ Implementa la función completa y conéctala al botón:</p>
+      <textarea id="code3" style="min-height:220px" placeholder="function crearTarea(texto) {
+  const li = document.createElement('li')
+  li.style.cssText = 'display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #e8e4de'
+
+  const btnCheck = document.createElement('button')
+  btnCheck.textContent = '✓'
+  btnCheck.style.cssText = 'background:#edf7f3;border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;color:#1a7a5a;font-weight:700'
+
+  const span = document.createElement('span')
+  span.textContent = texto
+  span.style.flex = '1'
+
+  const btnDel = document.createElement('button')
+  btnDel.textContent = '✕'
+  btnDel.style.cssText = 'background:none;border:none;color:#c44a2a;cursor:pointer;font-size:16px'
+
+  btnCheck.addEventListener('click', () => {
+    span.style.textDecoration = span.style.textDecoration === 'line-through' ? 'none' : 'line-through'
+    span.style.color = span.style.color === 'rgb(138, 132, 128)' ? '#1a1814' : '#8a8480'
+  })
+
+  btnDel.addEventListener('click', () => li.remove())
+
+  li.appendChild(btnCheck)
+  li.appendChild(span)
+  li.appendChild(btnDel)
+  return li
+}
+
+function agregarTarea() {
+  const texto = document.querySelector('#p3-input').value.trim()
+  if (!texto) return
+  document.querySelector('#p3-lista').appendChild(crearTarea(texto))
+  document.querySelector('#p3-input').value = ''
+}
+
+document.querySelector('#p3-btn').addEventListener('click', agregarTarea)"></textarea>
+      <div class="btn-row">
+        <button class="btn-ejecutar" onclick="ejecutarDOM(3)">▶ Ejecutar y probar</button>
+        <button class="btn-pista" onclick="togglePista(3)">💡 Pista</button>
+        <button class="btn-reset" onclick="resetPaso(3)">↺ Limpiar</button>
+      </div>
+      <div class="pista-box" id="pista3">💡 La función <code>crearTarea</code> devuelve el li completo con sus botones.<br>Luego en <code>agregarTarea</code> llamas a <code>crearTarea(texto)</code> y haces appendChild del resultado.<br>Prueba: agrega 3 tareas, marca una como hecha y elimina otra.</div>
+      <div class="resultado" id="resultado3"></div>
+    </div>
+  </div>
+
+  <!-- ================================
+       PASO 4 — localStorage
+       ================================ -->
+  <div class="paso" id="paso4">
+    <div class="paso-header">
+      <div class="paso-num">4</div>
+      <div class="paso-info">
+        <h2 class="paso-titulo">Guardar con localStorage</h2>
+        <p class="paso-subtitulo">Las tareas sobreviven aunque cierres el navegador</p>
+      </div>
+    </div>
+    <div class="paso-body">
+      <div class="instruccion">
+        📌 El problema ahora: si recargas la página, las tareas desaparecen.<br><br>
+        La solución: guardar las tareas en <code>localStorage</code> cada vez que cambien.<br><br>
+        El patrón es siempre el mismo:<br>
+        1. Tener un arreglo <code>tareas</code> en JavaScript<br>
+        2. Cada cambio → actualizar el arreglo → guardar con <code>JSON.stringify</code><br>
+        3. Al cargar la página → leer con <code>JSON.parse</code> → dibujar todo
+      </div>
+      <p class="codigo-label">El patrón de localStorage con arreglos:</p>
+      <div class="codigo"><span class="c-comment">// El arreglo de tareas — la fuente de verdad</span>
+<span class="c-key">let</span> tareas = []
+
+<span class="c-comment">// Al cargar la página — recuperar lo guardado</span>
+<span class="c-key">const</span> guardadas = localStorage.getItem(<span class="c-str">'mis-tareas'</span>)
+<span class="c-key">if</span> (guardadas) tareas = JSON.parse(guardadas)
+
+<span class="c-comment">// Guardar después de cada cambio</span>
+<span class="c-key">function</span> guardar() {
+  localStorage.setItem(<span class="c-str">'mis-tareas'</span>, JSON.stringify(tareas))
+}
+
+<span class="c-comment">// Agregar una tarea</span>
+<span class="c-key">function</span> agregar(texto) {
+  tareas.push({ id: Date.now(), texto, hecha: <span class="c-key">false</span> })
+  guardar()
+  dibujar()   <span class="c-comment">← redibuja toda la lista</span>
+}
+
+<span class="c-comment">// Dibujar la lista desde el arreglo</span>
+<span class="c-key">function</span> dibujar() {
+  <span class="c-key">const</span> lista = document.querySelector(<span class="c-str">'#listaTareas'</span>)
+  lista.innerHTML = <span class="c-str">''</span>   <span class="c-comment">← limpiar primero</span>
+  tareas.forEach(tarea =&gt; {
+    lista.appendChild(crearElemento(tarea))
+  })
+}</div>
+      <p class="respuesta-label">✏️ Escribe en la consola las respuestas a estas preguntas:</p>
+      <textarea id="code4" style="min-height:120px" placeholder="// Responde ejecutando este código:
+console.log('1. ¿Qué hace JSON.stringify?')
+console.log('   Convierte un objeto/arreglo a texto para guardarlo')
+
+console.log('2. ¿Qué hace JSON.parse?')
+console.log('   Convierte el texto de vuelta a objeto/arreglo')
+
+console.log('3. ¿Por qué usamos Date.now() como id?')
+console.log('   Genera un número único basado en el tiempo actual')
+
+console.log('4. ¿Por qué vaciamos la lista antes de dibujar?')
+console.log('   Para no duplicar elementos al redibujar')"></textarea>
+      <div class="btn-row">
+        <button class="btn-ejecutar" onclick="ejecutar(4)">▶ Ejecutar</button>
+        <button class="btn-pista" onclick="togglePista(4)">💡 Pista</button>
+      </div>
+      <div class="pista-box" id="pista4">💡 <code>Date.now()</code> devuelve los milisegundos desde 1970 — siempre es único.<br>Sirve como id porque dos tareas nunca se crean en el mismo milisegundo exacto.<br>Vaciar con <code>innerHTML = ''</code> antes de dibujar evita que los elementos se dupliquen.</div>
+      <div class="resultado" id="resultado4"></div>
+    </div>
+  </div>
+
+  <!-- ================================
+       PASO 5 — APP COMPLETA
+       ================================ -->
+  <div class="paso" id="paso5">
+    <div class="paso-header">
+      <div class="paso-num">5</div>
+      <div class="paso-info">
+        <h2 class="paso-titulo">🏆 La app completa</h2>
+        <p class="paso-subtitulo">Todo junto — agregar, completar, eliminar, filtrar y guardar</p>
+      </div>
+    </div>
+    <div class="paso-body">
+      <div class="instruccion">
+        📌 Esta es la versión final con todo integrado. Lee el código completo, entiende cómo funciona cada parte, y luego ejecútalo para activar la app de abajo.<br><br>
+        Funcionalidades incluidas: agregar tareas · marcar como hecha · eliminar · filtros (todas/pendientes/hechas) · contador · persistencia con localStorage
+      </div>
+
+      <!-- LA APP FINAL -->
+      <div class="app-final">
+        <div class="app-final-header">
+          <div class="app-final-titulo">📝 Mis Tareas</div>
+          <div class="app-final-stats" id="app-stats">0 tareas</div>
+        </div>
+        <div class="app-final-form">
+          <input id="app-input" type="text" placeholder="Escribe una nueva tarea...">
+          <button id="app-btn">Agregar</button>
+        </div>
+        <ul class="app-final-lista" id="app-lista">
+          <li class="vacio">No hay tareas aún. ¡Agrega una!</li>
+        </ul>
+        <div class="app-final-footer">
+          <button class="filtro-btn activo" data-filtro="todas">Todas</button>
+          <button class="filtro-btn" data-filtro="pendientes">Pendientes</button>
+          <button class="filtro-btn" data-filtro="hechas">Hechas</button>
+        </div>
+      </div>
+
+      <p class="codigo-label">El código completo — léelo, entiéndelo, ejecútalo:</p>
+      <textarea id="code5" style="min-height:400px" placeholder="// ============================================
+// APP COMPLETA — Lista de Tareas
+// ============================================
+
+// 1. ESTADO — el arreglo es la fuente de verdad
+let tareas = []
+let filtroActual = 'todas'
+
+// Cargar tareas guardadas
+const guardadas = localStorage.getItem('cafe-app-tareas')
+if (guardadas) tareas = JSON.parse(guardadas)
+
+// 2. REFERENCIAS AL DOM
+const input   = document.querySelector('#app-input')
+const btnAdd  = document.querySelector('#app-btn')
+const lista   = document.querySelector('#app-lista')
+const stats   = document.querySelector('#app-stats')
+const filtros = document.querySelectorAll('.filtro-btn')
+
+// 3. GUARDAR EN LOCALSTORAGE
+function guardar() {
+  localStorage.setItem('cafe-app-tareas', JSON.stringify(tareas))
+}
+
+// 4. ACTUALIZAR STATS
+function actualizarStats() {
+  const total    = tareas.length
+  const hechas   = tareas.filter(t => t.hecha).length
+  const pending  = total - hechas
+  stats.textContent = `${total} tareas · ${hechas} hechas · ${pending} pendientes`
+}
+
+// 5. CREAR ELEMENTO DE TAREA
+function crearElemento(tarea) {
+  const li = document.createElement('li')
+  li.className = 'tarea-item'
+  li.dataset.id = tarea.id
+
+  const check = document.createElement('div')
+  check.className = 'tarea-check' + (tarea.hecha ? ' done' : '')
+  check.textContent = tarea.hecha ? '✓' : ''
+  check.addEventListener('click', () => toggleHecha(tarea.id))
+
+  const span = document.createElement('span')
+  span.className = 'tarea-texto' + (tarea.hecha ? ' done' : '')
+  span.textContent = tarea.texto
+
+  const btnDel = document.createElement('button')
+  btnDel.className = 'tarea-del'
+  btnDel.textContent = '✕'
+  btnDel.addEventListener('click', () => eliminar(tarea.id))
+
+  li.appendChild(check)
+  li.appendChild(span)
+  li.appendChild(btnDel)
+  return li
+}
+
+// 6. DIBUJAR LA LISTA
+function dibujar() {
+  lista.innerHTML = ''
+
+  const visibles = tareas.filter(t => {
+    if (filtroActual === 'hechas')    return t.hecha
+    if (filtroActual === 'pendientes') return !t.hecha
+    return true
+  })
+
+  if (visibles.length === 0) {
+    lista.innerHTML = '<li class=&quot;vacio&quot;>No hay tareas aquí</li>'
+    return
+  }
+
+  visibles.forEach(t => lista.appendChild(crearElemento(t)))
+  actualizarStats()
+}
+
+// 7. ACCIONES
+function agregar() {
+  const texto = input.value.trim()
+  if (!texto) return
+  tareas.push({ id: Date.now(), texto, hecha: false })
+  guardar()
+  dibujar()
+  input.value = ''
+  input.focus()
+}
+
+function toggleHecha(id) {
+  const tarea = tareas.find(t => t.id === id)
+  if (tarea) { tarea.hecha = !tarea.hecha; guardar(); dibujar() }
+}
+
+function eliminar(id) {
+  tareas = tareas.filter(t => t.id !== id)
+  guardar()
+  dibujar()
+}
+
+// 8. EVENTOS
+btnAdd.addEventListener('click', agregar)
+input.addEventListener('keydown', e => { if (e.key === 'Enter') agregar() })
+
+filtros.forEach(btn => {
+  btn.addEventListener('click', () => {
+    filtros.forEach(b => b.classList.remove('activo'))
+    btn.classList.add('activo')
+    filtroActual = btn.dataset.filtro
+    dibujar()
+  })
+})
+
+// 9. DIBUJAR AL INICIAR
+dibujar()
+console.log('App iniciada. Tareas guardadas:', tareas.length)"></textarea>
+      <div class="btn-row">
+        <button class="btn-ejecutar" onclick="ejecutarDOM(5)">▶ Activar la app</button>
+        <button class="btn-pista" onclick="togglePista(5)">💡 Pista</button>
+        <button class="btn-reset" onclick="resetPaso(5)">↺ Limpiar app</button>
+      </div>
+      <div class="pista-box" id="pista5">💡 El código ya está escrito — solo tienes que pegarlo en el textarea y hacer clic en Activar.<br>Después agrega algunas tareas, marca como hecha, prueba los filtros, y recarga la página para ver que se guardan.<br><br><strong>Analiza cada función y asegúrate de entender qué hace:</strong><br>• <code>guardar()</code> → persiste en localStorage<br>• <code>dibujar()</code> → redibuja desde el arreglo<br>• <code>toggleHecha()</code> → busca por id y cambia el estado<br>• <code>eliminar()</code> → filtra el arreglo para quitar el elemento</div>
+      <div class="resultado" id="resultado5"></div>
+    </div>
+  </div>
+
+  <!-- FIN -->
+  <div class="fin" id="finNivel">
+    <div class="fin-emoji">🎓</div>
+    <h2 class="fin-titulo">¡Completaste todos los niveles!</h2>
+    <p class="fin-desc">
+      Construiste tu primera app real desde cero. Dominas variables, condicionales, funciones, bucles, DOM y localStorage. Eso es todo lo que necesitas para crear proyectos reales.
+    </p>
+    <div class="fin-logros">
+      <div class="logro"><div class="logro-n">6</div><div class="logro-l">Niveles</div></div>
+      <div class="logro"><div class="logro-n">45+</div><div class="logro-l">Ejercicios</div></div>
+      <div class="logro"><div class="logro-n">1</div><div class="logro-l">App completa</div></div>
+    </div>
+    <p style="font-size:14px;color:rgba(247,244,239,.5);margin-bottom:24px">
+      Siguiente reto: construye la app del clima con una API real.<br>Usa fetch() y todo lo que aprendiste en el nivel 05.
+    </p>
+    <a href="index.html" class="fin-volver">← Ver todos los niveles</a>
+  </div>
+
+  <script>
+    const TOTAL = 5, CLAVE = 'cafe-practica-n06';
+    const completados = new Set();
+    const g = localStorage.getItem(CLAVE);
+    if (g) JSON.parse(g).forEach(v => completados.add(v));
+    actualizar();
+
+    function ejecutar(num) {
+      const code = document.getElementById('code'+num).value.trim();
+      if (!code) { mostrar(num,'error','⚠️ Escribe algo primero.'); return }
+      const logs = [];
+      const con = {log:(...a)=>logs.push(a.map(x=>String(x)).join(' '))};
+      try {
+        new Function('console', code)(con);
+        const out = logs.length ? '✅ Resultado:\n' + logs.join('\n') : '✅ Código ejecutado sin errores.';
+        mostrar(num, 'ok', out);
+        marcarCompleto(num);
+      } catch(e) {
+        mostrar(num, 'error', '❌ Error: ' + e.message);
+      }
+    }
+
+    function ejecutarDOM(num) {
+      const code = document.getElementById('code'+num).value.trim();
+      if (!code) { mostrar(num,'error','⚠️ Escribe algo primero.'); return }
+      try {
+        new Function(code)();
+        mostrar(num, 'ok', '✅ Código ejecutado — interactúa con la demo de arriba.');
+        marcarCompleto(num);
+      } catch(e) {
+        mostrar(num, 'error', '❌ Error: ' + e.message + '\n\n💡 Revisa la sintaxis.');
+      }
+    }
+
+    function marcarCompleto(num) {
+      if (!completados.has(num)) {
+        completados.add(num);
+        localStorage.setItem(CLAVE, JSON.stringify([...completados]));
+        actualizar();
+      }
+    }
+
+    function mostrar(n,t,txt) { const e=document.getElementById('resultado'+n); e.className='resultado '+t; e.textContent=txt }
+    function togglePista(n) { document.getElementById('pista'+n).classList.toggle('visible') }
+
+    function resetPaso(num) {
+      document.getElementById('code'+num).value = '';
+      const r = document.getElementById('resultado'+num); r.className='resultado'; r.textContent='';
+      if (num === 2) { document.getElementById('p2-lista').innerHTML=''; document.getElementById('p2-input').value='' }
+      if (num === 3) { document.getElementById('p3-lista').innerHTML=''; document.getElementById('p3-input').value='' }
+      if (num === 5) { document.getElementById('app-lista').innerHTML='<li class="vacio">No hay tareas aún. ¡Agrega una!</li>'; document.getElementById('app-input').value=''; document.getElementById('app-stats').textContent='0 tareas' }
+    }
+
+    function actualizar() {
+      const n = completados.size;
+      document.getElementById('progresoFill').style.width = Math.round(n/TOTAL*100)+'%';
+      document.getElementById('progresoTexto').textContent = n+' de '+TOTAL+' pasos completados';
+      if (n === TOTAL) document.getElementById('finNivel').classList.add('visible');
+    }
+  </script>
+</body>
+</html>
