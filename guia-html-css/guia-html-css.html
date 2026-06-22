@@ -1,0 +1,2167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía HTML & CSS desde Cero</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #c44a2a;
+    --primary-light:  #fdf0ec;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --danger:         #c44a2a;
+    --danger-light:   #fdf0ec;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1a1814;
+    --code-text:      #e8e4de;
+    --tag-color:      #c44a2a;
+  }
+
+  body { font-family: 'DM Sans', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  header { background: #1a1814; color: #f7f4ef; padding: 3rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: '</>'; position: absolute; font-size: 14rem; font-weight: 900; color: rgba(255,255,255,0.05); right: -2rem; top: -3rem; font-family: monospace; line-height: 1; }
+  header h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; }
+  header p { font-size: 1.1rem; opacity: .85; margin-top: .5rem; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 45px; z-index: 100; display: flex; overflow-x: auto; gap: 0; }
+  nav a { flex-shrink: 0; padding: .75rem 1.1rem; text-decoration: none; color: var(--muted); font-size: .82rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2.5rem; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-size: 1.35rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  /* CARDS */
+  .analogy { background: #FFF7ED; border: 1px solid #FDE68A; border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: #92400E; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; color: #78350F; }
+
+  .concept { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p { font-size: .95rem; }
+
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  /* ANATOMY */
+  .anatomy { background: #F0F4FF; border: 1px solid #C7D2FE; border-radius: 12px; padding: 1.5rem; font-family: monospace; font-size: 1.05rem; line-height: 2.4; margin: 1.25rem 0; }
+  .anatomy .br { color: var(--primary); font-weight: 700; }
+  .anatomy .at { color: #0891B2; }
+  .anatomy .vl { color: #059669; }
+  .anatomy .lb { display: inline-block; background: var(--primary); color: #fff; font-size: .68rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 6px; }
+  .anatomy .lb2 { display: inline-block; background: var(--accent); color: #fff; font-size: .68rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 6px; }
+  .anatomy .lb3 { display: inline-block; background: var(--secondary); color: #fff; font-size: .68rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 6px; }
+
+  /* CODE */
+  .code-block { background: var(--code-bg); color: var(--code-text); border-radius: 10px; padding: 1.25rem 1.5rem; font-family: 'Courier New', monospace; font-size: .88rem; line-height: 1.85; overflow-x: auto; margin: 1rem 0; position: relative; }
+  .code-block .ct { color: #89B4FA; }
+  .code-block .ca { color: #CBA6F7; }
+  .code-block .cv { color: #A6E3A1; }
+  .code-block .cs { color: #F9E2AF; }
+  .code-block .cp { color: #89DCEB; }
+  .code-block .cc { color: #585B70; font-style: italic; }
+  .code-block .cn { color: #FAB387; }
+  .lang { position: absolute; top: .6rem; right: .75rem; background: rgba(255,255,255,.1); color: rgba(255,255,255,.5); font-size: .68rem; padding: 2px 8px; border-radius: 4px; font-family: sans-serif; }
+
+  /* PREVIEW */
+  .preview { border: 2px dashed var(--border); border-radius: 10px; padding: 1.25rem 1.5rem; margin: 1rem 0; background: var(--surface); position: relative; }
+  .preview::before { content: '🖥 Vista en navegador'; position: absolute; top: -11px; left: 14px; background: var(--surface); font-size: .73rem; color: var(--muted); padding: 0 6px; font-family: sans-serif; }
+
+  /* TABLES */
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  /* EXERCISE */
+  .ex { background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 12px; padding: 1.5rem; margin: 1.5rem 0; }
+  .ex-hd { display: flex; align-items: center; gap: .75rem; margin-bottom: 1rem; font-weight: 700; font-size: 1rem; color: #78350F; flex-wrap: wrap; }
+  .ex-badge { background: var(--accent); color: #fff; font-size: .68rem; padding: 2px 9px; border-radius: 20px; font-weight: 700; text-transform: uppercase; }
+  .ex ol { padding-left: 1.4rem; }
+  .ex ol li { margin-bottom: .6rem; font-size: .95rem; }
+  .ex p { font-size: .95rem; margin-bottom: .6rem; }
+
+  /* GLOSSARY */
+  .glos { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .glos-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; }
+  .glos-item dt { font-weight: 700; color: var(--primary); font-size: .92rem; margin-bottom: .3rem; }
+  .glos-item dd { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+  .glos-item .emoji { font-size: 1.3rem; display: block; margin-bottom: .3rem; }
+
+  /* TAG CARDS */
+  .tag-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .tag-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem; }
+  .tag-card .tc-head { display: flex; align-items: center; gap: .6rem; margin-bottom: .5rem; }
+  .tag-card .tc-tag { font-family: 'DM Mono', monospace; font-size: 1rem; font-weight: 700; color: var(--primary); background: var(--primary-light); padding: 2px 9px; border-radius: 6px; }
+  .tag-card .tc-name { font-size: .8rem; font-weight: 600; color: var(--muted); }
+  .tag-card .tc-desc { font-size: .88rem; margin-bottom: .5rem; }
+  .tag-card .tc-analogy { font-size: .82rem; color: #92400E; background: #FFF7ED; border-radius: 6px; padding: .5rem .75rem; border-left: 3px solid var(--accent); }
+  .tag-card .tc-example { font-size: .8rem; font-family: monospace; background: #F1F5F9; border-radius: 6px; padding: .4rem .7rem; margin-top: .5rem; color: #334155; overflow-x: auto; }
+
+  /* BOX MODEL */
+  .bm { text-align: center; padding: 1rem 0; font-size: .8rem; font-weight: 600; }
+  .bm-mg { background: #FEF9C3; border: 2px dashed #CA8A04; padding: 1.25rem; border-radius: 8px; }
+  .bm-bd { background: #FEE2E2; border: 5px solid #DC2626; padding: 1.25rem; border-radius: 4px; margin: .75rem 0 0; }
+  .bm-pd { background: #DCFCE7; border: 2px dashed #16A34A; padding: 1.25rem; }
+  .bm-ct { background: #DBEAFE; padding: 1.25rem; font-size: 1rem; }
+  .bm-lb { font-size: .73rem; color: var(--muted); display: block; margin-bottom: .3rem; font-weight: 400; }
+
+  /* SELECTOR DEMO */
+  .sel-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: .75rem; margin: 1rem 0; }
+  .sel-card { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: .9rem; text-align: center; }
+  .sel-card .st { font-size: .7rem; text-transform: uppercase; font-weight: 700; color: var(--muted); margin-bottom: .4rem; }
+  .sel-card code { font-size: .95rem; color: var(--primary); font-weight: 700; display: block; margin-bottom: .4rem; }
+  .sel-card p { font-size: .8rem; color: var(--muted); }
+
+  /* SPECIFICITY VISUAL */
+  .spec-bar { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; margin: .5rem 0; }
+  .spec-pill { display: inline-block; padding: 3px 12px; border-radius: 20px; font-size: .8rem; font-weight: 700; }
+  .sp-id { background: #FEE2E2; color: #991B1B; }
+  .sp-class { background: #EDE9FE; color: #6D28D9; }
+  .sp-tag { background: #DBEAFE; color: #1D4ED8; }
+  .sp-num { font-size: 1.1rem; font-weight: 700; color: var(--text); }
+
+  /* UNITS */
+  .units-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: .75rem; margin: 1rem 0; }
+  .unit-card { border: 1px solid var(--border); border-radius: 10px; padding: 1rem; }
+  .unit-card .uc-unit { font-family: monospace; font-size: 1.1rem; font-weight: 700; color: var(--primary); }
+  .unit-card .uc-name { font-size: .78rem; font-weight: 600; color: var(--muted); margin-bottom: .4rem; }
+  .unit-card .uc-desc { font-size: .85rem; }
+
+  /* CSS PROPS GRID */
+  .prop-section { margin: 1.25rem 0; }
+  .prop-section h3 { font-size: .9rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: .75rem; padding-bottom: .4rem; border-bottom: 1px solid var(--border); }
+  .prop-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: .6rem; }
+  .prop-item { background: var(--bg); border-radius: 8px; padding: .75rem 1rem; font-size: .88rem; }
+  .prop-item .pi-prop { font-family: monospace; color: var(--primary); font-weight: 700; font-size: .9rem; }
+  .prop-item .pi-vals { color: var(--secondary); font-size: .82rem; margin-top: 2px; }
+  .prop-item .pi-desc { color: var(--muted); font-size: .82rem; margin-top: 3px; }
+
+  /* FLEXBOX DEMO */
+  .flex-demo { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem; margin: .75rem 0; }
+  .flex-demo-label { font-size: .75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: .5rem; }
+  .flex-row { display: flex; gap: 6px; margin-bottom: .4rem; }
+  .flex-box { background: var(--primary); color: white; border-radius: 6px; padding: 8px 16px; font-size: .8rem; font-weight: 700; }
+
+  h2 { font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; color: var(--text); }
+  h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 .5rem; }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: #f0ece6; color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+  strong { font-weight: 700; }
+  em { font-style: italic; }
+
+  .chip { display: inline-block; background: var(--primary-light); color: var(--primary); font-size: .78rem; padding: 2px 10px; border-radius: 20px; font-weight: 600; margin: 2px; }
+  .divider { text-align: center; color: var(--muted); font-size: .85rem; margin: 1.5rem 0; letter-spacing: .1em; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); }
+</style>
+</head>
+<body>
+
+<!-- BARRA DE REGRESO A CAFÉ -->
+<div style="background:#ffffff;border-bottom:1px solid #e8e4de;padding:10px 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:200;">
+  <a href="../index.html" style="display:inline-flex;align-items:center;gap:6px;font-family:'DM Sans',sans-serif;font-size:13px;color:#8a8480;text-decoration:none;padding:6px 14px;border:1px solid #e8e4de;border-radius:999px;transition:all 0.15s;" onmouseover="this.style.color='#1a1814';this.style.borderColor='#8a8480'" onmouseout="this.style.color='#8a8480';this.style.borderColor='#e8e4de'">← Volver a Café &lt;/&gt;</a>
+  <span style="font-family:'DM Sans',sans-serif;font-size:13px;color:#8a8480;">☕ Guía HTML &amp; CSS</span>
+</div>
+
+<header>
+  <h1>HTML &amp; CSS desde Cero</h1>
+  <p>Guía completa con analogías, definiciones detalladas y ejercicios prácticos</p>
+  <span class="badge">✦ Nivel principiante → intermedio ✦</span>
+</header>
+
+<nav>
+  <a href="#glosario">📖 Glosario</a>
+  <a href="#navegador">🌐 ¿Cómo funciona?</a>
+  <a href="#estructura">🏗 Estructura</a>
+  <a href="#etiquetas-texto">📝 Texto</a>
+  <a href="#etiquetas-bloque">📦 Bloque</a>
+  <a href="#etiquetas-media">🖼 Media</a>
+  <a href="#etiquetas-form">📋 Formularios</a>
+  <a href="#semantica">🧠 Semántica</a>
+  <a href="#atributos">⚙️ Atributos</a>
+  <a href="#css-intro">🎨 CSS Intro</a>
+  <a href="#selectores">🎯 Selectores</a>
+  <a href="#especificidad">⚖️ Especificidad</a>
+  <a href="#unidades">📏 Unidades</a>
+  <a href="#box-model">📦 Box Model</a>
+  <a href="#tipografia">🔤 Tipografía</a>
+  <a href="#colores">🌈 Colores</a>
+  <a href="#display">🗂 Display</a>
+  <a href="#posicion">📌 Posición</a>
+  <a href="#flexbox">↔️ Flexbox</a>
+  <a href="#grid">⊞ Grid</a>
+  <a href="#responsive">📱 Responsive</a>
+  <a href="#proyecto">🚀 Proyecto</a>
+</nav>
+
+<main>
+
+<!-- ═══════════════════════════════════════════
+     GLOSARIO
+═══════════════════════════════════════════ -->
+<section class="module" id="glosario">
+  <div class="module-header">
+    <div class="module-icon">📖</div>
+    <div>
+      <div class="module-title">Glosario — El vocabulario del desarrollador</div>
+      <div class="module-sub">Define cada término con exactitud antes de escribir código</div>
+    </div>
+  </div>
+
+  <p>Cuando aprendes a cocinar, primero necesitas saber qué es un "sofrito", una "reducción" o un "baño maría". Con HTML y CSS pasa igual: debes dominar el vocabulario antes de escribir código, o todo te sonará a idioma extranjero.</p>
+
+  <dl class="glos">
+    <div class="glos-item">
+      <span class="emoji">🏷️</span>
+      <dt>Etiqueta (Tag)</dt>
+      <dd>Una instrucción escrita entre los signos <code>&lt;</code> y <code>&gt;</code>. Le dice al navegador qué tipo de contenido viene a continuación. Como una señal de tránsito que dice "viene una curva".</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">📦</span>
+      <dt>Elemento</dt>
+      <dd>La etiqueta de apertura + el contenido + la etiqueta de cierre. El "paquete completo". Si la etiqueta es la caja, el elemento es la caja con todo lo que tiene adentro.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">⚙️</span>
+      <dt>Atributo</dt>
+      <dd>Información adicional que va dentro de la etiqueta de apertura para configurar cómo funciona el elemento. Como los botones y perillas de un aparato electrodoméstico.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">💎</span>
+      <dt>Valor</dt>
+      <dd>Lo que se le asigna a un atributo. Siempre va entre comillas. En <code>color="red"</code>, el valor es <code>red</code>. Es la configuración específica del botón.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🎭</span>
+      <dt>Clase (class)</dt>
+      <dd>Un apodo que tú inventas y que puedes ponerle a varios elementos para darles el mismo estilo. Como un uniforme de equipo: muchos jugadores, mismo uniforme.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🆔</span>
+      <dt>ID</dt>
+      <dd>Un identificador único para un solo elemento. No puede repetirse en la misma página. Como el número de cédula o pasaporte: solo una persona en el mundo lo tiene.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🎨</span>
+      <dt>CSS</dt>
+      <dd>El lenguaje que controla la apariencia visual. Si HTML es la estructura de un edificio (paredes, puertas), CSS es la decoración (pintura, muebles, iluminación).</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🎯</span>
+      <dt>Selector</dt>
+      <dd>La parte del CSS que indica a qué elemento(s) se les aplica el estilo. Como apuntar con una linterna en un cuarto oscuro: ilumina exactamente lo que tú quieres.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">📋</span>
+      <dt>Propiedad CSS</dt>
+      <dd>El aspecto visual que quieres cambiar: <code>color</code>, <code>font-size</code>, <code>background</code>. Es la pregunta "¿qué quieres cambiar?"</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🔢</span>
+      <dt>Valor CSS</dt>
+      <dd>La respuesta a "¿cómo quieres que quede?". Ejemplos: <code>red</code>, <code>16px</code>, <code>bold</code>. Cada propiedad acepta ciertos valores específicos.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🌳</span>
+      <dt>DOM</dt>
+      <dd>Document Object Model. La representación en árbol de todos los elementos HTML. El navegador lee tu HTML y lo convierte en este árbol para poder manipularlo.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🧱</span>
+      <dt>Contenedor / Wrapper</dt>
+      <dd>Un elemento que solo existe para agrupar y organizar otros elementos dentro. Como una caja de cartón que usa de transporte: no importa por sí sola, importa lo que lleva.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🧬</span>
+      <dt>Anidamiento</dt>
+      <dd>Poner un elemento dentro de otro. Como muñecas rusas (matrioshkas): una dentro de la otra. El que va dentro se llama "hijo" y el que lo contiene se llama "padre".</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🌊</span>
+      <dt>Cascada (en CSS)</dt>
+      <dd>El mecanismo por el cual, cuando hay reglas CSS contradictorias, se decide cuál gana. Funciona por orden, especificidad y herencia. El nombre CSS viene de aquí.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🧬</span>
+      <dt>Herencia</dt>
+      <dd>Muchas propiedades CSS de un padre se transmiten automáticamente a sus hijos. Si el cuerpo tiene <code>color: gray</code>, todos los textos dentro serán grises, a menos que los sobreescribas.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">📄</span>
+      <dt>Elemento de bloque</dt>
+      <dd>Ocupa todo el ancho disponible y empuja el siguiente elemento hacia abajo. Como un párrafo en un libro: siempre empieza en nueva línea. Ej: <code>&lt;div&gt;</code>, <code>&lt;p&gt;</code>, <code>&lt;h1&gt;</code>.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">↔️</span>
+      <dt>Elemento en línea</dt>
+      <dd>Solo ocupa el espacio que necesita su contenido y convive en la misma línea con otros elementos. Como palabras en una oración. Ej: <code>&lt;span&gt;</code>, <code>&lt;a&gt;</code>, <code>&lt;strong&gt;</code>.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🔤</span>
+      <dt>Etiqueta vacía</dt>
+      <dd>Una etiqueta que no tiene etiqueta de cierre porque no puede contener contenido dentro. Como una foto enmarcada: la foto en sí no contiene nada. Ej: <code>&lt;img&gt;</code>, <code>&lt;br&gt;</code>, <code>&lt;hr&gt;</code>.</dd>
+    </div>
+  </dl>
+
+  <div class="analogy">
+    <h4>🍕 Analogía maestra: HTML + CSS como construir una pizzería</h4>
+    <p><strong>HTML</strong> es la estructura del local: mesas, sillas, mostrador, horno, letreros. Sin HTML no hay nada que ver. <strong>CSS</strong> es la decoración y el diseño: los colores de las paredes, el tipo de letra del menú, si las sillas son altas o bajas. Sin CSS el local existe, pero es un cuarto vacío con muebles grises. <strong>JavaScript</strong> (que aprenderás después) es la interactividad: que el menú digital se actualice, que puedas pedir desde la mesa, que aparezca una notificación.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     CÓMO FUNCIONA EL NAVEGADOR
+═══════════════════════════════════════════ -->
+<section class="module" id="navegador">
+  <div class="module-header">
+    <div class="module-icon">🌐</div>
+    <div>
+      <div class="module-title">¿Cómo funciona un navegador?</div>
+      <div class="module-sub">Entender el proceso completo te hace mejor desarrollador</div>
+    </div>
+  </div>
+
+  <p>Antes de escribir código, necesitas entender qué hace el navegador con él. Este proceso pasa en milisegundos cada vez que abres una página web.</p>
+
+  <div class="tag-grid" style="grid-template-columns: 1fr;">
+    <div class="tag-card">
+      <p><strong>① Recibe el HTML</strong> — Tu archivo <code>.html</code> llega al navegador (ya sea desde internet o desde tu computadora).</p>
+      <p><strong>② Lee el HTML de arriba hacia abajo</strong> — El navegador lee el código línea por línea, como tú lees un libro. Si encuentra un error, intenta corregirlo solo (esto puede causar comportamientos inesperados).</p>
+      <p><strong>③ Construye el DOM</strong> — Convierte el HTML en un árbol de objetos en memoria. Cada elemento se convierte en un "nodo" del árbol.</p>
+      <p><strong>④ Lee el CSS</strong> — Aplica los estilos a cada nodo del árbol. Calcula colores, tamaños, posiciones.</p>
+      <p><strong>⑤ Renderiza (dibuja)</strong> — Pinta los píxeles en la pantalla. Lo que ves es el resultado de todos estos pasos.</p>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <h4>🎬 Analogía: el director de teatro</h4>
+    <p>El HTML es el guión de la obra (qué personajes hay, qué dicen, en qué orden salen). El CSS es el vestuario y la escenografía (cómo se ven los personajes, qué colores tiene el escenario). El navegador es el director que lee el guión y el vestuario, y luego organiza todo para que el público (tú) vea la obra terminada.</p>
+  </div>
+
+  <div class="concept">
+    <h4>💡 Por qué importa esto</h4>
+    <p>Si el CSS está en el <code>&lt;head&gt;</code>, el navegador lo procesa antes de mostrar contenido. Si pusiste el CSS al final del <code>&lt;body&gt;</code>, la página puede aparecer por un instante sin estilos (fea) y luego aplicar los estilos. Por eso los estilos siempre van en el <code>&lt;head&gt;</code>.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     ESTRUCTURA BASE
+═══════════════════════════════════════════ -->
+<section class="module" id="estructura">
+  <div class="module-header">
+    <div class="module-icon">🏗️</div>
+    <div>
+      <div class="module-title">Estructura de un documento HTML</div>
+      <div class="module-sub">El esqueleto obligatorio de toda página web</div>
+    </div>
+  </div>
+
+  <p>Todo archivo HTML válido comienza con la misma estructura base. Piénsala como el esqueleto humano: sin él, el cuerpo no se sostiene. Todos los seres humanos tienen el mismo esqueleto básico aunque tengan apariencias distintas.</p>
+
+  <div class="code-block">
+    <span class="lang">HTML</span>
+<span class="cc">&lt;!-- ① Le dice al navegador: "esto es HTML5, la versión moderna" --&gt;</span>
+<span class="ct">&lt;!DOCTYPE</span> <span class="ca">html</span><span class="ct">&gt;</span>
+
+<span class="cc">&lt;!-- ② El elemento raíz. TODO el documento va dentro de él --&gt;</span>
+<span class="cc">&lt;!-- lang="es" le dice a Google y lectores de pantalla: está en español --&gt;</span>
+<span class="ct">&lt;html</span> <span class="ca">lang</span>=<span class="cv">"es"</span><span class="ct">&gt;</span>
+
+  <span class="cc">&lt;!-- ③ La "cabeza" del documento. El navegador lee esto pero NO lo muestra --&gt;</span>
+  <span class="cc">&lt;!-- Aquí va toda la configuración e información "detrás de cámaras" --&gt;</span>
+  <span class="ct">&lt;head&gt;</span>
+
+    <span class="cc">&lt;!-- Permite letras especiales: tildes, ñ, emojis, etc. SIEMPRE la primera línea --&gt;</span>
+    <span class="ct">&lt;meta</span> <span class="ca">charset</span>=<span class="cv">"UTF-8"</span><span class="ct">&gt;</span>
+
+    <span class="cc">&lt;!-- Hace que la página se vea bien en celulares (responsive) --&gt;</span>
+    <span class="ct">&lt;meta</span> <span class="ca">name</span>=<span class="cv">"viewport"</span> <span class="ca">content</span>=<span class="cv">"width=device-width, initial-scale=1.0"</span><span class="ct">&gt;</span>
+
+    <span class="cc">&lt;!-- El texto que aparece en la pestaña del navegador y en Google --&gt;</span>
+    <span class="ct">&lt;title&gt;</span><span class="cs">Mi primera página web</span><span class="ct">&lt;/title&gt;</span>
+
+    <span class="cc">&lt;!-- Enlaza el archivo CSS externo --&gt;</span>
+    <span class="ct">&lt;link</span> <span class="ca">rel</span>=<span class="cv">"stylesheet"</span> <span class="ca">href</span>=<span class="cv">"estilos.css"</span><span class="ct">&gt;</span>
+
+  <span class="ct">&lt;/head&gt;</span>
+
+  <span class="cc">&lt;!-- ④ El "cuerpo". TODO lo que el usuario VE va aquí --&gt;</span>
+  <span class="ct">&lt;body&gt;</span>
+
+    <span class="ct">&lt;h1&gt;</span><span class="cs">¡Hola Mundo!</span><span class="ct">&lt;/h1&gt;</span>
+    <span class="ct">&lt;p&gt;</span><span class="cs">Mi primera página web.</span><span class="ct">&lt;/p&gt;</span>
+
+  <span class="ct">&lt;/body&gt;</span>
+
+<span class="ct">&lt;/html&gt;</span>
+  </div>
+
+  <div class="analogy">
+    <h4>🏠 Analogía: la casa</h4>
+    <p><code>&lt;html&gt;</code> es el terreno completo donde está la casa. <code>&lt;head&gt;</code> son los planos, los documentos de propiedad, las instrucciones del arquitecto — nadie los ve al vivir ahí, pero son esenciales. <code>&lt;body&gt;</code> es la casa que realmente habitas: las habitaciones, los muebles, todo lo que ves y tocas.</p>
+  </div>
+
+  <div class="concept">
+    <h4>💡 La regla del anidamiento</h4>
+    <p>Los elementos se abren y cierran como paréntesis: el que abre al último, cierra primero.</p>
+    <p>✅ Correcto: <code>&lt;div&gt;&lt;p&gt;texto&lt;/p&gt;&lt;/div&gt;</code> — el <code>&lt;p&gt;</code> abre y cierra dentro del <code>&lt;div&gt;</code></p>
+    <p>❌ Incorrecto: <code>&lt;div&gt;&lt;p&gt;texto&lt;/div&gt;&lt;/p&gt;</code> — las cajas se cruzan</p>
+  </div>
+
+  <div class="ex">
+    <div class="ex-hd">✏️ Ejercicio 1 — Tu primera página web <span class="ex-badge">Principiante</span></div>
+    <p><strong>Herramienta recomendada:</strong> Descarga VS Code (gratuito). Instala la extensión "Live Server" para ver los cambios en tiempo real.</p>
+    <ol>
+      <li>Crea una carpeta en tu escritorio llamada <code>mi-sitio</code>.</li>
+      <li>Dentro, crea el archivo <code>index.html</code> (el nombre <code>index</code> es especial: es la página principal que los navegadores buscan primero).</li>
+      <li>Copia la estructura de arriba y personaliza el <code>&lt;title&gt;</code> y el <code>&lt;h1&gt;</code> con tu nombre.</li>
+      <li>Guarda y abre el archivo en tu navegador.</li>
+    </ol>
+    <p><strong>¿Por qué index.html?</strong> Cuando escribes <code>www.google.com</code>, en realidad estás cargando <code>www.google.com/index.html</code>. Es la convención universal para la página de inicio.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     ETIQUETAS DE TEXTO
+═══════════════════════════════════════════ -->
+<section class="module" id="etiquetas-texto">
+  <div class="module-header">
+    <div class="module-icon">📝</div>
+    <div>
+      <div class="module-title">Etiquetas de texto</div>
+      <div class="module-sub">Para estructurar y dar significado al contenido escrito</div>
+    </div>
+  </div>
+
+  <div class="tag-grid">
+
+    <div class="tag-card">
+      <div class="tc-head"><span class="tc-tag">&lt;h1&gt; — &lt;h6&gt;</span><span class="tc-name">Headings / Títulos</span></div>
+      <p class="tc-desc">Son los títulos de la página, del más importante (h1) al menos importante (h6). Tienen diferente tamaño por defecto, pero lo más importante es su significado jerárquico.</p>
+      <p class="tc-analogy">📰 Como en un periódico: el titular principal es h1 (grande, una sola vez por página), los subtítulos de sección son h2, los subtítulos dentro de esas secciones son h3, y así sucesivamente.</p>
+      <div class="tc-example">&lt;h1&gt;Título Principal&lt;/h1&gt;<br>&lt;h2&gt;Subtítulo de sección&lt;/h2&gt;<br>&lt;h3&gt;Subtítulo menor&lt;/h3&gt;</div>
+    </div>
+
+    <div class="tag-card">
+      <div class="tc-head"><span class="tc-tag">&lt;p&gt;</span><span class="tc-name">Paragraph / Párrafo</span></div>
+      <p class="tc-desc">Define un párrafo de texto. El navegador agrega espacio arriba y abajo automáticamente para separar párrafos. Es un elemento de bloque.</p>
+      <p class="tc-analogy">📄 Exactamente igual que los párrafos en un libro: texto agrupado que habla de una misma idea, con espacio de separación antes y después.</p>
+      <div class="tc-example">&lt;p&gt;Este es mi primer párrafo.&lt;/p&gt;<br>&lt;p&gt;Este es el segundo párrafo.&lt;/p&gt;</div>
+    </div>
+
+    <div class="tag-card">
+      <div class="tc-head"><span class="tc-tag">&lt;strong&gt;</span><span class="tc-name">Strong / Énfasis fuerte</span></div>
+      <p class="tc-desc">Marca texto como muy importante. Por defecto se ve en <strong>negritas</strong>. Tiene significado semántico: "esto es importante", no solo "ponlo en negrita".</p>
+      <p class="tc-analogy">🔔 Como resaltar con marcador en un libro de texto las palabras clave que sí o sí tienes que recordar para el examen.</p>
+      <div class="tc-example">&lt;p&gt;Recuerda &lt;strong&gt;guardar tu trabajo&lt;/strong&gt; seguido.&lt;/p&gt;</div>
+    </div>
+
+    <div class="tag-card">
+      <div class="tc-head"><span class="tc-tag">&lt;em&gt;</span><span class="tc-name">Emphasis / Énfasis</span></div>
+      <p class="tc-desc">Marca texto con énfasis. Por defecto se ve en <em>cursiva/itálica</em>. Indica que esa palabra cambia el significado de la oración si se dice con otro tono.</p>
+      <p class="tc-analogy">🗣 Como cambiar el tono de voz al hablar. "Yo <em>nunca</em> dije eso" vs "Yo nunca <em>dije</em> eso" — el énfasis cambia el significado.</p>
+      <div class="tc-example">&lt;p&gt;Fue &lt;em&gt;increíblemente&lt;/em&gt; difícil.&lt;/p&gt;</div>
+    </div>
+
+    <div class="tag-card">
+      <div class="tc-head"><span class="tc-tag">&lt;span&gt;</span><span class="tc-name">Span / Contenedor en línea</span></div>
+      <p class="tc-desc">Un contenedor invisible en línea que no agrega significado por sí solo. Se usa para aplicar estilos CSS a una parte del texto dentro de un párrafo.</p>
+      <p class="tc-analogy">🖊 Como rodear con un círculo una sola palabra en un papel para poder señalar luego "colorea ese círculo de rojo". Sin el círculo, no podrías identificar exactamente qué colorear.</p>
+      <div class="tc-example">&lt;p&gt;El precio es &lt;span class="precio"&gt;$299&lt;/span&gt; pesos.&lt;/p&gt;</div>
+    </div>
+
+    <div class="tag-card">
+      <div class="tc-head"><span class="tc-tag">&lt;br&gt;</span><span class="tc-name">Break / Salto de línea</span></div>
+      <p class="tc-desc">Inserta un salto de línea dentro del mismo elemento. Es una etiqueta vacía (no tiene cierre). Úsala solo cuando el salto de línea es parte del contenido.</p>
+      <p class="tc-analogy">⏎ Como la tecla Enter al escribir en Word: empuja el texto a la siguiente línea sin crear un nuevo párrafo con su propio espacio.</p>
+      <div class="tc-example">&lt;p&gt;Calle Álamo 42&lt;br&gt;Col. Centro&lt;br&gt;Veracruz, México&lt;/p&gt;</div>
+    </div>
+
+    <div class="tag-card">
+      <div class="tc-head"><span class="tc-tag">&lt;hr&gt;</span><span class="tc-name">Horizontal Rule / Línea</span></div>
+      <p class="tc-desc">Dibuja una línea horizontal que separa secciones visualmente. También es etiqueta vacía. Originalmente era una "regla" tipográfica de separación.</p>
+      <p class="tc-analogy">━━━ Como la línea que dibuja el mesero en la comanda para separar las bebidas de los platillos.</p>
+      <div class="tc-example">&lt;p&gt;Sección 1&lt;/p&gt;<br>&lt;hr&gt;<br>&lt;p&gt;Sección 2&lt;/p&gt;</div>
+    </div>
+
+    <div class="tag-card">
+      <div class="tc-head"><span class="tc-tag">&lt;blockquote&gt;</span><span class="tc-name">Cita en bloque</span></div>
+      <p class="tc-desc">Marca una cita larga tomada de otra fuente. El navegador la indenta automáticamente. Para la fuente de la cita se usa el atributo <code>cite</code>.</p>
+      <p class="tc-analogy">📜 Como cuando en un ensayo pones una cita con sangría de otro autor para distinguirla de tu propio texto.</p>
+      <div class="tc-example">&lt;blockquote&gt;<br>  &lt;p&gt;"La imaginación es más<br>  importante que el conocimiento."&lt;/p&gt;<br>&lt;/blockquote&gt;</div>
+    </div>
+
+    <div class="tag-card">
+      <div class="tc-head"><span class="tc-tag">&lt;code&gt;</span><span class="tc-name">Código en línea</span></div>
+      <p class="tc-desc">Marca texto como código de computadora. Por defecto se muestra en fuente monoespaciada. Úsalo para mencionar nombres de variables, funciones o etiquetas dentro de un párrafo.</p>
+      <p class="tc-analogy">💻 Como cuando en un manual de instrucciones destacan los comandos que debes escribir con una tipografía especial para que no los confundas con el texto normal.</p>
+      <div class="tc-example">&lt;p&gt;Usa la función &lt;code&gt;alert()&lt;/code&gt;.&lt;/p&gt;</div>
+    </div>
+
+    <div class="tag-card">
+      <div class="tc-head"><span class="tc-tag">&lt;pre&gt;</span><span class="tc-name">Texto preformateado</span></div>
+      <p class="tc-desc">Muestra el texto exactamente como está escrito, respetando espacios y saltos de línea. Por defecto usa fuente monoespaciada. Se usa junto con <code>&lt;code&gt;</code> para bloques de código.</p>
+      <p class="tc-analogy">📠 Como un fax: lo que envías llega exactamente igual al otro lado, sin que nadie reorganice los espacios.</p>
+      <div class="tc-example">&lt;pre&gt;&lt;code&gt;<br>function suma(a, b) {<br>  return a + b;<br>}<br>&lt;/code&gt;&lt;/pre&gt;</div>
+    </div>
+
+    <div class="tag-card">
+      <div class="tc-head"><span class="tc-tag">&lt;small&gt;</span><span class="tc-name">Texto pequeño</span></div>
+      <p class="tc-desc">Representa texto en letra pequeña: avisos legales, derechos de autor, notas al pie. No es solo estilo, tiene significado semántico de "texto de menor importancia".</p>
+      <p class="tc-analogy">📋 La letra chica de un contrato. Existe, es parte del documento, pero visualmente está subordinada al texto principal.</p>
+      <div class="tc-example">&lt;small&gt;© 2025 Mi Empresa. Todos los derechos reservados.&lt;/small&gt;</div>
+    </div>
+
+    <div class="tag-card">
+      <div class="tc-head"><span class="tc-tag">&lt;mark&gt;</span><span class="tc-name">Texto resaltado</span></div>
+      <p class="tc-desc">Resalta texto como relevante en el contexto actual. Por defecto aparece con fondo amarillo (como un marcatextos). Útil para resultados de búsqueda.</p>
+      <p class="tc-analogy">🖍 Exactamente como un marcatextos físico: sigues leyendo el mismo documento pero algunas partes están visualmente destacadas.</p>
+      <div class="tc-example">&lt;p&gt;Busca la palabra &lt;mark&gt;HTML&lt;/mark&gt; en el texto.&lt;/p&gt;</div>
+    </div>
+
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ &lt;b&gt; y &lt;i&gt; vs &lt;strong&gt; y &lt;em&gt;</h4>
+    <p><code>&lt;b&gt;</code> y <code>&lt;i&gt;</code> son solo visuales: ponen negrita o cursiva sin significado. <code>&lt;strong&gt;</code> y <code>&lt;em&gt;</code> tienen significado semántico. Los motores de búsqueda y lectores de pantalla los interpretan diferente. Siempre prefiere <code>&lt;strong&gt;</code> y <code>&lt;em&gt;</code>.</p>
+  </div>
+
+  <div class="ex">
+    <div class="ex-hd">✏️ Ejercicio 2 — Artículo de blog <span class="ex-badge">Principiante</span></div>
+    <p>Escribe un artículo corto sobre tu tema favorito usando todas estas etiquetas:</p>
+    <ol>
+      <li>Un <code>&lt;h1&gt;</code> con el título del artículo</li>
+      <li>Un <code>&lt;h2&gt;</code> con "Introducción"</li>
+      <li>Dos <code>&lt;p&gt;</code> con texto. Usa <code>&lt;strong&gt;</code> en la palabra más importante y <code>&lt;em&gt;</code> en algún término especial</li>
+      <li>Una <code>&lt;blockquote&gt;</code> con una frase famosa relacionada al tema</li>
+      <li>Un <code>&lt;hr&gt;</code> para separar la introducción de la conclusión</li>
+      <li>Un <code>&lt;h2&gt;</code> con "Conclusión" y un <code>&lt;p&gt;</code> final</li>
+      <li>Un <code>&lt;small&gt;</code> con "Escrito por [tu nombre] — 2025"</li>
+    </ol>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     ETIQUETAS DE BLOQUE Y LISTAS
+═══════════════════════════════════════════ -->
+<section class="module" id="etiquetas-bloque">
+  <div class="module-header">
+    <div class="module-icon">📦</div>
+    <div>
+      <div class="module-title">Listas y enlaces</div>
+      <div class="module-sub">Organizar información y conectar páginas</div>
+    </div>
+  </div>
+
+  <h2>Listas</h2>
+
+  <div class="tag-grid">
+    <div class="tag-card">
+      <div class="tc-head"><span class="tc-tag">&lt;ul&gt;</span><span class="tc-name">Unordered List / Lista sin orden</span></div>
+      <p class="tc-desc">Una lista donde el orden no importa. Los elementos aparecen con un punto (bullet) al inicio por defecto.</p>
+      <p class="tc-analogy">🛒 La lista del supermercado: da lo mismo si primero compras las manzanas o la leche, el orden no cambia nada.</p>
+      <div class="tc-example">&lt;ul&gt;<br>  &lt;li&gt;HTML&lt;/li&gt;<br>  &lt;li&gt;CSS&lt;/li&gt;<br>  &lt;li&gt;JavaScript&lt;/li&gt;<br>&lt;/ul&gt;</div>
+    </div>
+    <div class="tag-card">
+      <div class="tc-head"><span class="tc-tag">&lt;ol&gt;</span><span class="tc-name">Ordered List / Lista ordenada</span></div>
+      <p class="tc-desc">Una lista donde el orden sí importa. Los elementos se numeran automáticamente. Puedes cambiar el tipo de numeración con el atributo <code>type</code>.</p>
+      <p class="tc-analogy">📋 La receta de cocina: primero bates los huevos, luego añades la harina. Si cambias el orden, el resultado es diferente.</p>
+      <div class="tc-example">&lt;ol&gt;<br>  &lt;li&gt;Abre el editor&lt;/li&gt;<br>  &lt;li&gt;Escribe el código&lt;/li&gt;<br>  &lt;li&gt;Guarda el archivo&lt;/li&gt;<br>&lt;/ol&gt;</div>
+    </div>
+    <div class="tag-card">
+      <div class="tc-head"><span class="tc-tag">&lt;li&gt;</span><span class="tc-name">List Item / Elemento de lista</span></div>
+      <p class="tc-desc">Define cada elemento dentro de <code>&lt;ul&gt;</code> u <code>&lt;ol&gt;</code>. Nunca se usa solo: siempre debe ir dentro de una lista. Puede contener cualquier otro elemento HTML.</p>
+      <p class="tc-analogy">🧾 Cada renglón del ticket de caja. El ticket es la lista (<code>&lt;ul&gt;</code>/<code>&lt;ol&gt;</code>), cada producto es un <code>&lt;li&gt;</code>.</p>
+      <div class="tc-example">&lt;li&gt;Texto simple&lt;/li&gt;<br>&lt;li&gt;&lt;strong&gt;Con formato&lt;/strong&gt;&lt;/li&gt;<br>&lt;li&gt;&lt;a href="#"&gt;Con enlace&lt;/a&gt;&lt;/li&gt;</div>
+    </div>
+    <div class="tag-card">
+      <div class="tc-head"><span class="tc-tag">&lt;dl&gt; &lt;dt&gt; &lt;dd&gt;</span><span class="tc-name">Definition List</span></div>
+      <p class="tc-desc">Lista de definiciones. <code>&lt;dl&gt;</code> es la lista, <code>&lt;dt&gt;</code> es el término y <code>&lt;dd&gt;</code> es la definición. Perfecta para glosarios o preguntas frecuentes.</p>
+      <p class="tc-analogy">📚 Un diccionario: la palabra en negrita (<code>&lt;dt&gt;</code>) seguida de su significado indentado (<code>&lt;dd&gt;</code>).</p>
+      <div class="tc-example">&lt;dl&gt;<br>  &lt;dt&gt;HTML&lt;/dt&gt;<br>  &lt;dd&gt;Lenguaje de marcado&lt;/dd&gt;<br>  &lt;dt&gt;CSS&lt;/dt&gt;<br>  &lt;dd&gt;Hojas de estilo&lt;/dd&gt;<br>&lt;/dl&gt;</div>
+    </div>
+  </div>
+
+  <h2>El enlace: la etiqueta más poderosa de internet</h2>
+
+  <div class="tag-card" style="margin-bottom:1rem">
+    <div class="tc-head"><span class="tc-tag">&lt;a&gt;</span><span class="tc-name">Anchor / Ancla — el hipervínculo</span></div>
+    <p class="tc-desc">La etiqueta <code>&lt;a&gt;</code> (de "anchor", ancla en inglés) es la que hace posible internet tal como lo conocemos: la capacidad de saltar de una página a otra con un clic. Fue inventada por Tim Berners-Lee y es el fundamento de la "Web".</p>
+    <p class="tc-analogy">🔗 Como un portal mágico. Estás leyendo un libro y de repente hay una frase subrayada que, si la tocas, te teletransporta a otro libro relacionado. Eso es un hipervínculo.</p>
+  </div>
+
+  <div class="code-block">
+    <span class="lang">HTML</span>
+<span class="cc">&lt;!-- Enlace externo (a otra página web) --&gt;</span>
+<span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"https://www.google.com"</span><span class="ct">&gt;</span>Visita Google<span class="ct">&lt;/a&gt;</span>
+
+<span class="cc">&lt;!-- target="_blank" abre el enlace en una NUEVA pestaña --&gt;</span>
+<span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"https://google.com"</span> <span class="ca">target</span>=<span class="cv">"_blank"</span> <span class="ca">rel</span>=<span class="cv">"noopener"</span><span class="ct">&gt;</span>Google (nueva pestaña)<span class="ct">&lt;/a&gt;</span>
+
+<span class="cc">&lt;!-- Enlace interno (a otra página del mismo sitio) --&gt;</span>
+<span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"contacto.html"</span><span class="ct">&gt;</span>Ir a Contacto<span class="ct">&lt;/a&gt;</span>
+
+<span class="cc">&lt;!-- Enlace ancla (baja al elemento con ese id en la misma página) --&gt;</span>
+<span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"#glosario"</span><span class="ct">&gt;</span>Ir al Glosario<span class="ct">&lt;/a&gt;</span>
+
+<span class="cc">&lt;!-- Enlace de email: abre el cliente de correo --&gt;</span>
+<span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"mailto:hola@ejemplo.com"</span><span class="ct">&gt;</span>Escríbeme<span class="ct">&lt;/a&gt;</span>
+
+<span class="cc">&lt;!-- Enlace de teléfono: en móvil abre la marcadora --&gt;</span>
+<span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"tel:+521234567890"</span><span class="ct">&gt;</span>Llámame<span class="ct">&lt;/a&gt;</span>
+
+<span class="cc">&lt;!-- Un enlace puede contener cualquier elemento, incluso imágenes --&gt;</span>
+<span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"https://google.com"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;img</span> <span class="ca">src</span>=<span class="cv">"logo.png"</span> <span class="ca">alt</span>=<span class="cv">"Logo"</span><span class="ct">&gt;</span>
+<span class="ct">&lt;/a&gt;</span>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 ¿Por qué rel="noopener"?</h4>
+    <p>Cuando usas <code>target="_blank"</code>, la nueva pestaña puede acceder a tu página original por razones de seguridad. <code>rel="noopener"</code> bloquea eso. Siempre que uses <code>target="_blank"</code>, añade <code>rel="noopener noreferrer"</code>. Es una buena práctica de seguridad.</p>
+  </div>
+
+  <div class="ex">
+    <div class="ex-hd">✏️ Ejercicio 3 — Menú de navegación <span class="ex-badge">Principiante</span></div>
+    <p>Crea un menú de navegación básico con lista y enlaces:</p>
+    <div class="code-block">
+      <span class="lang">HTML</span>
+<span class="ct">&lt;nav&gt;</span>
+  <span class="ct">&lt;ul&gt;</span>
+    <span class="ct">&lt;li&gt;&lt;a</span> <span class="ca">href</span>=<span class="cv">"index.html"</span><span class="ct">&gt;</span>Inicio<span class="ct">&lt;/a&gt;&lt;/li&gt;</span>
+    <span class="ct">&lt;li&gt;&lt;a</span> <span class="ca">href</span>=<span class="cv">"sobre-mi.html"</span><span class="ct">&gt;</span>Sobre mí<span class="ct">&lt;/a&gt;&lt;/li&gt;</span>
+    <span class="ct">&lt;li&gt;&lt;a</span> <span class="ca">href</span>=<span class="cv">"proyectos.html"</span><span class="ct">&gt;</span>Proyectos<span class="ct">&lt;/a&gt;&lt;/li&gt;</span>
+    <span class="ct">&lt;li&gt;&lt;a</span> <span class="ca">href</span>=<span class="cv">"mailto:tuemail@gmail.com"</span><span class="ct">&gt;</span>Contacto<span class="ct">&lt;/a&gt;&lt;/li&gt;</span>
+  <span class="ct">&lt;/ul&gt;</span>
+<span class="ct">&lt;/nav&gt;</span>
+    </div>
+    <p><strong>Nota:</strong> Los archivos <code>sobre-mi.html</code> y <code>proyectos.html</code> aún no existen — el enlace no funcionará hasta que los crees. Eso está bien por ahora.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     ETIQUETAS MULTIMEDIA
+═══════════════════════════════════════════ -->
+<section class="module" id="etiquetas-media">
+  <div class="module-header">
+    <div class="module-icon">🖼️</div>
+    <div>
+      <div class="module-title">Imágenes, video y audio</div>
+      <div class="module-sub">Insertar contenido multimedia en la página</div>
+    </div>
+  </div>
+
+  <div class="tag-grid">
+    <div class="tag-card">
+      <div class="tc-head"><span class="tc-tag">&lt;img&gt;</span><span class="tc-name">Image / Imagen</span></div>
+      <p class="tc-desc">Inserta una imagen. Es etiqueta vacía (sin cierre). El atributo <code>src</code> es la ruta de la imagen y <code>alt</code> es su descripción en texto.</p>
+      <p class="tc-analogy">🖼 Como un marco vacío en la pared. El marco es la etiqueta <code>&lt;img&gt;</code>, y <code>src</code> es la foto que colocas dentro del marco.</p>
+      <div class="tc-example">&lt;img<br>  src="foto.jpg"<br>  alt="Mi foto de perfil"<br>  width="300"<br>  height="200"<br>&gt;</div>
+    </div>
+    <div class="tag-card">
+      <div class="tc-head"><span class="tc-tag">&lt;video&gt;</span><span class="tc-name">Video</span></div>
+      <p class="tc-desc">Inserta un reproductor de video directamente en la página. Los atributos <code>controls</code>, <code>autoplay</code>, <code>loop</code> y <code>muted</code> controlan su comportamiento.</p>
+      <p class="tc-analogy">📺 Como una televisión empotrada en la pared de la página. No necesitas abrir YouTube, el video se reproduce ahí mismo.</p>
+      <div class="tc-example">&lt;video controls width="400"&gt;<br>  &lt;source src="video.mp4" type="video/mp4"&gt;<br>  Tu navegador no soporta video.<br>&lt;/video&gt;</div>
+    </div>
+    <div class="tag-card">
+      <div class="tc-head"><span class="tc-tag">&lt;audio&gt;</span><span class="tc-name">Audio</span></div>
+      <p class="tc-desc">Inserta un reproductor de audio. Similar a <code>&lt;video&gt;</code> pero sin imagen. Perfecta para podcasts, efectos de sonido o música de fondo.</p>
+      <p class="tc-analogy">🎵 Como una pequeña bocina integrada en la página web. El usuario puede darle play sin salir de la página.</p>
+      <div class="tc-example">&lt;audio controls&gt;<br>  &lt;source src="musica.mp3" type="audio/mpeg"&gt;<br>&lt;/audio&gt;</div>
+    </div>
+    <div class="tag-card">
+      <div class="tc-head"><span class="tc-tag">&lt;iframe&gt;</span><span class="tc-name">Inline Frame / Marco en línea</span></div>
+      <p class="tc-desc">Incrusta otra página web completa dentro de la tuya. Se usa para embeber videos de YouTube, mapas de Google Maps, o cualquier contenido externo.</p>
+      <p class="tc-analogy">🪟 Como una ventana dentro de tu cuarto que da a otro edificio. Ves el edificio de afuera desde adentro de tu cuarto, pero son dos lugares diferentes.</p>
+      <div class="tc-example">&lt;iframe<br>  src="https://www.youtube.com/embed/ID"<br>  width="560"<br>  height="315"<br>  allowfullscreen<br>&gt;&lt;/iframe&gt;</div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>💡 El atributo alt en imágenes — nunca lo omitas</h4>
+    <p><code>alt</code> sirve para tres cosas importantes: <strong>①</strong> Si la imagen no carga (internet lento, ruta incorrecta), el texto alternativo le dice al usuario qué había ahí. <strong>②</strong> Los lectores de pantalla para personas con discapacidad visual leen el <code>alt</code> en voz alta. <strong>③</strong> Google y otros motores de búsqueda leen el <code>alt</code> para entender de qué trata la imagen, lo que mejora tu posicionamiento SEO.</p>
+  </div>
+
+  <h2>Rutas de archivos — ¿cómo se escribe el src?</h2>
+  <div class="code-block">
+    <span class="lang">HTML</span>
+<span class="cc">&lt;!-- Ruta absoluta: URL completa (para recursos externos) --&gt;</span>
+<span class="ct">&lt;img</span> <span class="ca">src</span>=<span class="cv">"https://placehold.co/300x200"</span> <span class="ca">alt</span>=<span class="cv">"Imagen de prueba"</span><span class="ct">&gt;</span>
+
+<span class="cc">&lt;!-- Ruta relativa: el archivo está en la MISMA carpeta que el HTML --&gt;</span>
+<span class="ct">&lt;img</span> <span class="ca">src</span>=<span class="cv">"foto.jpg"</span> <span class="ca">alt</span>=<span class="cv">"Mi foto"</span><span class="ct">&gt;</span>
+
+<span class="cc">&lt;!-- El archivo está en una subcarpeta llamada "imagenes" --&gt;</span>
+<span class="ct">&lt;img</span> <span class="ca">src</span>=<span class="cv">"imagenes/foto.jpg"</span> <span class="ca">alt</span>=<span class="cv">"Mi foto"</span><span class="ct">&gt;</span>
+
+<span class="cc">&lt;!-- El archivo está en la carpeta PADRE (un nivel arriba) --&gt;</span>
+<span class="ct">&lt;img</span> <span class="ca">src</span>=<span class="cv">"../foto.jpg"</span> <span class="ca">alt</span>=<span class="cv">"Mi foto"</span><span class="ct">&gt;</span>
+  </div>
+
+  <div class="analogy">
+    <h4>🗺 Analogía: las rutas son como direcciones</h4>
+    <p>Una <strong>ruta absoluta</strong> es como la dirección completa de tu casa: "Calle Álamo 42, Col. Centro, Veracruz, México". Funciona desde cualquier parte del mundo. Una <strong>ruta relativa</strong> es como decirle a alguien que ya está en tu colonia: "Es la tercera casa a la derecha". Solo funciona si ya estás en el lugar correcto. En web, las rutas relativas se calculan desde donde está el archivo HTML.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     FORMULARIOS
+═══════════════════════════════════════════ -->
+<section class="module" id="etiquetas-form">
+  <div class="module-header">
+    <div class="module-icon">📋</div>
+    <div>
+      <div class="module-title">Formularios</div>
+      <div class="module-sub">La forma en que los usuarios envían información al sitio</div>
+    </div>
+  </div>
+
+  <p>Los formularios son fundamentales en la web: registro, login, contacto, búsqueda, compras — todo usa formularios. Son la herramienta que permite al usuario enviar datos.</p>
+
+  <div class="analogy">
+    <h4>📝 Analogía: el formulario del banco</h4>
+    <p>Cuando vas al banco y te dan un formulario en papel para hacer una transferencia, tienes campos para llenar (nombre del beneficiario, CLABE, monto) y al final firmas y lo entregas al cajero. Un formulario HTML funciona igual: campos para que el usuario llene, y un botón de enviar que manda los datos al servidor.</p>
+  </div>
+
+  <div class="code-block">
+    <span class="lang">HTML</span>
+<span class="cc">&lt;!-- form: el contenedor de todo el formulario --&gt;</span>
+<span class="cc">&lt;!-- action: a dónde se envían los datos (URL del servidor) --&gt;</span>
+<span class="cc">&lt;!-- method: "get" (datos en URL) o "post" (datos ocultos, más seguro) --&gt;</span>
+<span class="ct">&lt;form</span> <span class="ca">action</span>=<span class="cv">"/enviar"</span> <span class="ca">method</span>=<span class="cv">"post"</span><span class="ct">&gt;</span>
+
+  <span class="cc">&lt;!-- label: la etiqueta que describe al campo. for="" conecta con el id del input --&gt;</span>
+  <span class="ct">&lt;label</span> <span class="ca">for</span>=<span class="cv">"nombre"</span><span class="ct">&gt;</span>Tu nombre:<span class="ct">&lt;/label&gt;</span>
+  <span class="ct">&lt;input</span>
+    <span class="ca">type</span>=<span class="cv">"text"</span>
+    <span class="ca">id</span>=<span class="cv">"nombre"</span>
+    <span class="ca">name</span>=<span class="cv">"nombre"</span>
+    <span class="ca">placeholder</span>=<span class="cv">"Ej: Juan García"</span>
+    <span class="ca">required</span>
+  <span class="ct">&gt;</span>
+
+  <span class="ct">&lt;label</span> <span class="ca">for</span>=<span class="cv">"email"</span><span class="ct">&gt;</span>Correo electrónico:<span class="ct">&lt;/label&gt;</span>
+  <span class="ct">&lt;input</span> <span class="ca">type</span>=<span class="cv">"email"</span> <span class="ca">id</span>=<span class="cv">"email"</span> <span class="ca">name</span>=<span class="cv">"email"</span> <span class="ca">required</span><span class="ct">&gt;</span>
+
+  <span class="ct">&lt;label</span> <span class="ca">for</span>=<span class="cv">"mensaje"</span><span class="ct">&gt;</span>Mensaje:<span class="ct">&lt;/label&gt;</span>
+  <span class="ct">&lt;textarea</span> <span class="ca">id</span>=<span class="cv">"mensaje"</span> <span class="ca">name</span>=<span class="cv">"mensaje"</span> <span class="ca">rows</span>=<span class="cv">"5"</span><span class="ct">&gt;&lt;/textarea&gt;</span>
+
+  <span class="ct">&lt;label</span> <span class="ca">for</span>=<span class="cv">"pais"</span><span class="ct">&gt;</span>País:<span class="ct">&lt;/label&gt;</span>
+  <span class="ct">&lt;select</span> <span class="ca">id</span>=<span class="cv">"pais"</span> <span class="ca">name</span>=<span class="cv">"pais"</span><span class="ct">&gt;</span>
+    <span class="ct">&lt;option</span> <span class="ca">value</span>=<span class="cv">"mx"</span><span class="ct">&gt;</span>México<span class="ct">&lt;/option&gt;</span>
+    <span class="ct">&lt;option</span> <span class="ca">value</span>=<span class="cv">"co"</span><span class="ct">&gt;</span>Colombia<span class="ct">&lt;/option&gt;</span>
+    <span class="ct">&lt;option</span> <span class="ca">value</span>=<span class="cv">"ar"</span><span class="ct">&gt;</span>Argentina<span class="ct">&lt;/option&gt;</span>
+  <span class="ct">&lt;/select&gt;</span>
+
+  <span class="ct">&lt;button</span> <span class="ca">type</span>=<span class="cv">"submit"</span><span class="ct">&gt;</span>Enviar mensaje<span class="ct">&lt;/button&gt;</span>
+
+<span class="ct">&lt;/form&gt;</span>
+  </div>
+
+  <h2>Tipos de &lt;input&gt;</h2>
+  <table class="tbl">
+    <thead><tr><th>type=</th><th>¿Qué muestra?</th><th>Cuándo usarlo</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">text</span></td><td>Campo de texto libre</td><td>Nombre, apellido, dirección, cualquier texto</td></tr>
+      <tr><td><span class="tag">email</span></td><td>Campo de texto que valida formato de email</td><td>Correo electrónico — el navegador verifica que tenga @ y dominio</td></tr>
+      <tr><td><span class="tag">password</span></td><td>Campo que oculta los caracteres con puntos</td><td>Contraseñas, PINs</td></tr>
+      <tr><td><span class="tag">number</span></td><td>Campo numérico con flechas arriba/abajo</td><td>Edad, cantidad, precio</td></tr>
+      <tr><td><span class="tag">tel</span></td><td>Campo de texto optimizado para teléfono</td><td>En móvil muestra teclado numérico</td></tr>
+      <tr><td><span class="tag">date</span></td><td>Selector de fecha (calendario)</td><td>Fecha de nacimiento, citas, reservaciones</td></tr>
+      <tr><td><span class="tag">checkbox</span></td><td>Casilla de verificación (se puede seleccionar)</td><td>"Acepto los términos", múltiples opciones seleccionables</td></tr>
+      <tr><td><span class="tag">radio</span></td><td>Botón de opción (solo uno del grupo)</td><td>Selección exclusiva: "Masculino / Femenino / Otro"</td></tr>
+      <tr><td><span class="tag">file</span></td><td>Botón para subir archivos</td><td>Subir foto de perfil, documentos, CV</td></tr>
+      <tr><td><span class="tag">range</span></td><td>Deslizador (slider)</td><td>Volumen, precio mínimo/máximo, edad</td></tr>
+      <tr><td><span class="tag">color</span></td><td>Selector de color</td><td>Personalizar colores, herramientas de diseño</td></tr>
+      <tr><td><span class="tag">search</span></td><td>Campo de búsqueda (con X para limpiar)</td><td>Barra de búsqueda, filtros</td></tr>
+      <tr><td><span class="tag">hidden</span></td><td>Campo invisible al usuario</td><td>Enviar datos que el usuario no debe ver ni cambiar</td></tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     SEMÁNTICA
+═══════════════════════════════════════════ -->
+<section class="module" id="semantica">
+  <div class="module-header">
+    <div class="module-icon">🧠</div>
+    <div>
+      <div class="module-title">HTML Semántico</div>
+      <div class="module-sub">Darle significado a la estructura, no solo apariencia</div>
+    </div>
+  </div>
+
+  <p>El HTML semántico usa etiquetas que <em>describen el significado</em> del contenido, no solo su apariencia. Puedes usar <code>&lt;div&gt;</code> para todo — técnicamente funciona — pero es como escribir un libro donde todos los personajes se llaman "Personaje": funciona, pero no le dice nada al lector sobre quién es quién.</p>
+
+  <div class="analogy">
+    <h4>🏛 Analogía: el edificio con señalización</h4>
+    <p>Imagina un edificio de oficinas. Podrías llamar a todos los cuartos "Cuarto 1, Cuarto 2, Cuarto 3...". Funciona para ocuparlos, pero si alguien pregunta "¿dónde está la sala de juntas?" no sabrías decirle. En cambio, si los nombras "Recepción", "Sala de Juntas", "Oficina del Director", "Baño" — todos entienden para qué sirve cada espacio. Eso hace el HTML semántico: nombrar cada sección por su función real.</p>
+  </div>
+
+  <div class="tag-grid">
+    <div class="tag-card">
+      <div class="tc-head"><span class="tc-tag">&lt;header&gt;</span><span class="tc-name">Encabezado</span></div>
+      <p class="tc-desc">El encabezado de la página o de una sección. Generalmente contiene el logo, el nombre del sitio y la navegación principal.</p>
+      <p class="tc-analogy">🏢 La fachada y la entrada principal de un edificio.</p>
+      <div class="tc-example">&lt;header&gt;<br>  &lt;img src="logo.png" alt="Logo"&gt;<br>  &lt;nav&gt;...&lt;/nav&gt;<br>&lt;/header&gt;</div>
+    </div>
+    <div class="tag-card">
+      <div class="tc-head"><span class="tc-tag">&lt;nav&gt;</span><span class="tc-name">Navegación</span></div>
+      <p class="tc-desc">Contiene los enlaces de navegación principales. No todos los grupos de enlaces son <code>&lt;nav&gt;</code>, solo los de navegación principal del sitio.</p>
+      <p class="tc-analogy">🗺 El mapa del edificio en la entrada: te dice a dónde puedes ir desde aquí.</p>
+      <div class="tc-example">&lt;nav&gt;<br>  &lt;ul&gt;<br>    &lt;li&gt;&lt;a href="/"&gt;Inicio&lt;/a&gt;&lt;/li&gt;<br>  &lt;/ul&gt;<br>&lt;/nav&gt;</div>
+    </div>
+    <div class="tag-card">
+      <div class="tc-head"><span class="tc-tag">&lt;main&gt;</span><span class="tc-name">Contenido principal</span></div>
+      <p class="tc-desc">El contenido principal y único de la página. Solo debe haber UN <code>&lt;main&gt;</code> por página. No incluye cabecera, pie de página ni navegación lateral.</p>
+      <p class="tc-analogy">🎭 El escenario principal del teatro: donde ocurre la obra. La recepción y los baños son importantes pero no son el escenario.</p>
+      <div class="tc-example">&lt;main&gt;<br>  &lt;h1&gt;Bienvenido&lt;/h1&gt;<br>  &lt;p&gt;Contenido...&lt;/p&gt;<br>&lt;/main&gt;</div>
+    </div>
+    <div class="tag-card">
+      <div class="tc-head"><span class="tc-tag">&lt;section&gt;</span><span class="tc-name">Sección</span></div>
+      <p class="tc-desc">Un grupo temático de contenido que generalmente tiene un título. Úsala cuando el contenido podría tener su propio título de sección.</p>
+      <p class="tc-analogy">📖 Un capítulo del libro. Cada capítulo tiene su título y habla de un tema específico dentro del libro.</p>
+      <div class="tc-example">&lt;section&gt;<br>  &lt;h2&gt;Sobre mí&lt;/h2&gt;<br>  &lt;p&gt;...&lt;/p&gt;<br>&lt;/section&gt;</div>
+    </div>
+    <div class="tag-card">
+      <div class="tc-head"><span class="tc-tag">&lt;article&gt;</span><span class="tc-name">Artículo</span></div>
+      <p class="tc-desc">Contenido independiente que tiene sentido por sí solo, incluso fuera del contexto de la página. Podría publicarse en otro sitio y seguir teniendo sentido.</p>
+      <p class="tc-analogy">📰 Una nota periodística. Puedes recortar esa nota del periódico y tiene sentido completo sola, sin el resto del periódico.</p>
+      <div class="tc-example">&lt;article&gt;<br>  &lt;h2&gt;Cómo aprender HTML&lt;/h2&gt;<br>  &lt;p&gt;...&lt;/p&gt;<br>&lt;/article&gt;</div>
+    </div>
+    <div class="tag-card">
+      <div class="tc-head"><span class="tc-tag">&lt;aside&gt;</span><span class="tc-name">Contenido secundario</span></div>
+      <p class="tc-desc">Contenido relacionado pero secundario al contenido principal. En diseño físico suele aparecer como una columna lateral (sidebar).</p>
+      <p class="tc-analogy">📓 Las notas al margen de un libro escolar. Son relacionadas al texto pero son complementarias, no el núcleo del contenido.</p>
+      <div class="tc-example">&lt;aside&gt;<br>  &lt;h3&gt;Artículos relacionados&lt;/h3&gt;<br>  &lt;ul&gt;...&lt;/ul&gt;<br>&lt;/aside&gt;</div>
+    </div>
+    <div class="tag-card">
+      <div class="tc-head"><span class="tc-tag">&lt;footer&gt;</span><span class="tc-name">Pie de página</span></div>
+      <p class="tc-desc">El pie de página del sitio o de una sección. Contiene información complementaria: derechos de autor, enlaces secundarios, datos de contacto.</p>
+      <p class="tc-analogy">📄 El pie de página de una carta formal: la firma, el sello, el número de empleado. No es el contenido principal pero es parte oficial del documento.</p>
+      <div class="tc-example">&lt;footer&gt;<br>  &lt;p&gt;© 2025 Mi Sitio&lt;/p&gt;<br>&lt;/footer&gt;</div>
+    </div>
+    <div class="tag-card">
+      <div class="tc-head"><span class="tc-tag">&lt;div&gt;</span><span class="tc-name">Division / Contenedor genérico</span></div>
+      <p class="tc-desc">Contenedor de bloque sin significado semántico. Solo se usa cuando ninguna otra etiqueta semántica aplica. Es el comodín del HTML.</p>
+      <p class="tc-analogy">📦 Una caja de cartón sin etiqueta. Sirve para cargar cosas, pero no te dice qué hay dentro. Úsala cuando no haya una caja mejor para el trabajo.</p>
+      <div class="tc-example">&lt;div class="tarjeta"&gt;<br>  &lt;img src="..."&gt;<br>  &lt;p&gt;Descripción&lt;/p&gt;<br>&lt;/div&gt;</div>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 ¿Cuándo usar div vs section vs article?</h4>
+    <ul style="margin-top:.4rem;padding-left:1.2rem">
+      <li>¿El contenido es independiente y tiene sentido solo? → <code>&lt;article&gt;</code></li>
+      <li>¿Es un grupo de contenido con su propio título dentro de la página? → <code>&lt;section&gt;</code></li>
+      <li>¿Solo necesitas una caja para aplicar estilos CSS y no encaja en ninguna categoría semántica? → <code>&lt;div&gt;</code></li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     ATRIBUTOS GLOBALES
+═══════════════════════════════════════════ -->
+<section class="module" id="atributos">
+  <div class="module-header">
+    <div class="module-icon">⚙️</div>
+    <div>
+      <div class="module-title">Atributos globales y especiales</div>
+      <div class="module-sub">Los atributos que funcionan en cualquier elemento HTML</div>
+    </div>
+  </div>
+
+  <div class="anatomy">
+    <span class="br">&lt;</span><span style="color:#4F46E5;font-weight:700">p</span>
+    <span class="at">class</span>=<span class="vl">"parrafo destacado"</span><span class="lb">clase CSS</span>
+    <span class="at">id</span>=<span class="vl">"intro"</span><span class="lb2">identificador único</span>
+    <span class="at">style</span>=<span class="vl">"color: red;"</span><span class="lb3">estilo inline</span>
+    <span class="at">title</span>=<span class="vl">"Más información al pasar el ratón"</span>
+    <span class="br">&gt;</span>
+      Contenido aquí
+    <span class="br">&lt;/</span><span style="color:#4F46E5;font-weight:700">p</span><span class="br">&gt;</span>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Atributo</th><th>¿En qué etiquetas?</th><th>Explicación detallada</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><span class="tag">class</span></td>
+        <td>Cualquiera</td>
+        <td>Asigna una o varias clases CSS. Puedes poner múltiples clases separadas por espacio: <code>class="tarjeta activa grande"</code>. Es la principal forma de conectar HTML con CSS.</td>
+      </tr>
+      <tr>
+        <td><span class="tag">id</span></td>
+        <td>Cualquiera</td>
+        <td>Identificador único en toda la página. No puede repetirse. Se usa para anclas (<code>&lt;a href="#mi-id"&gt;</code>), para CSS muy específico, y para JavaScript.</td>
+      </tr>
+      <tr>
+        <td><span class="tag">style</span></td>
+        <td>Cualquiera</td>
+        <td>Aplica estilos CSS directamente en el elemento (CSS inline). Tiene la mayor prioridad en la cascada, pero se considera mala práctica para estilos que deberían estar en el archivo CSS.</td>
+      </tr>
+      <tr>
+        <td><span class="tag">title</span></td>
+        <td>Cualquiera</td>
+        <td>Texto que aparece como tooltip (burbuja de ayuda) al pasar el ratón encima. Útil para dar contexto adicional sin ocupar espacio en la página.</td>
+      </tr>
+      <tr>
+        <td><span class="tag">lang</span></td>
+        <td>html, cualquiera</td>
+        <td>Indica el idioma del contenido. Importante para lectores de pantalla y motores de búsqueda. En <code>&lt;html lang="es"&gt;</code> define el idioma de toda la página.</td>
+      </tr>
+      <tr>
+        <td><span class="tag">data-*</span></td>
+        <td>Cualquiera</td>
+        <td>Atributos personalizados para almacenar datos extra en el HTML que JavaScript puede leer. Ejemplo: <code>data-id="42"</code>, <code>data-color="azul"</code>.</td>
+      </tr>
+      <tr>
+        <td><span class="tag">hidden</span></td>
+        <td>Cualquiera</td>
+        <td>Oculta el elemento (como <code>display: none</code> en CSS). No aparece en pantalla pero sigue en el código HTML.</td>
+      </tr>
+      <tr>
+        <td><span class="tag">tabindex</span></td>
+        <td>Cualquiera</td>
+        <td>Controla el orden en que el usuario navega por los elementos al presionar la tecla Tab. Importante para accesibilidad.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="concept">
+    <h4>💡 class vs id — la diferencia definitiva</h4>
+    <p>Piensa en los jugadores de un equipo de fútbol. El <strong>uniforme</strong> (class) es el mismo para varios jugadores — todos los delanteros llevan el número 9, o todos los del equipo local visten de azul. El <strong>número de dorsal</strong> (id) es único para cada jugador: solo hay un número 10 en el equipo. Puedes tener miles de elementos con la misma clase, pero solo uno con cada id.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     CSS INTRO
+═══════════════════════════════════════════ -->
+<section class="module" id="css-intro">
+  <div class="module-header">
+    <div class="module-icon">🎨</div>
+    <div>
+      <div class="module-title">CSS — Cascading Style Sheets</div>
+      <div class="module-sub">Cómo se escribe, cómo se estructura y cómo funciona</div>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <h4>🖼 Analogía: el artista y el escultor</h4>
+    <p>El desarrollador HTML es el escultor que da forma a la estructura: crea la figura, define dónde van los brazos, la cabeza, el cuerpo. El desarrollador CSS es el artista que toma esa escultura y la pinta, la pule, le agrega texturas y colores. La misma escultura puede verse completamente diferente dependiendo del artista que la pinte.</p>
+  </div>
+
+  <h2>Las 3 formas de agregar CSS — y cuándo usar cada una</h2>
+
+  <div class="tag-grid">
+    <div class="tag-card">
+      <div class="tc-head"><span class="tc-tag">Externo</span><span class="tc-name">✅ Recomendado</span></div>
+      <p class="tc-desc">Un archivo <code>.css</code> separado, enlazado con <code>&lt;link&gt;</code> en el <code>&lt;head&gt;</code>.</p>
+      <p class="tc-analogy">🗂 Como tener un libro de estilos corporativos de la empresa. Todos los documentos consultan el mismo libro, garantizando consistencia.</p>
+      <div class="tc-example">&lt;!-- En el head del HTML --&gt;<br>&lt;link rel="stylesheet" href="estilos.css"&gt;</div>
+    </div>
+    <div class="tag-card">
+      <div class="tc-head"><span class="tc-tag">Interno</span><span class="tc-name">⚠️ Para pruebas</span></div>
+      <p class="tc-desc">Estilos dentro de una etiqueta <code>&lt;style&gt;</code> en el <code>&lt;head&gt;</code> del mismo HTML.</p>
+      <p class="tc-analogy">📋 Como anotar los estilos de ese documento específico en la primera página. Solo aplica a ese documento, no a otros.</p>
+      <div class="tc-example">&lt;style&gt;<br>  p { color: blue; }<br>&lt;/style&gt;</div>
+    </div>
+    <div class="tag-card">
+      <div class="tc-head"><span class="tc-tag">Inline</span><span class="tc-name">❌ Evitar</span></div>
+      <p class="tc-desc">Estilos directamente en el atributo <code>style</code> del elemento.</p>
+      <p class="tc-analogy">🖊 Como escribir la decoración directamente sobre la pared con marcador permanente. No se puede reutilizar ni cambiar fácilmente.</p>
+      <div class="tc-example">&lt;p style="color: blue;"&gt;<br>  Texto azul<br>&lt;/p&gt;</div>
+    </div>
+  </div>
+
+  <h2>Anatomía completa de una regla CSS</h2>
+
+  <div class="anatomy">
+    <span style="color:#7C3AED;font-weight:700">p</span><span class="lb">Selector: ¿a quién?</span> {<br>
+    &nbsp;&nbsp;<span class="at">color</span><span class="lb2">Propiedad: ¿qué cambias?</span>: <span class="vl">red</span><span class="lb3">Valor: ¿cómo queda?</span>;<span class="lb">Declaración completa</span><br>
+    &nbsp;&nbsp;<span class="at">font-size</span>: <span class="vl">18px</span>;<br>
+    &nbsp;&nbsp;<span class="at">background-color</span>: <span class="vl">#FFFF00</span>;<br>
+    }<span class="lb">Bloque de declaraciones / Regla CSS</span>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 El punto y coma (;) es obligatorio</h4>
+    <p>Cada declaración CSS debe terminar con <code>;</code>. Si lo omites, la declaración siguiente se "fusiona" con la anterior y ambas dejan de funcionar. Es el error más común de los principiantes. En la última declaración del bloque es técnicamente opcional, pero siempre ponlo por hábito para evitar errores cuando añadas más propiedades.</p>
+  </div>
+
+  <h2>Comentarios en CSS</h2>
+  <div class="code-block">
+    <span class="lang">CSS</span>
+<span class="cc">/* Esto es un comentario — el navegador lo ignora completamente */</span>
+<span class="cc">/* Úsalos para explicar decisiones de diseño o para desactivar código temporalmente */</span>
+
+<span class="cp">body</span> {
+  <span class="ca">font-family</span>: Arial; <span class="cc">/* Fuente sin serifa para mejor legibilidad en pantalla */</span>
+  <span class="cc">/* background: red; */</span>  <span class="cc">/* ← Esta línea está "comentada" = desactivada */</span>
+}
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     SELECTORES
+═══════════════════════════════════════════ -->
+<section class="module" id="selectores">
+  <div class="module-header">
+    <div class="module-icon">🎯</div>
+    <div>
+      <div class="module-title">Selectores CSS en profundidad</div>
+      <div class="module-sub">Aprender a apuntar exactamente al elemento correcto</div>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <h4>🎯 Analogía: el maestro en el salón</h4>
+    <p>Un maestro puede dirigirse a: <strong>todos</strong> los estudiantes ("Estudiantes, saquen el cuaderno"), <strong>un grupo</strong> de estudiantes ("Los que están en la fila del fondo"), <strong>uno específico</strong> ("Juan García, pasa al pizarrón"), o con una <strong>relación</strong> ("Los que se sientan junto a María"). Los selectores CSS funcionan igual: te permiten apuntar con diferente precisión.</p>
+  </div>
+
+  <div class="sel-grid">
+    <div class="sel-card">
+      <div class="st">Universal</div>
+      <code>* { }</code>
+      <p>Todo en la página</p>
+    </div>
+    <div class="sel-card">
+      <div class="st">Etiqueta</div>
+      <code>p { }</code>
+      <p>Todos los &lt;p&gt;</p>
+    </div>
+    <div class="sel-card">
+      <div class="st">Clase</div>
+      <code>.btn { }</code>
+      <p>class="btn"</p>
+    </div>
+    <div class="sel-card">
+      <div class="st">ID</div>
+      <code>#menu { }</code>
+      <p>id="menu" (único)</p>
+    </div>
+    <div class="sel-card">
+      <div class="st">Descendiente</div>
+      <code>nav a { }</code>
+      <p>&lt;a&gt; dentro de &lt;nav&gt;</p>
+    </div>
+    <div class="sel-card">
+      <div class="st">Hijo directo</div>
+      <code>ul > li { }</code>
+      <p>&lt;li&gt; hijo inmediato</p>
+    </div>
+    <div class="sel-card">
+      <div class="st">Múltiple</div>
+      <code>h1, h2 { }</code>
+      <p>h1 Y h2 a la vez</p>
+    </div>
+    <div class="sel-card">
+      <div class="st">Atributo</div>
+      <code>[type="text"]</code>
+      <p>Con ese atributo</p>
+    </div>
+  </div>
+
+  <div class="code-block">
+    <span class="lang">CSS</span>
+<span class="cc">/* ① Universal — aplica a TODO (útil para reset) */</span>
+<span class="cp">*</span> { <span class="ca">box-sizing</span>: border-box; <span class="ca">margin</span>: <span class="cn">0</span>; }
+
+<span class="cc">/* ② Etiqueta — todos los párrafos */</span>
+<span class="cp">p</span> { <span class="ca">line-height</span>: <span class="cn">1.6</span>; }
+
+<span class="cc">/* ③ Clase — el punto indica clase */</span>
+<span class="cp">.boton</span> { <span class="ca">background</span>: <span class="cn">#4F46E5</span>; <span class="ca">color</span>: white; }
+
+<span class="cc">/* ④ ID — el # indica id */</span>
+<span class="cp">#encabezado</span> { <span class="ca">position</span>: sticky; <span class="ca">top</span>: <span class="cn">0</span>; }
+
+<span class="cc">/* ⑤ Descendiente — cualquier a DENTRO de nav (puede estar muy adentro) */</span>
+<span class="cp">nav a</span> { <span class="ca">color</span>: white; <span class="ca">text-decoration</span>: none; }
+
+<span class="cc">/* ⑥ Hijo directo — solo li que sea hijo INMEDIATO de ul, no de otro li */</span>
+<span class="cp">ul > li</span> { <span class="ca">list-style</span>: square; }
+
+<span class="cc">/* ⑦ Múltiples — misma regla para h1, h2 y h3 */</span>
+<span class="cp">h1, h2, h3</span> { <span class="ca">font-family</span>: Georgia, serif; }
+
+<span class="cc">/* ⑧ Pseudo-clase :hover — cuando el ratón está encima */</span>
+<span class="cp">.boton:hover</span> { <span class="ca">background</span>: <span class="cn">#3730A3</span>; }
+
+<span class="cc">/* ⑨ Pseudo-clase :focus — cuando el elemento está activo/seleccionado */</span>
+<span class="cp">input:focus</span> { <span class="ca">border-color</span>: <span class="cn">#4F46E5</span>; <span class="ca">outline</span>: none; }
+
+<span class="cc">/* ⑩ Pseudo-elemento ::before — inserta contenido ANTES del elemento */</span>
+<span class="cp">.precio::before</span> { <span class="ca">content</span>: <span class="cs">"$"</span>; }
+
+<span class="cc">/* ⑪ Pseudo-elemento ::placeholder — el texto de ayuda en inputs */</span>
+<span class="cp">input::placeholder</span> { <span class="ca">color</span>: <span class="cn">#9CA3AF</span>; }
+
+<span class="cc">/* ⑫ Selector de atributo — inputs de tipo email */</span>
+<span class="cp">input[type="email"]</span> { <span class="ca">border</span>: <span class="cn">2px</span> solid blue; }
+  </div>
+
+  <div class="ex">
+    <div class="ex-hd">✏️ Ejercicio 4 — Practicando selectores <span class="ex-badge">Intermedio</span></div>
+    <p>Dado este HTML, escribe el selector correcto para cada caso:</p>
+    <div class="code-block">
+      <span class="lang">HTML</span>
+<span class="ct">&lt;header</span> <span class="ca">id</span>=<span class="cv">"top"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;nav&gt;</span>
+    <span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"/"</span> <span class="ca">class</span>=<span class="cv">"activo"</span><span class="ct">&gt;</span>Inicio<span class="ct">&lt;/a&gt;</span>
+    <span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"/blog"</span><span class="ct">&gt;</span>Blog<span class="ct">&lt;/a&gt;</span>
+  <span class="ct">&lt;/nav&gt;</span>
+<span class="ct">&lt;/header&gt;</span>
+<span class="ct">&lt;main&gt;</span>
+  <span class="ct">&lt;p</span> <span class="ca">class</span>=<span class="cv">"intro"</span><span class="ct">&gt;</span>Primer párrafo<span class="ct">&lt;/p&gt;</span>
+  <span class="ct">&lt;p&gt;</span>Segundo párrafo<span class="ct">&lt;/p&gt;</span>
+<span class="ct">&lt;/main&gt;</span>
+    </div>
+    <ol>
+      <li>Haz el fondo del header azul oscuro</li>
+      <li>Haz todos los enlaces dentro del nav de color blanco</li>
+      <li>Ponle negrita solo al enlace con clase "activo"</li>
+      <li>Ponle color gris solo al párrafo con clase "intro"</li>
+      <li>Cuando el ratón esté sobre un enlace del nav, que cambie de color</li>
+    </ol>
+    <p><em>Intenta escribir los selectores antes de ver la solución. La práctica es fundamental.</em></p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     ESPECIFICIDAD
+═══════════════════════════════════════════ -->
+<section class="module" id="especificidad">
+  <div class="module-header">
+    <div class="module-icon">⚖️</div>
+    <div>
+      <div class="module-title">Especificidad y la Cascada</div>
+      <div class="module-sub">Por qué a veces tus estilos no se aplican — y cómo solucionarlo</div>
+    </div>
+  </div>
+
+  <p>La <strong>especificidad</strong> es el sistema que usa CSS para decidir cuál regla "gana" cuando dos reglas quieren cambiar la misma propiedad del mismo elemento. Es la fuente del 80% de las confusiones de los principiantes.</p>
+
+  <div class="analogy">
+    <h4>🏆 Analogía: el torneo de jerarquías</h4>
+    <p>Imagina un torneo donde los jugadores tienen rangos. Un <strong>general</strong> (id) siempre le gana a un <strong>capitán</strong> (clase), y un capitán siempre le gana a un <strong>soldado</strong> (etiqueta). No importa cuántos soldados pongas: un solo general los derrota a todos. Pero hay alguien que le gana al general: el <strong>rey</strong> (inline style con <code>style=""</code> directamente en el elemento).</p>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Selector</th><th>Puntos</th><th>Ejemplo</th><th>Rango</th></tr></thead>
+    <tbody>
+      <tr><td>Inline style</td><td>1,0,0,0</td><td><code>style="color:red"</code></td><td>👑 Rey — gana a todo</td></tr>
+      <tr><td>ID</td><td>0,1,0,0</td><td><code>#encabezado</code></td><td>🎖 General</td></tr>
+      <tr><td>Clase / Atributo / Pseudo-clase</td><td>0,0,1,0</td><td><code>.boton</code>, <code>:hover</code></td><td>⭐ Capitán</td></tr>
+      <tr><td>Etiqueta / Pseudo-elemento</td><td>0,0,0,1</td><td><code>p</code>, <code>::before</code></td><td>🪖 Soldado</td></tr>
+      <tr><td>Universal <code>*</code></td><td>0,0,0,0</td><td><code>*</code></td><td>0 puntos — pierde siempre</td></tr>
+    </tbody>
+  </table>
+
+  <div class="code-block">
+    <span class="lang">CSS</span>
+<span class="cc">/* Si tenemos este HTML: &lt;p class="texto" id="parrafo"&gt;Hola&lt;/p&gt; */</span>
+<span class="cc">/* ¿De qué color sale el texto? */</span>
+
+<span class="cp">p</span>          { <span class="ca">color</span>: <span class="cn">blue</span>;   } <span class="cc">/* 0,0,0,1 puntos → soldado */</span>
+<span class="cp">.texto</span>     { <span class="ca">color</span>: <span class="cn">green</span>;  } <span class="cc">/* 0,0,1,0 puntos → capitán ← GANA */</span>
+<span class="cp">#parrafo</span>   { <span class="ca">color</span>: <span class="cn">red</span>;    } <span class="cc">/* 0,1,0,0 puntos → general ← GANA si quitamos .texto */</span>
+
+<span class="cc">/* Sumas de puntos: */</span>
+<span class="cp">nav .activo a</span>  { <span class="ca">color</span>: white; } <span class="cc">/* 0,0,1,2 = una clase + dos etiquetas */</span>
+<span class="cp">#menu .item</span>   { <span class="ca">color</span>: white; } <span class="cc">/* 0,1,1,0 = un id + una clase */</span>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ !important — el arma nuclear</h4>
+    <p><code>color: red !important;</code> sobreescribe TODO, incluso los inline styles. Úsalo lo menos posible — es como usar una excavadora para clavar un clavo. Indica que algo está mal diseñado en tu estructura de CSS. Los profesionales casi nunca lo usan.</p>
+  </div>
+
+  <div class="concept">
+    <h4>💡 Si tus estilos no aparecen, revisa esto:</h4>
+    <ul style="margin-top:.4rem;padding-left:1.2rem">
+      <li>¿Está el selector mal escrito? (¿olvidaste el punto en la clase, o el # en el id?)</li>
+      <li>¿Hay otro selector más específico que sobreescribe el tuyo?</li>
+      <li>¿Está el archivo CSS enlazado correctamente al HTML?</li>
+      <li>Usa F12 → Inspector → busca el elemento → ve qué estilos están tachados (tachado = sobreescrito)</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     UNIDADES
+═══════════════════════════════════════════ -->
+<section class="module" id="unidades">
+  <div class="module-header">
+    <div class="module-icon">📏</div>
+    <div>
+      <div class="module-title">Unidades de medida en CSS</div>
+      <div class="module-sub">px, em, rem, %, vw, vh — cuándo usar cada una</div>
+    </div>
+  </div>
+
+  <div class="units-grid">
+    <div class="unit-card">
+      <div class="uc-unit">px</div>
+      <div class="uc-name">Píxeles — absoluto</div>
+      <p class="uc-desc">Una medida fija. 16px siempre es 16px, sin importar nada. Fácil de entender pero no se adapta bien a pantallas de diferente tamaño o preferencias del usuario.</p>
+    </div>
+    <div class="unit-card">
+      <div class="uc-unit">%</div>
+      <div class="uc-name">Porcentaje — relativo al padre</div>
+      <p class="uc-desc">Porcentaje del elemento padre. Si el padre tiene <code>width: 500px</code>, un hijo con <code>width: 50%</code> tendrá 250px. Perfecto para layouts fluidos.</p>
+    </div>
+    <div class="unit-card">
+      <div class="uc-unit">em</div>
+      <div class="uc-name">Em — relativo al padre</div>
+      <p class="uc-desc">Relativo al <code>font-size</code> del elemento padre. Si el padre tiene 16px, <code>2em</code> = 32px. El problema: se acumula en elementos anidados (1.5em dentro de 1.5em = 2.25em).</p>
+    </div>
+    <div class="unit-card">
+      <div class="uc-unit">rem</div>
+      <div class="uc-name">Root Em — relativo a la raíz</div>
+      <p class="uc-desc">Relativo al <code>font-size</code> del elemento <code>&lt;html&gt;</code> (raíz). Por defecto son 16px. <code>1rem</code> = 16px siempre, sin importar la anidación. El favorito de los profesionales.</p>
+    </div>
+    <div class="unit-card">
+      <div class="uc-unit">vw</div>
+      <div class="uc-name">Viewport Width</div>
+      <p class="uc-desc">1% del ancho de la ventana del navegador. <code>100vw</code> = ancho completo de la pantalla. Ideal para elementos que deben cubrir toda la pantalla.</p>
+    </div>
+    <div class="unit-card">
+      <div class="uc-unit">vh</div>
+      <div class="uc-name">Viewport Height</div>
+      <p class="uc-desc">1% del alto de la ventana del navegador. <code>100vh</code> = alto completo de la pantalla. Úsalo para crear secciones "hero" que cubren toda la pantalla.</p>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <h4>📐 Analogía: unidades de construcción</h4>
+    <p><strong>px</strong> es como medir en centímetros: exacto y fijo. <strong>%</strong> es como decir "la mitad del cuarto" — depende del tamaño del cuarto. <strong>rem</strong> es como decir "X veces el ladrillo estándar" — el ladrillo siempre es el mismo tamaño, así que la proporción es predecible. <strong>vw/vh</strong> es "X% del terreno disponible" — se adapta a cualquier pantalla.</p>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Guía rápida de cuándo usar cada una</h4>
+    <ul style="margin-top:.4rem;padding-left:1.2rem">
+      <li><strong>px</strong> → bordes, sombras, cosas que no deben escalar: <code>border: 1px solid</code></li>
+      <li><strong>rem</strong> → tamaños de fuente, padding, margin — todo que debe escalar con las preferencias del usuario</li>
+      <li><strong>%</strong> → anchos de columnas y elementos que deben ser proporcionales al padre</li>
+      <li><strong>vw/vh</strong> → secciones hero, modales de pantalla completa, fondos</li>
+      <li><strong>em</strong> → espaciado interno de componentes que debe ser relativo al tamaño de su propio texto</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     BOX MODEL
+═══════════════════════════════════════════ -->
+<section class="module" id="box-model">
+  <div class="module-header">
+    <div class="module-icon">📦</div>
+    <div>
+      <div class="module-title">El Modelo de Caja (Box Model)</div>
+      <div class="module-sub">El concepto más importante de CSS — todo es una caja</div>
+    </div>
+  </div>
+
+  <p>En CSS, <strong>absolutamente todo elemento es una caja rectangular</strong>. Aunque visualmente parezca un círculo, un texto o una imagen, internamente el navegador lo trata como una caja. Esta caja tiene 4 capas concéntricas.</p>
+
+  <div class="bm">
+    <div class="bm-mg">
+      <span class="bm-lb">🟡 MARGIN — Espacio exterior. Transparente, separa este elemento del siguiente. No tiene color de fondo.</span>
+      <div class="bm-bd">
+        <span class="bm-lb">🔴 BORDER — El borde del elemento. Puede tener grosor, estilo y color.</span>
+        <div class="bm-pd">
+          <span class="bm-lb">🟢 PADDING — Espacio interior. Distancia entre el borde y el contenido. Toma el color de fondo del elemento.</span>
+          <div class="bm-ct">
+            <strong>CONTENT</strong><br>
+            <small>Aquí va el texto, la imagen, o los elementos hijos.</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="code-block" style="margin-top:1.5rem">
+    <span class="lang">CSS</span>
+<span class="cp">.tarjeta</span> {
+  <span class="cc">/* CONTENT */</span>
+  <span class="ca">width</span>: <span class="cn">320px</span>;
+  <span class="ca">height</span>: <span class="cn">200px</span>;
+
+  <span class="cc">/* PADDING — espacio entre el borde y el contenido */</span>
+  <span class="ca">padding</span>: <span class="cn">20px</span>;              <span class="cc">/* los 4 lados iguales */</span>
+  <span class="ca">padding</span>: <span class="cn">10px 20px</span>;        <span class="cc">/* arriba/abajo  izquierda/derecha */</span>
+  <span class="ca">padding</span>: <span class="cn">10px 20px 15px 5px</span>; <span class="cc">/* arriba derecha abajo izquierda (reloj) */</span>
+  <span class="ca">padding-top</span>: <span class="cn">10px</span>;          <span class="cc">/* lado específico */</span>
+  <span class="ca">padding-right</span>: <span class="cn">20px</span>;
+  <span class="ca">padding-bottom</span>: <span class="cn">15px</span>;
+  <span class="ca">padding-left</span>: <span class="cn">5px</span>;
+
+  <span class="cc">/* BORDER */</span>
+  <span class="ca">border</span>: <span class="cn">2px</span> solid <span class="cn">#4F46E5</span>;     <span class="cc">/* grosor tipo color */</span>
+  <span class="ca">border-radius</span>: <span class="cn">12px</span>;           <span class="cc">/* esquinas redondeadas */</span>
+  <span class="ca">border-radius</span>: <span class="cn">50%</span>;            <span class="cc">/* círculo perfecto (si width=height) */</span>
+
+  <span class="cc">/* MARGIN — espacio fuera del elemento */</span>
+  <span class="ca">margin</span>: <span class="cn">20px</span>;               <span class="cc">/* los 4 lados */</span>
+  <span class="ca">margin</span>: <span class="cn">0 auto</span>;             <span class="cc">/* truco para centrar: arriba/abajo=0, izq/der=automático */</span>
+
+  <span class="cc">/* FONDO */</span>
+  <span class="ca">background-color</span>: <span class="cn">white</span>;
+}
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ El problema del box-sizing</h4>
+    <p>Por defecto, cuando dices <code>width: 300px</code> y luego añades <code>padding: 20px</code>, el elemento queda con 340px de ancho total (300 + 20 izquierda + 20 derecha). Esto rompe layouts. La solución es <code>box-sizing: border-box</code>: el padding se incluye dentro del width definido, así que el elemento sigue midiendo 300px.</p>
+  </div>
+
+  <div class="code-block">
+    <span class="lang">CSS — Reset recomendado (ponlo siempre al inicio)</span>
+<span class="cc">/* Esta regla hace que el box-sizing sea intuitivo en TODOS los elementos */</span>
+<span class="cp">*,
+*::before,
+*::after</span> {
+  <span class="ca">box-sizing</span>: border-box;
+  <span class="ca">margin</span>: <span class="cn">0</span>;
+  <span class="ca">padding</span>: <span class="cn">0</span>;
+}
+  </div>
+
+  <div class="concept">
+    <h4>💡 Truco: margin: 0 auto para centrar</h4>
+    <p>Para centrar horizontalmente un elemento de bloque con ancho fijo, usa <code>margin: 0 auto</code>. El <code>auto</code> a la izquierda y derecha distribuye el espacio disponible de manera equitativa, centrando el elemento. Esto solo funciona si el elemento tiene un <code>width</code> definido.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     TIPOGRAFÍA
+═══════════════════════════════════════════ -->
+<section class="module" id="tipografia">
+  <div class="module-header">
+    <div class="module-icon">🔤</div>
+    <div>
+      <div class="module-title">Tipografía</div>
+      <div class="module-sub">Todo lo que necesitas saber sobre fuentes y texto en CSS</div>
+    </div>
+  </div>
+
+  <div class="prop-section">
+    <h3>Propiedades de fuente</h3>
+    <div class="prop-grid">
+      <div class="prop-item">
+        <div class="pi-prop">font-family</div>
+        <div class="pi-vals">Arial, 'Times New Roman', sans-serif</div>
+        <div class="pi-desc">Define la fuente. Siempre pon varias de respaldo separadas por comas. La última debe ser genérica: <code>sans-serif</code>, <code>serif</code>, <code>monospace</code>.</div>
+      </div>
+      <div class="prop-item">
+        <div class="pi-prop">font-size</div>
+        <div class="pi-vals">16px | 1rem | 1.2em | 120%</div>
+        <div class="pi-desc">Tamaño de la fuente. El tamaño por defecto del navegador es 16px. Prefiere <code>rem</code> para que respete las preferencias del usuario.</div>
+      </div>
+      <div class="prop-item">
+        <div class="pi-prop">font-weight</div>
+        <div class="pi-vals">400 (normal) | 700 (bold) | 100–900</div>
+        <div class="pi-desc">Grosor de la fuente. 400 es normal, 700 es negrita. Algunos valores numéricos requieren que la fuente los soporte.</div>
+      </div>
+      <div class="prop-item">
+        <div class="pi-prop">font-style</div>
+        <div class="pi-vals">normal | italic | oblique</div>
+        <div class="pi-desc">Estilo de la fuente. <code>italic</code> usa la versión cursiva diseñada de la fuente. <code>oblique</code> inclina la fuente normal artificialmente.</div>
+      </div>
+      <div class="prop-item">
+        <div class="pi-prop">line-height</div>
+        <div class="pi-vals">1.5 | 1.6 | 24px | 150%</div>
+        <div class="pi-desc">Interlineado (espacio entre líneas). Sin unidad (ej: <code>1.6</code>) es lo recomendado — es relativo al font-size actual. Ideal para lectura: 1.5–1.8.</div>
+      </div>
+      <div class="prop-item">
+        <div class="pi-prop">letter-spacing</div>
+        <div class="pi-vals">0.05em | 2px | -1px</div>
+        <div class="pi-desc">Espacio entre letras (tracking). Positivo = más espacio. Negativo = letras más juntas. Úsalo con <code>em</code> para que escale con el tamaño.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="prop-section">
+    <h3>Propiedades de alineación y decoración</h3>
+    <div class="prop-grid">
+      <div class="prop-item">
+        <div class="pi-prop">text-align</div>
+        <div class="pi-vals">left | center | right | justify</div>
+        <div class="pi-desc">Alineación horizontal del texto. <code>justify</code> estira el texto para que cada línea ocupe el mismo ancho (como en los libros).</div>
+      </div>
+      <div class="prop-item">
+        <div class="pi-prop">text-decoration</div>
+        <div class="pi-vals">none | underline | line-through | overline</div>
+        <div class="pi-desc">Decoración del texto. <code>none</code> es muy usado para quitar el subrayado de los enlaces (<code>a { text-decoration: none; }</code>).</div>
+      </div>
+      <div class="prop-item">
+        <div class="pi-prop">text-transform</div>
+        <div class="pi-vals">none | uppercase | lowercase | capitalize</div>
+        <div class="pi-desc">Transforma el texto sin cambiar el HTML. <code>uppercase</code> lo pone en MAYÚSCULAS, <code>capitalize</code> pone la Primera Letra en mayúscula.</div>
+      </div>
+      <div class="prop-item">
+        <div class="pi-prop">text-shadow</div>
+        <div class="pi-vals">2px 2px 4px rgba(0,0,0,0.3)</div>
+        <div class="pi-desc">Sombra del texto: desplazamiento-x desplazamiento-y desenfoque color. Úsala con moderación para no arruinar la legibilidad.</div>
+      </div>
+    </div>
+  </div>
+
+  <h2>Google Fonts — cómo usar fuentes personalizadas gratis</h2>
+  <div class="code-block">
+    <span class="lang">HTML — En el &lt;head&gt;</span>
+<span class="cc">&lt;!-- Paso 1: importar la fuente desde Google Fonts --&gt;</span>
+<span class="ct">&lt;link</span> <span class="ca">rel</span>=<span class="cv">"preconnect"</span> <span class="ca">href</span>=<span class="cv">"https://fonts.googleapis.com"</span><span class="ct">&gt;</span>
+<span class="ct">&lt;link</span> <span class="ca">rel</span>=<span class="cv">"preconnect"</span> <span class="ca">href</span>=<span class="cv">"https://fonts.gstatic.com"</span> <span class="ca">crossorigin</span><span class="ct">&gt;</span>
+<span class="ct">&lt;link</span> <span class="ca">href</span>=<span class="cv">"https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@700&display=swap"</span> <span class="ca">rel</span>=<span class="cv">"stylesheet"</span><span class="ct">&gt;</span>
+  </div>
+  <div class="code-block">
+    <span class="lang">CSS — Paso 2: usar la fuente</span>
+<span class="cp">body</span> {
+  <span class="ca">font-family</span>: <span class="cv">'Inter'</span>, sans-serif; <span class="cc">/* Fuente de cuerpo */</span>
+}
+<span class="cp">h1, h2, h3</span> {
+  <span class="ca">font-family</span>: <span class="cv">'Playfair Display'</span>, serif; <span class="cc">/* Fuente de títulos */</span>
+}
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     COLORES
+═══════════════════════════════════════════ -->
+<section class="module" id="colores">
+  <div class="module-header">
+    <div class="module-icon">🌈</div>
+    <div>
+      <div class="module-title">Colores en CSS</div>
+      <div class="module-sub">Todas las formas de definir color y las propiedades visuales relacionadas</div>
+    </div>
+  </div>
+
+  <div class="code-block">
+    <span class="lang">CSS</span>
+<span class="cp">.elemento</span> {
+
+  <span class="cc">/* ① NOMBRES — solo 140 colores. Fácil pero limitado */</span>
+  <span class="ca">color</span>: red;           <span class="cc">/* rojo */</span>
+  <span class="ca">color</span>: dodgerblue;    <span class="cc">/* sí existe este nombre */</span>
+  <span class="ca">color</span>: transparent;   <span class="cc">/* completamente transparente */</span>
+
+  <span class="cc">/* ② HEXADECIMAL — el más usado en diseño */</span>
+  <span class="cc">/* Formato: #RRGGBB (rojo, verde, azul en base 16: 00–FF) */</span>
+  <span class="ca">color</span>: <span class="cn">#FF0000</span>;   <span class="cc">/* rojo puro (FF=255, 00=0, 00=0) */</span>
+  <span class="ca">color</span>: <span class="cn">#00FF00</span>;   <span class="cc">/* verde puro */</span>
+  <span class="ca">color</span>: <span class="cn">#0000FF</span>;   <span class="cc">/* azul puro */</span>
+  <span class="ca">color</span>: <span class="cn">#000000</span>;   <span class="cc">/* negro */</span>
+  <span class="ca">color</span>: <span class="cn">#FFFFFF</span>;   <span class="cc">/* blanco */</span>
+  <span class="ca">color</span>: <span class="cn">#4F46E5</span>;   <span class="cc">/* azul-morado (como el de esta guía) */</span>
+  <span class="cc">/* Forma corta (si cada par es igual): #FFF = #FFFFFF */</span>
+  <span class="ca">color</span>: <span class="cn">#FFF</span>;
+  <span class="cc">/* Con transparencia (2 dígitos extra al final): */</span>
+  <span class="ca">color</span>: <span class="cn">#FF0000AA</span>;  <span class="cc">/* rojo con 67% de opacidad */</span>
+
+  <span class="cc">/* ③ RGB — rojo, verde, azul (0 a 255 cada uno) */</span>
+  <span class="ca">color</span>: rgb(<span class="cn">255, 0, 0</span>);      <span class="cc">/* rojo */</span>
+  <span class="ca">color</span>: rgb(<span class="cn">79, 70, 229</span>);    <span class="cc">/* el morado de esta guía */</span>
+
+  <span class="cc">/* ④ RGBA — igual que RGB + canal Alpha (0=transparente, 1=sólido) */</span>
+  <span class="ca">color</span>: rgba(<span class="cn">0, 0, 0, 0.5</span>);       <span class="cc">/* negro al 50% de opacidad */</span>
+  <span class="ca">background</span>: rgba(<span class="cn">255,255,255,0.9</span>); <span class="cc">/* blanco con 90% opacidad */</span>
+
+  <span class="cc">/* ⑤ HSL — Matiz(0-360°) Saturación(%) Luminosidad(%) */</span>
+  <span class="cc">/* Más intuitivo para ajustar: solo cambia el matiz para distintos colores */</span>
+  <span class="ca">color</span>: hsl(<span class="cn">0, 100%, 50%</span>);    <span class="cc">/* rojo (0° en la rueda) */</span>
+  <span class="ca">color</span>: hsl(<span class="cn">120, 100%, 50%</span>); <span class="cc">/* verde (120° en la rueda) */</span>
+  <span class="ca">color</span>: hsl(<span class="cn">240, 100%, 50%</span>); <span class="cc">/* azul (240° en la rueda) */</span>
+  <span class="ca">color</span>: hsl(<span class="cn">240, 80%, 40%</span>);  <span class="cc">/* azul más oscuro y menos saturado */</span>
+
+  <span class="cc">/* ⑥ VARIABLES CSS — la forma profesional moderna */</span>
+  <span class="ca">color</span>: var(<span class="cv">--color-primario</span>);
+}
+
+<span class="cc">/* Definir variables globales en :root */</span>
+<span class="cp">:root</span> {
+  <span class="ca">--color-primario</span>:   <span class="cn">#4F46E5</span>;
+  <span class="ca">--color-secundario</span>: <span class="cn">#0F766E</span>;
+  <span class="ca">--color-texto</span>:      <span class="cn">#1C1917</span>;
+  <span class="ca">--color-fondo</span>:      <span class="cn">#F8F7F4</span>;
+  <span class="ca">--color-borde</span>:      <span class="cn">#E7E5E4</span>;
+}
+  </div>
+
+  <h2>Propiedades de color y fondo</h2>
+  <div class="prop-grid">
+    <div class="prop-item">
+      <div class="pi-prop">color</div>
+      <div class="pi-vals">cualquier valor de color</div>
+      <div class="pi-desc">Color del texto y de los bordes del texto. Se hereda a los elementos hijos.</div>
+    </div>
+    <div class="prop-item">
+      <div class="pi-prop">background-color</div>
+      <div class="pi-vals">cualquier valor de color</div>
+      <div class="pi-desc">Color de fondo del elemento. El padding toma este color, el margin no.</div>
+    </div>
+    <div class="prop-item">
+      <div class="pi-prop">background-image</div>
+      <div class="pi-vals">url('foto.jpg') | linear-gradient(...)</div>
+      <div class="pi-desc">Imagen de fondo. Puede ser una foto o un gradiente CSS.</div>
+    </div>
+    <div class="prop-item">
+      <div class="pi-prop">background-size</div>
+      <div class="pi-vals">cover | contain | 300px 200px</div>
+      <div class="pi-desc"><code>cover</code> cubre todo el área (puede recortar). <code>contain</code> muestra toda la imagen (puede dejar espacios).</div>
+    </div>
+    <div class="prop-item">
+      <div class="pi-prop">opacity</div>
+      <div class="pi-vals">0 (invisible) → 1 (sólido)</div>
+      <div class="pi-desc">Transparencia del elemento completo (incluyendo su texto y hijos). Diferente a <code>rgba()</code> que solo afecta el color.</div>
+    </div>
+    <div class="prop-item">
+      <div class="pi-prop">box-shadow</div>
+      <div class="pi-vals">2px 4px 8px rgba(0,0,0,0.2)</div>
+      <div class="pi-desc">Sombra de la caja: desplazamiento-x desplazamiento-y desenfoque color. Añade profundidad y hace las tarjetas más llamativas.</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     DISPLAY
+═══════════════════════════════════════════ -->
+<section class="module" id="display">
+  <div class="module-header">
+    <div class="module-icon">🗂️</div>
+    <div>
+      <div class="module-title">La propiedad display</div>
+      <div class="module-sub">Controlar cómo se comporta y ocupa espacio un elemento</div>
+    </div>
+  </div>
+
+  <p>La propiedad <code>display</code> es una de las más importantes de CSS. Controla fundamentalmente cómo se comporta un elemento en el flujo del documento y cómo organiza a sus hijos.</p>
+
+  <table class="tbl">
+    <thead><tr><th>Valor</th><th>Comportamiento</th><th>Cuándo usarlo</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><span class="tag">block</span></td>
+        <td>Ocupa todo el ancho disponible. Empieza en nueva línea. Respeta width, height, padding, margin.</td>
+        <td>Es el valor por defecto de <code>&lt;div&gt;</code>, <code>&lt;p&gt;</code>, <code>&lt;h1&gt;</code>, etc.</td>
+      </tr>
+      <tr>
+        <td><span class="tag">inline</span></td>
+        <td>Solo ocupa el ancho de su contenido. No rompe la línea. No respeta width/height verticales.</td>
+        <td>Es el valor por defecto de <code>&lt;span&gt;</code>, <code>&lt;a&gt;</code>, <code>&lt;strong&gt;</code>.</td>
+      </tr>
+      <tr>
+        <td><span class="tag">inline-block</span></td>
+        <td>Convive en línea como inline, PERO sí respeta width, height, padding y margin completamente.</td>
+        <td>Botones, chips de categoría, badges — elementos que deben estar en línea pero con control de tamaño.</td>
+      </tr>
+      <tr>
+        <td><span class="tag">none</span></td>
+        <td>El elemento desaparece completamente del layout. No ocupa espacio. Diferente a <code>visibility: hidden</code> que lo oculta pero sigue ocupando espacio.</td>
+        <td>Menús móviles cerrados, modales cerrados, contenido oculto.</td>
+      </tr>
+      <tr>
+        <td><span class="tag">flex</span></td>
+        <td>Activa Flexbox para organizar los hijos en una fila o columna flexible.</td>
+        <td>Barras de navegación, tarjetas en fila, centrar contenido. El más usado hoy en día.</td>
+      </tr>
+      <tr>
+        <td><span class="tag">grid</span></td>
+        <td>Activa CSS Grid para organizar los hijos en una cuadrícula de filas y columnas.</td>
+        <td>Layouts de página completa, galerías de imágenes, diseños complejos.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="analogy">
+    <h4>🧱 Analogía: los bloques de construcción</h4>
+    <p><code>block</code> son como ladrillos horizontales: cada uno ocupa todo el ancho de la pared y el siguiente va en la fila de abajo. <code>inline</code> son como palabras en un texto: se ponen una al lado de la otra hasta que no caben y saltan a la siguiente línea. <code>inline-block</code> son como palabras pero que puedes cambiar de tamaño (¡como si las palabras tuvieran altura y ancho configurables!).</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     POSITION
+═══════════════════════════════════════════ -->
+<section class="module" id="posicion">
+  <div class="module-header">
+    <div class="module-icon">📌</div>
+    <div>
+      <div class="module-title">Posicionamiento CSS</div>
+      <div class="module-sub">Sacar elementos del flujo normal para posicionarlos con precisión</div>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Valor</th><th>Comportamiento</th><th>Usos típicos</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><span class="tag">static</span></td>
+        <td>El valor por defecto. El elemento sigue el flujo normal del documento. Las propiedades top/left/right/bottom no tienen efecto.</td>
+        <td>La mayoría de los elementos — no necesitas escribirlo.</td>
+      </tr>
+      <tr>
+        <td><span class="tag">relative</span></td>
+        <td>Se desplaza relativo a su posición original. SÍ responde a top/left/right/bottom. El espacio original se mantiene (no lo "ceden" otros elementos).</td>
+        <td>Pequeños ajustes de posición. También se usa como "contexto" para elementos hijos con position: absolute.</td>
+      </tr>
+      <tr>
+        <td><span class="tag">absolute</span></td>
+        <td>Sale completamente del flujo normal. Se posiciona relativo al ancestro más cercano con position ≠ static. Si no hay ninguno, se posiciona relativo al viewport.</td>
+        <td>Tooltips, badges de notificación, dropdowns, iconos sobre imágenes.</td>
+      </tr>
+      <tr>
+        <td><span class="tag">fixed</span></td>
+        <td>Sale del flujo y se fija relativo a la ventana del navegador. No se mueve al hacer scroll.</td>
+        <td>Barras de navegación que quedan fijas al hacer scroll, botones flotantes de chat o "volver arriba".</td>
+      </tr>
+      <tr>
+        <td><span class="tag">sticky</span></td>
+        <td>Se comporta como relative hasta que el usuario hace scroll y llega a cierta posición, luego se vuelve fixed.</td>
+        <td>Cabeceras de tabla que se quedan visibles al hacer scroll, menús de navegación que se fijan al bajar.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="code-block">
+    <span class="lang">CSS</span>
+<span class="cc">/* El patrón más común: absolute dentro de relative */</span>
+<span class="cp">.tarjeta</span> {
+  <span class="ca">position</span>: relative; <span class="cc">/* convierte a .tarjeta en el "ancla" de los hijos */</span>
+}
+
+<span class="cp">.badge</span> {
+  <span class="ca">position</span>: absolute;
+  <span class="ca">top</span>: <span class="cn">-8px</span>;
+  <span class="ca">right</span>: <span class="cn">-8px</span>;  <span class="cc">/* esquina superior derecha de .tarjeta */</span>
+  <span class="ca">background</span>: red;
+  <span class="ca">color</span>: white;
+  <span class="ca">border-radius</span>: <span class="cn">50%</span>;
+  <span class="ca">width</span>: <span class="cn">20px</span>;
+  <span class="ca">height</span>: <span class="cn">20px</span>;
+}
+
+<span class="cc">/* Barra de navegación fija */</span>
+<span class="cp">header</span> {
+  <span class="ca">position</span>: sticky;
+  <span class="ca">top</span>: <span class="cn">0</span>;      <span class="cc">/* se pega a la cima cuando llega ahí al hacer scroll */</span>
+  <span class="ca">z-index</span>: <span class="cn">100</span>; <span class="cc">/* queda por encima de otros elementos */</span>
+}
+  </div>
+
+  <div class="concept">
+    <h4>💡 z-index: capas como en Photoshop</h4>
+    <p>Cuando los elementos se superponen visualmente, <code>z-index</code> controla cuál aparece encima. Es como el orden de capas en Photoshop: un número mayor = capa más arriba = aparece encima. Solo funciona en elementos con <code>position</code> diferente a <code>static</code>.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     FLEXBOX
+═══════════════════════════════════════════ -->
+<section class="module" id="flexbox">
+  <div class="module-header">
+    <div class="module-icon">↔️</div>
+    <div>
+      <div class="module-title">Flexbox — Layout flexible</div>
+      <div class="module-sub">El sistema moderno para organizar elementos en una dimensión</div>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <h4>🚂 Analogía: el tren flexible</h4>
+    <p>El contenedor flex es como un tren. Los elementos hijos son los vagones. Con Flexbox decides: ¿los vagones van en fila horizontal o en columna vertical? ¿cómo se distribuye el espacio entre ellos? ¿cómo se alinean verticalmente? ¿pueden doblar a una nueva línea si no caben? Todo esto lo controlas con propiedades del contenedor (el tren), y a veces también con propiedades de los hijos (los vagones).</p>
+  </div>
+
+  <div class="code-block">
+    <span class="lang">CSS — Propiedades del CONTENEDOR (padre)</span>
+<span class="cp">.contenedor</span> {
+  <span class="ca">display</span>: flex; <span class="cc">/* ACTIVA flexbox — esto es lo único obligatorio */</span>
+
+  <span class="cc">/* Dirección del eje principal */</span>
+  <span class="ca">flex-direction</span>: row;            <span class="cc">/* → izquierda a derecha (default) */</span>
+  <span class="ca">flex-direction</span>: row-reverse;    <span class="cc">/* ← derecha a izquierda */</span>
+  <span class="ca">flex-direction</span>: column;         <span class="cc">/* ↓ arriba hacia abajo */</span>
+  <span class="ca">flex-direction</span>: column-reverse; <span class="cc">/* ↑ abajo hacia arriba */</span>
+
+  <span class="cc">/* Distribución en el eje principal (horizontal si row) */</span>
+  <span class="ca">justify-content</span>: flex-start;    <span class="cc">/* al inicio */</span>
+  <span class="ca">justify-content</span>: flex-end;      <span class="cc">/* al final */</span>
+  <span class="ca">justify-content</span>: center;        <span class="cc">/* centrado */</span>
+  <span class="ca">justify-content</span>: space-between; <span class="cc">/* espacio entre elementos, sin bordes */</span>
+  <span class="ca">justify-content</span>: space-around;  <span class="cc">/* espacio alrededor de cada elemento */</span>
+  <span class="ca">justify-content</span>: space-evenly;  <span class="cc">/* espacio perfectamente igual entre todos */</span>
+
+  <span class="cc">/* Alineación en el eje secundario (vertical si row) */</span>
+  <span class="ca">align-items</span>: stretch;           <span class="cc">/* estira al máximo alto (default) */</span>
+  <span class="ca">align-items</span>: flex-start;        <span class="cc">/* arriba */</span>
+  <span class="ca">align-items</span>: flex-end;          <span class="cc">/* abajo */</span>
+  <span class="ca">align-items</span>: center;            <span class="cc">/* centrado vertical */</span>
+  <span class="ca">align-items</span>: baseline;          <span class="cc">/* alineados por la línea base del texto */</span>
+
+  <span class="cc">/* Espacio entre los hijos */</span>
+  <span class="ca">gap</span>: <span class="cn">20px</span>;            <span class="cc">/* igual entre filas y columnas */</span>
+  <span class="ca">gap</span>: <span class="cn">10px 20px</span>;      <span class="cc">/* entre-filas entre-columnas */</span>
+  <span class="ca">row-gap</span>: <span class="cn">10px</span>;
+  <span class="ca">column-gap</span>: <span class="cn">20px</span>;
+
+  <span class="cc">/* ¿Los hijos saltan a nueva línea si no caben? */</span>
+  <span class="ca">flex-wrap</span>: nowrap;   <span class="cc">/* no (default) — se comprimen */</span>
+  <span class="ca">flex-wrap</span>: wrap;     <span class="cc">/* sí — saltan a la siguiente fila */</span>
+}
+  </div>
+
+  <div class="code-block">
+    <span class="lang">CSS — Propiedades de los HIJOS</span>
+<span class="cp">.hijo</span> {
+  <span class="cc">/* flex: grow shrink basis */</span>
+  <span class="ca">flex</span>: <span class="cn">1</span>;         <span class="cc">/* shorthand de flex: 1 1 0 — crece para llenar espacio */</span>
+  <span class="ca">flex</span>: <span class="cn">0 0 200px</span>; <span class="cc">/* no crece, no se encoge, siempre 200px */</span>
+
+  <span class="cc">/* Sobreescribir la alineación para este hijo específico */</span>
+  <span class="ca">align-self</span>: flex-start;
+
+  <span class="cc">/* Cambiar el orden visual (sin cambiar el HTML) */</span>
+  <span class="ca">order</span>: <span class="cn">-1</span>; <span class="cc">/* va primero */</span>
+  <span class="ca">order</span>: <span class="cn">2</span>;  <span class="cc">/* va de tercero (el default es 0) */</span>
+}
+  </div>
+
+  <h2>El truco más usado: centrar cualquier cosa</h2>
+  <div class="code-block">
+    <span class="lang">CSS</span>
+<span class="cc">/* Centrar perfectamente (horizontal Y vertical) */</span>
+<span class="cp">.centrar</span> {
+  <span class="ca">display</span>: flex;
+  <span class="ca">justify-content</span>: center;
+  <span class="ca">align-items</span>: center;
+  <span class="cc">/* Y el hijo dentro queda perfectamente centrado */</span>
+}
+
+<span class="cc">/* Caso real: hero de página que cubre toda la pantalla y centra el texto */</span>
+<span class="cp">.hero</span> {
+  <span class="ca">display</span>: flex;
+  <span class="ca">justify-content</span>: center;
+  <span class="ca">align-items</span>: center;
+  <span class="ca">flex-direction</span>: column;
+  <span class="ca">min-height</span>: <span class="cn">100vh</span>;
+  <span class="ca">text-align</span>: center;
+}
+  </div>
+
+  <div class="ex">
+    <div class="ex-hd">✏️ Ejercicio 5 — Menú de navegación horizontal <span class="ex-badge">Intermedio</span></div>
+    <p>Crea una barra de navegación donde los enlaces estén en fila y el logo esté a la izquierda y los links a la derecha:</p>
+    <div class="code-block">
+      <span class="lang">CSS</span>
+<span class="cp">nav</span> {
+  <span class="ca">display</span>: flex;
+  <span class="ca">justify-content</span>: space-between; <span class="cc">/* logo a la izq, links a la der */</span>
+  <span class="ca">align-items</span>: center;
+  <span class="ca">padding</span>: <span class="cn">1rem 2rem</span>;
+  <span class="ca">background</span>: <span class="cn">#1E1B4B</span>;
+}
+<span class="cp">.nav-links</span> {
+  <span class="ca">display</span>: flex;
+  <span class="ca">gap</span>: <span class="cn">1.5rem</span>;
+  <span class="ca">list-style</span>: none;
+}
+<span class="cp">.nav-links a</span> {
+  <span class="ca">color</span>: white;
+  <span class="ca">text-decoration</span>: none;
+  <span class="ca">font-weight</span>: <span class="cn">500</span>;
+}
+<span class="cp">.nav-links a:hover</span> { <span class="ca">color</span>: <span class="cn">#A5B4FC</span>; }
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     GRID
+═══════════════════════════════════════════ -->
+<section class="module" id="grid">
+  <div class="module-header">
+    <div class="module-icon">⊞</div>
+    <div>
+      <div class="module-title">CSS Grid — Layout en dos dimensiones</div>
+      <div class="module-sub">Para layouts de página completa y cuadrículas complejas</div>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <h4>🏙 Analogía: el plano urbanístico</h4>
+    <p>CSS Grid es como el plano de una ciudad: defines las manzanas (filas y columnas) y luego ubicas los edificios (elementos) en esas manzanas. Un edificio puede ocupar una manzana, o puede ser tan grande que ocupe 3 manzanas de ancho y 2 de alto. Flexbox es bueno para una calle (una dimensión). Grid es para planear toda la ciudad (dos dimensiones).</p>
+  </div>
+
+  <div class="code-block">
+    <span class="lang">CSS</span>
+<span class="cp">.contenedor</span> {
+  <span class="ca">display</span>: grid;
+
+  <span class="cc">/* Define columnas — puedes mezclar unidades */</span>
+  <span class="ca">grid-template-columns</span>: <span class="cn">200px 1fr 1fr</span>;   <span class="cc">/* 200px fija + 2 iguales del resto */</span>
+  <span class="ca">grid-template-columns</span>: repeat(<span class="cn">3</span>, <span class="cn">1fr</span>);   <span class="cc">/* 3 columnas iguales */</span>
+  <span class="ca">grid-template-columns</span>: repeat(auto-fit, minmax(<span class="cn">250px</span>, <span class="cn">1fr</span>)); <span class="cc">/* responsive automático */</span>
+
+  <span class="cc">/* Define filas */</span>
+  <span class="ca">grid-template-rows</span>: <span class="cn">80px 1fr 60px</span>;   <span class="cc">/* header, contenido, footer */</span>
+
+  <span class="cc">/* Espacio entre celdas */</span>
+  <span class="ca">gap</span>: <span class="cn">20px</span>;
+}
+
+<span class="cc">/* Un hijo puede ocupar múltiples columnas o filas */</span>
+<span class="cp">.destacado</span> {
+  <span class="ca">grid-column</span>: <span class="cn">1 / 3</span>;  <span class="cc">/* ocupa desde columna 1 hasta columna 3 */</span>
+  <span class="ca">grid-row</span>: <span class="cn">1 / 2</span>;      <span class="cc">/* ocupa la primera fila */</span>
+}
+
+<span class="cc">/* Forma abreviada: span = "ocupa N columnas/filas" */</span>
+<span class="cp">.ancho-total</span> {
+  <span class="ca">grid-column</span>: <span class="cn">1 / -1</span>;  <span class="cc">/* ocupa TODAS las columnas */</span>
+}
+  </div>
+
+  <h2>Grid de galería responsive (el más útil)</h2>
+  <div class="code-block">
+    <span class="lang">CSS</span>
+<span class="cp">.galeria</span> {
+  <span class="ca">display</span>: grid;
+  <span class="cc">/* auto-fit: crea todas las columnas que quepan */</span>
+  <span class="cc">/* minmax(250px, 1fr): cada columna mínimo 250px, máximo 1fr */</span>
+  <span class="ca">grid-template-columns</span>: repeat(auto-fit, minmax(<span class="cn">250px</span>, <span class="cn">1fr</span>));
+  <span class="ca">gap</span>: <span class="cn">1.5rem</span>;
+}
+<span class="cc">/* En pantalla grande: 3 o 4 tarjetas por fila */</span>
+<span class="cc">/* En pantalla mediana: 2 tarjetas */</span>
+<span class="cc">/* En móvil: 1 tarjeta — todo automático, sin media queries */</span>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     RESPONSIVE
+═══════════════════════════════════════════ -->
+<section class="module" id="responsive">
+  <div class="module-header">
+    <div class="module-icon">📱</div>
+    <div>
+      <div class="module-title">Diseño Responsive</div>
+      <div class="module-sub">Que tu sitio se vea bien en celular, tablet y escritorio</div>
+    </div>
+  </div>
+
+  <p>El <strong>diseño responsive</strong> (responsivo) significa que tu sitio web se adapta automáticamente a diferentes tamaños de pantalla. Hoy más del 60% del tráfico web viene de celulares.</p>
+
+  <div class="analogy">
+    <h4>💧 Analogía: el agua</h4>
+    <p>Un diseño responsive es como el agua: toma la forma del recipiente que la contiene. En un vaso pequeño (celular) ocupa poco espacio en columna. En un recipiente grande (escritorio) se expande y usa todo el espacio disponible. La estructura del contenido es la misma, solo cambia cómo se organiza visualmente.</p>
+  </div>
+
+  <h2>Media Queries</h2>
+  <p>Los media queries son condiciones CSS: "aplica estos estilos SOLO si la pantalla tiene cierto tamaño".</p>
+
+  <div class="code-block">
+    <span class="lang">CSS — Enfoque "Mobile First" (recomendado)</span>
+<span class="cc">/* Estilos base: para celular (pantalla pequeña) */</span>
+<span class="cp">.galeria</span> {
+  <span class="ca">display</span>: flex;
+  <span class="ca">flex-direction</span>: column; <span class="cc">/* en móvil: columna (uno debajo del otro) */</span>
+  <span class="ca">gap</span>: <span class="cn">1rem</span>;
+}
+
+<span class="cc">/* Para pantallas medianas (tablets) */</span>
+<span class="cp">@media</span> (min-width: <span class="cn">768px</span>) {
+  <span class="cp">.galeria</span> {
+    <span class="ca">flex-direction</span>: row;   <span class="cc">/* en tablet: fila */</span>
+    <span class="ca">flex-wrap</span>: wrap;
+  }
+  <span class="cp">.tarjeta</span> {
+    <span class="ca">width</span>: calc(<span class="cn">50%</span> - <span class="cn">0.5rem</span>); <span class="cc">/* 2 columnas */</span>
+  }
+}
+
+<span class="cc">/* Para pantallas grandes (escritorio) */</span>
+<span class="cp">@media</span> (min-width: <span class="cn">1024px</span>) {
+  <span class="cp">.tarjeta</span> {
+    <span class="ca">width</span>: calc(<span class="cn">33.333%</span> - <span class="cn">0.67rem</span>); <span class="cc">/* 3 columnas */</span>
+  }
+  <span class="cp">nav</span> {
+    <span class="ca">padding</span>: <span class="cn">1rem 4rem</span>; <span class="cc">/* más padding lateral en escritorio */</span>
+  }
+}
+
+<span class="cc">/* Para pantallas muy grandes */</span>
+<span class="cp">@media</span> (min-width: <span class="cn">1280px</span>) {
+  <span class="cp">.contenedor</span> {
+    <span class="ca">max-width</span>: <span class="cn">1200px</span>;
+    <span class="ca">margin</span>: <span class="cn">0 auto</span>; <span class="cc">/* centrar el contenido en pantallas enormes */</span>
+  }
+}
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Breakpoints estándar de la industria</h4>
+    <ul style="margin-top:.4rem;padding-left:1.2rem">
+      <li><strong>Menos de 640px</strong> — Celulares pequeños (iPhone SE)</li>
+      <li><strong>640px</strong> — Celulares grandes</li>
+      <li><strong>768px</strong> — Tablets verticales (iPad)</li>
+      <li><strong>1024px</strong> — Tablets horizontales / laptops pequeñas</li>
+      <li><strong>1280px</strong> — Escritorio estándar</li>
+      <li><strong>1536px</strong> — Pantallas grandes</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     PROYECTO FINAL
+═══════════════════════════════════════════ -->
+<section class="module" id="proyecto">
+  <div class="module-header">
+    <div class="module-icon">🚀</div>
+    <div>
+      <div class="module-title">Proyecto Final — Portafolio Personal Completo</div>
+      <div class="module-sub">Une todo lo aprendido en un proyecto real y profesional</div>
+    </div>
+  </div>
+
+  <p>Este proyecto integra absolutamente todo lo que aprendiste. Constrúyelo paso a paso, sin saltarte secciones.</p>
+
+  <div class="code-block">
+    <span class="lang">HTML — index.html</span>
+<span class="ct">&lt;!DOCTYPE</span> <span class="ca">html</span><span class="ct">&gt;</span>
+<span class="ct">&lt;html</span> <span class="ca">lang</span>=<span class="cv">"es"</span><span class="ct">&gt;</span>
+<span class="ct">&lt;head&gt;</span>
+  <span class="ct">&lt;meta</span> <span class="ca">charset</span>=<span class="cv">"UTF-8"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;meta</span> <span class="ca">name</span>=<span class="cv">"viewport"</span> <span class="ca">content</span>=<span class="cv">"width=device-width, initial-scale=1.0"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;title&gt;</span><span class="cs">Portafolio — [Tu Nombre]</span><span class="ct">&lt;/title&gt;</span>
+  <span class="ct">&lt;link</span> <span class="ca">rel</span>=<span class="cv">"preconnect"</span> <span class="ca">href</span>=<span class="cv">"https://fonts.googleapis.com"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;link</span> <span class="ca">href</span>=<span class="cv">"https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"</span> <span class="ca">rel</span>=<span class="cv">"stylesheet"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;link</span> <span class="ca">rel</span>=<span class="cv">"stylesheet"</span> <span class="ca">href</span>=<span class="cv">"estilos.css"</span><span class="ct">&gt;</span>
+<span class="ct">&lt;/head&gt;</span>
+<span class="ct">&lt;body&gt;</span>
+
+  <span class="cc">&lt;!-- NAVEGACIÓN --&gt;</span>
+  <span class="ct">&lt;header</span> <span class="ca">class</span>=<span class="cv">"navbar"</span><span class="ct">&gt;</span>
+    <span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"#"</span> <span class="ca">class</span>=<span class="cv">"logo"</span><span class="ct">&gt;</span><span class="cs">&lt;/&gt; TuNombre</span><span class="ct">&lt;/a&gt;</span>
+    <span class="ct">&lt;nav&gt;</span>
+      <span class="ct">&lt;ul</span> <span class="ca">class</span>=<span class="cv">"nav-links"</span><span class="ct">&gt;</span>
+        <span class="ct">&lt;li&gt;&lt;a</span> <span class="ca">href</span>=<span class="cv">"#sobre-mi"</span><span class="ct">&gt;</span>Sobre mí<span class="ct">&lt;/a&gt;&lt;/li&gt;</span>
+        <span class="ct">&lt;li&gt;&lt;a</span> <span class="ca">href</span>=<span class="cv">"#proyectos"</span><span class="ct">&gt;</span>Proyectos<span class="ct">&lt;/a&gt;&lt;/li&gt;</span>
+        <span class="ct">&lt;li&gt;&lt;a</span> <span class="ca">href</span>=<span class="cv">"#contacto"</span> <span class="ca">class</span>=<span class="cv">"btn-nav"</span><span class="ct">&gt;</span>Contacto<span class="ct">&lt;/a&gt;&lt;/li&gt;</span>
+      <span class="ct">&lt;/ul&gt;</span>
+    <span class="ct">&lt;/nav&gt;</span>
+  <span class="ct">&lt;/header&gt;</span>
+
+  <span class="ct">&lt;main&gt;</span>
+
+    <span class="cc">&lt;!-- HERO --&gt;</span>
+    <span class="ct">&lt;section</span> <span class="ca">class</span>=<span class="cv">"hero"</span><span class="ct">&gt;</span>
+      <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"hero-content"</span><span class="ct">&gt;</span>
+        <span class="ct">&lt;p</span> <span class="ca">class</span>=<span class="cv">"hero-saludo"</span><span class="ct">&gt;</span>Hola, soy<span class="ct">&lt;/p&gt;</span>
+        <span class="ct">&lt;h1&gt;</span><span class="cs">[Tu Nombre]</span><span class="ct">&lt;/h1&gt;</span>
+        <span class="ct">&lt;p</span> <span class="ca">class</span>=<span class="cv">"hero-desc"</span><span class="ct">&gt;</span>Desarrollador web en formación, apasionado por crear experiencias digitales.<span class="ct">&lt;/p&gt;</span>
+        <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"hero-btns"</span><span class="ct">&gt;</span>
+          <span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"#proyectos"</span> <span class="ca">class</span>=<span class="cv">"btn btn-primario"</span><span class="ct">&gt;</span>Ver proyectos<span class="ct">&lt;/a&gt;</span>
+          <span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"#contacto"</span> <span class="ca">class</span>=<span class="cv">"btn btn-secundario"</span><span class="ct">&gt;</span>Contáctame<span class="ct">&lt;/a&gt;</span>
+        <span class="ct">&lt;/div&gt;</span>
+      <span class="ct">&lt;/div&gt;</span>
+    <span class="ct">&lt;/section&gt;</span>
+
+    <span class="cc">&lt;!-- SOBRE MÍ --&gt;</span>
+    <span class="ct">&lt;section</span> <span class="ca">id</span>=<span class="cv">"sobre-mi"</span> <span class="ca">class</span>=<span class="cv">"seccion"</span><span class="ct">&gt;</span>
+      <span class="ct">&lt;h2</span> <span class="ca">class</span>=<span class="cv">"seccion-titulo"</span><span class="ct">&gt;</span>Sobre mí<span class="ct">&lt;/h2&gt;</span>
+      <span class="ct">&lt;p&gt;</span><span class="cs">Soy de [ciudad], México. Actualmente aprendiendo desarrollo web con HTML, CSS y JavaScript. Me apasiona el fútbol y la tecnología.</span><span class="ct">&lt;/p&gt;</span>
+      <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"chips"</span><span class="ct">&gt;</span>
+        <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"chip"</span><span class="ct">&gt;</span>HTML5<span class="ct">&lt;/span&gt;</span>
+        <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"chip"</span><span class="ct">&gt;</span>CSS3<span class="ct">&lt;/span&gt;</span>
+        <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"chip"</span><span class="ct">&gt;</span>Flexbox<span class="ct">&lt;/span&gt;</span>
+        <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"chip"</span><span class="ct">&gt;</span>CSS Grid<span class="ct">&lt;/span&gt;</span>
+      <span class="ct">&lt;/div&gt;</span>
+    <span class="ct">&lt;/section&gt;</span>
+
+    <span class="cc">&lt;!-- PROYECTOS --&gt;</span>
+    <span class="ct">&lt;section</span> <span class="ca">id</span>=<span class="cv">"proyectos"</span> <span class="ca">class</span>=<span class="cv">"seccion seccion-gris"</span><span class="ct">&gt;</span>
+      <span class="ct">&lt;h2</span> <span class="ca">class</span>=<span class="cv">"seccion-titulo"</span><span class="ct">&gt;</span>Mis Proyectos<span class="ct">&lt;/h2&gt;</span>
+      <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"grid-proyectos"</span><span class="ct">&gt;</span>
+        <span class="ct">&lt;article</span> <span class="ca">class</span>=<span class="cv">"proyecto-card"</span><span class="ct">&gt;</span>
+          <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"proyecto-img"</span><span class="ct">&gt;</span>🌐<span class="ct">&lt;/div&gt;</span>
+          <span class="ct">&lt;h3&gt;</span><span class="cs">Página Personal</span><span class="ct">&lt;/h3&gt;</span>
+          <span class="ct">&lt;p&gt;</span><span class="cs">Mi primera página web creada con HTML semántico y CSS moderno.</span><span class="ct">&lt;/p&gt;</span>
+          <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"chips"</span><span class="ct">&gt;</span><span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"chip"</span><span class="ct">&gt;</span>HTML<span class="ct">&lt;/span&gt;</span><span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"chip"</span><span class="ct">&gt;</span>CSS<span class="ct">&lt;/span&gt;</span><span class="ct">&lt;/div&gt;</span>
+        <span class="ct">&lt;/article&gt;</span>
+      <span class="ct">&lt;/div&gt;</span>
+    <span class="ct">&lt;/section&gt;</span>
+
+    <span class="cc">&lt;!-- CONTACTO --&gt;</span>
+    <span class="ct">&lt;section</span> <span class="ca">id</span>=<span class="cv">"contacto"</span> <span class="ca">class</span>=<span class="cv">"seccion"</span><span class="ct">&gt;</span>
+      <span class="ct">&lt;h2</span> <span class="ca">class</span>=<span class="cv">"seccion-titulo"</span><span class="ct">&gt;</span>Contacto<span class="ct">&lt;/h2&gt;</span>
+      <span class="ct">&lt;form</span> <span class="ca">class</span>=<span class="cv">"formulario"</span> <span class="ca">action</span>=<span class="cv">"#"</span><span class="ct">&gt;</span>
+        <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"form-grupo"</span><span class="ct">&gt;</span>
+          <span class="ct">&lt;label</span> <span class="ca">for</span>=<span class="cv">"nombre"</span><span class="ct">&gt;</span>Nombre<span class="ct">&lt;/label&gt;</span>
+          <span class="ct">&lt;input</span> <span class="ca">type</span>=<span class="cv">"text"</span> <span class="ca">id</span>=<span class="cv">"nombre"</span> <span class="ca">name</span>=<span class="cv">"nombre"</span> <span class="ca">placeholder</span>=<span class="cv">"Tu nombre"</span> <span class="ca">required</span><span class="ct">&gt;</span>
+        <span class="ct">&lt;/div&gt;</span>
+        <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"form-grupo"</span><span class="ct">&gt;</span>
+          <span class="ct">&lt;label</span> <span class="ca">for</span>=<span class="cv">"email"</span><span class="ct">&gt;</span>Email<span class="ct">&lt;/label&gt;</span>
+          <span class="ct">&lt;input</span> <span class="ca">type</span>=<span class="cv">"email"</span> <span class="ca">id</span>=<span class="cv">"email"</span> <span class="ca">name</span>=<span class="cv">"email"</span> <span class="ca">placeholder</span>=<span class="cv">"tu@email.com"</span> <span class="ca">required</span><span class="ct">&gt;</span>
+        <span class="ct">&lt;/div&gt;</span>
+        <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"form-grupo"</span><span class="ct">&gt;</span>
+          <span class="ct">&lt;label</span> <span class="ca">for</span>=<span class="cv">"mensaje"</span><span class="ct">&gt;</span>Mensaje<span class="ct">&lt;/label&gt;</span>
+          <span class="ct">&lt;textarea</span> <span class="ca">id</span>=<span class="cv">"mensaje"</span> <span class="ca">name</span>=<span class="cv">"mensaje"</span> <span class="ca">rows</span>=<span class="cv">"5"</span> <span class="ca">placeholder</span>=<span class="cv">"¿En qué puedo ayudarte?"</span><span class="ct">&gt;&lt;/textarea&gt;</span>
+        <span class="ct">&lt;/div&gt;</span>
+        <span class="ct">&lt;button</span> <span class="ca">type</span>=<span class="cv">"submit"</span> <span class="ca">class</span>=<span class="cv">"btn btn-primario"</span><span class="ct">&gt;</span>Enviar mensaje<span class="ct">&lt;/button&gt;</span>
+      <span class="ct">&lt;/form&gt;</span>
+    <span class="ct">&lt;/section&gt;</span>
+
+  <span class="ct">&lt;/main&gt;</span>
+
+  <span class="ct">&lt;footer</span> <span class="ca">class</span>=<span class="cv">"footer"</span><span class="ct">&gt;</span>
+    <span class="ct">&lt;p&gt;</span><span class="cs">Hecho con ❤️ y mucho CSS por [Tu Nombre] — 2025</span><span class="ct">&lt;/p&gt;</span>
+  <span class="ct">&lt;/footer&gt;</span>
+
+<span class="ct">&lt;/body&gt;</span>
+<span class="ct">&lt;/html&gt;</span>
+  </div>
+
+  <div class="code-block" style="margin-top:1.25rem">
+    <span class="lang">CSS — estilos.css</span>
+<span class="cc">/* ═══ RESET Y VARIABLES ═══ */</span>
+<span class="cp">*,*::before,*::after</span> { <span class="ca">box-sizing</span>: border-box; <span class="ca">margin</span>: <span class="cn">0</span>; <span class="ca">padding</span>: <span class="cn">0</span>; }
+<span class="cp">:root</span> {
+  <span class="ca">--primario</span>: <span class="cn">#4F46E5</span>;  <span class="ca">--primario-dark</span>: <span class="cn">#3730A3</span>;
+  <span class="ca">--texto</span>: <span class="cn">#1C1917</span>;     <span class="ca">--muted</span>: <span class="cn">#6B7280</span>;
+  <span class="ca">--fondo</span>: <span class="cn">#FFFFFF</span>;     <span class="ca">--gris</span>: <span class="cn">#F3F4F6</span>;
+  <span class="ca">--borde</span>: <span class="cn">#E5E7EB</span>;
+}
+<span class="cp">body</span> { <span class="ca">font-family</span>: <span class="cv">'Inter'</span>, sans-serif; <span class="ca">color</span>: var(<span class="cv">--texto</span>); <span class="ca">line-height</span>: <span class="cn">1.7</span>; }
+
+<span class="cc">/* ═══ NAVBAR ═══ */</span>
+<span class="cp">.navbar</span> { <span class="ca">display</span>: flex; <span class="ca">justify-content</span>: space-between; <span class="ca">align-items</span>: center; <span class="ca">padding</span>: <span class="cn">1rem 2rem</span>; <span class="ca">background</span>: <span class="cn">#1E1B4B</span>; <span class="ca">position</span>: sticky; <span class="ca">top</span>: <span class="cn">0</span>; <span class="ca">z-index</span>: <span class="cn">100</span>; }
+<span class="cp">.logo</span> { <span class="ca">color</span>: white; <span class="ca">text-decoration</span>: none; <span class="ca">font-weight</span>: <span class="cn">700</span>; <span class="ca">font-size</span>: <span class="cn">1.1rem</span>; }
+<span class="cp">.nav-links</span> { <span class="ca">display</span>: flex; <span class="ca">gap</span>: <span class="cn">1.5rem</span>; <span class="ca">list-style</span>: none; }
+<span class="cp">.nav-links a</span> { <span class="ca">color</span>: rgba(<span class="cn">255,255,255,0.8</span>); <span class="ca">text-decoration</span>: none; <span class="ca">font-size</span>: <span class="cn">.9rem</span>; <span class="ca">transition</span>: color <span class="cn">0.2s</span>; }
+<span class="cp">.nav-links a:hover</span> { <span class="ca">color</span>: white; }
+<span class="cp">.btn-nav</span> { <span class="ca">background</span>: var(<span class="cv">--primario</span>); <span class="ca">padding</span>: <span class="cn">6px 16px</span>; <span class="ca">border-radius</span>: <span class="cn">6px</span>; }
+<span class="cp">.btn-nav:hover</span> { <span class="ca">background</span>: var(<span class="cv">--primario-dark</span>); }
+
+<span class="cc">/* ═══ HERO ═══ */</span>
+<span class="cp">.hero</span> { <span class="ca">min-height</span>: <span class="cn">100vh</span>; <span class="ca">display</span>: flex; <span class="ca">align-items</span>: center; <span class="ca">justify-content</span>: center; <span class="ca">background</span>: linear-gradient(<span class="cn">135deg</span>, <span class="cn">#EEF2FF</span>, <span class="cn">#F8F7F4</span>); <span class="ca">padding</span>: <span class="cn">2rem</span>; }
+<span class="cp">.hero-content</span> { <span class="ca">text-align</span>: center; <span class="ca">max-width</span>: <span class="cn">600px</span>; }
+<span class="cp">.hero-saludo</span> { <span class="ca">color</span>: var(<span class="cv">--primario</span>); <span class="ca">font-weight</span>: <span class="cn">600</span>; <span class="ca">font-size</span>: <span class="cn">1rem</span>; <span class="ca">text-transform</span>: uppercase; <span class="ca">letter-spacing</span>: <span class="cn">.1em</span>; }
+<span class="cp">.hero h1</span> { <span class="ca">font-size</span>: clamp(<span class="cn">2rem</span>, <span class="cn">5vw</span>, <span class="cn">4rem</span>); <span class="ca">font-weight</span>: <span class="cn">700</span>; <span class="ca">margin</span>: <span class="cn">.5rem 0 1rem</span>; }
+<span class="cp">.hero-desc</span> { <span class="ca">color</span>: var(<span class="cv">--muted</span>); <span class="ca">font-size</span>: <span class="cn">1.1rem</span>; <span class="ca">margin-bottom</span>: <span class="cn">2rem</span>; }
+<span class="cp">.hero-btns</span> { <span class="ca">display</span>: flex; <span class="ca">gap</span>: <span class="cn">1rem</span>; <span class="ca">justify-content</span>: center; <span class="ca">flex-wrap</span>: wrap; }
+
+<span class="cc">/* ═══ BOTONES ═══ */</span>
+<span class="cp">.btn</span> { <span class="ca">display</span>: inline-block; <span class="ca">padding</span>: <span class="cn">.75rem 1.75rem</span>; <span class="ca">border-radius</span>: <span class="cn">8px</span>; <span class="ca">text-decoration</span>: none; <span class="ca">font-weight</span>: <span class="cn">600</span>; <span class="ca">transition</span>: all <span class="cn">0.2s</span>; }
+<span class="cp">.btn-primario</span> { <span class="ca">background</span>: var(<span class="cv">--primario</span>); <span class="ca">color</span>: white; }
+<span class="cp">.btn-primario:hover</span> { <span class="ca">background</span>: var(<span class="cv">--primario-dark</span>); <span class="ca">transform</span>: translateY(<span class="cn">-2px</span>); }
+<span class="cp">.btn-secundario</span> { <span class="ca">background</span>: transparent; <span class="ca">color</span>: var(<span class="cv">--primario</span>); <span class="ca">border</span>: <span class="cn">2px</span> solid var(<span class="cv">--primario</span>); }
+<span class="cp">.btn-secundario:hover</span> { <span class="ca">background</span>: var(<span class="cv">--primario</span>); <span class="ca">color</span>: white; }
+
+<span class="cc">/* ═══ SECCIONES ═══ */</span>
+<span class="cp">.seccion</span> { <span class="ca">padding</span>: <span class="cn">5rem 2rem</span>; <span class="ca">max-width</span>: <span class="cn">900px</span>; <span class="ca">margin</span>: <span class="cn">0 auto</span>; }
+<span class="cp">.seccion-gris</span> { <span class="ca">background</span>: var(<span class="cv">--gris</span>); <span class="ca">max-width</span>: <span class="cn">100%</span>; }
+<span class="cp">.seccion-gris > *</span> { <span class="ca">max-width</span>: <span class="cn">900px</span>; <span class="ca">margin-left</span>: auto; <span class="ca">margin-right</span>: auto; }
+<span class="cp">.seccion-titulo</span> { <span class="ca">font-size</span>: <span class="cn">2rem</span>; <span class="ca">font-weight</span>: <span class="cn">700</span>; <span class="ca">margin-bottom</span>: <span class="cn">1.5rem</span>; <span class="ca">border-left</span>: <span class="cn">4px</span> solid var(<span class="cv">--primario</span>); <span class="ca">padding-left</span>: <span class="cn">1rem</span>; }
+
+<span class="cc">/* ═══ CHIPS ═══ */</span>
+<span class="cp">.chips</span> { <span class="ca">display</span>: flex; <span class="ca">flex-wrap</span>: wrap; <span class="ca">gap</span>: <span class="cn">.5rem</span>; <span class="ca">margin-top</span>: <span class="cn">1rem</span>; }
+<span class="cp">.chip</span> { <span class="ca">background</span>: <span class="cn">#EEF2FF</span>; <span class="ca">color</span>: var(<span class="cv">--primario</span>); <span class="ca">padding</span>: <span class="cn">4px 14px</span>; <span class="ca">border-radius</span>: <span class="cn">20px</span>; <span class="ca">font-size</span>: <span class="cn">.85rem</span>; <span class="ca">font-weight</span>: <span class="cn">600</span>; }
+
+<span class="cc">/* ═══ PROYECTOS ═══ */</span>
+<span class="cp">.grid-proyectos</span> { <span class="ca">display</span>: grid; <span class="ca">grid-template-columns</span>: repeat(auto-fit, minmax(<span class="cn">260px</span>, <span class="cn">1fr</span>)); <span class="ca">gap</span>: <span class="cn">1.5rem</span>; <span class="ca">margin-top</span>: <span class="cn">2rem</span>; }
+<span class="cp">.proyecto-card</span> { <span class="ca">background</span>: white; <span class="ca">border-radius</span>: <span class="cn">12px</span>; <span class="ca">padding</span>: <span class="cn">1.5rem</span>; <span class="ca">border</span>: <span class="cn">1px</span> solid var(<span class="cv">--borde</span>); <span class="ca">transition</span>: transform <span class="cn">0.2s</span>, box-shadow <span class="cn">0.2s</span>; }
+<span class="cp">.proyecto-card:hover</span> { <span class="ca">transform</span>: translateY(<span class="cn">-6px</span>); <span class="ca">box-shadow</span>: <span class="cn">0 12px 30px</span> rgba(<span class="cn">0,0,0,0.1</span>); }
+<span class="cp">.proyecto-img</span> { <span class="ca">font-size</span>: <span class="cn">3rem</span>; <span class="ca">margin-bottom</span>: <span class="cn">1rem</span>; }
+<span class="cp">.proyecto-card h3</span> { <span class="ca">margin-bottom</span>: <span class="cn">.5rem</span>; }
+<span class="cp">.proyecto-card p</span> { <span class="ca">color</span>: var(<span class="cv">--muted</span>); <span class="ca">font-size</span>: <span class="cn">.9rem</span>; <span class="ca">margin-bottom</span>: <span class="cn">1rem</span>; }
+
+<span class="cc">/* ═══ FORMULARIO ═══ */</span>
+<span class="cp">.formulario</span> { <span class="ca">max-width</span>: <span class="cn">500px</span>; <span class="ca">display</span>: flex; <span class="ca">flex-direction</span>: column; <span class="ca">gap</span>: <span class="cn">1.25rem</span>; }
+<span class="cp">.form-grupo</span> { <span class="ca">display</span>: flex; <span class="ca">flex-direction</span>: column; <span class="ca">gap</span>: <span class="cn">.4rem</span>; }
+<span class="cp">.form-grupo label</span> { <span class="ca">font-weight</span>: <span class="cn">600</span>; <span class="ca">font-size</span>: <span class="cn">.9rem</span>; }
+<span class="cp">.form-grupo input,
+.form-grupo textarea</span> { <span class="ca">padding</span>: <span class="cn">.75rem 1rem</span>; <span class="ca">border</span>: <span class="cn">1px</span> solid var(<span class="cv">--borde</span>); <span class="ca">border-radius</span>: <span class="cn">8px</span>; <span class="ca">font-family</span>: inherit; <span class="ca">font-size</span>: <span class="cn">1rem</span>; <span class="ca">transition</span>: border-color <span class="cn">0.2s</span>; }
+<span class="cp">.form-grupo input:focus,
+.form-grupo textarea:focus</span> { <span class="ca">outline</span>: none; <span class="ca">border-color</span>: var(<span class="cv">--primario</span>); }
+
+<span class="cc">/* ═══ FOOTER ═══ */</span>
+<span class="cp">.footer</span> { <span class="ca">text-align</span>: center; <span class="ca">padding</span>: <span class="cn">2rem</span>; <span class="ca">background</span>: <span class="cn">#1E1B4B</span>; <span class="ca">color</span>: rgba(<span class="cn">255,255,255,0.7</span>); }
+
+<span class="cc">/* ═══ RESPONSIVE ═══ */</span>
+<span class="cp">@media</span> (max-width: <span class="cn">768px</span>) {
+  <span class="cp">.nav-links</span> { <span class="ca">gap</span>: <span class="cn">1rem</span>; }
+  <span class="cp">.hero h1</span> { <span class="ca">font-size</span>: <span class="cn">2.5rem</span>; }
+  <span class="cp">.seccion</span> { <span class="ca">padding</span>: <span class="cn">3rem 1.25rem</span>; }
+}
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Próximos pasos después de este proyecto</h4>
+    <ul style="margin-top:.4rem;padding-left:1.2rem">
+      <li>Agrega más proyectos a la sección de proyectos a medida que los vayas completando</li>
+      <li>Aprende <strong>JavaScript</strong> para agregar interactividad (menú hamburguesa en móvil, formulario funcional, animaciones)</li>
+      <li>Sube tu portafolio gratis a internet con <strong>GitHub Pages</strong> o <strong>Netlify</strong></li>
+      <li>Aprende <strong>CSS Transitions y Animations</strong> para hacer las animaciones más fluidas</li>
+      <li>Explora <strong>Sass/SCSS</strong> — un superset de CSS que te da variables, funciones y más</li>
+      <li>Conoce <strong>Bootstrap</strong> o <strong>Tailwind CSS</strong> — frameworks que aceleran el desarrollo</li>
+    </ul>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Guía HTML &amp; CSS desde Cero · Analogías, definiciones y ejercicios · Hugo 2025
+</footer>
+
+</body>
+</html>
