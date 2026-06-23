@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía HTML & CSS — Parte A: HTML Avanzado</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #c44a2a;
+    --primary-light:  #fdf0ec;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --danger:         #c44a2a;
+    --danger-light:   #fdf0ec;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1a1814;
+    --code-text:      #e8e4de;
+  }
+
+  body { font-family: 'DM Sans', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  header { background: #1a1814; color: #f7f4ef; padding: 3rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: '</>'; position: absolute; font-size: 14rem; font-weight: 900; color: rgba(255,255,255,0.05); right: -2rem; top: -3rem; font-family: monospace; line-height: 1; }
+  header h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; }
+  header p { font-size: 1.1rem; opacity: .85; margin-top: .5rem; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 83px; z-index: 100; display: flex; overflow-x: auto; gap: 0; }
+
+  /* ── BARRA NAVEGACIÓN ENTRE PARTES ── */
+  .partes-nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 45px; z-index: 110; display: flex; align-items: center; gap: 0; height: 38px; padding: 0 1rem; }
+  .partes-nav-prev, .partes-nav-next { flex-shrink: 0; display: flex; align-items: center; gap: .3rem; padding: 0 .75rem; height: 100%; text-decoration: none; color: var(--muted); font-size: .78rem; font-weight: 500; border-right: 1px solid var(--border); transition: color .15s; white-space: nowrap; }
+  .partes-nav-next { border-right: none; border-left: 1px solid var(--border); }
+  .partes-nav-prev:hover, .partes-nav-next:hover { color: var(--primary); }
+  .partes-nav-list { flex: 1; display: flex; align-items: center; justify-content: center; gap: .15rem; overflow-x: auto; padding: 0 .5rem; }
+  .partes-nav-list::-webkit-scrollbar { display: none; }
+  .partes-nav-list a { flex-shrink: 0; padding: 2px 9px; border-radius: 20px; text-decoration: none; font-size: .73rem; font-weight: 600; color: var(--muted); transition: color .15s, background .15s; }
+  .partes-nav-list a:hover { color: var(--text); background: var(--bg); }
+  .partes-nav-list a.activa { background: var(--primary-light); color: var(--primary); }
+  nav a { flex-shrink: 0; padding: .75rem 1.1rem; text-decoration: none; color: var(--muted); font-size: .82rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2.5rem; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-size: 1.35rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  .analogy { background: #FFF7ED; border: 1px solid #FDE68A; border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: #92400E; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; color: #78350F; }
+
+  .concept { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p { font-size: .95rem; }
+  .tip ul { font-size: .95rem; padding-left: 1.2rem; }
+
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  .anatomy { background: #F0F4FF; border: 1px solid #C7D2FE; border-radius: 12px; padding: 1.5rem; font-family: monospace; font-size: 1.05rem; line-height: 2.4; margin: 1.25rem 0; }
+  .anatomy .br { color: var(--primary); font-weight: 700; }
+  .anatomy .at { color: #0891B2; }
+  .anatomy .vl { color: #059669; }
+  .anatomy .lb { display: inline-block; background: var(--primary); color: #fff; font-size: .68rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 6px; }
+  .anatomy .lb2 { display: inline-block; background: var(--accent); color: #fff; font-size: .68rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 6px; }
+  .anatomy .lb3 { display: inline-block; background: var(--secondary); color: #fff; font-size: .68rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 6px; }
+
+  .code-block { background: var(--code-bg); color: var(--code-text); border-radius: 10px; padding: 1.25rem 1.5rem; font-family: 'Courier New', monospace; font-size: .88rem; line-height: 1.85; overflow-x: auto; margin: 1rem 0; position: relative; white-space: pre; }
+  .code-block .ct { color: #89B4FA; }
+  .code-block .ca { color: #CBA6F7; }
+  .code-block .cv { color: #A6E3A1; }
+  .code-block .cs { color: #F9E2AF; }
+  .code-block .cp { color: #89DCEB; }
+  .code-block .cc { color: #585B70; font-style: italic; }
+  .code-block .cn { color: #FAB387; }
+  .lang { position: absolute; top: .6rem; right: .75rem; background: rgba(255,255,255,.1); color: rgba(255,255,255,.5); font-size: .68rem; padding: 2px 8px; border-radius: 4px; font-family: sans-serif; }
+
+  .preview { border: 2px dashed var(--border); border-radius: 10px; padding: 1.25rem 1.5rem; margin: 1rem 0; background: var(--surface); position: relative; }
+  .preview::before { content: '🖥 Vista en navegador'; position: absolute; top: -11px; left: 14px; background: var(--surface); font-size: .73rem; color: var(--muted); padding: 0 6px; font-family: sans-serif; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  .ex { background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 12px; padding: 1.5rem; margin: 1.5rem 0; }
+  .ex-hd { display: flex; align-items: center; gap: .75rem; margin-bottom: 1rem; font-weight: 700; font-size: 1rem; color: #78350F; flex-wrap: wrap; }
+  .ex-badge { background: var(--accent); color: #fff; font-size: .68rem; padding: 2px 9px; border-radius: 20px; font-weight: 700; text-transform: uppercase; }
+  .ex ol { padding-left: 1.4rem; }
+  .ex ol li { margin-bottom: .6rem; font-size: .95rem; }
+  .ex p { font-size: .95rem; margin-bottom: .6rem; }
+
+  .glos { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .glos-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; }
+  .glos-item dt { font-weight: 700; color: var(--primary); font-size: .92rem; margin-bottom: .3rem; }
+  .glos-item dd { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+  .glos-item .emoji { font-size: 1.3rem; display: block; margin-bottom: .3rem; }
+
+  .tag-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .tag-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem; }
+  .tag-card .tc-head { display: flex; align-items: center; gap: .6rem; margin-bottom: .5rem; }
+  .tag-card .tc-tag { font-family: 'DM Mono', monospace; font-size: 1rem; font-weight: 700; color: var(--primary); background: var(--primary-light); padding: 2px 9px; border-radius: 6px; }
+  .tag-card .tc-name { font-size: .8rem; font-weight: 600; color: var(--muted); }
+  .tag-card .tc-desc { font-size: .88rem; margin-bottom: .5rem; }
+  .tag-card .tc-analogy { font-size: .82rem; color: #92400E; background: #FFF7ED; border-radius: 6px; padding: .5rem .75rem; border-left: 3px solid var(--accent); }
+  .tag-card .tc-example { font-size: .8rem; font-family: monospace; background: #F1F5F9; border-radius: 6px; padding: .4rem .7rem; margin-top: .5rem; color: #334155; overflow-x: auto; white-space: pre; }
+
+  h2 { font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; color: var(--text); }
+  h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 .5rem; }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: #f0ece6; color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+  strong { font-weight: 700; }
+  em { font-style: italic; }
+  .chip { display: inline-block; background: var(--primary-light); color: var(--primary); font-size: .78rem; padding: 2px 10px; border-radius: 20px; font-weight: 600; margin: 2px; }
+  .divider { text-align: center; color: var(--muted); font-size: .85rem; margin: 1.5rem 0; letter-spacing: .1em; }
+
+  /* PARTE BADGE */
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: white; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  /* META GRID */
+  .meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .meta-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem; }
+  .meta-card .mc-tag { font-family: 'DM Mono', monospace; font-size: .85rem; color: var(--primary); font-weight: 700; background: var(--primary-light); padding: 2px 8px; border-radius: 5px; display: inline-block; margin-bottom: .5rem; }
+  .meta-card .mc-desc { font-size: .88rem; color: var(--text); margin-bottom: .35rem; }
+  .meta-card .mc-note { font-size: .8rem; color: var(--muted); }
+  .meta-card code { font-size: .78rem; }
+
+  /* FORM DEMO */
+  .form-demo { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin: 1rem 0; }
+  .form-demo label { display: block; font-weight: 600; font-size: .9rem; margin-bottom: .3rem; color: var(--text); }
+  .form-demo textarea, .form-demo input, .form-demo select { width: 100%; padding: .6rem .9rem; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: .95rem; background: white; color: var(--text); margin-bottom: .75rem; }
+  .form-demo textarea { resize: vertical; min-height: 80px; }
+  .form-demo fieldset { border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.2rem; margin-bottom: .75rem; }
+  .form-demo legend { font-weight: 700; font-size: .9rem; color: var(--primary); padding: 0 .5rem; }
+  .form-demo details { border: 1px solid var(--border); border-radius: 8px; padding: .75rem 1rem; margin-bottom: .75rem; }
+  .form-demo summary { font-weight: 600; cursor: pointer; font-size: .95rem; }
+  .form-demo details[open] summary { margin-bottom: .5rem; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); }
+</style>
+</head>
+<body>
+
+<!-- BARRA DE REGRESO A CAFÉ -->
+<div style="background:#ffffff;border-bottom:1px solid #e8e4de;padding:0 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:200;height:45px;">
+  <a href="../index.html" style="display:inline-flex;align-items:center;gap:6px;font-family:'DM Sans',sans-serif;font-size:13px;color:#8a8480;text-decoration:none;padding:6px 14px;border:1px solid #e8e4de;border-radius:999px;transition:all 0.15s;" onmouseover="this.style.color='#1a1814';this.style.borderColor='#8a8480'" onmouseout="this.style.color='#8a8480';this.style.borderColor='#e8e4de'">← Volver a Café &lt;/&gt;</a>
+  <span style="font-family:'DM Sans',sans-serif;font-size:13px;color:#8a8480;">☕ Guía HTML &amp; CSS · Parte A</span>
+</div>
+
+<header>
+  <h1>HTML &amp; CSS — Parte A</h1>
+  <p>HTML Avanzado: Metatags, Formularios completos y Elementos interactivos</p>
+  <span class="badge">✦ Continuación del curso de Soy Dalto · 5:38:02 – 6:51:34 ✦</span>
+</header>
+
+<div class="partes-nav">
+  <a class="partes-nav-prev" href="guia-html-css.html">← Base</a>
+  <div class="partes-nav-list">
+    <a href="guia-html-css.html">Base</a>
+    <a href="guia-parte-A-html-avanzado.html" class="activa">A</a>
+    <a href="#">B</a>
+    <a href="#">C</a>
+    <a href="#">D</a>
+    <a href="#">E</a>
+    <a href="#">F</a>
+    <a href="#">G</a>
+    <a href="#">H</a>
+    <a href="#">I</a>
+    <a href="#">J</a>
+  </div>
+  <a class="partes-nav-next" href="#">B →</a>
+</div>
+
+<nav>
+  <a href="#metatags">🏷 Metatags</a>
+  <a href="#comentarios">💬 Comentarios</a>
+  <a href="#iconos">🔖 Íconos</a>
+  <a href="#textarea">📝 Textarea</a>
+  <a href="#label">🔗 Label</a>
+  <a href="#select">📋 Select</a>
+  <a href="#datalist">🔍 Datalist</a>
+  <a href="#fieldset">🗂 Fieldset</a>
+  <a href="#details">▶ Details</a>
+  <a href="#ejercicio">✏️ Ejercicio</a>
+</nav>
+
+<main>
+
+<div class="parte-badge">📦 Parte A — HTML Avanzado (5:38 – 6:51 del video)</div>
+
+
+<!-- ═══════════════════════════════════════════
+     METATAGS
+═══════════════════════════════════════════ -->
+<section class="module" id="metatags">
+  <div class="module-header">
+    <div class="module-icon">🏷️</div>
+    <div>
+      <div class="module-title">Metatags — Información invisible pero crucial</div>
+      <div class="module-sub">Lo que el navegador y Google leen, pero tú no ves en la página</div>
+    </div>
+  </div>
+
+  <p>Las metatags van dentro del <code>&lt;head&gt;</code> y le dicen cosas importantes al navegador, a los motores de búsqueda (Google, Bing) y a las redes sociales (WhatsApp, Twitter) sobre tu página. El usuario nunca las ve directamente, pero tienen un efecto enorme en cómo se muestra y comparte tu sitio.</p>
+
+  <div class="analogy">
+    <h4>📦 Analogía: la etiqueta de un paquete de envío</h4>
+    <p>Cuando envías un paquete, la caja tiene una etiqueta con el remitente, el destinatario, el contenido, si es frágil, etc. Nadie que recibe el paquete lee esa etiqueta para saber qué hay dentro del paquete en sí, pero el servicio de mensajería la usa para enrutar y manejar el paquete correctamente. Las metatags son exactamente eso: la etiqueta de envío de tu página web.</p>
+  </div>
+
+  <h2>Anatomía de una metatag</h2>
+
+  <div class="anatomy">
+    <span class="br">&lt;meta</span> <span class="at">name</span>=<span class="vl">"description"</span> <span class="at">content</span>=<span class="vl">"Descripción de mi página"</span><span class="br">&gt;</span>
+    <br>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="lb">Etiqueta vacía</span>&nbsp;<span class="lb2">name = tipo de meta</span>&nbsp;<span class="lb3">content = el valor</span>
+  </div>
+
+  <p>Las metatags son <strong>etiquetas vacías</strong> (sin cierre). Tienen dos atributos principales: <code>name</code> (qué tipo de información es) y <code>content</code> (el valor de esa información).</p>
+
+  <h2>Las metatags más importantes</h2>
+
+  <div class="meta-grid">
+
+    <div class="meta-card">
+      <span class="mc-tag">&lt;meta charset="UTF-8"&gt;</span>
+      <p class="mc-desc"><strong>Codificación de caracteres.</strong> Le dice al navegador cómo leer los caracteres del archivo. UTF-8 soporta prácticamente todos los idiomas del mundo, incluyendo tildes (á, é, í), ñ, emojis, etc.</p>
+      <p class="mc-note">⚠️ Siempre debe ser la primera línea del &lt;head&gt;. Sin esta, las tildes y la ñ aparecen como símbolos raros.</p>
+    </div>
+
+    <div class="meta-card">
+      <span class="mc-tag">&lt;meta name="viewport"&gt;</span>
+      <p class="mc-desc"><strong>Viewport responsive.</strong> Le dice al navegador en móviles que use el ancho real del dispositivo, no que simule una pantalla de escritorio.</p>
+      <code>content="width=device-width, initial-scale=1.0"</code>
+      <p class="mc-note">Sin esto, tu página en celular se verá ridículamente pequeña como si la viera con zoom muy alejado.</p>
+    </div>
+
+    <div class="meta-card">
+      <span class="mc-tag">&lt;meta name="description"&gt;</span>
+      <p class="mc-desc"><strong>Descripción para Google.</strong> El texto que aparece debajo del título de tu página en los resultados de búsqueda. Máximo ~160 caracteres.</p>
+      <code>content="Aprende HTML y CSS desde cero con ejemplos prácticos"</code>
+      <p class="mc-note">Es crucial para SEO. Un buen description convence al usuario de hacer clic en tu enlace.</p>
+    </div>
+
+    <div class="meta-card">
+      <span class="mc-tag">&lt;meta name="author"&gt;</span>
+      <p class="mc-desc"><strong>Autor del documento.</strong> Declara quién escribió la página. Lo usan principalmente los navegadores y herramientas de lectura.</p>
+      <code>content="Hugo"</code>
+      <p class="mc-note">No afecta directamente el SEO, pero es buena práctica profesional.</p>
+    </div>
+
+    <div class="meta-card">
+      <span class="mc-tag">&lt;meta name="robots"&gt;</span>
+      <p class="mc-desc"><strong>Instrucciones para robots de búsqueda.</strong> Le dices a Google si puede o no indexar tu página y seguir sus enlaces.</p>
+      <code>content="index, follow"</code> — aparece en Google<br>
+      <code>content="noindex, nofollow"</code> — oculta de Google
+      <p class="mc-note">Muy útil para páginas en construcción o páginas de administración que no quieres que aparezcan en Google.</p>
+    </div>
+
+    <div class="meta-card">
+      <span class="mc-tag">&lt;meta http-equiv="refresh"&gt;</span>
+      <p class="mc-desc"><strong>Redirección automática.</strong> Redirige al usuario a otra URL después de N segundos.</p>
+      <code>content="5; url=https://mipagina.com"</code>
+      <p class="mc-note">Redirige después de 5 segundos. Con <code>content="0; url=..."</code> redirige inmediatamente.</p>
+    </div>
+
+  </div>
+
+  <h2>Open Graph — Metatags para redes sociales</h2>
+
+  <p>Cuando alguien comparte tu página en WhatsApp, Twitter o Facebook, esas plataformas buscan las metatags <strong>Open Graph (og:)</strong> para saber cómo mostrar la vista previa: qué imagen mostrar, qué título y qué descripción usar.</p>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="cc">&lt;!-- Open Graph — controla la vista previa en redes sociales --&gt;</span>
+<span class="ct">&lt;meta</span> <span class="ca">property</span>=<span class="cv">"og:title"</span>       <span class="ca">content</span>=<span class="cv">"Mi Portafolio Web"</span><span class="ct">&gt;</span>
+<span class="ct">&lt;meta</span> <span class="ca">property</span>=<span class="cv">"og:description"</span>  <span class="ca">content</span>=<span class="cv">"Desarrollador web especializado en HTML y CSS"</span><span class="ct">&gt;</span>
+<span class="ct">&lt;meta</span> <span class="ca">property</span>=<span class="cv">"og:image"</span>       <span class="ca">content</span>=<span class="cv">"https://mipagina.com/preview.png"</span><span class="ct">&gt;</span>
+<span class="ct">&lt;meta</span> <span class="ca">property</span>=<span class="cv">"og:url"</span>         <span class="ca">content</span>=<span class="cv">"https://mipagina.com"</span><span class="ct">&gt;</span>
+<span class="ct">&lt;meta</span> <span class="ca">property</span>=<span class="cv">"og:type"</span>        <span class="ca">content</span>=<span class="cv">"website"</span><span class="ct">&gt;</span></div>
+
+  <div class="tip">
+    <h4>🟢 ¿Cuándo es importante Open Graph?</h4>
+    <p>Si estás construyendo un blog, un portafolio o cualquier página que la gente pueda compartir, el Open Graph es esencial. Sin él, cuando alguien comparte tu URL en WhatsApp, aparece sin imagen, con un título horrible y sin descripción.</p>
+  </div>
+
+  <h2>Ejemplo completo del &lt;head&gt; con metatags profesional</h2>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="ct">&lt;head&gt;</span>
+  <span class="cc">&lt;!-- ① SIEMPRE primero: codificación --&gt;</span>
+  <span class="ct">&lt;meta</span> <span class="ca">charset</span>=<span class="cv">"UTF-8"</span><span class="ct">&gt;</span>
+
+  <span class="cc">&lt;!-- ② Responsive en móvil --&gt;</span>
+  <span class="ct">&lt;meta</span> <span class="ca">name</span>=<span class="cv">"viewport"</span> <span class="ca">content</span>=<span class="cv">"width=device-width, initial-scale=1.0"</span><span class="ct">&gt;</span>
+
+  <span class="cc">&lt;!-- ③ Título que aparece en pestaña y en Google --&gt;</span>
+  <span class="ct">&lt;title&gt;</span><span class="cs">Hugo Dev — Portafolio Web</span><span class="ct">&lt;/title&gt;</span>
+
+  <span class="cc">&lt;!-- ④ SEO básico --&gt;</span>
+  <span class="ct">&lt;meta</span> <span class="ca">name</span>=<span class="cv">"description"</span> <span class="ca">content</span>=<span class="cv">"Portafolio de proyectos web de Hugo, especializado en HTML, CSS y JavaScript."</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;meta</span> <span class="ca">name</span>=<span class="cv">"author"</span>      <span class="ca">content</span>=<span class="cv">"Hugo"</span><span class="ct">&gt;</span>
+
+  <span class="cc">&lt;!-- ⑤ Open Graph para redes sociales --&gt;</span>
+  <span class="ct">&lt;meta</span> <span class="ca">property</span>=<span class="cv">"og:title"</span>       <span class="ca">content</span>=<span class="cv">"Hugo Dev — Portafolio Web"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;meta</span> <span class="ca">property</span>=<span class="cv">"og:description"</span>  <span class="ca">content</span>=<span class="cv">"Proyectos de desarrollo web: HTML, CSS, JS."</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;meta</span> <span class="ca">property</span>=<span class="cv">"og:image"</span>       <span class="ca">content</span>=<span class="cv">"preview.png"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;meta</span> <span class="ca">property</span>=<span class="cv">"og:type"</span>        <span class="ca">content</span>=<span class="cv">"website"</span><span class="ct">&gt;</span>
+
+  <span class="cc">&lt;!-- ⑥ CSS externo --&gt;</span>
+  <span class="ct">&lt;link</span> <span class="ca">rel</span>=<span class="cv">"stylesheet"</span> <span class="ca">href</span>=<span class="cv">"estilos.css"</span><span class="ct">&gt;</span>
+<span class="ct">&lt;/head&gt;</span></div>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     COMENTARIOS EN HTML
+═══════════════════════════════════════════ -->
+<section class="module" id="comentarios">
+  <div class="module-header">
+    <div class="module-icon">💬</div>
+    <div>
+      <div class="module-title">Comentarios en HTML</div>
+      <div class="module-sub">Notas para ti (y tu futuro yo) que el navegador ignora</div>
+    </div>
+  </div>
+
+  <p>Un comentario en HTML es texto que puedes escribir dentro del código sin que aparezca en la página. Solo lo ves tú (y cualquiera que abra el código fuente). Se escribe entre <code>&lt;!--</code> y <code>--&gt;</code>.</p>
+
+  <div class="analogy">
+    <h4>📓 Analogía: las notas en los márgenes de un libro</h4>
+    <p>Cuando estudias, escribes notas al margen del libro para recordar cosas: "esto es importante", "revisar más tarde", "esto lo explica el profesor de otra forma". Esas notas son para ti, no forman parte del texto del libro. Los comentarios HTML son exactamente eso: tus notas al margen del código.</p>
+  </div>
+
+  <h2>Sintaxis del comentario</h2>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="cc">&lt;!-- Esto es un comentario en una línea --&gt;</span>
+
+<span class="cc">&lt;!-- 
+  Esto es un comentario
+  que ocupa varias líneas.
+  Muy útil para explicar bloques grandes de código.
+--&gt;</span>
+
+<span class="ct">&lt;header&gt;</span>
+  <span class="cc">&lt;!-- Aquí va el logo y la navegación --&gt;</span>
+  <span class="ct">&lt;img</span> <span class="ca">src</span>=<span class="cv">"logo.png"</span> <span class="ca">alt</span>=<span class="cv">"Logo"</span><span class="ct">&gt;</span>
+<span class="ct">&lt;/header&gt;</span>
+
+<span class="cc">&lt;!-- TODO: agregar menú hamburguesa para móvil --&gt;</span>
+<span class="cc">&lt;!-- IMPORTANTE: este div tiene que ir antes del main --&gt;</span></div>
+
+  <div class="tip">
+    <h4>🟢 Usos prácticos de los comentarios</h4>
+    <ul>
+      <li><strong>Separar secciones:</strong> <code>&lt;!-- ═══ HEADER ═══ --&gt;</code></li>
+      <li><strong>Dejar notas pendientes:</strong> <code>&lt;!-- TODO: agregar slider --&gt;</code></li>
+      <li><strong>Desactivar código temporalmente</strong> sin borrarlo</li>
+      <li><strong>Explicar código complejo</strong> para cuando lo releas en 6 meses</li>
+    </ul>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ Nunca guardes información sensible en comentarios</h4>
+    <p>Los comentarios <strong>son visibles</strong> para cualquiera que haga clic derecho → "Ver código fuente" en el navegador. Nunca escribas contraseñas, tokens, claves de API ni información privada en comentarios HTML.</p>
+  </div>
+
+  <h2>Atajo de teclado en VS Code</h2>
+  <p>Para comentar/descomentar rápidamente en VS Code: selecciona el texto o línea y presiona <code>Ctrl + /</code> (Windows/Linux) o <code>Cmd + /</code> (Mac). ¡Funciona en HTML, CSS y JavaScript!</p>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     ICONOS (FAVICON)
+═══════════════════════════════════════════ -->
+<section class="module" id="iconos">
+  <div class="module-header">
+    <div class="module-icon">🔖</div>
+    <div>
+      <div class="module-title">Íconos — El favicon de tu página</div>
+      <div class="module-sub">El pequeño ícono que aparece en la pestaña del navegador</div>
+    </div>
+  </div>
+
+  <p>El <strong>favicon</strong> (abreviación de "favorite icon") es el pequeño ícono que ves en la pestaña del navegador junto al título de la página. También aparece cuando guardas un sitio en marcadores. Se agrega dentro del <code>&lt;head&gt;</code> con una etiqueta <code>&lt;link&gt;</code>.</p>
+
+  <div class="analogy">
+    <h4>🏪 Analogía: el logo en el letrero de una tienda</h4>
+    <p>Cuando tienes muchas pestañas abiertas en tu navegador, el favicon es como el logo en el letrero de una tienda en un centro comercial: te permite identificar rápidamente cuál pestaña es cuál sin leer el título completo.</p>
+  </div>
+
+  <h2>Cómo agregar un favicon</h2>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="ct">&lt;head&gt;</span>
+  <span class="cc">&lt;!-- Favicon clásico (archivo .ico) --&gt;</span>
+  <span class="ct">&lt;link</span> <span class="ca">rel</span>=<span class="cv">"icon"</span> <span class="ca">type</span>=<span class="cv">"image/x-icon"</span> <span class="ca">href</span>=<span class="cv">"favicon.ico"</span><span class="ct">&gt;</span>
+
+  <span class="cc">&lt;!-- Favicon moderno con PNG (más recomendado hoy en día) --&gt;</span>
+  <span class="ct">&lt;link</span> <span class="ca">rel</span>=<span class="cv">"icon"</span> <span class="ca">type</span>=<span class="cv">"image/png"</span> <span class="ca">href</span>=<span class="cv">"favicon.png"</span><span class="ct">&gt;</span>
+
+  <span class="cc">&lt;!-- Favicon SVG (vectorial, escala perfectamente en cualquier tamaño) --&gt;</span>
+  <span class="ct">&lt;link</span> <span class="ca">rel</span>=<span class="cv">"icon"</span> <span class="ca">type</span>=<span class="cv">"image/svg+xml"</span> <span class="ca">href</span>=<span class="cv">"favicon.svg"</span><span class="ct">&gt;</span>
+
+  <span class="cc">&lt;!-- Apple Touch Icon (el ícono cuando guardas en pantalla de inicio en iPhone) --&gt;</span>
+  <span class="ct">&lt;link</span> <span class="ca">rel</span>=<span class="cv">"apple-touch-icon"</span> <span class="ca">href</span>=<span class="cv">"apple-icon.png"</span><span class="ct">&gt;</span>
+<span class="ct">&lt;/head&gt;</span></div>
+
+  <div class="tip">
+    <h4>🟢 Dónde generar tu favicon gratis</h4>
+    <ul>
+      <li><strong>favicon.io</strong> — genera un favicon desde texto, emoji o imagen. Muy fácil.</li>
+      <li><strong>realfavicongenerator.net</strong> — genera los favicons para todos los dispositivos a la vez.</li>
+      <li>El tamaño estándar es <strong>32×32 px</strong> para el ícono de pestaña, y <strong>180×180 px</strong> para Apple Touch Icon.</li>
+    </ul>
+  </div>
+
+  <h2>Íconos con Font Awesome (íconos como fuente)</h2>
+
+  <p>Una técnica muy popular es usar librerías de íconos SVG como <strong>Font Awesome</strong>. En lugar de imágenes, los íconos son vectores que escalan perfecto y se estilizan con CSS.</p>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="cc">&lt;!-- 1. Agrega el CDN en el head --&gt;</span>
+<span class="ct">&lt;link</span> <span class="ca">rel</span>=<span class="cv">"stylesheet"</span> <span class="ca">href</span>=<span class="cv">"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"</span><span class="ct">&gt;</span>
+
+<span class="cc">&lt;!-- 2. Úsalos con la etiqueta &lt;i&gt; y clases de Font Awesome --&gt;</span>
+<span class="ct">&lt;i</span> <span class="ca">class</span>=<span class="cv">"fa-solid fa-house"</span><span class="ct">&gt;&lt;/i&gt;</span>        <span class="cc">&lt;!-- 🏠 ícono de casa --&gt;</span>
+<span class="ct">&lt;i</span> <span class="ca">class</span>=<span class="cv">"fa-solid fa-envelope"</span><span class="ct">&gt;&lt;/i&gt;</span>    <span class="cc">&lt;!-- ✉️ ícono de correo --&gt;</span>
+<span class="ct">&lt;i</span> <span class="ca">class</span>=<span class="cv">"fa-brands fa-github"</span><span class="ct">&gt;&lt;/i&gt;</span>    <span class="cc">&lt;!-- 🐙 logo de GitHub --&gt;</span>
+<span class="ct">&lt;i</span> <span class="ca">class</span>=<span class="cv">"fa-brands fa-linkedin"</span><span class="ct">&gt;&lt;/i&gt;</span>  <span class="cc">&lt;!-- 💼 logo de LinkedIn --&gt;</span>
+
+<span class="cc">&lt;!-- Los íconos heredan el color y tamaño del CSS como texto normal --&gt;</span>
+<span class="ct">&lt;i</span> <span class="ca">class</span>=<span class="cv">"fa-solid fa-star"</span> <span class="ca">style</span>=<span class="cv">"color: gold; font-size: 2rem;"</span><span class="ct">&gt;&lt;/i&gt;</span></div>
+
+  <div class="concept">
+    <h4>💡 ¿Por qué usar &lt;i&gt; para íconos?</h4>
+    <p>La etiqueta <code>&lt;i&gt;</code> originalmente era para texto en cursiva (<em>italic</em>). Con Font Awesome se "reutilizó" para íconos porque es corta y se puede dejar vacía. No tiene significado semántico propio cuando se usa así, lo cual está bien para elementos puramente decorativos.</p>
+  </div>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     TEXTAREA
+═══════════════════════════════════════════ -->
+<section class="module" id="textarea">
+  <div class="module-header">
+    <div class="module-icon">📝</div>
+    <div>
+      <div class="module-title">Textarea — Área de texto multilínea</div>
+      <div class="module-sub">Para mensajes, comentarios y cualquier texto largo</div>
+    </div>
+  </div>
+
+  <p>Ya conoces <code>&lt;input type="text"&gt;</code> para una sola línea de texto. Pero ¿qué pasa cuando el usuario necesita escribir un párrafo completo, un mensaje, una descripción? Para eso existe <code>&lt;textarea&gt;</code>: un campo de texto de múltiples líneas que el usuario puede redimensionar.</p>
+
+  <div class="analogy">
+    <h4>📄 Analogía: una hoja en blanco vs una tarjeta</h4>
+    <p>Un <code>&lt;input type="text"&gt;</code> es como una tarjeta de presentación: espacio pequeño, una línea, solo cabe tu nombre y teléfono. Un <code>&lt;textarea&gt;</code> es como una hoja en blanco: puedes escribir todo lo que necesitas, cuántas líneas quieras.</p>
+  </div>
+
+  <h2>Anatomía del textarea</h2>
+
+  <div class="anatomy">
+    <span class="br">&lt;textarea</span>
+      <span class="at">name</span>=<span class="vl">"mensaje"</span>
+      <span class="at">rows</span>=<span class="vl">"5"</span>
+      <span class="at">cols</span>=<span class="vl">"40"</span>
+      <span class="at">placeholder</span>=<span class="vl">"Escribe tu mensaje..."</span>
+      <span class="at">maxlength</span>=<span class="vl">"500"</span><span class="br">&gt;</span>
+    Texto inicial aquí
+    <span class="br">&lt;/textarea&gt;</span>
+    <br>
+    <span class="lb">No es etiqueta vacía</span> <span class="lb2">rows = líneas visibles</span> <span class="lb3">cols = ancho en caracteres</span>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ Diferencia clave con &lt;input&gt;</h4>
+    <p><code>&lt;textarea&gt;</code> <strong>NO es una etiqueta vacía</strong>. Tiene etiqueta de apertura y cierre. El contenido que escribas entre las etiquetas aparecerá como texto inicial en el campo.</p>
+  </div>
+
+  <h2>Atributos importantes del textarea</h2>
+
+  <table class="tbl">
+    <thead>
+      <tr><th>Atributo</th><th>Qué hace</th><th>Ejemplo</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="tag">rows</span></td><td>Número de líneas visibles (alto del área)</td><td><code>rows="5"</code></td></tr>
+      <tr><td><span class="tag">cols</span></td><td>Ancho en número de caracteres (usa CSS en su lugar)</td><td><code>cols="40"</code></td></tr>
+      <tr><td><span class="tag">placeholder</span></td><td>Texto gris de ejemplo que desaparece al escribir</td><td><code>placeholder="Tu mensaje..."</code></td></tr>
+      <tr><td><span class="tag">maxlength</span></td><td>Número máximo de caracteres permitidos</td><td><code>maxlength="500"</code></td></tr>
+      <tr><td><span class="tag">minlength</span></td><td>Número mínimo de caracteres requeridos</td><td><code>minlength="10"</code></td></tr>
+      <tr><td><span class="tag">required</span></td><td>Campo obligatorio (no se puede enviar vacío)</td><td><code>required</code></td></tr>
+      <tr><td><span class="tag">readonly</span></td><td>El usuario puede ver pero no editar el texto</td><td><code>readonly</code></td></tr>
+      <tr><td><span class="tag">disabled</span></td><td>Campo desactivado completamente</td><td><code>disabled</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>Controlar el resize con CSS</h2>
+
+  <p>Por defecto el usuario puede arrastrar la esquina del textarea para cambiar su tamaño. Puedes controlarlo con CSS:</p>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* El usuario puede redimensionar en todas direcciones (por defecto) */</span>
+<span class="cp">textarea</span> { <span class="ca">resize</span>: both; }
+
+<span class="cc">/* Solo puede cambiar el alto (vertical) — lo más común */</span>
+<span class="cp">textarea</span> { <span class="ca">resize</span>: vertical; }
+
+<span class="cc">/* No puede redimensionar en absoluto */</span>
+<span class="cp">textarea</span> { <span class="ca">resize</span>: none; }</div>
+
+  <div class="tip">
+    <h4>🟢 Buenas prácticas con textarea</h4>
+    <ul>
+      <li>Usa <code>resize: vertical</code> para que el usuario solo pueda cambiar el alto, no el ancho (evita que rompa el layout)</li>
+      <li>Usa <code>font-family: inherit</code> en CSS para que el textarea use la misma fuente que el resto de la página (por defecto usa monospace)</li>
+      <li>Siempre usa un <code>&lt;label&gt;</code> asociado (lo vemos a continuación)</li>
+    </ul>
+  </div>
+
+  <div class="preview">
+    <strong>Ejemplo funcional:</strong><br><br>
+    <textarea rows="4" style="width:100%;padding:.6rem;border:1px solid #e8e4de;border-radius:8px;font-family:inherit;font-size:.95rem;resize:vertical;" placeholder="Escribe tu mensaje aquí... (máximo 200 caracteres)" maxlength="200"></textarea>
+  </div>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     LABEL
+═══════════════════════════════════════════ -->
+<section class="module" id="label">
+  <div class="module-header">
+    <div class="module-icon">🔗</div>
+    <div>
+      <div class="module-title">Label — La etiqueta de los campos de formulario</div>
+      <div class="module-sub">Accesibilidad y usabilidad: el compañero inseparable de los inputs</div>
+    </div>
+  </div>
+
+  <p>El <code>&lt;label&gt;</code> es el texto descriptivo que va junto a un campo de formulario. No es solo decoración: cuando lo vinculas correctamente al input, hacer clic en el label activa el input. Es fundamental para la accesibilidad (lectores de pantalla) y la usabilidad.</p>
+
+  <div class="analogy">
+    <h4>📋 Analogía: el letrero de un cajón</h4>
+    <p>Imagina un mueble con cajones sin letrero. Tienes que abrir cada uno para saber qué hay adentro. Ahora imagina los mismos cajones con letreros: "Documentos", "Facturas", "Contratos". El label es ese letrero: le dice al usuario exactamente para qué sirve ese campo.</p>
+  </div>
+
+  <h2>Dos formas de vincular label con input</h2>
+
+  <h3>Forma 1 — for + id (recomendada)</h3>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="cc">&lt;!-- El atributo "for" del label debe coincidir con el "id" del input --&gt;</span>
+<span class="ct">&lt;label</span> <span class="ca">for</span>=<span class="cv">"nombre"</span><span class="ct">&gt;</span><span class="cs">Tu nombre completo</span><span class="ct">&lt;/label&gt;</span>
+<span class="ct">&lt;input</span> <span class="ca">type</span>=<span class="cv">"text"</span> <span class="ca">id</span>=<span class="cv">"nombre"</span> <span class="ca">name</span>=<span class="cv">"nombre"</span> <span class="ca">placeholder</span>=<span class="cv">"Ej: Hugo Castillo"</span><span class="ct">&gt;</span>
+
+<span class="cc">&lt;!-- Al hacer clic en "Tu nombre completo", el cursor va al input automáticamente --&gt;</span></div>
+
+  <h3>Forma 2 — label envolviendo al input</h3>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="cc">&lt;!-- El input va DENTRO del label. No necesitas for ni id --&gt;</span>
+<span class="ct">&lt;label&gt;</span>
+  <span class="cs">Tu nombre completo</span>
+  <span class="ct">&lt;input</span> <span class="ca">type</span>=<span class="cv">"text"</span> <span class="ca">name</span>=<span class="cv">"nombre"</span> <span class="ca">placeholder</span>=<span class="cv">"Ej: Hugo Castillo"</span><span class="ct">&gt;</span>
+<span class="ct">&lt;/label&gt;</span></div>
+
+  <div class="concept">
+    <h4>💡 ¿Cuál forma usar?</h4>
+    <p>La <strong>Forma 1</strong> (for + id) es más flexible porque el label y el input pueden estar en distintas partes del HTML. La <strong>Forma 2</strong> es más compacta pero el input tiene que estar dentro del label. Ambas son correctas. En la práctica, la Forma 1 es más común en diseños profesionales.</p>
+  </div>
+
+  <h2>Label con checkboxes y radios — caso especial</h2>
+
+  <p>Los labels son especialmente importantes con checkboxes y radios. Sin un label vinculado, el usuario tiene que hacer clic exactamente en el pequeño cuadro/círculo. Con un label, puede hacer clic en cualquier parte del texto:</p>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="cc">&lt;!-- Sin label: solo el cuadrito activa el checkbox --&gt;</span>
+<span class="ct">&lt;input</span> <span class="ca">type</span>=<span class="cv">"checkbox"</span><span class="ct">&gt;</span> <span class="cs">Acepto los términos</span>   <span class="cc">&lt;!-- ❌ el texto no es clickeable --&gt;</span>
+
+<span class="cc">&lt;!-- Con label: el cuadrito Y el texto activan el checkbox --&gt;</span>
+<span class="ct">&lt;input</span> <span class="ca">type</span>=<span class="cv">"checkbox"</span> <span class="ca">id</span>=<span class="cv">"terminos"</span><span class="ct">&gt;</span>
+<span class="ct">&lt;label</span> <span class="ca">for</span>=<span class="cv">"terminos"</span><span class="ct">&gt;</span><span class="cs">Acepto los términos</span><span class="ct">&lt;/label&gt;</span>  <span class="cc">&lt;!-- ✅ todo el texto es clickeable --&gt;</span>
+
+<span class="cc">&lt;!-- Botones radio con labels --&gt;</span>
+<span class="ct">&lt;input</span> <span class="ca">type</span>=<span class="cv">"radio"</span> <span class="ca">id</span>=<span class="cv">"html"</span> <span class="ca">name</span>=<span class="cv">"lenguaje"</span> <span class="ca">value</span>=<span class="cv">"html"</span><span class="ct">&gt;</span>
+<span class="ct">&lt;label</span> <span class="ca">for</span>=<span class="cv">"html"</span><span class="ct">&gt;</span><span class="cs">HTML</span><span class="ct">&lt;/label&gt;</span>
+
+<span class="ct">&lt;input</span> <span class="ca">type</span>=<span class="cv">"radio"</span> <span class="ca">id</span>=<span class="cv">"css"</span> <span class="ca">name</span>=<span class="cv">"lenguaje"</span> <span class="ca">value</span>=<span class="cv">"css"</span><span class="ct">&gt;</span>
+<span class="ct">&lt;label</span> <span class="ca">for</span>=<span class="cv">"css"</span><span class="ct">&gt;</span><span class="cs">CSS</span><span class="ct">&lt;/label&gt;</span></div>
+
+  <div class="preview">
+    <strong>Prueba hacer clic en el texto del label:</strong><br><br>
+    <div style="display:flex;flex-direction:column;gap:.5rem">
+      <div>
+        <input type="checkbox" id="demo-terminos" style="margin-right:.4rem">
+        <label for="demo-terminos" style="cursor:pointer">Acepto los términos y condiciones (haz clic aquí)</label>
+      </div>
+      <div style="display:flex;gap:1rem">
+        <div><input type="radio" id="demo-html" name="demo-lang" style="margin-right:.3rem"><label for="demo-html" style="cursor:pointer">HTML</label></div>
+        <div><input type="radio" id="demo-css" name="demo-lang" style="margin-right:.3rem"><label for="demo-css" style="cursor:pointer">CSS</label></div>
+        <div><input type="radio" id="demo-js" name="demo-lang" style="margin-right:.3rem"><label for="demo-js" style="cursor:pointer">JavaScript</label></div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     SELECT Y DATALIST
+═══════════════════════════════════════════ -->
+<section class="module" id="select">
+  <div class="module-header">
+    <div class="module-icon">📋</div>
+    <div>
+      <div class="module-title">Select, Datalist y Option</div>
+      <div class="module-sub">Menús desplegables y listas de sugerencias</div>
+    </div>
+  </div>
+
+  <p>Cuando quieres que el usuario elija entre opciones predefinidas, tienes dos herramientas principales: <code>&lt;select&gt;</code> (lista desplegable cerrada) y <code>&lt;datalist&gt;</code> (sugerencias mientras escribe). Cada una tiene su caso de uso.</p>
+
+  <h2>&lt;select&gt; — El menú desplegable clásico</h2>
+
+  <div class="analogy">
+    <h4>🎰 Analogía: la rueda de selección de una máquina de café</h4>
+    <p>Una máquina expendedora de café tiene una rueda con opciones: Americano, Capuchino, Latte, Espresso. Solo puedes elegir las opciones que están ahí, no puedes inventarte una. Eso es exactamente un <code>&lt;select&gt;</code>: un conjunto fijo de opciones del cual el usuario elige una (o varias).</p>
+  </div>
+
+  <div class="anatomy">
+    <span class="br">&lt;select</span> <span class="at">name</span>=<span class="vl">"pais"</span> <span class="at">id</span>=<span class="vl">"pais"</span><span class="br">&gt;</span>
+    <br>&nbsp;&nbsp;<span class="br">&lt;option</span> <span class="at">value</span>=<span class="vl">""</span> <span class="at">disabled</span> <span class="at">selected</span><span class="br">&gt;</span><span class="cs">-- Selecciona un país --</span><span class="br">&lt;/option&gt;</span>
+    <br>&nbsp;&nbsp;<span class="br">&lt;option</span> <span class="at">value</span>=<span class="vl">"mx"</span><span class="br">&gt;</span><span class="cs">México</span><span class="br">&lt;/option&gt;</span>
+    <br>&nbsp;&nbsp;<span class="br">&lt;option</span> <span class="at">value</span>=<span class="vl">"es"</span><span class="br">&gt;</span><span class="cs">España</span><span class="br">&lt;/option&gt;</span>
+    <br><span class="br">&lt;/select&gt;</span>
+    <br>
+    <span class="lb">Contenedor del menú</span> <span class="lb2">value = lo que se envía al servidor</span> <span class="lb3">texto = lo que ve el usuario</span>
+  </div>
+
+  <h2>Atributos de &lt;select&gt; y &lt;option&gt;</h2>
+
+  <table class="tbl">
+    <thead>
+      <tr><th>Elemento</th><th>Atributo</th><th>Qué hace</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="tag">&lt;select&gt;</span></td><td><code>multiple</code></td><td>Permite seleccionar varias opciones a la vez (Ctrl+clic)</td></tr>
+      <tr><td><span class="tag">&lt;select&gt;</span></td><td><code>size="3"</code></td><td>Muestra N opciones visibles sin necesidad de abrir el menú</td></tr>
+      <tr><td><span class="tag">&lt;select&gt;</span></td><td><code>required</code></td><td>Obliga a seleccionar una opción antes de enviar</td></tr>
+      <tr><td><span class="tag">&lt;option&gt;</span></td><td><code>value</code></td><td>El valor que se envía al servidor (puede ser diferente al texto)</td></tr>
+      <tr><td><span class="tag">&lt;option&gt;</span></td><td><code>selected</code></td><td>Esta opción aparece seleccionada por defecto</td></tr>
+      <tr><td><span class="tag">&lt;option&gt;</span></td><td><code>disabled</code></td><td>Esta opción aparece en gris y no se puede seleccionar</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Agrupar opciones con &lt;optgroup&gt;</h2>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="ct">&lt;label</span> <span class="ca">for</span>=<span class="cv">"deportes"</span><span class="ct">&gt;</span><span class="cs">Deporte favorito:</span><span class="ct">&lt;/label&gt;</span>
+<span class="ct">&lt;select</span> <span class="ca">id</span>=<span class="cv">"deportes"</span> <span class="ca">name</span>=<span class="cv">"deportes"</span><span class="ct">&gt;</span>
+
+  <span class="ct">&lt;optgroup</span> <span class="ca">label</span>=<span class="cv">"⚽ Deportes de equipo"</span><span class="ct">&gt;</span>
+    <span class="ct">&lt;option</span> <span class="ca">value</span>=<span class="cv">"futbol"</span><span class="ct">&gt;</span><span class="cs">Fútbol</span><span class="ct">&lt;/option&gt;</span>
+    <span class="ct">&lt;option</span> <span class="ca">value</span>=<span class="cv">"basquet"</span><span class="ct">&gt;</span><span class="cs">Básquetbol</span><span class="ct">&lt;/option&gt;</span>
+    <span class="ct">&lt;option</span> <span class="ca">value</span>=<span class="cv">"beisbol"</span><span class="ct">&gt;</span><span class="cs">Béisbol</span><span class="ct">&lt;/option&gt;</span>
+  <span class="ct">&lt;/optgroup&gt;</span>
+
+  <span class="ct">&lt;optgroup</span> <span class="ca">label</span>=<span class="cv">"🏃 Deportes individuales"</span><span class="ct">&gt;</span>
+    <span class="ct">&lt;option</span> <span class="ca">value</span>=<span class="cv">"natacion"</span><span class="ct">&gt;</span><span class="cs">Natación</span><span class="ct">&lt;/option&gt;</span>
+    <span class="ct">&lt;option</span> <span class="ca">value</span>=<span class="cv">"ciclismo"</span><span class="ct">&gt;</span><span class="cs">Ciclismo</span><span class="ct">&lt;/option&gt;</span>
+  <span class="ct">&lt;/optgroup&gt;</span>
+
+<span class="ct">&lt;/select&gt;</span></div>
+
+  <div class="preview">
+    <label for="deportes-demo" style="font-weight:600;display:block;margin-bottom:.4rem">Deporte favorito:</label>
+    <select id="deportes-demo" style="padding:.5rem .75rem;border:1px solid #e8e4de;border-radius:8px;font-size:.95rem;width:100%;">
+      <optgroup label="⚽ Deportes de equipo">
+        <option value="futbol">Fútbol</option>
+        <option value="basquet">Básquetbol</option>
+        <option value="beisbol">Béisbol</option>
+      </optgroup>
+      <optgroup label="🏃 Deportes individuales">
+        <option value="natacion">Natación</option>
+        <option value="ciclismo">Ciclismo</option>
+      </optgroup>
+    </select>
+  </div>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     DATALIST
+═══════════════════════════════════════════ -->
+<section class="module" id="datalist">
+  <div class="module-header">
+    <div class="module-icon">🔍</div>
+    <div>
+      <div class="module-title">Datalist — El buscador con sugerencias</div>
+      <div class="module-sub">Lo mejor de los dos mundos: escribir libremente y recibir sugerencias</div>
+    </div>
+  </div>
+
+  <p>El <code>&lt;datalist&gt;</code> es diferente al <code>&lt;select&gt;</code>. Mientras que el select obliga a elegir de una lista cerrada, el datalist le muestra sugerencias al usuario mientras escribe, pero <strong>le permite escribir algo diferente si quiere</strong>.</p>
+
+  <div class="analogy">
+    <h4>🔍 Analogía: el buscador de Google</h4>
+    <p>Cuando escribes en el buscador de Google, aparecen sugerencias debajo, pero tú puedes ignorarlas y escribir exactamente lo que quieras. Eso es un datalist: sugerencias, no imposiciones.</p>
+  </div>
+
+  <h2>¿Cómo funciona?</h2>
+
+  <p>Necesitas <strong>dos elementos</strong> trabajando juntos: un <code>&lt;input&gt;</code> y un <code>&lt;datalist&gt;</code>. Los conectas con el atributo <code>list</code> del input y el <code>id</code> del datalist.</p>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="ct">&lt;label</span> <span class="ca">for</span>=<span class="cv">"equipo"</span><span class="ct">&gt;</span><span class="cs">Tu equipo de fútbol favorito:</span><span class="ct">&lt;/label&gt;</span>
+
+<span class="cc">&lt;!-- 1. El input tiene list="nombre-del-datalist" --&gt;</span>
+<span class="ct">&lt;input</span>
+  <span class="ca">type</span>=<span class="cv">"text"</span>
+  <span class="ca">id</span>=<span class="cv">"equipo"</span>
+  <span class="ca">name</span>=<span class="cv">"equipo"</span>
+  <span class="ca">list</span>=<span class="cv">"equipos-lista"</span>
+  <span class="ca">placeholder</span>=<span class="cv">"Escribe o elige un equipo..."</span>
+<span class="ct">&gt;</span>
+
+<span class="cc">&lt;!-- 2. El datalist tiene el id que coincide con el list del input --&gt;</span>
+<span class="ct">&lt;datalist</span> <span class="ca">id</span>=<span class="cv">"equipos-lista"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;option</span> <span class="ca">value</span>=<span class="cv">"Real Madrid"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;option</span> <span class="ca">value</span>=<span class="cv">"Barcelona"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;option</span> <span class="ca">value</span>=<span class="cv">"América"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;option</span> <span class="ca">value</span>=<span class="cv">"Chivas"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;option</span> <span class="ca">value</span>=<span class="cv">"Cruz Azul"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;option</span> <span class="ca">value</span>=<span class="cv">"Monterrey"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;option</span> <span class="ca">value</span>=<span class="cv">"Tigres"</span><span class="ct">&gt;</span>
+<span class="ct">&lt;/datalist&gt;</span></div>
+
+  <div class="preview">
+    <label for="equipo-demo" style="font-weight:600;display:block;margin-bottom:.4rem">Tu equipo de fútbol favorito:</label>
+    <input type="text" id="equipo-demo" list="equipos-demo-list" placeholder="Escribe o elige un equipo..." style="width:100%;padding:.6rem .9rem;border:1px solid #e8e4de;border-radius:8px;font-size:.95rem;">
+    <datalist id="equipos-demo-list">
+      <option value="Real Madrid">
+      <option value="Barcelona">
+      <option value="América">
+      <option value="Chivas">
+      <option value="Cruz Azul">
+      <option value="Monterrey">
+      <option value="Tigres">
+      <option value="Pumas">
+      <option value="Atlético de Madrid">
+    </datalist>
+    <p style="margin-top:.5rem;font-size:.82rem;color:#8a8480">Escribe "A" o "C" para ver las sugerencias filtradas</p>
+  </div>
+
+  <table class="tbl" style="margin-top:1rem">
+    <thead>
+      <tr><th>Característica</th><th>&lt;select&gt;</th><th>&lt;datalist&gt;</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>¿Puede el usuario escribir texto libre?</td><td>❌ No</td><td>✅ Sí</td></tr>
+      <tr><td>¿Muestra sugerencias mientras escribe?</td><td>❌ No</td><td>✅ Sí</td></tr>
+      <tr><td>¿El usuario está restringido a las opciones?</td><td>✅ Sí</td><td>❌ No</td></tr>
+      <tr><td>¿Cuándo usarlo?</td><td>Opciones fijas (países, estados)</td><td>Autocompletado (ciudades, nombres)</td></tr>
+    </tbody>
+  </table>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     FIELDSET Y LEGEND
+═══════════════════════════════════════════ -->
+<section class="module" id="fieldset">
+  <div class="module-header">
+    <div class="module-icon">🗂️</div>
+    <div>
+      <div class="module-title">Fieldset y Legend — Agrupar campos del formulario</div>
+      <div class="module-sub">Organización visual y semántica de grupos de campos relacionados</div>
+    </div>
+  </div>
+
+  <p>Cuando un formulario tiene muchos campos, es buena práctica agrupar los relacionados. <code>&lt;fieldset&gt;</code> crea un contenedor visual con borde alrededor de un grupo de campos, y <code>&lt;legend&gt;</code> es el título de ese grupo que aparece incrustado en el borde.</p>
+
+  <div class="analogy">
+    <h4>🗂 Analogía: las secciones de un formulario de papel</h4>
+    <p>Cuando llegas a un hospital a llenar un formulario, el papel tiene secciones claramente delimitadas: "Datos personales" (con un rectángulo y título), "Datos médicos" (otro rectángulo), "Datos del seguro" (otro). Eso es exactamente fieldset + legend: un rectángulo con título para agrupar campos relacionados.</p>
+  </div>
+
+  <h2>Estructura de fieldset y legend</h2>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="ct">&lt;form&gt;</span>
+
+  <span class="ct">&lt;fieldset&gt;</span>
+    <span class="ct">&lt;legend&gt;</span><span class="cs">👤 Datos personales</span><span class="ct">&lt;/legend&gt;</span>
+
+    <span class="ct">&lt;label</span> <span class="ca">for</span>=<span class="cv">"nombre"</span><span class="ct">&gt;</span><span class="cs">Nombre completo</span><span class="ct">&lt;/label&gt;</span>
+    <span class="ct">&lt;input</span> <span class="ca">type</span>=<span class="cv">"text"</span> <span class="ca">id</span>=<span class="cv">"nombre"</span> <span class="ca">name</span>=<span class="cv">"nombre"</span><span class="ct">&gt;</span>
+
+    <span class="ct">&lt;label</span> <span class="ca">for</span>=<span class="cv">"email"</span><span class="ct">&gt;</span><span class="cs">Correo electrónico</span><span class="ct">&lt;/label&gt;</span>
+    <span class="ct">&lt;input</span> <span class="ca">type</span>=<span class="cv">"email"</span> <span class="ca">id</span>=<span class="cv">"email"</span> <span class="ca">name</span>=<span class="cv">"email"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;/fieldset&gt;</span>
+
+  <span class="ct">&lt;fieldset&gt;</span>
+    <span class="ct">&lt;legend&gt;</span><span class="cs">🔒 Datos de acceso</span><span class="ct">&lt;/legend&gt;</span>
+
+    <span class="ct">&lt;label</span> <span class="ca">for</span>=<span class="cv">"usuario"</span><span class="ct">&gt;</span><span class="cs">Usuario</span><span class="ct">&lt;/label&gt;</span>
+    <span class="ct">&lt;input</span> <span class="ca">type</span>=<span class="cv">"text"</span> <span class="ca">id</span>=<span class="cv">"usuario"</span> <span class="ca">name</span>=<span class="cv">"usuario"</span><span class="ct">&gt;</span>
+
+    <span class="ct">&lt;label</span> <span class="ca">for</span>=<span class="cv">"pass"</span><span class="ct">&gt;</span><span class="cs">Contraseña</span><span class="ct">&lt;/label&gt;</span>
+    <span class="ct">&lt;input</span> <span class="ca">type</span>=<span class="cv">"password"</span> <span class="ca">id</span>=<span class="cv">"pass"</span> <span class="ca">name</span>=<span class="cv">"pass"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;/fieldset&gt;</span>
+
+<span class="ct">&lt;/form&gt;</span></div>
+
+  <div class="preview">
+    <form style="display:flex;flex-direction:column;gap:1rem">
+      <fieldset style="border:1px solid #e8e4de;border-radius:10px;padding:1rem 1.2rem">
+        <legend style="font-weight:700;color:#c44a2a;padding:0 .5rem">👤 Datos personales</legend>
+        <div style="display:flex;flex-direction:column;gap:.4rem;margin-bottom:.6rem">
+          <label for="fs-nombre" style="font-weight:600;font-size:.9rem">Nombre completo</label>
+          <input type="text" id="fs-nombre" placeholder="Tu nombre" style="padding:.5rem .75rem;border:1px solid #e8e4de;border-radius:8px;font-family:inherit">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:.4rem">
+          <label for="fs-email" style="font-weight:600;font-size:.9rem">Correo electrónico</label>
+          <input type="email" id="fs-email" placeholder="correo@ejemplo.com" style="padding:.5rem .75rem;border:1px solid #e8e4de;border-radius:8px;font-family:inherit">
+        </div>
+      </fieldset>
+      <fieldset style="border:1px solid #e8e4de;border-radius:10px;padding:1rem 1.2rem">
+        <legend style="font-weight:700;color:#c44a2a;padding:0 .5rem">🔒 Datos de acceso</legend>
+        <div style="display:flex;flex-direction:column;gap:.4rem;margin-bottom:.6rem">
+          <label for="fs-user" style="font-weight:600;font-size:.9rem">Usuario</label>
+          <input type="text" id="fs-user" placeholder="@usuario" style="padding:.5rem .75rem;border:1px solid #e8e4de;border-radius:8px;font-family:inherit">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:.4rem">
+          <label for="fs-pass" style="font-weight:600;font-size:.9rem">Contraseña</label>
+          <input type="password" id="fs-pass" placeholder="••••••••" style="padding:.5rem .75rem;border:1px solid #e8e4de;border-radius:8px;font-family:inherit">
+        </div>
+      </fieldset>
+    </form>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Fieldset también ayuda a la accesibilidad</h4>
+    <p>Los lectores de pantalla (para personas con discapacidad visual) anuncian el <code>&lt;legend&gt;</code> cuando el usuario navega con el teclado hasta ese grupo de campos. Así la persona sabe en qué sección del formulario está sin verla visualmente.</p>
+  </div>
+
+  <h2>Deshabilitar un grupo completo de campos</h2>
+
+  <p>Un superpower de <code>&lt;fieldset&gt;</code>: si le pones el atributo <code>disabled</code>, <strong>todos los campos dentro quedan desactivados</strong> de un solo golpe. No tienes que ir campo por campo.</p>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="cc">&lt;!-- Deshabilitar todos los campos del grupo de pago en un clic --&gt;</span>
+<span class="ct">&lt;fieldset</span> <span class="ca">disabled</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;legend&gt;</span><span class="cs">💳 Datos de pago (sección no disponible)</span><span class="ct">&lt;/legend&gt;</span>
+  <span class="ct">&lt;input</span> <span class="ca">type</span>=<span class="cv">"text"</span> <span class="ca">placeholder</span>=<span class="cv">"Número de tarjeta"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;input</span> <span class="ca">type</span>=<span class="cv">"text"</span> <span class="ca">placeholder</span>=<span class="cv">"Fecha de vencimiento"</span><span class="ct">&gt;</span>
+<span class="ct">&lt;/fieldset&gt;</span></div>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     DETAILS Y SUMMARY
+═══════════════════════════════════════════ -->
+<section class="module" id="details">
+  <div class="module-header">
+    <div class="module-icon">▶️</div>
+    <div>
+      <div class="module-title">Details y Summary — Acordeón nativo de HTML</div>
+      <div class="module-sub">Contenido expandible/colapsable sin necesidad de JavaScript</div>
+    </div>
+  </div>
+
+  <p>¿Alguna vez has visto esas secciones de "Preguntas Frecuentes" donde haces clic en la pregunta y se expande la respuesta? En muchos sitios eso se hace con JavaScript, pero HTML tiene un elemento nativo para esto: <code>&lt;details&gt;</code> con <code>&lt;summary&gt;</code>. Cero JavaScript necesario.</p>
+
+  <div class="analogy">
+    <h4>📪 Analogía: el buzón de correo</h4>
+    <p>Un buzón de correo tiene una tapa cerrada. Ves el buzón pero no el contenido. Cuando levantas la tapa (clic en el summary), ves todo lo que hay adentro. Cuando la cierras, el contenido vuelve a estar oculto. Eso es <code>&lt;details&gt;</code>: un contenedor con tapa (<code>&lt;summary&gt;</code>) que el usuario puede abrir y cerrar.</p>
+  </div>
+
+  <h2>Estructura básica</h2>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="cc">&lt;!-- Cerrado por defecto --&gt;</span>
+<span class="ct">&lt;details&gt;</span>
+  <span class="ct">&lt;summary&gt;</span><span class="cs">¿Cuánto tiempo tarda aprender HTML?</span><span class="ct">&lt;/summary&gt;</span>
+  <span class="cc">&lt;!-- Todo lo que esté aquí aparece al hacer clic en el summary --&gt;</span>
+  <span class="ct">&lt;p&gt;</span><span class="cs">Con práctica diaria, puedes aprender lo básico en 2-4 semanas.</span><span class="ct">&lt;/p&gt;</span>
+<span class="ct">&lt;/details&gt;</span>
+
+<span class="cc">&lt;!-- Abierto por defecto con el atributo "open" --&gt;</span>
+<span class="ct">&lt;details</span> <span class="ca">open</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;summary&gt;</span><span class="cs">¿Necesito JavaScript para hacer páginas web?</span><span class="ct">&lt;/summary&gt;</span>
+  <span class="ct">&lt;p&gt;</span><span class="cs">Para páginas estáticas, no. HTML y CSS son suficientes para sitios
+  informativos, portafolios y páginas de presentación.</span><span class="ct">&lt;/p&gt;</span>
+<span class="ct">&lt;/details&gt;</span></div>
+
+  <div class="preview">
+    <details style="border:1px solid #e8e4de;border-radius:8px;padding:.75rem 1rem;margin-bottom:.5rem">
+      <summary style="font-weight:600;cursor:pointer">¿Cuánto tiempo tarda aprender HTML?</summary>
+      <p style="margin-top:.6rem;font-size:.95rem;color:#555">Con práctica diaria, puedes aprender lo básico en 2–4 semanas. La clave es practicar construyendo proyectos reales, no solo leer teoría.</p>
+    </details>
+    <details style="border:1px solid #e8e4de;border-radius:8px;padding:.75rem 1rem;margin-bottom:.5rem" open>
+      <summary style="font-weight:600;cursor:pointer">¿Necesito JavaScript para hacer páginas web?</summary>
+      <p style="margin-top:.6rem;font-size:.95rem;color:#555">Para páginas estáticas, no. HTML y CSS son suficientes para sitios informativos, portafolios y páginas de presentación. JavaScript agrega interactividad dinámica.</p>
+    </details>
+    <details style="border:1px solid #e8e4de;border-radius:8px;padding:.75rem 1rem">
+      <summary style="font-weight:600;cursor:pointer">¿Puedo poner imágenes dentro de details?</summary>
+      <p style="margin-top:.6rem;font-size:.95rem;color:#555">¡Sí! Puedes poner cualquier contenido HTML dentro de details: párrafos, listas, tablas, imágenes, incluso otros details anidados.</p>
+    </details>
+  </div>
+
+  <h2>Personalizar el triángulo con CSS</h2>
+
+  <p>Por defecto, el navegador muestra un triángulo ▶ antes del summary. Puedes quitarlo o reemplazarlo:</p>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* Quitar el triángulo por defecto */</span>
+<span class="cp">summary</span> { <span class="ca">list-style</span>: none; <span class="ca">cursor</span>: pointer; }
+<span class="cp">summary::-webkit-details-marker</span> { <span class="ca">display</span>: none; } <span class="cc">/* Safari */</span>
+
+<span class="cc">/* Agregar tu propio ícono */</span>
+<span class="cp">summary::before</span> {
+  <span class="ca">content</span>: <span class="cv">'+'</span>;
+  <span class="ca">margin-right</span>: <span class="cn">.5rem</span>;
+  <span class="ca">font-weight</span>: bold;
+  <span class="ca">color</span>: var(<span class="cv">--primary</span>);
+}
+<span class="cp">details[open] summary::before</span> {
+  <span class="ca">content</span>: <span class="cv">'−'</span>; <span class="cc">/* Cambia a − cuando está abierto */</span>
+}</div>
+
+  <div class="tip">
+    <h4>🟢 ¿Cuándo usar details/summary vs JavaScript?</h4>
+    <ul>
+      <li><strong>Usa details/summary</strong> cuando quieres algo simple: FAQ, notas adicionales, contenido optativo. Sin JavaScript, accesible por defecto, funciona en todos los navegadores modernos.</li>
+      <li><strong>Usa JavaScript</strong> cuando necesitas animaciones complejas, transiciones suaves, o lógica especial (ej: que al abrir uno se cierren los demás automáticamente — un acordeón exclusivo).</li>
+    </ul>
+  </div>
+
+  <h2>Anidar details — acordeón dentro de acordeón</h2>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="ct">&lt;details&gt;</span>
+  <span class="ct">&lt;summary&gt;</span><span class="cs">📚 Módulo 1: HTML Básico</span><span class="ct">&lt;/summary&gt;</span>
+  <span class="ct">&lt;ul&gt;</span>
+    <span class="ct">&lt;li&gt;</span><span class="cs">Estructura de una página</span><span class="ct">&lt;/li&gt;</span>
+    <span class="ct">&lt;li&gt;</span><span class="cs">Etiquetas de texto</span><span class="ct">&lt;/li&gt;</span>
+  <span class="ct">&lt;/ul&gt;</span>
+
+  <span class="cc">&lt;!-- Details dentro de details --&gt;</span>
+  <span class="ct">&lt;details&gt;</span>
+    <span class="ct">&lt;summary&gt;</span><span class="cs">Ver ejercicios de este módulo</span><span class="ct">&lt;/summary&gt;</span>
+    <span class="ct">&lt;ol&gt;</span>
+      <span class="ct">&lt;li&gt;</span><span class="cs">Crea tu primera página web</span><span class="ct">&lt;/li&gt;</span>
+      <span class="ct">&lt;li&gt;</span><span class="cs">Agrega títulos y párrafos</span><span class="ct">&lt;/li&gt;</span>
+    <span class="ct">&lt;/ol&gt;</span>
+  <span class="ct">&lt;/details&gt;</span>
+<span class="ct">&lt;/details&gt;</span></div>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     EJERCICIO FINAL
+═══════════════════════════════════════════ -->
+<section class="module" id="ejercicio">
+  <div class="module-header">
+    <div class="module-icon">✏️</div>
+    <div>
+      <div class="module-title">Ejercicio integrador — Formulario de Registro Completo</div>
+      <div class="module-sub">Pon en práctica todos los elementos de esta parte</div>
+    </div>
+  </div>
+
+  <div class="ex">
+    <div class="ex-hd">✏️ Ejercicio — Formulario de Registro de Torneo de Fútbol <span class="ex-badge">Intermedio</span></div>
+
+    <p>Vamos a crear un formulario de registro para un torneo de fútbol que use <strong>todos los elementos que aprendimos en esta parte</strong>. El formulario debe incluir metatags correctas en el head, labels vinculados, fieldsets con legend, un select, un datalist y un details/summary al final con los términos.</p>
+
+    <ol>
+      <li>
+        <strong>Crea un archivo <code>registro-torneo.html</code></strong> con la estructura base correcta. En el <code>&lt;head&gt;</code> agrega:
+        <ul style="margin-top:.3rem">
+          <li><code>charset</code>, <code>viewport</code>, <code>title</code></li>
+          <li>Una <code>meta name="description"</code> describiendo el torneo</li>
+          <li>Una <code>meta name="author"</code> con tu nombre</li>
+        </ul>
+      </li>
+      <li>
+        <strong>Sección 1 — Datos del jugador</strong> (usa <code>&lt;fieldset&gt;</code> + <code>&lt;legend&gt;</code>):
+        <ul style="margin-top:.3rem">
+          <li>Nombre completo (input text + label)</li>
+          <li>Edad (input number + label)</li>
+          <li>Correo electrónico (input email + label)</li>
+        </ul>
+      </li>
+      <li>
+        <strong>Sección 2 — Datos del equipo</strong> (otro <code>&lt;fieldset&gt;</code>):
+        <ul style="margin-top:.3rem">
+          <li>Nombre del equipo (input text + label)</li>
+          <li>Posición favorita con <code>&lt;select&gt;</code>: Portero, Defensa, Mediocampista, Delantero</li>
+          <li>Equipo de fútbol favorito con <code>&lt;datalist&gt;</code> (al menos 8 equipos de tu gusto)</li>
+          <li>Mensaje adicional con <code>&lt;textarea&gt;</code> (placeholder, maxlength=300)</li>
+        </ul>
+      </li>
+      <li>
+        <strong>Términos y condiciones</strong> al final del formulario, usando <code>&lt;details&gt;</code> + <code>&lt;summary&gt;</code>. Dentro del details escribe 3 reglas inventadas del torneo.
+      </li>
+      <li>
+        <strong>Checkbox</strong>: "He leído y acepto los términos y condiciones" con su <code>&lt;label&gt;</code> correctamente vinculado.
+      </li>
+      <li>
+        Un <strong>botón de envío</strong>: <code>&lt;button type="submit"&gt;Inscribirme al torneo&lt;/button&gt;</code>
+      </li>
+    </ol>
+
+    <p style="margin-top:1rem"><strong>Resultado esperado:</strong> Un formulario semántico, bien estructurado, con dos secciones fieldset, opciones de select y datalist, textarea y un acordeón de términos al final. No necesitas CSS por ahora — enfócate en el HTML correcto.</p>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Resumen de lo que aprendiste en esta parte</h4>
+    <ul>
+      <li><strong>Metatags:</strong> charset, viewport, description, author, robots, Open Graph</li>
+      <li><strong>Comentarios:</strong> <code>&lt;!-- --&gt;</code> para notas en el código</li>
+      <li><strong>Favicon:</strong> el ícono de la pestaña del navegador</li>
+      <li><strong>Textarea:</strong> campo de texto multilínea con resize</li>
+      <li><strong>Label:</strong> etiqueta vinculada a un input (for + id)</li>
+      <li><strong>Select + Option:</strong> menú desplegable de opciones fijas</li>
+      <li><strong>Optgroup:</strong> agrupación de opciones en un select</li>
+      <li><strong>Datalist:</strong> sugerencias mientras el usuario escribe</li>
+      <li><strong>Fieldset + Legend:</strong> agrupación visual de campos de formulario</li>
+      <li><strong>Details + Summary:</strong> acordeón nativo sin JavaScript</li>
+    </ul>
+  </div>
+
+  <div class="concept">
+    <h4>💡 ¿Qué sigue? — Parte B</h4>
+    <p>La siguiente parte cubre el resto del HTML Avanzado del curso de Dalto: <strong>Links avanzados</strong> (target, download, tel, mailto), <strong>Tablas HTML</strong> (thead, tbody, tfoot, colspan, rowspan), <strong>Audio y Video</strong> nativos, <strong>Lazy Loading</strong>, <strong>HTML Deprecated</strong> (etiquetas que ya no debes usar) y <strong>Accesibilidad Web</strong> (ARIA, alt, roles). Pídela cuando estés listo.</p>
+  </div>
+
+</section>
+
+</main>
+
+<footer>
+  Guía HTML &amp; CSS · Parte A — HTML Avanzado · Basada en el curso de Soy Dalto · Hugo 2025
+</footer>
+
+</body>
+</html>

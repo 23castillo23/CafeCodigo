@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Ejercicio 2 — HTML & CSS: Página de negocio aplicando el Box Model a fondo.">
+<meta name="author" content="Hugo">
+<title>Ejercicio 2 — Página de Negocio | Box Model</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #c44a2a;
+    --primary-light:  #fdf0ec;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --danger:         #c44a2a;
+    --danger-light:   #fdf0ec;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1a1814;
+    --code-text:      #e8e4de;
+  }
+
+  body { font-family: 'DM Sans', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  .topbar { background:#ffffff; border-bottom:1px solid var(--border); padding:0 24px; display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:200; height:45px; }
+  .topbar a { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--muted); text-decoration:none; padding:6px 14px; border:1px solid var(--border); border-radius:999px; transition:all 0.15s; }
+  .topbar a:hover { color:var(--text); border-color:#8a8480; }
+  .topbar span { font-size:13px; color:var(--muted); }
+
+  header { background: #1a1814; color: #f7f4ef; padding: 3rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: '🛍'; position: absolute; font-size: 12rem; right: -1rem; top: -2rem; opacity: .06; line-height: 1; }
+  header .ex-label { display: inline-block; background: var(--primary); color: white; border-radius: 20px; padding: 4px 16px; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 1rem; }
+  header h1 { font-size: 2.4rem; font-weight: 800; letter-spacing: -1px; }
+  header p.sub { font-size: 1.05rem; opacity: .8; margin-top: .5rem; font-style: italic; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 45px; z-index: 100; display: flex; overflow-x: auto; }
+  nav a { flex-shrink: 0; padding: .75rem 1.1rem; text-decoration: none; color: var(--muted); font-size: .82rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: white; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2.5rem; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-size: 1.35rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  .analogy { background: #FFF7ED; border: 1px solid #FDE68A; border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: #92400E; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; color: #78350F; }
+
+  .concept { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p, .tip ul { font-size: .95rem; }
+  .tip ul { padding-left: 1.2rem; }
+  .tip li { margin-bottom: .3rem; }
+
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  .code-block { background: var(--code-bg); color: var(--code-text); border-radius: 10px; padding: 1.25rem 1.5rem; font-family: 'DM Mono', 'Courier New', monospace; font-size: .88rem; line-height: 1.85; overflow-x: auto; margin: 1rem 0; position: relative; white-space: pre; }
+  .code-block .ct { color: #89B4FA; }
+  .code-block .ca { color: #CBA6F7; }
+  .code-block .cv { color: #A6E3A1; }
+  .code-block .cs { color: #F9E2AF; }
+  .code-block .cp { color: #89DCEB; }
+  .code-block .cc { color: #585B70; font-style: italic; }
+  .code-block .cn { color: #FAB387; }
+  .lang { position: absolute; top: .6rem; right: .75rem; background: rgba(255,255,255,.1); color: rgba(255,255,255,.5); font-size: .68rem; padding: 2px 8px; border-radius: 4px; font-family: sans-serif; }
+
+  .preview { border: 2px dashed var(--border); border-radius: 10px; padding: 1.25rem 1.5rem; margin: 1rem 0; background: var(--surface); position: relative; }
+  .preview::before { content: '🖥 Vista en navegador'; position: absolute; top: -11px; left: 14px; background: var(--surface); font-size: .73rem; color: var(--muted); padding: 0 6px; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  .anatomy { background: #F0F4FF; border: 1px solid #C7D2FE; border-radius: 12px; padding: 1.5rem; font-family: 'DM Mono', monospace; font-size: 1rem; line-height: 2.4; margin: 1.25rem 0; }
+  .anatomy .br { color: var(--primary); font-weight: 700; }
+  .anatomy .at { color: #0891B2; }
+  .anatomy .vl { color: #059669; }
+  .anatomy .lb  { display: inline-block; background: var(--primary); color: #fff; font-size: .68rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 6px; }
+  .anatomy .lb2 { display: inline-block; background: var(--accent); color: #fff; font-size: .68rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 6px; }
+  .anatomy .lb3 { display: inline-block; background: var(--secondary); color: #fff; font-size: .68rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 6px; }
+
+  .glos { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .glos-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; }
+  .glos-item dt { font-weight: 700; color: var(--primary); font-size: .92rem; margin-bottom: .3rem; }
+  .glos-item dd { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+  .glos-item .emoji { font-size: 1.4rem; display: block; margin-bottom: .4rem; }
+
+  .chip { display: inline-block; background: var(--primary-light); color: var(--primary); font-size: .8rem; padding: 3px 12px; border-radius: 20px; font-weight: 600; margin: 3px; font-family: 'DM Mono', monospace; }
+
+  .reto-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin: 1.25rem 0; }
+  .reto-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+  .reto-card .nivel { display: inline-block; font-size: .72rem; font-weight: 700; padding: 2px 10px; border-radius: 20px; margin-bottom: .6rem; text-transform: uppercase; letter-spacing: .06em; }
+  .nivel-f { background: #FEF3C7; color: #92400E; }
+  .nivel-m { background: #FFEDD5; color: #C2410C; }
+  .nivel-a { background: #FEE2E2; color: #B91C1C; }
+  .reto-card h4 { font-size: .95rem; font-weight: 700; margin-bottom: .5rem; }
+  .reto-card p { font-size: .88rem; color: var(--muted); margin-bottom: .5rem; }
+  .reto-card strong { color: var(--text); }
+
+  h2 { font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; color: var(--text); }
+  h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 .5rem; }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: #f0ece6; color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  strong { font-weight: 700; }
+  em { font-style: italic; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+
+  /* ── BOX MODEL DIAGRAM ── */
+  .bm-wrap { display: flex; justify-content: center; margin: 1.5rem 0; }
+  .bm-margin { background: #FEF3C7; border: 2px dashed #D97706; border-radius: 10px; padding: 24px; position: relative; }
+  .bm-margin-label { position: absolute; top: 4px; left: 10px; font-size: .7rem; font-weight: 700; color: #92400E; font-family: 'DM Mono', monospace; text-transform: uppercase; }
+  .bm-border { background: #FCA5A5; border-radius: 6px; padding: 20px; position: relative; }
+  .bm-border-label { position: absolute; top: 4px; left: 10px; font-size: .7rem; font-weight: 700; color: #7F1D1D; font-family: 'DM Mono', monospace; text-transform: uppercase; }
+  .bm-padding { background: #BBF7D0; border-radius: 4px; padding: 20px; position: relative; }
+  .bm-padding-label { position: absolute; top: 4px; left: 10px; font-size: .7rem; font-weight: 700; color: #14532D; font-family: 'DM Mono', monospace; text-transform: uppercase; }
+  .bm-content { background: #BFDBFE; border-radius: 3px; padding: 16px 24px; text-align: center; font-family: 'DM Mono', monospace; font-size: .85rem; font-weight: 700; color: #1E3A5F; min-width: 140px; }
+
+  /* ── PÁGINA DEMO ── */
+  .demo-page { background: #f0f4f8; border-radius: 12px; overflow: hidden; font-family: Arial, sans-serif; }
+  .demo-navbar { background: #1e3a5f; color: white; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; }
+  .demo-navbar .logo { font-weight: 800; font-size: 1.1rem; letter-spacing: -0.5px; }
+  .demo-navbar .nav-links { display: flex; gap: 20px; font-size: .85rem; }
+  .demo-navbar .nav-links a { color: rgba(255,255,255,.8); text-decoration: none; }
+  .demo-hero { background: linear-gradient(135deg, #1e3a5f 0%, #2d5986 100%); color: white; text-align: center; padding: 48px 24px; }
+  .demo-hero h1 { font-size: 1.9rem; font-weight: 800; margin-bottom: 10px; }
+  .demo-hero p { font-size: 1rem; opacity: .85; margin-bottom: 20px; }
+  .demo-btn { display: inline-block; background: #f59e0b; color: #1a1814; font-weight: 700; padding: 12px 28px; border-radius: 8px; text-decoration: none; font-size: .9rem; border: none; cursor: pointer; }
+  .demo-body { padding: 32px 24px; }
+  .demo-section-title { font-size: 1.15rem; font-weight: 700; color: #1e3a5f; border-bottom: 3px solid #f59e0b; padding-bottom: 6px; margin-bottom: 20px; }
+  .demo-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 32px; }
+  .demo-card { background: white; border: 1px solid #dde4ee; border-radius: 10px; padding: 20px; }
+  .demo-card .icon { font-size: 1.6rem; margin-bottom: 8px; }
+  .demo-card h3 { font-size: .95rem; font-weight: 700; color: #1e3a5f; margin-bottom: 6px; }
+  .demo-card p { font-size: .83rem; color: #64748b; line-height: 1.5; margin: 0; }
+  .demo-contact { background: white; border: 1px solid #dde4ee; border-radius: 10px; padding: 24px; margin-bottom: 16px; }
+  .demo-contact p { font-size: .92rem; color: #334155; margin-bottom: 8px; }
+  .demo-contact a { color: #1e3a5f; font-weight: 700; }
+  .demo-footer { background: #1e3a5f; color: rgba(255,255,255,.7); text-align: center; padding: 16px; font-size: .82rem; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="#">← Volver al curso</a>
+  <span>🛍 Ejercicio 2 — HTML &amp; CSS · Página de Negocio · Box Model</span>
+</div>
+
+<header>
+  <div class="ex-label">✏️ Ejercicio 2</div>
+  <h1>Página de Negocio</h1>
+  <p class="sub">Construye una landing page real dominando el Box Model</p>
+  <span class="badge">📦 Box Model · margin · padding · border · width · height</span>
+</header>
+
+<nav>
+  <a href="#aprenderás">🎓 ¿Qué aprenderás?</a>
+  <a href="#boxmodel">📦 Box Model</a>
+  <a href="#archivos">📁 Archivos</a>
+  <a href="#html">🧱 HTML</a>
+  <a href="#css">🎨 CSS</a>
+  <a href="#resultado">🖥 Resultado</a>
+  <a href="#retos">🏆 Retos</a>
+  <a href="#resumen">📋 Resumen</a>
+</nav>
+
+<main>
+
+<div class="parte-badge">🛍 Ejercicio 2 — Landing page de negocio + Box Model a fondo</div>
+
+
+<!-- ══════════════════════════
+     ¿QUÉ VAS A APRENDER?
+══════════════════════════ -->
+<section class="module" id="aprenderás">
+  <div class="module-header">
+    <div class="module-icon">🎓</div>
+    <div>
+      <div class="module-title">¿Qué vas a aprender en este ejercicio?</div>
+      <div class="module-sub">Subimos el nivel: misma base del Ejercicio 1, conceptos nuevos encima</div>
+    </div>
+  </div>
+
+  <div class="glos">
+    <div class="glos-item">
+      <span class="emoji">📦</span>
+      <dt>Box Model</dt>
+      <dd>Cómo el navegador calcula el espacio de cada elemento: <code>content</code>, <code>padding</code>, <code>border</code> y <code>margin</code>.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">↔️</span>
+      <dt>width y height</dt>
+      <dd>Controlar el ancho y alto de elementos. La diferencia entre <code>width</code>, <code>max-width</code> y <code>min-width</code>.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🧱</span>
+      <dt>HTML semántico</dt>
+      <dd>Nuevas etiquetas: <code>&lt;nav&gt;</code>, <code>&lt;main&gt;</code>, <code>&lt;article&gt;</code> y <code>&lt;address&gt;</code>.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🎨</span>
+      <dt>CSS avanzado</dt>
+      <dd>Shorthand de margin/padding, <code>box-sizing</code>, selectores descendientes y el truco <code>margin: 0 auto</code>.</dd>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>💡 ¿Qué traes del Ejercicio 1?</h4>
+    <p>Ya sabes qué son etiquetas, elementos, atributos, clases, IDs, <code>color</code>, <code>font-size</code>, <code>text-align</code>, listas y enlaces. En este ejercicio usarás todo eso <strong>más</strong> el Box Model. No repasamos lo básico: vamos directo a lo nuevo.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════
+     BOX MODEL
+══════════════════════════ -->
+<section class="module" id="boxmodel">
+  <div class="module-header">
+    <div class="module-icon">📦</div>
+    <div>
+      <div class="module-title">El Box Model — El concepto más importante de CSS</div>
+      <div class="module-sub">Todo elemento HTML es una caja. Aquí aprendes cómo funciona esa caja</div>
+    </div>
+  </div>
+
+  <p>En CSS, <strong>cada elemento es una caja rectangular</strong>. No importa si es un párrafo, un título, una imagen o un div: todos son cajas. El Box Model define cómo se calcula el tamaño y el espacio de esa caja.</p>
+
+  <div class="analogy">
+    <h4>📦 Analogía: enviar un producto por paquetería</h4>
+    <p>Imagina que vendes una taza de cerámica por internet. La taza en sí es el <strong>contenido</strong>. Para protegerla, la rodeas de plástico de burbujas: eso es el <strong>padding</strong> (espacio interior). Luego la metes en una caja de cartón con sus paredes: eso es el <strong>border</strong> (el borde). Finalmente, en la bodega dejas espacio entre tu caja y las cajas de otros vendedores: eso es el <strong>margin</strong> (espacio exterior).</p>
+  </div>
+
+  <h2>Las 4 capas del Box Model</h2>
+
+  <div class="bm-wrap">
+    <div class="bm-margin">
+      <span class="bm-margin-label">margin (espacio exterior)</span>
+      <div class="bm-border">
+        <span class="bm-border-label">border (el borde)</span>
+        <div class="bm-padding">
+          <span class="bm-padding-label">padding (espacio interior)</span>
+          <div class="bm-content">content<br><span style="font-size:.75rem;font-weight:400">(el texto o imagen)</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Capa</th><th>¿Qué es?</th><th>Color en el diagrama</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">content</span></td><td>El contenido real del elemento: el texto, la imagen, etc. Su tamaño se controla con <code>width</code> y <code>height</code>.</td><td>🔵 Azul</td></tr>
+      <tr><td><span class="tag">padding</span></td><td>Espacio <strong>interior</strong> entre el contenido y el borde. El fondo del elemento se extiende hasta aquí.</td><td>🟢 Verde</td></tr>
+      <tr><td><span class="tag">border</span></td><td>El borde visible del elemento. Tiene grosor, estilo y color.</td><td>🔴 Rojo</td></tr>
+      <tr><td><span class="tag">margin</span></td><td>Espacio <strong>exterior</strong> entre este elemento y los que lo rodean. Es transparente (nunca toma el color de fondo).</td><td>🟡 Amarillo</td></tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h2>margin y padding: shorthand (forma corta)</h2>
+  <p>En lugar de escribir cuatro propiedades, puedes escribirlas todas en una sola línea. A esto se le llama <strong>shorthand</strong>.</p>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* ── PADDING shorthand ── */</span>
+
+<span class="cc">/* 1 valor: aplica a los 4 lados */</span>
+<span class="cp">.caja</span> { <span class="ca">padding</span>: <span class="cn">20px</span>; }
+<span class="cc">/*  arriba  derecha  abajo  izquierda  = todos 20px */</span>
+
+<span class="cc">/* 2 valores: arriba/abajo   izquierda/derecha */</span>
+<span class="cp">.caja</span> { <span class="ca">padding</span>: <span class="cn">20px 40px</span>; }
+<span class="cc">/*  ↑↓ 20px      ←→ 40px */</span>
+
+<span class="cc">/* 4 valores: sentido del reloj ↑ → ↓ ← */</span>
+<span class="cp">.caja</span> { <span class="ca">padding</span>: <span class="cn">10px 20px 30px 40px</span>; }
+<span class="cc">/*  arriba  derecha  abajo  izquierda */</span>
+
+<span class="cc">/* ── MARGIN funciona exactamente igual ── */</span>
+<span class="cp">.caja</span> { <span class="ca">margin</span>: <span class="cn">0 auto</span>; }   <span class="cc">/* centra horizontalmente */</span>
+<span class="cp">.caja</span> { <span class="ca">margin-top</span>: <span class="cn">24px</span>; } <span class="cc">/* solo arriba */</span></div>
+
+  <div class="analogy">
+    <h4>🕐 Memoriza el orden: sentido del reloj</h4>
+    <p>Cuando escribes 4 valores, siempre van en orden de las manecillas del reloj: <strong>arriba → derecha → abajo → izquierda</strong>. Una forma de recordarlo: <em>"TRouBLe"</em> (Top, Right, Bottom, Left).</p>
+  </div>
+
+  <hr>
+
+  <h2>El problema de box-sizing</h2>
+  <p>Por defecto, cuando le das <code>width: 200px</code> a un elemento, ese es el ancho del <strong>contenido</strong>. Si luego le agregas padding y border, el elemento <em>crece más</em> de 200px — y eso rompe layouts.</p>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* ❌ Comportamiento por defecto (box-sizing: content-box) */</span>
+<span class="cp">.caja</span> {
+  <span class="ca">width</span>: <span class="cn">200px</span>;
+  <span class="ca">padding</span>: <span class="cn">20px</span>;
+  <span class="ca">border</span>: <span class="cn">5px solid black</span>;
+}
+<span class="cc">/* Ancho real = 200 + 20 + 20 + 5 + 5 = 250px  ← SORPRESA 😱 */</span>
+
+<span class="cc">/* ✅ Con box-sizing: border-box (lo que ya usas en el reset) */</span>
+<span class="cp">*</span> { <span class="ca">box-sizing</span>: border-box; }
+
+<span class="cp">.caja</span> {
+  <span class="ca">width</span>: <span class="cn">200px</span>;
+  <span class="ca">padding</span>: <span class="cn">20px</span>;
+  <span class="ca">border</span>: <span class="cn">5px solid black</span>;
+}
+<span class="cc">/* Ancho real = 200px exactos. El padding y border se restan por dentro. ✅ */</span></div>
+
+  <div class="concept">
+    <h4>💡 Por eso el reset siempre empieza con box-sizing: border-box</h4>
+    <p>En el Ejercicio 1 pusiste <code>* &#123; box-sizing: border-box; &#125;</code> en el reset y no supiste por qué. Ahora ya lo sabes: sin esa línea, el padding y el border <em>agrandan</em> el elemento más allá del width que tú definiste. Con ella, el width siempre es el ancho final — exacto y predecible.</p>
+  </div>
+
+  <hr>
+
+  <h2>margin: 0 auto — el truco de centrado</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* Para centrar un bloque horizontalmente necesitas 2 cosas: */</span>
+<span class="cc">/* 1. Que el elemento sea de bloque (div, p, section...) */</span>
+<span class="cc">/* 2. Que tenga un width definido (no 100%) */</span>
+
+<span class="cp">.contenedor</span> {
+  <span class="ca">width</span>: <span class="cn">800px</span>;     <span class="cc">/* o max-width */</span>
+  <span class="ca">margin</span>: <span class="cn">0 auto</span>; <span class="cc">/* 0 = arriba/abajo, auto = izquierda/derecha se reparten igual */</span>
+}
+
+<span class="cc">/* max-width es mejor que width fijo porque en pantallas pequeñas */</span>
+<span class="cc">/* el elemento puede achicarse en lugar de salirse de la pantalla */</span>
+<span class="cp">.contenedor</span> {
+  <span class="ca">max-width</span>: <span class="cn">800px</span>;
+  <span class="ca">margin</span>: <span class="cn">0 auto</span>;
+}</div>
+
+  <div class="warn">
+    <h4>⚠️ margin: 0 auto NO centra texto</h4>
+    <p>Este truco centra el <strong>bloque completo</strong> dentro de su contenedor padre. Para centrar el texto dentro del bloque, sigues usando <code>text-align: center</code>. Son dos cosas diferentes: centrar el contenedor vs centrar el contenido.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════
+     ARCHIVOS
+══════════════════════════ -->
+<section class="module" id="archivos">
+  <div class="module-header">
+    <div class="module-icon">📁</div>
+    <div>
+      <div class="module-title">PARTE 1 — Crea tus archivos</div>
+      <div class="module-sub">La misma estructura del Ejercicio 1, carpeta nueva</div>
+    </div>
+  </div>
+
+  <ul>
+    <li>Crea una carpeta llamada <code>cafeteria-web</code> en tu escritorio</li>
+    <li>Dentro crea: <code>index.html</code> y <code>styles.css</code></li>
+  </ul>
+
+  <div class="concept">
+    <h4>💡 El negocio de este ejercicio</h4>
+    <p>Vas a construir la página web de <strong>Café Roble</strong>, una cafetería local. La página tendrá: barra de navegación, hero (sección de bienvenida), tarjetas de servicios, sección de contacto y pie de página. Cada sección te enseñará una parte diferente del Box Model.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════
+     HTML
+══════════════════════════ -->
+<section class="module" id="html">
+  <div class="module-header">
+    <div class="module-icon">🧱</div>
+    <div>
+      <div class="module-title">PARTE 2 — Escribe el HTML</div>
+      <div class="module-sub">Nuevas etiquetas semánticas: nav, main, article, address</div>
+    </div>
+  </div>
+
+  <h2>BLOQUE 1 — Estructura base</h2>
+  <p>Igual que el Ejercicio 1, pero ahora el <code>&lt;head&gt;</code> lleva más información.</p>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="ct">&lt;!DOCTYPE html&gt;</span>
+<span class="ct">&lt;html</span> <span class="ca">lang</span>=<span class="cv">"es"</span><span class="ct">&gt;</span>
+<span class="ct">&lt;head&gt;</span>
+  <span class="ct">&lt;meta</span> <span class="ca">charset</span>=<span class="cv">"UTF-8"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;meta</span> <span class="ca">name</span>=<span class="cv">"viewport"</span> <span class="ca">content</span>=<span class="cv">"width=device-width, initial-scale=1.0"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;meta</span> <span class="ca">name</span>=<span class="cv">"description"</span> <span class="ca">content</span>=<span class="cv">"Café Roble — El mejor café del centro"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;title&gt;</span><span class="cs">Café Roble — Inicio</span><span class="ct">&lt;/title&gt;</span>
+  <span class="ct">&lt;link</span> <span class="ca">rel</span>=<span class="cv">"stylesheet"</span> <span class="ca">href</span>=<span class="cv">"styles.css"</span><span class="ct">&gt;</span>
+<span class="ct">&lt;/head&gt;</span>
+<span class="ct">&lt;body&gt;</span>
+
+  <span class="cc">&lt;!-- Aquí van los bloques 2 al 6 --&gt;</span>
+
+<span class="ct">&lt;/body&gt;</span>
+<span class="ct">&lt;/html&gt;</span></div>
+
+  <hr>
+
+  <h2>BLOQUE 2 — La barra de navegación</h2>
+  <p>Etiqueta nueva: <code>&lt;nav&gt;</code>. Le dice al navegador y a Google que este bloque contiene los enlaces de navegación principal del sitio.</p>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="cc">&lt;!-- BARRA DE NAVEGACIÓN --&gt;</span>
+<span class="ct">&lt;nav</span> <span class="ca">id</span>=<span class="cv">"navbar"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"nav-contenedor"</span><span class="ct">&gt;</span>
+    <span class="ct">&lt;p</span> <span class="ca">class</span>=<span class="cv">"logo"</span><span class="ct">&gt;</span><span class="cs">☕ Café Roble</span><span class="ct">&lt;/p&gt;</span>
+    <span class="ct">&lt;ul</span> <span class="ca">class</span>=<span class="cv">"nav-links"</span><span class="ct">&gt;</span>
+      <span class="ct">&lt;li&gt;&lt;a</span> <span class="ca">href</span>=<span class="cv">"#inicio"</span><span class="ct">&gt;</span><span class="cs">Inicio</span><span class="ct">&lt;/a&gt;&lt;/li&gt;</span>
+      <span class="ct">&lt;li&gt;&lt;a</span> <span class="ca">href</span>=<span class="cv">"#servicios"</span><span class="ct">&gt;</span><span class="cs">Servicios</span><span class="ct">&lt;/a&gt;&lt;/li&gt;</span>
+      <span class="ct">&lt;li&gt;&lt;a</span> <span class="ca">href</span>=<span class="cv">"#contacto"</span><span class="ct">&gt;</span><span class="cs">Contacto</span><span class="ct">&lt;/a&gt;&lt;/li&gt;</span>
+    <span class="ct">&lt;/ul&gt;</span>
+  <span class="ct">&lt;/div&gt;</span>
+<span class="ct">&lt;/nav&gt;</span></div>
+
+  <table class="tbl">
+    <thead><tr><th>Etiqueta / clase</th><th>¿Para qué sirve?</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">&lt;nav&gt;</span></td><td>Marca semánticamente el bloque de navegación principal. Solo debe haber uno por página.</td></tr>
+      <tr><td><span class="tag">.nav-contenedor</span></td><td>Un <code>div</code> interno que usaremos para centrar el contenido y darle ancho máximo con CSS.</td></tr>
+      <tr><td><span class="tag">.logo</span></td><td>Un párrafo que actúa visualmente como logo. Con CSS lo haremos grande y en negrita.</td></tr>
+      <tr><td><span class="tag">.nav-links</span></td><td>Lista <code>&lt;ul&gt;</code> de los enlaces del menú. Con CSS los pondremos en horizontal.</td></tr>
+      <tr><td><span class="tag">href="#servicios"</span></td><td>Enlace interno: lleva al elemento con <code>id="servicios"</code> en la misma página.</td></tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h2>BLOQUE 3 — El hero (sección principal)</h2>
+  <p>El <strong>hero</strong> es la sección grande de bienvenida que el usuario ve primero. Es donde más impacto visual tienes.</p>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="cc">&lt;!-- HERO --&gt;</span>
+<span class="ct">&lt;main&gt;</span>
+  <span class="ct">&lt;section</span> <span class="ca">id</span>=<span class="cv">"inicio"</span> <span class="ca">class</span>=<span class="cv">"hero"</span><span class="ct">&gt;</span>
+    <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"hero-contenido"</span><span class="ct">&gt;</span>
+      <span class="ct">&lt;h1&gt;</span><span class="cs">El mejor café del centro</span><span class="ct">&lt;/h1&gt;</span>
+      <span class="ct">&lt;p&gt;</span><span class="cs">Granos de origen único, tostados artesanalmente cada semana.
+         Visítanos y descubre la diferencia.</span><span class="ct">&lt;/p&gt;</span>
+      <span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"#servicios"</span> <span class="ca">class</span>=<span class="cv">"btn-principal"</span><span class="ct">&gt;</span><span class="cs">Ver nuestros servicios</span><span class="ct">&lt;/a&gt;</span>
+    <span class="ct">&lt;/div&gt;</span>
+  <span class="ct">&lt;/section&gt;</span></div>
+
+  <table class="tbl">
+    <thead><tr><th>Etiqueta / clase</th><th>¿Para qué sirve?</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">&lt;main&gt;</span></td><td>Etiqueta semántica nueva. Marca el contenido principal de la página. Solo puede haber uno. Va entre el <code>&lt;nav&gt;</code> y el <code>&lt;footer&gt;</code>.</td></tr>
+      <tr><td><span class="tag">.hero</span></td><td>La sección grande de bienvenida. Le daremos fondo oscuro, mucho padding y texto centrado.</td></tr>
+      <tr><td><span class="tag">.hero-contenido</span></td><td>Div interno para limitar el ancho del texto y centrarlo con <code>max-width + margin: 0 auto</code>.</td></tr>
+      <tr><td><span class="tag">.btn-principal</span></td><td>Un enlace <code>&lt;a&gt;</code> al que con CSS le daremos apariencia de botón usando padding y background-color.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="concept">
+    <h4>💡 ¿Por qué un &lt;a&gt; en lugar de &lt;button&gt;?</h4>
+    <p>Porque este "botón" nos lleva a otra sección de la página (lleva un <code>href</code>). Los <code>&lt;button&gt;</code> son para acciones de JavaScript (enviar formularios, abrir menús). Si el elemento navega: usa <code>&lt;a&gt;</code>. Si ejecuta una acción: usa <code>&lt;button&gt;</code>.</p>
+  </div>
+
+  <hr>
+
+  <h2>BLOQUE 4 — Tarjetas de servicios</h2>
+  <p>Etiqueta nueva: <code>&lt;article&gt;</code>. Se usa para contenido independiente que tiene sentido por sí solo — como una tarjeta, una noticia o un producto.</p>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="cc">&lt;!-- SERVICIOS --&gt;</span>
+  <span class="ct">&lt;section</span> <span class="ca">id</span>=<span class="cv">"servicios"</span> <span class="ca">class</span>=<span class="cv">"seccion-servicios"</span><span class="ct">&gt;</span>
+    <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"contenedor"</span><span class="ct">&gt;</span>
+      <span class="ct">&lt;h2&gt;</span><span class="cs">Nuestros servicios</span><span class="ct">&lt;/h2&gt;</span>
+      <span class="ct">&lt;p</span> <span class="ca">class</span>=<span class="cv">"seccion-descripcion"</span><span class="ct">&gt;</span><span class="cs">Todo lo que necesitas en un solo lugar.</span><span class="ct">&lt;/p&gt;</span>
+
+      <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"tarjetas"</span><span class="ct">&gt;</span>
+
+        <span class="ct">&lt;article</span> <span class="ca">class</span>=<span class="cv">"tarjeta"</span><span class="ct">&gt;</span>
+          <span class="ct">&lt;p</span> <span class="ca">class</span>=<span class="cv">"tarjeta-icono"</span><span class="ct">&gt;</span><span class="cs">☕</span><span class="ct">&lt;/p&gt;</span>
+          <span class="ct">&lt;h3&gt;</span><span class="cs">Café de especialidad</span><span class="ct">&lt;/h3&gt;</span>
+          <span class="ct">&lt;p&gt;</span><span class="cs">Espresso, americano, latte y más. Granos de origen
+             único seleccionados cada temporada.</span><span class="ct">&lt;/p&gt;</span>
+        <span class="ct">&lt;/article&gt;</span>
+
+        <span class="ct">&lt;article</span> <span class="ca">class</span>=<span class="cv">"tarjeta"</span><span class="ct">&gt;</span>
+          <span class="ct">&lt;p</span> <span class="ca">class</span>=<span class="cv">"tarjeta-icono"</span><span class="ct">&gt;</span><span class="cs">🥐</span><span class="ct">&lt;/p&gt;</span>
+          <span class="ct">&lt;h3&gt;</span><span class="cs">Repostería artesanal</span><span class="ct">&lt;/h3&gt;</span>
+          <span class="ct">&lt;p&gt;</span><span class="cs">Croissants, muffins y pan dulce horneados
+             cada mañana. Sin conservadores.</span><span class="ct">&lt;/p&gt;</span>
+        <span class="ct">&lt;/article&gt;</span>
+
+        <span class="ct">&lt;article</span> <span class="ca">class</span>=<span class="cv">"tarjeta"</span><span class="ct">&gt;</span>
+          <span class="ct">&lt;p</span> <span class="ca">class</span>=<span class="cv">"tarjeta-icono"</span><span class="ct">&gt;</span><span class="cs">💻</span><span class="ct">&lt;/p&gt;</span>
+          <span class="ct">&lt;h3&gt;</span><span class="cs">Espacio de trabajo</span><span class="ct">&lt;/h3&gt;</span>
+          <span class="ct">&lt;p&gt;</span><span class="cs">WiFi rápido, enchufes en cada mesa y ambiente
+             tranquilo. Ideal para trabajar o estudiar.</span><span class="ct">&lt;/p&gt;</span>
+        <span class="ct">&lt;/article&gt;</span>
+
+      <span class="ct">&lt;/div&gt;</span>
+    <span class="ct">&lt;/div&gt;</span>
+  <span class="ct">&lt;/section&gt;</span></div>
+
+  <table class="tbl">
+    <thead><tr><th>Etiqueta / clase</th><th>¿Para qué sirve?</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">&lt;article&gt;</span></td><td>Contenido independiente y reutilizable. Cada tarjeta de servicio es un <code>&lt;article&gt;</code> porque tiene sentido por sí sola.</td></tr>
+      <tr><td><span class="tag">.contenedor</span></td><td>Div interno con <code>max-width</code> y <code>margin: 0 auto</code>. Lo reutilizaremos en todas las secciones para que el contenido siempre esté centrado.</td></tr>
+      <tr><td><span class="tag">.tarjetas</span></td><td>El div que contiene las tres tarjetas. Con CSS le daremos un layout en columnas.</td></tr>
+      <tr><td><span class="tag">.tarjeta</span></td><td>Cada tarjeta individual. Le daremos <code>padding</code>, <code>border</code>, <code>border-radius</code> y <code>background</code>.</td></tr>
+      <tr><td><span class="tag">.tarjeta-icono</span></td><td>El emoji grande que encabeza cada tarjeta. Lo agrandamos con <code>font-size</code>.</td></tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h2>BLOQUE 5 — Contacto y dirección</h2>
+  <p>Etiqueta nueva: <code>&lt;address&gt;</code>. Sirve para marcar información de contacto: dirección, teléfono, email, redes sociales.</p>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="cc">&lt;!-- CONTACTO --&gt;</span>
+  <span class="ct">&lt;section</span> <span class="ca">id</span>=<span class="cv">"contacto"</span> <span class="ca">class</span>=<span class="cv">"seccion-contacto"</span><span class="ct">&gt;</span>
+    <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"contenedor"</span><span class="ct">&gt;</span>
+      <span class="ct">&lt;h2&gt;</span><span class="cs">Encuéntranos</span><span class="ct">&lt;/h2&gt;</span>
+      <span class="ct">&lt;address</span> <span class="ca">class</span>=<span class="cv">"info-contacto"</span><span class="ct">&gt;</span>
+        <span class="ct">&lt;p&gt;</span><span class="cs">📍 Calle Roble 42, Centro Histórico</span><span class="ct">&lt;/p&gt;</span>
+        <span class="ct">&lt;p&gt;</span><span class="cs">📞 <strong><a</span> <span class="ca">href</span>=<span class="cv">"tel:+522291234567"</span><span class="ct">&gt;</span><span class="cs">229 123 4567</span><span class="ct">&lt;/a&gt;</strong>&lt;/p&gt;</span>
+        <span class="ct">&lt;p&gt;</span><span class="cs">✉️ <strong><a</span> <span class="ca">href</span>=<span class="cv">"mailto:hola@caferoble.com"</span><span class="ct">&gt;</span><span class="cs">hola@caferoble.com</span><span class="ct">&lt;/a&gt;</strong>&lt;/p&gt;</span>
+        <span class="ct">&lt;p&gt;</span><span class="cs">🕐 Lunes a viernes: 7:00 am – 9:00 pm</span><span class="ct">&lt;/p&gt;</span>
+        <span class="ct">&lt;p&gt;</span><span class="cs">🕐 Sábados y domingos: 8:00 am – 6:00 pm</span><span class="ct">&lt;/p&gt;</span>
+      <span class="ct">&lt;/address&gt;</span>
+    <span class="ct">&lt;/div&gt;</span>
+  <span class="ct">&lt;/section&gt;</span>
+<span class="ct">&lt;/main&gt;</span></div>
+
+  <table class="tbl">
+    <thead><tr><th>Etiqueta / atributo</th><th>¿Para qué sirve?</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">&lt;address&gt;</span></td><td>Marca semánticamente información de contacto. Google la usa para mostrar datos del negocio en resultados de búsqueda.</td></tr>
+      <tr><td><span class="tag">href="tel:..."</span></td><td>En móvil, este enlace abre directamente la app de teléfono para llamar al número.</td></tr>
+      <tr><td><span class="tag">href="mailto:..."</span></td><td>Abre el cliente de correo del usuario con ese email ya escrito en el destinatario.</td></tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h2>BLOQUE 6 — El pie de página</h2>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="cc">&lt;!-- PIE DE PÁGINA --&gt;</span>
+<span class="ct">&lt;footer</span> <span class="ca">id</span>=<span class="cv">"pie"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"contenedor"</span><span class="ct">&gt;</span>
+    <span class="ct">&lt;p&gt;</span><span class="cs">© 2025 Café Roble — Todos los derechos reservados</span><span class="ct">&lt;/p&gt;</span>
+    <span class="ct">&lt;p&gt;</span><span class="cs">Hecho con ☕ y mucho HTML &amp; CSS</span><span class="ct">&lt;/p&gt;</span>
+  <span class="ct">&lt;/div&gt;</span>
+<span class="ct">&lt;/footer&gt;</span></div>
+
+  <div class="tip">
+    <h4>🟢 El patrón .contenedor que usamos en todo el HTML</h4>
+    <p>Notaste que casi todas las secciones tienen un <code>&lt;div class="contenedor"&gt;</code> adentro. Ese div limita el ancho del contenido a 900px y lo centra. La sección en sí puede tener fondo de colores distintos que cubra todo el ancho, mientras el contenido interno siempre queda centrado y legible. Es un patrón profesional que vas a ver en todos los sitios web reales.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════
+     CSS
+══════════════════════════ -->
+<section class="module" id="css">
+  <div class="module-header">
+    <div class="module-icon">🎨</div>
+    <div>
+      <div class="module-title">PARTE 3 — Escribe el CSS</div>
+      <div class="module-sub">Aquí es donde el Box Model entra en acción en cada sección</div>
+    </div>
+  </div>
+
+  <h2>CSS — PARTE 1: Reset y variables de color</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* ── RESET ── */</span>
+<span class="cp">*</span> {
+  <span class="ca">margin</span>: <span class="cn">0</span>;
+  <span class="ca">padding</span>: <span class="cn">0</span>;
+  <span class="ca">box-sizing</span>: border-box; <span class="cc">/* ← el héroe del Box Model */</span>
+}
+
+<span class="cc">/* ── VARIABLES DE COLOR ── */</span>
+<span class="cp">:root</span> {
+  <span class="ca">--azul-oscuro</span>: <span class="cn">#1e3a5f</span>;
+  <span class="ca">--azul-medio</span>:  <span class="cn">#2d5986</span>;
+  <span class="ca">--amarillo</span>:    <span class="cn">#f59e0b</span>;
+  <span class="ca">--gris-claro</span>:  <span class="cn">#f0f4f8</span>;
+  <span class="ca">--texto</span>:       <span class="cn">#1a1814</span>;
+  <span class="ca">--texto-suave</span>: <span class="cn">#64748b</span>;
+  <span class="ca">--borde</span>:       <span class="cn">#dde4ee</span>;
+}
+
+<span class="cc">/* ── BODY ── */</span>
+<span class="cp">body</span> {
+  <span class="ca">font-family</span>: Arial, Helvetica, sans-serif;
+  <span class="ca">font-size</span>: <span class="cn">16px</span>;
+  <span class="ca">color</span>: var(<span class="cv">--texto</span>);
+  <span class="ca">line-height</span>: <span class="cn">1.6</span>;
+}
+
+<span class="cc">/* ── PATRÓN CONTENEDOR (se usa en toda la página) ── */</span>
+<span class="cp">.contenedor</span> {
+  <span class="ca">max-width</span>: <span class="cn">900px</span>;  <span class="cc">/* ancho máximo */</span>
+  <span class="ca">margin</span>: <span class="cn">0 auto</span>;   <span class="cc">/* centra horizontalmente */</span>
+  <span class="ca">padding</span>: <span class="cn">0 24px</span>;  <span class="cc">/* respiro a los lados en móvil */</span>
+}</div>
+
+  <div class="concept">
+    <h4>💡 Variables CSS con :root</h4>
+    <p>Las variables CSS (<code>--nombre: valor</code>) te permiten definir un color una sola vez y reutilizarlo en todo el archivo. Si mañana quieres cambiar el azul, lo cambias en un solo lugar y se actualiza en todo el sitio. Se usan así: <code>color: var(--azul-oscuro)</code>.</p>
+  </div>
+
+  <hr>
+
+  <h2>CSS — PARTE 2: Navbar</h2>
+  <p>Aquí practicamos <code>padding</code> para dar espacio interior a la barra y <code>border-bottom</code> para la línea decorativa.</p>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* ── NAVBAR ── */</span>
+<span class="cp">#navbar</span> {
+  <span class="ca">background-color</span>: var(<span class="cv">--azul-oscuro</span>);
+  <span class="ca">border-bottom</span>: <span class="cn">4px solid</span> var(<span class="cv">--amarillo</span>); <span class="cc">/* línea amarilla decorativa */</span>
+}
+
+<span class="cp">.nav-contenedor</span> {
+  <span class="ca">max-width</span>: <span class="cn">900px</span>;
+  <span class="ca">margin</span>: <span class="cn">0 auto</span>;
+  <span class="ca">padding</span>: <span class="cn">16px 24px</span>; <span class="cc">/* 16px arriba/abajo, 24px izquierda/derecha */</span>
+  <span class="ca">display</span>: flex;       <span class="cc">/* ← alinea logo y links en la misma fila */</span>
+  <span class="ca">justify-content</span>: space-between;
+  <span class="ca">align-items</span>: center;
+}
+
+<span class="cp">.logo</span> {
+  <span class="ca">color</span>: white;
+  <span class="ca">font-size</span>: <span class="cn">22px</span>;
+  <span class="ca">font-weight</span>: <span class="cn">800</span>;
+}
+
+<span class="cp">.nav-links</span> {
+  <span class="ca">list-style</span>: none; <span class="cc">/* quita los bullets de la lista */</span>
+  <span class="ca">display</span>: flex;
+  <span class="ca">gap</span>: <span class="cn">24px</span>;        <span class="cc">/* espacio entre los enlaces */</span>
+}
+
+<span class="cp">.nav-links a</span> {
+  <span class="ca">color</span>: rgba(<span class="cn">255,255,255,0.85</span>);
+  <span class="ca">text-decoration</span>: none;
+  <span class="ca">font-size</span>: <span class="cn">15px</span>;
+  <span class="ca">padding</span>: <span class="cn">4px 0</span>;            <span class="cc">/* área clicable más grande */</span>
+  <span class="ca">border-bottom</span>: <span class="cn">2px solid transparent</span>;
+  <span class="ca">transition</span>: border-color <span class="cn">0.2s</span>;
+}
+<span class="cp">.nav-links a:hover</span> {
+  <span class="ca">border-bottom-color</span>: var(<span class="cv">--amarillo</span>);
+}</div>
+
+  <table class="tbl">
+    <thead><tr><th>Propiedad nueva</th><th>Explicación</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">list-style: none;</span></td><td>Quita los bullets (•) de los <code>&lt;ul&gt;</code>. Necesario para convertir una lista en menú de navegación.</td></tr>
+      <tr><td><span class="tag">gap: 24px;</span></td><td>En un contenedor flex o grid, <code>gap</code> pone espacio entre los hijos sin afectar los extremos. Es más limpio que usar margin en cada elemento.</td></tr>
+      <tr><td><span class="tag">border-bottom: 2px solid transparent;</span></td><td>Crea un borde de 2px pero invisible. Al hacer hover lo hacemos amarillo. Así el texto no "salta" al aparecer el borde.</td></tr>
+      <tr><td><span class="tag">transition: border-color 0.2s;</span></td><td>Anima el cambio de color del borde en 0.2 segundos. Sin esto el cambio sería instantáneo y brusco.</td></tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h2>CSS — PARTE 3: Hero</h2>
+  <p>Mucho <code>padding</code> para crear impacto visual y <code>max-width + margin: 0 auto</code> para limitar el texto.</p>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* ── HERO ── */</span>
+<span class="cp">.hero</span> {
+  <span class="ca">background-color</span>: var(<span class="cv">--azul-oscuro</span>);
+  <span class="ca">color</span>: white;
+  <span class="ca">text-align</span>: center;
+  <span class="ca">padding</span>: <span class="cn">80px 24px</span>; <span class="cc">/* mucho padding arriba/abajo = sección grande */</span>
+}
+
+<span class="cp">.hero-contenido</span> {
+  <span class="ca">max-width</span>: <span class="cn">600px</span>;  <span class="cc">/* el texto no se estira más de 600px */</span>
+  <span class="ca">margin</span>: <span class="cn">0 auto</span>;   <span class="cc">/* centra ese bloque de 600px dentro del hero */</span>
+}
+
+<span class="cp">.hero h1</span> {
+  <span class="ca">font-size</span>: <span class="cn">42px</span>;
+  <span class="ca">font-weight</span>: <span class="cn">800</span>;
+  <span class="ca">margin-bottom</span>: <span class="cn">16px</span>; <span class="cc">/* espacio entre el h1 y el párrafo */</span>
+}
+
+<span class="cp">.hero p</span> {
+  <span class="ca">font-size</span>: <span class="cn">18px</span>;
+  <span class="ca">opacity</span>: <span class="cn">0.85</span>;
+  <span class="ca">margin-bottom</span>: <span class="cn">32px</span>; <span class="cc">/* espacio entre el párrafo y el botón */</span>
+}
+
+<span class="cp">.btn-principal</span> {
+  <span class="ca">display</span>: inline-block; <span class="cc">/* necesario para que padding funcione en &lt;a&gt; */</span>
+  <span class="ca">background-color</span>: var(<span class="cv">--amarillo</span>);
+  <span class="ca">color</span>: <span class="cn">#1a1814</span>;
+  <span class="ca">font-weight</span>: <span class="cn">700</span>;
+  <span class="ca">text-decoration</span>: none;
+  <span class="ca">padding</span>: <span class="cn">14px 32px</span>; <span class="cc">/* el padding crea el "cuerpo" del botón */</span>
+  <span class="ca">border-radius</span>: <span class="cn">8px</span>;
+  <span class="ca">border</span>: <span class="cn">2px solid transparent</span>;
+  <span class="ca">transition</span>: background-color <span class="cn">0.2s</span>, border-color <span class="cn">0.2s</span>;
+}
+<span class="cp">.btn-principal:hover</span> {
+  <span class="ca">background-color</span>: transparent;
+  <span class="ca">color</span>: var(<span class="cv">--amarillo</span>);
+  <span class="ca">border-color</span>: var(<span class="cv">--amarillo</span>);
+}</div>
+
+  <div class="concept">
+    <h4>💡 display: inline-block en el botón — ¿por qué?</h4>
+    <p>Los elementos <code>&lt;a&gt;</code> son <strong>inline</strong> por defecto. Los elementos inline ignoran el <code>padding</code> vertical y el <code>width</code>. Al ponerle <code>display: inline-block</code> le damos lo mejor de los dos mundos: se queda en la misma línea (inline) pero acepta padding, width y height (block). Sin esta línea, el botón se vería aplastado.</p>
+  </div>
+
+  <hr>
+
+  <h2>CSS — PARTE 4: Tarjetas de servicios</h2>
+  <p>Aquí practicamos el Box Model completo: cada tarjeta tiene <code>padding</code> interno, <code>border</code> visible y <code>margin</code> entre tarjetas (usando <code>gap</code>).</p>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* ── SECCIÓN SERVICIOS ── */</span>
+<span class="cp">.seccion-servicios</span> {
+  <span class="ca">background-color</span>: var(<span class="cv">--gris-claro</span>);
+  <span class="ca">padding</span>: <span class="cn">64px 0</span>; <span class="cc">/* espacio arriba/abajo, el .contenedor maneja los lados */</span>
+}
+
+<span class="cp">.seccion-servicios h2</span> {
+  <span class="ca">font-size</span>: <span class="cn">30px</span>;
+  <span class="ca">color</span>: var(<span class="cv">--azul-oscuro</span>);
+  <span class="ca">border-bottom</span>: <span class="cn">3px solid</span> var(<span class="cv">--amarillo</span>);
+  <span class="ca">padding-bottom</span>: <span class="cn">8px</span>;  <span class="cc">/* espacio entre el texto y la línea */</span>
+  <span class="ca">margin-bottom</span>: <span class="cn">8px</span>;   <span class="cc">/* espacio entre el h2 y el párrafo */</span>
+}
+
+<span class="cp">.seccion-descripcion</span> {
+  <span class="ca">color</span>: var(<span class="cv">--texto-suave</span>);
+  <span class="ca">margin-bottom</span>: <span class="cn">40px</span>; <span class="cc">/* espacio entre el párrafo y las tarjetas */</span>
+}
+
+<span class="cp">.tarjetas</span> {
+  <span class="ca">display</span>: flex;
+  <span class="ca">gap</span>: <span class="cn">20px</span>; <span class="cc">/* espacio entre tarjetas (reemplaza margin lateral) */</span>
+}
+
+<span class="cp">.tarjeta</span> {
+  <span class="ca">background-color</span>: white;
+  <span class="ca">border</span>: <span class="cn">1px solid</span> var(<span class="cv">--borde</span>);   <span class="cc">/* borde sutil */</span>
+  <span class="ca">border-radius</span>: <span class="cn">12px</span>;
+  <span class="ca">padding</span>: <span class="cn">24px</span>;       <span class="cc">/* espacio interior generoso */</span>
+  <span class="ca">flex</span>: <span class="cn">1</span>;              <span class="cc">/* cada tarjeta ocupa el mismo espacio */</span>
+  <span class="ca">border-top</span>: <span class="cn">4px solid</span> var(<span class="cv">--azul-oscuro</span>); <span class="cc">/* acento decorativo arriba */</span>
+}
+
+<span class="cp">.tarjeta-icono</span> {
+  <span class="ca">font-size</span>: <span class="cn">36px</span>;
+  <span class="ca">margin-bottom</span>: <span class="cn">12px</span>;
+}
+
+<span class="cp">.tarjeta h3</span> {
+  <span class="ca">font-size</span>: <span class="cn">18px</span>;
+  <span class="ca">color</span>: var(<span class="cv">--azul-oscuro</span>);
+  <span class="ca">margin-bottom</span>: <span class="cn">8px</span>;
+}
+
+<span class="cp">.tarjeta p</span> {
+  <span class="ca">font-size</span>: <span class="cn">14px</span>;
+  <span class="ca">color</span>: var(<span class="cv">--texto-suave</span>);
+  <span class="ca">line-height</span>: <span class="cn">1.7</span>;
+}</div>
+
+  <table class="tbl">
+    <thead><tr><th>Propiedad</th><th>Explicación</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">flex: 1;</span></td><td>Le dice a cada tarjeta que ocupe <em>una fracción igual</em> del espacio disponible. Si hay 3 tarjetas con <code>flex: 1</code>, cada una ocupa exactamente un tercio.</td></tr>
+      <tr><td><span class="tag">border-top: 4px solid ...</span></td><td>Solo el borde superior, más grueso y de color diferente. Técnica de acento visual muy usada en diseño de tarjetas.</td></tr>
+      <tr><td><span class="tag">padding: 24px;</span></td><td>El espacio interior de la tarjeta. Sin padding el texto estaría pegado al borde — se vería apretado y poco profesional.</td></tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h2>CSS — PARTE 5: Contacto y footer</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* ── CONTACTO ── */</span>
+<span class="cp">.seccion-contacto</span> {
+  <span class="ca">background-color</span>: white;
+  <span class="ca">padding</span>: <span class="cn">64px 0</span>;
+}
+
+<span class="cp">.seccion-contacto h2</span> {
+  <span class="ca">font-size</span>: <span class="cn">30px</span>;
+  <span class="ca">color</span>: var(<span class="cv">--azul-oscuro</span>);
+  <span class="ca">border-bottom</span>: <span class="cn">3px solid</span> var(<span class="cv">--amarillo</span>);
+  <span class="ca">padding-bottom</span>: <span class="cn">8px</span>;
+  <span class="ca">margin-bottom</span>: <span class="cn">24px</span>;
+}
+
+<span class="cp">.info-contacto</span> {
+  <span class="ca">font-style</span>: normal;        <span class="cc">/* &lt;address&gt; usa italic por defecto, lo quitamos */</span>
+  <span class="ca">background-color</span>: var(<span class="cv">--gris-claro</span>);
+  <span class="ca">border</span>: <span class="cn">1px solid</span> var(<span class="cv">--borde</span>);
+  <span class="ca">border-left</span>: <span class="cn">5px solid</span> var(<span class="cv">--azul-oscuro</span>); <span class="cc">/* acento izquierdo */</span>
+  <span class="ca">border-radius</span>: <span class="cn">0 10px 10px 0</span>;  <span class="cc">/* redondear solo la derecha */</span>
+  <span class="ca">padding</span>: <span class="cn">24px 32px</span>;
+  <span class="ca">max-width</span>: <span class="cn">500px</span>;
+}
+
+<span class="cp">.info-contacto p</span> {
+  <span class="ca">margin-bottom</span>: <span class="cn">10px</span>;
+  <span class="ca">font-size</span>: <span class="cn">15px</span>;
+}
+<span class="cp">.info-contacto p:last-child</span> { <span class="ca">margin-bottom</span>: <span class="cn">0</span>; } <span class="cc">/* quita margen del último */</span>
+
+<span class="cp">.info-contacto a</span> {
+  <span class="ca">color</span>: var(<span class="cv">--azul-oscuro</span>);
+  <span class="ca">font-weight</span>: <span class="cn">700</span>;
+  <span class="ca">text-decoration</span>: none;
+}
+<span class="cp">.info-contacto a:hover</span> { <span class="ca">text-decoration</span>: underline; }
+
+<span class="cc">/* ── FOOTER ── */</span>
+<span class="cp">#pie</span> {
+  <span class="ca">background-color</span>: var(<span class="cv">--azul-oscuro</span>);
+  <span class="ca">color</span>: rgba(<span class="cn">255,255,255,0.75</span>);
+  <span class="ca">padding</span>: <span class="cn">24px 0</span>;
+  <span class="ca">text-align</span>: center;
+  <span class="ca">font-size</span>: <span class="cn">14px</span>;
+}
+<span class="cp">#pie p</span> { <span class="ca">margin-bottom</span>: <span class="cn">4px</span>; }</div>
+
+  <div class="tip">
+    <h4>🟢 .info-contacto p:last-child — tu primer selector avanzado</h4>
+    <p><code>:last-child</code> es una pseudo-clase que selecciona el <strong>último hijo</strong> de su contenedor. Aquí la usamos para quitar el <code>margin-bottom</code> del último párrafo de contacto — así la caja no tiene espacio extra en la parte de abajo. Es mucho más limpio que ponerle una clase especial al último párrafo en el HTML.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════
+     RESULTADO VISUAL
+══════════════════════════ -->
+<section class="module" id="resultado">
+  <div class="module-header">
+    <div class="module-icon">🖥</div>
+    <div>
+      <div class="module-title">PARTE 4 — Así debe verse tu página</div>
+      <div class="module-sub">Vista previa completa de Café Roble</div>
+    </div>
+  </div>
+
+  <div class="preview" style="padding: 0; overflow: hidden;">
+    <div class="demo-page">
+      <div class="demo-navbar">
+        <span class="logo">☕ Café Roble</span>
+        <div class="nav-links" style="display:flex;gap:20px;list-style:none;">
+          <a href="#" style="color:rgba(255,255,255,.8);text-decoration:none;font-size:.85rem">Inicio</a>
+          <a href="#" style="color:rgba(255,255,255,.8);text-decoration:none;font-size:.85rem">Servicios</a>
+          <a href="#" style="color:rgba(255,255,255,.8);text-decoration:none;font-size:.85rem">Contacto</a>
+        </div>
+      </div>
+      <div class="demo-hero">
+        <h1>El mejor café del centro</h1>
+        <p>Granos de origen único, tostados artesanalmente cada semana.</p>
+        <a href="#" class="demo-btn">Ver nuestros servicios</a>
+      </div>
+      <div class="demo-body">
+        <div class="demo-section-title">Nuestros servicios</div>
+        <div class="demo-cards">
+          <div class="demo-card">
+            <div class="icon">☕</div>
+            <h3>Café de especialidad</h3>
+            <p>Espresso, americano, latte y más. Granos de origen único seleccionados cada temporada.</p>
+          </div>
+          <div class="demo-card">
+            <div class="icon">🥐</div>
+            <h3>Repostería artesanal</h3>
+            <p>Croissants, muffins y pan dulce horneados cada mañana. Sin conservadores.</p>
+          </div>
+          <div class="demo-card">
+            <div class="icon">💻</div>
+            <h3>Espacio de trabajo</h3>
+            <p>WiFi rápido, enchufes en cada mesa y ambiente tranquilo para trabajar o estudiar.</p>
+          </div>
+        </div>
+        <div class="demo-section-title">Encuéntranos</div>
+        <div class="demo-contact">
+          <p>📍 Calle Roble 42, Centro Histórico</p>
+          <p>📞 <a href="#">229 123 4567</a></p>
+          <p>✉️ <a href="#">hola@caferoble.com</a></p>
+          <p>🕐 Lunes a viernes: 7:00 am – 9:00 pm</p>
+          <p>🕐 Sábados y domingos: 8:00 am – 6:00 pm</p>
+        </div>
+      </div>
+      <div class="demo-footer">
+        <p>© 2025 Café Roble — Todos los derechos reservados</p>
+        <p>Hecho con ☕ y mucho HTML & CSS</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>✅ ¿Cómo saber si está bien?</h4>
+    <ul>
+      <li>La <strong>navbar</strong> tiene fondo azul oscuro y una línea amarilla abajo</li>
+      <li>Los enlaces del menú muestran una línea amarilla debajo al pasar el ratón</li>
+      <li>El <strong>hero</strong> tiene mucho espacio arriba y abajo, texto centrado y botón amarillo</li>
+      <li>Las <strong>3 tarjetas</strong> ocupan el mismo ancho, con borde azul arriba y fondo blanco</li>
+      <li>La <strong>sección de contacto</strong> tiene borde izquierdo azul grueso</li>
+      <li>El <strong>footer</strong> tiene fondo azul oscuro igual que el navbar</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════
+     RETOS
+══════════════════════════ -->
+<section class="module" id="retos">
+  <div class="module-header">
+    <div class="module-icon">🏆</div>
+    <div>
+      <div class="module-title">PARTE 5 — Retos para subir el nivel</div>
+      <div class="module-sub">Practica el Box Model modificando cosas reales</div>
+    </div>
+  </div>
+
+  <div class="reto-grid">
+    <div class="reto-card">
+      <span class="nivel nivel-f">🟡 Fácil</span>
+      <h4>Reto 1 — Ajusta los espacios</h4>
+      <p>Cambia el <code>padding</code> del <code>.hero</code> de <strong>80px</strong> a <strong>120px</strong> arriba/abajo. Luego cambia el <code>gap</code> de <code>.tarjetas</code> de <strong>20px</strong> a <strong>40px</strong>.</p>
+      <p><em>Lo que practicas:</em> ver exactamente cómo el padding y el gap afectan el espacio visual.</p>
+    </div>
+    <div class="reto-card">
+      <span class="nivel nivel-m">🟠 Medio</span>
+      <h4>Reto 2 — Cuarta tarjeta</h4>
+      <p>Agrega una cuarta tarjeta de servicio en el HTML: <strong>🎵 Música en vivo</strong> con una descripción inventada. En el CSS <strong>no cambies nada</strong> — verifica que <code>flex: 1</code> la acomoda sola.</p>
+      <p><em>Lo que practicas:</em> entender cómo <code>flex: 1</code> distribuye el espacio automáticamente.</p>
+    </div>
+    <div class="reto-card">
+      <span class="nivel nivel-a">🔴 Avanzado</span>
+      <h4>Reto 3 — Tarjeta destacada</h4>
+      <p>A la segunda tarjeta agrégale una clase extra <code>"destacada"</code> en el HTML. En el CSS crea <code>.tarjeta.destacada</code> y dale: <code>background-color</code> azul oscuro, texto blanco, <code>border-top</code> amarillo y <code>transform: scale(1.04)</code> para que sea ligeramente más grande.</p>
+      <p><em>Lo que practicas:</em> selectors combinados, herencia de color y transformaciones básicas.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════
+     RESUMEN
+══════════════════════════ -->
+<section class="module" id="resumen">
+  <div class="module-header">
+    <div class="module-icon">📋</div>
+    <div>
+      <div class="module-title">Resumen: todo lo nuevo que aprendiste</div>
+      <div class="module-sub">Ejercicio 2 = Ejercicio 1 + esto</div>
+    </div>
+  </div>
+
+  <h2>HTML nuevo</h2>
+  <div style="margin-bottom:1rem">
+    <span class="chip">&lt;nav&gt;</span>
+    <span class="chip">&lt;main&gt;</span>
+    <span class="chip">&lt;article&gt;</span>
+    <span class="chip">&lt;address&gt;</span>
+    <span class="chip">href="tel:..."</span>
+    <span class="chip">href="mailto:..."</span>
+    <span class="chip">href="#id"</span>
+  </div>
+
+  <h2>CSS nuevo</h2>
+  <div style="margin-bottom:1.5rem">
+    <span class="chip">box-sizing: border-box</span>
+    <span class="chip">padding shorthand</span>
+    <span class="chip">margin shorthand</span>
+    <span class="chip">margin: 0 auto</span>
+    <span class="chip">max-width</span>
+    <span class="chip">:root + variables</span>
+    <span class="chip">var(--nombre)</span>
+    <span class="chip">list-style: none</span>
+    <span class="chip">display: inline-block</span>
+    <span class="chip">gap</span>
+    <span class="chip">flex: 1</span>
+    <span class="chip">border-top / border-left</span>
+    <span class="chip">border-radius parcial</span>
+    <span class="chip">transition</span>
+    <span class="chip">:last-child</span>
+  </div>
+
+  <div class="concept">
+    <h4>💡 ¿Qué sigue? — Ejercicio 3</h4>
+    <p>El Ejercicio 3 entrará de lleno en <strong>Flexbox</strong>: aprenderás a alinear elementos horizontal y verticalmente con precisión, crear layouts de dos columnas, centrar verticalmente con <code>align-items</code> y mucho más. Con Flexbox podrás construir cualquier layout moderno sin trucos. ¡Avísale a tu instructor cuando termines este ejercicio!</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Ejercicio 2 — Página de Negocio · HTML &amp; CSS · Box Model a fondo · Hugo 2025
+</footer>
+
+</body>
+</html>
