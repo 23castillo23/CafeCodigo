@@ -1,0 +1,1224 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía HTML & CSS — Parte D: Posicionamiento y Transitions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #c44a2a;
+    --primary-light:  #fdf0ec;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --danger:         #c44a2a;
+    --danger-light:   #fdf0ec;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1a1814;
+    --code-text:      #e8e4de;
+  }
+
+  body { font-family: 'DM Sans', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  header { background: #1a1814; color: #f7f4ef; padding: 3rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: '</>'; position: absolute; font-size: 14rem; font-weight: 900; color: rgba(255,255,255,0.05); right: -2rem; top: -3rem; font-family: monospace; line-height: 1; }
+  header h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; }
+  header p { font-size: 1.1rem; opacity: .85; margin-top: .5rem; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  .partes-nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 45px; z-index: 110; display: flex; align-items: center; gap: 0; height: 38px; padding: 0 1rem; }
+  .partes-nav-prev, .partes-nav-next { flex-shrink: 0; display: flex; align-items: center; gap: .3rem; padding: 0 .75rem; height: 100%; text-decoration: none; color: var(--muted); font-size: .78rem; font-weight: 500; border-right: 1px solid var(--border); transition: color .15s; white-space: nowrap; }
+  .partes-nav-next { border-right: none; border-left: 1px solid var(--border); }
+  .partes-nav-prev:hover, .partes-nav-next:hover { color: var(--primary); }
+  .partes-nav-list { flex: 1; display: flex; align-items: center; justify-content: center; gap: .15rem; overflow-x: auto; padding: 0 .5rem; }
+  .partes-nav-list::-webkit-scrollbar { display: none; }
+  .partes-nav-list a { flex-shrink: 0; padding: 2px 9px; border-radius: 20px; text-decoration: none; font-size: .73rem; font-weight: 600; color: var(--muted); transition: color .15s, background .15s; }
+  .partes-nav-list a:hover { color: var(--text); background: var(--bg); }
+  .partes-nav-list a.activa { background: var(--primary-light); color: var(--primary); }
+
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 83px; z-index: 100; display: flex; overflow-x: auto; gap: 0; }
+  nav a { flex-shrink: 0; padding: .75rem 1.1rem; text-decoration: none; color: var(--muted); font-size: .82rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2.5rem; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-size: 1.35rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  .analogy { background: #FFF7ED; border: 1px solid #FDE68A; border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: #92400E; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; color: #78350F; }
+
+  .concept { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p { font-size: .95rem; }
+  .tip ul { font-size: .95rem; padding-left: 1.2rem; }
+
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  .anatomy { background: #F0F4FF; border: 1px solid #C7D2FE; border-radius: 12px; padding: 1.5rem; font-family: monospace; font-size: 1.05rem; line-height: 2.6; margin: 1.25rem 0; }
+  .anatomy .br  { color: var(--primary); font-weight: 700; }
+  .anatomy .at  { color: #0891B2; }
+  .anatomy .vl  { color: #059669; }
+  .anatomy .lb  { display: inline-block; background: var(--primary);   color: #fff; font-size: .68rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 6px; }
+  .anatomy .lb2 { display: inline-block; background: var(--accent);    color: #fff; font-size: .68rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 6px; }
+  .anatomy .lb3 { display: inline-block; background: var(--secondary); color: #fff; font-size: .68rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 6px; }
+
+  .code-block { background: var(--code-bg); color: var(--code-text); border-radius: 10px; padding: 1.25rem 1.5rem; font-family: 'Courier New', monospace; font-size: .88rem; line-height: 1.85; overflow-x: auto; margin: 1rem 0; position: relative; white-space: pre; }
+  .code-block .ct { color: #89B4FA; }
+  .code-block .ca { color: #CBA6F7; }
+  .code-block .cv { color: #A6E3A1; }
+  .code-block .cs { color: #F9E2AF; }
+  .code-block .cp { color: #89DCEB; }
+  .code-block .cc { color: #585B70; font-style: italic; }
+  .code-block .cn { color: #FAB387; }
+  .lang { position: absolute; top: .6rem; right: .75rem; background: rgba(255,255,255,.1); color: rgba(255,255,255,.5); font-size: .68rem; padding: 2px 8px; border-radius: 4px; font-family: sans-serif; }
+
+  .preview { border: 2px dashed var(--border); border-radius: 10px; padding: 1.5rem; margin: 1rem 0; background: var(--surface); position: relative; }
+  .preview::before { content: '🖥 Vista en navegador'; position: absolute; top: -11px; left: 14px; background: var(--surface); font-size: .73rem; color: var(--muted); padding: 0 6px; font-family: sans-serif; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  .ex { background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 12px; padding: 1.5rem; margin: 1.5rem 0; }
+  .ex-hd { display: flex; align-items: center; gap: .75rem; margin-bottom: 1rem; font-weight: 700; font-size: 1rem; color: #78350F; flex-wrap: wrap; }
+  .ex-badge { background: var(--accent); color: #fff; font-size: .68rem; padding: 2px 9px; border-radius: 20px; font-weight: 700; text-transform: uppercase; }
+  .ex ol { padding-left: 1.4rem; }
+  .ex ol li { margin-bottom: .6rem; font-size: .95rem; }
+  .ex p { font-size: .95rem; margin-bottom: .6rem; }
+
+  h2 { font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; }
+  h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 .5rem; }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: #f0ece6; color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  strong { font-weight: 700; }
+
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: white; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  /* ══════════════════════════════
+     DEMOS DE POSICIONAMIENTO
+  ══════════════════════════════ */
+
+  /* Escenario visual de position */
+  .pos-scene {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1.5rem; min-height: 200px;
+    position: relative; overflow: hidden; margin: 1rem 0;
+  }
+  .pos-box {
+    width: 80px; height: 60px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .72rem; font-weight: 700; color: white; text-align: center;
+    line-height: 1.3;
+  }
+  .pos-static   { background: #64748B; }
+  .pos-relative { background: var(--accent); }
+  .pos-absolute { background: var(--primary); }
+  .pos-fixed-demo { background: var(--secondary); }
+
+  /* Demo relative */
+  .demo-relative-scene {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1rem; margin: 1rem 0;
+    display: flex; gap: .5rem; align-items: flex-start;
+  }
+  .demo-rel-box {
+    width: 70px; height: 55px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .68rem; font-weight: 700; color: white;
+  }
+  .demo-rel-normal   { background: #64748B; }
+  .demo-rel-moved    { background: var(--accent); position: relative; top: 20px; left: 15px; }
+  .demo-rel-normal2  { background: #64748B; }
+
+  /* Demo absolute */
+  .demo-abs-scene {
+    background: #EFF6FF; border: 2px dashed #93C5FD;
+    border-radius: 10px; padding: 1rem; margin: 1rem 0;
+    position: relative; min-height: 140px;
+  }
+  .demo-abs-badge {
+    background: var(--primary); color: white;
+    font-size: .7rem; font-weight: 700; padding: 3px 9px; border-radius: 20px;
+    position: absolute; top: 10px; right: 10px;
+  }
+  .demo-abs-icon {
+    background: var(--accent); color: white;
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .8rem; font-weight: 700;
+    position: absolute; bottom: 10px; left: 10px;
+  }
+
+  /* Demo sticky */
+  .demo-sticky-wrapper {
+    height: 200px; overflow-y: scroll;
+    border: 1px solid var(--border); border-radius: 10px;
+    margin: 1rem 0;
+  }
+  .demo-sticky-header {
+    background: var(--primary); color: white;
+    padding: .5rem 1rem; font-weight: 700; font-size: .88rem;
+    position: sticky; top: 0; z-index: 1;
+  }
+  .demo-sticky-row {
+    padding: .5rem 1rem; border-bottom: 1px solid var(--border);
+    font-size: .88rem;
+  }
+  .demo-sticky-row:nth-child(even) { background: var(--bg); }
+
+  /* Demo z-index */
+  .demo-zindex-scene {
+    position: relative; height: 120px; margin: 1rem 0;
+    background: var(--bg); border-radius: 10px; border: 1px solid var(--border);
+  }
+  .demo-z-box {
+    position: absolute; width: 100px; height: 80px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .72rem; font-weight: 700; color: white;
+  }
+  .demo-z1 { background: #64748B; top: 20px; left: 30px;  z-index: 1; }
+  .demo-z2 { background: var(--accent); top: 10px; left: 80px;  z-index: 2; }
+  .demo-z3 { background: var(--primary); top: 30px; left: 140px; z-index: 3; }
+
+  /* ══════════════════════════════
+     MODAL DEMO
+  ══════════════════════════════ */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.55);
+    backdrop-filter: blur(3px);
+    z-index: 1000;
+    align-items: center; justify-content: center;
+  }
+  .modal-overlay.abierto { display: flex; }
+  .modal-box {
+    background: white; border-radius: 16px;
+    padding: 2rem; max-width: 420px; width: 90%;
+    position: relative; box-shadow: 0 20px 60px rgba(0,0,0,.3);
+    animation: modalEntrar .25s ease;
+  }
+  @keyframes modalEntrar {
+    from { opacity: 0; transform: scale(.9) translateY(10px); }
+    to   { opacity: 1; transform: scale(1)  translateY(0); }
+  }
+  .modal-cerrar {
+    position: absolute; top: 1rem; right: 1rem;
+    background: var(--bg); border: none; border-radius: 50%;
+    width: 32px; height: 32px; cursor: pointer;
+    font-size: 1rem; display: flex; align-items: center; justify-content: center;
+    color: var(--muted); transition: background .15s;
+  }
+  .modal-cerrar:hover { background: var(--border); }
+  .modal-title { font-size: 1.2rem; font-weight: 700; margin-bottom: .5rem; }
+  .modal-body  { font-size: .95rem; color: var(--muted); margin-bottom: 1.25rem; }
+  .modal-footer { display: flex; gap: .75rem; justify-content: flex-end; }
+  .btn-primary { background: var(--primary); color: white; border: none; padding: .55rem 1.25rem; border-radius: 8px; font-family: inherit; font-size: .9rem; cursor: pointer; font-weight: 600; transition: background .15s; }
+  .btn-primary:hover { background: #9c3920; }
+  .btn-ghost { background: none; border: 1px solid var(--border); padding: .55rem 1.25rem; border-radius: 8px; font-family: inherit; font-size: .9rem; cursor: pointer; color: var(--muted); transition: border-color .15s; }
+  .btn-ghost:hover { border-color: var(--muted); }
+
+  /* ══════════════════════════════
+     DEMOS DE TRANSITION
+  ══════════════════════════════ */
+  .trans-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .trans-box {
+    background: var(--primary-light); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1rem; text-align: center;
+    font-size: .82rem; font-weight: 600; color: var(--primary);
+    cursor: pointer; min-height: 80px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .trans-color    { transition: background .4s, color .4s; }
+  .trans-color:hover { background: var(--primary); color: white; }
+
+  .trans-scale    { transition: transform .3s; }
+  .trans-scale:hover { transform: scale(1.08); }
+
+  .trans-slide    { transition: transform .35s ease; }
+  .trans-slide:hover { transform: translateY(-8px); }
+
+  .trans-shadow   { transition: box-shadow .3s, transform .3s; }
+  .trans-shadow:hover { box-shadow: 0 12px 32px rgba(196,74,42,.25); transform: translateY(-3px); }
+
+  .trans-rotate   { transition: transform .4s; }
+  .trans-rotate:hover { transform: rotate(5deg) scale(1.05); }
+
+  .trans-width    { overflow: hidden; }
+  .trans-width .inner {
+    height: 4px; background: var(--primary); border-radius: 2px;
+    width: 30%; transition: width .4s ease;
+  }
+  .trans-width:hover .inner { width: 100%; }
+
+  /* easing comparativo */
+  .ease-row { display: flex; flex-direction: column; gap: .5rem; margin: 1rem 0; }
+  .ease-item { display: flex; align-items: center; gap .75rem; }
+  .ease-label { width: 140px; font-size: .8rem; color: var(--muted); flex-shrink: 0; font-family: monospace; }
+  .ease-track { flex: 1; background: var(--bg); border-radius: 20px; height: 28px; position: relative; border: 1px solid var(--border); overflow: hidden; cursor: pointer; }
+  .ease-ball {
+    position: absolute; left: 4px; top: 4px;
+    width: 20px; height: 20px; border-radius: 50%; background: var(--primary);
+  }
+  .ease-track:hover .ease-ball { left: calc(100% - 24px); }
+  .ease-linear   .ease-ball { transition: left 1.2s linear; }
+  .ease-ease     .ease-ball { transition: left 1.2s ease; }
+  .ease-in       .ease-ball { transition: left 1.2s ease-in; }
+  .ease-out      .ease-ball { transition: left 1.2s ease-out; }
+  .ease-in-out   .ease-ball { transition: left 1.2s ease-in-out; }
+  .ease-bounce   .ease-ball { transition: left 1.2s cubic-bezier(.68,-.55,.27,1.55); }
+
+  /* ══════════════════════════════
+     DEMOS OVERFLOW
+  ══════════════════════════════ */
+  .overflow-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .overflow-box {
+    background: var(--bg); border: 2px solid var(--border); border-radius: 10px;
+    height: 90px; padding: .5rem .75rem; font-size: .82rem; position: relative;
+  }
+  .overflow-label {
+    font-size: .68rem; font-weight: 700; text-transform: uppercase;
+    color: var(--primary); letter-spacing: .06em; margin-bottom: .3rem;
+  }
+  .of-visible { overflow: visible; }
+  .of-hidden  { overflow: hidden; }
+  .of-scroll  { overflow: scroll; }
+  .of-auto    { overflow: auto; }
+
+  /* ══════════════════════════════
+     DEMOS TEXTO
+  ══════════════════════════════ */
+  .text-demo { background: var(--bg); border-radius: 10px; padding: 1rem 1.25rem; margin: .75rem 0; font-size: .92rem; }
+  .truncate-demo { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 280px; }
+  .multiline-demo { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .balance-demo { text-wrap: balance; max-width: 320px; }
+  .hyphens-demo { hyphens: auto; word-break: break-word; max-width: 120px; font-size: .88rem; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); }
+</style>
+</head>
+<body>
+
+<!-- BARRA SUPERIOR -->
+<div style="background:#ffffff;border-bottom:1px solid #e8e4de;padding:0 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:200;height:45px;">
+  <a href="../index.html" style="display:inline-flex;align-items:center;gap:6px;font-family:'DM Sans',sans-serif;font-size:13px;color:#8a8480;text-decoration:none;padding:6px 14px;border:1px solid #e8e4de;border-radius:999px;" onmouseover="this.style.color='#1a1814';this.style.borderColor='#8a8480'" onmouseout="this.style.color='#8a8480';this.style.borderColor='#e8e4de'">← Volver a Café &lt;/&gt;</a>
+  <span style="font-family:'DM Sans',sans-serif;font-size:13px;color:#8a8480;">☕ Guía HTML &amp; CSS · Parte D</span>
+</div>
+
+<header>
+  <h1>HTML &amp; CSS — Parte D</h1>
+  <p>Posicionamiento profundo, Modales, Transitions, Overflow y flujo de texto</p>
+  <span class="badge">✦ Curso de Soy Dalto · 10:03:00 – 11:25:00 ✦</span>
+</header>
+
+<div class="partes-nav">
+  <a class="partes-nav-prev" href="guia-parte-C-css-avanzado.html">← C</a>
+  <div class="partes-nav-list">
+    <a href="guia-html-css.html">Base</a>
+    <a href="guia-parte-A-html-avanzado.html">A</a>
+    <a href="guia-parte-B-html-avanzado.html">B</a>
+    <a href="guia-parte-C-css-avanzado.html">C</a>
+    <a href="guia-parte-D-posicionamiento.html" class="activa">D</a>
+    <a href="#">E</a>
+    <a href="#">F</a>
+    <a href="#">G</a>
+    <a href="#">H</a>
+    <a href="#">I</a>
+    <a href="#">J</a>
+  </div>
+  <a class="partes-nav-next" href="#">E →</a>
+</div>
+
+<nav>
+  <a href="#position">📍 Position</a>
+  <a href="#relative">↕ Relative</a>
+  <a href="#absolute">📌 Absolute</a>
+  <a href="#fixed-sticky">📎 Fixed/Sticky</a>
+  <a href="#zindex">🗂 z-index</a>
+  <a href="#modal">🪟 Modal</a>
+  <a href="#transition">✨ Transition</a>
+  <a href="#overflow">📦 Overflow</a>
+  <a href="#texto">📝 Flujo texto</a>
+  <a href="#ejercicio">✏️ Ejercicio</a>
+</nav>
+
+<main>
+
+<div class="parte-badge">📦 Parte D — Posicionamiento y Transitions (10:03 – 11:25 del video)</div>
+
+
+<!-- ═══════════════════════════════════════════
+     POSITION — INTRODUCCIÓN
+═══════════════════════════════════════════ -->
+<section class="module" id="position">
+  <div class="module-header">
+    <div class="module-icon">📍</div>
+    <div>
+      <div class="module-title">Position — Sacar elementos del flujo normal</div>
+      <div class="module-sub">El sistema de posicionamiento de CSS: static, relative, absolute, fixed, sticky</div>
+    </div>
+  </div>
+
+  <p>Por defecto, los elementos HTML se colocan uno debajo del otro en el orden en que aparecen en el código. Eso se llama <strong>flujo normal del documento</strong>. La propiedad <code>position</code> te permite romper ese flujo y colocar elementos exactamente donde quieras, incluso superponiéndolos.</p>
+
+  <div class="analogy">
+    <h4>🏗️ Analogía: los pisos de un edificio en construcción</h4>
+    <p>En el flujo normal, los elementos son como habitaciones en un plano: cada una ocupa su espacio y la siguiente va debajo. Con <code>position</code> tienes cuatro herramientas distintas: una mesa que puedes mover un poco sin salir del plano (<code>relative</code>), un mueble que puedes anclar en cualquier rincón de la habitación (<code>absolute</code>), un letrero que se pega al techo y siempre está visible sin importar dónde estés (<code>fixed</code>), y un separador que te acompaña mientras haces scroll pero que tiene un límite (<code>sticky</code>).</p>
+  </div>
+
+  <h2>Los 5 valores de position</h2>
+
+  <table class="tbl">
+    <thead>
+      <tr><th>Valor</th><th>¿Está en el flujo?</th><th>¿Qué referencia usa top/left/right/bottom?</th><th>Cuándo usarlo</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="tag">static</span></td>
+        <td>✅ Sí (por defecto)</td>
+        <td>No aplica — top/left no funcionan</td>
+        <td>Comportamiento normal. No necesitas escribirlo explícitamente.</td>
+      </tr>
+      <tr>
+        <td><span class="tag">relative</span></td>
+        <td>✅ Sí (reserva su espacio)</td>
+        <td>Su propia posición original</td>
+        <td>Mover el elemento ligeramente sin afectar a los demás. O crear un contexto para hijos absolute.</td>
+      </tr>
+      <tr>
+        <td><span class="tag">absolute</span></td>
+        <td>❌ No (sale del flujo)</td>
+        <td>El ancestro posicionado más cercano (que tenga position ≠ static)</td>
+        <td>Badges, tooltips, menús desplegables, íconos dentro de tarjetas.</td>
+      </tr>
+      <tr>
+        <td><span class="tag">fixed</span></td>
+        <td>❌ No (sale del flujo)</td>
+        <td>La ventana del navegador (viewport)</td>
+        <td>Navbar fija, botón "volver arriba", chat flotante, banners de cookies.</td>
+      </tr>
+      <tr>
+        <td><span class="tag">sticky</span></td>
+        <td>✅ Sí (hasta que llega al umbral)</td>
+        <td>Su contenedor padre scroll</td>
+        <td>Encabezados de sección que se quedan fijos al hacer scroll dentro de un contenedor.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="concept">
+    <h4>💡 Las propiedades de desplazamiento: top, right, bottom, left</h4>
+    <p>Estas cuatro propiedades solo funcionan cuando el elemento tiene un <code>position</code> diferente a <code>static</code>. Definen la distancia desde cada borde: <code>top: 20px</code> significa "20px desde el borde superior de la referencia". Puedes usar valores negativos para mover en dirección opuesta.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     POSITION RELATIVE
+═══════════════════════════════════════════ -->
+<section class="module" id="relative">
+  <div class="module-header">
+    <div class="module-icon">↕️</div>
+    <div>
+      <div class="module-title">position: relative — El de doble personalidad</div>
+      <div class="module-sub">Se mueve visualmente pero su espacio original sigue reservado</div>
+    </div>
+  </div>
+
+  <p><code>position: relative</code> mueve el elemento <em>visualmente</em> respecto a donde estaría normalmente, pero el espacio que ocupaba en el flujo <strong>queda reservado</strong>. Los demás elementos no se mueven para llenarlo. Es como si el elemento se volviera invisible en su lugar original y apareciera en otro lugar.</p>
+
+  <div class="analogy">
+    <h4>🪑 Analogía: levantarse de la silla pero dejar el abrigo</h4>
+    <p>En un cine concurrido, si te levantas de tu asiento nadie se sienta ahí porque dejaste el abrigo. Te moviste tú, pero tu espacio sigue ocupado. Eso es <code>position: relative</code>: el elemento se mueve visualmente, pero su "abrigo" (el espacio original) sigue ahí.</p>
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">.caja-movida</span> {
+  <span class="ca">position</span>: relative;
+  <span class="ca">top</span>:  <span class="cn">20px</span>;   <span class="cc">/* Baja 20px desde donde estaría normalmente */</span>
+  <span class="ca">left</span>: <span class="cn">15px</span>;   <span class="cc">/* Se mueve 15px a la derecha */</span>
+}</div>
+
+  <div class="preview">
+    <strong>Observa el espacio reservado — la caja naranja se movió pero su hueco sigue ahí:</strong>
+    <div class="demo-relative-scene" style="margin-top:.75rem">
+      <div class="demo-rel-box demo-rel-normal" style="display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:700">Normal</div>
+      <div class="demo-rel-box demo-rel-moved" style="display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:700;color:white">relative<br>top:20px<br>left:15px</div>
+      <div class="demo-rel-box demo-rel-normal2" style="display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:700">Normal</div>
+    </div>
+    <p style="font-size:.8rem;color:var(--muted);margin-top:.4rem">La caja naranja se desplazó, pero el hueco donde estaba sigue ahí — "Normal" no se movió a llenarlo.</p>
+  </div>
+
+  <h2>El uso más importante de relative: crear contexto para absolute</h2>
+
+  <p>Este es el uso de <code>position: relative</code> que más vas a usar en el mundo real. Cuando un hijo tiene <code>position: absolute</code>, busca su referencia en el ancestro posicionado más cercano. Si no hay ninguno, usa el <code>&lt;body&gt;</code>. Al poner <code>position: relative</code> en el padre, le dices "usa <em>a mí</em> como referencia":</p>
+
+  <div class="code-block"><span class="lang">HTML + CSS</span><span class="cc">/* ❌ Sin relative en el padre: el badge se posiciona respecto al body */</span>
+<span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"tarjeta"</span><span class="ct">&gt;</span>                     <span class="cc">&lt;!-- sin position --&gt;</span>
+  <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"badge"</span><span class="ct">&gt;</span><span class="cs">Nuevo</span><span class="ct">&lt;/span&gt;</span>       <span class="cc">&lt;!-- position:absolute → se va al body --&gt;</span>
+<span class="ct">&lt;/div&gt;</span>
+
+<span class="cc">/* ✅ Con relative en el padre: el badge se posiciona respecto a la tarjeta */</span>
+<span class="cp">.tarjeta</span> { <span class="ca">position</span>: relative; }        <span class="cc">/* ← El padre es la referencia */</span>
+<span class="cp">.badge</span>   {
+  <span class="ca">position</span>: absolute;
+  <span class="ca">top</span>:   <span class="cn">10px</span>;
+  <span class="ca">right</span>: <span class="cn">10px</span>;
+  <span class="ca">background</span>: red; <span class="ca">color</span>: white;
+  <span class="ca">border-radius</span>: <span class="cn">20px</span>; <span class="ca">padding</span>: <span class="cn">2px 10px</span>;
+}</div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     POSITION ABSOLUTE
+═══════════════════════════════════════════ -->
+<section class="module" id="absolute">
+  <div class="module-header">
+    <div class="module-icon">📌</div>
+    <div>
+      <div class="module-title">position: absolute — El elemento que se sale del mundo</div>
+      <div class="module-sub">Sale del flujo normal y se ancla a su ancestro posicionado</div>
+    </div>
+  </div>
+
+  <p><code>position: absolute</code> saca el elemento completamente del flujo normal: los demás elementos actúan como si no existiera, y el espacio que ocupaba <strong>desaparece</strong>. El elemento flota encima del contenido y se posiciona respecto a su ancestro con position distinto de static.</p>
+
+  <div class="analogy">
+    <h4>🪧 Analogía: el letrero de "Se renta" en una vitrina</h4>
+    <p>Un letrero de "Se renta" no ocupa espacio dentro del local — está pegado en el vidrio de la vitrina. Puedes verlo sobre el fondo, pero el espacio de la vitrina no se reduce por él. Eso es <code>position: absolute</code>: flota sobre el contenido en una posición exacta sin afectar a nadie.</p>
+  </div>
+
+  <h2>El patrón padre relative + hijo absolute</h2>
+
+  <div class="code-block"><span class="lang">HTML + CSS</span><span class="cc">/* HTML */</span>
+<span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"producto-card"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;img</span> <span class="ca">src</span>=<span class="cv">"zapato.jpg"</span> <span class="ca">alt</span>=<span class="cv">"Zapato deportivo"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"badge-oferta"</span><span class="ct">&gt;</span><span class="cs">-30%</span><span class="ct">&lt;/span&gt;</span>   <span class="cc">&lt;!-- Esquina superior derecha --&gt;</span>
+  <span class="ct">&lt;button</span> <span class="ca">class</span>=<span class="cv">"btn-favorito"</span><span class="ct">&gt;</span><span class="cs">♡</span><span class="ct">&lt;/button&gt;</span>  <span class="cc">&lt;!-- Esquina inferior derecha --&gt;</span>
+  <span class="ct">&lt;h3</span><span class="ct">&gt;</span><span class="cs">Air Max 2025</span><span class="ct">&lt;/h3&gt;</span>
+<span class="ct">&lt;/div&gt;</span>
+
+<span class="cc">/* CSS */</span>
+<span class="cp">.producto-card</span> {
+  <span class="ca">position</span>: relative;   <span class="cc">/* ← Contexto para los hijos absolute */</span>
+  <span class="ca">border-radius</span>: <span class="cn">12px</span>;
+  <span class="ca">overflow</span>: hidden;
+}
+
+<span class="cp">.badge-oferta</span> {
+  <span class="ca">position</span>: absolute;
+  <span class="ca">top</span>: <span class="cn">12px</span>; <span class="ca">right</span>: <span class="cn">12px</span>;  <span class="cc">/* ← Respecto a .producto-card */</span>
+  <span class="ca">background</span>: var(<span class="cv">--primary</span>); <span class="ca">color</span>: white;
+  <span class="ca">border-radius</span>: <span class="cn">20px</span>; <span class="ca">padding</span>: <span class="cn">4px 12px</span>; <span class="ca">font-weight</span>: <span class="cn">700</span>;
+}
+
+<span class="cp">.btn-favorito</span> {
+  <span class="ca">position</span>: absolute;
+  <span class="ca">bottom</span>: <span class="cn">12px</span>; <span class="ca">right</span>: <span class="cn">12px</span>;
+  <span class="ca">background</span>: white; <span class="ca">border</span>: none; <span class="ca">border-radius</span>: <span class="cn">50%</span>;
+  <span class="ca">width</span>: <span class="cn">36px</span>; <span class="ca">height</span>: <span class="cn">36px</span>; <span class="ca">cursor</span>: pointer; <span class="ca">font-size</span>: <span class="cn">1.1rem</span>;
+}</div>
+
+  <div class="preview">
+    <strong>Badge y botón posicionados absolutamente dentro de la tarjeta:</strong>
+    <div class="demo-abs-scene" style="margin-top:.75rem">
+      <div class="demo-abs-badge">-30% 🔥</div>
+      <div style="font-size:.95rem;font-weight:700;color:#1a1814;margin-bottom:.3rem">Air Max 2025</div>
+      <div style="font-size:.85rem;color:var(--muted)">Zapatilla deportiva premium</div>
+      <div class="demo-abs-icon">♡</div>
+    </div>
+    <p style="font-size:.8rem;color:var(--muted);margin-top:.4rem">El badge "-30%" está en top:10px right:10px. El corazón está en bottom:10px left:10px. Ambos respecto al contenedor azul (que tiene position:relative).</p>
+  </div>
+
+  <h2>Centrado perfecto con absolute</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* Técnica clásica para centrar un elemento absolutamente */</span>
+<span class="cp">.centrado</span> {
+  <span class="ca">position</span>: absolute;
+  <span class="ca">top</span>: <span class="cn">50%</span>;
+  <span class="ca">left</span>: <span class="cn">50%</span>;
+  <span class="ca">transform</span>: translate(<span class="cn">-50%, -50%</span>);
+  <span class="cc">/* top:50% + left:50% lleva la esquina superior izquierda al centro */</span>
+  <span class="cc">/* transform:-50%,-50% corrige moviendo el elemento hacia atrás */</span>
+}</div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     FIXED Y STICKY
+═══════════════════════════════════════════ -->
+<section class="module" id="fixed-sticky">
+  <div class="module-header">
+    <div class="module-icon">📎</div>
+    <div>
+      <div class="module-title">position: fixed y sticky — Elementos que persisten al hacer scroll</div>
+      <div class="module-sub">Navbars fijas, sidebars que siguen al usuario, encabezados de tabla</div>
+    </div>
+  </div>
+
+  <h2>position: fixed — Siempre visible, siempre en el mismo lugar</h2>
+
+  <p><code>position: fixed</code> ancla el elemento al <strong>viewport</strong> (la ventana del navegador), no al documento. No importa cuánto hagas scroll: el elemento siempre aparece exactamente en la misma posición de la pantalla.</p>
+
+  <div class="analogy">
+    <h4>🖼️ Analogía: el marco de una foto vs la foto</h4>
+    <p>El documento HTML es como una foto muy larga que puedes enrollar hacia arriba. <code>position: fixed</code> es como el marco: siempre está en el mismo lugar en la pared (tu pantalla), sin importar cuánto subas o bajes el papel de la foto.</p>
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* Navbar fija en la parte superior */</span>
+<span class="cp">.navbar</span> {
+  <span class="ca">position</span>: fixed;
+  <span class="ca">top</span>: <span class="cn">0</span>;
+  <span class="ca">left</span>: <span class="cn">0</span>;
+  <span class="ca">width</span>: <span class="cn">100%</span>;     <span class="cc">/* Ocupa todo el ancho */</span>
+  <span class="ca">z-index</span>: <span class="cn">1000</span>;   <span class="cc">/* Encima de todo lo demás */</span>
+  <span class="ca">background</span>: white;
+  <span class="ca">box-shadow</span>: <span class="cn">0 2px 10px</span> rgba(<span class="cn">0,0,0,.1</span>);
+}
+
+<span class="cc">/* ⚠️ Importante: añade padding-top al body para que el contenido
+   no quede tapado por la navbar fija */</span>
+<span class="cp">body</span> { <span class="ca">padding-top</span>: <span class="cn">70px</span>; } <span class="cc">/* Mismo alto que la navbar */</span>
+
+<span class="cc">/* Botón flotante de WhatsApp (abajo a la derecha) */</span>
+<span class="cp">.whatsapp-btn</span> {
+  <span class="ca">position</span>: fixed;
+  <span class="ca">bottom</span>: <span class="cn">24px</span>;
+  <span class="ca">right</span>:  <span class="cn">24px</span>;
+  <span class="ca">z-index</span>: <span class="cn">999</span>;
+  <span class="ca">background</span>: <span class="cn">#25D366</span>; <span class="ca">color</span>: white;
+  <span class="ca">border-radius</span>: <span class="cn">50%</span>; <span class="ca">width</span>: <span class="cn">56px</span>; <span class="ca">height</span>: <span class="cn">56px</span>;
+  <span class="ca">font-size</span>: <span class="cn">1.5rem</span>;
+}</div>
+
+  <h2>position: sticky — El punto medio entre relative y fixed</h2>
+
+  <p><code>position: sticky</code> es el más reciente e interesante. El elemento se comporta como <code>relative</code> hasta que el usuario hace scroll y llega al umbral definido (por ejemplo <code>top: 0</code>); en ese momento se "pega" como <code>fixed</code> y se queda ahí mientras sigue el scroll. Cuando el scroll llega al final del contenedor padre, el elemento vuelve a su lugar.</p>
+
+  <div class="analogy">
+    <h4>🧲 Analogía: el imán de un refrigerador con límite</h4>
+    <p>Imagina un imán en una regleta vertical. Mientras está en la parte de la regleta que está visible, se mueve con ella (como relative). Pero cuando llega al borde superior del refrigerador, se queda pegado ahí (como fixed). Y cuando la regleta termina, el imán ya no puede seguir pegado y sube con el contenedor.</p>
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* Encabezado de sección sticky — se pega al top al hacer scroll */</span>
+<span class="cp">.seccion-header</span> {
+  <span class="ca">position</span>: sticky;
+  <span class="ca">top</span>: <span class="cn">0</span>;              <span class="cc">/* Se pega cuando llega a 0px del tope */</span>
+  <span class="ca">background</span>: white;   <span class="cc">/* Necesita fondo para no transparentarse */</span>
+  <span class="ca">z-index</span>: <span class="cn">10</span>;
+  <span class="ca">padding</span>: <span class="cn">.75rem 1rem</span>;
+  <span class="ca">border-bottom</span>: <span class="cn">1px</span> solid <span class="cn">#eee</span>;
+}
+
+<span class="cc">/* Sidebar sticky que acompaña el scroll del artículo */</span>
+<span class="cp">.sidebar</span> {
+  <span class="ca">position</span>: sticky;
+  <span class="ca">top</span>: <span class="cn">80px</span>;   <span class="cc">/* Se pega 80px debajo del tope (debajo de la navbar) */</span>
+  <span class="ca">height</span>: fit-content;  <span class="cc">/* Solo tan alto como su contenido */</span>
+}</div>
+
+  <div class="preview">
+    <strong>Prueba el scroll — el encabezado rojo es sticky:</strong>
+    <div class="demo-sticky-wrapper" style="margin-top:.75rem">
+      <div class="demo-sticky-header">⚽ Tabla de Goleadores — Sticky Header</div>
+      <div class="demo-sticky-row">1. Haaland — Manchester City — 27 goles</div>
+      <div class="demo-sticky-row">2. Mbappé — Real Madrid — 25 goles</div>
+      <div class="demo-sticky-row">3. Lewandowski — Barcelona — 22 goles</div>
+      <div class="demo-sticky-row">4. Salah — Liverpool — 20 goles</div>
+      <div class="demo-sticky-row">5. Kane — Bayern Munich — 19 goles</div>
+      <div class="demo-sticky-row">6. Osimhen — Nápoles — 18 goles</div>
+      <div class="demo-sticky-row">7. Vlahovic — Juventus — 16 goles</div>
+    </div>
+    <p style="font-size:.8rem;color:var(--muted);margin-top:.4rem">Haz scroll dentro del cuadro — el encabezado rojo se queda fijo mientras los datos se mueven.</p>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ El error más común con sticky</h4>
+    <p>Para que <code>position: sticky</code> funcione, el elemento debe tener <strong>espacio para hacer scroll</strong> dentro de su contenedor padre. Si el padre tiene <code>overflow: hidden</code> o <code>overflow: auto</code>, el sticky no funciona. Además, el padre debe ser más alto que el elemento sticky.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     Z-INDEX
+═══════════════════════════════════════════ -->
+<section class="module" id="zindex">
+  <div class="module-header">
+    <div class="module-icon">🗂️</div>
+    <div>
+      <div class="module-title">z-index — El orden de apilamiento</div>
+      <div class="module-sub">Quién queda encima de quién cuando los elementos se superponen</div>
+    </div>
+  </div>
+
+  <p>Cuando varios elementos posicionados (non-static) se superponen, el <code>z-index</code> determina cuál queda encima. Mayor número = más adelante. Solo funciona en elementos con <code>position</code> diferente a <code>static</code>.</p>
+
+  <div class="analogy">
+    <h4>🃏 Analogía: una baraja de cartas boca arriba</h4>
+    <p>Cuando pones varias cartas encima de la mesa superpuestas, la que está más "arriba del montón" es la que más ves. En el mundo del DOM, el z-index es el orden del montón: la carta con z-index más alto está encima de las demás. Si no especificas z-index, el orden lo decide el HTML (la que aparece más abajo en el código queda encima).</p>
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* Sin z-index: el orden en el HTML decide (el último escrito queda encima) */</span>
+<span class="cp">.caja-a</span> { <span class="ca">position</span>: absolute; <span class="ca">top</span>: <span class="cn">0</span>; <span class="ca">left</span>: <span class="cn">0</span>; }   <span class="cc">/* queda debajo */</span>
+<span class="cp">.caja-b</span> { <span class="ca">position</span>: absolute; <span class="ca">top</span>: <span class="cn">0</span>; <span class="ca">left</span>: <span class="cn">0</span>; }   <span class="cc">/* queda encima */</span>
+
+<span class="cc">/* Con z-index: los números mandan */</span>
+<span class="cp">.caja-a</span> { <span class="ca">position</span>: absolute; <span class="ca">z-index</span>: <span class="cn">3</span>; }   <span class="cc">/* Encima de todo */</span>
+<span class="cp">.caja-b</span> { <span class="ca">position</span>: absolute; <span class="ca">z-index</span>: <span class="cn">1</span>; }   <span class="cc">/* Debajo */</span>
+
+<span class="cc">/* Convención de z-index en proyectos reales */</span>
+<span class="cc">/* Usar saltos de 10 o 100 para dejar espacio entre capas */</span>
+<span class="cc">/* --z-base:    1     → elementos posicionados normales */</span>
+<span class="cc">/* --z-dropdown: 100  → menús desplegables */</span>
+<span class="cc">/* --z-sticky:  200  → headers sticky */</span>
+<span class="cc">/* --z-modal:   1000 → ventanas modales */</span>
+<span class="cc">/* --z-toast:   1100 → notificaciones flotantes */</span></div>
+
+  <div class="preview">
+    <strong>Las cajas con z-index más alto quedan encima:</strong>
+    <div class="demo-zindex-scene" style="margin-top:.75rem">
+      <div class="demo-z-box demo-z1" style="font-size:.68rem;text-align:center">z-index: 1<br>(gris)</div>
+      <div class="demo-z-box demo-z2" style="font-size:.68rem;text-align:center">z-index: 2<br>(naranja)</div>
+      <div class="demo-z-box demo-z3" style="font-size:.68rem;text-align:center">z-index: 3<br>(rojo)</div>
+    </div>
+    <p style="font-size:.8rem;color:var(--muted);margin-top:.4rem">El rojo (z-index:3) está encima del naranja (z-index:2), que está encima del gris (z-index:1).</p>
+  </div>
+
+  <div class="concept">
+    <h4>💡 Contexto de apilamiento — el concepto avanzado</h4>
+    <p>Cuando un elemento tiene <code>position + z-index</code> diferente de <code>auto</code>, crea su propio <strong>contexto de apilamiento</strong>. Dentro de ese contexto, los z-index de sus hijos son independientes del resto de la página. Por eso a veces un z-index: 9999 no soluciona nada: si el padre tiene un z-index bajo, sus hijos no pueden salir de él sin importar qué z-index tengan.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     MODAL
+═══════════════════════════════════════════ -->
+<section class="module" id="modal">
+  <div class="module-header">
+    <div class="module-icon">🪟</div>
+    <div>
+      <div class="module-title">Ventanas Modales — La aplicación real de position: fixed</div>
+      <div class="module-sub">Cómo construir un popup/dialog profesional con HTML, CSS y JavaScript mínimo</div>
+    </div>
+  </div>
+
+  <p>Un <strong>modal</strong> es una ventana que aparece encima del contenido de la página y bloquea la interacción con el fondo hasta que el usuario la cierra. Los usas a diario: confirmaciones de pago, formularios de login, alertas de cookies, galerías de fotos. Se construyen combinando <code>position: fixed</code>, <code>z-index</code> alto y un overlay semitransparente.</p>
+
+  <div class="analogy">
+    <h4>🚪 Analogía: la puerta de seguridad del banco</h4>
+    <p>Cuando entras a una zona restringida del banco, hay una puerta de seguridad que se cierra detrás de ti y no puedes salir ni entrar hasta que el guardia te atiende. El modal es exactamente eso: bloquea todo lo demás de la página hasta que el usuario toma una decisión.</p>
+  </div>
+
+  <h2>Estructura del modal</h2>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="cc">&lt;!-- Botón que abre el modal --&gt;</span>
+<span class="ct">&lt;button</span> <span class="ca">id</span>=<span class="cv">"abrir-modal"</span><span class="ct">&gt;</span><span class="cs">Confirmar pedido</span><span class="ct">&lt;/button&gt;</span>
+
+<span class="cc">&lt;!-- El overlay cubre toda la pantalla --&gt;</span>
+<span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"modal-overlay"</span> <span class="ca">id</span>=<span class="cv">"modal"</span><span class="ct">&gt;</span>
+  <span class="cc">&lt;!-- La caja del modal va centrada dentro del overlay --&gt;</span>
+  <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"modal-box"</span><span class="ct">&gt;</span>
+    <span class="ct">&lt;button</span> <span class="ca">class</span>=<span class="cv">"modal-cerrar"</span> <span class="ca">id</span>=<span class="cv">"cerrar-modal"</span><span class="ct">&gt;</span><span class="cs">✕</span><span class="ct">&lt;/button&gt;</span>
+    <span class="ct">&lt;h2</span> <span class="ca">class</span>=<span class="cv">"modal-title"</span><span class="ct">&gt;</span><span class="cs">¿Confirmar el pedido?</span><span class="ct">&lt;/h2&gt;</span>
+    <span class="ct">&lt;p</span> <span class="ca">class</span>=<span class="cv">"modal-body"</span><span class="ct">&gt;</span><span class="cs">Tu pedido de 3 artículos por $450 MXN será procesado.</span><span class="ct">&lt;/p&gt;</span>
+    <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"modal-footer"</span><span class="ct">&gt;</span>
+      <span class="ct">&lt;button</span> <span class="ca">class</span>=<span class="cv">"btn-ghost"</span>   <span class="ca">id</span>=<span class="cv">"cerrar-modal-2"</span><span class="ct">&gt;</span><span class="cs">Cancelar</span><span class="ct">&lt;/button&gt;</span>
+      <span class="ct">&lt;button</span> <span class="ca">class</span>=<span class="cv">"btn-primary"</span><span class="ct">&gt;</span><span class="cs">Sí, confirmar</span><span class="ct">&lt;/button&gt;</span>
+    <span class="ct">&lt;/div&gt;</span>
+  <span class="ct">&lt;/div&gt;</span>
+<span class="ct">&lt;/div&gt;</span></div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* El overlay cubre toda la pantalla */</span>
+<span class="cp">.modal-overlay</span> {
+  <span class="ca">display</span>: none;                  <span class="cc">/* Oculto por defecto */</span>
+  <span class="ca">position</span>: fixed;
+  <span class="ca">inset</span>: <span class="cn">0</span>;                       <span class="cc">/* = top:0; right:0; bottom:0; left:0 */</span>
+  <span class="ca">background</span>: rgba(<span class="cn">0,0,0,.55</span>);
+  <span class="ca">backdrop-filter</span>: blur(<span class="cn">3px</span>);    <span class="cc">/* Desenfoca el fondo (moderno) */</span>
+  <span class="ca">z-index</span>: <span class="cn">1000</span>;
+  <span class="ca">display</span>: none;
+  <span class="ca">align-items</span>: center;
+  <span class="ca">justify-content</span>: center;
+}
+
+<span class="cp">.modal-overlay.abierto</span> { <span class="ca">display</span>: flex; }  <span class="cc">/* JS agrega esta clase */</span>
+
+<span class="cc">/* La caja del modal con animación de entrada */</span>
+<span class="cp">.modal-box</span> {
+  <span class="ca">background</span>: white; <span class="ca">border-radius</span>: <span class="cn">16px</span>;
+  <span class="ca">padding</span>: <span class="cn">2rem</span>; <span class="ca">max-width</span>: <span class="cn">420px</span>; <span class="ca">width</span>: <span class="cn">90%</span>;
+  <span class="ca">position</span>: relative;
+  <span class="ca">animation</span>: modalEntrar <span class="cn">.25s</span> ease;
+}
+<span class="cp">@keyframes modalEntrar</span> {
+  from { <span class="ca">opacity</span>: <span class="cn">0</span>; <span class="ca">transform</span>: scale(<span class="cn">.9</span>) translateY(<span class="cn">10px</span>); }
+  to   { <span class="ca">opacity</span>: <span class="cn">1</span>; <span class="ca">transform</span>: scale(<span class="cn">1</span>)  translateY(<span class="cn">0</span>); }
+}</div>
+
+  <div class="code-block"><span class="lang">JavaScript</span><span class="cc">// Solo 3 líneas de JS — todo lo demás es HTML y CSS</span>
+const modal  = document.getElementById('modal');
+const abrir  = document.getElementById('abrir-modal');
+const cerrar = document.querySelectorAll('#cerrar-modal, #cerrar-modal-2');
+
+abrir.addEventListener('click', () => modal.classList.add('abierto'));
+cerrar.forEach(btn => btn.addEventListener('click', () => modal.classList.remove('abierto')));
+
+<span class="cc">// Cerrar al hacer clic en el overlay (fuera del modal-box)</span>
+modal.addEventListener('click', (e) => {
+  if (e.target === modal) modal.classList.remove('abierto');
+});</div>
+
+  <div class="preview">
+    <strong>Modal funcional — haz clic para probarlo:</strong>
+    <div style="margin-top:.75rem">
+      <button class="btn-primary" onclick="document.getElementById('demo-modal').classList.add('abierto')">
+        🪟 Abrir Modal de prueba
+      </button>
+    </div>
+  </div>
+
+  <!-- MODAL DEMO REAL -->
+  <div class="modal-overlay" id="demo-modal" onclick="if(event.target===this)this.classList.remove('abierto')">
+    <div class="modal-box">
+      <button class="modal-cerrar" onclick="document.getElementById('demo-modal').classList.remove('abierto')">✕</button>
+      <div class="modal-title">¿Confirmar el pedido? 🛒</div>
+      <p class="modal-body">Tu pedido de 3 artículos por $450 MXN será procesado. Esta acción no se puede deshacer.</p>
+      <div class="modal-footer">
+        <button class="btn-ghost" onclick="document.getElementById('demo-modal').classList.remove('abierto')">Cancelar</button>
+        <button class="btn-primary" onclick="document.getElementById('demo-modal').classList.remove('abierto')">✓ Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 La propiedad inset — el atajo moderno</h4>
+    <p><code>inset: 0</code> es equivalente a escribir <code>top: 0; right: 0; bottom: 0; left: 0</code> en una sola línea. Perfecto para overlays que cubren toda la pantalla. También puedes usarlo parcialmente: <code>inset: 0 0 auto 0</code> significa top+right+left en 0, bottom en auto.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     TRANSITION
+═══════════════════════════════════════════ -->
+<section class="module" id="transition">
+  <div class="module-header">
+    <div class="module-icon">✨</div>
+    <div>
+      <div class="module-title">Transition — Suavizar los cambios de estado</div>
+      <div class="module-sub">Del estado A al estado B con una animación fluida y sin JavaScript</div>
+    </div>
+  </div>
+
+  <p><code>transition</code> le dice al navegador que, cuando una propiedad CSS cambie (por :hover, :focus, agregar una clase con JS, etc.), en vez de cambiar bruscamente, lo haga de forma <strong>gradual y suave</strong> durante un tiempo definido. Es la diferencia entre un interruptor y un dimmer de luz.</p>
+
+  <div class="analogy">
+    <h4>🌅 Analogía: el atardecer vs el apagador</h4>
+    <p>Un apagador cambia la luz de día a oscuridad en un instante. Un atardecer hace la misma transición, pero en 30 minutos, suavemente. Las transitions de CSS son ese atardecer: el cambio existe, pero se hace de forma gradual y agradable a la vista.</p>
+  </div>
+
+  <h2>Anatomía de transition</h2>
+
+  <div class="anatomy">
+    <span class="br">transition</span>: <span class="at">propiedad</span> <span class="vl">duración</span> <span class="at">timing</span> <span class="vl">retardo</span>;
+    <br>
+    <span class="lb">¿qué cambia?</span>&nbsp;<span class="lb2">¿cuánto tarda?</span>&nbsp;<span class="lb3">¿cómo acelera?</span>&nbsp;<span class="lb">¿espera inicial?</span>
+    <br><br>
+    <span class="cc">/* Ejemplo: */</span>
+    <br>
+    <span class="br">transition</span>: <span class="at">background</span> <span class="vl">.3s</span> <span class="at">ease</span> <span class="vl">0s</span>;
+    <br>
+    <span class="cc">/* Múltiples propiedades separadas por coma */</span>
+    <br>
+    <span class="br">transition</span>: <span class="at">background</span> <span class="vl">.3s</span>, <span class="at">transform</span> <span class="vl">.2s</span>, <span class="at">box-shadow</span> <span class="vl">.3s</span>;
+    <br>
+    <span class="cc">/* O transicionar todo (cuidado con el rendimiento) */</span>
+    <br>
+    <span class="br">transition</span>: <span class="at">all</span> <span class="vl">.3s</span> <span class="at">ease</span>;
+  </div>
+
+  <h2>El timing-function — cómo acelera y frena la animación</h2>
+
+  <p>El <code>timing-function</code> controla la curva de velocidad de la transición: ¿empieza rápido y frena? ¿va constante? ¿tiene rebote?</p>
+
+  <div class="preview">
+    <strong>Pasa el mouse sobre cada barra para comparar los easing:</strong>
+    <div class="ease-row" style="margin-top:.75rem">
+      <div class="ease-item" style="display:flex;align-items:center;gap:.75rem">
+        <span class="ease-label">linear</span>
+        <div class="ease-track ease-linear"><div class="ease-ball"></div></div>
+      </div>
+      <div class="ease-item" style="display:flex;align-items:center;gap:.75rem">
+        <span class="ease-label">ease</span>
+        <div class="ease-track ease-ease"><div class="ease-ball"></div></div>
+      </div>
+      <div class="ease-item" style="display:flex;align-items:center;gap:.75rem">
+        <span class="ease-label">ease-in</span>
+        <div class="ease-track ease-in"><div class="ease-ball"></div></div>
+      </div>
+      <div class="ease-item" style="display:flex;align-items:center;gap:.75rem">
+        <span class="ease-label">ease-out</span>
+        <div class="ease-track ease-out"><div class="ease-ball"></div></div>
+      </div>
+      <div class="ease-item" style="display:flex;align-items:center;gap:.75rem">
+        <span class="ease-label">ease-in-out</span>
+        <div class="ease-track ease-in-out"><div class="ease-ball"></div></div>
+      </div>
+      <div class="ease-item" style="display:flex;align-items:center;gap:.75rem">
+        <span class="ease-label">cubic-bezier<br>(rebote)</span>
+        <div class="ease-track ease-bounce"><div class="ease-ball"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Timing</th><th>Comportamiento</th><th>Cuándo usarlo</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">linear</span></td><td>Velocidad constante de inicio a fin</td><td>Loaders, barras de progreso, rotaciones continuas</td></tr>
+      <tr><td><span class="tag">ease</span></td><td>Arranca rápido, frena suave al final (por defecto)</td><td>La mayoría de hover effects — se siente natural</td></tr>
+      <tr><td><span class="tag">ease-in</span></td><td>Arranca lento, termina rápido</td><td>Elementos que salen de la pantalla</td></tr>
+      <tr><td><span class="tag">ease-out</span></td><td>Arranca rápido, termina lento</td><td>Elementos que entran a la pantalla (modales, menús)</td></tr>
+      <tr><td><span class="tag">ease-in-out</span></td><td>Lento al inicio y al final, rápido en medio</td><td>Sliders, carruseles, transiciones de página</td></tr>
+      <tr><td><span class="tag">cubic-bezier()</span></td><td>Curva personalizada — cualquier efecto posible</td><td>Rebotes, overshoot, efectos elásticos</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Ejemplos interactivos de transition</h2>
+
+  <div class="preview">
+    <strong>Pasa el mouse sobre cada caja:</strong>
+    <div class="trans-grid" style="margin-top:.75rem">
+      <div class="trans-box trans-color">🎨 Color<br><small>background .4s</small></div>
+      <div class="trans-box trans-scale">🔍 Escala<br><small>transform .3s</small></div>
+      <div class="trans-box trans-slide">⬆️ Subir<br><small>translateY .35s</small></div>
+      <div class="trans-box trans-shadow">☁️ Sombra<br><small>box-shadow .3s</small></div>
+      <div class="trans-box trans-rotate">🔄 Rotar<br><small>rotate .4s</small></div>
+      <div class="trans-box trans-width" style="flex-direction:column;gap:.5rem">
+        📏 Barra de progreso
+        <div class="inner"></div>
+        <small>width .4s</small>
+      </div>
+    </div>
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* Ejemplos del código de cada caja */</span>
+
+<span class="cc">/* 🎨 Transition de color */</span>
+<span class="cp">.caja</span> { <span class="ca">background</span>: <span class="cn">#fdf0ec</span>; <span class="ca">transition</span>: background <span class="cn">.4s</span>, color <span class="cn">.4s</span>; }
+<span class="cp">.caja:hover</span> { <span class="ca">background</span>: var(<span class="cv">--primary</span>); <span class="ca">color</span>: white; }
+
+<span class="cc">/* 🔍 Transition de escala */</span>
+<span class="cp">.caja</span> { <span class="ca">transition</span>: transform <span class="cn">.3s</span>; }
+<span class="cp">.caja:hover</span> { <span class="ca">transform</span>: scale(<span class="cn">1.08</span>); }
+
+<span class="cc">/* ⬆️ Transition de movimiento */</span>
+<span class="cp">.caja</span> { <span class="ca">transition</span>: transform <span class="cn">.35s</span> ease; }
+<span class="cp">.caja:hover</span> { <span class="ca">transform</span>: translateY(<span class="cn">-8px</span>); }
+
+<span class="cc">/* ☁️ Transition de sombra */</span>
+<span class="cp">.caja</span> { <span class="ca">transition</span>: box-shadow <span class="cn">.3s</span>, transform <span class="cn">.3s</span>; }
+<span class="cp">.caja:hover</span> { <span class="ca">box-shadow</span>: <span class="cn">0 12px 32px</span> rgba(<span class="cn">0,0,0,.15</span>); <span class="ca">transform</span>: translateY(<span class="cn">-3px</span>); }
+
+<span class="cc">/* La combinación más común en tarjetas */</span>
+<span class="cp">.tarjeta</span> { <span class="ca">transition</span>: transform <span class="cn">.25s</span> ease, box-shadow <span class="cn">.25s</span> ease; }
+<span class="cp">.tarjeta:hover</span> {
+  <span class="ca">transform</span>: translateY(<span class="cn">-4px</span>);
+  <span class="ca">box-shadow</span>: <span class="cn">0 16px 40px</span> rgba(<span class="cn">0,0,0,.12</span>);
+}</div>
+
+  <div class="tip">
+    <h4>🟢 Propiedades que puedes (y no debes) transicionar</h4>
+    <ul>
+      <li><strong>✅ Baratas (GPU):</strong> <code>transform</code>, <code>opacity</code> — usa estas siempre que puedas</li>
+      <li><strong>⚠️ Costosas (CPU):</strong> <code>width</code>, <code>height</code>, <code>top</code>, <code>left</code>, <code>margin</code>, <code>padding</code> — pueden causar janking (frames perdidos) en páginas complejas</li>
+      <li><strong>❌ No transicionan:</strong> <code>display</code>, <code>visibility</code> (en parte), <code>font-family</code></li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     OVERFLOW
+═══════════════════════════════════════════ -->
+<section class="module" id="overflow">
+  <div class="module-header">
+    <div class="module-icon">📦</div>
+    <div>
+      <div class="module-title">Overflow — Qué pasa cuando el contenido no cabe</div>
+      <div class="module-sub">Controlar el desbordamiento con visible, hidden, scroll y auto</div>
+    </div>
+  </div>
+
+  <p>Cuando el contenido de un elemento es más grande que su contenedor, ocurre <strong>desbordamiento (overflow)</strong>. La propiedad <code>overflow</code> controla qué pasa en ese caso: ¿se muestra todo aunque salga? ¿se corta? ¿aparece una barra de scroll?</p>
+
+  <div class="analogy">
+    <h4>🥤 Analogía: verter líquido en un vaso</h4>
+    <p>Si viertes demasiado líquido en un vaso, tienes cuatro opciones: dejar que se derrame (<code>visible</code>), usar un vaso mágico que lo corta sin derramar (<code>hidden</code>), que el vaso crezca y aparezca una agarradera lateral para verter más (<code>scroll</code>), o que el vaso solo crezca si lo necesita (<code>auto</code>).</p>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Valor</th><th>Qué hace</th><th>Cuándo usarlo</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">visible</span></td><td>El contenido se desborda fuera del contenedor (por defecto)</td><td>Tooltips y dropdowns que deben salir del contenedor</td></tr>
+      <tr><td><span class="tag">hidden</span></td><td>El contenido que se sale queda cortado y oculto</td><td>Imágenes con border-radius, ocultar content de tabs/acordeones</td></tr>
+      <tr><td><span class="tag">scroll</span></td><td>Siempre muestra scrollbar, aunque no lo necesite</td><td>Cuando quieres que el layout no salte al aparecer la scrollbar</td></tr>
+      <tr><td><span class="tag">auto</span></td><td>Scrollbar solo aparece si el contenido no cabe</td><td>La opción más natural para la mayoría de casos</td></tr>
+      <tr><td><span class="tag">clip</span></td><td>Como hidden pero no crea contexto de apilamiento</td><td>Casos específicos donde hidden interfiere con sticky</td></tr>
+    </tbody>
+  </table>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* Separar overflow horizontal y vertical */</span>
+<span class="cp">.tabla-responsive</span> {
+  <span class="ca">overflow-x</span>: auto;    <span class="cc">/* Scroll horizontal para tablas anchas */</span>
+  <span class="ca">overflow-y</span>: visible; <span class="cc">/* Vertical sin restricción */</span>
+}
+
+<span class="cc">/* Imagen con esquinas redondeadas — overflow:hidden necesario */</span>
+<span class="cp">.avatar</span> {
+  <span class="ca">width</span>: <span class="cn">80px</span>; <span class="ca">height</span>: <span class="cn">80px</span>;
+  <span class="ca">border-radius</span>: <span class="cn">50%</span>;
+  <span class="ca">overflow</span>: hidden;   <span class="cc">/* Sin esto, la imagen se sale del círculo */</span>
+}
+
+<span class="cc">/* Zona de scroll independiente — como un chat */</span>
+<span class="cp">.chat-mensajes</span> {
+  <span class="ca">height</span>: <span class="cn">400px</span>;
+  <span class="ca">overflow-y</span>: auto;
+  <span class="ca">scroll-behavior</span>: smooth; <span class="cc">/* Scroll suave */</span>
+}</div>
+
+  <div class="preview">
+    <strong>Los cuatro valores de overflow con el mismo contenido largo:</strong>
+    <div class="overflow-grid" style="margin-top:.75rem">
+      <div class="overflow-box of-visible">
+        <div class="overflow-label">overflow: visible</div>
+        <div style="white-space:nowrap;font-size:.8rem">Este texto es demasiado largo para la caja y se desborda sin restricción</div>
+      </div>
+      <div class="overflow-box of-hidden">
+        <div class="overflow-label">overflow: hidden</div>
+        <div style="white-space:nowrap;font-size:.8rem">Este texto es demasiado largo para la caja y se corta donde termina el contenedor</div>
+      </div>
+      <div class="overflow-box of-scroll">
+        <div class="overflow-label">overflow: scroll</div>
+        <div style="white-space:nowrap;font-size:.8rem">Este texto es demasiado largo para la caja y puedes deslizarte para verlo completo</div>
+      </div>
+      <div class="overflow-box of-auto">
+        <div class="overflow-label">overflow: auto</div>
+        <div style="white-space:nowrap;font-size:.8rem">Este texto es demasiado largo para la caja y solo muestra scroll cuando es necesario</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     CONTROL DE FLUJO DE TEXTO
+═══════════════════════════════════════════ -->
+<section class="module" id="texto">
+  <div class="module-header">
+    <div class="module-icon">📝</div>
+    <div>
+      <div class="module-title">Control de flujo de texto — Truncar, romper y alinear</div>
+      <div class="module-sub">white-space, text-overflow, word-break, hyphens, text-wrap y más</div>
+    </div>
+  </div>
+
+  <p>El texto tiene su propio sistema de flujo: se envuelve automáticamente cuando llega al borde del contenedor, pero a veces necesitas controlarlo. ¿Quieres que nunca salte de línea? ¿Que se corte con puntos suspensivos? ¿Que corte las palabras largas? ¿Que el título quede visualmente equilibrado? Todo eso se controla con estas propiedades.</p>
+
+  <h2>Truncar texto en una línea — el truco de los tres</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* Las tres propiedades van siempre juntas para truncar en una línea */</span>
+<span class="cp">.truncar</span> {
+  <span class="ca">white-space</span>:   nowrap;    <span class="cc">/* 1. Prohíbe el salto de línea */</span>
+  <span class="ca">overflow</span>:      hidden;    <span class="cc">/* 2. Corta el texto que se sale */</span>
+  <span class="ca">text-overflow</span>: ellipsis; <span class="cc">/* 3. Agrega "..." al final */</span>
+}</div>
+
+  <div class="preview">
+    <strong>Texto truncado con "...":</strong>
+    <div class="text-demo truncate-demo" style="margin-top:.75rem">
+      Cristiano Ronaldo dos Santos Aveiro — delantero portugués considerado uno de los mejores jugadores de la historia del fútbol mundial
+    </div>
+  </div>
+
+  <h2>Truncar en múltiples líneas (líneas fijas)</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* Mostrar máximo 2 líneas y truncar con "..." */</span>
+<span class="cp">.truncar-2-lineas</span> {
+  <span class="ca">display</span>: -webkit-box;
+  <span class="ca">-webkit-line-clamp</span>: <span class="cn">2</span>;       <span class="cc">/* Número de líneas */</span>
+  <span class="ca">-webkit-box-orient</span>: vertical;
+  <span class="ca">overflow</span>: hidden;
+}</div>
+
+  <div class="preview">
+    <strong>Máximo 2 líneas:</strong>
+    <div class="text-demo multiline-demo" style="margin-top:.75rem">
+      Lionel Andrés Messi Cuccittini, conocido como Leo Messi, es un futbolista argentino que juega como delantero en el Inter de Miami. Es considerado por muchos el mejor futbolista de todos los tiempos, con múltiples Balones de Oro y una Copa del Mundo ganada en Qatar 2022 con la selección argentina.
+    </div>
+  </div>
+
+  <h2>white-space — controlar saltos de línea y espacios</h2>
+
+  <table class="tbl">
+    <thead><tr><th>Valor</th><th>Saltos de línea en HTML</th><th>Espacios múltiples</th><th>Wrap automático</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">normal</span></td><td>Colapsa</td><td>Colapsa</td><td>✅ Sí</td></tr>
+      <tr><td><span class="tag">nowrap</span></td><td>Colapsa</td><td>Colapsa</td><td>❌ No (clave para truncar)</td></tr>
+      <tr><td><span class="tag">pre</span></td><td>Respeta</td><td>Respeta</td><td>❌ No</td></tr>
+      <tr><td><span class="tag">pre-wrap</span></td><td>Respeta</td><td>Respeta</td><td>✅ Sí</td></tr>
+      <tr><td><span class="tag">pre-line</span></td><td>Respeta</td><td>Colapsa</td><td>✅ Sí</td></tr>
+    </tbody>
+  </table>
+
+  <h2>word-break y overflow-wrap — romper palabras largas</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* overflow-wrap: rompe la palabra solo si no cabe de ninguna otra forma */</span>
+<span class="cp">.contenedor-estrecho</span> { <span class="ca">overflow-wrap</span>: break-word; }
+
+<span class="cc">/* word-break: controla exactamente dónde puede romperse la palabra */</span>
+<span class="cp">.codigo</span>    { <span class="ca">word-break</span>: break-all; }   <span class="cc">/* Rompe en cualquier carácter */</span>
+<span class="cp">.contenido</span> { <span class="ca">word-break</span>: break-word; }  <span class="cc">/* Rompe por palabras */</span>
+
+<span class="cc">/* hyphens: agrega guiones automáticos al romper palabras */</span>
+<span class="cp">p</span> {
+  <span class="ca">hyphens</span>: auto;
+  <span class="ca">lang</span>: es;  <span class="cc">/* Necesita &lt;html lang="es"&gt; para funcionar */</span>
+}</div>
+
+  <h2>text-wrap: balance — títulos visualmente equilibrados</h2>
+
+  <p>Esta propiedad moderna (2023+) hace que el navegador distribuya automáticamente las palabras de un título para que las líneas tengan longitudes similares, evitando títulos con una última línea de solo una o dos palabras.</p>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">h1, h2, h3</span> { <span class="ca">text-wrap</span>: balance; }
+<span class="cc">/* Solo funciona con texto corto (máx. 4 líneas aprox.) */</span>
+<span class="cc">/* Ideal para títulos de hero, tarjetas, headings */</span></div>
+
+  <div class="preview">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:.5rem">
+      <div>
+        <p style="font-size:.78rem;color:var(--muted);margin-bottom:.3rem">❌ Sin text-wrap: balance</p>
+        <div class="text-demo" style="max-width:220px;font-weight:700;font-size:1rem;line-height:1.4">
+          Los mejores goles del Mundial de Fútbol 2026
+        </div>
+      </div>
+      <div>
+        <p style="font-size:.78rem;color:var(--muted);margin-bottom:.3rem">✅ Con text-wrap: balance</p>
+        <div class="text-demo balance-demo" style="font-weight:700;font-size:1rem;line-height:1.4">
+          Los mejores goles del Mundial de Fútbol 2026
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     EJERCICIO FINAL
+═══════════════════════════════════════════ -->
+<section class="module" id="ejercicio">
+  <div class="module-header">
+    <div class="module-icon">✏️</div>
+    <div>
+      <div class="module-title">Ejercicio integrador — Landing page de un estadio</div>
+      <div class="module-sub">Posicionamiento, modal, transitions, overflow y texto en un proyecto real</div>
+    </div>
+  </div>
+
+  <div class="ex">
+    <div class="ex-hd">✏️ Ejercicio — Página de venta de boletos de estadio <span class="ex-badge">Avanzado</span></div>
+
+    <p>Crea un archivo <code>estadio.html</code> con todo el CSS en el mismo archivo. El objetivo es construir una landing page de venta de boletos para un partido de fútbol, aplicando todo lo de esta parte.</p>
+
+    <ol>
+      <li>
+        <strong>Navbar fija (position: fixed)</strong>: Un <code>&lt;header&gt;</code> con logo y navegación que siempre se quede en la parte superior. Recuerda agregar <code>padding-top</code> al body para que el contenido no quede tapado. Agrega una <code>transition</code> en el <code>box-shadow</code> para que aparezca suavemente.
+      </li>
+      <li>
+        <strong>Sección hero con badge absolute</strong>: Un <code>&lt;section class="hero"&gt;</code> con <code>position: relative</code> que contenga:
+        <ul style="margin-top:.35rem">
+          <li>Un badge <code>position: absolute</code> en la esquina superior derecha que diga "¡HOY!"</li>
+          <li>Un ícono de estadio <code>position: absolute</code> en la esquina inferior izquierda</li>
+        </ul>
+      </li>
+      <li>
+        <strong>Tabla de precios con overflow</strong>: Una tabla de precios de zonas (General, Preferente, VIP, Palco) con <code>overflow-x: auto</code> en un contenedor, para que en móvil sea scrolleable horizontalmente.
+      </li>
+      <li>
+        <strong>Lista de partidos con sticky header</strong>: Una sección <code>&lt;div&gt;</code> con altura fija y <code>overflow-y: auto</code> que muestre 10+ partidos. El encabezado de la lista debe ser <code>position: sticky; top: 0</code>.
+      </li>
+      <li>
+        <strong>Tarjetas de jugadores con transitions</strong>: Al menos 4 tarjetas de jugadores del equipo. Cada una debe tener en <code>:hover</code>:
+        <ul style="margin-top:.35rem">
+          <li><code>transform: translateY(-6px)</code></li>
+          <li><code>box-shadow</code> que aparezca suavemente</li>
+          <li>El nombre del jugador con <code>text-wrap: balance</code></li>
+        </ul>
+      </li>
+      <li>
+        <strong>Modal de compra</strong>: Un botón "Comprar boletos" que abra un modal con <code>position: fixed</code>, overlay semitransparente con <code>backdrop-filter: blur(4px)</code>, animación de entrada con <code>@keyframes</code>, y botones de confirmar/cancelar.
+      </li>
+      <li>
+        <strong>Footer con z-index correcto</strong>: Asegúrate de que el modal (z-index: 1000) quede siempre por encima de la navbar (z-index: 100) y del contenido normal (z-index: 1).
+      </li>
+    </ol>
+
+    <p style="margin-top:1rem"><strong>Bonus:</strong> Agrega un botón flotante <code>position: fixed; bottom: 24px; right: 24px</code> con el texto "↑ Subir" que lleve al inicio de la página con <code>&lt;a href="#"&gt;</code> y aparezca solo cuando el usuario haga scroll (usando una clase que JS agrega/quita).</p>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Resumen de lo que aprendiste en la Parte D</h4>
+    <ul>
+      <li><strong>position: static</strong> — flujo normal, sin top/left/z-index</li>
+      <li><strong>position: relative</strong> — se mueve visualmente pero reserva su espacio; crea contexto para absolute</li>
+      <li><strong>position: absolute</strong> — sale del flujo, se ancla al ancestro posicionado más cercano</li>
+      <li><strong>position: fixed</strong> — se ancla al viewport, siempre visible al hacer scroll</li>
+      <li><strong>position: sticky</strong> — relative hasta llegar al umbral, luego se queda pegado</li>
+      <li><strong>z-index</strong> — orden de apilamiento; solo funciona con position ≠ static</li>
+      <li><strong>Modal</strong> — overlay fixed + caja centrada + clase JS para abrir/cerrar</li>
+      <li><strong>transition</strong> — propiedad duración timing delay; preferir transform y opacity</li>
+      <li><strong>timing-function</strong> — linear, ease, ease-in, ease-out, ease-in-out, cubic-bezier()</li>
+      <li><strong>overflow</strong> — visible, hidden, scroll, auto; overflow-x / overflow-y por separado</li>
+      <li><strong>Flujo de texto</strong> — white-space, text-overflow: ellipsis, word-break, hyphens, text-wrap: balance</li>
+    </ul>
+  </div>
+
+  <div class="concept">
+    <h4>💡 ¿Qué sigue? — Parte E</h4>
+    <p>La siguiente parte cubre <strong>Flexbox completo</strong> — todo lo que no viste en la guía base: <code>flex-direction</code>, <code>flex-wrap</code>, los dos ejes (main y cross), <code>flex-grow</code> / <code>flex-shrink</code> / <code>flex-basis</code>, <code>align-self</code>, <code>order</code>, y cómo construir layouts reales (navbar, hero, cards, sidebar) con Flexbox desde cero. Pídela cuando estés listo.</p>
+  </div>
+
+</section>
+
+</main>
+
+<footer>
+  Guía HTML &amp; CSS · Parte D — Posicionamiento y Transitions · Basada en el curso de Soy Dalto · Hugo 2025
+</footer>
+
+</body>
+</html>

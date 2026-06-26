@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ejercicio 3 — Perfil de Jugador de Fútbol | Flexbox · Box Model · Variables</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #c44a2a;
+    --primary-light:  #fdf0ec;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --danger:         #c44a2a;
+    --danger-light:   #fdf0ec;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1a1814;
+    --code-text:      #e8e4de;
+  }
+
+  body { font-family: 'DM Sans', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  /* TOPBAR */
+  .topbar { background:#ffffff; border-bottom:1px solid var(--border); padding:0 24px; display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:200; height:45px; }
+  .topbar a { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--muted); text-decoration:none; padding:6px 14px; border:1px solid var(--border); border-radius:999px; transition:all 0.15s; }
+  .topbar a:hover { color:var(--text); border-color:#8a8480; }
+  .topbar span { font-size:13px; color:var(--muted); }
+
+  /* HEADER */
+  header { background: #1a1814; color: #f7f4ef; padding: 3rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: '⚽'; position: absolute; font-size: 12rem; right: -1rem; top: -2rem; opacity: .06; line-height: 1; }
+  header .ex-label { display: inline-block; background: var(--primary); color: white; border-radius: 20px; padding: 4px 16px; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 1rem; }
+  header h1 { font-size: 2.4rem; font-weight: 800; letter-spacing: -1px; }
+  header p.sub { font-size: 1.05rem; opacity: .8; margin-top: .5rem; font-style: italic; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  /* NAV */
+  nav.guide-nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 45px; z-index: 100; display: flex; overflow-x: auto; }
+  nav.guide-nav a { flex-shrink: 0; padding: .75rem 1.1rem; text-decoration: none; color: var(--muted); font-size: .82rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav.guide-nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  /* MAIN */
+  main { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: white; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  /* MODULE */
+  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2.5rem; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-size: 1.35rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  /* CALLOUTS */
+  .analogy { background: #FFF7ED; border: 1px solid #FDE68A; border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: #92400E; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; color: #78350F; }
+  .concept { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p, .tip ul { font-size: .95rem; }
+  .tip ul { padding-left: 1.2rem; }
+  .tip li { margin-bottom: .3rem; }
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  /* CODE BLOCKS */
+  .code-block { background: var(--code-bg); color: var(--code-text); border-radius: 10px; padding: 1.25rem 1.5rem; font-family: 'DM Mono', 'Courier New', monospace; font-size: .88rem; line-height: 1.85; overflow-x: auto; margin: 1rem 0; position: relative; white-space: pre; }
+  .code-block .ct { color: #89B4FA; }
+  .code-block .ca { color: #CBA6F7; }
+  .code-block .cv { color: #A6E3A1; }
+  .code-block .cs { color: #F9E2AF; }
+  .code-block .cp { color: #89DCEB; }
+  .code-block .cc { color: #585B70; font-style: italic; }
+  .code-block .cn { color: #FAB387; }
+  .lang { position: absolute; top: .6rem; right: .75rem; background: rgba(255,255,255,.1); color: rgba(255,255,255,.5); font-size: .68rem; padding: 2px 8px; border-radius: 4px; font-family: sans-serif; }
+
+  /* PREVIEW */
+  .preview { border: 2px dashed var(--border); border-radius: 10px; overflow: hidden; margin: 1rem 0; background: var(--surface); position: relative; }
+  .preview::before { content: '🖥 Vista en navegador'; position: absolute; top: -11px; left: 14px; background: var(--surface); font-size: .73rem; color: var(--muted); padding: 0 6px; z-index: 1; }
+
+  /* TABLES */
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  /* ANATOMY */
+  .anatomy { background: #F0F4FF; border: 1px solid #C7D2FE; border-radius: 12px; padding: 1.5rem; font-family: 'DM Mono', monospace; font-size: 1rem; line-height: 2.4; margin: 1.25rem 0; }
+  .anatomy .br { color: var(--primary); font-weight: 700; }
+  .anatomy .at { color: #0891B2; }
+  .anatomy .vl { color: #059669; }
+  .anatomy .lb  { display: inline-block; background: var(--primary); color: #fff; font-size: .68rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 6px; }
+  .anatomy .lb2 { display: inline-block; background: var(--accent); color: #fff; font-size: .68rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 6px; }
+  .anatomy .lb3 { display: inline-block; background: var(--secondary); color: #fff; font-size: .68rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 6px; }
+
+  /* GLOSARIO */
+  .glos { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .glos-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; }
+  .glos-item dt { font-weight: 700; color: var(--primary); font-size: .92rem; margin-bottom: .3rem; }
+  .glos-item dd { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+  .glos-item .emoji { font-size: 1.4rem; display: block; margin-bottom: .4rem; }
+
+  /* CHIPS */
+  .chip { display: inline-block; background: var(--primary-light); color: var(--primary); font-size: .8rem; padding: 3px 12px; border-radius: 20px; font-weight: 600; margin: 3px; font-family: 'DM Mono', monospace; }
+
+  /* RETO CARDS */
+  .reto-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin: 1.25rem 0; }
+  .reto-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+  .reto-card .nivel { display: inline-block; font-size: .72rem; font-weight: 700; padding: 2px 10px; border-radius: 20px; margin-bottom: .6rem; text-transform: uppercase; letter-spacing: .06em; }
+  .nivel-f { background: #FEF3C7; color: #92400E; }
+  .nivel-m { background: #FFEDD5; color: #C2410C; }
+  .nivel-a { background: #FEE2E2; color: #B91C1C; }
+  .nivel-ex { background: #1a1814; color: #f7f4ef; }
+  .reto-card h4 { font-size: .95rem; font-weight: 700; margin-bottom: .5rem; }
+  .reto-card p { font-size: .88rem; color: var(--muted); margin-bottom: .5rem; }
+  .reto-card strong { color: var(--text); }
+
+  /* BOX MODEL DIAGRAM */
+  .bm-wrap { display: flex; justify-content: center; margin: 1.5rem 0; }
+  .bm-margin  { background: #FEF3C7; border: 2px dashed #D97706; border-radius: 10px; padding: 22px; position: relative; }
+  .bm-margin-label { position: absolute; top: 4px; left: 10px; font-size: .68rem; font-weight: 700; color: #92400E; font-family: 'DM Mono', monospace; text-transform: uppercase; }
+  .bm-border  { background: #FCA5A5; border-radius: 6px; padding: 18px; position: relative; }
+  .bm-border-label { position: absolute; top: 4px; left: 10px; font-size: .68rem; font-weight: 700; color: #7F1D1D; font-family: 'DM Mono', monospace; text-transform: uppercase; }
+  .bm-padding { background: #BBF7D0; border-radius: 4px; padding: 18px; position: relative; }
+  .bm-padding-label { position: absolute; top: 4px; left: 10px; font-size: .68rem; font-weight: 700; color: #14532D; font-family: 'DM Mono', monospace; text-transform: uppercase; }
+  .bm-content { background: #BFDBFE; border-radius: 3px; padding: 14px 22px; text-align: center; font-family: 'DM Mono', monospace; font-size: .85rem; font-weight: 700; color: #1E3A5F; min-width: 130px; }
+
+  /* FLEXBOX DIAGRAM */
+  .flex-demo { border: 2px dashed #6366F1; border-radius: 10px; padding: 16px; background: #EEF2FF; display: flex; gap: 12px; align-items: center; margin: 1.25rem 0; position: relative; }
+  .flex-demo::before { content: 'display: flex (contenedor padre)'; position: absolute; top: -11px; left: 12px; background: #6366F1; color: white; font-size: .68rem; padding: 1px 8px; border-radius: 4px; font-family: 'DM Mono', monospace; }
+  .flex-child { background: #6366F1; color: white; border-radius: 6px; padding: 10px 16px; font-family: 'DM Mono', monospace; font-size: .8rem; font-weight: 600; text-align: center; flex: 1; }
+  .flex-child span { display: block; font-size: .65rem; opacity: .8; margin-top: 2px; }
+
+  /* DEMO PERFIL */
+  .demo-perfil { font-family: 'DM Sans', sans-serif; background: #F8FAFC; }
+  .demo-hero { background: #1D4ED8; color: white; display: flex; align-items: center; gap: 32px; padding: 36px 40px; }
+  .demo-hero img { width: 110px; height: 110px; border-radius: 50%; border: 3px solid #D97706; object-fit: cover; flex-shrink: 0; }
+  .demo-hero .posicion { display: inline-block; background: #D97706; color: white; font-size: .72rem; font-weight: 700; padding: 3px 12px; border-radius: 20px; margin-bottom: 8px; }
+  .demo-hero h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: 4px; line-height: 1.1; }
+  .demo-hero .equipo { font-size: .88rem; color: rgba(255,255,255,.75); font-weight: 600; margin-bottom: 8px; }
+  .demo-hero .descripcion { font-size: .85rem; color: rgba(255,255,255,.85); max-width: 400px; line-height: 1.6; }
+  .demo-body { padding: 28px 40px; }
+  .demo-titulo { font-size: 1.05rem; font-weight: 700; color: #1D4ED8; border-left: 4px solid #D97706; padding-left: 12px; margin-bottom: 18px; }
+  .demo-stats { display: flex; gap: 12px; margin-bottom: 28px; flex-wrap: wrap; }
+  .demo-stat { flex: 1; min-width: 100px; background: white; border: 1px solid #E5E7EB; border-radius: 10px; padding: 18px 12px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,.05); }
+  .demo-stat.dest { background: #1D4ED8; border-color: #1D4ED8; color: white; }
+  .demo-stat .num { display: block; font-size: 2rem; font-weight: 800; color: #1D4ED8; line-height: 1; }
+  .demo-stat.dest .num { color: white; }
+  .demo-stat .lab { display: block; font-size: .7rem; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: .06em; margin-top: 4px; }
+  .demo-stat.dest .lab { color: rgba(255,255,255,.8); }
+  .demo-table { width: 100%; border-collapse: collapse; font-size: .85rem; margin-bottom: 28px; }
+  .demo-table th { background: #1D4ED8; color: white; padding: 10px 12px; text-align: left; font-size: .75rem; text-transform: uppercase; letter-spacing: .05em; }
+  .demo-table td { padding: 10px 12px; border-bottom: 1px solid #E5E7EB; }
+  .demo-table tbody tr:nth-child(even) { background: #F1F5F9; }
+  .demo-table tbody tr:hover { background: #DBEAFE; }
+  .ganado  { color: #065F46; font-weight: 700; }
+  .empate  { color: #92400E; font-weight: 700; }
+  .perdido { color: #B91C1C; font-weight: 700; }
+  .demo-skills { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; margin-bottom: 28px; }
+  .demo-skill { background: white; border: 1px solid #E5E7EB; border-radius: 20px; padding: 6px 16px; font-size: .82rem; font-weight: 600; color: #1F2937; }
+  .demo-skill.top { background: #D97706; color: white; border-color: #D97706; }
+  .demo-footer { background: #1E3A8A; color: rgba(255,255,255,.8); text-align: center; padding: 20px; font-size: .82rem; }
+  .demo-footer a { color: #D97706; font-weight: 700; text-decoration: none; }
+
+  /* TYPOGRAPHY */
+  h2 { font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; color: var(--text); }
+  h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 .5rem; }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: #f0ece6; color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  strong { font-weight: 700; }
+  em { font-style: italic; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+
+  /* FOOTER */
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <a href="#">← Volver al curso</a>
+  <span>⚽ Ejercicio 3 — Perfil de Futbolista · Flexbox · Box Model · Variables CSS</span>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="ex-label">✏️ Ejercicio 3</div>
+  <h1>Perfil de Jugador de Fútbol</h1>
+  <p class="sub">Flexbox, Box Model, Variables CSS y Tablas HTML</p>
+  <span class="badge">📦 Box Model · ↔️ Flexbox · 🎨 Variables CSS · 📊 Tablas · 🖼️ Imagen circular</span>
+</header>
+
+<!-- NAV -->
+<nav class="guide-nav">
+  <a href="#aprenderás">🎓 ¿Qué aprenderás?</a>
+  <a href="#boxmodel">📦 Box Model</a>
+  <a href="#flexbox">↔️ Flexbox</a>
+  <a href="#variables">🎨 Variables CSS</a>
+  <a href="#archivos">📁 Archivos</a>
+  <a href="#html">🧱 HTML</a>
+  <a href="#css">🎨 CSS</a>
+  <a href="#resultado">🖥 Resultado</a>
+  <a href="#retos">🏆 Retos</a>
+  <a href="#resumen">📋 Resumen</a>
+</nav>
+
+<main>
+
+<div class="parte-badge">⚽ Ejercicio 3 — Nivel: principiante avanzado · Un escalón arriba del Ejercicio 2</div>
+
+
+<!-- ══════════════════════════════════
+     ¿QUÉ VAS A APRENDER?
+══════════════════════════════════ -->
+<section class="module" id="aprenderás">
+  <div class="module-header">
+    <div class="module-icon">🎓</div>
+    <div>
+      <div class="module-title">¿Qué vas a aprender en este ejercicio?</div>
+      <div class="module-sub">Conceptos que todo desarrollador web usa todos los días</div>
+    </div>
+  </div>
+
+  <div class="glos">
+    <div class="glos-item">
+      <span class="emoji">📦</span>
+      <dt>Box Model</dt>
+      <dd>Cómo el navegador mide el espacio: <code>content</code>, <code>padding</code>, <code>border</code>, <code>margin</code> y el poder de <code>box-sizing</code>.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">↔️</span>
+      <dt>Flexbox</dt>
+      <dd><code>display: flex</code> para poner elementos en fila sin que se desordenen. <code>justify-content</code>, <code>align-items</code> y <code>gap</code>.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🎨</span>
+      <dt>Variables CSS</dt>
+      <dd>Definir colores una sola vez con <code>:root</code> y reutilizarlos con <code>var(--nombre)</code>.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🖼️</span>
+      <dt>Imagen circular</dt>
+      <dd>Hacer una foto de perfil redonda con <code>border-radius: 50%</code>.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">📊</span>
+      <dt>Tabla HTML</dt>
+      <dd>Mostrar datos en filas y columnas con <code>&lt;table&gt;</code>, <code>&lt;thead&gt;</code>, <code>&lt;tbody&gt;</code>, <code>&lt;tr&gt;</code>, <code>&lt;th&gt;</code>, <code>&lt;td&gt;</code>.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🎯</span>
+      <dt>Selectores avanzados</dt>
+      <dd>Selector de doble clase <code>.clase1.clase2</code>, descendiente <code>.padre .hijo</code> y <code>:nth-child()</code>.</dd>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>💡 ¿Qué traes de los ejercicios anteriores?</h4>
+    <p>Ya dominas etiquetas semánticas, clases, IDs, listas, enlaces, color, font-size, box model básico y el patrón <code>.contenedor</code>. Aquí usas todo eso <strong>más</strong> Flexbox, Variables CSS y Tablas. No repetimos lo básico: vamos directo a lo nuevo.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     CONCEPTO 1 — BOX MODEL
+══════════════════════════════════ -->
+<section class="module" id="boxmodel">
+  <div class="module-header">
+    <div class="module-icon">📦</div>
+    <div>
+      <div class="module-title">CONCEPTO 1 — Box Model: recordatorio rápido</div>
+      <div class="module-sub">Ya lo viste a fondo en el Ejercicio 2 — aquí solo refrescamos lo esencial antes de usarlo</div>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>💡 ¿Lo estudiaste en el Ejercicio 2?</h4>
+    <p>En el Ejercicio 2 aprendiste las 4 capas completas (content · padding · border · margin), el shorthand de margin/padding, el truco <code>margin: 0 auto</code> y por qué <code>box-sizing: border-box</code> es esencial. Todo eso lo usamos aquí. Si tienes dudas, revisa el Ejercicio 2 antes de continuar.</p>
+  </div>
+
+  <p>En este ejercicio aplicarás el Box Model en 3 situaciones nuevas: la <strong>foto de perfil circular</strong> (border-radius: 50%), las <strong>tarjetas de estadísticas</strong> (padding + border decorativo) y las <strong>pastillas de habilidades</strong> (padding + border-radius grande). La diferencia con el Ejercicio 2 es que ahora vas a combinar el Box Model <em>dentro de un contenedor Flexbox</em>.</p>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* Recordatorio rápido — las propiedades clave */</span>
+<span class="cp">.elemento</span> {
+  <span class="ca">padding</span>: <span class="cn">24px 16px</span>;          <span class="cc">/* espacio interior ↑↓ ←→ */</span>
+  <span class="ca">border</span>: <span class="cn">1px solid #E5E7EB</span>;   <span class="cc">/* borde visible */</span>
+  <span class="ca">border-radius</span>: <span class="cn">12px</span>;          <span class="cc">/* esquinas redondeadas */</span>
+  <span class="ca">margin</span>: <span class="cn">0 auto</span>;               <span class="cc">/* centra horizontalmente */</span>
+  <span class="ca">box-sizing</span>: border-box;        <span class="cc">/* el padding NO agranda el elemento */</span>
+}
+
+<span class="cc">/* NUEVO en este ejercicio: imagen perfectamente circular */</span>
+<span class="cp">.foto-perfil</span> {
+  <span class="ca">width</span>: <span class="cn">150px</span>;
+  <span class="ca">height</span>: <span class="cn">150px</span>;
+  <span class="ca">border-radius</span>: <span class="cn">50%</span>;   <span class="cc">/* ← 50% con mismo ancho y alto = círculo */</span>
+  <span class="ca">border</span>: <span class="cn">4px solid #D97706</span>;
+}</div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     CONCEPTO 2 — FLEXBOX
+══════════════════════════════════ -->
+<section class="module" id="flexbox">
+  <div class="module-header">
+    <div class="module-icon">↔️</div>
+    <div>
+      <div class="module-title">CONCEPTO 2 — Flexbox básico</div>
+      <div class="module-sub">El sistema más usado para organizar elementos en fila o columna</div>
+    </div>
+  </div>
+
+  <p>Con solo poner <code>display: flex</code> en el <strong>contenedor padre</strong>, los hijos se organizan solos en fila horizontal. Funciona en 2 pasos:</p>
+  <ol>
+    <li>Le dices al <strong>contenedor padre</strong> que use Flexbox.</li>
+    <li>Los <strong>elementos hijos</strong> se organizan automáticamente según las reglas que definas.</li>
+  </ol>
+
+  <div class="analogy">
+    <h4>🚂 Analogía: el tren</h4>
+    <p>El contenedor flex es el tren. Los elementos hijos son los vagones. Con Flexbox decides: ¿los vagones van en fila (<code>row</code>) o en columna (<code>column</code>)? ¿Cómo se distribuye el espacio entre ellos? ¿Se alinean al centro, arriba o abajo? Tú controlas el tren — los vagones obedecen.</p>
+  </div>
+
+  <!-- Diagrama visual de Flexbox -->
+  <div class="flex-demo">
+    <div class="flex-child">Hijo 1<span>flex-child</span></div>
+    <div class="flex-child">Hijo 2<span>flex-child</span></div>
+    <div class="flex-child">Hijo 3<span>flex-child</span></div>
+    <div class="flex-child">Hijo 4<span>flex-child</span></div>
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* El CONTENEDOR (el padre — el tren) */</span>
+<span class="cp">.contenedor</span> {
+  <span class="ca">display</span>: flex;               <span class="cc">/* ACTIVA flexbox — lo único obligatorio */</span>
+  <span class="ca">flex-direction</span>: row;         <span class="cc">/* los hijos van en fila (izq a der) — es el default */</span>
+  <span class="ca">justify-content</span>: center;     <span class="cc">/* centra en el eje horizontal */</span>
+  <span class="ca">align-items</span>: center;         <span class="cc">/* centra en el eje vertical */</span>
+  <span class="ca">gap</span>: <span class="cn">16px</span>;                   <span class="cc">/* espacio entre hijos */</span>
+  <span class="ca">flex-wrap</span>: wrap;              <span class="cc">/* si no caben, saltan a nueva línea */</span>
+}
+
+<span class="cc">/* justify-content — más valores útiles: */</span>
+<span class="cc">/* flex-start      → al inicio (izquierda) */</span>
+<span class="cc">/* flex-end        → al final (derecha)    */</span>
+<span class="cc">/* space-between   → espacio entre (sin bordes) */</span>
+<span class="cc">/* space-evenly    → espacio igual entre todos  */</span></div>
+
+  <table class="tbl">
+    <thead><tr><th>Propiedad Flexbox</th><th>¿Dónde va?</th><th>¿Qué controla?</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">display: flex</span></td><td>Padre</td><td>Activa Flexbox. Los hijos pasan a modo flex automáticamente.</td></tr>
+      <tr><td><span class="tag">flex-direction</span></td><td>Padre</td><td><code>row</code> = en fila (default) · <code>column</code> = en columna.</td></tr>
+      <tr><td><span class="tag">justify-content</span></td><td>Padre</td><td>Distribución en el <strong>eje principal</strong> (horizontal si direction es row).</td></tr>
+      <tr><td><span class="tag">align-items</span></td><td>Padre</td><td>Alineación en el <strong>eje cruzado</strong> (vertical si direction es row).</td></tr>
+      <tr><td><span class="tag">gap</span></td><td>Padre</td><td>Espacio entre hijos. Reemplaza márgenes manuales.</td></tr>
+      <tr><td><span class="tag">flex-wrap: wrap</span></td><td>Padre</td><td>Permite que los hijos salten de línea si no caben.</td></tr>
+      <tr><td><span class="tag">flex: 1</span></td><td>Hijo</td><td>El hijo ocupa una fracción igual del espacio disponible.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- ══════════════════════════════════
+     CONCEPTO 3 — VARIABLES CSS
+══════════════════════════════════ -->
+<section class="module" id="variables">
+  <div class="module-header">
+    <div class="module-icon">🎨</div>
+    <div>
+      <div class="module-title">CONCEPTO 3 — Variables CSS: de nuevo en acción</div>
+      <div class="module-sub">Ya las usaste en el Ejercicio 2 — aquí las aplicamos con más colores y un patrón más completo</div>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>💡 Las variables CSS no son nuevas para ti</h4>
+    <p>En el Ejercicio 2 definiste <code>:root</code> con <code>--azul-oscuro</code>, <code>--amarillo</code>, etc. y las usaste con <code>var()</code>. Aquí el concepto es el mismo — la diferencia es que ahora tienes <strong>más variables</strong> (incluyendo una para el radio de borde) y las vas a usar en más lugares del CSS, especialmente dentro de reglas Flexbox.</p>
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* Mismo patrón que el Ejercicio 2, ahora con más variables */</span>
+<span class="cp">:root</span> {
+  <span class="ca">--color-primario</span>:   <span class="cn">#1D4ED8</span>; <span class="cc">/* azul principal */</span>
+  <span class="ca">--color-secundario</span>: <span class="cn">#1E3A8A</span>; <span class="cc">/* azul oscuro */</span>
+  <span class="ca">--color-acento</span>:     <span class="cn">#D97706</span>; <span class="cc">/* naranja */</span>
+  <span class="ca">--color-texto</span>:      <span class="cn">#1F2937</span>;
+  <span class="ca">--color-fondo</span>:      <span class="cn">#F8FAFC</span>;
+  <span class="ca">--color-borde</span>:      <span class="cn">#E5E7EB</span>;
+  <span class="ca">--radio-borde</span>:      <span class="cn">12px</span>;    <span class="cc">/* NUEVO: guardar medidas también, no solo colores */</span>
+}
+
+<span class="cc">/* Usarlas con var() — igual que antes */</span>
+<span class="cp">.stat-card</span> {
+  <span class="ca">border-radius</span>: var(<span class="cv">--radio-borde</span>);     <span class="cc">/* reutiliza la medida */</span>
+  <span class="ca">border-top</span>: <span class="cn">4px solid</span> var(<span class="cv">--color-primario</span>);
+}
+<span class="cp">.stat-card.destacada</span> {
+  <span class="ca">background-color</span>: var(<span class="cv">--color-primario</span>);  <span class="cc">/* mismo color, diferente propiedad */</span>
+}</div>
+
+  <div class="concept">
+    <h4>💡 ¿Qué aporta --radio-borde?</h4>
+    <p>Guardar medidas como variables (no solo colores) te da consistencia visual. Todas las tarjetas del portfolio tendrán exactamente el mismo radio de esquina porque todas usan <code>var(--radio-borde)</code>. Si decides cambiar a <code>8px</code>, cambias una línea y se actualiza todo.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     ARCHIVOS
+══════════════════════════════════ -->
+<section class="module" id="archivos">
+  <div class="module-header">
+    <div class="module-icon">📁</div>
+    <div>
+      <div class="module-title">PARTE 1 — Crea los archivos del proyecto</div>
+      <div class="module-sub">Carpeta nueva, misma estructura</div>
+    </div>
+  </div>
+
+  <ul>
+    <li>Crea una carpeta nueva: <code>perfil-futbol</code></li>
+    <li>Dentro crea: <code>index.html</code> y <code>styles.css</code></li>
+    <li>Abre la carpeta en VS Code → clic derecho en <code>index.html</code> → <em>Open with Live Server</em></li>
+  </ul>
+</section>
+
+
+<!-- ══════════════════════════════════
+     HTML
+══════════════════════════════════ -->
+<section class="module" id="html">
+  <div class="module-header">
+    <div class="module-icon">🧱</div>
+    <div>
+      <div class="module-title">PARTE 2 — El HTML completo</div>
+      <div class="module-sub">Lee la explicación de cada bloque antes de escribirlo</div>
+    </div>
+  </div>
+
+  <h2>BLOQUE 1 — Estructura base con Google Fonts</h2>
+  <p>Esta vez importamos una fuente de Google directamente en el HTML usando <code>&lt;link&gt;</code>.</p>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="ct">&lt;!DOCTYPE html&gt;</span>
+<span class="ct">&lt;html</span> <span class="ca">lang</span>=<span class="cv">"es"</span><span class="ct">&gt;</span>
+<span class="ct">&lt;head&gt;</span>
+  <span class="ct">&lt;meta</span> <span class="ca">charset</span>=<span class="cv">"UTF-8"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;meta</span> <span class="ca">name</span>=<span class="cv">"viewport"</span> <span class="ca">content</span>=<span class="cv">"width=device-width, initial-scale=1.0"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;title&gt;</span><span class="cs">Perfil de Jugador — Carlos Mendoza</span><span class="ct">&lt;/title&gt;</span>
+  <span class="cc">&lt;!-- Google Fonts: importamos la fuente 'Poppins' --&gt;</span>
+  <span class="ct">&lt;link</span> <span class="ca">rel</span>=<span class="cv">"preconnect"</span> <span class="ca">href</span>=<span class="cv">"https://fonts.googleapis.com"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;link</span> <span class="ca">href</span>=<span class="cv">"https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap"</span>
+        <span class="ca">rel</span>=<span class="cv">"stylesheet"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;link</span> <span class="ca">rel</span>=<span class="cv">"stylesheet"</span> <span class="ca">href</span>=<span class="cv">"styles.css"</span><span class="ct">&gt;</span>
+<span class="ct">&lt;/head&gt;</span>
+<span class="ct">&lt;body&gt;</span>
+  <span class="cc">&lt;!-- El contenido va aquí --&gt;</span>
+<span class="ct">&lt;/body&gt;</span>
+<span class="ct">&lt;/html&gt;</span></div>
+
+  <table class="tbl">
+    <thead><tr><th>Línea nueva</th><th>¿Qué hace?</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">rel="preconnect"</span></td><td>Le dice al navegador que establezca conexión con Google antes de necesitar la fuente. Hace que cargue más rápido.</td></tr>
+      <tr><td><span class="tag">family=Poppins:wght@400;600;700</span></td><td>Pedimos 3 pesos de la fuente: 400 (normal), 600 (semi-bold) y 700 (bold). Así podemos usar los tres en el CSS.</td></tr>
+      <tr><td><span class="tag">&display=swap</span></td><td>Mientras carga la fuente, muestra una alternativa. El texto aparece de inmediato y luego "swap" cambia a Poppins.</td></tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h2>BLOQUE 2 — La sección hero (presentación del jugador)</h2>
+  <p>El "hero" es la sección grande al inicio. Aquí usaremos Flexbox para poner la foto y la info en fila.</p>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="cc">&lt;!-- ① HERO: Presentación del jugador --&gt;</span>
+<span class="ct">&lt;section</span> <span class="ca">class</span>=<span class="cv">"hero"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"hero-foto"</span><span class="ct">&gt;</span>
+    <span class="ct">&lt;img</span>
+      <span class="ca">src</span>=<span class="cv">"https://placehold.co/150x150/1D4ED8/FFFFFF?text=CM"</span>
+      <span class="ca">alt</span>=<span class="cv">"Foto de Carlos Mendoza"</span>
+      <span class="ca">class</span>=<span class="cv">"foto-perfil"</span>
+    <span class="ct">&gt;</span>
+  <span class="ct">&lt;/div&gt;</span>
+  <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"hero-info"</span><span class="ct">&gt;</span>
+    <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"posicion"</span><span class="ct">&gt;</span><span class="cs">⚽ Delantero Centro</span><span class="ct">&lt;/span&gt;</span>
+    <span class="ct">&lt;h1&gt;</span><span class="cs">Carlos Mendoza</span><span class="ct">&lt;/h1&gt;</span>
+    <span class="ct">&lt;p</span> <span class="ca">class</span>=<span class="cv">"equipo"</span><span class="ct">&gt;</span><span class="cs">Club Deportivo Veracruz · #9</span><span class="ct">&lt;/p&gt;</span>
+    <span class="ct">&lt;p</span> <span class="ca">class</span>=<span class="cv">"descripcion"</span><span class="ct">&gt;</span>
+      <span class="cs">Delantero explosivo con </span><span class="ct">&lt;strong&gt;</span><span class="cs">8 temporadas</span><span class="ct">&lt;/strong&gt;</span><span class="cs"> en primera división.
+      Especialista en remates de cabeza y <em>velocidad en el área</em>.</span>
+    <span class="ct">&lt;/p&gt;</span>
+  <span class="ct">&lt;/div&gt;</span>
+<span class="ct">&lt;/section&gt;</span></div>
+
+  <table class="tbl">
+    <thead><tr><th>Etiqueta / Clase</th><th>Explicación</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">.hero</span></td><td>El contenedor padre. En CSS le pondremos <code>display: flex</code> para que <code>.hero-foto</code> y <code>.hero-info</code> queden en fila.</td></tr>
+      <tr><td><span class="tag">.hero-foto</span> y <span class="tag">.hero-info</span></td><td>Los hijos del contenedor flex. Se colocarán automáticamente en fila cuando el padre tenga <code>display: flex</code>.</td></tr>
+      <tr><td><span class="tag">.foto-perfil</span></td><td>Clase de la imagen. En CSS le aplicaremos <code>border-radius: 50%</code> para hacerla circular.</td></tr>
+      <tr><td><span class="tag">.posicion</span></td><td>Un <code>&lt;span&gt;</code> que estilizaremos como badge/pastilla con <code>padding</code>, <code>background-color</code> y <code>border-radius: 20px</code>.</td></tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h2>BLOQUE 3 — Tarjetas de estadísticas</h2>
+  <p>Las 4 tarjetas quedarán en fila con Flexbox. Observa que la tercera tiene <strong>dos clases</strong>: <code>stat-card destacada</code>.</p>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="cc">&lt;!-- ② ESTADÍSTICAS: 4 tarjetas en fila --&gt;</span>
+<span class="ct">&lt;section</span> <span class="ca">class</span>=<span class="cv">"seccion"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;h2</span> <span class="ca">class</span>=<span class="cv">"titulo-seccion"</span><span class="ct">&gt;</span><span class="cs">📊 Estadísticas de temporada</span><span class="ct">&lt;/h2&gt;</span>
+  <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"stats-grid"</span><span class="ct">&gt;</span>
+    <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"stat-card"</span><span class="ct">&gt;</span>
+      <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"stat-numero"</span><span class="ct">&gt;</span><span class="cs">23</span><span class="ct">&lt;/span&gt;</span>
+      <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"stat-label"</span><span class="ct">&gt;</span><span class="cs">Goles</span><span class="ct">&lt;/span&gt;</span>
+    <span class="ct">&lt;/div&gt;</span>
+    <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"stat-card"</span><span class="ct">&gt;</span>
+      <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"stat-numero"</span><span class="ct">&gt;</span><span class="cs">11</span><span class="ct">&lt;/span&gt;</span>
+      <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"stat-label"</span><span class="ct">&gt;</span><span class="cs">Asistencias</span><span class="ct">&lt;/span&gt;</span>
+    <span class="ct">&lt;/div&gt;</span>
+    <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"stat-card destacada"</span><span class="ct">&gt;</span>  <span class="cc">&lt;!-- 2 clases --&gt;</span>
+      <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"stat-numero"</span><span class="ct">&gt;</span><span class="cs">34</span><span class="ct">&lt;/span&gt;</span>
+      <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"stat-label"</span><span class="ct">&gt;</span><span class="cs">Partidos jugados</span><span class="ct">&lt;/span&gt;</span>
+    <span class="ct">&lt;/div&gt;</span>
+    <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"stat-card"</span><span class="ct">&gt;</span>
+      <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"stat-numero"</span><span class="ct">&gt;</span><span class="cs">87%</span><span class="ct">&lt;/span&gt;</span>
+      <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"stat-label"</span><span class="ct">&gt;</span><span class="cs">Efectividad</span><span class="ct">&lt;/span&gt;</span>
+    <span class="ct">&lt;/div&gt;</span>
+  <span class="ct">&lt;/div&gt;</span>
+<span class="ct">&lt;/section&gt;</span></div>
+
+  <table class="tbl">
+    <thead><tr><th>Elemento</th><th>Explicación</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">.stats-grid</span></td><td>El contenedor padre de las 4 tarjetas. En CSS le pondremos <code>display: flex</code> y <code>gap: 16px</code>.</td></tr>
+      <tr><td><span class="tag">class="stat-card destacada"</span></td><td>Dos clases en un mismo elemento. <code>stat-card</code> da el estilo base y <code>destacada</code> añade fondo azul. En CSS se selecciona con <code>.stat-card.destacada</code> (sin espacio).</td></tr>
+      <tr><td><span class="tag">.stat-numero</span></td><td>Span con el número grande. En CSS le pondremos <code>display: block</code> para que ocupe su propia línea dentro de la tarjeta.</td></tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h2>BLOQUE 4 — Tabla de últimos partidos</h2>
+  <p>Etiqueta nueva: <code>&lt;table&gt;</code>. Tiene 3 sub-etiquetas clave: <code>&lt;thead&gt;</code> (cabecera), <code>&lt;tbody&gt;</code> (cuerpo), y cada fila es un <code>&lt;tr&gt;</code> con celdas <code>&lt;th&gt;</code> o <code>&lt;td&gt;</code>.</p>
+
+  <div class="anatomy">
+    <span class="br">&lt;table&gt;</span>
+    <br>&nbsp;&nbsp;<span class="at">&lt;thead&gt;</span>  <span class="lb">cabecera</span>
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="br">&lt;tr&gt;</span>  <span class="lb2">fila de títulos</span>
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="vl">&lt;th&gt;</span>Fecha<span class="vl">&lt;/th&gt;</span>  <span class="lb3">celda de encabezado</span>
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="br">&lt;/tr&gt;</span>
+    <br>&nbsp;&nbsp;<span class="at">&lt;/thead&gt;</span>
+    <br>&nbsp;&nbsp;<span class="at">&lt;tbody&gt;</span>  <span class="lb">cuerpo de datos</span>
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="br">&lt;tr&gt;</span>  <span class="lb2">fila de datos</span>
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="vl">&lt;td&gt;</span>15 Jun<span class="vl">&lt;/td&gt;</span>  <span class="lb3">celda de dato</span>
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="br">&lt;/tr&gt;</span>
+    <br>&nbsp;&nbsp;<span class="at">&lt;/tbody&gt;</span>
+    <br><span class="br">&lt;/table&gt;</span>
+  </div>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="cc">&lt;!-- ③ TABLA: Últimos partidos --&gt;</span>
+<span class="ct">&lt;section</span> <span class="ca">class</span>=<span class="cv">"seccion"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;h2</span> <span class="ca">class</span>=<span class="cv">"titulo-seccion"</span><span class="ct">&gt;</span><span class="cs">📅 Últimos partidos</span><span class="ct">&lt;/h2&gt;</span>
+  <span class="ct">&lt;table</span> <span class="ca">class</span>=<span class="cv">"tabla-partidos"</span><span class="ct">&gt;</span>
+    <span class="ct">&lt;thead&gt;</span>
+      <span class="ct">&lt;tr&gt;</span>
+        <span class="ct">&lt;th&gt;</span><span class="cs">Fecha</span><span class="ct">&lt;/th&gt;</span>
+        <span class="ct">&lt;th&gt;</span><span class="cs">Rival</span><span class="ct">&lt;/th&gt;</span>
+        <span class="ct">&lt;th&gt;</span><span class="cs">Resultado</span><span class="ct">&lt;/th&gt;</span>
+        <span class="ct">&lt;th&gt;</span><span class="cs">Goles</span><span class="ct">&lt;/th&gt;</span>
+        <span class="ct">&lt;th&gt;</span><span class="cs">Calificación</span><span class="ct">&lt;/th&gt;</span>
+      <span class="ct">&lt;/tr&gt;</span>
+    <span class="ct">&lt;/thead&gt;</span>
+    <span class="ct">&lt;tbody&gt;</span>
+      <span class="ct">&lt;tr&gt;</span>
+        <span class="ct">&lt;td&gt;</span><span class="cs">15 Jun</span><span class="ct">&lt;/td&gt;</span>
+        <span class="ct">&lt;td&gt;</span><span class="cs">Tigres FC</span><span class="ct">&lt;/td&gt;</span>
+        <span class="ct">&lt;td</span> <span class="ca">class</span>=<span class="cv">"resultado ganado"</span><span class="ct">&gt;</span><span class="cs">3-1 ✅</span><span class="ct">&lt;/td&gt;</span>
+        <span class="ct">&lt;td&gt;</span><span class="cs">2</span><span class="ct">&lt;/td&gt;</span>
+        <span class="ct">&lt;td&gt;</span><span class="cs">9.5</span><span class="ct">&lt;/td&gt;</span>
+      <span class="ct">&lt;/tr&gt;</span>
+      <span class="ct">&lt;tr&gt;</span>
+        <span class="ct">&lt;td&gt;</span><span class="cs">08 Jun</span><span class="ct">&lt;/td&gt;</span>
+        <span class="ct">&lt;td&gt;</span><span class="cs">Atlas Norte</span><span class="ct">&lt;/td&gt;</span>
+        <span class="ct">&lt;td</span> <span class="ca">class</span>=<span class="cv">"resultado empate"</span><span class="ct">&gt;</span><span class="cs">1-1 🟡</span><span class="ct">&lt;/td&gt;</span>
+        <span class="ct">&lt;td&gt;</span><span class="cs">1</span><span class="ct">&lt;/td&gt;</span>
+        <span class="ct">&lt;td&gt;</span><span class="cs">7.0</span><span class="ct">&lt;/td&gt;</span>
+      <span class="ct">&lt;/tr&gt;</span>
+      <span class="ct">&lt;tr&gt;</span>
+        <span class="ct">&lt;td&gt;</span><span class="cs">01 Jun</span><span class="ct">&lt;/td&gt;</span>
+        <span class="ct">&lt;td&gt;</span><span class="cs">Leones del Sur</span><span class="ct">&lt;/td&gt;</span>
+        <span class="ct">&lt;td</span> <span class="ca">class</span>=<span class="cv">"resultado ganado"</span><span class="ct">&gt;</span><span class="cs">4-0 ✅</span><span class="ct">&lt;/td&gt;</span>
+        <span class="ct">&lt;td&gt;</span><span class="cs">3</span><span class="ct">&lt;/td&gt;</span>
+        <span class="ct">&lt;td&gt;</span><span class="cs">10.0</span><span class="ct">&lt;/td&gt;</span>
+      <span class="ct">&lt;/tr&gt;</span>
+      <span class="ct">&lt;tr&gt;</span>
+        <span class="ct">&lt;td&gt;</span><span class="cs">25 May</span><span class="ct">&lt;/td&gt;</span>
+        <span class="ct">&lt;td&gt;</span><span class="cs">Rayados CF</span><span class="ct">&lt;/td&gt;</span>
+        <span class="ct">&lt;td</span> <span class="ca">class</span>=<span class="cv">"resultado perdido"</span><span class="ct">&gt;</span><span class="cs">0-2 ❌</span><span class="ct">&lt;/td&gt;</span>
+        <span class="ct">&lt;td&gt;</span><span class="cs">0</span><span class="ct">&lt;/td&gt;</span>
+        <span class="ct">&lt;td&gt;</span><span class="cs">5.5</span><span class="ct">&lt;/td&gt;</span>
+      <span class="ct">&lt;/tr&gt;</span>
+    <span class="ct">&lt;/tbody&gt;</span>
+  <span class="ct">&lt;/table&gt;</span>
+<span class="ct">&lt;/section&gt;</span></div>
+
+  <table class="tbl">
+    <thead><tr><th>Etiqueta</th><th>Explicación</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">&lt;table&gt;</span></td><td>El contenedor de toda la tabla. Por defecto sin bordes ni estilos — se los damos con CSS.</td></tr>
+      <tr><td><span class="tag">&lt;thead&gt;</span></td><td>Agrupa las filas de cabecera. Semántico: le dice al navegador "esto es la cabecera de la tabla".</td></tr>
+      <tr><td><span class="tag">&lt;tbody&gt;</span></td><td>Agrupa las filas de datos. El "cuerpo" de la tabla.</td></tr>
+      <tr><td><span class="tag">&lt;tr&gt;</span></td><td><strong>Table Row</strong> = Fila. Cada fila de la tabla es un <code>&lt;tr&gt;</code>.</td></tr>
+      <tr><td><span class="tag">&lt;th&gt;</span></td><td><strong>Table Header</strong> = Celda de cabecera. Por defecto en negritas y centrada.</td></tr>
+      <tr><td><span class="tag">&lt;td&gt;</span></td><td><strong>Table Data</strong> = Celda de datos. Contenido normal de la tabla.</td></tr>
+      <tr><td><span class="tag">class="resultado ganado"</span></td><td>Dos clases: <code>resultado</code> para el estilo base (negrita) y <code>ganado</code> para el color verde.</td></tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h2>BLOQUE 5 — Habilidades y footer</h2>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="cc">&lt;!-- ④ HABILIDADES --&gt;</span>
+<span class="ct">&lt;section</span> <span class="ca">class</span>=<span class="cv">"seccion"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;h2</span> <span class="ca">class</span>=<span class="cv">"titulo-seccion"</span><span class="ct">&gt;</span><span class="cs">⚡ Habilidades destacadas</span><span class="ct">&lt;/h2&gt;</span>
+  <span class="ct">&lt;ul</span> <span class="ca">class</span>=<span class="cv">"lista-habilidades"</span><span class="ct">&gt;</span>
+    <span class="ct">&lt;li</span> <span class="ca">class</span>=<span class="cv">"habilidad"</span><span class="ct">&gt;</span><span class="cs">🎯 Remate de cabeza</span><span class="ct">&lt;/li&gt;</span>
+    <span class="ct">&lt;li</span> <span class="ca">class</span>=<span class="cv">"habilidad"</span><span class="ct">&gt;</span><span class="cs">💨 Velocidad en espacios</span><span class="ct">&lt;/li&gt;</span>
+    <span class="ct">&lt;li</span> <span class="ca">class</span>=<span class="cv">"habilidad"</span><span class="ct">&gt;</span><span class="cs">🤝 Juego de equipo</span><span class="ct">&lt;/li&gt;</span>
+    <span class="ct">&lt;li</span> <span class="ca">class</span>=<span class="cv">"habilidad top"</span><span class="ct">&gt;</span><span class="cs">⭐ Liderazgo en área</span><span class="ct">&lt;/li&gt;</span>
+    <span class="ct">&lt;li</span> <span class="ca">class</span>=<span class="cv">"habilidad"</span><span class="ct">&gt;</span><span class="cs">🧠 Lectura del juego</span><span class="ct">&lt;/li&gt;</span>
+    <span class="ct">&lt;li</span> <span class="ca">class</span>=<span class="cv">"habilidad"</span><span class="ct">&gt;</span><span class="cs">🏃 Presión alta</span><span class="ct">&lt;/li&gt;</span>
+  <span class="ct">&lt;/ul&gt;</span>
+<span class="ct">&lt;/section&gt;</span>
+
+<span class="cc">&lt;!-- ⑤ FOOTER --&gt;</span>
+<span class="ct">&lt;footer</span> <span class="ca">class</span>=<span class="cv">"pie"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;p&gt;</span><span class="cs">Perfil creado por </span><span class="ct">&lt;strong&gt;</span><span class="cs">Tu Nombre</span><span class="ct">&lt;/strong&gt;</span><span class="ct">&lt;/p&gt;</span>
+  <span class="ct">&lt;p&gt;</span>
+    <span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"https://www.fifa.com"</span> <span class="ca">target</span>=<span class="cv">"_blank"</span> <span class="ca">rel</span>=<span class="cv">"noopener"</span><span class="ct">&gt;</span>
+      <span class="cs">Sitio oficial FIFA</span>
+    <span class="ct">&lt;/a&gt;</span> <span class="cs">· Temporada 2024-2025</span>
+  <span class="ct">&lt;/p&gt;</span>
+<span class="ct">&lt;/footer&gt;</span></div>
+
+  <div class="concept">
+    <h4>💡 Las habilidades como pastillas con Flexbox</h4>
+    <p>Los <code>&lt;li&gt;</code> normalmente se apilan en columna. Al ponerle <code>display: flex</code> al <code>&lt;ul&gt;</code> y <code>flex-wrap: wrap</code>, los elementos se acomodan en fila y saltan de línea automáticamente si no caben. Es el mismo patrón que usamos con las tarjetas, pero con pastillas de texto.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     CSS
+══════════════════════════════════ -->
+<section class="module" id="css">
+  <div class="module-header">
+    <div class="module-icon">🎨</div>
+    <div>
+      <div class="module-title">PARTE 3 — El CSS completo</div>
+      <div class="module-sub">Aquí entran en acción el Box Model, Flexbox y las Variables CSS</div>
+    </div>
+  </div>
+
+  <h2>CSS BLOQUE 1 — Reset y Variables CSS</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* ──────────────────────────────────
+   RESET
+────────────────────────────────── */</span>
+<span class="cp">*, *::before, *::after</span> {
+  <span class="ca">margin</span>: <span class="cn">0</span>;
+  <span class="ca">padding</span>: <span class="cn">0</span>;
+  <span class="ca">box-sizing</span>: border-box;
+}
+
+<span class="cc">/* ──────────────────────────────────
+   VARIABLES CSS
+────────────────────────────────── */</span>
+<span class="cp">:root</span> {
+  <span class="ca">--primario</span>:   <span class="cn">#1D4ED8</span>; <span class="cc">/* azul principal */</span>
+  <span class="ca">--primario-d</span>: <span class="cn">#1E3A8A</span>; <span class="cc">/* azul oscuro */</span>
+  <span class="ca">--acento</span>:     <span class="cn">#D97706</span>; <span class="cc">/* naranja */</span>
+  <span class="ca">--texto</span>:      <span class="cn">#1F2937</span>;
+  <span class="ca">--texto-suave</span>:<span class="cn">#6B7280</span>;
+  <span class="ca">--fondo</span>:      <span class="cn">#F8FAFC</span>;
+  <span class="ca">--surface</span>:    <span class="cn">#FFFFFF</span>;
+  <span class="ca">--borde</span>:      <span class="cn">#E5E7EB</span>;
+  <span class="ca">--radio</span>:      <span class="cn">12px</span>;
+}
+
+<span class="cp">body</span> {
+  <span class="ca">font-family</span>: <span class="cn">'Poppins'</span>, Arial, sans-serif;
+  <span class="ca">background-color</span>: var(<span class="cv">--fondo</span>);
+  <span class="ca">color</span>: var(<span class="cv">--texto</span>);
+  <span class="ca">font-size</span>: <span class="cn">16px</span>;
+  <span class="ca">line-height</span>: <span class="cn">1.6</span>;
+}</div>
+
+  <table class="tbl">
+    <thead><tr><th>Código</th><th>Explicación</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">*, *::before, *::after</span></td><td>El reset se aplica también a los pseudo-elementos <code>::before</code> y <code>::after</code> que CSS puede insertar antes/después del contenido.</td></tr>
+      <tr><td><span class="tag">:root { --primario: ... }</span></td><td>El doble guión (<code>--</code>) indica que es una variable CSS. El nombre lo inventas tú. Se define en <code>:root</code> para que sea global.</td></tr>
+      <tr><td><span class="tag">var(--primario)</span></td><td>Así se usa la variable. La función <code>var()</code> llama al valor definido en <code>:root</code>.</td></tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h2>CSS BLOQUE 2 — El hero con Flexbox</h2>
+  <p>Aquí usamos Flexbox por primera vez. <code>.hero</code> es el contenedor y <code>.hero-foto</code> + <code>.hero-info</code> son sus hijos en fila.</p>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">.hero</span> {
+  <span class="ca">display</span>: flex;           <span class="cc">/* ← ACTIVA FLEXBOX. Los hijos van en fila */</span>
+  <span class="ca">align-items</span>: center;     <span class="cc">/* centra verticalmente foto e info */</span>
+  <span class="ca">gap</span>: <span class="cn">40px</span>;               <span class="cc">/* 40px entre la foto y la info */</span>
+  <span class="ca">background-color</span>: var(<span class="cv">--primario</span>);
+  <span class="ca">padding</span>: <span class="cn">48px 60px</span>;
+  <span class="ca">color</span>: white;
+}
+
+<span class="cp">.foto-perfil</span> {
+  <span class="ca">width</span>: <span class="cn">150px</span>;
+  <span class="ca">height</span>: <span class="cn">150px</span>;
+  <span class="ca">border-radius</span>: <span class="cn">50%</span>;      <span class="cc">/* ← 50% = círculo perfecto */</span>
+  <span class="ca">border</span>: <span class="cn">4px solid</span> var(<span class="cv">--acento</span>);
+  <span class="ca">display</span>: block;
+}
+
+<span class="cp">.posicion</span> {
+  <span class="ca">display</span>: inline-block;   <span class="cc">/* necesario para que padding funcione */</span>
+  <span class="ca">background-color</span>: var(<span class="cv">--acento</span>);
+  <span class="ca">color</span>: white;
+  <span class="ca">font-size</span>: <span class="cn">13px</span>;
+  <span class="ca">font-weight</span>: <span class="cn">600</span>;
+  <span class="ca">padding</span>: <span class="cn">4px 14px</span>;       <span class="cc">/* 4px arriba/abajo, 14px izq/der = pastilla */</span>
+  <span class="ca">border-radius</span>: <span class="cn">20px</span>;    <span class="cc">/* muy redondeado = forma pastilla */</span>
+  <span class="ca">margin-bottom</span>: <span class="cn">10px</span>;
+}
+
+<span class="cp">.hero h1</span> {
+  <span class="ca">font-size</span>: <span class="cn">42px</span>;
+  <span class="ca">font-weight</span>: <span class="cn">700</span>;
+  <span class="ca">line-height</span>: <span class="cn">1.1</span>;
+  <span class="ca">margin-bottom</span>: <span class="cn">6px</span>;
+}
+
+<span class="cp">.equipo</span> {
+  <span class="ca">font-size</span>: <span class="cn">16px</span>;
+  <span class="ca">font-weight</span>: <span class="cn">600</span>;
+  <span class="ca">color</span>: rgba(<span class="cn">255, 255, 255, 0.75</span>);
+  <span class="ca">margin-bottom</span>: <span class="cn">12px</span>;
+}
+
+<span class="cp">.descripcion</span> {
+  <span class="ca">font-size</span>: <span class="cn">15px</span>;
+  <span class="ca">color</span>: rgba(<span class="cn">255, 255, 255, 0.85</span>);
+  <span class="ca">max-width</span>: <span class="cn">480px</span>;
+}</div>
+
+  <table class="tbl">
+    <thead><tr><th>Propiedad</th><th>Explicación detallada</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">display: flex</span></td><td>Activa Flexbox en <code>.hero</code>. Sus hijos directos (<code>.hero-foto</code> y <code>.hero-info</code>) se ponen automáticamente en fila horizontal.</td></tr>
+      <tr><td><span class="tag">align-items: center</span></td><td>Alinea los hijos <strong>verticalmente al centro</strong>. Sin esto, la foto quedaría alineada arriba y el texto también arriba — se vería descuadrado.</td></tr>
+      <tr><td><span class="tag">border-radius: 50%</span></td><td>Con 50%, si el elemento tiene el mismo ancho y alto (150px × 150px), se convierte en un <strong>círculo perfecto</strong>.</td></tr>
+      <tr><td><span class="tag">display: inline-block</span></td><td>El <code>&lt;span&gt;</code> es <em>inline</em> por defecto e ignora el padding vertical. Con <code>inline-block</code> respeta el padding y se ve como pastilla.</td></tr>
+      <tr><td><span class="tag">rgba(255, 255, 255, 0.75)</span></td><td>Blanco con 75% de opacidad. Más suave que blanco puro — crea jerarquía visual entre el nombre (blanco puro) y el equipo (blanco translúcido).</td></tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h2>CSS BLOQUE 3 — Secciones y tarjetas de estadísticas</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">.seccion</span> {
+  <span class="ca">max-width</span>: <span class="cn">860px</span>;
+  <span class="ca">margin</span>: <span class="cn">0 auto</span>;
+  <span class="ca">padding</span>: <span class="cn">40px 20px</span>;
+}
+
+<span class="cp">.titulo-seccion</span> {
+  <span class="ca">font-size</span>: <span class="cn">24px</span>;
+  <span class="ca">font-weight</span>: <span class="cn">700</span>;
+  <span class="ca">color</span>: var(<span class="cv">--primario</span>);
+  <span class="ca">border-left</span>: <span class="cn">5px solid</span> var(<span class="cv">--acento</span>); <span class="cc">/* barra naranja a la izquierda */</span>
+  <span class="ca">padding-left</span>: <span class="cn">16px</span>;
+  <span class="ca">margin-bottom</span>: <span class="cn">24px</span>;
+}
+
+<span class="cp">.stats-grid</span> {
+  <span class="ca">display</span>: flex;     <span class="cc">/* las 4 tarjetas en FILA */</span>
+  <span class="ca">gap</span>: <span class="cn">16px</span>;
+  <span class="ca">flex-wrap</span>: wrap;
+}
+
+<span class="cp">.stat-card</span> {
+  <span class="ca">flex</span>: <span class="cn">1</span>;           <span class="cc">/* ocupa igual espacio que sus hermanas */</span>
+  <span class="ca">min-width</span>: <span class="cn">140px</span>;
+  <span class="ca">background-color</span>: var(<span class="cv">--surface</span>);
+  <span class="ca">border</span>: <span class="cn">1px solid</span> var(<span class="cv">--borde</span>);
+  <span class="ca">border-radius</span>: var(<span class="cv">--radio</span>);
+  <span class="ca">padding</span>: <span class="cn">24px 16px</span>;
+  <span class="ca">text-align</span>: center;
+  <span class="ca">box-shadow</span>: <span class="cn">0 2px 8px rgba(0, 0, 0, 0.06)</span>; <span class="cc">/* sombra suave */</span>
+}
+
+<span class="cc">/* Selector de doble clase: AMBAS clases en el mismo elemento */</span>
+<span class="cp">.stat-card.destacada</span> {
+  <span class="ca">background-color</span>: var(<span class="cv">--primario</span>);
+  <span class="ca">border-color</span>: var(<span class="cv">--primario</span>);
+  <span class="ca">color</span>: white;
+}
+
+<span class="cp">.stat-numero</span> {
+  <span class="ca">display</span>: block;    <span class="cc">/* el span ocupa su propia línea */</span>
+  <span class="ca">font-size</span>: <span class="cn">40px</span>;
+  <span class="ca">font-weight</span>: <span class="cn">700</span>;
+  <span class="ca">color</span>: var(<span class="cv">--primario</span>);
+  <span class="ca">line-height</span>: <span class="cn">1</span>;
+}
+
+<span class="cc">/* Selector descendiente + doble clase */</span>
+<span class="cp">.stat-card.destacada .stat-numero</span> {
+  <span class="ca">color</span>: white; <span class="cc">/* solo el número DENTRO de la tarjeta destacada */</span>
+}
+
+<span class="cp">.stat-label</span> {
+  <span class="ca">display</span>: block;
+  <span class="ca">font-size</span>: <span class="cn">13px</span>;
+  <span class="ca">font-weight</span>: <span class="cn">600</span>;
+  <span class="ca">color</span>: var(<span class="cv">--texto-suave</span>);
+  <span class="ca">text-transform</span>: uppercase;
+  <span class="ca">letter-spacing</span>: <span class="cn">0.08em</span>;
+  <span class="ca">margin-top</span>: <span class="cn">6px</span>;
+}
+
+<span class="cp">.stat-card.destacada .stat-label</span> {
+  <span class="ca">color</span>: rgba(<span class="cn">255, 255, 255, 0.8</span>);
+}</div>
+
+  <table class="tbl">
+    <thead><tr><th>Selector / Propiedad</th><th>Explicación</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">.stat-card.destacada</span></td><td>Sin espacio entre las dos clases = el <strong>mismo elemento</strong> debe tener ambas clases. Con espacio sería diferente: <code>.stat-card .destacada</code> = elemento <em>hijo</em> de stat-card.</td></tr>
+      <tr><td><span class="tag">.stat-card.destacada .stat-numero</span></td><td>Selector compuesto: el <code>.stat-numero</code> que esté <em>dentro</em> de un elemento que tenga ambas clases <code>stat-card</code> y <code>destacada</code>. Muy específico.</td></tr>
+      <tr><td><span class="tag">box-shadow: 0 2px 8px ...</span></td><td>Sombra de caja. Formato: <code>desplaz-x desplaz-y desenfoque color</code>. El <code>0.06</code> en rgba es opacidad — muy suave para que no sea agresiva.</td></tr>
+      <tr><td><span class="tag">border-radius: var(--radio)</span></td><td>Aquí usamos la variable <code>--radio</code> definida en <code>:root</code>. Si cambias el valor en <code>:root</code>, todas las tarjetas actualizan su radio de esquinas.</td></tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h2>CSS BLOQUE 4 — La tabla de partidos</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">.tabla-partidos</span> {
+  <span class="ca">width</span>: <span class="cn">100%</span>;
+  <span class="ca">border-collapse</span>: collapse; <span class="cc">/* fusiona bordes — evita el doble borde */</span>
+  <span class="ca">font-size</span>: <span class="cn">15px</span>;
+}
+
+<span class="cp">.tabla-partidos th</span> {
+  <span class="ca">background-color</span>: var(<span class="cv">--primario</span>);
+  <span class="ca">color</span>: white;
+  <span class="ca">font-weight</span>: <span class="cn">600</span>;
+  <span class="ca">padding</span>: <span class="cn">12px 16px</span>;
+  <span class="ca">text-align</span>: left;
+  <span class="ca">font-size</span>: <span class="cn">13px</span>;
+  <span class="ca">text-transform</span>: uppercase;
+  <span class="ca">letter-spacing</span>: <span class="cn">0.06em</span>;
+}
+
+<span class="cp">.tabla-partidos td</span> {
+  <span class="ca">padding</span>: <span class="cn">12px 16px</span>;
+  <span class="ca">border-bottom</span>: <span class="cn">1px solid</span> var(<span class="cv">--borde</span>);
+}
+
+<span class="cc">/* Filas alternas — efecto "zebra" */</span>
+<span class="cp">.tabla-partidos tbody tr:nth-child(even)</span> {
+  <span class="ca">background-color</span>: <span class="cn">#F1F5F9</span>;
+}
+
+<span class="cc">/* Al pasar el ratón por una fila */</span>
+<span class="cp">.tabla-partidos tbody tr:hover</span> {
+  <span class="ca">background-color</span>: <span class="cn">#DBEAFE</span>;
+}
+
+<span class="cp">.resultado</span> { <span class="ca">font-weight</span>: <span class="cn">700</span>; }
+<span class="cp">.ganado</span>    { <span class="ca">color</span>: <span class="cn">#065F46</span>; }
+<span class="cp">.empate</span>    { <span class="ca">color</span>: <span class="cn">#92400E</span>; }
+<span class="cp">.perdido</span>   { <span class="ca">color</span>: <span class="cn">#B91C1C</span>; }</div>
+
+  <table class="tbl">
+    <thead><tr><th>Selector / Propiedad</th><th>Explicación</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">border-collapse: collapse</span></td><td>Por defecto las tablas tienen espacio entre bordes (se ve como doble borde). Con <code>collapse</code> se fusionan en uno solo.</td></tr>
+      <tr><td><span class="tag">.tabla-partidos th</span></td><td>Selector descendiente: solo los <code>&lt;th&gt;</code> dentro de <code>.tabla-partidos</code>. No afecta a otras tablas de la página.</td></tr>
+      <tr><td><span class="tag">tr:nth-child(even)</span></td><td>Pseudo-clase estructural: aplica a las filas <strong>pares</strong> (2ª, 4ª, 6ª...). Crea el efecto "zebra". <code>odd</code> sería las impares.</td></tr>
+      <tr><td><span class="tag">tbody tr:hover</span></td><td>Selector descendiente + pseudo-clase: el <code>&lt;tr&gt;</code> que esté dentro del <code>&lt;tbody&gt;</code> <em>y</em> tenga el ratón encima.</td></tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h2>CSS BLOQUE 5 — Habilidades y footer</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">.lista-habilidades</span> {
+  <span class="ca">display</span>: flex;
+  <span class="ca">flex-wrap</span>: wrap;     <span class="cc">/* las pastillas saltan de línea si no caben */</span>
+  <span class="ca">gap</span>: <span class="cn">10px</span>;
+  <span class="ca">list-style</span>: none;   <span class="cc">/* quita los bullets de la lista */</span>
+  <span class="ca">padding</span>: <span class="cn">0</span>;
+}
+
+<span class="cp">.habilidad</span> {
+  <span class="ca">background-color</span>: var(<span class="cv">--surface</span>);
+  <span class="ca">border</span>: <span class="cn">1px solid</span> var(<span class="cv">--borde</span>);
+  <span class="ca">border-radius</span>: <span class="cn">20px</span>;
+  <span class="ca">padding</span>: <span class="cn">8px 18px</span>;
+  <span class="ca">font-size</span>: <span class="cn">14px</span>;
+  <span class="ca">font-weight</span>: <span class="cn">600</span>;
+  <span class="ca">color</span>: var(<span class="cv">--texto</span>);
+  <span class="ca">transition</span>: all <span class="cn">0.2s</span>; <span class="cc">/* anima todos los cambios en 0.2s */</span>
+}
+
+<span class="cp">.habilidad:hover</span> {
+  <span class="ca">background-color</span>: var(<span class="cv">--primario</span>);
+  <span class="ca">color</span>: white;
+  <span class="ca">border-color</span>: var(<span class="cv">--primario</span>);
+}
+
+<span class="cp">.habilidad.top</span> {
+  <span class="ca">background-color</span>: var(<span class="cv">--acento</span>);
+  <span class="ca">color</span>: white;
+  <span class="ca">border-color</span>: var(<span class="cv">--acento</span>);
+}
+
+<span class="cp">.pie</span> {
+  <span class="ca">background-color</span>: var(<span class="cv">--primario-d</span>);
+  <span class="ca">color</span>: rgba(<span class="cn">255, 255, 255, 0.8</span>);
+  <span class="ca">text-align</span>: center;
+  <span class="ca">padding</span>: <span class="cn">32px 20px</span>;
+  <span class="ca">margin-top</span>: <span class="cn">60px</span>;
+  <span class="ca">font-size</span>: <span class="cn">14px</span>;
+}
+
+<span class="cp">.pie a</span> {
+  <span class="ca">color</span>: var(<span class="cv">--acento</span>);
+  <span class="ca">text-decoration</span>: none;
+  <span class="ca">font-weight</span>: <span class="cn">600</span>;
+}
+<span class="cp">.pie a:hover</span> { <span class="ca">text-decoration</span>: underline; }</div>
+
+  <table class="tbl">
+    <thead><tr><th>Propiedad</th><th>Explicación</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">transition: all 0.2s</span></td><td>Anima <em>todos</em> los cambios de estilo en 0.2 segundos. Sin esta línea el hover sería instantáneo y brusco. Con ella es suave y profesional.</td></tr>
+      <tr><td><span class="tag">.habilidad:hover</span></td><td>Al pasar el ratón, cambia fondo, color de texto y borde <em>simultáneamente</em>. El <code>transition</code> los anima todos juntos.</td></tr>
+      <tr><td><span class="tag">.habilidad.top</span></td><td>Selector de doble clase: la habilidad especial (la que tiene <code>class="habilidad top"</code>) tiene color naranja <em>permanente</em>, no solo en hover.</td></tr>
+      <tr><td><span class="tag">.pie a</span></td><td>Selector descendiente: solo los <code>&lt;a&gt;</code> dentro del <code>.pie</code> reciben este color. No afecta a ningún otro enlace de la página.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="tip">
+    <h4>🔍 DevTools — tu mejor herramienta de debugging</h4>
+    <p>Presiona <strong>F12</strong> en el navegador para abrir las DevTools. En la pestaña <strong>Elements</strong>, haz clic en cualquier elemento y verás en el panel derecho (Styles) qué reglas CSS se aplican. Las reglas <s>tachadas</s> están siendo sobreescritas por otra más específica. Si el Flexbox no funciona: verifica que <code>display: flex</code> esté en el <strong>contenedor padre</strong>, nunca en los hijos.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     RESULTADO VISUAL
+══════════════════════════════════ -->
+<section class="module" id="resultado">
+  <div class="module-header">
+    <div class="module-icon">🖥</div>
+    <div>
+      <div class="module-title">PARTE 4 — Así debe verse tu página</div>
+      <div class="module-sub">Vista previa completa del perfil de Carlos Mendoza</div>
+    </div>
+  </div>
+
+  <div class="preview">
+    <div class="demo-perfil">
+
+      <!-- HERO -->
+      <div class="demo-hero">
+        <img src="https://placehold.co/150x150/1D4ED8/FFFFFF?text=CM" alt="Carlos Mendoza">
+        <div>
+          <div class="posicion">⚽ Delantero Centro</div>
+          <h1>Carlos Mendoza</h1>
+          <div class="equipo">Club Deportivo Veracruz · #9</div>
+          <div class="descripcion">Delantero explosivo con <strong>8 temporadas</strong> en primera división. Especialista en remates de cabeza y <em>velocidad en el área</em>.</div>
+        </div>
+      </div>
+
+      <div class="demo-body">
+        <!-- STATS -->
+        <div class="demo-titulo">📊 Estadísticas de temporada</div>
+        <div class="demo-stats">
+          <div class="demo-stat"><span class="num">23</span><span class="lab">Goles</span></div>
+          <div class="demo-stat"><span class="num">11</span><span class="lab">Asistencias</span></div>
+          <div class="demo-stat dest"><span class="num">34</span><span class="lab">Partidos</span></div>
+          <div class="demo-stat"><span class="num">87%</span><span class="lab">Efectividad</span></div>
+        </div>
+
+        <!-- TABLA -->
+        <div class="demo-titulo">📅 Últimos partidos</div>
+        <table class="demo-table">
+          <thead>
+            <tr><th>Fecha</th><th>Rival</th><th>Resultado</th><th>Goles</th><th>Calificación</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>15 Jun</td><td>Tigres FC</td><td class="ganado">3-1 ✅</td><td>2</td><td>9.5</td></tr>
+            <tr><td>08 Jun</td><td>Atlas Norte</td><td class="empate">1-1 🟡</td><td>1</td><td>7.0</td></tr>
+            <tr><td>01 Jun</td><td>Leones del Sur</td><td class="ganado">4-0 ✅</td><td>3</td><td>10.0</td></tr>
+            <tr><td>25 May</td><td>Rayados CF</td><td class="perdido">0-2 ❌</td><td>0</td><td>5.5</td></tr>
+          </tbody>
+        </table>
+
+        <!-- HABILIDADES -->
+        <div class="demo-titulo">⚡ Habilidades destacadas</div>
+        <ul class="demo-skills">
+          <li class="demo-skill">🎯 Remate de cabeza</li>
+          <li class="demo-skill">💨 Velocidad en espacios</li>
+          <li class="demo-skill">🤝 Juego de equipo</li>
+          <li class="demo-skill top">⭐ Liderazgo en área</li>
+          <li class="demo-skill">🧠 Lectura del juego</li>
+          <li class="demo-skill">🏃 Presión alta</li>
+        </ul>
+      </div>
+
+      <div class="demo-footer">
+        <p>Perfil creado por <strong>Tu Nombre</strong></p>
+        <p><a href="#">Sitio oficial FIFA</a> · Temporada 2024-2025</p>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>✅ Lista de verificación visual</h4>
+    <ul>
+      <li>Hero azul con <strong>foto circular</strong> y badge naranja a la izquierda</li>
+      <li><strong>4 tarjetas</strong> en fila — la de "Partidos" en azul (tarjeta destacada)</li>
+      <li>Tabla con <strong>cabecera azul</strong>, filas alternas grises y <strong>hover azul claro</strong></li>
+      <li>Resultados: <span style="color:#065F46;font-weight:700">verde</span> (ganado), <span style="color:#92400E;font-weight:700">naranja</span> (empate), <span style="color:#B91C1C;font-weight:700">rojo</span> (perdido)</li>
+      <li>Habilidades como <strong>pastillas</strong> que se vuelven azules con animación al pasar el ratón</li>
+      <li>Habilidad "Liderazgo" en <strong>naranja permanente</strong> (clase <code>top</code>)</li>
+      <li>Footer azul oscuro con <strong>enlace naranja</strong></li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     RETOS
+══════════════════════════════════ -->
+<section class="module" id="retos">
+  <div class="module-header">
+    <div class="module-icon">🏆</div>
+    <div>
+      <div class="module-title">PARTE 5 — Retos para practicar más</div>
+      <div class="module-sub">Intenta cada reto sin ver soluciones. Los errores también enseñan</div>
+    </div>
+  </div>
+
+  <div class="reto-grid">
+    <div class="reto-card">
+      <span class="nivel nivel-f">🟡 Fácil</span>
+      <h4>Reto 1 — Cambia colores con las variables</h4>
+      <p>En el <code>:root</code>, cambia <code>--primario</code> a <strong>#065F46</strong> (verde) o <strong>#7C3AED</strong> (morado). Como todo el CSS usa <code>var(--primario)</code>, la página entera cambiará de color modificando solo esa línea.</p>
+      <p><em>Lo que practicas:</em> el poder de las variables CSS para cambios globales.</p>
+    </div>
+    <div class="reto-card">
+      <span class="nivel nivel-m">🟠 Medio</span>
+      <h4>Reto 2 — 5ª tarjeta de estadística</h4>
+      <p>Agrega un 5° <code>&lt;div class="stat-card"&gt;</code> con el número <strong>12</strong> y la etiqueta <strong>Tarjetas amarillas</strong>. Ponle la clase extra <code>advertencia</code> y en CSS dale <code>background: #FEF3C7</code> y <code>border-color: #D97706</code>.</p>
+      <p><em>Lo que practicas:</em> clases dobles y Flexbox con <code>flex: 1</code> adaptándose automáticamente.</p>
+    </div>
+    <div class="reto-card">
+      <span class="nivel nivel-m">🟠 Medio</span>
+      <h4>Reto 3 — Nueva fila en la tabla</h4>
+      <p>Agrega un <code>&lt;tr&gt;</code> nuevo en el <code>&lt;tbody&gt;</code> con datos de otro partido inventado. Aplica la clase correcta al resultado: <code>ganado</code>, <code>empate</code> o <code>perdido</code>. Verifica que el efecto zebra se actualice solo.</p>
+      <p><em>Lo que practicas:</em> estructura de tablas y <code>:nth-child(even)</code>.</p>
+    </div>
+    <div class="reto-card">
+      <span class="nivel nivel-a">⚫ Avanzado</span>
+      <h4>Reto 4 — Layout de dos columnas</h4>
+      <p>Crea un <code>&lt;div class="dos-columnas"&gt;</code> que contenga la sección de habilidades y una sección nueva que inventes (por ejemplo: "🏆 Palmarés" con una lista de títulos). En CSS ponle <code>display: flex</code> y <code>gap: 40px</code>.</p>
+      <p><em>Lo que practicas:</em> Flexbox para layouts de dos columnas reales.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     RESUMEN
+══════════════════════════════════ -->
+<section class="module" id="resumen">
+  <div class="module-header">
+    <div class="module-icon">📋</div>
+    <div>
+      <div class="module-title">Resumen — Todo lo nuevo que aprendiste</div>
+      <div class="module-sub">Ejercicio 3 = Ejercicios 1 + 2 + todo esto</div>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Concepto</th><th>Lo que aprendiste</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Box Model</strong></td><td>4 capas: content, padding, border, margin. <code>box-sizing: border-box</code> hace que el padding no aumente el tamaño total.</td></tr>
+      <tr><td><strong>Flexbox</strong></td><td><code>display: flex</code> en el padre pone los hijos en fila. <code>justify-content</code> eje horizontal, <code>align-items</code> eje vertical, <code>gap</code> espacio entre hijos.</td></tr>
+      <tr><td><strong>Variables CSS</strong></td><td><code>:root { --nombre: valor; }</code> para definir. <code>var(--nombre)</code> para usar. Un cambio en <code>:root</code> actualiza toda la página.</td></tr>
+      <tr><td><strong>Imagen circular</strong></td><td><code>border-radius: 50%</code> con mismo ancho y alto = círculo perfecto.</td></tr>
+      <tr><td><strong>display: block en span</strong></td><td>Los <code>&lt;span&gt;</code> son inline por defecto. Con <code>display: block</code> ocupan su propia línea.</td></tr>
+      <tr><td><strong>transition</strong></td><td>Anima cambios de estilo suavemente. <code>transition: all 0.2s</code> hace que todos los cambios tarden 0.2 segundos.</td></tr>
+      <tr><td><strong>.clase1.clase2</strong></td><td>Sin espacio = el mismo elemento tiene ambas clases. Con espacio = elemento hijo.</td></tr>
+      <tr><td><strong>:nth-child(even)</strong></td><td>Pseudo-clase estructural. Aplica a hijos pares (2, 4, 6...). Crea el efecto zebra en tablas.</td></tr>
+      <tr><td><strong>Tablas HTML</strong></td><td><code>&lt;table&gt;</code> → <code>&lt;thead&gt;</code>/<code>&lt;tbody&gt;</code> → <code>&lt;tr&gt;</code> → <code>&lt;th&gt;</code>/<code>&lt;td&gt;</code>. Semántica correcta para datos tabulares.</td></tr>
+      <tr><td><strong>box-shadow</strong></td><td>Sombra de caja. Formato: <code>x y desenfoque color</code>. Crea profundidad visual.</td></tr>
+      <tr><td><strong>Selector descendiente</strong></td><td><code>.padre .hijo</code> aplica solo a los <code>.hijo</code> dentro de <code>.padre</code>.</td></tr>
+      <tr><td><strong>Google Fonts</strong></td><td>Fuentes gratuitas importadas con <code>&lt;link&gt;</code> en el <code>&lt;head&gt;</code>. Se usan con <code>font-family</code> en el CSS.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="concept" style="margin-top:1.5rem">
+    <h4>⚽ ¡Gool! Completaste el Ejercicio 3</h4>
+    <p>Cuando termines avísale a tu instructor y preparen el <strong>Ejercicio 4</strong>: Formularios, Hover avanzado, Transiciones y Animaciones CSS.</p>
+  </div>
+
+  <h2 style="margin-top:1.5rem">Chips de todo lo visto</h2>
+  <div>
+    <span class="chip">display: flex</span>
+    <span class="chip">align-items</span>
+    <span class="chip">justify-content</span>
+    <span class="chip">gap</span>
+    <span class="chip">flex-wrap</span>
+    <span class="chip">flex: 1</span>
+    <span class="chip">:root</span>
+    <span class="chip">var(--nombre)</span>
+    <span class="chip">box-sizing: border-box</span>
+    <span class="chip">border-radius: 50%</span>
+    <span class="chip">transition</span>
+    <span class="chip">box-shadow</span>
+    <span class="chip">.clase1.clase2</span>
+    <span class="chip">:nth-child(even)</span>
+    <span class="chip">:hover</span>
+    <span class="chip">&lt;table&gt;</span>
+    <span class="chip">&lt;thead&gt; &lt;tbody&gt;</span>
+    <span class="chip">&lt;tr&gt; &lt;th&gt; &lt;td&gt;</span>
+    <span class="chip">border-collapse</span>
+    <span class="chip">display: block en span</span>
+    <span class="chip">rgba()</span>
+    <span class="chip">Google Fonts</span>
+    <span class="chip">display: inline-block</span>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Ejercicio 3 — Perfil de Jugador de Fútbol · Flexbox · Box Model · Variables CSS · Hugo 2025
+</footer>
+
+</body>
+</html>

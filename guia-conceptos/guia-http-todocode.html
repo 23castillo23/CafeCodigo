@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía: ¿Qué es el Protocolo HTTP? — TodoCode</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --primary:        #c44a2a;
+    --primary-light:  #fdf0ec;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --danger:         #c44a2a;
+    --danger-light:   #fdf0ec;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1a1814;
+    --code-text:      #e8e4de;
+  }
+  body { font-family: 'DM Sans','Segoe UI',sans-serif; background:var(--bg); color:var(--text); line-height:1.7; font-size:16px; }
+
+  header { background:#1a1814; color:#f7f4ef; padding:3rem 2rem 2rem; text-align:center; position:relative; overflow:hidden; }
+  header::before { content:'HTTP'; position:absolute; font-size:11rem; font-weight:900; color:rgba(255,255,255,0.04); right:-1rem; top:-1rem; font-family:monospace; line-height:1; }
+  header h1 { font-size:2.5rem; font-weight:800; letter-spacing:-1px; font-family:'Fraunces',serif; }
+  header p { font-size:1.1rem; opacity:.85; margin-top:.5rem; }
+  header .badge { display:inline-block; background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.3); border-radius:20px; padding:4px 14px; font-size:.8rem; margin-top:.75rem; }
+
+  nav { background:var(--surface); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100; display:flex; overflow-x:auto; gap:0; }
+  nav a { flex-shrink:0; padding:.75rem 1rem; text-decoration:none; color:var(--muted); font-size:.78rem; font-weight:500; border-bottom:2px solid transparent; transition:color .2s,border-color .2s; white-space:nowrap; }
+  nav a:hover { color:var(--primary); border-bottom-color:var(--primary); }
+
+  main { max-width:920px; margin:0 auto; padding:2rem 1.5rem; }
+  .parte-badge { display:inline-flex; align-items:center; gap:.5rem; background:var(--primary); color:white; border-radius:20px; padding:5px 16px; font-size:.82rem; font-weight:700; margin-bottom:1.5rem; }
+
+  .module { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:2rem; margin-bottom:2.5rem; }
+  .module-header { display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border); }
+  .module-icon { font-size:1.8rem; flex-shrink:0; }
+  .module-title { font-size:1.35rem; font-weight:700; }
+  .module-sub { font-size:.85rem; color:var(--muted); margin-top:2px; }
+
+  .analogy { background:#FFF7ED; border:1px solid #FDE68A; border-left:4px solid var(--accent); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .analogy h4 { color:#92400E; font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+  .analogy p { font-size:.95rem; color:#78350F; }
+
+  .concept { background:var(--primary-light); border-left:4px solid var(--primary); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .concept h4 { color:var(--primary); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+  .concept p { font-size:.95rem; }
+
+  .tip { background:var(--secondary-light); border-left:4px solid var(--secondary); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .tip h4 { color:var(--secondary); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+  .tip p,.tip ul { font-size:.95rem; }
+  .tip ul { padding-left:1.2rem; }
+
+  .warn { background:var(--danger-light); border-left:4px solid var(--danger); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .warn h4 { color:var(--danger); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+  .warn p { font-size:.95rem; }
+
+  .code-block { background:var(--code-bg); color:var(--code-text); border-radius:10px; padding:1.25rem 1.5rem; font-family:'DM Mono','Courier New',monospace; font-size:.88rem; line-height:1.85; overflow-x:auto; margin:1rem 0; position:relative; white-space:pre; }
+  .code-block .ct { color:#89B4FA; }
+  .code-block .ca { color:#CBA6F7; }
+  .code-block .cv { color:#A6E3A1; }
+  .code-block .cs { color:#F9E2AF; }
+  .code-block .cp { color:#89DCEB; }
+  .code-block .cc { color:#585B70; font-style:italic; }
+  .code-block .cn { color:#FAB387; }
+  .code-block .ce { color:#F38BA8; }
+  .lang { position:absolute; top:.6rem; right:.75rem; background:rgba(255,255,255,.1); color:rgba(255,255,255,.5); font-size:.68rem; padding:2px 8px; border-radius:4px; font-family:sans-serif; }
+
+  .tbl { width:100%; border-collapse:collapse; margin:1rem 0; font-size:.9rem; }
+  .tbl th { background:var(--primary-light); color:var(--primary); padding:.65rem 1rem; text-align:left; font-weight:600; }
+  .tbl td { padding:.65rem 1rem; border-bottom:1px solid var(--border); vertical-align:top; }
+  .tbl tr:hover td { background:var(--bg); }
+
+  .tag { display:inline-block; background:var(--primary-light); color:var(--primary); font-family:'DM Mono',monospace; font-size:.84rem; padding:1px 7px; border-radius:4px; font-weight:600; }
+  .tag-green { background:var(--secondary-light); color:var(--secondary); }
+  .tag-amber { background:var(--accent-light); color:var(--accent); }
+  .tag-gray { background:#f0ece6; color:#5a5650; }
+  .kbd { display:inline-block; background:#f0ece6; border:1px solid var(--border); border-bottom:2px solid #ccc; border-radius:5px; font-family:'DM Mono',monospace; font-size:.8rem; padding:1px 8px; color:var(--text); }
+
+  .glos { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1rem; margin:1rem 0; }
+  .glos-item { background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:1rem 1.1rem; }
+  .glos-item dt { font-weight:700; color:var(--primary); font-size:.92rem; margin-bottom:.3rem; }
+  .glos-item dd { font-size:.85rem; color:var(--muted); line-height:1.5; }
+  .glos-item .emoji { font-size:1.3rem; display:block; margin-bottom:.3rem; }
+
+  .ex { background:#FFFBEB; border:1px solid #FDE68A; border-radius:12px; padding:1.5rem; margin:1.5rem 0; }
+  .ex-hd { display:flex; align-items:center; gap:.75rem; margin-bottom:1rem; font-weight:700; font-size:1rem; color:#78350F; flex-wrap:wrap; }
+  .ex-badge { background:var(--accent); color:#fff; font-size:.68rem; padding:2px 9px; border-radius:20px; font-weight:700; text-transform:uppercase; }
+
+  .steps { counter-reset:steps; }
+  .step { display:flex; gap:1rem; margin-bottom:1rem; align-items:flex-start; }
+  .step::before { counter-increment:steps; content:counter(steps); background:var(--primary); color:white; font-size:.78rem; font-weight:700; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:.2rem; font-family:'DM Mono',monospace; }
+  .step p { font-size:.95rem; margin:0; }
+
+  .method-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1rem; margin:1rem 0; }
+  .method-card { border-radius:12px; padding:1.2rem 1.4rem; border:1px solid var(--border); }
+  .method-card .mc-verb { font-family:'DM Mono',monospace; font-size:1rem; font-weight:700; display:inline-block; padding:2px 12px; border-radius:6px; margin-bottom:.6rem; }
+  .mc-get { background:#E6F4FF; color:#0550AE; border-color:#A8C8F0; }
+  .mc-post { background:#E6F9F0; color:#0A6B3E; border-color:#7DD5A8; }
+  .mc-put { background:#FFF3E0; color:#8B4500; border-color:#F4B56A; }
+  .mc-patch { background:#F3E8FF; color:#6B21A8; border-color:#C4A0E8; }
+  .mc-delete { background:#FFF0F0; color:#9B1C1C; border-color:#F8A8A8; }
+  .method-card p { font-size:.9rem; color:var(--muted); margin:.4rem 0; }
+  .method-card .crud { font-size:.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; }
+
+  /* ── SANDBOX INTERACTIVO ── */
+  .sandbox { background:#f0ece6; border:1px solid var(--border); border-radius:14px; margin:1.5rem 0; overflow:hidden; }
+  .sandbox-bar { background:#1a1814; color:#f7f4ef; padding:.75rem 1.25rem; display:flex; align-items:center; gap:.75rem; flex-wrap:wrap; }
+  .sandbox-bar span { font-family:'DM Mono',monospace; font-size:.78rem; color:#A6E3A1; }
+  .sandbox-bar .sb-title { font-size:.85rem; font-weight:600; flex:1; }
+  .sandbox-body { padding:1.25rem; }
+  .sandbox-body label { font-size:.82rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; display:block; margin-bottom:.3rem; }
+  .sb-select { font-family:'DM Mono',monospace; font-size:.9rem; padding:.45rem .75rem; border:1px solid var(--border); border-radius:7px; background:var(--surface); color:var(--text); cursor:pointer; }
+  .sb-input { width:100%; font-family:'DM Mono',monospace; font-size:.88rem; padding:.5rem .8rem; border:1px solid var(--border); border-radius:7px; background:var(--surface); color:var(--text); margin-bottom:.75rem; }
+  .sb-textarea { width:100%; font-family:'DM Mono',monospace; font-size:.85rem; padding:.6rem .8rem; border:1px solid var(--border); border-radius:7px; background:var(--surface); color:var(--text); min-height:80px; resize:vertical; margin-bottom:.75rem; }
+  .sb-btn { background:var(--primary); color:white; border:none; padding:.5rem 1.2rem; border-radius:7px; font-size:.9rem; font-weight:600; cursor:pointer; font-family:'DM Sans',sans-serif; }
+  .sb-btn:hover { background:#a83920; }
+  .sb-btn:disabled { background:#ccc; cursor:not-allowed; }
+  .sb-output { background:var(--code-bg); color:var(--code-text); border-radius:8px; padding:1rem 1.2rem; font-family:'DM Mono',monospace; font-size:.82rem; line-height:1.7; margin-top:.75rem; min-height:60px; white-space:pre-wrap; word-break:break-all; display:none; }
+  .sb-output.visible { display:block; }
+  .sb-status { font-size:.78rem; font-weight:700; padding:2px 8px; border-radius:4px; }
+  .status-ok { background:#E6F9F0; color:#0A6B3E; }
+  .status-err { background:#FFF0F0; color:#9B1C1C; }
+  .status-loading { background:#FFF3E0; color:#8B4500; }
+  .sb-row { display:flex; gap:.75rem; align-items:flex-end; flex-wrap:wrap; margin-bottom:.75rem; }
+  .sb-row > div { flex:1; min-width:140px; }
+  .sb-quizrow { display:flex; gap:.5rem; flex-wrap:wrap; margin:.5rem 0; }
+  .sb-quiz-btn { background:var(--surface); border:1px solid var(--border); border-radius:7px; padding:.4rem .9rem; font-size:.88rem; cursor:pointer; font-family:'DM Sans',sans-serif; transition:background .15s; }
+  .sb-quiz-btn:hover { background:var(--bg); }
+  .sb-quiz-btn.correct { background:#E6F9F0; border-color:#7DD5A8; color:#0A6B3E; font-weight:700; }
+  .sb-quiz-btn.wrong { background:#FFF0F0; border-color:#F8A8A8; color:#9B1C1C; }
+  .sb-feedback { font-size:.88rem; margin-top:.5rem; min-height:1.4rem; }
+
+  h2 { font-size:1.2rem; font-weight:700; margin:1.75rem 0 .75rem; color:var(--text); }
+  h3 { font-size:1rem; font-weight:700; margin:1.25rem 0 .5rem; }
+  p { margin-bottom:.8rem; }
+  ul,ol { padding-left:1.4rem; margin-bottom:.8rem; }
+  li { margin-bottom:.4rem; font-size:.96rem; }
+  code { font-family:'DM Mono',monospace; background:#f0ece6; color:var(--primary); padding:1px 5px; border-radius:4px; font-size:.9em; }
+  hr { border:none; border-top:1px solid var(--border); margin:1.5rem 0; }
+  strong { font-weight:700; }
+  footer { text-align:center; padding:2rem; color:var(--muted); font-size:.85rem; border-top:1px solid var(--border); margin-top:1rem; background:var(--bg); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>¿Qué es el Protocolo HTTP?</h1>
+  <p>Requests, Responses y métodos: GET, POST, PUT, PATCH y DELETE</p>
+  <span class="badge">✦ Video de TodoCode · Playlist: Aprender términos 1/3 · 13:31 min ✦</span>
+</header>
+
+<nav>
+  <a href="#intro">🌐 Protocolo</a>
+  <a href="#ciclo">🔄 Ciclo Request/Response</a>
+  <a href="#anatomia">🔬 Anatomía</a>
+  <a href="#metodos">📋 Métodos HTTP</a>
+  <a href="#get">🟦 GET</a>
+  <a href="#post">🟩 POST</a>
+  <a href="#put">🟧 PUT</a>
+  <a href="#patch">🟪 PATCH</a>
+  <a href="#delete">🟥 DELETE</a>
+  <a href="#status">📊 Status Codes</a>
+  <a href="#resumen">✅ Resumen</a>
+</nav>
+
+<main>
+<div class="parte-badge">📺 Guía basada en el video de TodoCode — Aprender términos 1/3</div>
+
+
+<!-- ═══ INTRODUCCIÓN ═══ -->
+<section class="module" id="intro">
+  <div class="module-header">
+    <div class="module-icon">🌐</div>
+    <div>
+      <div class="module-title">¿Qué es el Protocolo HTTP?</div>
+      <div class="module-sub">La base de toda comunicación en la web · 0:00 – 1:45</div>
+    </div>
+  </div>
+
+  <p>Cada vez que abres una página web, ves un video o usas una app, detrás ocurre una conversación silenciosa entre tu dispositivo y un servidor. El idioma que usan para hablar se llama <strong>HTTP</strong>.</p>
+
+  <dl class="glos">
+    <div class="glos-item">
+      <span class="emoji">📜</span>
+      <dt>Protocolo</dt>
+      <dd>Un conjunto de <strong>reglas</strong> que deben seguirse para obtener un resultado o acceder a un recurso o servicio. Sin protocolo, cada computadora hablaría un idioma diferente.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🌐</span>
+      <dt>HTTP</dt>
+      <dd><strong>H</strong>ypertext <strong>T</strong>ransfer <strong>P</strong>rotocol. Protocolo de transferencia de hipertexto. Define el formato de los mensajes entre cliente y servidor.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🔒</span>
+      <dt>HTTPS</dt>
+      <dd>HTTP + <strong>S</strong>ecure. La versión cifrada. Todo lo que viaja está encriptado, por eso aparece el candado en el navegador.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">💻</span>
+      <dt>Cliente</dt>
+      <dd>El que <strong>hace la solicitud</strong>. Puede ser un navegador, una app móvil, Postman, o cualquier programa que consuma una API.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🖥</span>
+      <dt>Servidor</dt>
+      <dd>El que <strong>responde</strong> la solicitud. Tiene los datos o recursos que el cliente necesita. Puede ser una API, un servidor web, etc.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">📦</span>
+      <dt>Recurso</dt>
+      <dd>Cualquier cosa que se puede pedir al servidor: una página HTML, una imagen, un JSON con datos de usuarios, un video, etc.</dd>
+    </div>
+  </dl>
+
+  <div class="analogy">
+    <h4>📮 Analogía: el sistema postal internacional</h4>
+    <p>Imagina que quieres enviar un paquete de México a Japón. Para que llegue, necesitas seguir un protocolo: poner la dirección en el formato correcto, pagar el franqueo, usar la caja adecuada. Sin ese protocolo, el paquete no llegaría. HTTP es exactamente eso — el protocolo que hace que los mensajes entre tu dispositivo y cualquier servidor del mundo lleguen correctamente, sin importar que uno sea un iPhone en Veracruz y el otro un servidor en Tokio.</p>
+  </div>
+
+  <div class="concept">
+    <h4>💡 ¿HTTP es solo para páginas web?</h4>
+    <p>No. HTTP es el protocolo base de las <strong>APIs REST</strong> — la forma en que se comunican la mayoría de apps modernas. Cuando Instagram carga tus fotos, cuando Google Maps calcula una ruta o cuando Spotify reproduce una canción, todo eso pasa por HTTP. Es la columna vertebral del internet moderno.</p>
+  </div>
+
+  <!-- EJERCICIO INTERACTIVO 1 -->
+  <div class="sandbox">
+    <div class="sandbox-bar">
+      <span>🧠 EJERCICIO INTERACTIVO</span>
+      <span class="sb-title">¿Qué es qué? — Identifica los conceptos</span>
+    </div>
+    <div class="sandbox-body">
+      <p style="font-size:.9rem;margin-bottom:1rem;">Selecciona la definición correcta para cada término:</p>
+      <div id="q1" style="margin-bottom:1rem;">
+        <strong style="font-size:.95rem;">¿Qué es un "protocolo"?</strong>
+        <div class="sb-quizrow" style="margin-top:.5rem;">
+          <button class="sb-quiz-btn" onclick="checkQ('q1',this,false)">Un lenguaje de programación</button>
+          <button class="sb-quiz-btn" onclick="checkQ('q1',this,true)">Un conjunto de reglas para comunicarse</button>
+          <button class="sb-quiz-btn" onclick="checkQ('q1',this,false)">Un tipo de servidor web</button>
+        </div>
+        <div class="sb-feedback" id="q1-fb"></div>
+      </div>
+      <div id="q2" style="margin-bottom:1rem;">
+        <strong style="font-size:.95rem;">En HTTP, ¿quién hace la solicitud?</strong>
+        <div class="sb-quizrow" style="margin-top:.5rem;">
+          <button class="sb-quiz-btn" onclick="checkQ('q2',this,false)">El servidor</button>
+          <button class="sb-quiz-btn" onclick="checkQ('q2',this,true)">El cliente</button>
+          <button class="sb-quiz-btn" onclick="checkQ('q2',this,false)">La base de datos</button>
+        </div>
+        <div class="sb-feedback" id="q2-fb"></div>
+      </div>
+      <div id="q3">
+        <strong style="font-size:.95rem;">¿Qué agrega HTTPS sobre HTTP?</strong>
+        <div class="sb-quizrow" style="margin-top:.5rem;">
+          <button class="sb-quiz-btn" onclick="checkQ('q3',this,false)">Mayor velocidad</button>
+          <button class="sb-quiz-btn" onclick="checkQ('q3',this,false)">Soporte para imágenes</button>
+          <button class="sb-quiz-btn" onclick="checkQ('q3',this,true)">Cifrado y seguridad</button>
+        </div>
+        <div class="sb-feedback" id="q3-fb"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ CICLO REQUEST / RESPONSE ═══ -->
+<section class="module" id="ciclo">
+  <div class="module-header">
+    <div class="module-icon">🔄</div>
+    <div>
+      <div class="module-title">El ciclo Request → Response</div>
+      <div class="module-sub">Cómo viajan los mensajes entre cliente y servidor · 1:45 – 3:10</div>
+    </div>
+  </div>
+
+  <p>HTTP funciona con un ciclo muy simple: el cliente hace una <strong>solicitud (Request)</strong> y el servidor responde con una <strong>respuesta (Response)</strong>. Siempre en ese orden — nunca el servidor habla primero.</p>
+
+  <h2>El ciclo paso a paso</h2>
+  <div class="steps">
+    <div class="step"><p>El <strong>cliente</strong> (navegador, app, Postman) decide que necesita un recurso: una página, una lista de usuarios, una imagen.</p></div>
+    <div class="step"><p>El cliente construye un <strong>HTTP Request</strong> con: el método (qué quiere hacer), la URL (dónde está el recurso), y opcionalmente datos en el cuerpo.</p></div>
+    <div class="step"><p>El request viaja por internet hasta el <strong>servidor</strong>.</p></div>
+    <div class="step"><p>El servidor procesa la solicitud: busca el recurso, ejecuta la lógica necesaria, consulta la base de datos si hace falta.</p></div>
+    <div class="step"><p>El servidor construye un <strong>HTTP Response</strong> con: un código de estado (si salió bien o mal) y el cuerpo de la respuesta (los datos pedidos).</p></div>
+    <div class="step"><p>La respuesta viaja de vuelta al cliente, que la procesa y la muestra al usuario.</p></div>
+  </div>
+
+  <div class="analogy">
+    <h4>🍕 Analogía: pedir pizza por teléfono</h4>
+    <p>Tú eres el <strong>cliente</strong>. La pizzería es el <strong>servidor</strong>. Cuando llamas a pedir pizza, estás haciendo un <strong>Request</strong> (solicitud): "Quiero una pizza hawaiana grande para llevar". La pizzería te responde (Response): "Listo, en 30 minutos" — eso es el código 200 OK. Si pides algo que no tienen: "Lo sentimos, no tenemos esa pizza" — eso sería un 404 Not Found. El teléfono es HTTP: el protocolo que permite que la conversación tenga sentido para ambas partes.</p>
+  </div>
+
+  <div class="code-block"><span class="lang">HTTP Request ejemplo</span><span class="cv">GET</span> <span class="cs">/usuarios/42</span> HTTP/1.1
+<span class="ct">Host:</span> api.ejemplo.com
+<span class="ct">Accept:</span> application/json
+<span class="ct">Authorization:</span> Bearer eyJhbGci...</div>
+
+  <div class="code-block"><span class="lang">HTTP Response ejemplo</span>HTTP/1.1 <span class="cv">200 OK</span>
+<span class="ct">Content-Type:</span> application/json
+<span class="ct">Date:</span> Thu, 25 Jun 2026 10:00:00 GMT
+
+{
+  <span class="ca">"id"</span>: <span class="cs">42</span>,
+  <span class="ca">"nombre"</span>: <span class="cs">"Castillo"</span>,
+  <span class="ca">"email"</span>: <span class="cs">"castillo@email.com"</span>
+}</div>
+
+  <!-- EJERCICIO INTERACTIVO 2 -->
+  <div class="sandbox">
+    <div class="sandbox-bar">
+      <span>⚡ EJERCICIO INTERACTIVO</span>
+      <span class="sb-title">Simula el ciclo HTTP — request real a una API pública</span>
+    </div>
+    <div class="sandbox-body">
+      <p style="font-size:.9rem;margin-bottom:.75rem;">Haz una solicitud GET real a la API pública <code>jsonplaceholder.typicode.com</code> y observa el ciclo completo:</p>
+      <div class="sb-row">
+        <div>
+          <label>Recurso a pedir</label>
+          <select class="sb-select" id="recurso-sel">
+            <option value="users/1">👤 Usuario con ID 1</option>
+            <option value="posts/1">📝 Post con ID 1</option>
+            <option value="todos/1">✅ Tarea (todo) con ID 1</option>
+            <option value="users">👥 Lista de usuarios</option>
+          </select>
+        </div>
+      </div>
+      <button class="sb-btn" id="btn-get-ciclo" onclick="hacerGet()">📡 Enviar Request GET →</button>
+      <div class="sb-output" id="out-ciclo"></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ ANATOMÍA ═══ -->
+<section class="module" id="anatomia">
+  <div class="module-header">
+    <div class="module-icon">🔬</div>
+    <div>
+      <div class="module-title">Anatomía de un Request y un Response</div>
+      <div class="module-sub">Qué partes tiene cada mensaje HTTP · 3:10 – 4:40</div>
+    </div>
+  </div>
+
+  <p>Los mensajes HTTP tienen una estructura definida. Conocerla te permite entender los errores, construir mejores APIs y usar herramientas como Postman de forma efectiva.</p>
+
+  <h2>Partes del HTTP Request</h2>
+  <table class="tbl">
+    <thead><tr><th>Parte</th><th>¿Qué es?</th><th>Ejemplo</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Método (Verb)</strong></td><td>Qué acción quiere hacer el cliente</td><td><code>GET</code>, <code>POST</code>, <code>DELETE</code></td></tr>
+      <tr><td><strong>URL / Endpoint</strong></td><td>La dirección del recurso</td><td><code>https://api.ejemplo.com/usuarios/42</code></td></tr>
+      <tr><td><strong>Headers</strong></td><td>Metadatos de la solicitud: tipo de contenido, autenticación, idioma, etc.</td><td><code>Content-Type: application/json</code></td></tr>
+      <tr><td><strong>Body (cuerpo)</strong></td><td>Los datos enviados (solo en POST, PUT, PATCH). En GET no hay body.</td><td><code>{"nombre": "Castillo"}</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>Partes del HTTP Response</h2>
+  <table class="tbl">
+    <thead><tr><th>Parte</th><th>¿Qué es?</th><th>Ejemplo</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Status Code</strong></td><td>Número que indica si la operación salió bien o mal</td><td><code>200 OK</code>, <code>404 Not Found</code></td></tr>
+      <tr><td><strong>Headers</strong></td><td>Metadatos de la respuesta: tipo de contenido, tamaño, fecha, etc.</td><td><code>Content-Type: application/json</code></td></tr>
+      <tr><td><strong>Body (cuerpo)</strong></td><td>Los datos devueltos por el servidor (JSON, HTML, imagen, etc.)</td><td><code>{"id": 42, "nombre": "Castillo"}</code></td></tr>
+    </tbody>
+  </table>
+
+  <div class="analogy">
+    <h4>✉️ Analogía: el sobre de correo</h4>
+    <p>Un Request HTTP es como un sobre de correo bien preparado. La <strong>dirección del destinatario</strong> es la URL. El <strong>tipo de envío</strong> (urgente, certificado, normal) es el método HTTP. Las <strong>instrucciones especiales</strong> escritas en el sobre (frágil, refrigerar, etc.) son los headers. Y la <strong>carta o paquete</strong> dentro del sobre es el body. Sin sobre correctamente escrito, el correo no sabe cómo procesarlo.</p>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 ¿Qué es una URL y qué es un Endpoint?</h4>
+    <ul>
+      <li><strong>URL</strong> — La dirección completa: <code>https://api.ejemplo.com/v1/usuarios/42</code></li>
+      <li><strong>Endpoint</strong> — La ruta específica de un recurso en una API: <code>/v1/usuarios/42</code>. Es la parte de la URL que identifica qué recurso estás pidiendo.</li>
+      <li><strong>API</strong> — Conjunto de endpoints disponibles en un servidor para que otros programas se comuniquen con él.</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ═══ MÉTODOS HTTP (OVERVIEW) ═══ -->
+<section class="module" id="metodos">
+  <div class="module-header">
+    <div class="module-icon">📋</div>
+    <div>
+      <div class="module-title">Los métodos HTTP — verbos de acción</div>
+      <div class="module-sub">Qué acción quieres hacer sobre el recurso · 4:40 – 5:30</div>
+    </div>
+  </div>
+
+  <p>El método HTTP le dice al servidor <strong>qué quieres hacer</strong> con el recurso. Son como verbos: pedir, crear, actualizar, borrar. Cada uno tiene una semántica clara y no deben usarse de forma intercambiable.</p>
+
+  <div class="method-grid">
+    <div class="method-card">
+      <div class="mc-verb mc-get">GET</div>
+      <div class="crud" style="color:#0550AE;">READ — Leer</div>
+      <p>Obtener/leer un recurso del servidor. No modifica nada.</p>
+    </div>
+    <div class="method-card">
+      <div class="mc-verb mc-post">POST</div>
+      <div class="crud" style="color:#0A6B3E;">CREATE — Crear</div>
+      <p>Enviar datos al servidor para crear un nuevo recurso.</p>
+    </div>
+    <div class="method-card">
+      <div class="mc-verb mc-put">PUT</div>
+      <div class="crud" style="color:#8B4500;">UPDATE completo</div>
+      <p>Reemplazar un recurso existente en su totalidad.</p>
+    </div>
+    <div class="method-card">
+      <div class="mc-verb mc-patch">PATCH</div>
+      <div class="crud" style="color:#6B21A8;">UPDATE parcial</div>
+      <p>Actualizar solo algunos campos de un recurso existente.</p>
+    </div>
+    <div class="method-card">
+      <div class="mc-verb mc-delete">DELETE</div>
+      <div class="crud" style="color:#9B1C1C;">DELETE — Eliminar</div>
+      <p>Eliminar un recurso específico del servidor.</p>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <h4>🗂 Analogía: el archivista de una oficina</h4>
+    <p>Imagina que trabajas en una oficina con un archivista. <strong>GET</strong> es decirle "muéstrame el expediente 42". <strong>POST</strong> es "crea un expediente nuevo con estos datos". <strong>PUT</strong> es "reemplaza completamente el expediente 42 por esta versión nueva". <strong>PATCH</strong> es "solo actualiza el teléfono del expediente 42". <strong>DELETE</strong> es "destruye el expediente 42". El archivista (servidor) sabe exactamente qué hacer porque le dijiste el verbo correcto.</p>
+  </div>
+
+  <div class="concept">
+    <h4>💡 CRUD y los métodos HTTP</h4>
+    <p>En programación, las 4 operaciones básicas sobre datos se llaman <strong>CRUD</strong>: Create, Read, Update, Delete. Los métodos HTTP mapean directamente a CRUD: POST → Create, GET → Read, PUT/PATCH → Update, DELETE → Delete. Toda API REST bien diseñada sigue esta correspondencia.</p>
+  </div>
+
+  <!-- QUIZ MÉTODOS -->
+  <div class="sandbox">
+    <div class="sandbox-bar">
+      <span>🧠 EJERCICIO INTERACTIVO</span>
+      <span class="sb-title">¿Qué método usarías?</span>
+    </div>
+    <div class="sandbox-body">
+      <div id="mq1" style="margin-bottom:1.2rem;">
+        <strong style="font-size:.95rem;">Quieres ver el perfil de un usuario en una app</strong>
+        <div class="sb-quizrow" style="margin-top:.5rem;">
+          <button class="sb-quiz-btn" onclick="checkQ('mq1',this,true)">GET</button>
+          <button class="sb-quiz-btn" onclick="checkQ('mq1',this,false)">POST</button>
+          <button class="sb-quiz-btn" onclick="checkQ('mq1',this,false)">DELETE</button>
+        </div>
+        <div class="sb-feedback" id="mq1-fb"></div>
+      </div>
+      <div id="mq2" style="margin-bottom:1.2rem;">
+        <strong style="font-size:.95rem;">Quieres registrar una cuenta nueva en un sitio</strong>
+        <div class="sb-quizrow" style="margin-top:.5rem;">
+          <button class="sb-quiz-btn" onclick="checkQ('mq2',this,false)">GET</button>
+          <button class="sb-quiz-btn" onclick="checkQ('mq2',this,true)">POST</button>
+          <button class="sb-quiz-btn" onclick="checkQ('mq2',this,false)">PUT</button>
+        </div>
+        <div class="sb-feedback" id="mq2-fb"></div>
+      </div>
+      <div id="mq3" style="margin-bottom:1.2rem;">
+        <strong style="font-size:.95rem;">Quieres borrar un tweet que publicaste</strong>
+        <div class="sb-quizrow" style="margin-top:.5rem;">
+          <button class="sb-quiz-btn" onclick="checkQ('mq3',this,false)">PATCH</button>
+          <button class="sb-quiz-btn" onclick="checkQ('mq3',this,false)">PUT</button>
+          <button class="sb-quiz-btn" onclick="checkQ('mq3',this,true)">DELETE</button>
+        </div>
+        <div class="sb-feedback" id="mq3-fb"></div>
+      </div>
+      <div id="mq4">
+        <strong style="font-size:.95rem;">Quieres cambiar solo tu foto de perfil (sin tocar el resto de tu cuenta)</strong>
+        <div class="sb-quizrow" style="margin-top:.5rem;">
+          <button class="sb-quiz-btn" onclick="checkQ('mq4',this,false)">PUT</button>
+          <button class="sb-quiz-btn" onclick="checkQ('mq4',this,true)">PATCH</button>
+          <button class="sb-quiz-btn" onclick="checkQ('mq4',this,false)">POST</button>
+        </div>
+        <div class="sb-feedback" id="mq4-fb"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ GET ═══ -->
+<section class="module" id="get">
+  <div class="module-header">
+    <div class="module-icon">🟦</div>
+    <div>
+      <div class="module-title">GET — Obtener recursos</div>
+      <div class="module-sub">El método más usado en la web · 5:30 – 7:00</div>
+    </div>
+  </div>
+
+  <p>GET es el método que el navegador usa automáticamente cuando escribes una URL. Sirve para <strong>leer o consultar</strong> datos. Es seguro: nunca modifica nada en el servidor.</p>
+
+  <h2>Características del GET</h2>
+  <ul>
+    <li><strong>Seguro:</strong> No modifica el estado del servidor — solo lee.</li>
+    <li><strong>Idempotente:</strong> Hacer el mismo GET 100 veces da el mismo resultado.</li>
+    <li><strong>Sin body:</strong> Los datos van en la URL (parámetros de consulta), nunca en el cuerpo.</li>
+    <li><strong>Cacheado:</strong> Los navegadores guardan las respuestas GET en caché para ir más rápido.</li>
+  </ul>
+
+  <div class="code-block"><span class="lang">HTTP</span><span class="cc">// Obtener lista de todos los usuarios</span>
+<span class="cv">GET</span> /api/usuarios HTTP/1.1
+Host: api.ejemplo.com
+
+<span class="cc">// Obtener usuario específico por ID</span>
+<span class="cv">GET</span> /api/usuarios/<span class="cs">42</span> HTTP/1.1
+Host: api.ejemplo.com
+
+<span class="cc">// Filtrar con parámetros de consulta</span>
+<span class="cv">GET</span> /api/usuarios?ciudad=<span class="cs">Veracruz</span>&activo=<span class="cs">true</span> HTTP/1.1
+Host: api.ejemplo.com</div>
+
+  <div class="analogy">
+    <h4>🔍 Analogía: buscar en el catálogo de una biblioteca</h4>
+    <p>GET es como usar el catálogo de búsqueda de una biblioteca. Puedes buscar todos los libros de cierto autor, pedir ver un libro específico por su código, filtrar por género o año. Lo que no puedes hacer (ni deberías) es modificar el catálogo solo por buscarlo. Consultas, no modificas — eso es GET.</p>
+  </div>
+
+  <!-- SANDBOX GET REAL -->
+  <div class="sandbox">
+    <div class="sandbox-bar">
+      <span>⚡ EJERCICIO INTERACTIVO</span>
+      <span class="sb-title">Prueba GET con una API real — JSONPlaceholder</span>
+    </div>
+    <div class="sandbox-body">
+      <p style="font-size:.9rem;margin-bottom:.75rem;">Consulta datos reales de la API pública JSONPlaceholder. Selecciona el endpoint y ejecuta:</p>
+      <div class="sb-row">
+        <div>
+          <label>Endpoint</label>
+          <select class="sb-select" id="get-endpoint">
+            <option value="https://jsonplaceholder.typicode.com/users/1">GET /users/1</option>
+            <option value="https://jsonplaceholder.typicode.com/posts/1">GET /posts/1</option>
+            <option value="https://jsonplaceholder.typicode.com/todos/1">GET /todos/1</option>
+            <option value="https://jsonplaceholder.typicode.com/comments/1">GET /comments/1</option>
+          </select>
+        </div>
+      </div>
+      <button class="sb-btn" id="btn-get" onclick="ejecutarGet()">📡 GET →</button>
+      <div class="sb-output" id="out-get"></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ POST ═══ -->
+<section class="module" id="post">
+  <div class="module-header">
+    <div class="module-icon">🟩</div>
+    <div>
+      <div class="module-title">POST — Crear recursos</div>
+      <div class="module-sub">Enviar datos para crear algo nuevo · 7:00 – 8:30</div>
+    </div>
+  </div>
+
+  <p>POST se usa para <strong>crear un nuevo recurso</strong> en el servidor. Los datos van en el <strong>body</strong> del request, no en la URL. Cada POST exitoso normalmente crea un recurso diferente.</p>
+
+  <h2>Características del POST</h2>
+  <ul>
+    <li><strong>No idempotente:</strong> Si haces el mismo POST dos veces, creas dos recursos distintos.</li>
+    <li><strong>Tiene body:</strong> Los datos del nuevo recurso van en el cuerpo del request (generalmente en JSON).</li>
+    <li><strong>Respuesta 201:</strong> Un POST exitoso que crea un recurso devuelve el código <code>201 Created</code>.</li>
+    <li><strong>No es seguro:</strong> Sí modifica el servidor — crea datos nuevos.</li>
+  </ul>
+
+  <div class="code-block"><span class="lang">HTTP</span><span class="cc">// Crear un usuario nuevo</span>
+<span class="cv">POST</span> /api/usuarios HTTP/1.1
+<span class="ct">Host:</span> api.ejemplo.com
+<span class="ct">Content-Type:</span> application/json
+
+{
+  <span class="ca">"nombre"</span>: <span class="cs">"Castillo"</span>,
+  <span class="ca">"email"</span>: <span class="cs">"castillo@email.com"</span>,
+  <span class="ca">"ciudad"</span>: <span class="cs">"Orizaba"</span>
+}
+
+<span class="cc">// Respuesta del servidor:</span>
+HTTP/1.1 <span class="cv">201 Created</span>
+{
+  <span class="ca">"id"</span>: <span class="cs">101</span>,       <span class="cc">// ← el servidor asigna el ID</span>
+  <span class="ca">"nombre"</span>: <span class="cs">"Castillo"</span>,
+  <span class="ca">"email"</span>: <span class="cs">"castillo@email.com"</span>
+}</div>
+
+  <div class="analogy">
+    <h4>📝 Analogía: rellenar un formulario de inscripción</h4>
+    <p>POST es como entregar un formulario de inscripción a una escuela. Tú llevas el formulario con tus datos (body del request), lo entregas en la ventanilla (endpoint POST), y la escuela crea tu expediente (nuevo recurso en la base de datos) y te da un número de inscripción (el ID que devuelve el servidor). Si lo entregas dos veces, creas dos expedientes — por eso POST no es idempotente.</p>
+  </div>
+
+  <!-- SANDBOX POST REAL -->
+  <div class="sandbox">
+    <div class="sandbox-bar">
+      <span>⚡ EJERCICIO INTERACTIVO</span>
+      <span class="sb-title">Prueba POST — Crea un recurso simulado</span>
+    </div>
+    <div class="sandbox-body">
+      <p style="font-size:.9rem;margin-bottom:.75rem;">Envía un POST a JSONPlaceholder (API de prueba). El servidor simulará la creación y te responderá con el objeto creado + un ID:</p>
+      <label>Datos del nuevo post (body JSON)</label>
+      <textarea class="sb-textarea" id="post-body">{
+  "title": "Mi primer post con HTTP",
+  "body": "Aprendiendo el protocolo HTTP con TodoCode",
+  "userId": 1
+}</textarea>
+      <button class="sb-btn" id="btn-post" onclick="ejecutarPost()">📨 POST →</button>
+      <div class="sb-output" id="out-post"></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ PUT ═══ -->
+<section class="module" id="put">
+  <div class="module-header">
+    <div class="module-icon">🟧</div>
+    <div>
+      <div class="module-title">PUT — Actualización completa</div>
+      <div class="module-sub">Reemplazar un recurso entero · 8:30 – 10:00</div>
+    </div>
+  </div>
+
+  <p>PUT se usa para <strong>reemplazar completamente</strong> un recurso existente. Debes enviar <strong>todos los campos</strong> del recurso, no solo los que cambiaron. Si omites un campo, ese campo se elimina o se queda vacío.</p>
+
+  <h2>Características del PUT</h2>
+  <ul>
+    <li><strong>Idempotente:</strong> Hacer el mismo PUT varias veces deja el recurso en el mismo estado.</li>
+    <li><strong>Reemplaza todo:</strong> Si no mandas un campo, se pierde o se pone en null.</li>
+    <li><strong>Requiere ID:</strong> Se hace sobre un recurso específico — la URL incluye el ID.</li>
+    <li><strong>Respuesta 200:</strong> Un PUT exitoso devuelve <code>200 OK</code> con el recurso actualizado.</li>
+  </ul>
+
+  <div class="code-block"><span class="lang">HTTP</span><span class="cc">// Actualizar COMPLETAMENTE al usuario 42</span>
+<span class="cv">PUT</span> /api/usuarios/<span class="cs">42</span> HTTP/1.1
+<span class="ct">Content-Type:</span> application/json
+
+{
+  <span class="ca">"id"</span>: <span class="cs">42</span>,
+  <span class="ca">"nombre"</span>: <span class="cs">"Castillo Actualizado"</span>,
+  <span class="ca">"email"</span>: <span class="cs">"nuevo@email.com"</span>,
+  <span class="ca">"ciudad"</span>: <span class="cs">"Orizaba"</span>,
+  <span class="ca">"telefono"</span>: <span class="cs">"555-1234"</span>   <span class="cc">// ← todos los campos</span>
+}
+
+<span class="cc">// ⚠️ Si omites "telefono", en muchos servidores queda en null</span></div>
+
+  <div class="warn">
+    <h4>⚠️ PUT ≠ PATCH — el error más común</h4>
+    <p>PUT reemplaza <em>todo</em> el recurso. Si tienes un usuario con 10 campos y solo mandas 3 en el PUT, los otros 7 campos pueden perderse. Si solo quieres cambiar el email, usa PATCH — que solo actualiza lo que le mandas.</p>
+  </div>
+
+  <div class="analogy">
+    <h4>📄 Analogía: reemplazar una hoja de datos en un archivero</h4>
+    <p>PUT es como sacar la hoja del expediente 42 del archivero, botarla a la basura, e insertar una hoja completamente nueva con todos los datos actualizados. Tienes que escribir <em>toda</em> la información, aunque solo haya cambiado un dato. Si dejas un campo en blanco en la hoja nueva, ese dato queda vacío — aunque antes tuviera información.</p>
+  </div>
+
+  <!-- SANDBOX PUT -->
+  <div class="sandbox">
+    <div class="sandbox-bar">
+      <span>⚡ EJERCICIO INTERACTIVO</span>
+      <span class="sb-title">Prueba PUT — Actualización completa simulada</span>
+    </div>
+    <div class="sandbox-body">
+      <p style="font-size:.9rem;margin-bottom:.75rem;">Envía un PUT al post con ID 1. Nota que debes enviar <strong>todos los campos</strong>:</p>
+      <label>Body (todos los campos requeridos)</label>
+      <textarea class="sb-textarea" id="put-body">{
+  "id": 1,
+  "title": "Título completamente actualizado",
+  "body": "Este es el nuevo contenido completo del post",
+  "userId": 1
+}</textarea>
+      <button class="sb-btn" id="btn-put" onclick="ejecutarPut()">🔄 PUT /posts/1 →</button>
+      <div class="sb-output" id="out-put"></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ PATCH ═══ -->
+<section class="module" id="patch">
+  <div class="module-header">
+    <div class="module-icon">🟪</div>
+    <div>
+      <div class="module-title">PATCH — Actualización parcial</div>
+      <div class="module-sub">Cambiar solo lo que necesitas · 10:00 – 11:15</div>
+    </div>
+  </div>
+
+  <p>PATCH actualiza <strong>parcialmente</strong> un recurso. Solo envías los campos que quieres cambiar — el resto permanece intacto. Es más eficiente que PUT cuando solo necesitas modificar uno o dos campos.</p>
+
+  <h2>Características del PATCH</h2>
+  <ul>
+    <li><strong>Solo lo que cambia:</strong> No necesitas enviar todo el objeto — solo los campos a modificar.</li>
+    <li><strong>Más eficiente:</strong> Menos datos viajan por la red.</li>
+    <li><strong>Idempotente:</strong> El mismo PATCH aplicado varias veces produce el mismo resultado.</li>
+    <li><strong>Respuesta 200:</strong> Devuelve el recurso con los cambios aplicados.</li>
+  </ul>
+
+  <div class="code-block"><span class="lang">HTTP</span><span class="cc">// Solo actualizar el email del usuario 42</span>
+<span class="cv">PATCH</span> /api/usuarios/<span class="cs">42</span> HTTP/1.1
+<span class="ct">Content-Type:</span> application/json
+
+{
+  <span class="ca">"email"</span>: <span class="cs">"nuevo-email@ejemplo.com"</span>
+}
+<span class="cc">// El nombre, ciudad, teléfono y demás datos NO se tocan</span>
+
+<span class="cc">// Comparación directa PUT vs PATCH:</span>
+<span class="cc">// PUT  → "Reemplaza TODO el usuario con esto" (hoja nueva)</span>
+<span class="cc">// PATCH → "Solo cambia el email, deja lo demás igual" (corrección)</span></div>
+
+  <div class="analogy">
+    <h4>✏️ Analogía: corregir con liquid paper</h4>
+    <p>PATCH es como aplicar liquid paper solo sobre el error en un documento. No rehaces la hoja completa — solo tapas el dato incorrecto y escribes el nuevo. Si en el expediente 42 solo cambió el teléfono, usas PATCH y solo corriges ese campo. Mucho más práctico que PUT cuando el cambio es pequeño.</p>
+  </div>
+
+  <!-- SANDBOX PATCH -->
+  <div class="sandbox">
+    <div class="sandbox-bar">
+      <span>⚡ EJERCICIO INTERACTIVO</span>
+      <span class="sb-title">Prueba PATCH — Solo actualiza el título</span>
+    </div>
+    <div class="sandbox-body">
+      <p style="font-size:.9rem;margin-bottom:.75rem;">Con PATCH solo mandas lo que cambia. Nota que no necesitas enviar <code>body</code> ni <code>userId</code>:</p>
+      <label>Body (solo los campos a cambiar)</label>
+      <textarea class="sb-textarea" id="patch-body">{
+  "title": "Solo cambié el título con PATCH"
+}</textarea>
+      <button class="sb-btn" id="btn-patch" onclick="ejecutarPatch()">✏️ PATCH /posts/1 →</button>
+      <div class="sb-output" id="out-patch"></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ DELETE ═══ -->
+<section class="module" id="delete">
+  <div class="module-header">
+    <div class="module-icon">🟥</div>
+    <div>
+      <div class="module-title">DELETE — Eliminar recursos</div>
+      <div class="module-sub">Borrar un recurso del servidor · 11:15 – 12:20</div>
+    </div>
+  </div>
+
+  <p>DELETE elimina un recurso específico del servidor. La URL debe incluir el identificador del recurso a borrar. Normalmente no lleva body.</p>
+
+  <h2>Características del DELETE</h2>
+  <ul>
+    <li><strong>Idempotente:</strong> Si borras el mismo recurso dos veces, el efecto final es el mismo (el recurso ya no existe).</li>
+    <li><strong>Sin body:</strong> El ID del recurso va en la URL, no en el cuerpo.</li>
+    <li><strong>Respuesta 200 o 204:</strong> <code>200 OK</code> si devuelve el recurso eliminado. <code>204 No Content</code> si no devuelve nada.</li>
+    <li><strong>404 si no existe:</strong> Si intentas borrar algo que ya no existe, el servidor devuelve 404.</li>
+  </ul>
+
+  <div class="code-block"><span class="lang">HTTP</span><span class="cc">// Eliminar al usuario con ID 42</span>
+<span class="cv">DELETE</span> /api/usuarios/<span class="cs">42</span> HTTP/1.1
+Host: api.ejemplo.com
+
+<span class="cc">// Respuesta exitosa (opción 1 — con confirmación)</span>
+HTTP/1.1 <span class="cv">200 OK</span>
+{ <span class="ca">"mensaje"</span>: <span class="cs">"Usuario 42 eliminado correctamente"</span> }
+
+<span class="cc">// Respuesta exitosa (opción 2 — sin contenido)</span>
+HTTP/1.1 <span class="cv">204 No Content</span>
+
+<span class="cc">// Si ya no existía:</span>
+HTTP/1.1 <span class="ce">404 Not Found</span></div>
+
+  <div class="analogy">
+    <h4>🗑 Analogía: destruir un expediente</h4>
+    <p>DELETE es como decirle al archivista "tritura el expediente número 42". El archivista busca el expediente (si no existe, te dice que no lo encontró — 404). Si existe, lo tritura y te confirma que está hecho. Si lo pides de nuevo, el resultado es el mismo: el expediente ya no existe (idempotente). A diferencia del POST, hacer DELETE dos veces no crea un segundo borrado — el primero ya lo eliminó.</p>
+  </div>
+
+  <!-- SANDBOX DELETE -->
+  <div class="sandbox">
+    <div class="sandbox-bar">
+      <span>⚡ EJERCICIO INTERACTIVO</span>
+      <span class="sb-title">Prueba DELETE — Elimina un post simulado</span>
+    </div>
+    <div class="sandbox-body">
+      <p style="font-size:.9rem;margin-bottom:.75rem;">Envía un DELETE al post con el ID que elijas. JSONPlaceholder simula el borrado (en realidad no borra nada en el servidor real, pero responde como si lo hiciera):</p>
+      <div class="sb-row">
+        <div>
+          <label>ID del post a eliminar</label>
+          <input class="sb-input" id="delete-id" type="number" value="1" min="1" max="100" style="margin-bottom:0;">
+        </div>
+      </div>
+      <button class="sb-btn" id="btn-delete" onclick="ejecutarDelete()" style="margin-top:.75rem;">🗑 DELETE /posts/{id} →</button>
+      <div class="sb-output" id="out-delete"></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ STATUS CODES ═══ -->
+<section class="module" id="status">
+  <div class="module-header">
+    <div class="module-icon">📊</div>
+    <div>
+      <div class="module-title">Códigos de estado HTTP — el lenguaje de las respuestas</div>
+      <div class="module-sub">Qué significan los números que devuelve el servidor · 12:20 – 13:31</div>
+    </div>
+  </div>
+
+  <p>El <strong>status code</strong> es el número que el servidor pone en cada Response para indicar qué pasó. Están agrupados en familias por el primer dígito:</p>
+
+  <table class="tbl">
+    <thead><tr><th>Familia</th><th>Rango</th><th>Significado general</th></tr></thead>
+    <tbody>
+      <tr><td>✅ <strong>2xx — Éxito</strong></td><td>200–299</td><td>La solicitud se procesó correctamente</td></tr>
+      <tr><td>↪️ <strong>3xx — Redirección</strong></td><td>300–399</td><td>El recurso se movió, sigue otra URL</td></tr>
+      <tr><td>❌ <strong>4xx — Error del cliente</strong></td><td>400–499</td><td>El cliente hizo algo mal (URL, datos, permisos)</td></tr>
+      <tr><td>💥 <strong>5xx — Error del servidor</strong></td><td>500–599</td><td>El servidor falló procesando una solicitud válida</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Los más importantes</h2>
+
+  <table class="tbl">
+    <thead><tr><th>Código</th><th>Nombre</th><th>Cuándo ocurre</th><th>Método típico</th></tr></thead>
+    <tbody>
+      <tr><td><code>200</code></td><td>OK</td><td>Todo salió bien, aquí están los datos</td><td>GET, PUT, PATCH</td></tr>
+      <tr><td><code>201</code></td><td>Created</td><td>Se creó exitosamente un nuevo recurso</td><td>POST</td></tr>
+      <tr><td><code>204</code></td><td>No Content</td><td>Operación exitosa, pero sin datos que devolver</td><td>DELETE</td></tr>
+      <tr><td><code>400</code></td><td>Bad Request</td><td>El cliente mandó datos mal formados o incorrectos</td><td>POST, PUT, PATCH</td></tr>
+      <tr><td><code>401</code></td><td>Unauthorized</td><td>No has iniciado sesión / token inválido</td><td>Cualquiera</td></tr>
+      <tr><td><code>403</code></td><td>Forbidden</td><td>Estás autenticado pero no tienes permiso</td><td>Cualquiera</td></tr>
+      <tr><td><code>404</code></td><td>Not Found</td><td>El recurso solicitado no existe</td><td>GET, DELETE</td></tr>
+      <tr><td><code>409</code></td><td>Conflict</td><td>Conflicto: el email ya está registrado, etc.</td><td>POST, PUT</td></tr>
+      <tr><td><code>500</code></td><td>Internal Server Error</td><td>Error inesperado en el servidor</td><td>Cualquiera</td></tr>
+      <tr><td><code>503</code></td><td>Service Unavailable</td><td>El servidor está caído o sobrecargado</td><td>Cualquiera</td></tr>
+    </tbody>
+  </table>
+
+  <div class="analogy">
+    <h4>🚦 Analogía: los semáforos de la carretera</h4>
+    <p>Los status codes son como las señales de tránsito en la carretera HTTP. <strong>Verde (2xx)</strong> — sigue adelante, todo en orden. <strong>Amarillo (3xx)</strong> — detente un momento, hay un desvío, ve por aquí. <strong>Rojo de tu culpa (4xx)</strong> — tú manejaste mal, ¿traes licencia? ¿vas por la ruta correcta? <strong>Rojo del camino (5xx)</strong> — la carretera está en mal estado, no es tu culpa, el problema es del servidor.</p>
+  </div>
+
+  <!-- SANDBOX STATUS CODE QUIZ -->
+  <div class="sandbox">
+    <div class="sandbox-bar">
+      <span>🧠 EJERCICIO INTERACTIVO</span>
+      <span class="sb-title">¿Qué status code corresponde?</span>
+    </div>
+    <div class="sandbox-body">
+      <div id="sq1" style="margin-bottom:1.2rem;">
+        <strong style="font-size:.95rem;">Intentas ver el perfil de otro usuario pero no tienes permiso</strong>
+        <div class="sb-quizrow" style="margin-top:.5rem;">
+          <button class="sb-quiz-btn" onclick="checkQ('sq1',this,false)">404</button>
+          <button class="sb-quiz-btn" onclick="checkQ('sq1',this,false)">401</button>
+          <button class="sb-quiz-btn" onclick="checkQ('sq1',this,true)">403</button>
+          <button class="sb-quiz-btn" onclick="checkQ('sq1',this,false)">500</button>
+        </div>
+        <div class="sb-feedback" id="sq1-fb"></div>
+      </div>
+      <div id="sq2" style="margin-bottom:1.2rem;">
+        <strong style="font-size:.95rem;">Creas un nuevo producto en la tienda exitosamente</strong>
+        <div class="sb-quizrow" style="margin-top:.5rem;">
+          <button class="sb-quiz-btn" onclick="checkQ('sq2',this,false)">200</button>
+          <button class="sb-quiz-btn" onclick="checkQ('sq2',this,true)">201</button>
+          <button class="sb-quiz-btn" onclick="checkQ('sq2',this,false)">204</button>
+        </div>
+        <div class="sb-feedback" id="sq2-fb"></div>
+      </div>
+      <div id="sq3" style="margin-bottom:1.2rem;">
+        <strong style="font-size:.95rem;">Intentas acceder a una página que ya no existe</strong>
+        <div class="sb-quizrow" style="margin-top:.5rem;">
+          <button class="sb-quiz-btn" onclick="checkQ('sq3',this,false)">400</button>
+          <button class="sb-quiz-btn" onclick="checkQ('sq3',this,false)">500</button>
+          <button class="sb-quiz-btn" onclick="checkQ('sq3',this,true)">404</button>
+        </div>
+        <div class="sb-feedback" id="sq3-fb"></div>
+      </div>
+      <div id="sq4">
+        <strong style="font-size:.95rem;">El servidor de la API está caído por mantenimiento</strong>
+        <div class="sb-quizrow" style="margin-top:.5rem;">
+          <button class="sb-quiz-btn" onclick="checkQ('sq4',this,false)">404</button>
+          <button class="sb-quiz-btn" onclick="checkQ('sq4',this,false)">400</button>
+          <button class="sb-quiz-btn" onclick="checkQ('sq4',this,true)">503</button>
+        </div>
+        <div class="sb-feedback" id="sq4-fb"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ RESUMEN ═══ -->
+<section class="module" id="resumen">
+  <div class="module-header">
+    <div class="module-icon">✅</div>
+    <div>
+      <div class="module-title">Resumen — Todo el protocolo HTTP en una sola vista</div>
+      <div class="module-sub">Lo que explica el video de TodoCode, consolidado</div>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Los 5 conceptos clave del video</h4>
+    <ul>
+      <li><strong>HTTP</strong> es el protocolo (conjunto de reglas) que permite la comunicación entre clientes y servidores en la web.</li>
+      <li>El ciclo es siempre: <strong>Request</strong> (cliente pide) → <strong>Response</strong> (servidor responde).</li>
+      <li><strong>GET</strong> lee · <strong>POST</strong> crea · <strong>PUT</strong> reemplaza todo · <strong>PATCH</strong> modifica parte · <strong>DELETE</strong> elimina.</li>
+      <li>PUT vs PATCH: PUT necesita todos los campos, PATCH solo los que cambian.</li>
+      <li>Los <strong>status codes</strong> (2xx éxito, 4xx error cliente, 5xx error servidor) son el idioma del servidor para decirte qué pasó.</li>
+    </ul>
+  </div>
+
+  <h2>Tabla resumen: métodos + CRUD + status esperado</h2>
+
+  <table class="tbl">
+    <thead>
+      <tr>
+        <th>Método</th>
+        <th>Acción CRUD</th>
+        <th>¿Body?</th>
+        <th>¿Idempotente?</th>
+        <th>Status éxito</th>
+        <th>Ejemplo endpoint</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="tag" style="background:#E6F4FF;color:#0550AE;">GET</span></td>
+        <td>Read</td><td>No</td><td>✅ Sí</td><td><code>200</code></td>
+        <td><code>GET /usuarios/42</code></td>
+      </tr>
+      <tr>
+        <td><span class="tag" style="background:#E6F9F0;color:#0A6B3E;">POST</span></td>
+        <td>Create</td><td>✅ Sí</td><td>❌ No</td><td><code>201</code></td>
+        <td><code>POST /usuarios</code></td>
+      </tr>
+      <tr>
+        <td><span class="tag" style="background:#FFF3E0;color:#8B4500;">PUT</span></td>
+        <td>Update (completo)</td><td>✅ Sí (todo)</td><td>✅ Sí</td><td><code>200</code></td>
+        <td><code>PUT /usuarios/42</code></td>
+      </tr>
+      <tr>
+        <td><span class="tag" style="background:#F3E8FF;color:#6B21A8;">PATCH</span></td>
+        <td>Update (parcial)</td><td>✅ Sí (parcial)</td><td>✅ Sí</td><td><code>200</code></td>
+        <td><code>PATCH /usuarios/42</code></td>
+      </tr>
+      <tr>
+        <td><span class="tag" style="background:#FFF0F0;color:#9B1C1C;">DELETE</span></td>
+        <td>Delete</td><td>No</td><td>✅ Sí</td><td><code>200</code> / <code>204</code></td>
+        <td><code>DELETE /usuarios/42</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- EJERCICIO INTEGRADOR -->
+  <div class="sandbox">
+    <div class="sandbox-bar">
+      <span>🏆 EJERCICIO INTEGRADOR</span>
+      <span class="sb-title">Simula un CRUD completo — Elige método, URL y body</span>
+    </div>
+    <div class="sandbox-body">
+      <p style="font-size:.9rem;margin-bottom:.75rem;">Construye tu propio request HTTP. Selecciona método, endpoint y body (si aplica):</p>
+      <div class="sb-row">
+        <div style="flex:0 0 110px;">
+          <label>Método</label>
+          <select class="sb-select" id="int-method" onchange="toggleBody()">
+            <option value="GET">GET</option>
+            <option value="POST">POST</option>
+            <option value="PUT">PUT</option>
+            <option value="PATCH">PATCH</option>
+            <option value="DELETE">DELETE</option>
+          </select>
+        </div>
+        <div style="flex:1;">
+          <label>Endpoint</label>
+          <select class="sb-select" id="int-url">
+            <option value="https://jsonplaceholder.typicode.com/posts/1">/posts/1</option>
+            <option value="https://jsonplaceholder.typicode.com/posts">/posts</option>
+            <option value="https://jsonplaceholder.typicode.com/users/1">/users/1</option>
+            <option value="https://jsonplaceholder.typicode.com/todos/1">/todos/1</option>
+          </select>
+        </div>
+      </div>
+      <div id="int-body-wrap">
+        <label>Body (JSON)</label>
+        <textarea class="sb-textarea" id="int-body">{"title": "Test", "body": "Prueba integrador", "userId": 1}</textarea>
+      </div>
+      <button class="sb-btn" id="btn-integrador" onclick="ejecutarIntegrador()">🚀 Enviar Request →</button>
+      <div class="sb-output" id="out-integrador"></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>💡 ¿Qué sigue después de HTTP?</h4>
+    <p>Ahora que entiendes el protocolo HTTP, el siguiente paso natural es aprender sobre <strong>APIs REST</strong> (cómo diseñar endpoints correctamente), <strong>JSON</strong> (el formato de datos más usado en HTTP), y herramientas como <strong>Postman</strong> o <strong>Thunder Client</strong> (para probar tus requests sin escribir código). El siguiente video de esta playlist cubre JSON — ¡el siguiente paso lógico!</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Guía basada en el video de TodoCode: "¿Qué es el Protocolo HTTP?" · Playlist: Aprender términos 1/3 ·
+  <a href="https://www.youtube.com/watch?v=l2MihYAj0Iw&list=PLoNE_hb5QJQUmTUBp1A8ynDCM295Qam7G&index=1" target="_blank" rel="noopener" style="color:var(--primary);">Ver video original en YouTube →</a>
+</footer>
+
+<script>
+/* ─── QUIZ ─── */
+function checkQ(id, btn, correct) {
+  const container = document.getElementById(id);
+  const btns = container.querySelectorAll('.sb-quiz-btn');
+  btns.forEach(b => b.disabled = true);
+  const fb = document.getElementById(id + '-fb');
+  if (correct) {
+    btn.classList.add('correct');
+    fb.innerHTML = '<span style="color:#0A6B3E;font-weight:600;">✅ ¡Correcto!</span>';
+  } else {
+    btn.classList.add('wrong');
+    fb.innerHTML = '<span style="color:#9B1C1C;font-weight:600;">❌ No es esa — busca la opción verde.</span>';
+    btns.forEach(b => {
+      if (b.onclick.toString().includes('true')) b.classList.add('correct');
+    });
+  }
+}
+
+/* ─── HELPERS ─── */
+function showLoading(outId, method, url) {
+  const out = document.getElementById(outId);
+  out.className = 'sb-output visible';
+  out.innerHTML = '⏳ Enviando ' + method + ' a ' + url + '...';
+}
+
+function showResult(outId, method, url, status, data) {
+  const out = document.getElementById(outId);
+  const statusClass = status >= 200 && status < 300 ? 'status-ok' : 'status-err';
+  const emoji = status >= 200 && status < 300 ? '✅' : '❌';
+  out.className = 'sb-output visible';
+  out.innerHTML =
+    emoji + ' <span class="sb-status ' + statusClass + '">' + status + '</span>  ' + method + ' → ' + url + '\n\n' +
+    JSON.stringify(data, null, 2);
+}
+
+function showError(outId, method, url, err) {
+  const out = document.getElementById(outId);
+  out.className = 'sb-output visible';
+  out.innerHTML = '❌ Error de red: ' + err + '\n\nVerifica tu conexión a internet.';
+}
+
+/* ─── GET CICLO ─── */
+async function hacerGet() {
+  const recurso = document.getElementById('recurso-sel').value;
+  const url = 'https://jsonplaceholder.typicode.com/' + recurso;
+  const btn = document.getElementById('btn-get-ciclo');
+  btn.disabled = true;
+  showLoading('out-ciclo', 'GET', url);
+  try {
+    const r = await fetch(url);
+    const data = await r.json();
+    showResult('out-ciclo', 'GET', url, r.status, data);
+  } catch(e) { showError('out-ciclo', 'GET', url, e.message); }
+  btn.disabled = false;
+}
+
+/* ─── GET ─── */
+async function ejecutarGet() {
+  const url = document.getElementById('get-endpoint').value;
+  const btn = document.getElementById('btn-get');
+  btn.disabled = true;
+  showLoading('out-get', 'GET', url);
+  try {
+    const r = await fetch(url);
+    const data = await r.json();
+    showResult('out-get', 'GET', url, r.status, data);
+  } catch(e) { showError('out-get', 'GET', url, e.message); }
+  btn.disabled = false;
+}
+
+/* ─── POST ─── */
+async function ejecutarPost() {
+  const url = 'https://jsonplaceholder.typicode.com/posts';
+  const btn = document.getElementById('btn-post');
+  btn.disabled = true;
+  let body;
+  try { body = JSON.parse(document.getElementById('post-body').value); }
+  catch(e) { document.getElementById('out-post').className = 'sb-output visible'; document.getElementById('out-post').innerHTML = '❌ JSON inválido: ' + e.message; btn.disabled=false; return; }
+  showLoading('out-post', 'POST', url);
+  try {
+    const r = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    const data = await r.json();
+    showResult('out-post', 'POST', url, r.status, data);
+  } catch(e) { showError('out-post', 'POST', url, e.message); }
+  btn.disabled = false;
+}
+
+/* ─── PUT ─── */
+async function ejecutarPut() {
+  const url = 'https://jsonplaceholder.typicode.com/posts/1';
+  const btn = document.getElementById('btn-put');
+  btn.disabled = true;
+  let body;
+  try { body = JSON.parse(document.getElementById('put-body').value); }
+  catch(e) { document.getElementById('out-put').className = 'sb-output visible'; document.getElementById('out-put').innerHTML = '❌ JSON inválido: ' + e.message; btn.disabled=false; return; }
+  showLoading('out-put', 'PUT', url);
+  try {
+    const r = await fetch(url, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    const data = await r.json();
+    showResult('out-put', 'PUT', url, r.status, data);
+  } catch(e) { showError('out-put', 'PUT', url, e.message); }
+  btn.disabled = false;
+}
+
+/* ─── PATCH ─── */
+async function ejecutarPatch() {
+  const url = 'https://jsonplaceholder.typicode.com/posts/1';
+  const btn = document.getElementById('btn-patch');
+  btn.disabled = true;
+  let body;
+  try { body = JSON.parse(document.getElementById('patch-body').value); }
+  catch(e) { document.getElementById('out-patch').className = 'sb-output visible'; document.getElementById('out-patch').innerHTML = '❌ JSON inválido: ' + e.message; btn.disabled=false; return; }
+  showLoading('out-patch', 'PATCH', url);
+  try {
+    const r = await fetch(url, { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    const data = await r.json();
+    showResult('out-patch', 'PATCH', url, r.status, data);
+  } catch(e) { showError('out-patch', 'PATCH', url, e.message); }
+  btn.disabled = false;
+}
+
+/* ─── DELETE ─── */
+async function ejecutarDelete() {
+  const id = document.getElementById('delete-id').value;
+  const url = 'https://jsonplaceholder.typicode.com/posts/' + id;
+  const btn = document.getElementById('btn-delete');
+  btn.disabled = true;
+  showLoading('out-delete', 'DELETE', url);
+  try {
+    const r = await fetch(url, { method:'DELETE' });
+    const status = r.status;
+    let data = {};
+    try { data = await r.json(); } catch(e) { data = { resultado: 'Recurso eliminado (sin contenido)', status: status }; }
+    showResult('out-delete', 'DELETE', url, status, data);
+  } catch(e) { showError('out-delete', 'DELETE', url, e.message); }
+  btn.disabled = false;
+}
+
+/* ─── INTEGRADOR ─── */
+function toggleBody() {
+  const method = document.getElementById('int-method').value;
+  document.getElementById('int-body-wrap').style.display = ['POST','PUT','PATCH'].includes(method) ? 'block' : 'none';
+}
+toggleBody();
+
+async function ejecutarIntegrador() {
+  const method = document.getElementById('int-method').value;
+  const url    = document.getElementById('int-url').value;
+  const btn    = document.getElementById('btn-integrador');
+  btn.disabled = true;
+  const opts = { method, headers: { 'Content-Type': 'application/json' } };
+  if (['POST','PUT','PATCH'].includes(method)) {
+    let body;
+    try { body = JSON.parse(document.getElementById('int-body').value); opts.body = JSON.stringify(body); }
+    catch(e) { document.getElementById('out-integrador').className='sb-output visible'; document.getElementById('out-integrador').innerHTML='❌ JSON inválido: '+e.message; btn.disabled=false; return; }
+  }
+  showLoading('out-integrador', method, url);
+  try {
+    const r = await fetch(url, opts);
+    let data = {};
+    try { data = await r.json(); } catch(e) { data = { resultado: 'Sin contenido en la respuesta', status: r.status }; }
+    showResult('out-integrador', method, url, r.status, data);
+  } catch(e) { showError('out-integrador', method, url, e.message); }
+  btn.disabled = false;
+}
+</script>
+</body>
+</html>

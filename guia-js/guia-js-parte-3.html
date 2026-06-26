@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía JavaScript — Parte 3 · Soy Dalto</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --primary: #c44a2a; --primary-light: #fdf0ec;
+    --secondary: #1a7a5a; --secondary-light: #edf7f3;
+    --accent: #b07010; --accent-light: #fdf6e8;
+    --bg: #f7f4ef; --surface: #ffffff;
+    --text: #1a1814; --muted: #8a8480; --border: #e8e4de;
+    --code-bg: #1a1814; --code-text: #e8e4de;
+    --js: #f0b429;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  .cafe-bar { background:#fff; border-bottom:1px solid #e8e4de; padding:0 24px; display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:200; height:45px; }
+  .cafe-bar a { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:#8a8480; text-decoration:none; padding:6px 14px; border:1px solid #e8e4de; border-radius:999px; transition:all .15s; }
+  .cafe-bar a:hover { color:#1a1814; border-color:#8a8480; }
+  .cafe-bar span { font-size:13px; color:#8a8480; }
+
+  .partes-nav { background:var(--surface); border-bottom:1px solid var(--border); position:sticky; top:45px; z-index:110; display:flex; align-items:center; height:38px; padding:0 1rem; }
+  .partes-nav-prev,.partes-nav-next { flex-shrink:0; padding:0 .75rem; height:100%; text-decoration:none; color:var(--muted); font-size:.78rem; font-weight:500; display:flex; align-items:center; transition:color .15s; white-space:nowrap; }
+  .partes-nav-prev { border-right:1px solid var(--border); }
+  .partes-nav-next { border-left:1px solid var(--border); }
+  .partes-nav-prev:hover,.partes-nav-next:hover { color:var(--primary); }
+  .partes-nav-list { flex:1; display:flex; align-items:center; justify-content:center; gap:.15rem; overflow-x:auto; padding:0 .5rem; }
+  .partes-nav-list::-webkit-scrollbar { display:none; }
+  .partes-nav-list a { flex-shrink:0; padding:2px 10px; border-radius:20px; text-decoration:none; font-size:.73rem; font-weight:600; color:var(--muted); transition:color .15s,background .15s; }
+  .partes-nav-list a:hover { color:var(--text); background:var(--bg); }
+  .partes-nav-list a.activa { background:var(--primary-light); color:var(--primary); }
+
+  header { background:#1a1814; color:#f7f4ef; padding:3rem 2rem 2rem; text-align:center; position:relative; overflow:hidden; }
+  header::before { content:'[ ]'; position:absolute; font-size:14rem; font-weight:900; color:rgba(240,180,41,0.06); right:-2rem; top:-2rem; font-family:monospace; line-height:1; }
+  header h1 { font-size:2.5rem; font-weight:800; letter-spacing:-1px; font-family:'Fraunces',serif; }
+  header p { font-size:1.1rem; opacity:.85; margin-top:.5rem; }
+  header .badge { display:inline-block; background:rgba(240,180,41,.2); border:1px solid rgba(240,180,41,.4); color:#f0b429; border-radius:20px; padding:4px 14px; font-size:.8rem; margin-top:.75rem; font-weight:600; }
+
+  nav { background:var(--surface); border-bottom:1px solid var(--border); position:sticky; top:83px; z-index:100; display:flex; overflow-x:auto; }
+  nav::-webkit-scrollbar { display:none; }
+  nav a { flex-shrink:0; padding:.65rem .9rem; text-decoration:none; color:var(--muted); font-size:.78rem; font-weight:500; border-bottom:2px solid transparent; transition:color .2s,border-color .2s; white-space:nowrap; }
+  nav a:hover { color:var(--primary); border-bottom-color:var(--primary); }
+
+  main { max-width:940px; margin:0 auto; padding:2rem 1.5rem; }
+
+  .module { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:2rem; margin-bottom:2.5rem; }
+  .module-header { display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border); }
+  .module-icon { font-size:1.8rem; flex-shrink:0; }
+  .module-title { font-size:1.35rem; font-weight:700; }
+  .module-sub { font-size:.85rem; color:var(--muted); margin-top:2px; }
+
+  .analogy { background:#FFF7ED; border:1px solid #FDE68A; border-left:4px solid var(--accent); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .analogy h4 { color:#92400E; font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+  .analogy p { font-size:.95rem; color:#78350F; }
+
+  .concept { background:var(--primary-light); border-left:4px solid var(--primary); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .concept h4 { color:var(--primary); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+
+  .tip { background:var(--secondary-light); border-left:4px solid var(--secondary); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .tip h4 { color:var(--secondary); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+  .tip ul { padding-left:1.2rem; }
+
+  .warn { background:#fdf0ec; border-left:4px solid var(--primary); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .warn h4 { color:var(--primary); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+
+  .code-block { background:var(--code-bg); color:var(--code-text); border-radius:10px; padding:1.25rem 1.5rem; font-family:'DM Mono','Courier New',monospace; font-size:.88rem; line-height:1.9; overflow-x:auto; margin:1rem 0; position:relative; white-space:pre; }
+  .code-block .ct { color:#89B4FA; }
+  .code-block .ca { color:#CBA6F7; }
+  .code-block .cv { color:#A6E3A1; }
+  .code-block .cs { color:#F9E2AF; }
+  .code-block .cp { color:#89DCEB; }
+  .code-block .cc { color:#585B70; font-style:italic; }
+  .code-block .cn { color:#FAB387; }
+  .lang { position:absolute; top:.6rem; right:.75rem; background:rgba(255,255,255,.1); color:rgba(255,255,255,.5); font-size:.68rem; padding:2px 8px; border-radius:4px; font-family:sans-serif; }
+
+  .tbl { width:100%; border-collapse:collapse; margin:1rem 0; font-size:.9rem; }
+  .tbl th { background:var(--primary-light); color:var(--primary); padding:.65rem 1rem; text-align:left; font-weight:600; }
+  .tbl td { padding:.65rem 1rem; border-bottom:1px solid var(--border); vertical-align:top; }
+  .tbl tr:hover td { background:var(--bg); }
+
+  .method-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1rem; margin:1rem 0; }
+  .method-card { background:var(--bg); border:1px solid var(--border); border-radius:12px; padding:1.1rem 1.2rem; }
+  .method-card .mc-name { font-family:'DM Mono',monospace; font-size:.88rem; font-weight:700; color:var(--primary); background:var(--primary-light); padding:2px 8px; border-radius:6px; display:inline-block; margin-bottom:.5rem; }
+  .method-card .mc-desc { font-size:.87rem; margin-bottom:.4rem; }
+  .method-card .mc-ex { font-family:'DM Mono',monospace; font-size:.8rem; background:var(--code-bg); color:var(--code-text); padding:.4rem .75rem; border-radius:6px; white-space:pre; overflow-x:auto; }
+
+  .ejercicio { background:#FFFBEB; border:1px solid #FDE68A; border-radius:14px; padding:1.5rem; margin:1.5rem 0; }
+  .ejercicio-hd { display:flex; align-items:center; gap:.75rem; margin-bottom:1rem; font-weight:700; font-size:1rem; color:#78350F; flex-wrap:wrap; }
+  .ej-badge { background:var(--accent); color:#fff; font-size:.68rem; padding:2px 9px; border-radius:20px; font-weight:700; text-transform:uppercase; }
+  .ej-badge.int { background:var(--primary); }
+  .ej-badge.avz { background:#7c3aed; }
+  .editor-area { background:#1a1814; border-radius:10px; overflow:hidden; margin:.75rem 0; }
+  textarea.editor { width:100%; background:#252525; color:#e8e4de; border:none; padding:1rem 1.25rem; font-family:'DM Mono','Courier New',monospace; font-size:.87rem; line-height:1.8; resize:vertical; min-height:200px; outline:none; display:block; }
+  .btn-row { display:flex; gap:.5rem; flex-wrap:wrap; margin-top:.6rem; }
+  .run-btn { background:var(--js); color:#1a1814; border:none; padding:.6rem 1.4rem; border-radius:8px; font-weight:700; font-size:.9rem; cursor:pointer; transition:background .15s; display:inline-flex; align-items:center; gap:.4rem; }
+  .run-btn:hover { background:#d9a020; }
+  .reset-btn { background:transparent; color:var(--muted); border:1px solid var(--border); padding:.6rem 1.1rem; border-radius:8px; font-size:.85rem; cursor:pointer; transition:all .15s; }
+  .reset-btn:hover { border-color:var(--primary); color:var(--primary); }
+  .output-label { font-size:.72rem; color:var(--muted); margin-top:.75rem; margin-bottom:.25rem; text-transform:uppercase; letter-spacing:.06em; }
+  .output { background:#0f0f0f; border-radius:8px; padding:1rem 1.25rem; font-family:'DM Mono',monospace; font-size:.87rem; min-height:60px; color:#A6E3A1; white-space:pre-wrap; word-break:break-word; }
+  .output.error { color:#F38BA8; }
+  .enunciado { background:#fff; border:1px dashed #FDE68A; border-radius:8px; padding:1rem 1.25rem; margin-bottom:.75rem; font-size:.94rem; line-height:1.6; }
+  .enunciado strong { color:#78350F; }
+
+  .parte-badge { display:inline-flex; align-items:center; gap:.5rem; background:var(--js); color:#1a1814; border-radius:20px; padding:5px 16px; font-size:.82rem; font-weight:700; margin-bottom:1.5rem; }
+
+  h2 { font-size:1.2rem; font-weight:700; margin:1.75rem 0 .75rem; }
+  h3 { font-size:1rem; font-weight:700; margin:1.25rem 0 .5rem; }
+  p { margin-bottom:.8rem; }
+  ul,ol { padding-left:1.4rem; margin-bottom:.8rem; }
+  li { margin-bottom:.4rem; font-size:.96rem; }
+  code { font-family:'DM Mono',monospace; background:#f0ece6; color:var(--primary); padding:1px 5px; border-radius:4px; font-size:.9em; }
+  strong { font-weight:700; }
+
+  footer { text-align:center; padding:2rem; color:var(--muted); font-size:.85rem; border-top:1px solid var(--border); margin-top:1rem; background:var(--bg); }
+</style>
+</head>
+<body>
+
+<div class="cafe-bar">
+  <a href="../../index.html">← Volver a Café &lt;/&gt;</a>
+  <span>🟨 Guía JavaScript · Parte 3 de 4</span>
+</div>
+
+<div class="partes-nav">
+  <a class="partes-nav-prev" href="guia-js-parte-2.html">← Parte 2</a>
+  <div class="partes-nav-list">
+    <a href="guia-js-parte-1.html">Parte 1</a>
+    <a href="guia-js-parte-2.html">Parte 2</a>
+    <a href="guia-js-parte-3.html" class="activa">Parte 3</a>
+    <a href="guia-js-parte-4.html">Parte 4</a>
+  </div>
+  <a class="partes-nav-next" href="guia-js-parte-4.html">Parte 4 →</a>
+</div>
+
+<header>
+  <h1>JavaScript — Parte 3</h1>
+  <p>Arrays, funciones, métodos de strings y ejercicio Pokémon</p>
+  <span class="badge">⚡ Parte 3 de 4 · 3:18 – 5:29 del curso de Soy Dalto</span>
+</header>
+
+<nav>
+  <a href="#arrays">📚 Arrays</a>
+  <a href="#metodos-arrays">⚙️ Métodos Arrays</a>
+  <a href="#funciones">🔧 Funciones</a>
+  <a href="#arrow">➡️ Arrow fn</a>
+  <a href="#pokemon">🎮 Pokémon</a>
+  <a href="#strings">🔤 Strings</a>
+  <a href="#ej-strings">🧪 Ej. Strings</a>
+</nav>
+
+<main>
+<div class="parte-badge">⚡ Parte 3 — Arrays, Funciones y Métodos de Strings (3:18 – 5:29)</div>
+
+
+<!-- ══════════════════════════════════════════
+     ARRAYS
+══════════════════════════════════════════ -->
+<section class="module" id="arrays">
+  <div class="module-header">
+    <div class="module-icon">📚</div>
+    <div>
+      <div class="module-title">Arrays — Listas ordenadas de datos</div>
+      <div class="module-sub">Crear, acceder, modificar y recorrer arrays · 3:18:57 – 3:49:36</div>
+    </div>
+  </div>
+
+  <p>Un array es una <strong>lista ordenada de valores</strong> guardados en una sola variable. En vez de crear <code>fruta1</code>, <code>fruta2</code>, <code>fruta3</code>... creas un array <code>frutas</code> que los contiene todos.</p>
+
+  <div class="analogy">
+    <h4>🎡 Analogía: la góndola del supermercado</h4>
+    <p>Imagina una góndola numerada del supermercado: posición 0 → leche, posición 1 → yogur, posición 2 → queso... Siempre sabes exactamente dónde está cada producto por su número de posición (índice). Si quieres el yogur, no buscas por toda la tienda — vas directo a la posición 1. Eso es un array: una góndola numerada donde cada posición guarda un valor.</p>
+  </div>
+
+  <h2>Crear y acceder a un array</h2>
+  <div class="code-block"><span class="lang">JavaScript</span><span class="cc">// Crear un array — los corchetes [] son la sintaxis</span>
+<span class="ct">const</span> frutas = [<span class="cv">"manzana"</span>, <span class="cv">"banana"</span>, <span class="cv">"naranja"</span>, <span class="cv">"uva"</span>];
+<span class="cc">//               índice 0      índice 1    índice 2    índice 3</span>
+
+<span class="cc">// Acceder por índice (empieza en 0, NO en 1)</span>
+console.<span class="cn">log</span>(frutas[<span class="cs">0</span>]); <span class="cc">// → "manzana"</span>
+console.<span class="cn">log</span>(frutas[<span class="cs">2</span>]); <span class="cc">// → "naranja"</span>
+console.<span class="cn">log</span>(frutas[<span class="cs">10</span>]); <span class="cc">// → undefined (no existe)</span>
+
+<span class="cc">// El último elemento = longitud - 1</span>
+console.<span class="cn">log</span>(frutas[frutas.<span class="cp">length</span> - <span class="cs">1</span>]); <span class="cc">// → "uva"</span>
+
+<span class="cc">// Modificar un elemento</span>
+frutas[<span class="cs">1</span>] = <span class="cv">"mango"</span>;
+console.<span class="cn">log</span>(frutas); <span class="cc">// → ["manzana","mango","naranja","uva"]</span>
+
+<span class="cc">// Arrays pueden mezclar tipos (aunque no es recomendable)</span>
+<span class="ct">const</span> mixto = [<span class="cs">42</span>, <span class="cv">"hola"</span>, <span class="cs">true</span>, <span class="cs">null</span>, [<span class="cs">1</span>,<span class="cs">2</span>]];</div>
+
+  <h2>Recorrer arrays</h2>
+  <div class="code-block"><span class="lang">JavaScript</span><span class="ct">const</span> colores = [<span class="cv">"rojo"</span>, <span class="cv">"verde"</span>, <span class="cv">"azul"</span>];
+
+<span class="cc">// for clásico — cuando necesitas el índice</span>
+<span class="ct">for</span> (<span class="ct">let</span> i = <span class="cs">0</span>; i < colores.<span class="cp">length</span>; i++) {
+  console.<span class="cn">log</span>(<span class="cv">`[${i}] → ${colores[i]}`</span>);
+}
+
+<span class="cc">// for...of — la forma moderna, más limpia</span>
+<span class="ct">for</span> (<span class="ct">const</span> color <span class="ct">of</span> colores) {
+  console.<span class="cn">log</span>(color);
+}
+
+<span class="cc">// forEach — método de array, llama una función por cada elemento</span>
+colores.<span class="cn">forEach</span>((color, indice) => {
+  console.<span class="cn">log</span>(<span class="cv">`${indice}: ${color}`</span>);
+});</div>
+
+  <h2>Arrays multidimensionales</h2>
+  <div class="code-block"><span class="lang">JavaScript</span><span class="cc">// Array de arrays = matriz / tablero</span>
+<span class="ct">const</span> tablero = [
+  [<span class="cv">"X"</span>, <span class="cv">"O"</span>, <span class="cv">"X"</span>],
+  [<span class="cv">"O"</span>, <span class="cv">"X"</span>, <span class="cv">"O"</span>],
+  [<span class="cv">"X"</span>, <span class="cv">"O"</span>, <span class="cv">"X"</span>]
+];
+
+console.<span class="cn">log</span>(tablero[<span class="cs">0</span>][<span class="cs">1</span>]); <span class="cc">// → "O" (fila 0, columna 1)</span>
+console.<span class="cn">log</span>(tablero[<span class="cs">1</span>][<span class="cs">2</span>]); <span class="cc">// → "O" (fila 1, columna 2)</span>
+
+<span class="cc">// Recorrer con for anidado</span>
+<span class="ct">for</span> (<span class="ct">const</span> fila <span class="ct">of</span> tablero) {
+  console.<span class="cn">log</span>(fila.<span class="cn">join</span>(<span class="cv">" | "</span>));
+}</div>
+
+  <div class="ejercicio">
+    <div class="ejercicio-hd">✏️ Gestión de lista de compras <span class="ej-badge">Principiante</span></div>
+    <div class="enunciado"><strong>Objetivo:</strong> Crea y manipula una lista de compras. Accede por índice, modifica elementos y recórrela.</div>
+    <div class="editor-area">
+      <textarea class="editor" id="ej-arrays">// ── Lista de compras ─────────────────────────
+const listaCompras = ["leche", "huevos", "pan", "queso", "manzanas"];
+
+console.log("=== LISTA DE COMPRAS ===");
+console.log(`Total de productos: ${listaCompras.length}`);
+console.log(`Primer producto: ${listaCompras[0]}`);
+console.log(`Último producto: ${listaCompras[listaCompras.length - 1]}`);
+
+// Mostrar todos con numeración
+console.log("\n📋 Lista completa:");
+for (let i = 0; i < listaCompras.length; i++) {
+  console.log(`  ${i + 1}. ${listaCompras[i]}`);
+}
+
+// Modificar un elemento
+listaCompras[2] = "pan integral";  // Cambiar "pan" por "pan integral"
+console.log(`\n✏️  Producto 3 actualizado: ${listaCompras[2]}`);
+
+// Buscar si existe un producto
+const buscar = "huevos";
+let encontrado = false;
+for (const producto of listaCompras) {
+  if (producto === buscar) {
+    encontrado = true;
+    break;
+  }
+}
+console.log(`\n🔍 ¿Está "${buscar}"? ${encontrado ? "Sí ✅" : "No ❌"}`);
+
+// ── Tablero de Tres en Raya ───────────────────
+console.log("\n=== TABLERO ===");
+const tablero = [["X","O","X"],["O","X","O"],["O","X","X"]];
+for (const fila of tablero) {
+  console.log(fila.join(" | "));
+}
+console.log(`Centro: ${tablero[1][1]}`);</textarea>
+    </div>
+    <div class="btn-row">
+      <button class="run-btn" onclick="runCode('ej-arrays','out-arrays')">▶ Ejecutar</button>
+      <button class="reset-btn" onclick="resetEj('ej-arrays','out-arrays')">↺ Reiniciar</button>
+    </div>
+    <div class="output-label">Salida:</div>
+    <div class="output" id="out-arrays">Presiona ▶ Ejecutar...</div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     MÉTODOS DE ARRAYS
+══════════════════════════════════════════ -->
+<section class="module" id="metodos-arrays">
+  <div class="module-header">
+    <div class="module-icon">⚙️</div>
+    <div>
+      <div class="module-title">Métodos de Arrays — El arsenal completo</div>
+      <div class="module-sub">push, pop, map, filter, reduce y más · 3:49:36 – 4:03:38</div>
+    </div>
+  </div>
+
+  <p>Los métodos de arrays son funciones que ya vienen incorporadas en todo array. Son herramientas que transforman, filtran, buscan y modifican listas de datos de forma poderosa y concisa.</p>
+
+  <div class="analogy">
+    <h4>🔧 Analogía: las herramientas de una fábrica</h4>
+    <p>Imagina una fábrica de galletas. <code>filter</code> es el control de calidad que saca las galletas quemadas. <code>map</code> es la máquina que baña cada galleta en chocolate. <code>reduce</code> es la caja registradora que suma el valor de todo lo producido. <code>find</code> es el inspector que busca la primera galleta con un defecto. Cada herramienta hace una tarea específica sobre toda la línea de producción.</p>
+  </div>
+
+  <h2>Métodos que MUTAN el array original</h2>
+
+  <div class="method-grid">
+    <div class="method-card">
+      <span class="mc-name">.push()</span>
+      <p class="mc-desc">Agrega uno o más elementos al <strong>final</strong>. Devuelve la nueva longitud.</p>
+      <pre class="mc-ex">frutas.push("kiwi");
+// ["manzana","banana","kiwi"]</pre>
+    </div>
+    <div class="method-card">
+      <span class="mc-name">.pop()</span>
+      <p class="mc-desc">Elimina y <strong>devuelve</strong> el último elemento.</p>
+      <pre class="mc-ex">const ultimo = frutas.pop();
+// ultimo = "kiwi"</pre>
+    </div>
+    <div class="method-card">
+      <span class="mc-name">.unshift()</span>
+      <p class="mc-desc">Agrega uno o más elementos al <strong>inicio</strong>.</p>
+      <pre class="mc-ex">frutas.unshift("fresa");
+// ["fresa","manzana","banana"]</pre>
+    </div>
+    <div class="method-card">
+      <span class="mc-name">.shift()</span>
+      <p class="mc-desc">Elimina y <strong>devuelve</strong> el primer elemento.</p>
+      <pre class="mc-ex">const primero = frutas.shift();
+// primero = "fresa"</pre>
+    </div>
+    <div class="method-card">
+      <span class="mc-name">.splice()</span>
+      <p class="mc-desc">Elimina, reemplaza o inserta elementos en cualquier posición.</p>
+      <pre class="mc-ex">arr.splice(1, 2);      // elimina 2 desde índice 1
+arr.splice(1, 0, "x"); // inserta "x" en índice 1</pre>
+    </div>
+    <div class="method-card">
+      <span class="mc-name">.sort()</span>
+      <p class="mc-desc">Ordena el array en su lugar. Sin función, ordena como texto. Con función, ordena números.</p>
+      <pre class="mc-ex">nums.sort((a, b) => a - b); // ascendente
+nums.sort((a, b) => b - a); // descendente</pre>
+    </div>
+    <div class="method-card">
+      <span class="mc-name">.reverse()</span>
+      <p class="mc-desc">Invierte el orden del array en su lugar.</p>
+      <pre class="mc-ex">[1,2,3].reverse();
+// [3,2,1]</pre>
+    </div>
+    <div class="method-card">
+      <span class="mc-name">.fill()</span>
+      <p class="mc-desc">Rellena posiciones del array con un valor.</p>
+      <pre class="mc-ex">[1,2,3,4].fill(0, 1, 3);
+// [1, 0, 0, 4]</pre>
+    </div>
+  </div>
+
+  <h2>Métodos que NO mutan — devuelven nuevo array</h2>
+
+  <div class="code-block"><span class="lang">JavaScript</span><span class="ct">const</span> numeros = [<span class="cs">1</span>, <span class="cs">2</span>, <span class="cs">3</span>, <span class="cs">4</span>, <span class="cs">5</span>, <span class="cs">6</span>, <span class="cs">7</span>, <span class="cs">8</span>, <span class="cs">9</span>, <span class="cs">10</span>];
+
+<span class="cc">// .map() — transforma cada elemento, devuelve NUEVO array del mismo tamaño</span>
+<span class="ct">const</span> dobles = numeros.<span class="cn">map</span>(n => n * <span class="cs">2</span>);
+<span class="cc">// → [2, 4, 6, 8, 10, 12, 14, 16, 18, 20]</span>
+
+<span class="cc">// .filter() — filtra elementos según condición, devuelve NUEVO array (puede ser más pequeño)</span>
+<span class="ct">const</span> pares = numeros.<span class="cn">filter</span>(n => n % <span class="cs">2</span> === <span class="cs">0</span>);
+<span class="cc">// → [2, 4, 6, 8, 10]</span>
+
+<span class="cc">// .reduce() — acumula todos los elementos en UN solo valor</span>
+<span class="ct">const</span> suma = numeros.<span class="cn">reduce</span>((acumulador, actual) => acumulador + actual, <span class="cs">0</span>);
+<span class="cc">// → 55  (0+1+2+3+4+5+6+7+8+9+10)</span>
+
+<span class="cc">// .find() — devuelve el PRIMER elemento que cumple la condición</span>
+<span class="ct">const</span> primerMayorA5 = numeros.<span class="cn">find</span>(n => n > <span class="cs">5</span>);
+<span class="cc">// → 6</span>
+
+<span class="cc">// .findIndex() — devuelve el ÍNDICE del primer elemento que cumple</span>
+<span class="ct">const</span> idx = numeros.<span class="cn">findIndex</span>(n => n > <span class="cs">5</span>);
+<span class="cc">// → 5 (el 6 está en el índice 5)</span>
+
+<span class="cc">// .some() — ¿AL MENOS UNO cumple la condición? → boolean</span>
+<span class="ct">const</span> hayMayoresA8 = numeros.<span class="cn">some</span>(n => n > <span class="cs">8</span>);
+<span class="cc">// → true</span>
+
+<span class="cc">// .every() — ¿TODOS cumplen la condición? → boolean</span>
+<span class="ct">const</span> todosMenoresA11 = numeros.<span class="cn">every</span>(n => n < <span class="cs">11</span>);
+<span class="cc">// → true</span>
+
+<span class="cc">// .includes() — ¿contiene este valor?</span>
+<span class="ct">const</span> tiene5 = numeros.<span class="cn">includes</span>(<span class="cs">5</span>);
+<span class="cc">// → true</span>
+
+<span class="cc">// .flat() — aplana arrays anidados</span>
+[<span class="cs">1</span>, [<span class="cs">2</span>, <span class="cs">3</span>], [<span class="cs">4</span>, [<span class="cs">5</span>]]].<span class="cn">flat</span>();    <span class="cc">// → [1, 2, 3, 4, [5]]</span>
+[<span class="cs">1</span>, [<span class="cs">2</span>, <span class="cs">3</span>], [<span class="cs">4</span>, [<span class="cs">5</span>]]].<span class="cn">flat</span>(<span class="ca">Infinity</span>); <span class="cc">// → [1, 2, 3, 4, 5]</span>
+
+<span class="cc">// .slice() — copia una porción (sin mutar)</span>
+numeros.<span class="cn">slice</span>(<span class="cs">2</span>, <span class="cs">5</span>); <span class="cc">// → [3, 4, 5] (del índice 2 al 4)</span>
+
+<span class="cc">// .concat() — une arrays (sin mutar)</span>
+[<span class="cs">1</span>,<span class="cs">2</span>].<span class="cn">concat</span>([<span class="cs">3</span>,<span class="cs">4</span>]); <span class="cc">// → [1, 2, 3, 4]</span>
+
+<span class="cc">// .join() — convierte array a string</span>
+[<span class="cv">"a"</span>,<span class="cv">"b"</span>,<span class="cv">"c"</span>].<span class="cn">join</span>(<span class="cv">"-"</span>); <span class="cc">// → "a-b-c"</span>
+
+<span class="cc">// Encadenar métodos (chaining)</span>
+<span class="ct">const</span> resultado = numeros
+  .<span class="cn">filter</span>(n => n % <span class="cs">2</span> === <span class="cs">0</span>)   <span class="cc">// [2,4,6,8,10]</span>
+  .<span class="cn">map</span>(n => n * <span class="cs">3</span>)             <span class="cc">// [6,12,18,24,30]</span>
+  .<span class="cn">reduce</span>((a, b) => a + b, <span class="cs">0</span>); <span class="cc">// 90</span></div>
+
+  <div class="ejercicio">
+    <div class="ejercicio-hd">✏️ Taller de métodos de arrays <span class="ej-badge">Principiante</span></div>
+    <div class="enunciado"><strong>Objetivo:</strong> Usa map, filter y reduce para procesar una lista de productos de una tienda.</div>
+    <div class="editor-area">
+      <textarea class="editor" id="ej-metodos-arr">const productos = [
+  { nombre: "Laptop",    precio: 15000, stock: 5,  categoria: "electrónica" },
+  { nombre: "Mouse",     precio: 450,   stock: 20, categoria: "electrónica" },
+  { nombre: "Escritorio",precio: 3200,  stock: 3,  categoria: "muebles" },
+  { nombre: "Silla",     precio: 2800,  stock: 0,  categoria: "muebles" },
+  { nombre: "Monitor",   precio: 6500,  stock: 8,  categoria: "electrónica" },
+  { nombre: "Teclado",   precio: 780,   stock: 15, categoria: "electrónica" },
+];
+
+// 1. Nombres de todos los productos
+const nombres = productos.map(p => p.nombre);
+console.log("Productos:", nombres.join(", "));
+
+// 2. Solo los que tienen stock disponible
+const conStock = productos.filter(p => p.stock > 0);
+console.log(`\nCon stock: ${conStock.length} de ${productos.length}`);
+conStock.forEach(p => console.log(`  - ${p.nombre} (${p.stock} unid.)`));
+
+// 3. Total del inventario (precio × stock)
+const valorTotal = productos.reduce((total, p) => total + (p.precio * p.stock), 0);
+console.log(`\nValor total inventario: $${valorTotal.toLocaleString()}`);
+
+// 4. Solo electrónica, ordenada por precio
+const electronica = productos
+  .filter(p => p.categoria === "electrónica")
+  .sort((a, b) => a.precio - b.precio);
+
+console.log("\nElectrónica (más barata primero):");
+electronica.forEach(p => console.log(`  ${p.nombre}: $${p.precio}`));
+
+// 5. ¿Hay algún producto sin stock?
+const haySinStock = productos.some(p => p.stock === 0);
+console.log(`\n¿Hay productos sin stock? ${haySinStock ? "Sí ⚠️" : "No ✅"}`);
+
+// 6. Precio promedio
+const promedio = (productos.reduce((s, p) => s + p.precio, 0) / productos.length).toFixed(2);
+console.log(`Precio promedio: $${promedio}`);</textarea>
+    </div>
+    <div class="btn-row">
+      <button class="run-btn" onclick="runCode('ej-metodos-arr','out-metodos-arr')">▶ Ejecutar</button>
+      <button class="reset-btn" onclick="resetEj('ej-metodos-arr','out-metodos-arr')">↺ Reiniciar</button>
+    </div>
+    <div class="output-label">Salida:</div>
+    <div class="output" id="out-metodos-arr">Presiona ▶ Ejecutar...</div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     FUNCIONES
+══════════════════════════════════════════ -->
+<section class="module" id="funciones">
+  <div class="module-header">
+    <div class="module-icon">🔧</div>
+    <div>
+      <div class="module-title">Funciones en JavaScript</div>
+      <div class="module-sub">Reutilizar código, parámetros y return · 4:03:38 – 4:16:19</div>
+    </div>
+  </div>
+
+  <p>Una función es un <strong>bloque de código reutilizable</strong> con un nombre. En vez de escribir el mismo código diez veces, lo escribes una vez dentro de una función y lo llamas cuando lo necesitas.</p>
+
+  <div class="analogy">
+    <h4>☕ Analogía: la receta de la cafetera</h4>
+    <p>Una cafetera tiene un proceso definido: muela el café → calienta el agua → filtra → sirve. Ese proceso es como una función: está definido una vez, y cada vez que presionas el botón (la llamas) ejecuta todos los pasos automáticamente. Le puedes pasar parámetros: "hazme un café doble" (argumento: "doble") → devuelve un resultado diferente. La receta es la función, el botón es la llamada, la intensidad es el argumento, el café es el return.</p>
+  </div>
+
+  <h2>Las tres formas de declarar funciones</h2>
+  <div class="code-block"><span class="lang">JavaScript</span><span class="cc">// ── 1. Function Declaration ─────────────────────────────
+// Se puede llamar ANTES de declararla (hoisting)</span>
+<span class="ct">function</span> <span class="cn">saludar</span>(nombre) {
+  <span class="ct">return</span> <span class="cv">`Hola, ${nombre}!`</span>;
+}
+console.<span class="cn">log</span>(<span class="cn">saludar</span>(<span class="cv">"Dalto"</span>)); <span class="cc">// → "Hola, Dalto!"</span>
+
+<span class="cc">// ── 2. Function Expression ──────────────────────────────
+// Se guarda en una variable. NO se puede llamar antes de declararla</span>
+<span class="ct">const</span> <span class="cn">sumar</span> = <span class="ct">function</span>(a, b) {
+  <span class="ct">return</span> a + b;
+};
+console.<span class="cn">log</span>(<span class="cn">sumar</span>(<span class="cs">3</span>, <span class="cs">4</span>)); <span class="cc">// → 7</span>
+
+<span class="cc">// ── 3. Arrow Function (flecha) ──────────────────────────
+// Sintaxis más corta, muy usada con métodos de arrays</span>
+<span class="ct">const</span> <span class="cn">multiplicar</span> = (a, b) => a * b;
+console.<span class="cn">log</span>(<span class="cn">multiplicar</span>(<span class="cs">5</span>, <span class="cs">3</span>)); <span class="cc">// → 15</span></div>
+
+  <h2>Parámetros, argumentos y return</h2>
+  <div class="code-block"><span class="lang">JavaScript</span><span class="cc">// Parámetros con valores por defecto</span>
+<span class="ct">function</span> <span class="cn">crearUsuario</span>(nombre, rol = <span class="cv">"visitante"</span>, activo = <span class="cs">true</span>) {
+  <span class="ct">return</span> { nombre, rol, activo }; <span class="cc">// shorthand: { nombre: nombre }</span>
+}
+
+console.<span class="cn">log</span>(<span class="cn">crearUsuario</span>(<span class="cv">"Ana"</span>));                      <span class="cc">// rol="visitante", activo=true</span>
+console.<span class="cn">log</span>(<span class="cn">crearUsuario</span>(<span class="cv">"Luis"</span>, <span class="cv">"admin"</span>));            <span class="cc">// rol="admin"</span>
+console.<span class="cn">log</span>(<span class="cn">crearUsuario</span>(<span class="cv">"Marta"</span>, <span class="cv">"editor"</span>, <span class="cs">false</span>));  <span class="cc">// activo=false</span>
+
+<span class="cc">// Rest parameters — recibe cantidad variable de argumentos</span>
+<span class="ct">function</span> <span class="cn">sumarTodo</span>(...numeros) {
+  <span class="ct">return</span> numeros.<span class="cn">reduce</span>((a, b) => a + b, <span class="cs">0</span>);
+}
+console.<span class="cn">log</span>(<span class="cn">sumarTodo</span>(<span class="cs">1</span>, <span class="cs">2</span>, <span class="cs">3</span>, <span class="cs">4</span>, <span class="cs">5</span>)); <span class="cc">// → 15</span>
+console.<span class="cn">log</span>(<span class="cn">sumarTodo</span>(<span class="cs">10</span>, <span class="cs">20</span>));          <span class="cc">// → 30</span>
+
+<span class="cc">// Funciones que devuelven funciones (closure básico)</span>
+<span class="ct">function</span> <span class="cn">crearMultiplicador</span>(factor) {
+  <span class="ct">return</span> (numero) => numero * factor;
+}
+<span class="ct">const</span> <span class="cn">triplicar</span> = <span class="cn">crearMultiplicador</span>(<span class="cs">3</span>);
+<span class="ct">const</span> <span class="cn">quintuplicar</span> = <span class="cn">crearMultiplicador</span>(<span class="cs">5</span>);
+console.<span class="cn">log</span>(<span class="cn">triplicar</span>(<span class="cs">7</span>));     <span class="cc">// → 21</span>
+console.<span class="cn">log</span>(<span class="cn">quintuplicar</span>(<span class="cs">4</span>)); <span class="cc">// → 20</span></div>
+
+  <div class="concept">
+    <h4>💡 Scope — dónde vive cada variable</h4>
+    <p>Las variables declaradas dentro de una función solo existen mientras la función se ejecuta. Esto se llama <strong>scope local</strong>. Las variables declaradas fuera de toda función son globales y se pueden leer desde cualquier función. La regla: las funciones pueden leer variables de afuera, pero afuera no puede leer las de adentro.</p>
+  </div>
+
+  <div class="ejercicio">
+    <div class="ejercicio-hd">✏️ Librería de funciones matemáticas <span class="ej-badge">Principiante</span></div>
+    <div class="enunciado"><strong>Objetivo:</strong> Crea funciones reutilizables y combínalas para resolver problemas.</div>
+    <div class="editor-area">
+      <textarea class="editor" id="ej-funciones">// ── Definir funciones útiles ─────────────────
+function esPar(n) {
+  return n % 2 === 0;
+}
+
+function esPrimo(n) {
+  if (n < 2) return false;
+  for (let i = 2; i <= Math.sqrt(n); i++) {
+    if (n % i === 0) return false;
+  }
+  return true;
+}
+
+function factorial(n) {
+  if (n <= 1) return 1;
+  return n * factorial(n - 1); // Función recursiva
+}
+
+function rango(inicio, fin, paso = 1) {
+  const resultado = [];
+  for (let i = inicio; i <= fin; i += paso) {
+    resultado.push(i);
+  }
+  return resultado;
+}
+
+const calcularPromedio = (...nums) =>
+  nums.reduce((a, b) => a + b, 0) / nums.length;
+
+// ── Usar las funciones ────────────────────────
+console.log("=== FUNCIONES EN ACCIÓN ===");
+
+console.log(`¿12 es par? ${esPar(12)}`);
+console.log(`¿7 es primo? ${esPrimo(7)}`);
+console.log(`¿15 es primo? ${esPrimo(15)}`);
+console.log(`5! = ${factorial(5)}`);
+console.log(`10! = ${factorial(10)}`);
+
+const numeros = rango(1, 20);
+console.log(`\nRango 1-20: [${numeros.join(", ")}]`);
+
+const primosHasta20 = numeros.filter(esPrimo);
+console.log(`Primos hasta 20: [${primosHasta20.join(", ")}]`);
+
+console.log(`Promedio: ${calcularPromedio(10, 20, 30, 40, 50)}`);
+
+// Encadenar funciones
+const paresYGrandes = rango(1, 50)
+  .filter(esPar)
+  .filter(n => n > 30);
+console.log(`\nPares mayores a 30 hasta 50: [${paresYGrandes.join(", ")}]`);</textarea>
+    </div>
+    <div class="btn-row">
+      <button class="run-btn" onclick="runCode('ej-funciones','out-funciones')">▶ Ejecutar</button>
+      <button class="reset-btn" onclick="resetEj('ej-funciones','out-funciones')">↺ Reiniciar</button>
+    </div>
+    <div class="output-label">Salida:</div>
+    <div class="output" id="out-funciones">Presiona ▶ Ejecutar...</div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     ARROW FUNCTIONS
+══════════════════════════════════════════ -->
+<section class="module" id="arrow">
+  <div class="module-header">
+    <div class="module-icon">➡️</div>
+    <div>
+      <div class="module-title">Arrow Functions — La sintaxis moderna</div>
+      <div class="module-sub">Funciones flecha: concisas y poderosas · 4:03:38 – 4:16:19</div>
+    </div>
+  </div>
+
+  <p>Las arrow functions son una sintaxis más corta para escribir funciones. No son solo una abreviación — tienen una diferencia técnica importante con <code>this</code>, pero en la mayoría de los casos del día a día se comportan igual.</p>
+
+  <div class="code-block"><span class="lang">JavaScript</span><span class="cc">// Función tradicional vs Arrow function</span>
+
+<span class="cc">// Tradicional</span>
+<span class="ct">function</span> <span class="cn">cuadrado</span>(x) { <span class="ct">return</span> x * x; }
+
+<span class="cc">// Arrow — cuerpo de bloque</span>
+<span class="ct">const</span> <span class="cn">cuadrado2</span> = (x) => { <span class="ct">return</span> x * x; };
+
+<span class="cc">// Arrow — retorno implícito (sin llaves = sin return explícito)</span>
+<span class="ct">const</span> <span class="cn">cuadrado3</span> = (x) => x * x;
+
+<span class="cc">// Si solo hay UN parámetro, puedes omitir los paréntesis</span>
+<span class="ct">const</span> <span class="cn">cuadrado4</span> = x => x * x;
+
+<span class="cc">// Sin parámetros → paréntesis obligatorio</span>
+<span class="ct">const</span> <span class="cn">saludar</span> = () => <span class="cv">"¡Hola!"</span>;
+
+<span class="cc">// Retornar un objeto — envolver en paréntesis para no confundir con bloque</span>
+<span class="ct">const</span> <span class="cn">crearPunto</span> = (x, y) => ({ x, y });
+console.<span class="cn">log</span>(<span class="cn">crearPunto</span>(<span class="cs">3</span>, <span class="cs">5</span>)); <span class="cc">// → { x: 3, y: 5 }</span>
+
+<span class="cc">// Arrow functions brillan en métodos de arrays:</span>
+<span class="ct">const</span> nums = [<span class="cs">1</span>, <span class="cs">2</span>, <span class="cs">3</span>, <span class="cs">4</span>, <span class="cs">5</span>];
+
+<span class="cc">// Con función tradicional:</span>
+nums.<span class="cn">filter</span>(<span class="ct">function</span>(n) { <span class="ct">return</span> n > <span class="cs">3</span>; });
+
+<span class="cc">// Con arrow (mucho más limpio):</span>
+nums.<span class="cn">filter</span>(n => n > <span class="cs">3</span>);</div>
+
+  <div class="tip">
+    <h4>🟢 ¿Cuándo usar cada tipo de función?</h4>
+    <ul>
+      <li><strong>Function declaration</strong> → funciones principales del programa, las que necesitan hoisting</li>
+      <li><strong>Arrow function</strong> → callbacks, métodos de array, funciones cortas y anónimas</li>
+      <li><strong>Function expression</strong> → cuando necesitas asignar una función a una variable con lógica compleja</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     EJERCICIO INTEGRADOR POKÉMON
+══════════════════════════════════════════ -->
+<section class="module" id="pokemon">
+  <div class="module-header">
+    <div class="module-icon">🎮</div>
+    <div>
+      <div class="module-title">Ejercicio Integrador — Sistema Pokémon</div>
+      <div class="module-sub">Arrays + funciones + métodos de arrays · 4:16:19 – 4:45:50</div>
+    </div>
+  </div>
+
+  <p>El ejercicio más completo de la Parte 3: construir un sistema de gestión de Pokémon usando todo lo aprendido — arrays de objetos, funciones, métodos de arrays y lógica de juego.</p>
+
+  <div class="ejercicio">
+    <div class="ejercicio-hd">🎮 Sistema de Pokémon — Pokédex + Batalla <span class="ej-badge int">Integrador</span></div>
+    <div class="enunciado">
+      <strong>El sistema debe:</strong> registrar una Pokédex, buscar Pokémon, filtrar por tipo, ordenar por nivel, simular una batalla y calcular estadísticas.
+    </div>
+    <div class="editor-area">
+      <textarea class="editor" id="ej-pokemon">// ══════════════════════════════════════════
+//   SISTEMA POKÉMON — Ejercicio Integrador
+// ══════════════════════════════════════════
+
+// ── Base de datos ────────────────────────────
+const pokedex = [
+  { id: 1,   nombre: "Bulbasaur",  tipo: "planta",   nivel: 12, hp: 45, ataque: 49, defensa: 49 },
+  { id: 4,   nombre: "Charmander", tipo: "fuego",    nivel: 15, hp: 39, ataque: 52, defensa: 43 },
+  { id: 7,   nombre: "Squirtle",   tipo: "agua",     nivel: 11, hp: 44, ataque: 48, defensa: 65 },
+  { id: 25,  nombre: "Pikachu",    tipo: "eléctrico",nivel: 18, hp: 35, ataque: 55, defensa: 40 },
+  { id: 39,  nombre: "Jigglypuff", tipo: "normal",   nivel: 10, hp: 115,ataque: 45, defensa: 20 },
+  { id: 52,  nombre: "Meowth",     tipo: "normal",   nivel: 8,  hp: 40, ataque: 45, defensa: 35 },
+  { id: 94,  nombre: "Gengar",     tipo: "fantasma", nivel: 25, hp: 60, ataque: 65, defensa: 60 },
+  { id: 131, nombre: "Lapras",     tipo: "agua",     nivel: 20, hp: 130,ataque: 85, defensa: 80 },
+];
+
+// ── Funciones de la Pokédex ───────────────────
+const buscarPorNombre = (nombre) =>
+  pokedex.find(p => p.nombre.toLowerCase() === nombre.toLowerCase());
+
+const filtrarPorTipo = (tipo) =>
+  pokedex.filter(p => p.tipo === tipo);
+
+const ordenarPorNivel = () =>
+  [...pokedex].sort((a, b) => b.nivel - a.nivel); // spread para no mutar
+
+const estadisticasTipo = (tipo) => {
+  const grupo = filtrarPorTipo(tipo);
+  if (grupo.length === 0) return null;
+  return {
+    tipo,
+    cantidad: grupo.length,
+    nivelPromedio: (grupo.reduce((s, p) => s + p.nivel, 0) / grupo.length).toFixed(1),
+    hpPromedio: (grupo.reduce((s, p) => s + p.hp, 0) / grupo.length).toFixed(1),
+    masPoderoso: grupo.reduce((max, p) => p.ataque > max.ataque ? p : max),
+  };
+};
+
+// ── Función de batalla ────────────────────────
+function simularBatalla(nombreA, nombreB) {
+  const pokA = buscarPorNombre(nombreA);
+  const pokB = buscarPorNombre(nombreB);
+
+  if (!pokA || !pokB) {
+    console.log("❌ Pokémon no encontrado");
+    return;
+  }
+
+  console.log(`\n⚔️  ${pokA.nombre} vs ${pokB.nombre}`);
+  console.log(`   ${pokA.nombre}: ATK ${pokA.ataque} | DEF ${pokA.defensa} | HP ${pokA.hp} | Nivel ${pokA.nivel}`);
+  console.log(`   ${pokB.nombre}: ATK ${pokB.ataque} | DEF ${pokB.defensa} | HP ${pokB.hp} | Nivel ${pokB.nivel}`);
+
+  // Daño = ataque del atacante - defensa/2 del defensor, mínimo 1
+  const danoAaB = Math.max(1, pokA.ataque - Math.floor(pokB.defensa / 2));
+  const danoBaA = Math.max(1, pokB.ataque - Math.floor(pokA.defensa / 2));
+
+  const turnosAGana = Math.ceil(pokB.hp / danoAaB);
+  const turnosBGana = Math.ceil(pokA.hp / danoBaA);
+
+  console.log(`   Daño de ${pokA.nombre}: ${danoAaB}/turno (${turnosAGana} turnos para ganar)`);
+  console.log(`   Daño de ${pokB.nombre}: ${danoBaA}/turno (${turnosBGana} turnos para ganar)`);
+
+  if (turnosAGana < turnosBGana) {
+    console.log(`   🏆 Ganador: ${pokA.nombre}!`);
+  } else if (turnosBGana < turnosAGana) {
+    console.log(`   🏆 Ganador: ${pokB.nombre}!`);
+  } else {
+    console.log("   🤝 ¡Empate!");
+  }
+}
+
+// ── Ejecutar el sistema ───────────────────────
+
+console.log("╔═══════════════════════════╗");
+console.log("║      POKÉDEX SYSTEM       ║");
+console.log("╚═══════════════════════════╝");
+
+// Mostrar todos ordenados por nivel
+console.log("\n📊 Pokémon ordenados por nivel:");
+ordenarPorNivel().forEach(p =>
+  console.log(`  Lv.${String(p.nivel).padStart(2)} | ${p.nombre.padEnd(12)} | ${p.tipo}`)
+);
+
+// Buscar uno específico
+console.log("\n🔍 Buscando 'Pikachu':");
+const pika = buscarPorNombre("Pikachu");
+console.log(`  Encontrado: ${pika.nombre} (${pika.tipo}, Nivel ${pika.nivel})`);
+
+// Filtrar por tipo
+console.log("\n💧 Pokémon de tipo agua:");
+filtrarPorTipo("agua").forEach(p =>
+  console.log(`  - ${p.nombre} (Lv. ${p.nivel})`)
+);
+
+// Estadísticas
+const statsNormal = estadisticasTipo("normal");
+console.log(`\n📈 Stats tipo normal:`);
+console.log(`  Cantidad: ${statsNormal.cantidad}`);
+console.log(`  Nivel promedio: ${statsNormal.nivelPromedio}`);
+console.log(`  Más poderoso: ${statsNormal.masPoderoso.nombre}`);
+
+// Batallas
+simularBatalla("Charmander", "Squirtle");
+simularBatalla("Gengar", "Jigglypuff");
+simularBatalla("Lapras", "Pikachu");</textarea>
+    </div>
+    <div class="btn-row">
+      <button class="run-btn" onclick="runCode('ej-pokemon','out-pokemon')">▶ Ejecutar</button>
+      <button class="reset-btn" onclick="resetEj('ej-pokemon','out-pokemon')">↺ Reiniciar</button>
+    </div>
+    <div class="output-label">Salida:</div>
+    <div class="output" id="out-pokemon">Presiona ▶ Ejecutar...</div>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Desafíos para expandir el sistema</h4>
+    <ul>
+      <li>Agrega una función <code>evolucionarPokemon(nombre)</code> que suba su nivel en 5 y aumente sus stats</li>
+      <li>Agrega ventajas de tipo: fuego gana vs planta, agua gana vs fuego, etc.</li>
+      <li>Crea una función <code>mejoresDelTorneo(n)</code> que devuelva los N Pokémon más fuertes</li>
+      <li>Agrega un sistema de experiencia: ganar una batalla da XP</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     MÉTODOS DE STRINGS
+══════════════════════════════════════════ -->
+<section class="module" id="strings">
+  <div class="module-header">
+    <div class="module-icon">🔤</div>
+    <div>
+      <div class="module-title">Métodos de Strings — Manipulación de texto</div>
+      <div class="module-sub">El arsenal completo para trabajar con cadenas · 4:45:50 – 5:17:23</div>
+    </div>
+  </div>
+
+  <p>Los strings tienen decenas de métodos incorporados para buscar, reemplazar, cortar, transformar y analizar texto. Son fundamentales para procesar datos de usuarios, validar formularios y formatear información.</p>
+
+  <div class="analogy">
+    <h4>✂️ Analogía: el procesador de texto inteligente</h4>
+    <p>Imagina que tienes un asistente que puede hacer cualquier cosa con un texto: buscarlo, cortarlo, pegarlo, convertirlo a mayúsculas, eliminarte los espacios en blanco que sobran, contar cuántos caracteres tiene, encontrar si contiene una palabra específica... Eso son los métodos de strings: un asistente especializado en texto que ya viene incluido en JavaScript.</p>
+  </div>
+
+  <h2>Métodos de búsqueda e información</h2>
+
+  <div class="code-block"><span class="lang">JavaScript</span><span class="ct">const</span> texto = <span class="cv">"  Hola, Mundo! Bienvenido a JavaScript.  "</span>;
+
+<span class="cc">// Información básica</span>
+console.<span class="cn">log</span>(texto.<span class="cp">length</span>);               <span class="cc">// 40 — número de caracteres</span>
+
+<span class="cc">// Buscar</span>
+console.<span class="cn">log</span>(texto.<span class="cn">includes</span>(<span class="cv">"Mundo"</span>));    <span class="cc">// true — ¿contiene "Mundo"?</span>
+console.<span class="cn">log</span>(texto.<span class="cn">startsWith</span>(<span class="cv">"  Hola"</span>));  <span class="cc">// true — ¿empieza con...?</span>
+console.<span class="cn">log</span>(texto.<span class="cn">endsWith</span>(<span class="cv">"Script.  "</span>)); <span class="cc">// true — ¿termina con...?</span>
+console.<span class="cn">log</span>(texto.<span class="cn">indexOf</span>(<span class="cv">"Mundo"</span>));     <span class="cc">// 7 — índice de primera ocurrencia</span>
+console.<span class="cn">log</span>(texto.<span class="cn">indexOf</span>(<span class="cv">"xyz"</span>));       <span class="cc">// -1 — no encontrado</span>
+console.<span class="cn">log</span>(texto.<span class="cn">lastIndexOf</span>(<span class="cv">"o"</span>));    <span class="cc">// último índice de "o"</span></div>
+
+  <h2>Métodos de transformación</h2>
+
+  <div class="code-block"><span class="lang">JavaScript</span><span class="ct">const</span> str = <span class="cv">"  Hola, Mundo!  "</span>;
+
+<span class="cc">// Cambiar capitalización</span>
+console.<span class="cn">log</span>(str.<span class="cn">toUpperCase</span>()); <span class="cc">// "  HOLA, MUNDO!  "</span>
+console.<span class="cn">log</span>(str.<span class="cn">toLowerCase</span>()); <span class="cc">// "  hola, mundo!  "</span>
+
+<span class="cc">// Eliminar espacios</span>
+console.<span class="cn">log</span>(str.<span class="cn">trim</span>());        <span class="cc">// "Hola, Mundo!"  (elimina ambos lados)</span>
+console.<span class="cn">log</span>(str.<span class="cn">trimStart</span>());   <span class="cc">// "Hola, Mundo!  " (solo inicio)</span>
+console.<span class="cn">log</span>(str.<span class="cn">trimEnd</span>());     <span class="cc">// "  Hola, Mundo!" (solo final)</span>
+
+<span class="cc">// Reemplazar</span>
+console.<span class="cn">log</span>(str.<span class="cn">replace</span>(<span class="cv">"Mundo"</span>, <span class="cv">"JavaScript"</span>));
+<span class="cc">// "  Hola, JavaScript!  "</span>
+
+<span class="cc">// replaceAll — reemplaza TODAS las ocurrencias</span>
+<span class="cv">"a-b-c-d"</span>.<span class="cn">replaceAll</span>(<span class="cv">"-"</span>, <span class="cv">" "</span>); <span class="cc">// "a b c d"</span>
+
+<span class="cc">// Rellenar (padding)</span>
+<span class="cv">"5"</span>.<span class="cn">padStart</span>(<span class="cs">3</span>, <span class="cv">"0"</span>);  <span class="cc">// "005" — rellena al inicio</span>
+<span class="cv">"5"</span>.<span class="cn">padEnd</span>(<span class="cs">5</span>, <span class="cv">"."</span>);   <span class="cc">// "5...." — rellena al final</span>
+
+<span class="cc">// Repetir</span>
+<span class="cv">"🌟"</span>.<span class="cn">repeat</span>(<span class="cs">5</span>);  <span class="cc">// "🌟🌟🌟🌟🌟"</span></div>
+
+  <h2>Métodos de extracción y división</h2>
+
+  <div class="code-block"><span class="lang">JavaScript</span><span class="ct">const</span> frase = <span class="cv">"JavaScript es el lenguaje de la web"</span>;
+
+<span class="cc">// Acceder a caracteres</span>
+console.<span class="cn">log</span>(frase[<span class="cs">0</span>]);           <span class="cc">// "J"</span>
+console.<span class="cn">log</span>(frase.<span class="cn">charAt</span>(<span class="cs">0</span>));    <span class="cc">// "J"</span>
+console.<span class="cn">log</span>(frase.<span class="cn">at</span>(-<span class="cs">1</span>));       <span class="cc">// "b" — índice negativo desde el final</span>
+
+<span class="cc">// Extraer porciones</span>
+console.<span class="cn">log</span>(frase.<span class="cn">slice</span>(<span class="cs">0</span>, <span class="cs">10</span>));  <span class="cc">// "JavaScript"</span>
+console.<span class="cn">log</span>(frase.<span class="cn">slice</span>(-<span class="cs">3</span>));    <span class="cc">// "web" (desde el final)</span>
+console.<span class="cn">log</span>(frase.<span class="cn">substring</span>(<span class="cs">11</span>, <span class="cs">13</span>)); <span class="cc">// "es"</span>
+
+<span class="cc">// Dividir en array</span>
+<span class="ct">const</span> palabras = frase.<span class="cn">split</span>(<span class="cv">" "</span>);
+<span class="cc">// → ["JavaScript", "es", "el", "lenguaje", "de", "la", "web"]</span>
+console.<span class="cn">log</span>(palabras.<span class="cp">length</span>); <span class="cc">// 7 palabras</span>
+
+<span class="cc">// split + join = reemplazar múltiple</span>
+<span class="cv">"uno,dos,tres"</span>.<span class="cn">split</span>(<span class="cv">","</span>).<span class="cn">join</span>(<span class="cv">" - "</span>);
+<span class="cc">// → "uno - dos - tres"</span></div>
+
+  <div class="ejercicio">
+    <div class="ejercicio-hd">✏️ Procesador de texto completo <span class="ej-badge">Principiante</span></div>
+    <div class="enunciado"><strong>Objetivo:</strong> Aplica los métodos de strings para limpiar, analizar y transformar texto del usuario.</div>
+    <div class="editor-area">
+      <textarea class="editor" id="ej-strings-base">// Texto sucio simulando entrada de un usuario
+const textoSucio = "  jUaN pÉrEz gONzáLeZ   ";
+const email = "  JUAN.PEREZ@GMAIL.COM  ";
+const frase = "el zorro rápido salta sobre el perro perezoso";
+const csv = "manzana,banana,naranja,uva,kiwi,fresa";
+
+// ── 1. Limpiar y normalizar nombre ────────────
+const nombreLimpio = textoSucio.trim();
+const palabrasNombre = nombreLimpio.split(" ");
+const nombreNormalizado = palabrasNombre
+  .map(p => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase())
+  .join(" ");
+
+console.log("=== LIMPIEZA DE DATOS ===");
+console.log(`Original: "${textoSucio}"`);
+console.log(`Limpio:   "${nombreNormalizado}"`);
+
+// ── 2. Normalizar email ───────────────────────
+const emailLimpio = email.trim().toLowerCase();
+const esEmailValido = emailLimpio.includes("@") && emailLimpio.includes(".");
+console.log(`\nEmail: "${emailLimpio}"`);
+console.log(`¿Válido? ${esEmailValido ? "✅" : "❌"}`);
+
+// ── 3. Análisis de texto ──────────────────────
+console.log("\n=== ANÁLISIS DE FRASE ===");
+console.log(`Frase: "${frase}"`);
+console.log(`Caracteres: ${frase.length}`);
+console.log(`Palabras: ${frase.split(" ").length}`);
+console.log(`¿Contiene "rápido"? ${frase.includes("rápido")}`);
+console.log(`¿Empieza con "el"? ${frase.startsWith("el")}`);
+
+// Contar cuántas veces aparece una letra
+const letra = "o";
+const ocurrencias = frase.split(letra).length - 1;
+console.log(`Letra "${letra}" aparece: ${ocurrencias} veces`);
+
+// ── 4. Invertir una palabra ───────────────────
+const invertir = str => str.split("").reverse().join("");
+console.log(`\n"JavaScript" invertido: "${invertir("JavaScript")}"`);
+
+// ── 5. Convertir CSV a lista ──────────────────
+console.log("\n=== LISTA DE FRUTAS ===");
+const frutas = csv.split(",");
+frutas.forEach((f, i) => console.log(`  ${(i+1)}. ${f.charAt(0).toUpperCase() + f.slice(1)}`));
+
+// ── 6. Formatear número con ceros ────────────
+console.log("\n=== FORMATO NUMÉRICO ===");
+for (let i = 1; i <= 5; i++) {
+  console.log(`Producto #${String(i).padStart(3, "0")}: $${String(i * 99.99).padEnd(8)} en stock`);
+}</textarea>
+    </div>
+    <div class="btn-row">
+      <button class="run-btn" onclick="runCode('ej-strings-base','out-strings-base')">▶ Ejecutar</button>
+      <button class="reset-btn" onclick="resetEj('ej-strings-base','out-strings-base')">↺ Reiniciar</button>
+    </div>
+    <div class="output-label">Salida:</div>
+    <div class="output" id="out-strings-base">Presiona ▶ Ejecutar...</div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     EJERCICIO INTEGRADOR STRINGS
+══════════════════════════════════════════ -->
+<section class="module" id="ej-strings">
+  <div class="module-header">
+    <div class="module-icon">🧪</div>
+    <div>
+      <div class="module-title">Ejercicio Integrador — Métodos de Strings</div>
+      <div class="module-sub">Validación y procesamiento de datos reales · 5:17:23 – 5:29:23</div>
+    </div>
+  </div>
+
+  <div class="ejercicio">
+    <div class="ejercicio-hd">🔐 Sistema de validación de registro <span class="ej-badge int">Integrador</span></div>
+    <div class="enunciado">
+      <strong>Valida un formulario de registro con las siguientes reglas:</strong><br>
+      Nombre: mínimo 2 palabras, sin números · Email: debe tener @ y punto en dominio · Contraseña: mínimo 8 caracteres, una mayúscula, un número · Usuario: solo letras, números y guion bajo, sin espacios.
+    </div>
+    <div class="editor-area">
+      <textarea class="editor" id="ej-strings-int">// ══════════════════════════════════════
+//   VALIDADOR DE REGISTRO
+// ══════════════════════════════════════
+
+// Datos del formulario — cambia para probar distintos casos
+const datosFormulario = {
+  nombre: "Ana García",
+  email: "ana.garcia@gmail.com",
+  password: "MiPass123",
+  usuario: "ana_garcia_99",
+};
+
+// ── Funciones de validación ───────────────────
+
+function validarNombre(nombre) {
+  const limpio = nombre.trim();
+  const palabras = limpio.split(" ").filter(p => p.length > 0);
+  const tieneNumeros = /\d/.test(limpio);
+
+  if (palabras.length < 2) return { ok: false, error: "Necesita al menos nombre y apellido" };
+  if (tieneNumeros)        return { ok: false, error: "No puede contener números" };
+  if (limpio.length < 4)   return { ok: false, error: "Demasiado corto" };
+  return { ok: true };
+}
+
+function validarEmail(email) {
+  const limpio = email.trim().toLowerCase();
+  if (!limpio.includes("@"))          return { ok: false, error: "Falta el @" };
+  const partes = limpio.split("@");
+  if (partes.length !== 2)            return { ok: false, error: "Solo debe haber un @" };
+  const dominio = partes[1];
+  if (!dominio.includes("."))         return { ok: false, error: "El dominio no tiene punto" };
+  if (dominio.startsWith("."))        return { ok: false, error: "El dominio no puede empezar con punto" };
+  if (partes[0].length < 1)           return { ok: false, error: "Falta texto antes del @" };
+  return { ok: true, emailNormalizado: limpio };
+}
+
+function validarPassword(pass) {
+  if (pass.length < 8)                return { ok: false, error: "Mínimo 8 caracteres" };
+  if (pass === pass.toLowerCase())    return { ok: false, error: "Necesita al menos una mayúscula" };
+  if (!/\d/.test(pass))               return { ok: false, error: "Necesita al menos un número" };
+  return { ok: true };
+}
+
+function validarUsuario(usuario) {
+  if (usuario.includes(" "))          return { ok: false, error: "No puede contener espacios" };
+  if (usuario.length < 3)             return { ok: false, error: "Mínimo 3 caracteres" };
+  if (usuario.length > 20)            return { ok: false, error: "Máximo 20 caracteres" };
+  const valido = usuario.split("").every(c =>
+    (c >= "a" && c <= "z") || (c >= "A" && c <= "Z") ||
+    (c >= "0" && c <= "9") || c === "_"
+  );
+  if (!valido) return { ok: false, error: "Solo letras, números y guion bajo (_)" };
+  return { ok: true };
+}
+
+// ── Ejecutar validaciones ─────────────────────
+console.log("╔══════════════════════════════════╗");
+console.log("║   VALIDADOR DE REGISTRO          ║");
+console.log("╚══════════════════════════════════╝");
+
+const validaciones = [
+  { campo: "Nombre",     valor: datosFormulario.nombre,   fn: validarNombre },
+  { campo: "Email",      valor: datosFormulario.email,    fn: validarEmail },
+  { campo: "Contraseña", valor: datosFormulario.password, fn: validarPassword },
+  { campo: "Usuario",    valor: datosFormulario.usuario,  fn: validarUsuario },
+];
+
+let todoValido = true;
+
+for (const { campo, valor, fn } of validaciones) {
+  const resultado = fn(valor);
+  if (resultado.ok) {
+    console.log(`✅ ${campo}: válido`);
+    if (resultado.emailNormalizado) {
+      console.log(`   (normalizado a: ${resultado.emailNormalizado})`);
+    }
+  } else {
+    console.log(`❌ ${campo}: ${resultado.error}`);
+    todoValido = false;
+  }
+}
+
+console.log("──────────────────────────────────");
+if (todoValido) {
+  console.log("🎉 Registro completado exitosamente");
+  const nombreCapitalizado = datosFormulario.nombre.trim()
+    .split(" ")
+    .map(p => p.charAt(0).toUpperCase() + p.slice(1).toLowerCase())
+    .join(" ");
+  console.log(`   Bienvenido/a, ${nombreCapitalizado}!`);
+} else {
+  console.log("⚠️  Por favor corrige los errores");
+}</textarea>
+    </div>
+    <div class="btn-row">
+      <button class="run-btn" onclick="runCode('ej-strings-int','out-strings-int')">▶ Ejecutar</button>
+      <button class="reset-btn" onclick="resetEj('ej-strings-int','out-strings-int')">↺ Reiniciar</button>
+    </div>
+    <div class="output-label">Salida:</div>
+    <div class="output" id="out-strings-int">Presiona ▶ Ejecutar...</div>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Desafíos para ampliar el validador</h4>
+    <ul>
+      <li>Agrega una función que calcule la <strong>fortaleza de la contraseña</strong>: débil / media / fuerte según su longitud y variedad de caracteres</li>
+      <li>Agrega validación de <strong>número de teléfono</strong>: solo 10 dígitos, sin letras ni espacios</li>
+      <li>Formatea el nombre para que quede en formato <strong>"apellido, nombre"</strong></li>
+      <li>Detecta si el email es de un <strong>dominio popular</strong> (gmail, hotmail, yahoo) o corporativo</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- SIGUIENTE PARTE -->
+<section class="module" style="background:linear-gradient(135deg,#1a1814,#2a2420);border-color:#3a3430;text-align:center;">
+  <div style="font-size:2rem;margin-bottom:.75rem;">→</div>
+  <h2 style="color:#f7f4ef;margin-bottom:.5rem;">Parte 4 — DOM y Proyecto Final</h2>
+  <p style="color:rgba(247,244,239,0.7);margin-bottom:1.25rem;">¿Qué es el DOM?, seleccionar y manipular elementos HTML, eventos y el proyecto final integrador</p>
+  <a href="guia-js-parte-4.html" style="display:inline-block;background:var(--js);color:#1a1814;font-weight:700;padding:.8rem 2rem;border-radius:10px;text-decoration:none;font-size:.95rem;">Ir a Parte 4 →</a>
+</section>
+
+</main>
+
+<footer>
+  Guía JavaScript desde Cero · Parte 3 · Basada en el curso de Soy Dalto · Hugo 2025
+</footer>
+
+<script>
+function runCode(editorId, outputId) {
+  const code = document.getElementById(editorId).value;
+  const output = document.getElementById(outputId);
+  const logs = [];
+  const orig = { log: console.log, error: console.error, warn: console.warn };
+  console.log   = (...a) => logs.push(a.map(x => typeof x === 'object' ? JSON.stringify(x,null,2) : String(x)).join(' '));
+  console.error = (...a) => logs.push('❌ ' + a.join(' '));
+  console.warn  = (...a) => logs.push('⚠️ ' + a.join(' '));
+  try {
+    eval(code);
+    output.textContent = logs.length ? logs.join('\n') : '(sin salida)';
+    output.className = 'output';
+  } catch(e) {
+    output.textContent = '❌ Error: ' + e.message;
+    output.className = 'output error';
+  } finally {
+    Object.assign(console, orig);
+  }
+}
+
+function resetEj(editorId, outputId) {
+  const out = document.getElementById(outputId);
+  if (out) { out.textContent = 'Presiona ▶ Ejecutar...'; out.className = 'output'; }
+}
+</script>
+</body>
+</html>

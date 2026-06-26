@@ -1,0 +1,1639 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ejercicio 5 — Portfolio Responsive | Mobile-First · CSS Grid · Media Queries</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #c44a2a;
+    --primary-light:  #fdf0ec;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --danger:         #c44a2a;
+    --danger-light:   #fdf0ec;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1a1814;
+    --code-text:      #e8e4de;
+  }
+
+  body { font-family: 'DM Sans', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  /* TOPBAR */
+  .topbar { background:#ffffff; border-bottom:1px solid var(--border); padding:0 24px; display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:200; height:45px; }
+  .topbar a { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--muted); text-decoration:none; padding:6px 14px; border:1px solid var(--border); border-radius:999px; transition:all 0.15s; }
+  .topbar a:hover { color:var(--text); border-color:#8a8480; }
+  .topbar span { font-size:13px; color:var(--muted); }
+
+  /* HEADER */
+  header.guia-header { background: #1a1814; color: #f7f4ef; padding: 3rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header.guia-header::before { content: '📱'; position: absolute; font-size: 12rem; right: -1rem; top: -2rem; opacity: .06; line-height: 1; }
+  .ex-label { display: inline-block; background: var(--primary); color: white; border-radius: 20px; padding: 4px 16px; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 1rem; }
+  header.guia-header h1 { font-size: 2.4rem; font-weight: 800; letter-spacing: -1px; }
+  header.guia-header p.sub { font-size: 1.05rem; opacity: .8; margin-top: .5rem; font-style: italic; }
+  .badge { display: inline-block; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  /* NAV GUÍA */
+  nav.guide-nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 45px; z-index: 100; display: flex; overflow-x: auto; }
+  nav.guide-nav a { flex-shrink: 0; padding: .75rem 1.1rem; text-decoration: none; color: var(--muted); font-size: .82rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav.guide-nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  /* MAIN */
+  main { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: white; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  /* MODULE */
+  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2.5rem; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-size: 1.35rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  /* CALLOUTS */
+  .analogy { background: #FFF7ED; border: 1px solid #FDE68A; border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: #92400E; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; color: #78350F; }
+  .concept { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p, .tip ul { font-size: .95rem; }
+  .tip ul { padding-left: 1.2rem; }
+  .tip li { margin-bottom: .3rem; }
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  /* CODE BLOCKS */
+  .code-block { background: var(--code-bg); color: var(--code-text); border-radius: 10px; padding: 1.25rem 1.5rem; font-family: 'DM Mono', 'Courier New', monospace; font-size: .88rem; line-height: 1.85; overflow-x: auto; margin: 1rem 0; position: relative; white-space: pre; }
+  .code-block .ct { color: #89B4FA; }
+  .code-block .ca { color: #CBA6F7; }
+  .code-block .cv { color: #A6E3A1; }
+  .code-block .cs { color: #F9E2AF; }
+  .code-block .cp { color: #89DCEB; }
+  .code-block .cc { color: #585B70; font-style: italic; }
+  .code-block .cn { color: #FAB387; }
+  .lang { position: absolute; top: .6rem; right: .75rem; background: rgba(255,255,255,.1); color: rgba(255,255,255,.5); font-size: .68rem; padding: 2px 8px; border-radius: 4px; font-family: sans-serif; }
+
+  /* PREVIEW */
+  .preview { border: 2px dashed var(--border); border-radius: 10px; overflow: hidden; margin: 1rem 0; background: var(--surface); position: relative; }
+  .preview::before { content: '🖥 Vista en navegador'; position: absolute; top: -11px; left: 14px; background: var(--surface); font-size: .73rem; color: var(--muted); padding: 0 6px; z-index: 1; }
+
+  /* TABLES */
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  /* ANATOMY */
+  .anatomy { background: #F0F4FF; border: 1px solid #C7D2FE; border-radius: 12px; padding: 1.5rem; font-family: 'DM Mono', monospace; font-size: .9rem; line-height: 2.4; margin: 1.25rem 0; }
+  .anatomy .br { color: var(--primary); font-weight: 700; }
+  .anatomy .at { color: #0891B2; }
+  .anatomy .vl { color: #059669; }
+  .anatomy .lb  { display: inline-block; background: var(--primary); color: #fff; font-size: .68rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 6px; }
+  .anatomy .lb2 { display: inline-block; background: var(--accent); color: #fff; font-size: .68rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 6px; }
+  .anatomy .lb3 { display: inline-block; background: var(--secondary); color: #fff; font-size: .68rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 6px; }
+
+  /* GLOSARIO */
+  .glos { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .glos-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; }
+  .glos-item dt { font-weight: 700; color: var(--primary); font-size: .92rem; margin-bottom: .3rem; }
+  .glos-item dd { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+  .glos-item .emoji { font-size: 1.4rem; display: block; margin-bottom: .4rem; }
+
+  /* CHIPS */
+  .chip { display: inline-block; background: var(--primary-light); color: var(--primary); font-size: .8rem; padding: 3px 12px; border-radius: 20px; font-weight: 600; margin: 3px; font-family: 'DM Mono', monospace; }
+
+  /* RETO CARDS */
+  .reto-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin: 1.25rem 0; }
+  .reto-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+  .reto-card .nivel { display: inline-block; font-size: .72rem; font-weight: 700; padding: 2px 10px; border-radius: 20px; margin-bottom: .6rem; text-transform: uppercase; letter-spacing: .06em; }
+  .nivel-f  { background: #FEF3C7; color: #92400E; }
+  .nivel-m  { background: #FFEDD5; color: #C2410C; }
+  .nivel-a  { background: #FEE2E2; color: #B91C1C; }
+  .nivel-ex { background: #1a1814; color: #f7f4ef; }
+  .reto-card h4 { font-size: .95rem; font-weight: 700; margin-bottom: .5rem; }
+  .reto-card p { font-size: .88rem; color: var(--muted); margin-bottom: .5rem; }
+  .reto-card strong { color: var(--text); }
+
+  /* BREAKPOINT DIAGRAM */
+  .bp-diagram { display: flex; align-items: flex-end; gap: 0; margin: 1.5rem 0; border-radius: 12px; overflow: hidden; }
+  .bp-seg { padding: 1rem .75rem; text-align: center; font-family: 'DM Mono', monospace; }
+  .bp-seg .label { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; display: block; margin-bottom: .3rem; }
+  .bp-seg .val   { font-size: .78rem; display: block; }
+  .bp-seg .icon  { font-size: 1.4rem; display: block; margin-bottom: .3rem; }
+  .bp-0  { background: #F0FDF4; color: #14532D; flex: 2; border-right: 2px solid #BBF7D0; }
+  .bp-1  { background: #EFF6FF; color: #1E3A8A; flex: 2; border-right: 2px solid #BFDBFE; }
+  .bp-2  { background: #F5F3FF; color: #4C1D95; flex: 2; border-right: 2px solid #DDD6FE; }
+  .bp-3  { background: #FFF7ED; color: #7C2D12; flex: 3; }
+
+  /* MOBILE vs DESKTOP DEMO */
+  .responsive-demo { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.25rem 0; }
+  .phone-frame { background: #1a1814; border-radius: 20px; padding: 8px; max-width: 180px; margin: 0 auto; }
+  .phone-screen { background: #0E7490; border-radius: 14px; overflow: hidden; }
+  .phone-navbar { background: white; padding: 8px 10px; font-size: .65rem; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+  .phone-hero  { background: linear-gradient(135deg,#164E63,#0E7490); color: white; padding: 14px 10px; text-align: center; }
+  .phone-hero h3 { font-size: .7rem; font-weight: 800; margin-bottom: 4px; }
+  .phone-hero p  { font-size: .55rem; opacity: .8; margin-bottom: 8px; }
+  .phone-btn { display: inline-block; background: white; color: #0E7490; font-size: .55rem; font-weight: 700; padding: 3px 10px; border-radius: 4px; }
+  .phone-card { background: white; margin: 6px; border-radius: 6px; padding: 8px; border: 1px solid #E5E7EB; }
+  .phone-card h4 { font-size: .6rem; font-weight: 700; margin-bottom: 3px; }
+  .phone-card p  { font-size: .52rem; color: #6B7280; }
+  .desktop-frame { background: #1a1814; border-radius: 10px; padding: 8px 8px 4px; }
+  .desktop-screen { background: #F9FAFB; border-radius: 4px; overflow: hidden; }
+  .desk-navbar { background: white; padding: 6px 12px; font-size: .62rem; font-weight: 700; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #E5E7EB; }
+  .desk-nav-links { display: flex; gap: 8px; font-size: .55rem; color: #6B7280; }
+  .desk-hero  { background: linear-gradient(135deg,#164E63,#0E7490); color: white; padding: 14px 12px; display: flex; align-items: center; gap: 12px; }
+  .desk-hero-text { flex: 1; }
+  .desk-hero-text h3 { font-size: .72rem; font-weight: 800; margin-bottom: 3px; }
+  .desk-hero-text p  { font-size: .55rem; opacity: .8; }
+  .desk-hero-img { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,.2); border: 2px solid rgba(255,255,255,.4); flex-shrink: 0; }
+  .desk-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; padding: 8px; }
+  .desk-card { background: white; border-radius: 4px; padding: 6px; border: 1px solid #E5E7EB; }
+  .desk-card h4 { font-size: .55rem; font-weight: 700; margin-bottom: 2px; }
+  .desk-card p  { font-size: .5rem; color: #6B7280; }
+  .demo-label { text-align: center; font-size: .78rem; font-weight: 600; color: var(--muted); margin-top: .5rem; }
+
+  /* DEMO PORTFOLIO */
+  .portfolio-preview { font-family: 'DM Sans', sans-serif; background: #F9FAFB; border-radius: 0; }
+  .pv-nav { display:flex; justify-content:space-between; align-items:center; background:white; padding:14px 24px; border-bottom:1px solid #E5E7EB; }
+  .pv-logo { font-weight:700; color:#0E7490; font-size:.95rem; }
+  .pv-links { display:flex; gap:16px; }
+  .pv-links a { color:#6B7280; text-decoration:none; font-size:.8rem; }
+  .pv-links a.cta { background:#0E7490; color:white; padding:5px 14px; border-radius:6px; font-weight:600; }
+  .pv-hero { background:linear-gradient(135deg,#164E63 0%,#0E7490 100%); color:white; padding:48px 32px; display:flex; align-items:center; gap:40px; }
+  .pv-hero-text { flex:1; }
+  .pv-hero-text p { font-size:.78rem; color:rgba(255,255,255,.7); margin-bottom:4px; }
+  .pv-hero-text h1 { font-size:1.8rem; font-weight:800; line-height:1.1; margin-bottom:6px; }
+  .pv-hero-text .rol { font-size:.95rem; color:rgba(255,255,255,.85); margin-bottom:12px; }
+  .pv-hero-text .acento { color:#FDE68A; font-weight:700; }
+  .pv-hero-text .desc { font-size:.82rem; color:rgba(255,255,255,.7); margin-bottom:18px; }
+  .pv-btns { display:flex; gap:10px; }
+  .pv-btn1 { background:white; color:#0E7490; font-size:.78rem; font-weight:700; padding:7px 16px; border-radius:6px; text-decoration:none; }
+  .pv-btn2 { border:1.5px solid rgba(255,255,255,.5); color:white; font-size:.78rem; font-weight:600; padding:7px 16px; border-radius:6px; text-decoration:none; }
+  .pv-stats { display:flex; gap:20px; margin-top:16px; }
+  .pv-stat .num { font-size:1.3rem; font-weight:800; display:block; }
+  .pv-stat .txt { font-size:.62rem; color:rgba(255,255,255,.6); text-transform:uppercase; letter-spacing:.06em; }
+  .pv-foto { width:150px; height:150px; border-radius:50%; background:rgba(255,255,255,.15); border:3px solid rgba(255,255,255,.3); display:flex; align-items:center; justify-content:center; font-size:2.5rem; flex-shrink:0; }
+  .pv-body { padding:32px; }
+  .pv-sec-title { font-size:1.1rem; font-weight:700; text-align:center; margin-bottom:4px; }
+  .pv-sec-sub { color:#6B7280; font-size:.8rem; text-align:center; margin-bottom:20px; }
+  .pv-grid3 { display:grid; grid-template-columns:2fr 1fr 1fr; gap:14px; margin-bottom:32px; }
+  .pv-card { background:white; border:1px solid #E5E7EB; border-radius:10px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,.05); }
+  .pv-card-img { aspect-ratio:16/9; overflow:hidden; }
+  .pv-card-img img { width:100%; height:100%; object-fit:cover; display:block; }
+  .pv-card-body { padding:12px; }
+  .pv-card-body h3 { font-size:.85rem; font-weight:700; margin-bottom:4px; }
+  .pv-card-body p  { font-size:.75rem; color:#6B7280; margin-bottom:8px; }
+  .pv-tags { display:flex; gap:4px; flex-wrap:wrap; }
+  .ptag { background:#F3F4F6; color:#6B7280; font-size:.62rem; font-weight:600; padding:2px 8px; border-radius:20px; }
+  .pv-badge { background:#D97706; color:white; font-size:.62rem; font-weight:700; padding:2px 8px; border-radius:20px; display:inline-block; margin-bottom:8px; }
+  .pv-skills { display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:32px; }
+  .pv-skill-item { margin-bottom:12px; }
+  .pv-skill-header { display:flex; justify-content:space-between; font-size:.8rem; font-weight:600; margin-bottom:5px; }
+  .pv-barra { height:7px; background:#E5E7EB; border-radius:20px; overflow:hidden; }
+  .pv-progreso { height:100%; border-radius:20px; }
+  .pv-tools { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+  .pv-tool { background:white; border:1px solid #E5E7EB; border-radius:8px; padding:10px 6px; text-align:center; }
+  .pv-tool .ico { font-size:1.2rem; display:block; margin-bottom:3px; }
+  .pv-tool .nom { font-size:.62rem; font-weight:600; color:#6B7280; }
+  .pv-footer { background:#164E63; color:rgba(255,255,255,.7); padding:24px 32px; display:grid; grid-template-columns:2fr 1fr 1fr; gap:20px; }
+  .pv-footer h4 { color:white; font-size:.8rem; font-weight:700; margin-bottom:8px; }
+  .pv-footer a { display:block; color:rgba(255,255,255,.6); text-decoration:none; font-size:.78rem; margin-bottom:4px; }
+  .pv-footer-logo { font-size:.95rem; font-weight:700; color:white; margin-bottom:4px; }
+  .pv-copy { background:#0D3B52; color:rgba(255,255,255,.4); text-align:center; padding:12px; font-size:.72rem; }
+
+  /* MOBILE PREVIEW */
+  .mobile-preview { max-width: 320px; margin: 0 auto; background: white; border: 2px solid #E5E7EB; border-radius: 20px; overflow: hidden; }
+  .mp-label { text-align: center; font-size: .72rem; color: var(--muted); font-weight: 600; margin: .5rem 0 .25rem; }
+
+  /* TYPOGRAPHY */
+  h2 { font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; color: var(--text); }
+  h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 .5rem; }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: #f0ece6; color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  strong { font-weight: 700; }
+  em { font-style: italic; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+  footer.guia-footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <a href="#">← Volver al curso</a>
+  <span>📱 Ejercicio 5 — Portfolio Responsive · Mobile-First · CSS Grid · Media Queries</span>
+</div>
+
+<!-- HEADER -->
+<header class="guia-header">
+  <div class="ex-label">✏️ Ejercicio 5</div>
+  <h1>Portfolio Responsive</h1>
+  <p class="sub">Tu primera página que funciona en celular, tablet y escritorio</p>
+  <span class="badge">📱 Mobile-First · @media · grid-template-areas · clamp() · object-fit · auto-fit</span>
+</header>
+
+<!-- NAV GUÍA -->
+<nav class="guide-nav">
+  <a href="#aprenderás">🎓 ¿Qué aprenderás?</a>
+  <a href="#mobile-first">📱 Mobile-First</a>
+  <a href="#media-queries">🔀 Media Queries</a>
+  <a href="#grid-avanzado">📐 Grid Avanzado</a>
+  <a href="#unidades">📏 Unidades</a>
+  <a href="#archivos">📁 Archivos</a>
+  <a href="#html">🧱 HTML</a>
+  <a href="#css">🎨 CSS</a>
+  <a href="#resultado">🖥 Resultado</a>
+  <a href="#retos">🏆 Retos</a>
+  <a href="#resumen">📋 Resumen</a>
+</nav>
+
+<main>
+
+<div class="parte-badge">📱 Ejercicio 5 — Nivel: Intermedio-Avanzado · El salto al diseño responsive profesional</div>
+
+
+<!-- ══════════════════════════════════
+     ¿QUÉ VAS A APRENDER?
+══════════════════════════════════ -->
+<section class="module" id="aprenderás">
+  <div class="module-header">
+    <div class="module-icon">🎓</div>
+    <div>
+      <div class="module-title">¿Qué vas a aprender en este ejercicio?</div>
+      <div class="module-sub">El salto más importante del desarrollo web moderno</div>
+    </div>
+  </div>
+
+  <div class="glos">
+    <div class="glos-item">
+      <span class="emoji">📱</span>
+      <dt>Mobile-First</dt>
+      <dd>Diseñar primero para celular y expandir con <code>min-width</code>. La filosofía profesional estándar.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🔀</span>
+      <dt>Media Queries</dt>
+      <dd><code>@media (min-width: Xpx)</code> para aplicar estilos según el tamaño de pantalla.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🗺️</span>
+      <dt>grid-template-areas</dt>
+      <dd>Nombrar zonas del layout como un mapa y colocar elementos por nombre con <code>grid-area</code>.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">⚙️</span>
+      <dt>auto-fit + minmax()</dt>
+      <dd>Grid que calcula cuántas columnas caben automáticamente. Sin Media Queries para las galerías.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">📏</span>
+      <dt>clamp() y min()</dt>
+      <dd>Tamaños de fuente fluidos que escalan con el viewport respetando límites. Tipografía sin <code>@media</code>.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🖼️</span>
+      <dt>Imágenes responsive</dt>
+      <dd><code>max-width: 100%</code>, <code>object-fit: cover</code>, <code>aspect-ratio</code> para imágenes que se adaptan solas.</dd>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>💡 ¿Qué traes de los ejercicios anteriores?</h4>
+    <p>Ya dominas Box Model, Flexbox, Variables CSS, Tablas, Formularios, Animaciones y Pseudo-clases. Aquí usas <strong>todo eso</strong> dentro de un sistema de diseño responsive completo. Es el ejercicio más profesional hasta ahora.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     CONCEPTO 1 — MOBILE FIRST
+══════════════════════════════════ -->
+<section class="module" id="mobile-first">
+  <div class="module-header">
+    <div class="module-icon">📱</div>
+    <div>
+      <div class="module-title">CONCEPTO 1 — Diseño Mobile-First</div>
+      <div class="module-sub">La filosofía que usan todos los equipos profesionales</div>
+    </div>
+  </div>
+
+  <p>Mobile-First es una <strong>filosofía de diseño</strong>: escribes los estilos base para la pantalla más pequeña (celular) y luego usas Media Queries para <strong>añadir</strong> estilos conforme la pantalla crece. Nunca quitas estilos, solo agregas capas.</p>
+
+  <div class="analogy">
+    <h4>🧥 Analogía: vestirse por capas</h4>
+    <p>Imagina que vas a salir y no sabes qué tanto frío hará. Primero te pones la ropa base (playera y pantalón) — eso es el diseño para celular. Si hace un poco de frío, añades un suéter — eso es el diseño para tablet. Si hace mucho frío, añades también un abrigo — eso es el diseño para escritorio. Nunca <em>quitas</em> ropa, solo <em>añades capas</em>. Mobile-First funciona igual.</p>
+  </div>
+
+  <!-- Diagrama visual móvil vs escritorio -->
+  <div class="responsive-demo">
+    <div>
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <div class="phone-navbar"><span>✦ Portfolio</span><span>☰</span></div>
+          <div class="phone-hero">
+            <h3>Tu Nombre</h3>
+            <p>Desarrollador Web</p>
+            <span class="phone-btn">Ver proyectos</span>
+          </div>
+          <div class="phone-card"><h4>Proyecto 1</h4><p>HTML · CSS</p></div>
+          <div class="phone-card"><h4>Proyecto 2</h4><p>Flexbox</p></div>
+        </div>
+      </div>
+      <p class="demo-label">📱 Celular — 1 columna</p>
+    </div>
+    <div>
+      <div class="desktop-frame">
+        <div class="desktop-screen">
+          <div class="desk-navbar">
+            <span>✦ Portfolio</span>
+            <div class="desk-nav-links"><span>Proyectos</span><span>Skills</span><span>Contacto</span></div>
+          </div>
+          <div class="desk-hero">
+            <div class="desk-hero-text">
+              <h3>Tu Nombre</h3>
+              <p>Desarrollador Web Frontend</p>
+            </div>
+            <div class="desk-hero-img"></div>
+          </div>
+          <div class="desk-grid">
+            <div class="desk-card"><h4>Proyecto 1</h4><p>HTML · CSS</p></div>
+            <div class="desk-card"><h4>Proyecto 2</h4><p>Flexbox</p></div>
+            <div class="desk-card"><h4>Proyecto 3</h4><p>Grid</p></div>
+          </div>
+        </div>
+      </div>
+      <p class="demo-label">🖥 Escritorio — 3 columnas</p>
+    </div>
+  </div>
+
+  <h2>¿Por qué Mobile-First y no al revés?</h2>
+  <ul>
+    <li>Más del <strong>60% del tráfico web</strong> viene de celulares. El celular es la prioridad.</li>
+    <li>Es más fácil <strong>expandir</strong> un diseño simple que <strong>comprimir</strong> uno complejo.</li>
+    <li>Los navegadores móviles cargan <strong>menos CSS innecesario</strong> — páginas más rápidas.</li>
+    <li>Google usa el <strong>Mobile-First Indexing</strong>: indexa la versión móvil para el posicionamiento en buscadores.</li>
+  </ul>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* ✅ MOBILE-FIRST — así se hace */</span>
+
+<span class="cc">/* Base: estilos para CELULAR (sin @media) */</span>
+<span class="cp">.galeria</span> {
+  <span class="ca">display</span>: grid;
+  <span class="ca">grid-template-columns</span>: <span class="cn">1fr</span>;         <span class="cc">/* 1 columna en celular */</span>
+  <span class="ca">gap</span>: <span class="cn">1rem</span>;
+}
+
+<span class="cc">/* Tablet — añadimos estilos cuando la pantalla crece */</span>
+<span class="cp">@media (min-width: 640px)</span> {
+  <span class="cp">.galeria</span> { <span class="ca">grid-template-columns</span>: <span class="cn">1fr 1fr</span>; } <span class="cc">/* 2 columnas */</span>
+}
+
+<span class="cc">/* Escritorio — añadimos más */</span>
+<span class="cp">@media (min-width: 1024px)</span> {
+  <span class="cp">.galeria</span> { <span class="ca">grid-template-columns</span>: repeat(<span class="cn">3</span>, <span class="cn">1fr</span>); } <span class="cc">/* 3 columnas */</span>
+}
+
+<span class="cc">/* ❌ DESKTOP-FIRST — lo que NO harías */</span>
+<span class="cp">.galeria</span> { <span class="ca">grid-template-columns</span>: repeat(<span class="cn">3</span>, <span class="cn">1fr</span>); } <span class="cc">/* empieza con 3 */</span>
+<span class="cp">@media (max-width: 1024px)</span> { <span class="cc">/* ... tiene que reducir a 2 */</span> }
+<span class="cp">@media (max-width: 640px)</span>  { <span class="cc">/* ... tiene que reducir a 1 */</span> }</div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     CONCEPTO 2 — MEDIA QUERIES
+══════════════════════════════════ -->
+<section class="module" id="media-queries">
+  <div class="module-header">
+    <div class="module-icon">🔀</div>
+    <div>
+      <div class="module-title">CONCEPTO 2 — Media Queries</div>
+      <div class="module-sub">La herramienta que hace posible el diseño responsive</div>
+    </div>
+  </div>
+
+  <p>Una Media Query es una <strong>condición CSS</strong>: "aplica estos estilos <em>solo si</em> la pantalla cumple esta condición". Es como un <code>if</code> en programación pero para estilos.</p>
+
+  <div class="analogy">
+    <h4>🔭 Analogía: el telescopio adaptable</h4>
+    <p>Un telescopio moderno detecta la distancia del objeto y ajusta automáticamente el zoom, el filtro y el enfoque. Tu página web hace lo mismo con las Media Queries: detecta el tamaño de la pantalla y ajusta columnas, tamaños de fuente, márgenes y todo lo necesario para que el contenido se vea perfecto en esa pantalla específica.</p>
+  </div>
+
+  <!-- Diagrama de breakpoints -->
+  <div class="bp-diagram">
+    <div class="bp-seg bp-0">
+      <span class="icon">📱</span>
+      <span class="label">Celular</span>
+      <span class="val">320–639px</span>
+    </div>
+    <div class="bp-seg bp-1">
+      <span class="icon">📲</span>
+      <span class="label">Celular grande</span>
+      <span class="val">640–767px</span>
+    </div>
+    <div class="bp-seg bp-2">
+      <span class="icon">📟</span>
+      <span class="label">Tablet</span>
+      <span class="val">768–1023px</span>
+    </div>
+    <div class="bp-seg bp-3">
+      <span class="icon">🖥</span>
+      <span class="label">Escritorio</span>
+      <span class="val">1024px+</span>
+    </div>
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* Anatomía de una Media Query */</span>
+<span class="cp">@media</span> (condición) {
+  <span class="cc">/* Estilos que SOLO aplican si se cumple la condición */</span>
+}
+
+<span class="cc">/* ── Los 4 breakpoints más usados ── */</span>
+<span class="cp">@media (min-width: 640px)</span>  { }  <span class="cc">/* celulares grandes / iPhone 15 */</span>
+<span class="cp">@media (min-width: 768px)</span>  { }  <span class="cc">/* tablets verticales / iPad     */</span>
+<span class="cp">@media (min-width: 1024px)</span> { }  <span class="cc">/* laptops y tablets horizontales */</span>
+<span class="cp">@media (min-width: 1280px)</span> { }  <span class="cc">/* escritorios y monitores Full HD */</span>
+
+<span class="cc">/* ── Condiciones combinadas ── */</span>
+<span class="cp">@media (min-width: 640px) and (max-width: 1023px)</span> { } <span class="cc">/* SOLO tablet */</span>
+
+<span class="cc">/* ── Orientación ── */</span>
+<span class="cp">@media (orientation: landscape)</span> { } <span class="cc">/* pantalla horizontal */</span>
+<span class="cp">@media (orientation: portrait)</span>  { } <span class="cc">/* pantalla vertical   */</span>
+
+<span class="cc">/* ── Preferencias del sistema operativo ── */</span>
+<span class="cp">@media (prefers-color-scheme: dark)</span> {
+  <span class="cp">:root</span> { <span class="ca">--fondo</span>: <span class="cn">#111827</span>; <span class="ca">--surface</span>: <span class="cn">#1F2937</span>; } <span class="cc">/* modo oscuro */</span>
+}
+<span class="cp">@media (prefers-reduced-motion: reduce)</span> {
+  <span class="cp">*</span> { <span class="ca">animation</span>: none <span class="cn">!important</span>; <span class="ca">transition</span>: none <span class="cn">!important</span>; }
+}</div>
+
+  <table class="tbl">
+    <thead><tr><th>min-width</th><th>Dispositivos que cubre</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">Sin @media (base)</span></td><td>Celulares pequeños (320–639px). iPhone SE, Android gama baja. Es el punto de partida Mobile-First.</td></tr>
+      <tr><td><span class="tag">640px</span></td><td>Celulares grandes. iPhone 15, Samsung Galaxy S.</td></tr>
+      <tr><td><span class="tag">768px</span></td><td>Tablets verticales. iPad en modo retrato.</td></tr>
+      <tr><td><span class="tag">1024px</span></td><td>Tablets horizontales y laptops pequeñas. iPad Pro horizontal, MacBook Air 11".</td></tr>
+      <tr><td><span class="tag">1280px</span></td><td>Laptops y escritorios estándar. MacBook Pro 13", monitores Full HD.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- ══════════════════════════════════
+     CONCEPTO 3 — CSS GRID AVANZADO
+══════════════════════════════════ -->
+<section class="module" id="grid-avanzado">
+  <div class="module-header">
+    <div class="module-icon">📐</div>
+    <div>
+      <div class="module-title">CONCEPTO 3 — CSS Grid avanzado</div>
+      <div class="module-sub">grid-template-areas, minmax(), auto-fit y grid-column: span</div>
+    </div>
+  </div>
+
+  <h2>grid-template-areas — El mapa del layout</h2>
+
+  <div class="analogy">
+    <h4>🗺️ Analogía: el plano de un departamento</h4>
+    <p><code>grid-template-areas</code> es como hacer el plano de un departamento en papel cuadriculado. Dibujas las habitaciones por nombre: <em>"sala sala / cocina baño / cuarto cuarto"</em>. Luego le dices a cada elemento dónde vive: "tú eres la sala", "tú eres la cocina". El navegador los coloca automáticamente en su lugar. En celular puedes reorganizar el plano completamente con solo una Media Query.</p>
+  </div>
+
+  <div class="anatomy">
+    <span class="cc">/* Celular — todo en 1 columna */</span>
+    <br>
+    <span class="at">grid-template-areas</span>:
+    <br>&nbsp;&nbsp;<span class="cv">"nav"</span>  <span class="lb">fila 1</span>
+    <br>&nbsp;&nbsp;<span class="cv">"hero"</span> <span class="lb">fila 2</span>
+    <br>&nbsp;&nbsp;<span class="cv">"main"</span> <span class="lb">fila 3</span>
+    <br>&nbsp;&nbsp;<span class="cv">"footer"</span>;
+    <br><br>
+    <span class="cc">/* Escritorio — sidebar a la derecha */</span>
+    <br>
+    <span class="at">grid-template-areas</span>:
+    <br>&nbsp;&nbsp;<span class="cv">"nav     nav"</span>     <span class="lb2">navbar ocupa las 2 columnas</span>
+    <br>&nbsp;&nbsp;<span class="cv">"hero    hero"</span>
+    <br>&nbsp;&nbsp;<span class="cv">"main    sidebar"</span>  <span class="lb3">main + sidebar en fila</span>
+    <br>&nbsp;&nbsp;<span class="cv">"footer  footer"</span>;
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* El contenedor padre define las áreas */</span>
+<span class="cp">.pagina</span> {
+  <span class="ca">display</span>: grid;
+  <span class="ca">grid-template-columns</span>: <span class="cn">1fr</span>;         <span class="cc">/* celular: 1 columna */</span>
+  <span class="ca">grid-template-areas</span>:
+    <span class="cv">"nav"</span>
+    <span class="cv">"hero"</span>
+    <span class="cv">"main"</span>
+    <span class="cv">"footer"</span>;
+}
+<span class="cp">@media (min-width: 1024px)</span> {
+  <span class="cp">.pagina</span> {
+    <span class="ca">grid-template-columns</span>: <span class="cn">1fr 280px</span>;  <span class="cc">/* escritorio: main + sidebar */</span>
+    <span class="ca">grid-template-areas</span>:
+      <span class="cv">"nav    nav"</span>
+      <span class="cv">"hero   hero"</span>
+      <span class="cv">"main   sidebar"</span>
+      <span class="cv">"footer footer"</span>;
+  }
+}
+
+<span class="cc">/* Cada elemento va a su área */</span>
+<span class="cp">.navbar</span>  { <span class="ca">grid-area</span>: nav;     }
+<span class="cp">.hero</span>    { <span class="ca">grid-area</span>: hero;    }
+<span class="cp">.main</span>    { <span class="ca">grid-area</span>: main;    }
+<span class="cp">.sidebar</span> { <span class="ca">grid-area</span>: sidebar; }
+<span class="cp">.pie</span>     { <span class="ca">grid-area</span>: footer;  }</div>
+
+  <hr>
+
+  <h2>minmax(), auto-fit y auto-fill</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* auto-fit + minmax: grid que se adapta SOLO — sin Media Queries */</span>
+<span class="cp">.galeria</span> {
+  <span class="ca">display</span>: grid;
+  <span class="ca">grid-template-columns</span>: repeat(<span class="cn">auto-fit</span>, minmax(<span class="cn">280px</span>, <span class="cn">1fr</span>));
+  <span class="cc">/*                              ↑                 ↑       ↑   */</span>
+  <span class="cc">/*                        auto-fit          mínimo  máximo    */</span>
+  <span class="ca">gap</span>: <span class="cn">1.5rem</span>;
+}
+<span class="cc">/* Resultado automático según el ancho disponible: */</span>
+<span class="cc">/* En celular  (350px):  1 columna de 350px         */</span>
+<span class="cc">/* En tablet   (750px):  2 columnas de ~360px       */</span>
+<span class="cc">/* En escritorio (1200px): 3 columnas de ~373px     */</span>
+<span class="cc">/* ¡Sin una sola Media Query!                       */</span>
+
+<span class="cc">/* grid-column: span — un elemento ocupa varias columnas */</span>
+<span class="cp">.proyecto-destacado</span> {
+  <span class="ca">grid-column</span>: <span class="cn">1 / -1</span>; <span class="cc">/* ocupa TODAS las columnas (-1 = última línea) */</span>
+}
+
+<span class="cc">/* repeat() simplifica columnas repetitivas */</span>
+<span class="ca">grid-template-columns</span>: <span class="cn">1fr 1fr 1fr</span>;          <span class="cc">/* ← largo */</span>
+<span class="ca">grid-template-columns</span>: repeat(<span class="cn">3</span>, <span class="cn">1fr</span>);       <span class="cc">/* ← igual, más limpio */</span></div>
+
+  <table class="tbl">
+    <thead><tr><th>Función / Valor</th><th>Explicación</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">repeat(3, 1fr)</span></td><td>Repite 3 veces <code>1fr</code>. Equivale a escribir <code>1fr 1fr 1fr</code>. Más limpio y fácil de cambiar.</td></tr>
+      <tr><td><span class="tag">repeat(auto-fit, ...)</span></td><td>El número de columnas se calcula automáticamente según el ancho disponible.</td></tr>
+      <tr><td><span class="tag">minmax(280px, 1fr)</span></td><td>La columna es <strong>mínimo</strong> 280px y <strong>máximo</strong> 1 fracción del espacio. Nunca se hace más pequeña de 280px.</td></tr>
+      <tr><td><span class="tag">grid-column: 1 / -1</span></td><td>El elemento empieza en la línea 1 y termina en la última (<code>-1</code>). Ocupa todas las columnas del grid.</td></tr>
+      <tr><td><span class="tag">grid-area: nombre</span></td><td>Ubica el elemento en la zona nombrada del <code>grid-template-areas</code>.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- ══════════════════════════════════
+     CONCEPTO 4 — UNIDADES AVANZADAS
+══════════════════════════════════ -->
+<section class="module" id="unidades">
+  <div class="module-header">
+    <div class="module-icon">📏</div>
+    <div>
+      <div class="module-title">CONCEPTO 4 — Unidades y funciones avanzadas</div>
+      <div class="module-sub">clamp(), min(), vw, vh, aspect-ratio y object-fit</div>
+    </div>
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* clamp(mínimo, ideal, máximo) — tipografía fluida */</span>
+<span class="cp">h1</span> {
+  <span class="ca">font-size</span>: clamp(<span class="cn">1.8rem</span>, <span class="cn">4vw</span>, <span class="cn">3.5rem</span>);
+  <span class="cc">/* En celular  (360px):  4vw = 14.4px → usa el mínimo → 1.8rem  */</span>
+  <span class="cc">/* En tablet   (768px):  4vw = 30.7px → usa ese valor            */</span>
+  <span class="cc">/* En escritorio (1400px): 4vw = 56px → usa el máximo → 3.5rem  */</span>
+}
+
+<span class="cc">/* min(a, b) — usa el valor MÁS PEQUEÑO */</span>
+<span class="cp">.foto</span> {
+  <span class="ca">width</span>: min(<span class="cn">280px</span>, <span class="cn">80vw</span>);
+  <span class="cc">/* En pantalla de 400px: 80vw = 320px → usa el mínimo → 280px  */</span>
+  <span class="cc">/* En pantalla de 300px: 80vw = 240px → usa 240px (cede a 80vw) */</span>
+}
+
+<span class="cc">/* aspect-ratio — proporciones fijas sin calcular alturas */</span>
+<span class="cp">.thumbnail</span> {
+  <span class="ca">width</span>: <span class="cn">100%</span>;
+  <span class="ca">aspect-ratio</span>: <span class="cn">16 / 9</span>; <span class="cc">/* siempre formato 16:9 como un video */</span>
+  <span class="ca">overflow</span>: hidden;
+}
+<span class="cp">.thumbnail img</span> {
+  <span class="ca">width</span>: <span class="cn">100%</span>; <span class="ca">height</span>: <span class="cn">100%</span>;
+  <span class="ca">object-fit</span>: cover;  <span class="cc">/* llena el espacio, recorta bordes si es necesario */</span>
+}
+
+<span class="cc">/* vw y vh — relativos al viewport */</span>
+<span class="cp">.hero</span> { <span class="ca">min-height</span>: <span class="cn">90vh</span>; }  <span class="cc">/* 90% de la altura de la pantalla */</span>
+<span class="cp">.titulo</span> { <span class="ca">font-size</span>: <span class="cn">5vw</span>; }   <span class="cc">/* 5% del ancho de la pantalla */</span></div>
+
+  <table class="tbl">
+    <thead><tr><th>Función / Unidad</th><th>Explicación</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">clamp(min, ideal, max)</span></td><td>El valor ideal (en vw) escala con el viewport, pero nunca baja del mínimo ni sube del máximo. Tipografía fluida <strong>sin Media Queries</strong>.</td></tr>
+      <tr><td><span class="tag">vw</span></td><td><strong>Viewport Width</strong>. <code>1vw</code> = 1% del ancho de la ventana. Con <code>4vw</code>, el texto crece conforme crece la pantalla.</td></tr>
+      <tr><td><span class="tag">vh</span></td><td><strong>Viewport Height</strong>. <code>1vh</code> = 1% del alto de la ventana. <code>100vh</code> = pantalla completa de alto.</td></tr>
+      <tr><td><span class="tag">min(a, b)</span></td><td>Devuelve el valor más pequeño entre los dos. <code>width: min(100%, 1200px)</code> es el reemplazo moderno de <code>max-width + width: 100%</code>.</td></tr>
+      <tr><td><span class="tag">aspect-ratio: 16/9</span></td><td>Mantiene proporciones ancho/alto fijas. Sin esto tendrías que calcular <code>padding-top</code> en % (la técnica antigua).</td></tr>
+      <tr><td><span class="tag">object-fit: cover</span></td><td>Para imágenes: rellena el espacio definido y recorta los bordes si la proporción no coincide. Como <code>background-size: cover</code> pero para <code>&lt;img&gt;</code>.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- ══════════════════════════════════
+     ARCHIVOS
+══════════════════════════════════ -->
+<section class="module" id="archivos">
+  <div class="module-header">
+    <div class="module-icon">📁</div>
+    <div>
+      <div class="module-title">PARTE 1 — Crea el proyecto</div>
+      <div class="module-sub">Carpeta nueva, misma estructura de siempre</div>
+    </div>
+  </div>
+  <ul>
+    <li>Crea una carpeta: <code>portfolio-responsive</code></li>
+    <li>Dentro crea: <code>index.html</code> y <code>styles.css</code></li>
+    <li>Abre en VS Code → activa Live Server</li>
+    <li>Abre las DevTools (F12) → clic en el ícono de tablet/celular (Ctrl+Shift+M) para simular dispositivos mientras trabajas</li>
+  </ul>
+  <div class="concept">
+    <h4>💡 El portfolio de este ejercicio</h4>
+    <p>Vas a construir un <strong>portfolio de desarrollador web completo y responsive</strong>. Tendrá: navbar fija con menú hamburguesa en móvil, sección hero full-screen, galería de proyectos con Grid, sección de habilidades con barras de progreso animadas, sección "Sobre mí" y footer de 3 columnas. Con <strong>una sola hoja de estilos</strong> y Media Queries.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     HTML
+══════════════════════════════════ -->
+<section class="module" id="html">
+  <div class="module-header">
+    <div class="module-icon">🧱</div>
+    <div>
+      <div class="module-title">PARTE 2 — El HTML completo</div>
+      <div class="module-sub">6 bloques: base · navbar · hero · proyectos · habilidades · sobre mí · footer</div>
+    </div>
+  </div>
+
+  <h2>BLOQUE 1 — Estructura base</h2>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="ct">&lt;!DOCTYPE html&gt;</span>
+<span class="ct">&lt;html</span> <span class="ca">lang</span>=<span class="cv">"es"</span><span class="ct">&gt;</span>
+<span class="ct">&lt;head&gt;</span>
+  <span class="ct">&lt;meta</span> <span class="ca">charset</span>=<span class="cv">"UTF-8"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;meta</span> <span class="ca">name</span>=<span class="cv">"viewport"</span> <span class="ca">content</span>=<span class="cv">"width=device-width, initial-scale=1.0"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;title&gt;</span><span class="cs">Portfolio — Tu Nombre</span><span class="ct">&lt;/title&gt;</span>
+  <span class="ct">&lt;link</span> <span class="ca">rel</span>=<span class="cv">"preconnect"</span> <span class="ca">href</span>=<span class="cv">"https://fonts.googleapis.com"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;link</span> <span class="ca">href</span>=<span class="cv">"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"</span>
+        <span class="ca">rel</span>=<span class="cv">"stylesheet"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;link</span> <span class="ca">rel</span>=<span class="cv">"stylesheet"</span> <span class="ca">href</span>=<span class="cv">"styles.css"</span><span class="ct">&gt;</span>
+<span class="ct">&lt;/head&gt;</span>
+<span class="ct">&lt;body</span> <span class="ca">class</span>=<span class="cv">"pagina"</span><span class="ct">&gt;</span>  <span class="cc">&lt;!-- class="pagina" para el Grid de layout principal --&gt;</span>
+  <span class="cc">&lt;!-- Los 6 bloques van aquí --&gt;</span>
+<span class="ct">&lt;/body&gt;</span>
+<span class="ct">&lt;/html&gt;</span></div>
+
+  <div class="concept">
+    <h4>💡 class="pagina" en el body</h4>
+    <p>Le ponemos la clase <code>pagina</code> al <code>&lt;body&gt;</code> para que sea el contenedor Grid principal. Con <code>grid-template-areas</code> en <code>.pagina</code> definiremos el layout completo de la página desde el CSS.</p>
+  </div>
+
+  <hr>
+
+  <h2>BLOQUE 2 — Navbar responsive</h2>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="cc">&lt;!-- ① NAVBAR --&gt;</span>
+<span class="ct">&lt;header</span> <span class="ca">class</span>=<span class="cv">"navbar"</span> <span class="ca">role</span>=<span class="cv">"banner"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"#"</span> <span class="ca">class</span>=<span class="cv">"nav-logo"</span><span class="ct">&gt;</span>
+    <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"logo-simbolo"</span><span class="ct">&gt;</span><span class="cs">&lt;/&gt;</span><span class="ct">&lt;/span&gt;</span>
+    <span class="cs">Tu Nombre</span>
+  <span class="ct">&lt;/a&gt;</span>
+  <span class="cc">&lt;!-- Botón hamburguesa — visible SOLO en móvil --&gt;</span>
+  <span class="ct">&lt;button</span> <span class="ca">class</span>=<span class="cv">"nav-toggle"</span> <span class="ca">aria-label</span>=<span class="cv">"Abrir menú"</span><span class="ct">&gt;</span><span class="cs">☰</span><span class="ct">&lt;/button&gt;</span>
+  <span class="ct">&lt;nav</span> <span class="ca">class</span>=<span class="cv">"nav-menu"</span><span class="ct">&gt;</span>
+    <span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"#sobre-mi"</span><span class="ct">&gt;</span><span class="cs">Sobre mí</span><span class="ct">&lt;/a&gt;</span>
+    <span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"#proyectos"</span><span class="ct">&gt;</span><span class="cs">Proyectos</span><span class="ct">&lt;/a&gt;</span>
+    <span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"#habilidades"</span><span class="ct">&gt;</span><span class="cs">Habilidades</span><span class="ct">&lt;/a&gt;</span>
+    <span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"#contacto"</span> <span class="ca">class</span>=<span class="cv">"nav-cta"</span><span class="ct">&gt;</span><span class="cs">Contáctame</span><span class="ct">&lt;/a&gt;</span>
+  <span class="ct">&lt;/nav&gt;</span>
+<span class="ct">&lt;/header&gt;</span></div>
+
+  <table class="tbl">
+    <thead><tr><th>Elemento</th><th>Explicación</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">role="banner"</span></td><td>Atributo ARIA de accesibilidad. Le dice a los lectores de pantalla que este header es el banner principal.</td></tr>
+      <tr><td><span class="tag">aria-label="Abrir menú"</span></td><td>Los botones de hamburguesa no tienen texto visible. Este atributo describe su función para lectores de pantalla.</td></tr>
+      <tr><td><span class="tag">.nav-toggle</span></td><td>El botón ☰. En CSS lo mostramos en móvil (<code>display: block</code>) y lo ocultamos en tablet (<code>display: none</code>).</td></tr>
+      <tr><td><span class="tag">.nav-menu</span></td><td>El menú de links. En celular oculto (<code>display: none</code>). En tablet visible y horizontal (<code>display: flex</code>).</td></tr>
+      <tr><td><span class="tag">href="#sobre-mi"</span></td><td>Ancla interna: hace scroll suave hasta el elemento con ese <code>id</code> en la misma página.</td></tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h2>BLOQUE 3 — Hero full-screen</h2>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="cc">&lt;!-- ② HERO --&gt;</span>
+<span class="ct">&lt;section</span> <span class="ca">class</span>=<span class="cv">"hero"</span> <span class="ca">id</span>=<span class="cv">"inicio"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"hero-contenido"</span><span class="ct">&gt;</span>
+    <span class="ct">&lt;p</span> <span class="ca">class</span>=<span class="cv">"hero-saludo"</span><span class="ct">&gt;</span><span class="cs">¡Hola! Soy</span><span class="ct">&lt;/p&gt;</span>
+    <span class="ct">&lt;h1</span> <span class="ca">class</span>=<span class="cv">"hero-nombre"</span><span class="ct">&gt;</span><span class="cs">Tu Nombre</span><span class="ct">&lt;/h1&gt;</span>
+    <span class="ct">&lt;p</span> <span class="ca">class</span>=<span class="cv">"hero-rol"</span><span class="ct">&gt;</span>
+      <span class="cs">Desarrollador <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"rol-acento"</span><span class="ct">&gt;</span>Web<span class="ct">&lt;/span&gt;</span> Frontend</span>
+    <span class="ct">&lt;/p&gt;</span>
+    <span class="ct">&lt;p</span> <span class="ca">class</span>=<span class="cv">"hero-desc"</span><span class="ct">&gt;</span>
+      <span class="cs">Creo experiencias digitales con HTML, CSS y
+      mucha pasión por el diseño.</span>
+    <span class="ct">&lt;/p&gt;</span>
+    <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"hero-acciones"</span><span class="ct">&gt;</span>
+      <span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"#proyectos"</span> <span class="ca">class</span>=<span class="cv">"btn btn-primario"</span><span class="ct">&gt;</span><span class="cs">Ver proyectos</span><span class="ct">&lt;/a&gt;</span>
+      <span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"#contacto"</span>  <span class="ca">class</span>=<span class="cv">"btn btn-outline"</span><span class="ct">&gt;</span><span class="cs">Contáctame</span><span class="ct">&lt;/a&gt;</span>
+    <span class="ct">&lt;/div&gt;</span>
+    <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"hero-stats"</span><span class="ct">&gt;</span>
+      <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"stat"</span><span class="ct">&gt;</span>
+        <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"stat-num"</span><span class="ct">&gt;</span><span class="cs">10+</span><span class="ct">&lt;/span&gt;</span>
+        <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"stat-txt"</span><span class="ct">&gt;</span><span class="cs">Proyectos</span><span class="ct">&lt;/span&gt;</span>
+      <span class="ct">&lt;/div&gt;</span>
+      <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"stat"</span><span class="ct">&gt;</span>
+        <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"stat-num"</span><span class="ct">&gt;</span><span class="cs">3</span><span class="ct">&lt;/span&gt;</span>
+        <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"stat-txt"</span><span class="ct">&gt;</span><span class="cs">Meses aprendiendo</span><span class="ct">&lt;/span&gt;</span>
+      <span class="ct">&lt;/div&gt;</span>
+      <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"stat"</span><span class="ct">&gt;</span>
+        <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"stat-num"</span><span class="ct">&gt;</span><span class="cs">100%</span><span class="ct">&lt;/span&gt;</span>
+        <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"stat-txt"</span><span class="ct">&gt;</span><span class="cs">Dedicación</span><span class="ct">&lt;/span&gt;</span>
+      <span class="ct">&lt;/div&gt;</span>
+    <span class="ct">&lt;/div&gt;</span>
+  <span class="ct">&lt;/div&gt;</span>
+  <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"hero-imagen"</span><span class="ct">&gt;</span>
+    <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"foto-marco"</span><span class="ct">&gt;</span>
+      <span class="ct">&lt;img</span>
+        <span class="ca">src</span>=<span class="cv">"https://placehold.co/400x400/0E7490/FFFFFF?text=TU+FOTO"</span>
+        <span class="ca">alt</span>=<span class="cv">"Foto de perfil de Tu Nombre"</span>
+        <span class="ca">class</span>=<span class="cv">"foto-perfil"</span>
+      <span class="ct">&gt;</span>
+    <span class="ct">&lt;/div&gt;</span>
+  <span class="ct">&lt;/div&gt;</span>
+<span class="ct">&lt;/section&gt;</span></div>
+
+  <hr>
+
+  <h2>BLOQUE 4 — Galería de proyectos</h2>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="cc">&lt;!-- ③ PROYECTOS --&gt;</span>
+<span class="ct">&lt;section</span> <span class="ca">class</span>=<span class="cv">"seccion"</span> <span class="ca">id</span>=<span class="cv">"proyectos"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"seccion-header"</span><span class="ct">&gt;</span>
+    <span class="ct">&lt;h2</span> <span class="ca">class</span>=<span class="cv">"seccion-titulo"</span><span class="ct">&gt;</span><span class="cs">Mis Proyectos</span><span class="ct">&lt;/h2&gt;</span>
+    <span class="ct">&lt;p</span> <span class="ca">class</span>=<span class="cv">"seccion-sub"</span><span class="ct">&gt;</span><span class="cs">Lo que he construido aprendiendo</span><span class="ct">&lt;/p&gt;</span>
+  <span class="ct">&lt;/div&gt;</span>
+  <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"proyectos-grid"</span><span class="ct">&gt;</span>
+
+    <span class="cc">&lt;!-- Proyecto 1 — ocupa 2 columnas en tablet+ --&gt;</span>
+    <span class="ct">&lt;article</span> <span class="ca">class</span>=<span class="cv">"proyecto-card destacado"</span><span class="ct">&gt;</span>
+      <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"proyecto-img"</span><span class="ct">&gt;</span>
+        <span class="ct">&lt;img</span> <span class="ca">src</span>=<span class="cv">"https://placehold.co/600x340/1D4ED8/FFFFFF?text=Proyecto+Principal"</span>
+             <span class="ca">alt</span>=<span class="cv">"Captura del proyecto principal"</span><span class="ct">&gt;</span>
+        <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"proyecto-badge"</span><span class="ct">&gt;</span><span class="cs">Destacado</span><span class="ct">&lt;/span&gt;</span>
+      <span class="ct">&lt;/div&gt;</span>
+      <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"proyecto-info"</span><span class="ct">&gt;</span>
+        <span class="ct">&lt;h3&gt;</span><span class="cs">Receta de Tacos</span><span class="ct">&lt;/h3&gt;</span>
+        <span class="ct">&lt;p&gt;</span><span class="cs">Mi primer proyecto: página web completa con HTML semántico y CSS.</span><span class="ct">&lt;/p&gt;</span>
+        <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"proyecto-tags"</span><span class="ct">&gt;</span>
+          <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"ptag"</span><span class="ct">&gt;</span><span class="cs">HTML</span><span class="ct">&lt;/span&gt;</span>
+          <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"ptag"</span><span class="ct">&gt;</span><span class="cs">CSS</span><span class="ct">&lt;/span&gt;</span>
+        <span class="ct">&lt;/div&gt;</span>
+        <span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"#"</span> <span class="ca">class</span>=<span class="cv">"btn-proyecto"</span><span class="ct">&gt;</span><span class="cs">Ver proyecto →</span><span class="ct">&lt;/a&gt;</span>
+      <span class="ct">&lt;/div&gt;</span>
+    <span class="ct">&lt;/article&gt;</span>
+
+    <span class="cc">&lt;!-- Proyecto 2 --&gt;</span>
+    <span class="ct">&lt;article</span> <span class="ca">class</span>=<span class="cv">"proyecto-card"</span><span class="ct">&gt;</span>
+      <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"proyecto-img"</span><span class="ct">&gt;</span>
+        <span class="ct">&lt;img</span> <span class="ca">src</span>=<span class="cv">"https://placehold.co/400x220/065F46/FFFFFF?text=Proyecto+2"</span>
+             <span class="ca">alt</span>=<span class="cv">"Perfil de futbolista"</span><span class="ct">&gt;</span>
+      <span class="ct">&lt;/div&gt;</span>
+      <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"proyecto-info"</span><span class="ct">&gt;</span>
+        <span class="ct">&lt;h3&gt;</span><span class="cs">Perfil de Futbolista</span><span class="ct">&lt;/h3&gt;</span>
+        <span class="ct">&lt;p&gt;</span><span class="cs">Página con Flexbox, Box Model y tabla de estadísticas.</span><span class="ct">&lt;/p&gt;</span>
+        <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"proyecto-tags"</span><span class="ct">&gt;</span>
+          <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"ptag"</span><span class="ct">&gt;</span><span class="cs">HTML</span><span class="ct">&lt;/span&gt;</span>
+          <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"ptag"</span><span class="ct">&gt;</span><span class="cs">CSS</span><span class="ct">&lt;/span&gt;</span>
+          <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"ptag"</span><span class="ct">&gt;</span><span class="cs">Flexbox</span><span class="ct">&lt;/span&gt;</span>
+        <span class="ct">&lt;/div&gt;</span>
+        <span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"#"</span> <span class="ca">class</span>=<span class="cv">"btn-proyecto"</span><span class="ct">&gt;</span><span class="cs">Ver proyecto →</span><span class="ct">&lt;/a&gt;</span>
+      <span class="ct">&lt;/div&gt;</span>
+    <span class="ct">&lt;/article&gt;</span>
+
+    <span class="cc">&lt;!-- Proyecto 3 --&gt;</span>
+    <span class="ct">&lt;article</span> <span class="ca">class</span>=<span class="cv">"proyecto-card"</span><span class="ct">&gt;</span>
+      <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"proyecto-img"</span><span class="ct">&gt;</span>
+        <span class="ct">&lt;img</span> <span class="ca">src</span>=<span class="cv">"https://placehold.co/400x220/6D28D9/FFFFFF?text=Proyecto+3"</span>
+             <span class="ca">alt</span>=<span class="cv">"Página de contacto"</span><span class="ct">&gt;</span>
+      <span class="ct">&lt;/div&gt;</span>
+      <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"proyecto-info"</span><span class="ct">&gt;</span>
+        <span class="ct">&lt;h3&gt;</span><span class="cs">Página de Contacto</span><span class="ct">&lt;/h3&gt;</span>
+        <span class="ct">&lt;p&gt;</span><span class="cs">Formulario completo con animaciones CSS y pseudo-clases.</span><span class="ct">&lt;/p&gt;</span>
+        <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"proyecto-tags"</span><span class="ct">&gt;</span>
+          <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"ptag"</span><span class="ct">&gt;</span><span class="cs">HTML</span><span class="ct">&lt;/span&gt;</span>
+          <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"ptag"</span><span class="ct">&gt;</span><span class="cs">CSS</span><span class="ct">&lt;/span&gt;</span>
+          <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"ptag"</span><span class="ct">&gt;</span><span class="cs">Animaciones</span><span class="ct">&lt;/span&gt;</span>
+        <span class="ct">&lt;/div&gt;</span>
+        <span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"#"</span> <span class="ca">class</span>=<span class="cv">"btn-proyecto"</span><span class="ct">&gt;</span><span class="cs">Ver proyecto →</span><span class="ct">&lt;/a&gt;</span>
+      <span class="ct">&lt;/div&gt;</span>
+    <span class="ct">&lt;/article&gt;</span>
+
+  <span class="ct">&lt;/div&gt;</span>
+<span class="ct">&lt;/section&gt;</span></div>
+
+  <table class="tbl">
+    <thead><tr><th>Clase</th><th>Explicación</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">class="proyecto-card destacado"</span></td><td>Dos clases. En tablet+ el CSS le dará <code>grid-column: 1 / -1</code> para ocupar todas las columnas y mostrar imagen+texto lado a lado.</td></tr>
+      <tr><td><span class="tag">.proyecto-badge</span></td><td>El badge "Destacado" se posiciona con <code>position: absolute</code> sobre la imagen.</td></tr>
+      <tr><td><span class="tag">.proyecto-img</span></td><td>Contenedor con <code>aspect-ratio: 16/9</code> y <code>overflow: hidden</code>. La imagen siempre tiene proporciones correctas y el zoom del hover no se sale.</td></tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h2>BLOQUE 5 — Habilidades con barras de progreso</h2>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="cc">&lt;!-- ④ HABILIDADES --&gt;</span>
+<span class="ct">&lt;section</span> <span class="ca">class</span>=<span class="cv">"seccion seccion-gris"</span> <span class="ca">id</span>=<span class="cv">"habilidades"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"seccion-header"</span><span class="ct">&gt;</span>
+    <span class="ct">&lt;h2</span> <span class="ca">class</span>=<span class="cv">"seccion-titulo"</span><span class="ct">&gt;</span><span class="cs">Mis Habilidades</span><span class="ct">&lt;/h2&gt;</span>
+    <span class="ct">&lt;p</span> <span class="ca">class</span>=<span class="cv">"seccion-sub"</span><span class="ct">&gt;</span><span class="cs">Lo que sé hacer hasta ahora</span><span class="ct">&lt;/p&gt;</span>
+  <span class="ct">&lt;/div&gt;</span>
+  <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"skills-layout"</span><span class="ct">&gt;</span>
+
+    <span class="cc">&lt;!-- Barras de progreso --&gt;</span>
+    <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"skills-barras"</span><span class="ct">&gt;</span>
+      <span class="ct">&lt;h3</span> <span class="ca">class</span>=<span class="cv">"skills-subtitulo"</span><span class="ct">&gt;</span><span class="cs">Tecnologías</span><span class="ct">&lt;/h3&gt;</span>
+      <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"skill-item"</span><span class="ct">&gt;</span>
+        <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"skill-header"</span><span class="ct">&gt;</span>
+          <span class="ct">&lt;span&gt;</span><span class="cs">HTML5</span><span class="ct">&lt;/span&gt;&lt;span&gt;</span><span class="cs">85%</span><span class="ct">&lt;/span&gt;</span>
+        <span class="ct">&lt;/div&gt;</span>
+        <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"skill-barra"</span><span class="ct">&gt;</span>
+          <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"skill-progreso"</span> <span class="ca">style</span>=<span class="cv">"width:85%;background:#D97706;"</span><span class="ct">&gt;&lt;/div&gt;</span>
+        <span class="ct">&lt;/div&gt;</span>
+      <span class="ct">&lt;/div&gt;</span>
+      <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"skill-item"</span><span class="ct">&gt;</span>
+        <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"skill-header"</span><span class="ct">&gt;</span>
+          <span class="ct">&lt;span&gt;</span><span class="cs">CSS3</span><span class="ct">&lt;/span&gt;&lt;span&gt;</span><span class="cs">75%</span><span class="ct">&lt;/span&gt;</span>
+        <span class="ct">&lt;/div&gt;</span>
+        <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"skill-barra"</span><span class="ct">&gt;</span>
+          <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"skill-progreso"</span> <span class="ca">style</span>=<span class="cv">"width:75%;background:#1D4ED8;"</span><span class="ct">&gt;&lt;/div&gt;</span>
+        <span class="ct">&lt;/div&gt;</span>
+      <span class="ct">&lt;/div&gt;</span>
+      <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"skill-item"</span><span class="ct">&gt;</span>
+        <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"skill-header"</span><span class="ct">&gt;</span>
+          <span class="ct">&lt;span&gt;</span><span class="cs">Flexbox</span><span class="ct">&lt;/span&gt;&lt;span&gt;</span><span class="cs">70%</span><span class="ct">&lt;/span&gt;</span>
+        <span class="ct">&lt;/div&gt;</span>
+        <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"skill-barra"</span><span class="ct">&gt;</span>
+          <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"skill-progreso"</span> <span class="ca">style</span>=<span class="cv">"width:70%;background:#065F46;"</span><span class="ct">&gt;&lt;/div&gt;</span>
+        <span class="ct">&lt;/div&gt;</span>
+      <span class="ct">&lt;/div&gt;</span>
+      <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"skill-item"</span><span class="ct">&gt;</span>
+        <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"skill-header"</span><span class="ct">&gt;</span>
+          <span class="ct">&lt;span&gt;</span><span class="cs">CSS Grid</span><span class="ct">&lt;/span&gt;&lt;span&gt;</span><span class="cs">60%</span><span class="ct">&lt;/span&gt;</span>
+        <span class="ct">&lt;/div&gt;</span>
+        <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"skill-barra"</span><span class="ct">&gt;</span>
+          <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"skill-progreso"</span> <span class="ca">style</span>=<span class="cv">"width:60%;background:#6D28D9;"</span><span class="ct">&gt;&lt;/div&gt;</span>
+        <span class="ct">&lt;/div&gt;</span>
+      <span class="ct">&lt;/div&gt;</span>
+      <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"skill-item"</span><span class="ct">&gt;</span>
+        <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"skill-header"</span><span class="ct">&gt;</span>
+          <span class="ct">&lt;span&gt;</span><span class="cs">Responsive Design</span><span class="ct">&lt;/span&gt;&lt;span&gt;</span><span class="cs">65%</span><span class="ct">&lt;/span&gt;</span>
+        <span class="ct">&lt;/div&gt;</span>
+        <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"skill-barra"</span><span class="ct">&gt;</span>
+          <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"skill-progreso"</span> <span class="ca">style</span>=<span class="cv">"width:65%;background:#0E7490;"</span><span class="ct">&gt;&lt;/div&gt;</span>
+        <span class="ct">&lt;/div&gt;</span>
+      <span class="ct">&lt;/div&gt;</span>
+    <span class="ct">&lt;/div&gt;</span>
+
+    <span class="cc">&lt;!-- Tarjetas de herramientas --&gt;</span>
+    <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"skills-tools"</span><span class="ct">&gt;</span>
+      <span class="ct">&lt;h3</span> <span class="ca">class</span>=<span class="cv">"skills-subtitulo"</span><span class="ct">&gt;</span><span class="cs">Herramientas</span><span class="ct">&lt;/h3&gt;</span>
+      <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"tools-grid"</span><span class="ct">&gt;</span>
+        <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"tool-card"</span><span class="ct">&gt;&lt;span</span> <span class="ca">class</span>=<span class="cv">"tool-icono"</span><span class="ct">&gt;</span><span class="cs">💻</span><span class="ct">&lt;/span&gt;&lt;span</span> <span class="ca">class</span>=<span class="cv">"tool-nombre"</span><span class="ct">&gt;</span><span class="cs">VS Code</span><span class="ct">&lt;/span&gt;&lt;/div&gt;</span>
+        <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"tool-card"</span><span class="ct">&gt;&lt;span</span> <span class="ca">class</span>=<span class="cv">"tool-icono"</span><span class="ct">&gt;</span><span class="cs">🌐</span><span class="ct">&lt;/span&gt;&lt;span</span> <span class="ca">class</span>=<span class="cv">"tool-nombre"</span><span class="ct">&gt;</span><span class="cs">Chrome DevTools</span><span class="ct">&lt;/span&gt;&lt;/div&gt;</span>
+        <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"tool-card"</span><span class="ct">&gt;&lt;span</span> <span class="ca">class</span>=<span class="cv">"tool-icono"</span><span class="ct">&gt;</span><span class="cs">🔤</span><span class="ct">&lt;/span&gt;&lt;span</span> <span class="ca">class</span>=<span class="cv">"tool-nombre"</span><span class="ct">&gt;</span><span class="cs">Google Fonts</span><span class="ct">&lt;/span&gt;&lt;/div&gt;</span>
+        <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"tool-card"</span><span class="ct">&gt;&lt;span</span> <span class="ca">class</span>=<span class="cv">"tool-icono"</span><span class="ct">&gt;</span><span class="cs">🎨</span><span class="ct">&lt;/span&gt;&lt;span</span> <span class="ca">class</span>=<span class="cv">"tool-nombre"</span><span class="ct">&gt;</span><span class="cs">Coolors.co</span><span class="ct">&lt;/span&gt;&lt;/div&gt;</span>
+        <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"tool-card"</span><span class="ct">&gt;&lt;span</span> <span class="ca">class</span>=<span class="cv">"tool-icono"</span><span class="ct">&gt;</span><span class="cs">📐</span><span class="ct">&lt;/span&gt;&lt;span</span> <span class="ca">class</span>=<span class="cv">"tool-nombre"</span><span class="ct">&gt;</span><span class="cs">Grid Garden</span><span class="ct">&lt;/span&gt;&lt;/div&gt;</span>
+        <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"tool-card"</span><span class="ct">&gt;&lt;span</span> <span class="ca">class</span>=<span class="cv">"tool-icono"</span><span class="ct">&gt;</span><span class="cs">🖥️</span><span class="ct">&lt;/span&gt;&lt;span</span> <span class="ca">class</span>=<span class="cv">"tool-nombre"</span><span class="ct">&gt;</span><span class="cs">Live Server</span><span class="ct">&lt;/span&gt;&lt;/div&gt;</span>
+      <span class="ct">&lt;/div&gt;</span>
+    <span class="ct">&lt;/div&gt;</span>
+  <span class="ct">&lt;/div&gt;</span>
+<span class="ct">&lt;/section&gt;</span></div>
+
+  <div class="concept">
+    <h4>💡 style="width: 85%" — por qué está en el HTML y no en el CSS</h4>
+    <p>El ancho de cada barra es un <em>dato</em> específico de esa habilidad. El CSS da el <strong>estilo</strong> (altura, color de fondo, animación). El HTML da el <strong>valor</strong>. La animación <code>@keyframes llenar</code> empieza desde <code>width: 0</code> y el navegador interpola hasta el ancho definido en el <code>style</code> inline.</p>
+  </div>
+
+  <hr>
+
+  <h2>BLOQUE 6 — Sobre mí y Footer</h2>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="cc">&lt;!-- ⑤ SOBRE MÍ --&gt;</span>
+<span class="ct">&lt;section</span> <span class="ca">class</span>=<span class="cv">"seccion"</span> <span class="ca">id</span>=<span class="cv">"sobre-mi"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"seccion-header"</span><span class="ct">&gt;</span>
+    <span class="ct">&lt;h2</span> <span class="ca">class</span>=<span class="cv">"seccion-titulo"</span><span class="ct">&gt;</span><span class="cs">Sobre mí</span><span class="ct">&lt;/h2&gt;</span>
+  <span class="ct">&lt;/div&gt;</span>
+  <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"sobre-layout"</span><span class="ct">&gt;</span>
+    <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"sobre-texto"</span><span class="ct">&gt;</span>
+      <span class="ct">&lt;p&gt;</span><span class="cs">Soy un desarrollador web en formación, aprendiendo desde
+         <strong>Coscomatepec, Veracruz</strong>. Empecé con HTML y CSS
+         y cada día construyo algo nuevo.</span><span class="ct">&lt;/p&gt;</span>
+      <span class="ct">&lt;p&gt;</span><span class="cs">Me apasiona el fútbol, la tecnología y crear cosas que
+         funcionen bien tanto en celular como en computadora.</span><span class="ct">&lt;/p&gt;</span>
+      <span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"#contacto"</span> <span class="ca">class</span>=<span class="cv">"btn btn-verde"</span><span class="ct">&gt;</span><span class="cs">Hablemos</span><span class="ct">&lt;/a&gt;</span>
+    <span class="ct">&lt;/div&gt;</span>
+    <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"sobre-datos"</span><span class="ct">&gt;</span>
+      <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"dato-item"</span><span class="ct">&gt;</span>
+        <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"dato-titulo"</span><span class="ct">&gt;</span><span class="cs">📍 Ubicación</span><span class="ct">&lt;/span&gt;</span>
+        <span class="ct">&lt;span&gt;</span><span class="cs">Coscomatepec, Veracruz, México</span><span class="ct">&lt;/span&gt;</span>
+      <span class="ct">&lt;/div&gt;</span>
+      <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"dato-item"</span><span class="ct">&gt;</span>
+        <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"dato-titulo"</span><span class="ct">&gt;</span><span class="cs">🎯 Objetivo</span><span class="ct">&lt;/span&gt;</span>
+        <span class="ct">&lt;span&gt;</span><span class="cs">Convertirme en desarrollador web frontend</span><span class="ct">&lt;/span&gt;</span>
+      <span class="ct">&lt;/div&gt;</span>
+      <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"dato-item"</span><span class="ct">&gt;</span>
+        <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"dato-titulo"</span><span class="ct">&gt;</span><span class="cs">⚽ Hobby</span><span class="ct">&lt;/span&gt;</span>
+        <span class="ct">&lt;span&gt;</span><span class="cs">Fútbol y programación</span><span class="ct">&lt;/span&gt;</span>
+      <span class="ct">&lt;/div&gt;</span>
+      <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"dato-item"</span><span class="ct">&gt;</span>
+        <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"dato-titulo"</span><span class="ct">&gt;</span><span class="cs">📚 Aprendiendo</span><span class="ct">&lt;/span&gt;</span>
+        <span class="ct">&lt;span&gt;</span><span class="cs">HTML, CSS, próximamente JavaScript</span><span class="ct">&lt;/span&gt;</span>
+      <span class="ct">&lt;/div&gt;</span>
+    <span class="ct">&lt;/div&gt;</span>
+  <span class="ct">&lt;/div&gt;</span>
+<span class="ct">&lt;/section&gt;</span>
+
+<span class="cc">&lt;!-- ⑥ FOOTER --&gt;</span>
+<span class="ct">&lt;footer</span> <span class="ca">class</span>=<span class="cv">"pie"</span> <span class="ca">id</span>=<span class="cv">"contacto"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"pie-grid"</span><span class="ct">&gt;</span>
+    <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"pie-marca"</span><span class="ct">&gt;</span>
+      <span class="ct">&lt;p</span> <span class="ca">class</span>=<span class="cv">"pie-logo"</span><span class="ct">&gt;</span><span class="cs">&lt;/&gt; Tu Nombre</span><span class="ct">&lt;/p&gt;</span>
+      <span class="ct">&lt;p&gt;</span><span class="cs">Desarrollador Web Frontend</span><span class="ct">&lt;/p&gt;</span>
+      <span class="ct">&lt;p&gt;</span><span class="cs">Veracruz, México · 2025</span><span class="ct">&lt;/p&gt;</span>
+    <span class="ct">&lt;/div&gt;</span>
+    <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"pie-links"</span><span class="ct">&gt;</span>
+      <span class="ct">&lt;h4&gt;</span><span class="cs">Navegación</span><span class="ct">&lt;/h4&gt;</span>
+      <span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"#inicio"</span><span class="ct">&gt;</span><span class="cs">Inicio</span><span class="ct">&lt;/a&gt;</span>
+      <span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"#proyectos"</span><span class="ct">&gt;</span><span class="cs">Proyectos</span><span class="ct">&lt;/a&gt;</span>
+      <span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"#habilidades"</span><span class="ct">&gt;</span><span class="cs">Habilidades</span><span class="ct">&lt;/a&gt;</span>
+    <span class="ct">&lt;/div&gt;</span>
+    <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"pie-contacto"</span><span class="ct">&gt;</span>
+      <span class="ct">&lt;h4&gt;</span><span class="cs">Contacto</span><span class="ct">&lt;/h4&gt;</span>
+      <span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"mailto:tu@email.com"</span><span class="ct">&gt;</span><span class="cs">tu@email.com</span><span class="ct">&lt;/a&gt;</span>
+      <span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"https://github.com"</span> <span class="ca">target</span>=<span class="cv">"_blank"</span> <span class="ca">rel</span>=<span class="cv">"noopener"</span><span class="ct">&gt;</span><span class="cs">GitHub</span><span class="ct">&lt;/a&gt;</span>
+      <span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"https://linkedin.com"</span> <span class="ca">target</span>=<span class="cv">"_blank"</span> <span class="ca">rel</span>=<span class="cv">"noopener"</span><span class="ct">&gt;</span><span class="cs">LinkedIn</span><span class="ct">&lt;/a&gt;</span>
+    <span class="ct">&lt;/div&gt;</span>
+  <span class="ct">&lt;/div&gt;</span>
+  <span class="ct">&lt;p</span> <span class="ca">class</span>=<span class="cv">"pie-copy"</span><span class="ct">&gt;</span><span class="cs">© 2025 Tu Nombre · Hecho con HTML, CSS y mucha práctica ❤️</span><span class="ct">&lt;/p&gt;</span>
+<span class="ct">&lt;/footer&gt;</span></div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     CSS
+══════════════════════════════════ -->
+<section class="module" id="css">
+  <div class="module-header">
+    <div class="module-icon">🎨</div>
+    <div>
+      <div class="module-title">PARTE 3 — El CSS Mobile-First completo</div>
+      <div class="module-sub">Escríbelo en este orden: base → celular → tablet → escritorio</div>
+    </div>
+  </div>
+
+  <h2>CSS BLOQUE 1 — Reset, Variables y Base</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">*, *::before, *::after</span> { <span class="ca">margin</span>:<span class="cn">0</span>; <span class="ca">padding</span>:<span class="cn">0</span>; <span class="ca">box-sizing</span>:border-box; }
+
+<span class="cp">:root</span> {
+  <span class="ca">--primario</span>:   <span class="cn">#0E7490</span>;   <span class="cc">/* cian oscuro */</span>
+  <span class="ca">--primario-d</span>: <span class="cn">#164E63</span>;
+  <span class="ca">--acento</span>:     <span class="cn">#D97706</span>;   <span class="cc">/* naranja */</span>
+  <span class="ca">--texto</span>:      <span class="cn">#111827</span>;
+  <span class="ca">--texto-s</span>:    <span class="cn">#6B7280</span>;
+  <span class="ca">--fondo</span>:      <span class="cn">#F9FAFB</span>;
+  <span class="ca">--surface</span>:    <span class="cn">#FFFFFF</span>;
+  <span class="ca">--gris</span>:       <span class="cn">#F3F4F6</span>;
+  <span class="ca">--borde</span>:      <span class="cn">#E5E7EB</span>;
+  <span class="ca">--radio</span>:      <span class="cn">12px</span>;
+  <span class="ca">--sombra</span>:     <span class="cn">0 4px 20px rgba(0,0,0,0.08)</span>;  <span class="cc">/* variable de sombra */</span>
+}
+
+<span class="cp">html</span> { <span class="ca">scroll-behavior</span>: smooth; } <span class="cc">/* scroll suave en anclas */</span>
+
+<span class="cp">body</span> {
+  <span class="ca">font-family</span>: <span class="cn">'Inter'</span>, Arial, sans-serif;
+  <span class="ca">background-color</span>: var(<span class="cv">--fondo</span>);
+  <span class="ca">color</span>: var(<span class="cv">--texto</span>);
+  <span class="ca">font-size</span>: <span class="cn">16px</span>;
+  <span class="ca">line-height</span>: <span class="cn">1.6</span>;
+}
+
+<span class="cc">/* Imágenes responsive — la regla más importante */</span>
+<span class="cp">img</span> {
+  <span class="ca">max-width</span>: <span class="cn">100%</span>;  <span class="cc">/* nunca más anchas que su contenedor */</span>
+  <span class="ca">height</span>: auto;      <span class="cc">/* mantiene proporción al redimensionar */</span>
+  <span class="ca">display</span>: block;
+}
+<span class="cp">a</span> { <span class="ca">text-decoration</span>: none; }</div>
+
+  <table class="tbl">
+    <thead><tr><th>Propiedad</th><th>Explicación</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">scroll-behavior: smooth</span></td><td>Hace que los links de ancla (<code>#proyectos</code>, <code>#habilidades</code>) hagan un scroll animado suave en lugar de saltar de golpe.</td></tr>
+      <tr><td><span class="tag">img { max-width: 100% }</span></td><td>La regla más importante de imágenes responsive. La imagen nunca desborda su contenedor, pero puede ser más pequeña.</td></tr>
+      <tr><td><span class="tag">--sombra: 0 4px 20px...</span></td><td>Guardamos la sombra como variable. Todas las tarjetas usan <code>box-shadow: var(--sombra)</code> — consistencia visual en un solo valor.</td></tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h2>CSS BLOQUE 2 — Layout principal con Grid Areas</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* ── LAYOUT PRINCIPAL (Mobile First) ── */</span>
+<span class="cp">.pagina</span> {
+  <span class="ca">display</span>: grid;
+  <span class="ca">grid-template-columns</span>: <span class="cn">1fr</span>;   <span class="cc">/* celular: 1 columna */</span>
+  <span class="ca">grid-template-areas</span>:
+    <span class="cv">"nav"</span>
+    <span class="cv">"hero"</span>
+    <span class="cv">"proyectos"</span>
+    <span class="cv">"habilidades"</span>
+    <span class="cv">"sobre"</span>
+    <span class="cv">"footer"</span>;
+  <span class="ca">min-height</span>: <span class="cn">100vh</span>;
+}
+
+<span class="cc">/* Asignar cada sección a su área */</span>
+<span class="cp">.navbar</span>      { <span class="ca">grid-area</span>: nav;         }
+<span class="cp">.hero</span>        { <span class="ca">grid-area</span>: hero;        }
+<span class="cp">#proyectos</span>   { <span class="ca">grid-area</span>: proyectos;   }
+<span class="cp">#habilidades</span> { <span class="ca">grid-area</span>: habilidades; }
+<span class="cp">#sobre-mi</span>    { <span class="ca">grid-area</span>: sobre;       }
+<span class="cp">.pie</span>         { <span class="ca">grid-area</span>: footer;      }</div>
+
+  <hr>
+
+  <h2>CSS BLOQUE 3 — Navbar responsive</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* ── NAVBAR ── */</span>
+<span class="cp">.navbar</span> {
+  <span class="ca">display</span>: flex; <span class="ca">justify-content</span>: space-between; <span class="ca">align-items</span>: center;
+  <span class="ca">padding</span>: <span class="cn">1rem 1.25rem</span>;
+  <span class="ca">background</span>: var(<span class="cv">--surface</span>); <span class="ca">border-bottom</span>: <span class="cn">1px solid</span> var(<span class="cv">--borde</span>);
+  <span class="ca">position</span>: sticky; <span class="ca">top</span>: <span class="cn">0</span>; <span class="ca">z-index</span>: <span class="cn">100</span>;
+  <span class="ca">box-shadow</span>: <span class="cn">0 1px 8px rgba(0,0,0,0.06)</span>;
+}
+<span class="cp">.nav-logo</span> {
+  <span class="ca">display</span>: flex; <span class="ca">align-items</span>: center; <span class="ca">gap</span>: <span class="cn">0.5rem</span>;
+  <span class="ca">font-weight</span>: <span class="cn">700</span>; <span class="ca">color</span>: var(<span class="cv">--texto</span>);
+}
+<span class="cp">.logo-simbolo</span> { <span class="ca">color</span>: var(<span class="cv">--primario</span>); <span class="ca">font-weight</span>: <span class="cn">800</span>; }
+
+<span class="cc">/* MÓVIL: hamburguesa visible, menú oculto */</span>
+<span class="cp">.nav-toggle</span> {
+  <span class="ca">display</span>: block;   <span class="cc">/* visible en móvil */</span>
+  <span class="ca">background</span>: none; <span class="ca">border</span>: none; <span class="ca">font-size</span>: <span class="cn">1.4rem</span>; <span class="ca">cursor</span>: pointer;
+}
+<span class="cp">.nav-menu</span> {
+  <span class="ca">display</span>: none;    <span class="cc">/* oculto en móvil */</span>
+  <span class="ca">gap</span>: <span class="cn">0.25rem</span>; <span class="ca">flex-direction</span>: column;
+  <span class="ca">position</span>: absolute; <span class="ca">top</span>: <span class="cn">100%</span>; <span class="ca">left</span>: <span class="cn">0</span>; <span class="ca">right</span>: <span class="cn">0</span>;
+  <span class="ca">background</span>: var(<span class="cv">--surface</span>); <span class="ca">border-bottom</span>: <span class="cn">1px solid</span> var(<span class="cv">--borde</span>); <span class="ca">padding</span>: <span class="cn">1rem</span>;
+}
+<span class="cp">.nav-menu a</span> {
+  <span class="ca">color</span>: var(<span class="cv">--texto-s</span>); <span class="ca">font-size</span>: <span class="cn">0.9rem</span>; <span class="ca">font-weight</span>: <span class="cn">500</span>;
+  <span class="ca">padding</span>: <span class="cn">0.5rem 0.75rem</span>; <span class="ca">border-radius</span>: <span class="cn">6px</span>; <span class="ca">transition</span>: all <span class="cn">0.2s</span>;
+}
+<span class="cp">.nav-menu a:hover</span> { <span class="ca">color</span>: var(<span class="cv">--primario</span>); <span class="ca">background</span>: var(<span class="cv">--gris</span>); }
+<span class="cp">.nav-cta</span> {
+  <span class="ca">background</span>: var(<span class="cv">--primario</span>) <span class="cn">!important</span>; <span class="ca">color</span>: white <span class="cn">!important</span>;
+  <span class="ca">padding</span>: <span class="cn">0.5rem 1.25rem !important</span>; <span class="ca">border-radius</span>: <span class="cn">6px</span>;
+}
+
+<span class="cc">/* TABLET+: hamburguesa oculta, menú horizontal */</span>
+<span class="cp">@media (min-width: 768px)</span> {
+  <span class="cp">.nav-toggle</span> { <span class="ca">display</span>: none; }           <span class="cc">/* ocultar hamburguesa */</span>
+  <span class="cp">.nav-menu</span> {
+    <span class="ca">display</span>: flex;                          <span class="cc">/* mostrar menú */</span>
+    <span class="ca">flex-direction</span>: row;                    <span class="cc">/* en fila */</span>
+    <span class="ca">position</span>: static;                       <span class="cc">/* flujo normal */</span>
+    <span class="ca">border</span>: none; <span class="ca">padding</span>: <span class="cn">0</span>; <span class="ca">background</span>: transparent;
+  }
+  <span class="cp">.navbar</span> { <span class="ca">padding</span>: <span class="cn">1rem 2.5rem</span>; }
+}</div>
+
+  <div class="tip">
+    <h4>🔀 La técnica display:none ↔ display:flex</h4>
+    <p>En móvil: <code>.nav-toggle { display: block }</code> (visible) y <code>.nav-menu { display: none }</code> (oculto). En tablet+: se intercambian con <code>@media</code>. El menú hamburguesa desaparece y el menú horizontal aparece. Es la técnica más usada en diseño responsive.</p>
+  </div>
+
+  <hr>
+
+  <h2>CSS BLOQUE 4 — Hero responsive</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* ── HERO (Mobile First) ── */</span>
+<span class="cp">.hero</span> {
+  <span class="ca">padding</span>: <span class="cn">3rem 1.25rem</span>;
+  <span class="ca">background</span>: linear-gradient(<span class="cn">135deg</span>, var(<span class="cv">--primario-d</span>), var(<span class="cv">--primario</span>));
+  <span class="ca">color</span>: white;
+  <span class="cc">/* MÓVIL: columna (texto arriba, imagen abajo) */</span>
+  <span class="ca">display</span>: flex; <span class="ca">flex-direction</span>: column;
+  <span class="ca">gap</span>: <span class="cn">2rem</span>; <span class="ca">align-items</span>: center; <span class="ca">text-align</span>: center;
+}
+
+<span class="cc">/* clamp: tipografía fluida sin Media Queries */</span>
+<span class="cp">.hero-nombre</span> { <span class="ca">font-size</span>: clamp(<span class="cn">2rem</span>, <span class="cn">8vw</span>, <span class="cn">3.5rem</span>); <span class="ca">font-weight</span>: <span class="cn">800</span>; }
+<span class="cp">.hero-rol</span>    { <span class="ca">font-size</span>: clamp(<span class="cn">1rem</span>, <span class="cn">3vw</span>, <span class="cn">1.4rem</span>); }
+<span class="cp">.rol-acento</span>  { <span class="ca">color</span>: <span class="cn">#FDE68A</span>; <span class="ca">font-weight</span>: <span class="cn">700</span>; }
+<span class="cp">.hero-saludo</span> { <span class="ca">color</span>: rgba(<span class="cn">255,255,255,0.7</span>); <span class="ca">margin-bottom</span>: <span class="cn">0.25rem</span>; }
+<span class="cp">.hero-desc</span>   { <span class="ca">color</span>: rgba(<span class="cn">255,255,255,0.75</span>); <span class="ca">max-width</span>: <span class="cn">480px</span>; <span class="ca">margin</span>: <span class="cn">0 auto 1.5rem</span>; }
+
+<span class="cp">.hero-acciones</span> { <span class="ca">display</span>: flex; <span class="ca">gap</span>: <span class="cn">1rem</span>; <span class="ca">flex-wrap</span>: wrap; <span class="ca">justify-content</span>: center; }
+<span class="cp">.hero-stats</span>    { <span class="ca">display</span>: flex; <span class="ca">gap</span>: <span class="cn">1.5rem</span>; <span class="ca">justify-content</span>: center; <span class="ca">flex-wrap</span>: wrap; }
+<span class="cp">.stat-num</span> { <span class="ca">display</span>: block; <span class="ca">font-size</span>: <span class="cn">1.75rem</span>; <span class="ca">font-weight</span>: <span class="cn">800</span>; }
+<span class="cp">.stat-txt</span> { <span class="ca">display</span>: block; <span class="ca">font-size</span>: <span class="cn">0.75rem</span>; <span class="ca">color</span>: rgba(<span class="cn">255,255,255,0.6</span>);
+             <span class="ca">text-transform</span>: uppercase; <span class="ca">letter-spacing</span>: <span class="cn">0.08em</span>; }
+
+<span class="cc">/* Foto circular */</span>
+<span class="cp">.foto-marco</span> {
+  <span class="ca">width</span>: min(<span class="cn">280px</span>, <span class="cn">80vw</span>);   <span class="cc">/* máx 280px, cede si pantalla es pequeña */</span>
+  <span class="ca">aspect-ratio</span>: <span class="cn">1 / 1</span>;
+  <span class="ca">border-radius</span>: <span class="cn">50%</span>;
+  <span class="ca">border</span>: <span class="cn">4px solid rgba(255,255,255,0.3)</span>;
+  <span class="ca">overflow</span>: hidden;            <span class="cc">/* recorta la imagen al círculo */</span>
+  <span class="ca">box-shadow</span>: var(<span class="cv">--sombra</span>);
+}
+<span class="cp">.foto-perfil</span> { <span class="ca">width</span>: <span class="cn">100%</span>; <span class="ca">height</span>: <span class="cn">100%</span>; <span class="ca">object-fit</span>: cover; }
+
+<span class="cc">/* ESCRITORIO: texto e imagen en fila */</span>
+<span class="cp">@media (min-width: 1024px)</span> {
+  <span class="cp">.hero</span> {
+    <span class="ca">flex-direction</span>: row;          <span class="cc">/* ← la transformación clave */</span>
+    <span class="ca">text-align</span>: left;
+    <span class="ca">padding</span>: <span class="cn">5rem 4rem</span>; <span class="ca">min-height</span>: <span class="cn">90vh</span>;
+    <span class="ca">align-items</span>: center; <span class="ca">justify-content</span>: space-between; <span class="ca">gap</span>: <span class="cn">4rem</span>;
+  }
+  <span class="cp">.hero-contenido</span> { <span class="ca">flex</span>: <span class="cn">1</span>; }
+  <span class="cp">.hero-imagen</span>    { <span class="ca">flex-shrink</span>: <span class="cn">0</span>; }
+  <span class="cp">.hero-acciones, .hero-stats</span> { <span class="ca">justify-content</span>: flex-start; }
+  <span class="cp">.hero-desc</span>  { <span class="ca">margin-left</span>: <span class="cn">0</span>; }
+  <span class="cp">.foto-marco</span> { <span class="ca">width</span>: <span class="cn">360px</span>; }
+}
+
+<span class="cc">/* Botones */</span>
+<span class="cp">.btn</span> {
+  <span class="ca">display</span>: inline-block; <span class="ca">padding</span>: <span class="cn">0.75rem 1.75rem</span>;
+  <span class="ca">border-radius</span>: <span class="cn">8px</span>; <span class="ca">font-weight</span>: <span class="cn">600</span>; <span class="ca">transition</span>: all <span class="cn">0.2s</span>;
+}
+<span class="cp">.btn-primario</span> { <span class="ca">background</span>: white; <span class="ca">color</span>: var(<span class="cv">--primario</span>); }
+<span class="cp">.btn-primario:hover</span> { <span class="ca">background</span>: <span class="cn">#F0FDFA</span>; <span class="ca">transform</span>: translateY(<span class="cn">-2px</span>); }
+<span class="cp">.btn-outline</span> { <span class="ca">border</span>: <span class="cn">2px solid rgba(255,255,255,0.5)</span>; <span class="ca">color</span>: white; }
+<span class="cp">.btn-outline:hover</span> { <span class="ca">background</span>: rgba(<span class="cn">255,255,255,0.1</span>); <span class="ca">border-color</span>: white; }
+<span class="cp">.btn-verde</span> {
+  <span class="ca">display</span>: inline-block; <span class="ca">margin-top</span>: <span class="cn">1rem</span>;
+  <span class="ca">background</span>: var(<span class="cv">--primario</span>); <span class="ca">color</span>: white;
+  <span class="ca">padding</span>: <span class="cn">0.75rem 1.75rem</span>; <span class="ca">border-radius</span>: <span class="cn">8px</span>; <span class="ca">font-weight</span>: <span class="cn">600</span>;
+}</span></div>
+
+  <hr>
+
+  <h2>CSS BLOQUE 5 — Proyectos con Grid responsive</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* ── SECCIONES ── */</span>
+<span class="cp">.seccion</span> { <span class="ca">padding</span>: <span class="cn">3rem 1.25rem</span>; }
+<span class="cp">.seccion-gris</span> { <span class="ca">background-color</span>: var(<span class="cv">--gris</span>); }
+<span class="cp">.seccion-header</span> { <span class="ca">text-align</span>: center; <span class="ca">margin-bottom</span>: <span class="cn">2.5rem</span>; }
+<span class="cp">.seccion-titulo</span> { <span class="ca">font-size</span>: clamp(<span class="cn">1.5rem</span>, <span class="cn">4vw</span>, <span class="cn">2rem</span>); <span class="ca">font-weight</span>: <span class="cn">700</span>; <span class="ca">margin-bottom</span>: <span class="cn">0.5rem</span>; }
+<span class="cp">.seccion-sub</span>    { <span class="ca">color</span>: var(<span class="cv">--texto-s</span>); }
+
+<span class="cc">/* ── PROYECTOS (Mobile First) ── */</span>
+<span class="cp">.proyectos-grid</span> {
+  <span class="ca">display</span>: grid;
+  <span class="ca">grid-template-columns</span>: <span class="cn">1fr</span>;    <span class="cc">/* móvil: 1 columna */</span>
+  <span class="ca">gap</span>: <span class="cn">1.5rem</span>;
+  <span class="ca">max-width</span>: <span class="cn">1100px</span>; <span class="ca">margin</span>: <span class="cn">0 auto</span>;
+}
+<span class="cp">.proyecto-card</span> {
+  <span class="ca">background</span>: var(<span class="cv">--surface</span>); <span class="ca">border-radius</span>: var(<span class="cv">--radio</span>);
+  <span class="ca">overflow</span>: hidden; <span class="ca">border</span>: <span class="cn">1px solid</span> var(<span class="cv">--borde</span>);
+  <span class="ca">box-shadow</span>: var(<span class="cv">--sombra</span>); <span class="ca">transition</span>: transform <span class="cn">0.25s</span>, box-shadow <span class="cn">0.25s</span>;
+}
+<span class="cp">.proyecto-card:hover</span> {
+  <span class="ca">transform</span>: translateY(<span class="cn">-6px</span>);
+  <span class="ca">box-shadow</span>: <span class="cn">0 12px 32px rgba(0,0,0,0.12)</span>;
+}
+<span class="cp">.proyecto-img</span> { <span class="ca">position</span>: relative; <span class="ca">aspect-ratio</span>: <span class="cn">16 / 9</span>; <span class="ca">overflow</span>: hidden; }
+<span class="cp">.proyecto-img img</span> {
+  <span class="ca">width</span>: <span class="cn">100%</span>; <span class="ca">height</span>: <span class="cn">100%</span>; <span class="ca">object-fit</span>: cover; <span class="ca">transition</span>: transform <span class="cn">0.4s</span>;
+}
+<span class="cp">.proyecto-card:hover .proyecto-img img</span> {
+  <span class="ca">transform</span>: scale(<span class="cn">1.05</span>); <span class="cc">/* zoom al hacer hover en la TARJETA */</span>
+}
+<span class="cp">.proyecto-badge</span> {
+  <span class="ca">position</span>: absolute; <span class="ca">top</span>: <span class="cn">12px</span>; <span class="ca">left</span>: <span class="cn">12px</span>;
+  <span class="ca">background</span>: var(<span class="cv">--acento</span>); <span class="ca">color</span>: white;
+  <span class="ca">font-size</span>: <span class="cn">0.75rem</span>; <span class="ca">font-weight</span>: <span class="cn">700</span>; <span class="ca">padding</span>: <span class="cn">3px 10px</span>; <span class="ca">border-radius</span>: <span class="cn">20px</span>;
+}
+<span class="cp">.proyecto-info</span> { <span class="ca">padding</span>: <span class="cn">1.25rem</span>; }
+<span class="cp">.proyecto-info h3</span> { <span class="ca">margin-bottom</span>: <span class="cn">0.5rem</span>; }
+<span class="cp">.proyecto-info p</span>  { <span class="ca">font-size</span>: <span class="cn">0.9rem</span>; <span class="ca">color</span>: var(<span class="cv">--texto-s</span>); <span class="ca">margin-bottom</span>: <span class="cn">1rem</span>; }
+<span class="cp">.proyecto-tags</span> { <span class="ca">display</span>: flex; <span class="ca">gap</span>: <span class="cn">0.5rem</span>; <span class="ca">flex-wrap</span>: wrap; <span class="ca">margin-bottom</span>: <span class="cn">1rem</span>; }
+<span class="cp">.ptag</span> { <span class="ca">font-size</span>: <span class="cn">0.75rem</span>; <span class="ca">font-weight</span>: <span class="cn">600</span>; <span class="ca">background</span>: var(<span class="cv">--gris</span>); <span class="ca">color</span>: var(<span class="cv">--texto-s</span>); <span class="ca">padding</span>: <span class="cn">2px 10px</span>; <span class="ca">border-radius</span>: <span class="cn">20px</span>; }
+<span class="cp">.btn-proyecto</span> {
+  <span class="ca">font-size</span>: <span class="cn">0.875rem</span>; <span class="ca">font-weight</span>: <span class="cn">600</span>; <span class="ca">color</span>: var(<span class="cv">--primario</span>);
+  <span class="ca">display</span>: inline-flex; <span class="ca">align-items</span>: center; <span class="ca">gap</span>: <span class="cn">0.25rem</span>;
+  <span class="ca">transition</span>: gap <span class="cn">0.2s</span>;  <span class="cc">/* la flecha → se separa al hacer hover */</span>
+}
+<span class="cp">.btn-proyecto:hover</span> { <span class="ca">gap</span>: <span class="cn">0.5rem</span>; }
+
+<span class="cc">/* TABLET: 2 columnas */</span>
+<span class="cp">@media (min-width: 768px)</span> {
+  <span class="cp">.proyectos-grid</span> { <span class="ca">grid-template-columns</span>: repeat(<span class="cn">2</span>, <span class="cn">1fr</span>); }
+  <span class="cp">.proyecto-card.destacado</span> {
+    <span class="ca">grid-column</span>: <span class="cn">1 / -1</span>;     <span class="cc">/* ocupa las 2 columnas */</span>
+    <span class="ca">display</span>: grid;
+    <span class="ca">grid-template-columns</span>: <span class="cn">1fr 1fr</span>; <span class="cc">/* imagen y texto lado a lado */</span>
+  }
+  <span class="cp">.proyecto-card.destacado .proyecto-img</span> { <span class="ca">aspect-ratio</span>: auto; }
+}
+<span class="cc">/* ESCRITORIO: 3 columnas */</span>
+<span class="cp">@media (min-width: 1024px)</span> {
+  <span class="cp">.proyectos-grid</span> { <span class="ca">grid-template-columns</span>: repeat(<span class="cn">3</span>, <span class="cn">1fr</span>); }
+  <span class="cp">.seccion</span> { <span class="ca">padding</span>: <span class="cn">5rem 2rem</span>; }
+}</div>
+
+  <table class="tbl">
+    <thead><tr><th>Técnica</th><th>Explicación</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">aspect-ratio: 16 / 9</span></td><td>Todas las imágenes tienen proporciones 16:9. No necesitas definir <code>height</code>. Se adapta solo con el ancho.</td></tr>
+      <tr><td><span class="tag">.proyecto-card:hover .proyecto-img img</span></td><td>Selector con hover en el padre: cuando el cursor está sobre la <em>tarjeta</em>, la imagen hace zoom. No es hover directo en la imagen.</td></tr>
+      <tr><td><span class="tag">grid-column: 1 / -1</span></td><td><code>-1</code> significa "la última línea de columna". Con 2 columnas va de la línea 1 a la 3 (el final). Ocupa todas las columnas.</td></tr>
+      <tr><td><span class="tag">transition: gap 0.2s</span></td><td>Anima el espacio entre el texto y la flecha → del botón de proyecto. Micro-interacción elegante.</td></tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h2>CSS BLOQUE 6 — Habilidades, barras animadas y herramientas</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* ── HABILIDADES ── */</span>
+<span class="cp">.skills-layout</span> {
+  <span class="ca">display</span>: grid;
+  <span class="ca">grid-template-columns</span>: <span class="cn">1fr</span>;  <span class="cc">/* móvil: 1 columna */</span>
+  <span class="ca">gap</span>: <span class="cn">3rem</span>; <span class="ca">max-width</span>: <span class="cn">1000px</span>; <span class="ca">margin</span>: <span class="cn">0 auto</span>;
+}
+<span class="cp">@media (min-width: 768px)</span> {
+  <span class="cp">.skills-layout</span> { <span class="ca">grid-template-columns</span>: <span class="cn">1fr 1fr</span>; } <span class="cc">/* tablet+: 2 columnas */</span>
+}
+<span class="cp">.skills-subtitulo</span> {
+  <span class="ca">font-size</span>: <span class="cn">0.85rem</span>; <span class="ca">font-weight</span>: <span class="cn">700</span>; <span class="ca">text-transform</span>: uppercase;
+  <span class="ca">letter-spacing</span>: <span class="cn">0.08em</span>; <span class="ca">color</span>: var(<span class="cv">--texto-s</span>); <span class="ca">margin-bottom</span>: <span class="cn">1.5rem</span>;
+}
+<span class="cp">.skill-item</span> { <span class="ca">margin-bottom</span>: <span class="cn">1.25rem</span>; }
+<span class="cp">.skill-header</span> {
+  <span class="ca">display</span>: flex; <span class="ca">justify-content</span>: space-between;
+  <span class="ca">font-size</span>: <span class="cn">0.9rem</span>; <span class="ca">font-weight</span>: <span class="cn">600</span>; <span class="ca">margin-bottom</span>: <span class="cn">0.4rem</span>;
+}
+<span class="cp">.skill-barra</span> {
+  <span class="ca">height</span>: <span class="cn">8px</span>; <span class="ca">background</span>: var(<span class="cv">--borde</span>);
+  <span class="ca">border-radius</span>: <span class="cn">20px</span>; <span class="ca">overflow</span>: hidden; <span class="cc">/* recorta la barra animada */</span>
+}
+<span class="cp">.skill-progreso</span> {
+  <span class="ca">height</span>: <span class="cn">100%</span>; <span class="ca">border-radius</span>: <span class="cn">20px</span>;
+  <span class="cc">/* El width viene del style inline en el HTML */</span>
+  <span class="ca">animation</span>: llenar <span class="cn">1.5s</span> ease forwards;
+}
+<span class="cp">@keyframes</span> llenar {
+  <span class="cn">from</span> { <span class="ca">width</span>: <span class="cn">0</span>; }
+  <span class="cc">/* 'to' no se define: usa el width del style inline */</span>
+}
+
+<span class="cc">/* Herramientas — auto-fit: sin Media Queries */</span>
+<span class="cp">.tools-grid</span> {
+  <span class="ca">display</span>: grid;
+  <span class="ca">grid-template-columns</span>: repeat(<span class="cn">auto-fit</span>, minmax(<span class="cn">120px</span>, <span class="cn">1fr</span>));
+  <span class="ca">gap</span>: <span class="cn">0.75rem</span>;
+}
+<span class="cp">.tool-card</span> {
+  <span class="ca">background</span>: var(<span class="cv">--surface</span>); <span class="ca">border</span>: <span class="cn">1px solid</span> var(<span class="cv">--borde</span>);
+  <span class="ca">border-radius</span>: var(<span class="cv">--radio</span>); <span class="ca">padding</span>: <span class="cn">1rem 0.75rem</span>;
+  <span class="ca">text-align</span>: center; <span class="ca">display</span>: flex; <span class="ca">flex-direction</span>: column; <span class="ca">gap</span>: <span class="cn">0.4rem</span>;
+  <span class="ca">transition</span>: border-color <span class="cn">0.2s</span>, transform <span class="cn">0.2s</span>;
+}
+<span class="cp">.tool-card:hover</span> { <span class="ca">border-color</span>: var(<span class="cv">--primario</span>); <span class="ca">transform</span>: translateY(<span class="cn">-3px</span>); }
+<span class="cp">.tool-icono</span>  { <span class="ca">font-size</span>: <span class="cn">1.75rem</span>; }
+<span class="cp">.tool-nombre</span> { <span class="ca">font-size</span>: <span class="cn">0.8rem</span>; <span class="ca">font-weight</span>: <span class="cn">600</span>; <span class="ca">color</span>: var(<span class="cv">--texto-s</span>); }</div>
+
+  <hr>
+
+  <h2>CSS BLOQUE 7 — Sobre mí y Footer</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* ── SOBRE MÍ ── */</span>
+<span class="cp">.sobre-layout</span> {
+  <span class="ca">display</span>: grid; <span class="ca">grid-template-columns</span>: <span class="cn">1fr</span>;
+  <span class="ca">gap</span>: <span class="cn">2rem</span>; <span class="ca">max-width</span>: <span class="cn">900px</span>; <span class="ca">margin</span>: <span class="cn">0 auto</span>;
+}
+<span class="cp">@media (min-width: 768px)</span> {
+  <span class="cp">.sobre-layout</span> { <span class="ca">grid-template-columns</span>: <span class="cn">1fr 1fr</span>; }
+}
+<span class="cp">.sobre-texto p</span> { <span class="ca">margin-bottom</span>: <span class="cn">1rem</span>; <span class="ca">color</span>: var(<span class="cv">--texto-s</span>); }
+<span class="cp">.sobre-datos</span>   { <span class="ca">display</span>: flex; <span class="ca">flex-direction</span>: column; <span class="ca">gap</span>: <span class="cn">1rem</span>; }
+<span class="cp">.dato-item</span>     { <span class="ca">display</span>: flex; <span class="ca">flex-direction</span>: column; <span class="ca">gap</span>: <span class="cn">0.2rem</span>; }
+<span class="cp">.dato-titulo</span>   { <span class="ca">font-size</span>: <span class="cn">0.8rem</span>; <span class="ca">font-weight</span>: <span class="cn">700</span>; <span class="ca">color</span>: var(<span class="cv">--primario</span>); }
+
+<span class="cc">/* ── FOOTER ── */</span>
+<span class="cp">.pie</span> {
+  <span class="ca">background</span>: var(<span class="cv">--primario-d</span>); <span class="ca">color</span>: rgba(<span class="cn">255,255,255,0.7</span>);
+  <span class="ca">padding</span>: <span class="cn">3rem 1.25rem 1.5rem</span>;
+}
+<span class="cp">.pie-grid</span> {
+  <span class="ca">display</span>: grid;
+  <span class="ca">grid-template-columns</span>: <span class="cn">1fr</span>;  <span class="cc">/* móvil: apilado */</span>
+  <span class="ca">gap</span>: <span class="cn">2rem</span>; <span class="ca">max-width</span>: <span class="cn">1000px</span>; <span class="ca">margin</span>: <span class="cn">0 auto 2rem</span>;
+}
+<span class="cp">@media (min-width: 640px)</span> {
+  <span class="cp">.pie-grid</span> { <span class="ca">grid-template-columns</span>: <span class="cn">2fr 1fr 1fr</span>; }  <span class="cc">/* marca + 2 columnas */</span>
+}
+<span class="cp">.pie-logo</span>  { <span class="ca">font-size</span>: <span class="cn">1.1rem</span>; <span class="ca">font-weight</span>: <span class="cn">700</span>; <span class="ca">color</span>: white; <span class="ca">margin-bottom</span>: <span class="cn">0.5rem</span>; }
+<span class="cp">.pie-links, .pie-contacto</span> { <span class="ca">display</span>: flex; <span class="ca">flex-direction</span>: column; <span class="ca">gap</span>: <span class="cn">0.5rem</span>; }
+<span class="cp">.pie-links h4, .pie-contacto h4</span> { <span class="ca">color</span>: white; <span class="ca">font-size</span>: <span class="cn">0.85rem</span>; <span class="ca">margin-bottom</span>: <span class="cn">0.25rem</span>; }
+<span class="cp">.pie-links a, .pie-contacto a</span> {
+  <span class="ca">color</span>: rgba(<span class="cn">255,255,255,0.6</span>); <span class="ca">font-size</span>: <span class="cn">0.875rem</span>; <span class="ca">transition</span>: color <span class="cn">0.2s</span>;
+}
+<span class="cp">.pie-links a:hover, .pie-contacto a:hover</span> { <span class="ca">color</span>: white; }
+<span class="cp">.pie-copy</span> {
+  <span class="ca">text-align</span>: center; <span class="ca">font-size</span>: <span class="cn">0.8rem</span>; <span class="ca">color</span>: rgba(<span class="cn">255,255,255,0.4</span>);
+  <span class="ca">border-top</span>: <span class="cn">1px solid rgba(255,255,255,0.1)</span>;
+  <span class="ca">padding-top</span>: <span class="cn">1.5rem</span>; <span class="ca">max-width</span>: <span class="cn">1000px</span>; <span class="ca">margin</span>: <span class="cn">0 auto</span>;
+}
+
+<span class="cc">/* ── MODO OSCURO AUTOMÁTICO ── */</span>
+<span class="cp">@media (prefers-color-scheme: dark)</span> {
+  <span class="cp">:root</span> {
+    <span class="ca">--fondo</span>:   <span class="cn">#0F172A</span>;
+    <span class="ca">--surface</span>: <span class="cn">#1E293B</span>;
+    <span class="ca">--texto</span>:   <span class="cn">#F1F5F9</span>;
+    <span class="ca">--texto-s</span>: <span class="cn">#94A3B8</span>;
+    <span class="ca">--gris</span>:    <span class="cn">#1E293B</span>;
+    <span class="ca">--borde</span>:   <span class="cn">#334155</span>;
+  }
+}</div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     RESULTADO VISUAL
+══════════════════════════════════ -->
+<section class="module" id="resultado">
+  <div class="module-header">
+    <div class="module-icon">🖥</div>
+    <div>
+      <div class="module-title">PARTE 4 — Así debe verse tu portfolio</div>
+      <div class="module-sub">Vista previa completa en escritorio</div>
+    </div>
+  </div>
+
+  <!-- PREVIEW ESCRITORIO -->
+  <div class="preview" style="padding:0;">
+    <div class="portfolio-preview">
+      <div class="pv-nav">
+        <div class="pv-logo">&lt;/&gt; Tu Nombre</div>
+        <div class="pv-links">
+          <a href="#">Sobre mí</a>
+          <a href="#">Proyectos</a>
+          <a href="#">Habilidades</a>
+          <a href="#" class="cta">Contáctame</a>
+        </div>
+      </div>
+      <div class="pv-hero">
+        <div class="pv-hero-text">
+          <p>¡Hola! Soy</p>
+          <h1>Tu Nombre</h1>
+          <div class="rol">Desarrollador <span class="acento">Web</span> Frontend</div>
+          <div class="desc">Creo experiencias digitales con HTML, CSS y mucha pasión por el diseño.</div>
+          <div class="pv-btns">
+            <a href="#" class="pv-btn1">Ver proyectos</a>
+            <a href="#" class="pv-btn2">Contáctame</a>
+          </div>
+          <div class="pv-stats">
+            <div class="pv-stat"><span class="num">10+</span><span class="txt">Proyectos</span></div>
+            <div class="pv-stat"><span class="num">3</span><span class="txt">Meses</span></div>
+            <div class="pv-stat"><span class="num">100%</span><span class="txt">Dedicación</span></div>
+          </div>
+        </div>
+        <div class="pv-foto">🧑‍💻</div>
+      </div>
+      <div class="pv-body">
+        <div class="pv-sec-title">Mis Proyectos</div>
+        <div class="pv-sec-sub">Lo que he construido aprendiendo</div>
+        <div class="pv-grid3">
+          <div class="pv-card" style="grid-column: 1/3; display:grid; grid-template-columns:1fr 1fr;">
+            <div class="pv-card-img"><img src="https://placehold.co/300x170/1D4ED8/FFFFFF?text=Proyecto+Principal" alt="Proyecto 1" style="width:100%;height:100%;object-fit:cover;display:block;"></div>
+            <div class="pv-card-body">
+              <div class="pv-badge">Destacado</div>
+              <h3>Receta de Tacos</h3>
+              <p>Mi primer proyecto: página web completa con HTML semántico y CSS.</p>
+              <div class="pv-tags"><span class="ptag">HTML</span><span class="ptag">CSS</span></div>
+            </div>
+          </div>
+          <div class="pv-card">
+            <div class="pv-card-img"><img src="https://placehold.co/200x112/065F46/FFFFFF?text=P2" alt="P2" style="width:100%;height:100%;object-fit:cover;display:block;"></div>
+            <div class="pv-card-body"><h3>Perfil Futbolista</h3><p>Flexbox y tabla de estadísticas.</p><div class="pv-tags"><span class="ptag">Flexbox</span></div></div>
+          </div>
+        </div>
+        <div class="pv-sec-title">Habilidades</div>
+        <div class="pv-skills">
+          <div>
+            <div class="pv-skill-item"><div class="pv-skill-header"><span>HTML5</span><span>85%</span></div><div class="pv-barra"><div class="pv-progreso" style="width:85%;background:#D97706"></div></div></div>
+            <div class="pv-skill-item"><div class="pv-skill-header"><span>CSS3</span><span>75%</span></div><div class="pv-barra"><div class="pv-progreso" style="width:75%;background:#1D4ED8"></div></div></div>
+            <div class="pv-skill-item"><div class="pv-skill-header"><span>Flexbox</span><span>70%</span></div><div class="pv-barra"><div class="pv-progreso" style="width:70%;background:#065F46"></div></div></div>
+            <div class="pv-skill-item"><div class="pv-skill-header"><span>CSS Grid</span><span>60%</span></div><div class="pv-barra"><div class="pv-progreso" style="width:60%;background:#6D28D9"></div></div></div>
+          </div>
+          <div class="pv-tools">
+            <div class="pv-tool"><span class="ico">💻</span><span class="nom">VS Code</span></div>
+            <div class="pv-tool"><span class="ico">🌐</span><span class="nom">DevTools</span></div>
+            <div class="pv-tool"><span class="ico">🔤</span><span class="nom">Fonts</span></div>
+            <div class="pv-tool"><span class="ico">🎨</span><span class="nom">Coolors</span></div>
+            <div class="pv-tool"><span class="ico">📐</span><span class="nom">Grid Garden</span></div>
+            <div class="pv-tool"><span class="ico">🖥️</span><span class="nom">Live Server</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="pv-footer">
+        <div><div class="pv-footer-logo">&lt;/&gt; Tu Nombre</div><p style="font-size:.78rem">Desarrollador Web Frontend</p><p style="font-size:.78rem">Veracruz, México · 2025</p></div>
+        <div><h4>Navegación</h4><a href="#">Inicio</a><a href="#">Proyectos</a><a href="#">Habilidades</a></div>
+        <div><h4>Contacto</h4><a href="#">tu@email.com</a><a href="#">GitHub</a><a href="#">LinkedIn</a></div>
+      </div>
+      <div class="pv-copy">© 2025 Tu Nombre · Hecho con HTML, CSS y mucha práctica ❤️</div>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>🛠️ Cómo probar el responsive en el navegador</h4>
+    <ul>
+      <li>Abre tu página en Chrome → presiona <strong>F12</strong></li>
+      <li>Clic en el ícono de celular/tablet (<strong>Ctrl+Shift+M</strong>)</li>
+      <li>En el menú desplegable selecciona <strong>iPhone SE</strong> → versión móvil</li>
+      <li>Cambia a <strong>iPad</strong> → versión tablet</li>
+      <li>Cierra DevTools → versión escritorio</li>
+    </ul>
+  </div>
+
+  <h2>¿Cómo debe verse en cada pantalla?</h2>
+  <table class="tbl">
+    <thead><tr><th>Sección</th><th>📱 Celular</th><th>📟 Tablet (768px+)</th><th>🖥 Escritorio (1024px+)</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Navbar</strong></td><td>Logo + botón ☰. Menú oculto</td><td>Menú horizontal. Botón ☰ oculto</td><td>Igual que tablet + más padding</td></tr>
+      <tr><td><strong>Hero</strong></td><td>Foto arriba, texto abajo, centrados</td><td>Igual que móvil (texto primero)</td><td>Texto izquierda, foto derecha en fila</td></tr>
+      <tr><td><strong>Proyectos</strong></td><td>1 tarjeta por fila</td><td>2 columnas. Destacado en 2 columnas + imagen/texto al lado</td><td>3 columnas</td></tr>
+      <tr><td><strong>Habilidades</strong></td><td>Barras y herramientas apiladas</td><td>Barras a la izquierda, herramientas a la derecha</td><td>Igual con más espacio</td></tr>
+      <tr><td><strong>Footer</strong></td><td>3 bloques apilados</td><td>3 bloques en fila (2fr + 1fr + 1fr)</td><td>Igual</td></tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- ══════════════════════════════════
+     RETOS
+══════════════════════════════════ -->
+<section class="module" id="retos">
+  <div class="module-header">
+    <div class="module-icon">🏆</div>
+    <div>
+      <div class="module-title">PARTE 5 — Retos para practicar</div>
+      <div class="module-sub">Del más sencillo al más desafiante</div>
+    </div>
+  </div>
+
+  <div class="reto-grid">
+    <div class="reto-card">
+      <span class="nivel nivel-f">🟡 Fácil</span>
+      <h4>Reto 1 — Modo oscuro automático</h4>
+      <p>Ya está en el CSS el bloque <code>@media (prefers-color-scheme: dark)</code>. Activa el modo oscuro en tu sistema operativo (Configuración → Apariencia → Oscuro) y observa cómo toda la página cambia automáticamente.</p>
+      <p><em>Lo que practicas:</em> Media Queries de preferencias del usuario.</p>
+    </div>
+    <div class="reto-card">
+      <span class="nivel nivel-m">🟠 Medio</span>
+      <h4>Reto 2 — 4° proyecto</h4>
+      <p>Agrega un 4° <code>&lt;article class="proyecto-card"&gt;</code> en el HTML. Observa cómo el Grid lo acomoda automáticamente: en celular nueva fila, en tablet segunda fila, en escritorio llena el hueco de la última fila.</p>
+      <p><em>Lo que practicas:</em> cómo Grid responsive distribuye elementos automáticamente.</p>
+    </div>
+    <div class="reto-card">
+      <span class="nivel nivel-m">🟠 Medio</span>
+      <h4>Reto 3 — Animación de entrada escalonada</h4>
+      <p>Añade estas reglas CSS para que las tarjetas aparezcan en secuencia:</p>
+      <p><strong><code>.proyecto-card { animation: aparecer 0.5s ease forwards; opacity: 0; }</code></strong></p>
+      <p><strong><code>.proyecto-card:nth-child(2) { animation-delay: 0.15s; }</code></strong></p>
+      <p><strong><code>.proyecto-card:nth-child(3) { animation-delay: 0.30s; }</code></strong></p>
+      <p>Y crea <code>@keyframes aparecer</code> con <code>opacity: 0 → 1</code> y <code>translateY(20px → 0)</code>.</p>
+    </div>
+    <div class="reto-card">
+      <span class="nivel nivel-a">⚫ Avanzado</span>
+      <h4>Reto 4 — Breakpoint extra pequeño</h4>
+      <p>Agrega una Media Query de <strong><code>max-width: 360px</code></strong> para celulares muy pequeños (iPhone SE primera generación). Reduce el padding del hero a <code>2rem 1rem</code> y el font-size del <code>.hero-nombre</code> al mínimo del clamp. Pruébalo seleccionando "iPhone SE" en las DevTools.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     RESUMEN
+══════════════════════════════════ -->
+<section class="module" id="resumen">
+  <div class="module-header">
+    <div class="module-icon">📋</div>
+    <div>
+      <div class="module-title">Resumen — Todo lo nuevo que aprendiste</div>
+      <div class="module-sub">Ejercicio 5 = Ejercicios 1+2+3+4 + todo esto</div>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Concepto</th><th>Lo que aprendiste</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Mobile-First</strong></td><td>Escribir estilos base para celular y añadir con <code>min-width</code>. La filosofía profesional estándar. Nunca quitas estilos, solo añades capas.</td></tr>
+      <tr><td><strong>@media (min-width:)</strong></td><td>La herramienta del responsive. Aplica estilos solo cuando la pantalla tiene al menos X píxeles. Los 4 breakpoints estándar: 640, 768, 1024, 1280.</td></tr>
+      <tr><td><strong>grid-template-areas</strong></td><td>Nombrar zonas del layout como un mapa. Cada elemento se ubica con <code>grid-area: nombre</code>. Reorganizas todo el layout en una Media Query.</td></tr>
+      <tr><td><strong>repeat(auto-fit, minmax())</strong></td><td>Grid que calcula automáticamente cuántas columnas caben. Sin Media Queries para galerías de herramientas.</td></tr>
+      <tr><td><strong>grid-column: 1 / -1</strong></td><td>Un elemento ocupa todas las columnas. <code>-1</code> = la última línea del grid.</td></tr>
+      <tr><td><strong>clamp(min, ideal, max)</strong></td><td>Tipografía fluida: escala con <code>vw</code> pero respeta límites. Sin Media Queries para el tamaño del texto.</td></tr>
+      <tr><td><strong>min(a, b)</strong></td><td>Usa el valor más pequeño. <code>width: min(280px, 80vw)</code> reemplaza la combinación <code>width + max-width</code>.</td></tr>
+      <tr><td><strong>aspect-ratio</strong></td><td>Mantiene proporciones fijas. Esencial para thumbnails de proyectos. Sin calcular alturas en %.</td></tr>
+      <tr><td><strong>object-fit: cover</strong></td><td>Imágenes que llenan su espacio sin deformarse. Recorta bordes si la proporción no coincide.</td></tr>
+      <tr><td><strong>img { max-width: 100% }</strong></td><td>La regla fundamental de imágenes responsive. Siempre en el reset.</td></tr>
+      <tr><td><strong>scroll-behavior: smooth</strong></td><td>Los links de ancla hacen scroll animado suave. Una línea en <code>html { }</code>.</td></tr>
+      <tr><td><strong>display:none ↔ display:flex</strong></td><td>Técnica hamburguesa: ocultar/mostrar el menú y el botón según el breakpoint.</td></tr>
+      <tr><td><strong>prefers-color-scheme</strong></td><td>Media Query que detecta el modo oscuro del sistema operativo. Cambia toda la página con Variables CSS.</td></tr>
+      <tr><td><strong>prefers-reduced-motion</strong></td><td>Accesibilidad: desactiva animaciones para usuarios que lo prefieren por razones de salud.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="concept" style="margin-top:1.5rem">
+    <h4>📱 ¡Portfolio responsive completado!</h4>
+    <p>Cuando termines avísale a tu instructor y preparen el <strong>Ejercicio 6</strong>: <strong>JavaScript desde cero · DOM · Eventos · Interactividad real</strong>. El portfolio que acabas de construir será el primer proyecto donde agregarás JS real para abrir y cerrar el menú hamburguesa, animaciones de scroll y más.</p>
+  </div>
+
+  <h2 style="margin-top:1.5rem">Chips de todo lo aprendido en este ejercicio</h2>
+  <div>
+    <span class="chip">Mobile-First</span>
+    <span class="chip">@media (min-width:)</span>
+    <span class="chip">@media (max-width:)</span>
+    <span class="chip">grid-template-areas</span>
+    <span class="chip">grid-area: nombre</span>
+    <span class="chip">repeat(auto-fit, ...)</span>
+    <span class="chip">minmax()</span>
+    <span class="chip">grid-column: 1 / -1</span>
+    <span class="chip">clamp(min, ideal, max)</span>
+    <span class="chip">vw / vh</span>
+    <span class="chip">min(a, b)</span>
+    <span class="chip">aspect-ratio</span>
+    <span class="chip">object-fit: cover</span>
+    <span class="chip">img { max-width:100% }</span>
+    <span class="chip">scroll-behavior: smooth</span>
+    <span class="chip">display: none ↔ flex</span>
+    <span class="chip">position: sticky</span>
+    <span class="chip">flex-direction: column → row</span>
+    <span class="chip">prefers-color-scheme</span>
+    <span class="chip">prefers-reduced-motion</span>
+    <span class="chip">role="banner"</span>
+    <span class="chip">aria-label</span>
+    <span class="chip">@keyframes llenar</span>
+    <span class="chip">overflow: hidden</span>
+    <span class="chip">transition: gap</span>
+  </div>
+</section>
+
+</main>
+
+<footer class="guia-footer">
+  Ejercicio 5 — Portfolio Responsive · Mobile-First · CSS Grid · Media Queries · Hugo 2025
+</footer>
+
+</body>
+</html>

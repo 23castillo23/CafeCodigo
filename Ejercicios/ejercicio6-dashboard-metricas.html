@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ejercicio 6 — Dashboard de Métricas | CSS Position · z-index · overflow · calc()</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #c44a2a;
+    --primary-light:  #fdf0ec;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --danger:         #c44a2a;
+    --danger-light:   #fdf0ec;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1a1814;
+    --code-text:      #e8e4de;
+  }
+
+  body { font-family: 'DM Sans', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  /* TOPBAR */
+  .topbar { background:#ffffff; border-bottom:1px solid var(--border); padding:0 24px; display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:200; height:45px; }
+  .topbar a { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--muted); text-decoration:none; padding:6px 14px; border:1px solid var(--border); border-radius:999px; transition:all 0.15s; }
+  .topbar a:hover { color:var(--text); border-color:#8a8480; }
+  .topbar span { font-size:13px; color:var(--muted); }
+
+  /* HEADER */
+  header.guia-header { background: #1a1814; color: #f7f4ef; padding: 3rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header.guia-header::before { content: '📊'; position: absolute; font-size: 12rem; right: -1rem; top: -2rem; opacity: .06; line-height: 1; }
+  .ex-label { display: inline-block; background: var(--primary); color: white; border-radius: 20px; padding: 4px 16px; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 1rem; }
+  header.guia-header h1 { font-size: 2.4rem; font-weight: 800; letter-spacing: -1px; }
+  header.guia-header p.sub { font-size: 1.05rem; opacity: .8; margin-top: .5rem; font-style: italic; }
+  .badge { display: inline-block; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  /* NAV GUÍA */
+  nav.guide-nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 45px; z-index: 100; display: flex; overflow-x: auto; }
+  nav.guide-nav a { flex-shrink: 0; padding: .75rem 1.1rem; text-decoration: none; color: var(--muted); font-size: .82rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav.guide-nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  /* MAIN */
+  main { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: white; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  /* MODULE */
+  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2.5rem; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-size: 1.35rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  /* CALLOUTS */
+  .analogy { background: #FFF7ED; border: 1px solid #FDE68A; border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: #92400E; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; color: #78350F; }
+  .concept { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p, .tip ul { font-size: .95rem; }
+  .tip ul { padding-left: 1.2rem; }
+  .tip li { margin-bottom: .3rem; }
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  /* CODE BLOCKS */
+  .code-block { background: var(--code-bg); color: var(--code-text); border-radius: 10px; padding: 1.25rem 1.5rem; font-family: 'DM Mono', 'Courier New', monospace; font-size: .88rem; line-height: 1.85; overflow-x: auto; margin: 1rem 0; position: relative; white-space: pre; }
+  .code-block .ct { color: #89B4FA; }
+  .code-block .ca { color: #CBA6F7; }
+  .code-block .cv { color: #A6E3A1; }
+  .code-block .cs { color: #F9E2AF; }
+  .code-block .cp { color: #89DCEB; }
+  .code-block .cc { color: #585B70; font-style: italic; }
+  .code-block .cn { color: #FAB387; }
+  .lang { position: absolute; top: .6rem; right: .75rem; background: rgba(255,255,255,.1); color: rgba(255,255,255,.5); font-size: .68rem; padding: 2px 8px; border-radius: 4px; font-family: sans-serif; }
+
+  /* PREVIEW */
+  .preview { border: 2px dashed var(--border); border-radius: 10px; overflow: hidden; margin: 1rem 0; background: var(--surface); position: relative; }
+  .preview::before { content: '🖥 Vista en navegador'; position: absolute; top: -11px; left: 14px; background: var(--surface); font-size: .73rem; color: var(--muted); padding: 0 6px; z-index: 1; }
+
+  /* TABLES */
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  /* ANATOMY */
+  .anatomy { background: #F0F4FF; border: 1px solid #C7D2FE; border-radius: 12px; padding: 1.5rem; font-family: 'DM Mono', monospace; font-size: .9rem; line-height: 2.4; margin: 1.25rem 0; }
+  .anatomy .br { color: var(--primary); font-weight: 700; }
+  .anatomy .at { color: #0891B2; }
+  .anatomy .vl { color: #059669; }
+  .anatomy .lb  { display: inline-block; background: var(--primary); color: #fff; font-size: .68rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 6px; }
+  .anatomy .lb2 { display: inline-block; background: var(--accent); color: #fff; font-size: .68rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 6px; }
+  .anatomy .lb3 { display: inline-block; background: var(--secondary); color: #fff; font-size: .68rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 6px; }
+
+  /* GLOSARIO */
+  .glos { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .glos-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; }
+  .glos-item dt { font-weight: 700; color: var(--primary); font-size: .92rem; margin-bottom: .3rem; }
+  .glos-item dd { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+  .glos-item .emoji { font-size: 1.4rem; display: block; margin-bottom: .4rem; }
+
+  /* CHIPS */
+  .chip { display: inline-block; background: var(--primary-light); color: var(--primary); font-size: .8rem; padding: 3px 12px; border-radius: 20px; font-weight: 600; margin: 3px; font-family: 'DM Mono', monospace; }
+
+  /* RETO CARDS */
+  .reto-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin: 1.25rem 0; }
+  .reto-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+  .reto-card .nivel { display: inline-block; font-size: .72rem; font-weight: 700; padding: 2px 10px; border-radius: 20px; margin-bottom: .6rem; text-transform: uppercase; letter-spacing: .06em; }
+  .nivel-f  { background: #FEF3C7; color: #92400E; }
+  .nivel-m  { background: #FFEDD5; color: #C2410C; }
+  .nivel-a  { background: #FEE2E2; color: #B91C1C; }
+  .nivel-ex { background: #1a1814; color: #f7f4ef; }
+  .reto-card h4 { font-size: .95rem; font-weight: 700; margin-bottom: .5rem; }
+  .reto-card p { font-size: .88rem; color: var(--muted); margin-bottom: .5rem; }
+  .reto-card strong { color: var(--text); }
+
+  /* DIAGRAMA DE CAPAS (position) */
+  .layers-diagram { position: relative; height: 220px; margin: 1.5rem 0; background: #F0F4FF; border: 1px solid #C7D2FE; border-radius: 12px; overflow: hidden; }
+  .layer { position: absolute; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-family: 'DM Mono', monospace; font-size: .78rem; font-weight: 700; }
+  .layer-flujo { background: #BFDBFE; border: 2px solid #3B82F6; color: #1E3A8A; width: 340px; height: 80px; left: 20px; top: 20px; }
+  .layer-rel   { background: #BBF7D0; border: 2px dashed #059669; color: #14532D; width: 220px; height: 60px; left: 60px; top: 40px; }
+  .layer-abs   { background: #FEF9C3; border: 2px solid #CA8A04; color: #713F12; width: 160px; height: 50px; left: 500px; top: 30px; z-index: 2; }
+  .layer-fixed { background: #FEE2E2; border: 2px solid #DC2626; color: #7F1D1D; width: 100%; height: 32px; bottom: 0; left: 0; border-radius: 0; font-size: .7rem; letter-spacing: .05em; }
+  .layer-label { position: absolute; font-size: .65rem; background: rgba(0,0,0,.55); color: white; padding: 2px 7px; border-radius: 4px; font-family: 'DM Mono', monospace; }
+
+  /* DEMO DASHBOARD */
+  .dash { font-family: 'DM Sans', sans-serif; display: flex; background: #0F172A; min-height: 480px; }
+
+  /* sidebar */
+  .dash-sidebar { width: 200px; flex-shrink: 0; background: #1E293B; border-right: 1px solid #334155; padding: 20px 0; display: flex; flex-direction: column; position: sticky; top: 0; height: 480px; overflow-y: auto; }
+  .dash-sidebar-logo { padding: 0 18px 20px; border-bottom: 1px solid #334155; margin-bottom: 12px; }
+  .dash-sidebar-logo span { font-size: 1rem; font-weight: 700; color: white; }
+  .dash-sidebar-logo small { display: block; font-size: .7rem; color: #64748B; margin-top: 2px; }
+  .dash-nav a { display: flex; align-items: center; gap: 10px; padding: 9px 18px; font-size: .82rem; color: #94A3B8; text-decoration: none; transition: all .15s; }
+  .dash-nav a:hover { background: #334155; color: white; }
+  .dash-nav a.activo { background: rgba(59,130,246,.15); color: #60A5FA; border-right: 3px solid #3B82F6; }
+  .dash-nav-titulo { padding: 14px 18px 4px; font-size: .65rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: #475569; }
+
+  /* main area */
+  .dash-main { flex: 1; overflow: hidden; }
+
+  /* topbar del dashboard */
+  .dash-topbar { background: #1E293B; border-bottom: 1px solid #334155; padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 10; }
+  .dash-topbar h1 { font-size: .95rem; font-weight: 700; color: white; }
+  .dash-topbar-right { display: flex; align-items: center; gap: 12px; }
+  .dash-notif { position: relative; }
+  .dash-notif-btn { background: #334155; border: none; color: #94A3B8; width: 34px; height: 34px; border-radius: 8px; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; }
+  .dash-badge { position: absolute; top: -4px; right: -4px; background: #EF4444; color: white; font-size: .6rem; font-weight: 700; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #1E293B; }
+  .dash-avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg,#3B82F6,#6D28D9); display: flex; align-items: center; justify-content: center; font-size: .75rem; font-weight: 700; color: white; }
+
+  /* contenido */
+  .dash-content { padding: 24px; overflow-y: auto; }
+  .dash-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+  .kpi { background: #1E293B; border: 1px solid #334155; border-radius: 12px; padding: 18px; position: relative; overflow: hidden; }
+  .kpi::after { content: ''; position: absolute; top: -20px; right: -20px; width: 80px; height: 80px; border-radius: 50%; opacity: .08; }
+  .kpi.azul::after { background: #3B82F6; }
+  .kpi.verde::after { background: #10B981; }
+  .kpi.ambar::after { background: #F59E0B; }
+  .kpi.rojo::after  { background: #EF4444; }
+  .kpi-label { font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: #64748B; margin-bottom: 6px; }
+  .kpi-valor { font-size: 1.6rem; font-weight: 800; color: white; line-height: 1; margin-bottom: 8px; }
+  .kpi-delta { font-size: .72rem; font-weight: 600; display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; border-radius: 20px; }
+  .kpi-delta.sube { background: rgba(16,185,129,.15); color: #34D399; }
+  .kpi-delta.baja { background: rgba(239,68,68,.15); color: #F87171; }
+  .kpi-icono { position: absolute; top: 16px; right: 16px; font-size: 1.4rem; }
+
+  /* tarjetas con tooltip */
+  .dash-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px; }
+  .dash-card { background: #1E293B; border: 1px solid #334155; border-radius: 12px; padding: 18px; }
+  .dash-card-title { font-size: .82rem; font-weight: 700; color: #E2E8F0; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
+  .info-btn { position: relative; display: inline-flex; }
+  .info-icon { width: 18px; height: 18px; background: #334155; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .65rem; color: #64748B; cursor: help; }
+  .tooltip { position: absolute; bottom: calc(100% + 8px); right: 0; background: #0F172A; border: 1px solid #334155; color: #94A3B8; font-size: .72rem; font-weight: 400; padding: 8px 10px; border-radius: 8px; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 50; }
+  .tooltip::after { content: ''; position: absolute; top: 100%; right: 8px; border: 5px solid transparent; border-top-color: #334155; }
+  .info-btn:hover .tooltip { opacity: 1; }
+
+  /* actividad list */
+  .actividad-lista { display: flex; flex-direction: column; gap: 10px; }
+  .actividad-item { display: flex; align-items: center; gap: 12px; }
+  .act-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .act-texto { font-size: .8rem; color: #94A3B8; flex: 1; }
+  .act-tiempo { font-size: .72rem; color: #475569; }
+
+  /* tabla overflow */
+  .tabla-wrap { overflow-x: auto; }
+  .dash-tabla { width: 100%; border-collapse: collapse; font-size: .78rem; white-space: nowrap; }
+  .dash-tabla th { background: #0F172A; color: #64748B; padding: 10px 14px; text-align: left; font-size: .68rem; text-transform: uppercase; letter-spacing: .08em; border-bottom: 1px solid #334155; }
+  .dash-tabla td { padding: 10px 14px; border-bottom: 1px solid #1E293B; color: #94A3B8; }
+  .dash-tabla tr:hover td { background: #1E293B; }
+  .estado-chip { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: .65rem; font-weight: 700; }
+  .estado-activo  { background: rgba(16,185,129,.15); color: #34D399; }
+  .estado-pause   { background: rgba(245,158,11,.15); color: #FCD34D; }
+  .estado-error   { background: rgba(239,68,68,.15);  color: #F87171; }
+
+  /* scroll area */
+  .scroll-lista { max-height: 200px; overflow-y: auto; padding-right: 4px; }
+  .scroll-lista::-webkit-scrollbar { width: 4px; }
+  .scroll-lista::-webkit-scrollbar-track { background: transparent; }
+  .scroll-lista::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+  .scroll-item { padding: 10px 0; border-bottom: 1px solid #334155; font-size: .8rem; color: #94A3B8; display: flex; justify-content: space-between; }
+  .scroll-item:last-child { border-bottom: none; }
+
+  /* TYPOGRAPHY */
+  h2 { font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; color: var(--text); }
+  h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 .5rem; }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: #f0ece6; color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  strong { font-weight: 700; }
+  em { font-style: italic; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+  footer.guia-footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <a href="#">← Volver al curso</a>
+  <span>📊 Ejercicio 6 — Dashboard de Métricas · CSS Position · z-index · overflow · calc()</span>
+</div>
+
+<!-- HEADER -->
+<header class="guia-header">
+  <div class="ex-label">✏️ Ejercicio 6</div>
+  <h1>Dashboard de Métricas</h1>
+  <p class="sub">El concepto de CSS que usabas sin entender — ahora explicado desde cero</p>
+  <span class="badge">📌 position · 🗂 z-index · 📦 overflow · 🧮 calc() · 🏷️ tooltips · 🔔 badges · 🔢 scroll personalizado</span>
+</header>
+
+<!-- NAV GUÍA -->
+<nav class="guide-nav">
+  <a href="#aprenderás">🎓 ¿Qué aprenderás?</a>
+  <a href="#position">📌 position</a>
+  <a href="#zindex">🗂 z-index</a>
+  <a href="#overflow">📦 overflow</a>
+  <a href="#calc">🧮 calc()</a>
+  <a href="#archivos">📁 Archivos</a>
+  <a href="#html">🧱 HTML</a>
+  <a href="#css">🎨 CSS</a>
+  <a href="#resultado">🖥 Resultado</a>
+  <a href="#retos">🏆 Retos</a>
+  <a href="#resumen">📋 Resumen</a>
+</nav>
+
+<main>
+
+<div class="parte-badge">📊 Ejercicio 6 — El CSS que siempre usaste sin saberlo, ahora completamente explicado</div>
+
+
+<!-- ══════════════════════════════════
+     ¿QUÉ VAS A APRENDER?
+══════════════════════════════════ -->
+<section class="module" id="aprenderás">
+  <div class="module-header">
+    <div class="module-icon">🎓</div>
+    <div>
+      <div class="module-title">¿Qué vas a aprender en este ejercicio?</div>
+      <div class="module-sub">El hueco más grande de los 5 ejercicios anteriores — cerrado de una vez</div>
+    </div>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ Algo que debes saber antes de empezar</h4>
+    <p>En los 5 ejercicios anteriores usaste <code>position: sticky</code>, <code>position: absolute</code>, <code>position: relative</code> y <code>z-index</code> más de <strong>50 veces</strong> en el CSS sin que nadie te los explicara. Los copiaste y funcionaron. Aquí por fin entenderás exactamente qué hacen y por qué — y serás capaz de usarlos tú solo sin copiar.</p>
+  </div>
+
+  <div class="glos">
+    <div class="glos-item">
+      <span class="emoji">📌</span>
+      <dt>position</dt>
+      <dd>Controla cómo un elemento se ubica en la página. 5 valores: <code>static</code>, <code>relative</code>, <code>absolute</code>, <code>fixed</code>, <code>sticky</code>.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🗂</span>
+      <dt>z-index</dt>
+      <dd>El orden de apilamiento. ¿Quién va encima de quién cuando los elementos se superponen?</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">📦</span>
+      <dt>overflow</dt>
+      <dd>Qué pasa cuando el contenido es más grande que su contenedor. <code>hidden</code>, <code>scroll</code>, <code>auto</code>.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🧮</span>
+      <dt>calc()</dt>
+      <dd>Mezclar unidades distintas en cálculos. <code>calc(100% - 200px)</code> es imposible sin esta función.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🏷️</span>
+      <dt>Tooltips</dt>
+      <dd>Cajitas de información que aparecen al hacer hover. Se construyen con <code>position: absolute</code> + pseudo-elemento.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🔔</span>
+      <dt>Badges de notificación</dt>
+      <dd>El numerito rojo en la campanita. El caso de uso más clásico de <code>position: absolute</code> en desarrollo real.</dd>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>💡 ¿Qué traes de los ejercicios anteriores?</h4>
+    <p>Ya dominas Box Model, Flexbox, Grid, Variables CSS, Animaciones, Formularios, Pseudo-clases, Responsive Design y Media Queries. En este ejercicio aplicas todo eso dentro de un layout de sidebar + panel principal construido con <code>position</code> real — no con trucos de Flexbox.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     CONCEPTO 1 — POSITION
+══════════════════════════════════ -->
+<section class="module" id="position">
+  <div class="module-header">
+    <div class="module-icon">📌</div>
+    <div>
+      <div class="module-title">CONCEPTO 1 — La propiedad position</div>
+      <div class="module-sub">Los 5 valores que todo desarrollador web debe conocer de memoria</div>
+    </div>
+  </div>
+
+  <p>Cada elemento HTML tiene un valor de <code>position</code>. Por defecto es <code>static</code>. Cambiarlo modifica completamente cómo el navegador lo coloca en la página.</p>
+
+  <div class="analogy">
+    <h4>🏗️ Analogía: los tipos de trabajadores en una obra</h4>
+    <p><code>static</code> es el trabajador normal: ocupa su lugar en la fila, no se mueve. <code>relative</code> es el trabajador que puede desplazarse un poco de su posición original sin afectar a los demás. <code>absolute</code> es el trabajador que vuela — sale del flujo, se posiciona exactamente donde tú le dices relativo a su jefe. <code>fixed</code> es el capataz que está pegado a la cámara — no importa cuánto te desplaces, siempre está visible. <code>sticky</code> es el trabajador que está en su lugar pero cuando llegas a él, se queda pegado al borde de la pantalla mientras sigues haciendo scroll.</p>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Valor</th><th>¿Qué hace?</th><th>¿Usa top/left/right/bottom?</th><th>¿Sale del flujo?</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">static</span></td><td>Comportamiento por defecto. El elemento va donde le toca según el HTML.</td><td>No — las ignora</td><td>No</td></tr>
+      <tr><td><span class="tag">relative</span></td><td>Se desplaza <strong>desde su posición original</strong>. El hueco que ocupaba sigue reservado.</td><td>Sí — desplazamiento desde origen</td><td>No</td></tr>
+      <tr><td><span class="tag">absolute</span></td><td>Sale del flujo. Se posiciona relativo al <strong>ancestro posicionado más cercano</strong> (cualquiera que no sea static).</td><td>Sí — coordenadas exactas</td><td>Sí</td></tr>
+      <tr><td><span class="tag">fixed</span></td><td>Sale del flujo. Se posiciona relativo a <strong>la ventana del navegador</strong>. No se mueve con el scroll.</td><td>Sí — coordenadas exactas</td><td>Sí</td></tr>
+      <tr><td><span class="tag">sticky</span></td><td>Flujo normal hasta que llega al borde definido — entonces se comporta como <code>fixed</code>. Vuelve al flujo cuando su contenedor desaparece.</td><td>Sí — define el punto de "pegado"</td><td>No</td></tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h2>La regla más importante de position: absolute</h2>
+
+  <div class="warn">
+    <h4>⚠️ La regla que nadie te había dicho explícitamente</h4>
+    <p>Un elemento con <code>position: absolute</code> busca su <strong>ancestro posicionado más cercano</strong> para tomar sus coordenadas. "Posicionado" significa cualquier ancestro cuyo <code>position</code> no sea <code>static</code>. Si no encuentra ninguno, se posiciona relativo al <code>&lt;body&gt;</code>. Por eso casi siempre vas a ver <code>position: relative</code> en el padre de un elemento <code>absolute</code> — el padre no se mueve, solo actúa como referencia.</p>
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* El patrón más usado en el mundo real: */</span>
+
+<span class="cc">/* 1. El PADRE se convierte en referencia */</span>
+<span class="cp">.tarjeta</span> {
+  <span class="ca">position</span>: relative; <span class="cc">/* no se mueve, solo actúa como ancla */</span>
+}
+
+<span class="cc">/* 2. El HIJO se posiciona dentro del padre */</span>
+<span class="cp">.badge-notificacion</span> {
+  <span class="ca">position</span>: absolute;
+  <span class="ca">top</span>: <span class="cn">-8px</span>;    <span class="cc">/* 8px arriba del borde superior del padre */</span>
+  <span class="ca">right</span>: <span class="cn">-8px</span>;  <span class="cc">/* 8px fuera del borde derecho del padre   */</span>
+}
+
+<span class="cc">/* Para top/left/right/bottom: */</span>
+<span class="cc">/* Valores POSITIVOS alejan del borde. Negativos van más allá del borde. */</span>
+<span class="ca">top</span>: <span class="cn">0</span>;     <span class="cc">/* pegado al borde superior del padre */</span>
+<span class="ca">bottom</span>: <span class="cn">0</span>;  <span class="cc">/* pegado al borde inferior del padre */</span>
+<span class="ca">left</span>: <span class="cn">50%</span>;  <span class="cc">/* en el centro horizontal del padre  */</span>
+<span class="ca">right</span>: <span class="cn">0</span>;   <span class="cc">/* pegado al borde derecho del padre  */</span>
+
+<span class="cc">/* Centrar con absolute */</span>
+<span class="cp">.centrado</span> {
+  <span class="ca">position</span>: absolute;
+  <span class="ca">top</span>: <span class="cn">50%</span>;
+  <span class="ca">left</span>: <span class="cn">50%</span>;
+  <span class="ca">transform</span>: translate(<span class="cn">-50%</span>, <span class="cn">-50%</span>); <span class="cc">/* ajusta el offset del propio elemento */</span>
+}</div>
+
+  <hr>
+
+  <h2>position: sticky — cómo funciona de verdad</h2>
+  <p>Lo usaste en la navbar de todos los ejercicios. Aquí está la explicación completa.</p>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">.navbar</span> {
+  <span class="ca">position</span>: sticky;
+  <span class="ca">top</span>: <span class="cn">0</span>; <span class="cc">/* ← define el punto de "pegado". Cuando llegue a 0px del tope, se fija */</span>
+  <span class="ca">z-index</span>: <span class="cn">100</span>; <span class="cc">/* ← para que quede por encima del contenido al hacer scroll */</span>
+}
+
+<span class="cc">/* sticky tiene 2 limitaciones importantes: */</span>
+<span class="cc">/* 1. Solo funciona si el contenedor padre tiene altura suficiente       */</span>
+<span class="cc">/* 2. Si el padre tiene overflow: hidden, el sticky no funciona          */</span>
+
+<span class="cc">/* position: fixed — diferencia con sticky */</span>
+<span class="cp">.chat-boton</span> {
+  <span class="ca">position</span>: fixed;
+  <span class="ca">bottom</span>: <span class="cn">24px</span>;
+  <span class="ca">right</span>: <span class="cn">24px</span>;
+  <span class="cc">/* Se posiciona relativo a la VENTANA, no al documento */</span>
+  <span class="cc">/* Siempre visible sin importar cuánto se haga scroll   */</span>
+}</div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     CONCEPTO 2 — Z-INDEX
+══════════════════════════════════ -->
+<section class="module" id="zindex">
+  <div class="module-header">
+    <div class="module-icon">🗂</div>
+    <div>
+      <div class="module-title">CONCEPTO 2 — z-index: el orden de apilamiento</div>
+      <div class="module-sub">¿Quién va encima de quién cuando los elementos se superponen?</div>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <h4>📚 Analogía: la pila de papeles en un escritorio</h4>
+    <p>Imagina que tienes papeles apilados en un escritorio. El que está más arriba es el que ves. El <code>z-index</code> es el número de orden: papel con z-index 3 va encima del 2, que va encima del 1. Si quieres que el menú desplegable aparezca por encima de todo el contenido, le das un z-index alto. El topbar de esta guía tiene <code>z-index: 200</code>, la navbar de guía tiene <code>z-index: 100</code>, y el contenido normal tiene z-index implícito de 0.</p>
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* z-index solo funciona en elementos posicionados (no static) */</span>
+
+<span class="cp">.contenido</span>  { <span class="ca">position</span>: relative; <span class="ca">z-index</span>: <span class="cn">1</span>;   }
+<span class="cp">.sidebar</span>    { <span class="ca">position</span>: relative; <span class="ca">z-index</span>: <span class="cn">10</span>;  }
+<span class="cp">.dropdown</span>   { <span class="ca">position</span>: absolute; <span class="ca">z-index</span>: <span class="cn">50</span>;  }
+<span class="cp">.modal</span>      { <span class="ca">position</span>: fixed;    <span class="ca">z-index</span>: <span class="cn">100</span>; }
+<span class="cp">.toast</span>      { <span class="ca">position</span>: fixed;    <span class="ca">z-index</span>: <span class="cn">200</span>; }
+<span class="cp">.tooltip</span>    { <span class="ca">position</span>: absolute; <span class="ca">z-index</span>: <span class="cn">300</span>; }
+
+<span class="cc">/* Buena práctica: definir z-indexes como variables CSS */</span>
+<span class="cp">:root</span> {
+  <span class="ca">--z-base</span>:    <span class="cn">1</span>;
+  <span class="ca">--z-sidebar</span>: <span class="cn">10</span>;
+  <span class="ca">--z-navbar</span>:  <span class="cn">100</span>;
+  <span class="ca">--z-modal</span>:   <span class="cn">200</span>;
+  <span class="ca">--z-tooltip</span>: <span class="cn">300</span>;
+}
+<span class="cc">/* Ventaja: sabes exactamente qué valor le corresponde a cada "capa" */</span>
+<span class="cp">.navbar</span> { <span class="ca">z-index</span>: var(<span class="cv">--z-navbar</span>); }</div>
+
+  <div class="concept">
+    <h4>💡 La regla de z-index que confunde a todos</h4>
+    <p><code>z-index</code> solo funciona en elementos cuyo <code>position</code> no sea <code>static</code>. Si le pones <code>z-index: 999</code> a un elemento con <code>position: static</code> (el valor por defecto), no pasará absolutamente nada. Primero ponle <code>position: relative</code>, <code>absolute</code>, <code>fixed</code> o <code>sticky</code> — luego el z-index funcionará.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     CONCEPTO 3 — OVERFLOW
+══════════════════════════════════ -->
+<section class="module" id="overflow">
+  <div class="module-header">
+    <div class="module-icon">📦</div>
+    <div>
+      <div class="module-title">CONCEPTO 3 — overflow: qué pasa cuando el contenido no cabe</div>
+      <div class="module-sub">Controlar qué hace el navegador cuando el contenido desborda su contenedor</div>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <h4>🛁 Analogía: la bañera y el agua</h4>
+    <p>Tu contenedor es una bañera con un tamaño fijo. El contenido es el agua. <code>overflow: visible</code> (default) = el agua se derrama y moja el suelo — se ve fuera de la bañera. <code>overflow: hidden</code> = hay una tapa — el agua que sobra desaparece. <code>overflow: scroll</code> = hay un desagüe visible con una palanca siempre presente. <code>overflow: auto</code> = el desagüe aparece solo si hay demasiada agua.</p>
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* Los 4 valores principales */</span>
+<span class="cp">.caja</span> { <span class="ca">overflow</span>: visible; }  <span class="cc">/* default — el contenido se derrama fuera */</span>
+<span class="cp">.caja</span> { <span class="ca">overflow</span>: hidden; }   <span class="cc">/* recorta — el contenido extra desaparece */</span>
+<span class="cp">.caja</span> { <span class="ca">overflow</span>: scroll; }   <span class="cc">/* barras de scroll siempre visibles */</span>
+<span class="cp">.caja</span> { <span class="ca">overflow</span>: auto; }     <span class="cc">/* barras solo cuando hacen falta ← el más usado */</span>
+
+<span class="cc">/* overflow-x y overflow-y por separado */</span>
+<span class="cp">.tabla-wrap</span> {
+  <span class="ca">overflow-x</span>: auto;    <span class="cc">/* scroll horizontal si la tabla es ancha */</span>
+  <span class="ca">overflow-y</span>: visible; <span class="cc">/* vertical sin cambios */</span>
+}
+
+<span class="cc">/* Scroll personalizado (Webkit) */</span>
+<span class="cp">.panel-scroll</span>::-webkit-scrollbar       { <span class="ca">width</span>: <span class="cn">4px</span>; }
+<span class="cp">.panel-scroll</span>::-webkit-scrollbar-track  { <span class="ca">background</span>: transparent; }
+<span class="cp">.panel-scroll</span>::-webkit-scrollbar-thumb  { <span class="ca">background</span>: <span class="cn">#334155</span>; <span class="ca">border-radius</span>: <span class="cn">4px</span>; }
+
+<span class="cc">/* overflow: hidden tiene 2 usos importantes: */</span>
+<span class="cc">/* 1. Recortar imágenes al hacer hover (zoom que no sale de la tarjeta)  */</span>
+<span class="cp">.proyecto-img</span> { <span class="ca">overflow</span>: hidden; }
+<span class="cp">.proyecto-img img:hover</span> { <span class="ca">transform</span>: scale(<span class="cn">1.05</span>); } <span class="cc">/* no se sale ✅ */</span>
+
+<span class="cc">/* 2. Crear la máscara de las barras de progreso animadas (Ejercicio 3) */</span>
+<span class="cp">.barra-contenedor</span> { <span class="ca">overflow</span>: hidden; <span class="ca">border-radius</span>: <span class="cn">20px</span>; }
+<span class="cp">.barra-progreso</span>   { <span class="ca">animation</span>: llenar <span class="cn">1.5s</span> ease; } <span class="cc">/* empieza en 0 sin salirse */</span></div>
+
+  <table class="tbl">
+    <thead><tr><th>Valor</th><th>Qué hace</th><th>Cuándo usarlo</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">visible</span></td><td>El contenido se muestra fuera del contenedor. Sin barras.</td><td>Default. Casi nunca se escribe explícitamente.</td></tr>
+      <tr><td><span class="tag">hidden</span></td><td>Recorta el contenido que sobra. No muestra scroll.</td><td>Zoom de imágenes, barras de progreso, elementos decorativos que no deben salirse.</td></tr>
+      <tr><td><span class="tag">scroll</span></td><td>Muestra barras de scroll siempre, aunque no hagan falta.</td><td>Raro. Generalmente es mejor <code>auto</code>.</td></tr>
+      <tr><td><span class="tag">auto</span></td><td>Barras de scroll solo cuando el contenido desborda.</td><td>Tablas anchas, listas largas, sidebars con muchos items, cualquier área scrollable.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- ══════════════════════════════════
+     CONCEPTO 4 — CALC()
+══════════════════════════════════ -->
+<section class="module" id="calc">
+  <div class="module-header">
+    <div class="module-icon">🧮</div>
+    <div>
+      <div class="module-title">CONCEPTO 4 — calc(): mezclar unidades en CSS</div>
+      <div class="module-sub">El problema que CSS no podía resolver antes de esta función</div>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <h4>🧮 Analogía: la receta con medidas mixtas</h4>
+    <p>Imagina que tienes que llenar un molde y sabes que el molde mide "toda la encimera menos 30cm para el fregadero". No puedes calcular eso sin saber el ancho exacto de la encimera. <code>calc()</code> resuelve exactamente ese problema: <code>width: calc(100% - 30px)</code> significa "todo el ancho disponible menos 30px fijos" — CSS lo calcula en tiempo real según el tamaño de la pantalla.</p>
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* EL PROBLEMA: estas dos líneas son impossibles sin calc() */</span>
+<span class="cc">/* No puedes restar píxeles de porcentajes directamente    */</span>
+<span class="cp">.main</span> { <span class="ca">width</span>: <span class="cn">100% - 240px</span>; } <span class="cc">/* ❌ CSS incorrecto */</span>
+
+<span class="cc">/* LA SOLUCIÓN: calc() */</span>
+<span class="cp">.main</span> { <span class="ca">width</span>: calc(<span class="cn">100% - 240px</span>); } <span class="cc">/* ✅ sidebar de 240px, main ocupa el resto */</span>
+
+<span class="cc">/* ── Operadores disponibles ── */</span>
+<span class="ca">width</span>: calc(<span class="cn">100% - 2rem</span>);              <span class="cc">/* resta   — espacio para padding lateral */</span>
+<span class="ca">height</span>: calc(<span class="cn">100vh - 60px</span>);            <span class="cc">/* resta   — pantalla completa menos navbar */</span>
+<span class="ca">font-size</span>: calc(<span class="cn">1rem + 0.5vw</span>);         <span class="cc">/* suma    — tamaño base más valor fluido  */</span>
+<span class="ca">padding</span>: calc(<span class="cn">var(--espacio) * 2</span>);      <span class="cc">/* multiplicar con variable */</span>
+<span class="ca">top</span>: calc(<span class="cn">50% - 10px</span>);                  <span class="cc">/* centrar verticalmente con absolute */</span>
+
+<span class="cc">/* IMPORTANTE: los operadores + y - necesitan espacios alrededor */</span>
+<span class="ca">width</span>: calc(<span class="cn">100%-240px</span>);   <span class="cc">/* ❌ sin espacios — no funciona  */</span>
+<span class="ca">width</span>: calc(<span class="cn">100% - 240px</span>); <span class="cc">/* ✅ con espacios — funciona     */</span>
+<span class="ca">width</span>: calc(<span class="cn">100%/3</span>);       <span class="cc">/* ✅ división no necesita espacios */</span>
+
+<span class="cc">/* Caso real: sidebar fijo + contenido que ocupa el resto */</span>
+<span class="cp">:root</span> { <span class="ca">--sidebar-w</span>: <span class="cn">240px</span>; }
+<span class="cp">.sidebar</span> { <span class="ca">width</span>: var(<span class="cv">--sidebar-w</span>); <span class="ca">position</span>: fixed; }
+<span class="cp">.main</span>    { <span class="ca">margin-left</span>: var(<span class="cv">--sidebar-w</span>); <span class="cc">/* deja espacio al sidebar */</span>
+            <span class="ca">width</span>: calc(<span class="cn">100% - var(--sidebar-w)</span>); }</div>
+
+  <table class="tbl">
+    <thead><tr><th>Expresión</th><th>¿Qué calcula?</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">calc(100% - 240px)</span></td><td>Todo el ancho disponible menos 240px. Perfecto para el contenido principal cuando hay un sidebar fijo.</td></tr>
+      <tr><td><span class="tag">calc(100vh - 60px)</span></td><td>La altura de la pantalla menos 60px (la navbar). Hace que el panel ocupe exactamente el espacio visible.</td></tr>
+      <tr><td><span class="tag">calc(50% - 10px)</span></td><td>Centra un elemento absolute desplazando la mitad de su propio tamaño. Con <code>transform: translate(-50%,-50%)</code> es más elegante, pero esta forma también funciona.</td></tr>
+      <tr><td><span class="tag">calc(var(--base) * 1.5)</span></td><td>Multiplica una variable CSS. Permite crear escalas tipográficas proporcionales.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- ══════════════════════════════════
+     ARCHIVOS
+══════════════════════════════════ -->
+<section class="module" id="archivos">
+  <div class="module-header">
+    <div class="module-icon">📁</div>
+    <div>
+      <div class="module-title">PARTE 1 — Crea el proyecto</div>
+      <div class="module-sub">Carpeta nueva, misma estructura</div>
+    </div>
+  </div>
+  <ul>
+    <li>Crea una carpeta: <code>dashboard-metricas</code></li>
+    <li>Dentro crea: <code>index.html</code> y <code>styles.css</code></li>
+    <li>Abre en VS Code → activa Live Server</li>
+  </ul>
+  <div class="concept">
+    <h4>💡 El proyecto de este ejercicio</h4>
+    <p>Vas a construir el <strong>Dashboard de Métricas de TuApp</strong> — un panel de administración oscuro con sidebar fijo, navbar sticky, 4 tarjetas KPI con badges de variación, una tabla con scroll horizontal, una lista de actividad reciente con scroll vertical personalizado, y tooltips al hacer hover. Cada sección enseña un caso de uso diferente de <code>position</code>.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     HTML
+══════════════════════════════════ -->
+<section class="module" id="html">
+  <div class="module-header">
+    <div class="module-icon">🧱</div>
+    <div>
+      <div class="module-title">PARTE 2 — El HTML completo</div>
+      <div class="module-sub">5 bloques: base · sidebar · topbar · KPIs · tabla y actividad</div>
+    </div>
+  </div>
+
+  <h2>BLOQUE 1 — Estructura base</h2>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="ct">&lt;!DOCTYPE html&gt;</span>
+<span class="ct">&lt;html</span> <span class="ca">lang</span>=<span class="cv">"es"</span><span class="ct">&gt;</span>
+<span class="ct">&lt;head&gt;</span>
+  <span class="ct">&lt;meta</span> <span class="ca">charset</span>=<span class="cv">"UTF-8"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;meta</span> <span class="ca">name</span>=<span class="cv">"viewport"</span> <span class="ca">content</span>=<span class="cv">"width=device-width, initial-scale=1.0"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;title&gt;</span><span class="cs">Dashboard — TuApp</span><span class="ct">&lt;/title&gt;</span>
+  <span class="ct">&lt;link</span> <span class="ca">rel</span>=<span class="cv">"preconnect"</span> <span class="ca">href</span>=<span class="cv">"https://fonts.googleapis.com"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;link</span> <span class="ca">href</span>=<span class="cv">"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"</span>
+        <span class="ca">rel</span>=<span class="cv">"stylesheet"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;link</span> <span class="ca">rel</span>=<span class="cv">"stylesheet"</span> <span class="ca">href</span>=<span class="cv">"styles.css"</span><span class="ct">&gt;</span>
+<span class="ct">&lt;/head&gt;</span>
+<span class="ct">&lt;body&gt;</span>
+  <span class="cc">&lt;!-- Los bloques 2 al 5 van aquí --&gt;</span>
+<span class="ct">&lt;/body&gt;</span>
+<span class="ct">&lt;/html&gt;</span></div>
+
+  <hr>
+
+  <h2>BLOQUE 2 — Sidebar fijo</h2>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="cc">&lt;!-- LAYOUT PRINCIPAL: sidebar + main --&gt;</span>
+<span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"app-layout"</span><span class="ct">&gt;</span>
+
+  <span class="cc">&lt;!-- ① SIDEBAR --&gt;</span>
+  <span class="ct">&lt;aside</span> <span class="ca">class</span>=<span class="cv">"sidebar"</span><span class="ct">&gt;</span>
+    <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"sidebar-logo"</span><span class="ct">&gt;</span>
+      <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"logo-texto"</span><span class="ct">&gt;</span><span class="cs">TuApp</span><span class="ct">&lt;/span&gt;</span>
+      <span class="ct">&lt;small&gt;</span><span class="cs">Panel de control</span><span class="ct">&lt;/small&gt;</span>
+    <span class="ct">&lt;/div&gt;</span>
+
+    <span class="ct">&lt;nav</span> <span class="ca">class</span>=<span class="cv">"sidebar-nav"</span><span class="ct">&gt;</span>
+      <span class="ct">&lt;p</span> <span class="ca">class</span>=<span class="cv">"nav-titulo"</span><span class="ct">&gt;</span><span class="cs">Principal</span><span class="ct">&lt;/p&gt;</span>
+      <span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"#"</span> <span class="ca">class</span>=<span class="cv">"activo"</span><span class="ct">&gt;</span><span class="cs">📊 Métricas</span><span class="ct">&lt;/a&gt;</span>
+      <span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"#"</span><span class="ct">&gt;</span><span class="cs">👤 Usuarios</span><span class="ct">&lt;/a&gt;</span>
+      <span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"#"</span><span class="ct">&gt;</span><span class="cs">📦 Productos</span><span class="ct">&lt;/a&gt;</span>
+      <span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"#"</span><span class="ct">&gt;</span><span class="cs">🛒 Pedidos</span><span class="ct">&lt;/a&gt;</span>
+      <span class="ct">&lt;p</span> <span class="ca">class</span>=<span class="cv">"nav-titulo"</span><span class="ct">&gt;</span><span class="cs">Sistema</span><span class="ct">&lt;/p&gt;</span>
+      <span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"#"</span><span class="ct">&gt;</span><span class="cs">⚙️ Configuración</span><span class="ct">&lt;/a&gt;</span>
+      <span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"#"</span><span class="ct">&gt;</span><span class="cs">🔒 Seguridad</span><span class="ct">&lt;/a&gt;</span>
+    <span class="ct">&lt;/nav&gt;</span>
+  <span class="ct">&lt;/aside&gt;</span></div>
+
+  <table class="tbl">
+    <thead><tr><th>Elemento</th><th>Explicación</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">&lt;aside&gt;</span></td><td>Etiqueta semántica para contenido lateral o complementario. Perfecta para sidebars. Comunica a Google y lectores de pantalla "esto es un panel lateral, no el contenido principal".</td></tr>
+      <tr><td><span class="tag">.app-layout</span></td><td>El contenedor padre de toda la app. En CSS le pondremos <code>display: flex</code> para que sidebar y main queden en fila.</td></tr>
+      <tr><td><span class="tag">.sidebar</span></td><td>En CSS tendrá <code>position: fixed</code>, <code>width: var(--sidebar-w)</code> y <code>height: 100vh</code>. Siempre visible sin importar el scroll.</td></tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h2>BLOQUE 3 — Main: topbar + KPIs</h2>
+
+  <div class="code-block"><span class="lang">HTML</span>  <span class="cc">&lt;!-- ② ÁREA PRINCIPAL --&gt;</span>
+  <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"main-area"</span><span class="ct">&gt;</span>
+
+    <span class="cc">&lt;!-- Topbar sticky --&gt;</span>
+    <span class="ct">&lt;header</span> <span class="ca">class</span>=<span class="cv">"topbar-dash"</span><span class="ct">&gt;</span>
+      <span class="ct">&lt;h1&gt;</span><span class="cs">Métricas · Junio 2025</span><span class="ct">&lt;/h1&gt;</span>
+      <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"topbar-acciones"</span><span class="ct">&gt;</span>
+        <span class="cc">&lt;!-- BADGE DE NOTIFICACIÓN: position: absolute sobre el botón --&gt;</span>
+        <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"notif-wrap"</span><span class="ct">&gt;</span>
+          <span class="ct">&lt;button</span> <span class="ca">class</span>=<span class="cv">"notif-btn"</span> <span class="ca">aria-label</span>=<span class="cv">"Notificaciones"</span><span class="ct">&gt;</span><span class="cs">🔔</span><span class="ct">&lt;/button&gt;</span>
+          <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"notif-badge"</span><span class="ct">&gt;</span><span class="cs">3</span><span class="ct">&lt;/span&gt;</span>
+        <span class="ct">&lt;/div&gt;</span>
+        <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"usuario-avatar"</span><span class="ct">&gt;</span><span class="cs">HG</span><span class="ct">&lt;/div&gt;</span>
+      <span class="ct">&lt;/div&gt;</span>
+    <span class="ct">&lt;/header&gt;</span>
+
+    <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"contenido"</span><span class="ct">&gt;</span>
+
+      <span class="cc">&lt;!-- ③ TARJETAS KPI --&gt;</span>
+      <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"kpis-grid"</span><span class="ct">&gt;</span>
+
+        <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"kpi-card azul"</span><span class="ct">&gt;</span>
+          <span class="ct">&lt;p</span> <span class="ca">class</span>=<span class="cv">"kpi-label"</span><span class="ct">&gt;</span><span class="cs">Visitas totales</span><span class="ct">&lt;/p&gt;</span>
+          <span class="ct">&lt;p</span> <span class="ca">class</span>=<span class="cv">"kpi-valor"</span><span class="ct">&gt;</span><span class="cs">48,210</span><span class="ct">&lt;/p&gt;</span>
+          <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"kpi-delta sube"</span><span class="ct">&gt;</span><span class="cs">↑ 12.4%</span><span class="ct">&lt;/span&gt;</span>
+          <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"kpi-icono"</span><span class="ct">&gt;</span><span class="cs">🌐</span><span class="ct">&lt;/span&gt;</span>
+        <span class="ct">&lt;/div&gt;</span>
+
+        <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"kpi-card verde"</span><span class="ct">&gt;</span>
+          <span class="ct">&lt;p</span> <span class="ca">class</span>=<span class="cv">"kpi-label"</span><span class="ct">&gt;</span><span class="cs">Ingresos</span><span class="ct">&lt;/p&gt;</span>
+          <span class="ct">&lt;p</span> <span class="ca">class</span>=<span class="cv">"kpi-valor"</span><span class="ct">&gt;</span><span class="cs">$24,580</span><span class="ct">&lt;/p&gt;</span>
+          <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"kpi-delta sube"</span><span class="ct">&gt;</span><span class="cs">↑ 8.1%</span><span class="ct">&lt;/span&gt;</span>
+          <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"kpi-icono"</span><span class="ct">&gt;</span><span class="cs">💰</span><span class="ct">&lt;/span&gt;</span>
+        <span class="ct">&lt;/div&gt;</span>
+
+        <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"kpi-card ambar"</span><span class="ct">&gt;</span>
+          <span class="ct">&lt;p</span> <span class="ca">class</span>=<span class="cv">"kpi-label"</span><span class="ct">&gt;</span><span class="cs">Conversión</span><span class="ct">&lt;/p&gt;</span>
+          <span class="ct">&lt;p</span> <span class="ca">class</span>=<span class="cv">"kpi-valor"</span><span class="ct">&gt;</span><span class="cs">3.8%</span><span class="ct">&lt;/p&gt;</span>
+          <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"kpi-delta baja"</span><span class="ct">&gt;</span><span class="cs">↓ 0.3%</span><span class="ct">&lt;/span&gt;</span>
+          <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"kpi-icono"</span><span class="ct">&gt;</span><span class="cs">🎯</span><span class="ct">&lt;/span&gt;</span>
+        <span class="ct">&lt;/div&gt;</span>
+
+        <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"kpi-card rojo"</span><span class="ct">&gt;</span>
+          <span class="ct">&lt;p</span> <span class="ca">class</span>=<span class="cv">"kpi-label"</span><span class="ct">&gt;</span><span class="cs">Tasa de rebote</span><span class="ct">&lt;/p&gt;</span>
+          <span class="ct">&lt;p</span> <span class="ca">class</span>=<span class="cv">"kpi-valor"</span><span class="ct">&gt;</span><span class="cs">41.2%</span><span class="ct">&lt;/p&gt;</span>
+          <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"kpi-delta sube"</span><span class="ct">&gt;</span><span class="cs">↓ 2.7%</span><span class="ct">&lt;/span&gt;</span>
+          <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"kpi-icono"</span><span class="ct">&gt;</span><span class="cs">📉</span><span class="ct">&lt;/span&gt;</span>
+        <span class="ct">&lt;/div&gt;</span>
+
+      <span class="ct">&lt;/div&gt;</span></div>
+
+  <table class="tbl">
+    <thead><tr><th>Elemento / patrón</th><th>Explicación</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">.notif-wrap</span></td><td>El contenedor del botón y el badge. Lleva <code>position: relative</code> para ser el ancestro del badge absolute.</td></tr>
+      <tr><td><span class="tag">.notif-badge</span></td><td>El "3" rojo encima de la campanita. Lleva <code>position: absolute; top: -4px; right: -4px</code>. Sale del flujo y se posiciona en la esquina del botón.</td></tr>
+      <tr><td><span class="tag">.kpi-card</span></td><td>Lleva <code>position: relative; overflow: hidden</code>. El pseudo-elemento <code>::after</code> es el círculo decorativo de fondo posicionado con <code>position: absolute</code>.</td></tr>
+      <tr><td><span class="tag">.kpi-icono</span></td><td>El emoji en la esquina de cada KPI. Lleva <code>position: absolute; top: 16px; right: 16px</code>.</td></tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h2>BLOQUE 4 — Tabla con overflow y lista con scroll</h2>
+
+  <div class="code-block"><span class="lang">HTML</span>      <span class="cc">&lt;!-- ④ DOS PANELES EN FILA --&gt;</span>
+      <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"paneles-grid"</span><span class="ct">&gt;</span>
+
+        <span class="cc">&lt;!-- Panel izquierdo: tabla con overflow-x --&gt;</span>
+        <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"panel"</span><span class="ct">&gt;</span>
+          <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"panel-header"</span><span class="ct">&gt;</span>
+            <span class="ct">&lt;h2&gt;</span><span class="cs">Campañas activas</span><span class="ct">&lt;/h2&gt;</span>
+            <span class="cc">&lt;!-- TOOLTIP: position absolute dentro de position relative --&gt;</span>
+            <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"tooltip-wrap"</span><span class="ct">&gt;</span>
+              <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"info-icono"</span><span class="ct">&gt;</span><span class="cs">?</span><span class="ct">&lt;/span&gt;</span>
+              <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"tooltip-caja"</span><span class="ct">&gt;</span>
+                <span class="cs">Datos de los últimos 30 días</span>
+              <span class="ct">&lt;/div&gt;</span>
+            <span class="ct">&lt;/div&gt;</span>
+          <span class="ct">&lt;/div&gt;</span>
+          <span class="cc">&lt;!-- overflow-x: auto para que la tabla tenga scroll horizontal --&gt;</span>
+          <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"tabla-scroll"</span><span class="ct">&gt;</span>
+            <span class="ct">&lt;table</span> <span class="ca">class</span>=<span class="cv">"tabla-datos"</span><span class="ct">&gt;</span>
+              <span class="ct">&lt;thead&gt;</span>
+                <span class="ct">&lt;tr&gt;</span>
+                  <span class="ct">&lt;th&gt;</span><span class="cs">Campaña</span><span class="ct">&lt;/th&gt;</span>
+                  <span class="ct">&lt;th&gt;</span><span class="cs">Canal</span><span class="ct">&lt;/th&gt;</span>
+                  <span class="ct">&lt;th&gt;</span><span class="cs">Clics</span><span class="ct">&lt;/th&gt;</span>
+                  <span class="ct">&lt;th&gt;</span><span class="cs">Conversiones</span><span class="ct">&lt;/th&gt;</span>
+                  <span class="ct">&lt;th&gt;</span><span class="cs">Presupuesto</span><span class="ct">&lt;/th&gt;</span>
+                  <span class="ct">&lt;th&gt;</span><span class="cs">Estado</span><span class="ct">&lt;/th&gt;</span>
+                <span class="ct">&lt;/tr&gt;</span>
+              <span class="ct">&lt;/thead&gt;</span>
+              <span class="ct">&lt;tbody&gt;</span>
+                <span class="ct">&lt;tr&gt;</span>
+                  <span class="ct">&lt;td&gt;</span><span class="cs">Verano 2025</span><span class="ct">&lt;/td&gt;</span>
+                  <span class="ct">&lt;td&gt;</span><span class="cs">Instagram</span><span class="ct">&lt;/td&gt;</span>
+                  <span class="ct">&lt;td&gt;</span><span class="cs">12,540</span><span class="ct">&lt;/td&gt;</span>
+                  <span class="ct">&lt;td&gt;</span><span class="cs">482</span><span class="ct">&lt;/td&gt;</span>
+                  <span class="ct">&lt;td&gt;</span><span class="cs">$3,200</span><span class="ct">&lt;/td&gt;</span>
+                  <span class="ct">&lt;td&gt;&lt;span</span> <span class="ca">class</span>=<span class="cv">"estado-chip activo"</span><span class="ct">&gt;</span><span class="cs">Activo</span><span class="ct">&lt;/span&gt;&lt;/td&gt;</span>
+                <span class="ct">&lt;/tr&gt;</span>
+                <span class="ct">&lt;tr&gt;</span>
+                  <span class="ct">&lt;td&gt;</span><span class="cs">Lanzamiento v2</span><span class="ct">&lt;/td&gt;</span>
+                  <span class="ct">&lt;td&gt;</span><span class="cs">Google Ads</span><span class="ct">&lt;/td&gt;</span>
+                  <span class="ct">&lt;td&gt;</span><span class="cs">8,910</span><span class="ct">&lt;/td&gt;</span>
+                  <span class="ct">&lt;td&gt;</span><span class="cs">315</span><span class="ct">&lt;/td&gt;</span>
+                  <span class="ct">&lt;td&gt;</span><span class="cs">$1,800</span><span class="ct">&lt;/td&gt;</span>
+                  <span class="ct">&lt;td&gt;&lt;span</span> <span class="ca">class</span>=<span class="cv">"estado-chip activo"</span><span class="ct">&gt;</span><span class="cs">Activo</span><span class="ct">&lt;/span&gt;&lt;/td&gt;</span>
+                <span class="ct">&lt;/tr&gt;</span>
+                <span class="ct">&lt;tr&gt;</span>
+                  <span class="ct">&lt;td&gt;</span><span class="cs">Retargeting Q2</span><span class="ct">&lt;/td&gt;</span>
+                  <span class="ct">&lt;td&gt;</span><span class="cs">Facebook</span><span class="ct">&lt;/td&gt;</span>
+                  <span class="ct">&lt;td&gt;</span><span class="cs">5,230</span><span class="ct">&lt;/td&gt;</span>
+                  <span class="ct">&lt;td&gt;</span><span class="cs">190</span><span class="ct">&lt;/td&gt;</span>
+                  <span class="ct">&lt;td&gt;</span><span class="cs">$900</span><span class="ct">&lt;/td&gt;</span>
+                  <span class="ct">&lt;td&gt;&lt;span</span> <span class="ca">class</span>=<span class="cv">"estado-chip pausa"</span><span class="ct">&gt;</span><span class="cs">Pausa</span><span class="ct">&lt;/span&gt;&lt;/td&gt;</span>
+                <span class="ct">&lt;/tr&gt;</span>
+                <span class="ct">&lt;tr&gt;</span>
+                  <span class="ct">&lt;td&gt;</span><span class="cs">Email mayo</span><span class="ct">&lt;/td&gt;</span>
+                  <span class="ct">&lt;td&gt;</span><span class="cs">Mailchimp</span><span class="ct">&lt;/td&gt;</span>
+                  <span class="ct">&lt;td&gt;</span><span class="cs">3,100</span><span class="ct">&lt;/td&gt;</span>
+                  <span class="ct">&lt;td&gt;</span><span class="cs">44</span><span class="ct">&lt;/td&gt;</span>
+                  <span class="ct">&lt;td&gt;</span><span class="cs">$200</span><span class="ct">&lt;/td&gt;</span>
+                  <span class="ct">&lt;td&gt;&lt;span</span> <span class="ca">class</span>=<span class="cv">"estado-chip error"</span><span class="ct">&gt;</span><span class="cs">Error</span><span class="ct">&lt;/span&gt;&lt;/td&gt;</span>
+                <span class="ct">&lt;/tr&gt;</span>
+              <span class="ct">&lt;/tbody&gt;</span>
+            <span class="ct">&lt;/table&gt;</span>
+          <span class="ct">&lt;/div&gt;</span>
+        <span class="ct">&lt;/div&gt;</span>
+
+        <span class="cc">&lt;!-- Panel derecho: lista con overflow-y y scroll personalizado --&gt;</span>
+        <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"panel"</span><span class="ct">&gt;</span>
+          <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"panel-header"</span><span class="ct">&gt;</span>
+            <span class="ct">&lt;h2&gt;</span><span class="cs">Actividad reciente</span><span class="ct">&lt;/h2&gt;</span>
+          <span class="ct">&lt;/div&gt;</span>
+          <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"actividad-scroll"</span><span class="ct">&gt;</span>
+            <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"act-item"</span><span class="ct">&gt;</span>
+              <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"act-punto verde"</span><span class="ct">&gt;&lt;/span&gt;</span>
+              <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"act-texto"</span><span class="ct">&gt;</span><span class="cs">Nueva venta · $340</span><span class="ct">&lt;/span&gt;</span>
+              <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"act-tiempo"</span><span class="ct">&gt;</span><span class="cs">hace 2 min</span><span class="ct">&lt;/span&gt;</span>
+            <span class="ct">&lt;/div&gt;</span>
+            <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"act-item"</span><span class="ct">&gt;</span>
+              <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"act-punto azul"</span><span class="ct">&gt;&lt;/span&gt;</span>
+              <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"act-texto"</span><span class="ct">&gt;</span><span class="cs">Nuevo usuario registrado</span><span class="ct">&lt;/span&gt;</span>
+              <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"act-tiempo"</span><span class="ct">&gt;</span><span class="cs">hace 8 min</span><span class="ct">&lt;/span&gt;</span>
+            <span class="ct">&lt;/div&gt;</span>
+            <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"act-item"</span><span class="ct">&gt;</span>
+              <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"act-punto rojo"</span><span class="ct">&gt;&lt;/span&gt;</span>
+              <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"act-texto"</span><span class="ct">&gt;</span><span class="cs">Error en campaña Email mayo</span><span class="ct">&lt;/span&gt;</span>
+              <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"act-tiempo"</span><span class="ct">&gt;</span><span class="cs">hace 15 min</span><span class="ct">&lt;/span&gt;</span>
+            <span class="ct">&lt;/div&gt;</span>
+            <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"act-item"</span><span class="ct">&gt;</span>
+              <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"act-punto verde"</span><span class="ct">&gt;&lt;/span&gt;</span>
+              <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"act-texto"</span><span class="ct">&gt;</span><span class="cs">Pedido enviado #4821</span><span class="ct">&lt;/span&gt;</span>
+              <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"act-tiempo"</span><span class="ct">&gt;</span><span class="cs">hace 22 min</span><span class="ct">&lt;/span&gt;</span>
+            <span class="ct">&lt;/div&gt;</span>
+            <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"act-item"</span><span class="ct">&gt;</span>
+              <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"act-punto ambar"</span><span class="ct">&gt;&lt;/span&gt;</span>
+              <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"act-texto"</span><span class="ct">&gt;</span><span class="cs">Campaña Retargeting pausada</span><span class="ct">&lt;/span&gt;</span>
+              <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"act-tiempo"</span><span class="ct">&gt;</span><span class="cs">hace 1 hora</span><span class="ct">&lt;/span&gt;</span>
+            <span class="ct">&lt;/div&gt;</span>
+            <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"act-item"</span><span class="ct">&gt;</span>
+              <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"act-punto verde"</span><span class="ct">&gt;&lt;/span&gt;</span>
+              <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"act-texto"</span><span class="ct">&gt;</span><span class="cs">Nueva venta · $128</span><span class="ct">&lt;/span&gt;</span>
+              <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"act-tiempo"</span><span class="ct">&gt;</span><span class="cs">hace 2 horas</span><span class="ct">&lt;/span&gt;</span>
+            <span class="ct">&lt;/div&gt;</span>
+            <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"act-item"</span><span class="ct">&gt;</span>
+              <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"act-punto azul"</span><span class="ct">&gt;&lt;/span&gt;</span>
+              <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"act-texto"</span><span class="ct">&gt;</span><span class="cs">2 nuevos usuarios registrados</span><span class="ct">&lt;/span&gt;</span>
+              <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"act-tiempo"</span><span class="ct">&gt;</span><span class="cs">hace 3 horas</span><span class="ct">&lt;/span&gt;</span>
+            <span class="ct">&lt;/div&gt;</span>
+          <span class="ct">&lt;/div&gt;</span>
+        <span class="ct">&lt;/div&gt;</span>
+
+      <span class="ct">&lt;/div&gt;</span><span class="cc">&lt;!-- /.paneles-grid --&gt;</span>
+    <span class="ct">&lt;/div&gt;</span><span class="cc">&lt;!-- /.contenido --&gt;</span>
+  <span class="ct">&lt;/div&gt;</span><span class="cc">&lt;!-- /.main-area --&gt;</span>
+<span class="ct">&lt;/div&gt;</span><span class="cc">&lt;!-- /.app-layout --&gt;</span></div>
+
+  <table class="tbl">
+    <thead><tr><th>Clase</th><th>position que usará en CSS</th><th>Por qué</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">.tooltip-wrap</span></td><td><code>position: relative</code></td><td>Para que el <code>.tooltip-caja</code> absolute se posicione relativo a él y no al body.</td></tr>
+      <tr><td><span class="tag">.tooltip-caja</span></td><td><code>position: absolute</code></td><td>Sale del flujo y flota encima del contenido. <code>bottom: calc(100% + 8px)</code> la coloca 8px por encima del ícono ?.</td></tr>
+      <tr><td><span class="tag">.tabla-scroll</span></td><td><code>overflow-x: auto</code></td><td>La tabla puede ser más ancha que el panel. El scroll horizontal aparece solo cuando hace falta.</td></tr>
+      <tr><td><span class="tag">.actividad-scroll</span></td><td><code>overflow-y: auto; max-height: 260px</code></td><td>La lista puede tener muchos items. Solo muestra los que caben y el resto se ve haciendo scroll.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- ══════════════════════════════════
+     CSS
+══════════════════════════════════ -->
+<section class="module" id="css">
+  <div class="module-header">
+    <div class="module-icon">🎨</div>
+    <div>
+      <div class="module-title">PARTE 3 — El CSS completo</div>
+      <div class="module-sub">Aquí entra en acción position en todos sus valores</div>
+    </div>
+  </div>
+
+  <h2>CSS BLOQUE 1 — Reset, Variables y z-index como variables</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">*, *::before, *::after</span> { <span class="ca">margin</span>:<span class="cn">0</span>; <span class="ca">padding</span>:<span class="cn">0</span>; <span class="ca">box-sizing</span>:border-box; }
+
+<span class="cp">:root</span> {
+  <span class="ca">--sidebar-w</span>: <span class="cn">220px</span>;      <span class="cc">/* ancho del sidebar — usada en calc() */</span>
+  <span class="ca">--topbar-h</span>:  <span class="cn">56px</span>;       <span class="cc">/* alto del topbar   — usada en calc() */</span>
+
+  <span class="ca">--fondo</span>:    <span class="cn">#0F172A</span>;
+  <span class="ca">--panel</span>:    <span class="cn">#1E293B</span>;
+  <span class="ca">--borde</span>:    <span class="cn">#334155</span>;
+  <span class="ca">--texto</span>:    <span class="cn">#E2E8F0</span>;
+  <span class="ca">--texto-s</span>:  <span class="cn">#94A3B8</span>;
+  <span class="ca">--azul</span>:     <span class="cn">#3B82F6</span>;
+  <span class="ca">--verde</span>:    <span class="cn">#10B981</span>;
+  <span class="ca">--ambar</span>:    <span class="cn">#F59E0B</span>;
+  <span class="ca">--rojo</span>:     <span class="cn">#EF4444</span>;
+  <span class="ca">--radio</span>:    <span class="cn">12px</span>;
+
+  <span class="cc">/* z-indexes organizados como variables */</span>
+  <span class="ca">--z-contenido</span>: <span class="cn">1</span>;
+  <span class="ca">--z-sidebar</span>:   <span class="cn">10</span>;
+  <span class="ca">--z-topbar</span>:    <span class="cn">20</span>;
+  <span class="ca">--z-tooltip</span>:   <span class="cn">50</span>;
+}
+
+<span class="cp">html</span> { <span class="ca">scroll-behavior</span>: smooth; }
+<span class="cp">body</span> {
+  <span class="ca">font-family</span>: <span class="cn">'Inter'</span>, Arial, sans-serif;
+  <span class="ca">background</span>: var(<span class="cv">--fondo</span>);
+  <span class="ca">color</span>: var(<span class="cv">--texto</span>);
+  <span class="ca">font-size</span>: <span class="cn">16px</span>;
+  <span class="ca">line-height</span>: <span class="cn">1.5</span>;
+}</div>
+
+  <hr>
+
+  <h2>CSS BLOQUE 2 — Layout: sidebar fixed + main con calc()</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* ── LAYOUT PRINCIPAL ── */</span>
+<span class="cp">.app-layout</span> { <span class="ca">display</span>: flex; <span class="ca">min-height</span>: <span class="cn">100vh</span>; }
+
+<span class="cc">/* ① SIDEBAR: position fixed — siempre visible al hacer scroll */</span>
+<span class="cp">.sidebar</span> {
+  <span class="ca">position</span>: fixed;    <span class="cc">/* sale del flujo, se fija a la ventana */</span>
+  <span class="ca">top</span>: <span class="cn">0</span>;             <span class="cc">/* pegado al borde superior de la pantalla */</span>
+  <span class="ca">left</span>: <span class="cn">0</span>;            <span class="cc">/* pegado al borde izquierdo */</span>
+  <span class="ca">width</span>: var(<span class="cv">--sidebar-w</span>);
+  <span class="ca">height</span>: <span class="cn">100vh</span>;     <span class="cc">/* toda la altura de la pantalla */</span>
+  <span class="ca">background</span>: var(<span class="cv">--panel</span>);
+  <span class="ca">border-right</span>: <span class="cn">1px solid</span> var(<span class="cv">--borde</span>);
+  <span class="ca">display</span>: flex; <span class="ca">flex-direction</span>: column;
+  <span class="ca">overflow-y</span>: auto;   <span class="cc">/* scroll vertical si hay muchos items de nav */</span>
+  <span class="ca">z-index</span>: var(<span class="cv">--z-sidebar</span>);
+}
+
+<span class="cc">/* ② MAIN-AREA: compensar el sidebar con margin-left y calc() */</span>
+<span class="cp">.main-area</span> {
+  <span class="ca">margin-left</span>: var(<span class="cv">--sidebar-w</span>);     <span class="cc">/* ← deja espacio al sidebar fixed */</span>
+  <span class="ca">width</span>: calc(<span class="cn">100% - var(--sidebar-w)</span>); <span class="cc">/* ← ocupa el resto */</span>
+  <span class="ca">min-height</span>: <span class="cn">100vh</span>;
+  <span class="ca">display</span>: flex; <span class="ca">flex-direction</span>: column;
+}
+
+<span class="cc">/* Estilos del sidebar */</span>
+<span class="cp">.sidebar-logo</span> {
+  <span class="ca">padding</span>: <span class="cn">20px 18px</span>;
+  <span class="ca">border-bottom</span>: <span class="cn">1px solid</span> var(<span class="cv">--borde</span>);
+}
+<span class="cp">.logo-texto</span> { <span class="ca">font-weight</span>: <span class="cn">700</span>; <span class="ca">font-size</span>: <span class="cn">1.1rem</span>; <span class="ca">color</span>: white; }
+<span class="cp">.sidebar-logo small</span> { <span class="ca">font-size</span>: <span class="cn">.7rem</span>; <span class="ca">color</span>: var(<span class="cv">--texto-s</span>); <span class="ca">display</span>: block; <span class="ca">margin-top</span>: <span class="cn">2px</span>; }
+<span class="cp">.nav-titulo</span> {
+  <span class="ca">padding</span>: <span class="cn">14px 18px 4px</span>;
+  <span class="ca">font-size</span>: <span class="cn">.65rem</span>; <span class="ca">font-weight</span>: <span class="cn">700</span>; <span class="ca">text-transform</span>: uppercase;
+  <span class="ca">letter-spacing</span>: <span class="cn">.1em</span>; <span class="ca">color</span>: <span class="cn">#475569</span>;
+}
+<span class="cp">.sidebar-nav a</span> {
+  <span class="ca">display</span>: flex; <span class="ca">align-items</span>: center; <span class="ca">gap</span>: <span class="cn">10px</span>;
+  <span class="ca">padding</span>: <span class="cn">9px 18px</span>; <span class="ca">color</span>: var(<span class="cv">--texto-s</span>);
+  <span class="ca">text-decoration</span>: none; <span class="ca">font-size</span>: <span class="cn">.85rem</span>;
+  <span class="ca">transition</span>: all <span class="cn">.15s</span>;
+}
+<span class="cp">.sidebar-nav a:hover</span> { <span class="ca">background</span>: <span class="cn">#334155</span>; <span class="ca">color</span>: white; }
+<span class="cp">.sidebar-nav a.activo</span> {
+  <span class="ca">background</span>: rgba(<span class="cn">59,130,246,.15</span>); <span class="ca">color</span>: <span class="cn">#60A5FA</span>;
+  <span class="ca">border-right</span>: <span class="cn">3px solid</span> var(<span class="cv">--azul</span>);
+}</div>
+
+  <table class="tbl">
+    <thead><tr><th>Propiedad / patrón</th><th>Explicación</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">position: fixed + top:0 left:0</span></td><td>El sidebar se fija a la esquina superior izquierda de la <strong>ventana</strong>. No se mueve con el scroll. Es exactamente lo que hace la barra de YouTube, Gmail o VS Code.</td></tr>
+      <tr><td><span class="tag">height: 100vh</span></td><td>El sidebar ocupa toda la altura de la pantalla visible. <code>100vh</code> = 100% del viewport height.</td></tr>
+      <tr><td><span class="tag">margin-left: var(--sidebar-w)</span></td><td>Como el sidebar tiene <code>position: fixed</code> y sale del flujo, el main-area no lo "ve". Hay que empujarlo manualmente con <code>margin-left</code> del mismo ancho que el sidebar.</td></tr>
+      <tr><td><span class="tag">width: calc(100% - var(--sidebar-w))</span></td><td>El main-area ocupa todo el ancho menos el sidebar. Si cambias <code>--sidebar-w</code> en <code>:root</code>, tanto el sidebar como el main-area se actualizan automáticamente.</td></tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h2>CSS BLOQUE 3 — Topbar sticky y badge de notificación</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* ── TOPBAR: sticky (no fixed) — se queda relativo al .main-area ── */</span>
+<span class="cp">.topbar-dash</span> {
+  <span class="ca">position</span>: sticky;    <span class="cc">/* sticky dentro del contenedor flex .main-area */</span>
+  <span class="ca">top</span>: <span class="cn">0</span>;
+  <span class="ca">height</span>: var(<span class="cv">--topbar-h</span>);
+  <span class="ca">background</span>: var(<span class="cv">--panel</span>);
+  <span class="ca">border-bottom</span>: <span class="cn">1px solid</span> var(<span class="cv">--borde</span>);
+  <span class="ca">padding</span>: <span class="cn">0 24px</span>;
+  <span class="ca">display</span>: flex; <span class="ca">justify-content</span>: space-between; <span class="ca">align-items</span>: center;
+  <span class="ca">z-index</span>: var(<span class="cv">--z-topbar</span>);   <span class="cc">/* queda encima del contenido al hacer scroll */</span>
+}
+<span class="cp">.topbar-dash h1</span> { <span class="ca">font-size</span>: <span class="cn">.95rem</span>; <span class="ca">font-weight</span>: <span class="cn">600</span>; }
+<span class="cp">.topbar-acciones</span> { <span class="ca">display</span>: flex; <span class="ca">align-items</span>: center; <span class="ca">gap</span>: <span class="cn">12px</span>; }
+
+<span class="cc">/* BADGE DE NOTIFICACIÓN: el patrón más clásico de position: absolute */</span>
+<span class="cp">.notif-wrap</span> {
+  <span class="ca">position</span>: relative;  <span class="cc">/* ← ancla para el badge absolute */</span>
+}
+<span class="cp">.notif-btn</span> {
+  <span class="ca">background</span>: <span class="cn">#334155</span>; <span class="ca">border</span>: none; <span class="ca">color</span>: var(<span class="cv">--texto-s</span>);
+  <span class="ca">width</span>: <span class="cn">36px</span>; <span class="ca">height</span>: <span class="cn">36px</span>; <span class="ca">border-radius</span>: <span class="cn">9px</span>;
+  <span class="ca">cursor</span>: pointer; <span class="ca">font-size</span>: <span class="cn">1.1rem</span>;
+  <span class="ca">display</span>: flex; <span class="ca">align-items</span>: center; <span class="ca">justify-content</span>: center;
+}
+<span class="cp">.notif-badge</span> {
+  <span class="ca">position</span>: absolute;   <span class="cc">/* sale del flujo, se posiciona relativo a .notif-wrap */</span>
+  <span class="ca">top</span>: <span class="cn">-5px</span>;             <span class="cc">/* 5px por encima del borde superior del botón */</span>
+  <span class="ca">right</span>: <span class="cn">-5px</span>;           <span class="cc">/* 5px fuera del borde derecho del botón */</span>
+  <span class="ca">background</span>: var(<span class="cv">--rojo</span>);
+  <span class="ca">color</span>: white; <span class="ca">font-size</span>: <span class="cn">.6rem</span>; <span class="ca">font-weight</span>: <span class="cn">700</span>;
+  <span class="ca">width</span>: <span class="cn">17px</span>; <span class="ca">height</span>: <span class="cn">17px</span>; <span class="ca">border-radius</span>: <span class="cn">50%</span>;
+  <span class="ca">display</span>: flex; <span class="ca">align-items</span>: center; <span class="ca">justify-content</span>: center;
+  <span class="ca">border</span>: <span class="cn">2px solid</span> var(<span class="cv">--panel</span>); <span class="cc">/* borde del mismo color que el fondo — crea separación */</span>
+}
+<span class="cp">.usuario-avatar</span> {
+  <span class="ca">width</span>: <span class="cn">36px</span>; <span class="ca">height</span>: <span class="cn">36px</span>; <span class="ca">border-radius</span>: <span class="cn">50%</span>;
+  <span class="ca">background</span>: linear-gradient(<span class="cn">135deg</span>, var(<span class="cv">--azul</span>), <span class="cn">#6D28D9</span>);
+  <span class="ca">display</span>: flex; <span class="ca">align-items</span>: center; <span class="ca">justify-content</span>: center;
+  <span class="ca">font-size</span>: <span class="cn">.75rem</span>; <span class="ca">font-weight</span>: <span class="cn">700</span>; <span class="ca">color</span>: white;
+}</div>
+
+  <hr>
+
+  <h2>CSS BLOQUE 4 — KPI Cards con pseudo-elementos absolutos</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">.contenido</span> { <span class="ca">padding</span>: <span class="cn">24px</span>; <span class="ca">flex</span>: <span class="cn">1</span>; }
+
+<span class="cp">.kpis-grid</span> {
+  <span class="ca">display</span>: grid;
+  <span class="ca">grid-template-columns</span>: repeat(<span class="cn">auto-fit</span>, minmax(<span class="cn">200px</span>, <span class="cn">1fr</span>));
+  <span class="ca">gap</span>: <span class="cn">16px</span>;
+  <span class="ca">margin-bottom</span>: <span class="cn">24px</span>;
+}
+
+<span class="cc">/* KPI CARD: relative + overflow: hidden para el círculo decorativo */</span>
+<span class="cp">.kpi-card</span> {
+  <span class="ca">background</span>: var(<span class="cv">--panel</span>);
+  <span class="ca">border</span>: <span class="cn">1px solid</span> var(<span class="cv">--borde</span>);
+  <span class="ca">border-radius</span>: var(<span class="cv">--radio</span>);
+  <span class="ca">padding</span>: <span class="cn">20px</span>;
+  <span class="ca">position</span>: relative;      <span class="cc">/* ancla para .kpi-icono absolute y ::after absolute */</span>
+  <span class="ca">overflow</span>: hidden;        <span class="cc">/* el ::after que sobresale queda recortado al borde */</span>
+}
+
+<span class="cc">/* Círculo decorativo en la esquina — hecho con ::after absolute */</span>
+<span class="cp">.kpi-card::after</span> {
+  <span class="ca">content</span>: <span class="cv">''</span>;
+  <span class="ca">position</span>: absolute;    <span class="cc">/* relativo a .kpi-card */</span>
+  <span class="ca">top</span>: <span class="cn">-20px</span>;            <span class="cc">/* sale parcialmente por arriba */</span>
+  <span class="ca">right</span>: <span class="cn">-20px</span>;          <span class="cc">/* sale parcialmente por la derecha */</span>
+  <span class="ca">width</span>: <span class="cn">80px</span>;
+  <span class="ca">height</span>: <span class="cn">80px</span>;
+  <span class="ca">border-radius</span>: <span class="cn">50%</span>;
+  <span class="ca">opacity</span>: <span class="cn">.08</span>;
+  <span class="cc">/* El color lo pone la clase de color (.azul, .verde, etc.) */</span>
+}
+<span class="cp">.kpi-card.azul::after</span>  { <span class="ca">background</span>: var(<span class="cv">--azul</span>); }
+<span class="cp">.kpi-card.verde::after</span> { <span class="ca">background</span>: var(<span class="cv">--verde</span>); }
+<span class="cp">.kpi-card.ambar::after</span> { <span class="ca">background</span>: var(<span class="cv">--ambar</span>); }
+<span class="cp">.kpi-card.rojo::after</span>  { <span class="ca">background</span>: var(<span class="cv">--rojo</span>); }
+
+<span class="cp">.kpi-label</span> { <span class="ca">font-size</span>: <span class="cn">.7rem</span>; <span class="ca">font-weight</span>: <span class="cn">700</span>; <span class="ca">text-transform</span>: uppercase; <span class="ca">letter-spacing</span>: <span class="cn">.08em</span>; <span class="ca">color</span>: <span class="cn">#64748B</span>; <span class="ca">margin-bottom</span>: <span class="cn">6px</span>; }
+<span class="cp">.kpi-valor</span> { <span class="ca">font-size</span>: <span class="cn">1.7rem</span>; <span class="ca">font-weight</span>: <span class="cn">800</span>; <span class="ca">color</span>: white; <span class="ca">line-height</span>: <span class="cn">1</span>; <span class="ca">margin-bottom</span>: <span class="cn">10px</span>; }
+<span class="cp">.kpi-delta</span> {
+  <span class="ca">display</span>: inline-flex; <span class="ca">align-items</span>: center; <span class="ca">gap</span>: <span class="cn">3px</span>;
+  <span class="ca">font-size</span>: <span class="cn">.72rem</span>; <span class="ca">font-weight</span>: <span class="cn">600</span>;
+  <span class="ca">padding</span>: <span class="cn">2px 8px</span>; <span class="ca">border-radius</span>: <span class="cn">20px</span>;
+}
+<span class="cp">.kpi-delta.sube</span> { <span class="ca">background</span>: rgba(<span class="cn">16,185,129,.15</span>); <span class="ca">color</span>: <span class="cn">#34D399</span>; }
+<span class="cp">.kpi-delta.baja</span> { <span class="ca">background</span>: rgba(<span class="cn">239,68,68,.15</span>);   <span class="ca">color</span>: <span class="cn">#F87171</span>; }
+
+<span class="cc">/* Ícono en la esquina superior derecha — absolute */</span>
+<span class="cp">.kpi-icono</span> {
+  <span class="ca">position</span>: absolute;
+  <span class="ca">top</span>: <span class="cn">16px</span>;
+  <span class="ca">right</span>: <span class="cn">16px</span>;
+  <span class="ca">font-size</span>: <span class="cn">1.4rem</span>;
+  <span class="ca">opacity</span>: <span class="cn">.6</span>;
+}</div>
+
+  <hr>
+
+  <h2>CSS BLOQUE 5 — Paneles, tooltip, overflow y scroll personalizado</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">.paneles-grid</span> {
+  <span class="ca">display</span>: grid;
+  <span class="ca">grid-template-columns</span>: <span class="cn">3fr 2fr</span>; <span class="cc">/* tabla más ancha que la actividad */</span>
+  <span class="ca">gap</span>: <span class="cn">16px</span>;
+}
+<span class="cp">.panel</span> {
+  <span class="ca">background</span>: var(<span class="cv">--panel</span>);
+  <span class="ca">border</span>: <span class="cn">1px solid</span> var(<span class="cv">--borde</span>); <span class="ca">border-radius</span>: var(<span class="cv">--radio</span>);
+  <span class="ca">overflow</span>: hidden; <span class="cc">/* los bordes redondeados también recortan hijos */</span>
+}
+<span class="cp">.panel-header</span> {
+  <span class="ca">padding</span>: <span class="cn">16px 18px</span>;
+  <span class="ca">border-bottom</span>: <span class="cn">1px solid</span> var(<span class="cv">--borde</span>);
+  <span class="ca">display</span>: flex; <span class="ca">align-items</span>: center; <span class="ca">justify-content</span>: space-between;
+}
+<span class="cp">.panel-header h2</span> { <span class="ca">font-size</span>: <span class="cn">.88rem</span>; <span class="ca">font-weight</span>: <span class="cn">600</span>; }
+
+<span class="cc">/* ── TOOLTIP: el patrón completo ── */</span>
+<span class="cp">.tooltip-wrap</span> {
+  <span class="ca">position</span>: relative;   <span class="cc">/* ancla para .tooltip-caja absolute */</span>
+}
+<span class="cp">.info-icono</span> {
+  <span class="ca">width</span>: <span class="cn">18px</span>; <span class="ca">height</span>: <span class="cn">18px</span>; <span class="ca">background</span>: <span class="cn">#334155</span>;
+  <span class="ca">border-radius</span>: <span class="cn">50%</span>; <span class="ca">display</span>: flex; <span class="ca">align-items</span>: center; <span class="ca">justify-content</span>: center;
+  <span class="ca">font-size</span>: <span class="cn">.65rem</span>; <span class="ca">color</span>: var(<span class="cv">--texto-s</span>); <span class="ca">cursor</span>: help;
+}
+<span class="cp">.tooltip-caja</span> {
+  <span class="ca">position</span>: absolute;            <span class="cc">/* sale del flujo */</span>
+  <span class="ca">bottom</span>: calc(<span class="cn">100% + 8px</span>);    <span class="cc">/* 8px por encima del ícono — con calc()! */</span>
+  <span class="ca">right</span>: <span class="cn">0</span>;
+  <span class="ca">background</span>: <span class="cn">#0F172A</span>; <span class="ca">border</span>: <span class="cn">1px solid</span> var(<span class="cv">--borde</span>);
+  <span class="ca">color</span>: var(<span class="cv">--texto-s</span>); <span class="ca">font-size</span>: <span class="cn">.72rem</span>;
+  <span class="ca">padding</span>: <span class="cn">8px 10px</span>; <span class="ca">border-radius</span>: <span class="cn">8px</span>;
+  <span class="ca">white-space</span>: nowrap;
+  <span class="ca">opacity</span>: <span class="cn">0</span>;                    <span class="cc">/* invisible por defecto */</span>
+  <span class="ca">pointer-events</span>: none;
+  <span class="ca">transition</span>: opacity <span class="cn">.2s</span>;
+  <span class="ca">z-index</span>: var(<span class="cv">--z-tooltip</span>);
+}
+<span class="cc">/* Flecha del tooltip — ::after absolute */</span>
+<span class="cp">.tooltip-caja::after</span> {
+  <span class="ca">content</span>: <span class="cv">''</span>;
+  <span class="ca">position</span>: absolute;
+  <span class="ca">top</span>: <span class="cn">100%</span>;         <span class="cc">/* justo debajo del tooltip */</span>
+  <span class="ca">right</span>: <span class="cn">6px</span>;
+  <span class="ca">border</span>: <span class="cn">5px solid transparent</span>;
+  <span class="ca">border-top-color</span>: var(<span class="cv">--borde</span>); <span class="cc">/* solo el borde de arriba visible = triángulo */</span>
+}
+<span class="cp">.tooltip-wrap:hover .tooltip-caja</span> { <span class="ca">opacity</span>: <span class="cn">1</span>; } <span class="cc">/* aparece al hover */</span>
+
+<span class="cc">/* ── TABLA CON OVERFLOW HORIZONTAL ── */</span>
+<span class="cp">.tabla-scroll</span> {
+  <span class="ca">overflow-x</span>: auto;    <span class="cc">/* scroll horizontal cuando la tabla es más ancha que el panel */</span>
+}
+<span class="cp">.tabla-datos</span> { <span class="ca">width</span>: <span class="cn">100%</span>; <span class="ca">border-collapse</span>: collapse; <span class="ca">font-size</span>: <span class="cn">.78rem</span>; <span class="ca">white-space</span>: nowrap; }
+<span class="cp">.tabla-datos th</span> { <span class="ca">background</span>: var(<span class="cv">--fondo</span>); <span class="ca">color</span>: <span class="cn">#64748B</span>; <span class="ca">padding</span>: <span class="cn">10px 14px</span>; <span class="ca">text-align</span>: left; <span class="ca">font-size</span>: <span class="cn">.68rem</span>; <span class="ca">text-transform</span>: uppercase; <span class="ca">letter-spacing</span>: <span class="cn">.08em</span>; <span class="ca">border-bottom</span>: <span class="cn">1px solid</span> var(<span class="cv">--borde</span>); }
+<span class="cp">.tabla-datos td</span> { <span class="ca">padding</span>: <span class="cn">10px 14px</span>; <span class="ca">border-bottom</span>: <span class="cn">1px solid</span> rgba(<span class="cn">255,255,255,0.04</span>); <span class="ca">color</span>: var(<span class="cv">--texto-s</span>); }
+<span class="cp">.tabla-datos tr:hover td</span> { <span class="ca">background</span>: rgba(<span class="cn">255,255,255,0.03</span>); }
+
+<span class="cp">.estado-chip</span> { <span class="ca">display</span>: inline-block; <span class="ca">padding</span>: <span class="cn">2px 8px</span>; <span class="ca">border-radius</span>: <span class="cn">20px</span>; <span class="ca">font-size</span>: <span class="cn">.65rem</span>; <span class="ca">font-weight</span>: <span class="cn">700</span>; }
+<span class="cp">.estado-chip.activo</span> { <span class="ca">background</span>: rgba(<span class="cn">16,185,129,.15</span>); <span class="ca">color</span>: <span class="cn">#34D399</span>; }
+<span class="cp">.estado-chip.pausa</span>  { <span class="ca">background</span>: rgba(<span class="cn">245,158,11,.15</span>);   <span class="ca">color</span>: <span class="cn">#FCD34D</span>; }
+<span class="cp">.estado-chip.error</span>  { <span class="ca">background</span>: rgba(<span class="cn">239,68,68,.15</span>);    <span class="ca">color</span>: <span class="cn">#F87171</span>; }
+
+<span class="cc">/* ── LISTA DE ACTIVIDAD CON OVERFLOW-Y Y SCROLL PERSONALIZADO ── */</span>
+<span class="cp">.actividad-scroll</span> {
+  <span class="ca">max-height</span>: <span class="cn">260px</span>;    <span class="cc">/* altura máxima — el contenido que sobra hace scroll */</span>
+  <span class="ca">overflow-y</span>: auto;      <span class="cc">/* scroll vertical automático */</span>
+  <span class="ca">padding</span>: <span class="cn">4px 18px</span>;
+}
+<span class="cc">/* Barra de scroll personalizada */</span>
+<span class="cp">.actividad-scroll::-webkit-scrollbar</span>       { <span class="ca">width</span>: <span class="cn">4px</span>; }
+<span class="cp">.actividad-scroll::-webkit-scrollbar-track</span>  { <span class="ca">background</span>: transparent; }
+<span class="cp">.actividad-scroll::-webkit-scrollbar-thumb</span>  { <span class="ca">background</span>: <span class="cn">#334155</span>; <span class="ca">border-radius</span>: <span class="cn">4px</span>; }
+
+<span class="cp">.act-item</span> {
+  <span class="ca">display</span>: flex; <span class="ca">align-items</span>: center; <span class="ca">gap</span>: <span class="cn">12px</span>;
+  <span class="ca">padding</span>: <span class="cn">11px 0</span>; <span class="ca">border-bottom</span>: <span class="cn">1px solid</span> rgba(<span class="cn">255,255,255,0.05</span>);
+}
+<span class="cp">.act-item:last-child</span> { <span class="ca">border-bottom</span>: none; }
+<span class="cp">.act-punto</span> { <span class="ca">width</span>: <span class="cn">8px</span>; <span class="ca">height</span>: <span class="cn">8px</span>; <span class="ca">border-radius</span>: <span class="cn">50%</span>; <span class="ca">flex-shrink</span>: <span class="cn">0</span>; }
+<span class="cp">.act-punto.verde</span> { <span class="ca">background</span>: var(<span class="cv">--verde</span>); }
+<span class="cp">.act-punto.azul</span>  { <span class="ca">background</span>: var(<span class="cv">--azul</span>); }
+<span class="cp">.act-punto.rojo</span>  { <span class="ca">background</span>: var(<span class="cv">--rojo</span>); }
+<span class="cp">.act-punto.ambar</span> { <span class="ca">background</span>: var(<span class="cv">--ambar</span>); }
+<span class="cp">.act-texto</span>  { <span class="ca">font-size</span>: <span class="cn">.8rem</span>; <span class="ca">color</span>: var(<span class="cv">--texto-s</span>); <span class="ca">flex</span>: <span class="cn">1</span>; }
+<span class="cp">.act-tiempo</span> { <span class="ca">font-size</span>: <span class="cn">.72rem</span>; <span class="ca">color</span>: <span class="cn">#475569</span>; <span class="ca">white-space</span>: nowrap; }</div>
+
+  <div class="tip">
+    <h4>🔑 Resumen de los 3 usos de calc() en este ejercicio</h4>
+    <ul>
+      <li><code>width: calc(100% - var(--sidebar-w))</code> → el main ocupa todo menos el sidebar</li>
+      <li><code>bottom: calc(100% + 8px)</code> → el tooltip flota 8px encima del ícono sin calcular alturas a mano</li>
+      <li>La variable <code>--sidebar-w</code> usada en <code>margin-left</code> y en <code>calc()</code> → si cambias el ancho del sidebar, ambos se sincronizan automáticamente</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     RESULTADO VISUAL
+══════════════════════════════════ -->
+<section class="module" id="resultado">
+  <div class="module-header">
+    <div class="module-icon">🖥</div>
+    <div>
+      <div class="module-title">PARTE 4 — Así debe verse tu dashboard</div>
+      <div class="module-sub">Vista previa completa del panel de TuApp</div>
+    </div>
+  </div>
+
+  <div class="preview" style="padding:0; margin-top:1.5rem;">
+    <div class="dash">
+      <!-- SIDEBAR -->
+      <div class="dash-sidebar">
+        <div class="dash-sidebar-logo">
+          <span>TuApp</span>
+          <small>Panel de control</small>
+        </div>
+        <nav class="dash-nav">
+          <p class="dash-nav-titulo">Principal</p>
+          <a href="#" class="activo">📊 Métricas</a>
+          <a href="#">👤 Usuarios</a>
+          <a href="#">📦 Productos</a>
+          <a href="#">🛒 Pedidos</a>
+          <p class="dash-nav-titulo">Sistema</p>
+          <a href="#">⚙️ Configuración</a>
+          <a href="#">🔒 Seguridad</a>
+        </nav>
+      </div>
+      <!-- MAIN -->
+      <div class="dash-main">
+        <div class="dash-topbar">
+          <h1>Métricas · Junio 2025</h1>
+          <div class="dash-topbar-right">
+            <div class="dash-notif">
+              <button class="dash-notif-btn">🔔</button>
+              <span class="dash-badge">3</span>
+            </div>
+            <div class="dash-avatar">HG</div>
+          </div>
+        </div>
+        <div class="dash-content">
+          <!-- KPIs -->
+          <div class="dash-kpis">
+            <div class="kpi azul">
+              <p class="kpi-label">Visitas totales</p>
+              <p class="kpi-valor">48,210</p>
+              <span class="kpi-delta sube">↑ 12.4%</span>
+              <span class="kpi-icono">🌐</span>
+            </div>
+            <div class="kpi verde">
+              <p class="kpi-label">Ingresos</p>
+              <p class="kpi-valor">$24,580</p>
+              <span class="kpi-delta sube">↑ 8.1%</span>
+              <span class="kpi-icono">💰</span>
+            </div>
+            <div class="kpi ambar">
+              <p class="kpi-label">Conversión</p>
+              <p class="kpi-valor">3.8%</p>
+              <span class="kpi-delta baja">↓ 0.3%</span>
+              <span class="kpi-icono">🎯</span>
+            </div>
+            <div class="kpi rojo">
+              <p class="kpi-label">Tasa de rebote</p>
+              <p class="kpi-valor">41.2%</p>
+              <span class="kpi-delta sube">↓ 2.7%</span>
+              <span class="kpi-icono">📉</span>
+            </div>
+          </div>
+          <!-- PANELES -->
+          <div class="dash-grid2">
+            <!-- Tabla -->
+            <div class="dash-card">
+              <div class="dash-card-title">
+                Campañas activas
+                <div class="info-btn">
+                  <div class="info-icon">?</div>
+                  <div class="tooltip">Datos de los últimos 30 días</div>
+                </div>
+              </div>
+              <div class="tabla-wrap">
+                <table class="dash-tabla">
+                  <thead><tr><th>Campaña</th><th>Canal</th><th>Clics</th><th>Conversiones</th><th>Presupuesto</th><th>Estado</th></tr></thead>
+                  <tbody>
+                    <tr><td>Verano 2025</td><td>Instagram</td><td>12,540</td><td>482</td><td>$3,200</td><td><span class="estado-chip estado-activo">Activo</span></td></tr>
+                    <tr><td>Lanzamiento v2</td><td>Google Ads</td><td>8,910</td><td>315</td><td>$1,800</td><td><span class="estado-chip estado-activo">Activo</span></td></tr>
+                    <tr><td>Retargeting Q2</td><td>Facebook</td><td>5,230</td><td>190</td><td>$900</td><td><span class="estado-chip estado-pause">Pausa</span></td></tr>
+                    <tr><td>Email mayo</td><td>Mailchimp</td><td>3,100</td><td>44</td><td>$200</td><td><span class="estado-chip estado-error">Error</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <!-- Actividad -->
+            <div class="dash-card">
+              <div class="dash-card-title">Actividad reciente</div>
+              <div class="scroll-lista">
+                <div class="scroll-item"><span>🟢 Nueva venta · $340</span><span>hace 2 min</span></div>
+                <div class="scroll-item"><span>🔵 Nuevo usuario registrado</span><span>hace 8 min</span></div>
+                <div class="scroll-item"><span>🔴 Error en campaña Email mayo</span><span>hace 15 min</span></div>
+                <div class="scroll-item"><span>🟢 Pedido enviado #4821</span><span>hace 22 min</span></div>
+                <div class="scroll-item"><span>🟡 Campaña Retargeting pausada</span><span>hace 1 hora</span></div>
+                <div class="scroll-item"><span>🟢 Nueva venta · $128</span><span>hace 2 horas</span></div>
+                <div class="scroll-item"><span>🔵 2 nuevos usuarios registrados</span><span>hace 3 horas</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tip" style="margin-top:1rem">
+    <h4>✅ Lista de verificación visual</h4>
+    <ul>
+      <li>Sidebar oscuro en el lado izquierdo — se queda fijo al hacer scroll (position: fixed)</li>
+      <li>El "3" rojo sobre la campanita 🔔 — aparece en la esquina (position: absolute sobre position: relative)</li>
+      <li>Cada KPI tiene su ícono en la esquina superior derecha (position: absolute) y un círculo decorativo translúcido (::after absolute + overflow: hidden)</li>
+      <li>Hover sobre el ícono <strong>?</strong> → aparece el tooltip encima (position: absolute + opacity: 0 → 1)</li>
+      <li>La flecha del tooltip es un triángulo de CSS puro (::after con border)</li>
+      <li>La tabla puede tener scroll horizontal si el panel es angosto (overflow-x: auto)</li>
+      <li>La lista de actividad tiene scroll vertical con barra delgada personalizada (overflow-y: auto + ::-webkit-scrollbar)</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     RETOS
+══════════════════════════════════ -->
+<section class="module" id="retos">
+  <div class="module-header">
+    <div class="module-icon">🏆</div>
+    <div>
+      <div class="module-title">PARTE 5 — Retos para practicar</div>
+      <div class="module-sub">Todos involucran position de alguna forma</div>
+    </div>
+  </div>
+
+  <div class="reto-grid">
+    <div class="reto-card">
+      <span class="nivel nivel-f">🟡 Fácil</span>
+      <h4>Reto 1 — Botón flotante de acción</h4>
+      <p>Agrega un botón de <strong>+ Nueva campaña</strong> que esté siempre visible en la esquina inferior derecha de la pantalla, sin importar el scroll.</p>
+      <p>CSS: <strong><code>position: fixed; bottom: 24px; right: 24px;</code></strong> + color de fondo azul y borde redondeado.</p>
+      <p><em>Lo que practicas:</em> position: fixed aplicado a un elemento de acción real.</p>
+    </div>
+    <div class="reto-card">
+      <span class="nivel nivel-m">🟠 Medio</span>
+      <h4>Reto 2 — Badge en el link de Pedidos</h4>
+      <p>Agrega un span con el número <strong>5</strong> dentro del <code>&lt;a&gt;</code> de "Pedidos" en el sidebar. Hazlo aparecer a la derecha del texto como un chip de contador.</p>
+      <p>CSS: dale al <code>&lt;a&gt;</code> <code>justify-content: space-between</code>. Al span: <code>background, color, border-radius: 20px, font-size: .65rem, padding: 1px 8px</code>.</p>
+      <p><em>Lo que practicas:</em> elementos inline dentro de Flexbox sin necesitar position.</p>
+    </div>
+    <div class="reto-card">
+      <span class="nivel nivel-m">🟠 Medio</span>
+      <h4>Reto 3 — Tooltip en los KPIs</h4>
+      <p>Agrega un <code>.tooltip-wrap</code> con ícono <strong>?</strong> y <code>.tooltip-caja</code> en una de las tarjetas KPI. El tooltip debe decir qué período representa el número (ej. "Últimos 30 días").</p>
+      <p><em>Atención:</em> el KPI tiene <code>overflow: hidden</code> — el tooltip quedará recortado. Tendrás que quitarle el overflow al KPI y buscar otra solución para el círculo decorativo. ¿Puedes resolverlo?</p>
+    </div>
+    <div class="reto-card">
+      <span class="nivel nivel-a">⚫ Avanzado</span>
+      <h4>Reto 4 — Sidebar colapsable</h4>
+      <p>Añade un botón <strong>☰</strong> en el topbar. Con <code>:has()</code> (que aprendiste en el Ejercicio 4) crea una clase <code>.colapsado</code> para el body.</p>
+      <p>Cuando el sidebar tenga <code>.colapsado</code>: <code>width: 60px</code> (solo íconos), el main-area cambia su <code>margin-left</code> y <code>width</code> con <code>calc()</code>. Usa <code>transition: width 0.3s</code> para animarlo suavemente.</p>
+      <p><em>Lo que practicas:</em> calc() + variables CSS + transition + position interactuando.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     RESUMEN
+══════════════════════════════════ -->
+<section class="module" id="resumen">
+  <div class="module-header">
+    <div class="module-icon">📋</div>
+    <div>
+      <div class="module-title">Resumen — Todo lo nuevo que aprendiste</div>
+      <div class="module-sub">Ejercicio 6 = Ejercicios 1+2+3+4+5 + el CSS que faltaba</div>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Concepto</th><th>Lo que aprendiste</th></tr></thead>
+    <tbody>
+      <tr><td><strong>position: static</strong></td><td>El valor por defecto. El elemento va donde le toca en el flujo del HTML.</td></tr>
+      <tr><td><strong>position: relative</strong></td><td>Se desplaza desde su posición original. El hueco original sigue reservado. Principalmente se usa como ancla para hijos absolute.</td></tr>
+      <tr><td><strong>position: absolute</strong></td><td>Sale del flujo. Se posiciona relativo al ancestro posicionado más cercano. Si no hay ninguno, va al body. Necesita un padre con position ≠ static.</td></tr>
+      <tr><td><strong>position: fixed</strong></td><td>Sale del flujo. Se posiciona relativo a la ventana del navegador. No se mueve con el scroll. Para sidebars, navbars y botones flotantes.</td></tr>
+      <tr><td><strong>position: sticky</strong></td><td>Flujo normal hasta que llega al valor definido (top: 0) — entonces se queda fijo. Vuelve al flujo cuando su contenedor sale de la vista. Limitado por overflow: hidden del padre.</td></tr>
+      <tr><td><strong>top / right / bottom / left</strong></td><td>Coordenadas que solo funcionan en elementos posicionados (≠ static). Definen distancia al borde del ancestro posicionado (o de la ventana en fixed).</td></tr>
+      <tr><td><strong>z-index</strong></td><td>Orden de apilamiento. Solo funciona en elementos posicionados. Mayor número = encima. Mejor organizarlo como variables CSS: --z-navbar: 100.</td></tr>
+      <tr><td><strong>overflow: hidden</strong></td><td>Recorta el contenido que desborda. Esencial para: zoom de imágenes, barras de progreso animadas, bordes redondeados que recortan hijos. Cuidado: rompe position: sticky de hijos.</td></tr>
+      <tr><td><strong>overflow-x / overflow-y</strong></td><td>Control independiente por eje. overflow-x: auto para tablas anchas. overflow-y: auto para listas largas con altura máxima.</td></tr>
+      <tr><td><strong>::-webkit-scrollbar</strong></td><td>Pseudo-elemento para personalizar la barra de scroll en Chrome/Safari. Tres partes: scrollbar (ancho), track (fondo), thumb (la barra deslizable).</td></tr>
+      <tr><td><strong>calc()</strong></td><td>Mezcla unidades distintas en un cálculo. Obligatorio para: main = 100% - sidebar, altura = 100vh - navbar. Los operadores + y - necesitan espacios.</td></tr>
+      <tr><td><strong>Badge de notificación</strong></td><td>Patrón: padre con position: relative, badge con position: absolute + top: -5px + right: -5px + border del color del fondo.</td></tr>
+      <tr><td><strong>Tooltip con CSS puro</strong></td><td>Patrón: padre con position: relative, tooltip con position: absolute + opacity: 0, aparece con :hover. Flecha con ::after border trick.</td></tr>
+      <tr><td><strong>white-space: nowrap</strong></td><td>Impide que el texto salte de línea. Necesario en tablas con overflow horizontal para que las celdas no se compriman.</td></tr>
+      <tr><td><strong>pointer-events: none</strong></td><td>El elemento no recibe eventos del ratón. Usado en tooltips invisibles para que no "intercepten" clics cuando están ocultos.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="concept" style="margin-top:1.5rem">
+    <h4>📊 ¡Ejercicio 6 completado!</h4>
+    <p>Con esto cierras el último hueco grande de CSS. Ahora realmente entiendes cómo funciona el posicionamiento en todos sus valores — el concepto que usabas sin entender desde el Ejercicio 1. El siguiente paso natural es el <strong>Ejercicio 7: JavaScript desde cero</strong> — el menú hamburguesa del portfolio que creaste en el Ejercicio 5 necesita JS para funcionar, y lo construirás en el siguiente ejercicio.</p>
+  </div>
+
+  <h2 style="margin-top:1.5rem">Chips de todo lo aprendido</h2>
+  <div>
+    <span class="chip">position: static</span>
+    <span class="chip">position: relative</span>
+    <span class="chip">position: absolute</span>
+    <span class="chip">position: fixed</span>
+    <span class="chip">position: sticky</span>
+    <span class="chip">top / right / bottom / left</span>
+    <span class="chip">z-index</span>
+    <span class="chip">--z-navbar: 100</span>
+    <span class="chip">overflow: hidden</span>
+    <span class="chip">overflow-x: auto</span>
+    <span class="chip">overflow-y: auto</span>
+    <span class="chip">max-height + overflow</span>
+    <span class="chip">::-webkit-scrollbar</span>
+    <span class="chip">calc(100% - var())</span>
+    <span class="chip">calc(100vh - 56px)</span>
+    <span class="chip">calc(100% + 8px)</span>
+    <span class="chip">badge: absolute + relative</span>
+    <span class="chip">tooltip: absolute + opacity</span>
+    <span class="chip">::after triángulo</span>
+    <span class="chip">white-space: nowrap</span>
+    <span class="chip">pointer-events: none</span>
+    <span class="chip">&lt;aside&gt;</span>
+    <span class="chip">height: 100vh</span>
+  </div>
+</section>
+
+</main>
+
+<footer class="guia-footer">
+  Ejercicio 6 — Dashboard de Métricas · CSS Position · z-index · overflow · calc() · Hugo 2025
+</footer>
+
+</body>
+</html>

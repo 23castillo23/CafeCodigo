@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía JavaScript — Parte 4 · Soy Dalto</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --primary: #c44a2a; --primary-light: #fdf0ec;
+    --secondary: #1a7a5a; --secondary-light: #edf7f3;
+    --accent: #b07010; --accent-light: #fdf6e8;
+    --bg: #f7f4ef; --surface: #ffffff;
+    --text: #1a1814; --muted: #8a8480; --border: #e8e4de;
+    --code-bg: #1a1814; --code-text: #e8e4de;
+    --js: #f0b429;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  .cafe-bar { background:#fff; border-bottom:1px solid #e8e4de; padding:0 24px; display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:200; height:45px; }
+  .cafe-bar a { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:#8a8480; text-decoration:none; padding:6px 14px; border:1px solid #e8e4de; border-radius:999px; transition:all .15s; }
+  .cafe-bar a:hover { color:#1a1814; border-color:#8a8480; }
+  .cafe-bar span { font-size:13px; color:#8a8480; }
+
+  .partes-nav { background:var(--surface); border-bottom:1px solid var(--border); position:sticky; top:45px; z-index:110; display:flex; align-items:center; height:38px; padding:0 1rem; }
+  .partes-nav-prev,.partes-nav-next { flex-shrink:0; padding:0 .75rem; height:100%; text-decoration:none; color:var(--muted); font-size:.78rem; font-weight:500; display:flex; align-items:center; transition:color .15s; white-space:nowrap; }
+  .partes-nav-prev { border-right:1px solid var(--border); }
+  .partes-nav-next { border-left:1px solid var(--border); }
+  .partes-nav-prev:hover,.partes-nav-next:hover { color:var(--primary); }
+  .partes-nav-list { flex:1; display:flex; align-items:center; justify-content:center; gap:.15rem; overflow-x:auto; padding:0 .5rem; }
+  .partes-nav-list::-webkit-scrollbar { display:none; }
+  .partes-nav-list a { flex-shrink:0; padding:2px 10px; border-radius:20px; text-decoration:none; font-size:.73rem; font-weight:600; color:var(--muted); transition:color .15s,background .15s; }
+  .partes-nav-list a:hover { color:var(--text); background:var(--bg); }
+  .partes-nav-list a.activa { background:var(--primary-light); color:var(--primary); }
+
+  header { background:#1a1814; color:#f7f4ef; padding:3rem 2rem 2rem; text-align:center; position:relative; overflow:hidden; }
+  header::before { content:'DOM'; position:absolute; font-size:11rem; font-weight:900; color:rgba(240,180,41,0.06); right:-1rem; top:-1rem; font-family:monospace; line-height:1; }
+  header h1 { font-size:2.5rem; font-weight:800; letter-spacing:-1px; font-family:'Fraunces',serif; }
+  header p { font-size:1.1rem; opacity:.85; margin-top:.5rem; }
+  header .badge { display:inline-block; background:rgba(240,180,41,.2); border:1px solid rgba(240,180,41,.4); color:#f0b429; border-radius:20px; padding:4px 14px; font-size:.8rem; margin-top:.75rem; font-weight:600; }
+
+  nav { background:var(--surface); border-bottom:1px solid var(--border); position:sticky; top:83px; z-index:100; display:flex; overflow-x:auto; }
+  nav::-webkit-scrollbar { display:none; }
+  nav a { flex-shrink:0; padding:.65rem .9rem; text-decoration:none; color:var(--muted); font-size:.78rem; font-weight:500; border-bottom:2px solid transparent; transition:color .2s,border-color .2s; white-space:nowrap; }
+  nav a:hover { color:var(--primary); border-bottom-color:var(--primary); }
+
+  main { max-width:940px; margin:0 auto; padding:2rem 1.5rem; }
+
+  .module { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:2rem; margin-bottom:2.5rem; }
+  .module-header { display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border); }
+  .module-icon { font-size:1.8rem; flex-shrink:0; }
+  .module-title { font-size:1.35rem; font-weight:700; }
+  .module-sub { font-size:.85rem; color:var(--muted); margin-top:2px; }
+
+  .analogy { background:#FFF7ED; border:1px solid #FDE68A; border-left:4px solid var(--accent); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .analogy h4 { color:#92400E; font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+  .analogy p { font-size:.95rem; color:#78350F; }
+
+  .concept { background:var(--primary-light); border-left:4px solid var(--primary); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .concept h4 { color:var(--primary); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+
+  .tip { background:var(--secondary-light); border-left:4px solid var(--secondary); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .tip h4 { color:var(--secondary); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+  .tip ul { padding-left:1.2rem; }
+
+  .warn { background:#fdf0ec; border-left:4px solid var(--primary); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .warn h4 { color:var(--primary); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+
+  .code-block { background:var(--code-bg); color:var(--code-text); border-radius:10px; padding:1.25rem 1.5rem; font-family:'DM Mono','Courier New',monospace; font-size:.88rem; line-height:1.9; overflow-x:auto; margin:1rem 0; position:relative; white-space:pre; }
+  .code-block .ct { color:#89B4FA; }
+  .code-block .ca { color:#CBA6F7; }
+  .code-block .cv { color:#A6E3A1; }
+  .code-block .cs { color:#F9E2AF; }
+  .code-block .cp { color:#89DCEB; }
+  .code-block .cc { color:#585B70; font-style:italic; }
+  .code-block .cn { color:#FAB387; }
+  .lang { position:absolute; top:.6rem; right:.75rem; background:rgba(255,255,255,.1); color:rgba(255,255,255,.5); font-size:.68rem; padding:2px 8px; border-radius:4px; font-family:sans-serif; }
+
+  .tbl { width:100%; border-collapse:collapse; margin:1rem 0; font-size:.9rem; }
+  .tbl th { background:var(--primary-light); color:var(--primary); padding:.65rem 1rem; text-align:left; font-weight:600; }
+  .tbl td { padding:.65rem 1rem; border-bottom:1px solid var(--border); vertical-align:top; }
+  .tbl tr:hover td { background:var(--bg); }
+
+  /* DOM DIAGRAM */
+  .dom-tree { background:var(--code-bg); border-radius:12px; padding:1.5rem; font-family:'DM Mono',monospace; font-size:.85rem; line-height:2; color:var(--code-text); margin:1rem 0; }
+  .dom-tree .dn { color:#89B4FA; }
+  .dom-tree .da { color:#A6E3A1; }
+  .dom-tree .dt { color:#F9E2AF; }
+
+  /* DEMO INTERACTIVA */
+  .demo-box { border:2px solid var(--border); border-radius:12px; padding:1.5rem; margin:1.25rem 0; background:var(--bg); }
+  .demo-box h4 { font-size:.82rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin-bottom:1rem; }
+  .demo-output { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:1rem; min-height:60px; margin-bottom:.75rem; font-size:.95rem; }
+  .demo-btn { background:var(--primary); color:white; border:none; padding:.55rem 1.2rem; border-radius:8px; font-size:.88rem; font-weight:600; cursor:pointer; margin:.25rem; transition:background .15s; }
+  .demo-btn:hover { background:#a33b21; }
+  .demo-btn.sec { background:var(--secondary); }
+  .demo-btn.sec:hover { background:#145f45; }
+  .demo-btn.acc { background:var(--accent); }
+  .demo-btn.acc:hover { background:#8a5808; }
+  .demo-btn.neu { background:var(--muted); }
+  .demo-btn.neu:hover { background:#6a6460; }
+  .demo-input { border:1px solid var(--border); border-radius:8px; padding:.55rem .9rem; font-size:.9rem; font-family:'DM Sans',sans-serif; outline:none; width:220px; transition:border-color .2s; }
+  .demo-input:focus { border-color:var(--primary); }
+
+  /* EJERCICIO EDITOR */
+  .ejercicio { background:#FFFBEB; border:1px solid #FDE68A; border-radius:14px; padding:1.5rem; margin:1.5rem 0; }
+  .ejercicio-hd { display:flex; align-items:center; gap:.75rem; margin-bottom:1rem; font-weight:700; font-size:1rem; color:#78350F; flex-wrap:wrap; }
+  .ej-badge { background:var(--accent); color:#fff; font-size:.68rem; padding:2px 9px; border-radius:20px; font-weight:700; text-transform:uppercase; }
+  .ej-badge.int { background:var(--primary); }
+  .editor-area { background:#1a1814; border-radius:10px; overflow:hidden; margin:.75rem 0; }
+  textarea.editor { width:100%; background:#252525; color:#e8e4de; border:none; padding:1rem 1.25rem; font-family:'DM Mono','Courier New',monospace; font-size:.87rem; line-height:1.8; resize:vertical; min-height:180px; outline:none; display:block; }
+  .btn-row { display:flex; gap:.5rem; flex-wrap:wrap; margin-top:.6rem; }
+  .run-btn { background:var(--js); color:#1a1814; border:none; padding:.6rem 1.4rem; border-radius:8px; font-weight:700; font-size:.9rem; cursor:pointer; transition:background .15s; display:inline-flex; align-items:center; gap:.4rem; }
+  .run-btn:hover { background:#d9a020; }
+  .reset-btn { background:transparent; color:var(--muted); border:1px solid var(--border); padding:.6rem 1.1rem; border-radius:8px; font-size:.85rem; cursor:pointer; transition:all .15s; }
+  .reset-btn:hover { border-color:var(--primary); color:var(--primary); }
+  .output-label { font-size:.72rem; color:var(--muted); margin-top:.75rem; margin-bottom:.25rem; text-transform:uppercase; letter-spacing:.06em; }
+  .output { background:#0f0f0f; border-radius:8px; padding:1rem 1.25rem; font-family:'DM Mono',monospace; font-size:.87rem; min-height:60px; color:#A6E3A1; white-space:pre-wrap; word-break:break-word; }
+  .output.error { color:#F38BA8; }
+  .enunciado { background:#fff; border:1px dashed #FDE68A; border-radius:8px; padding:1rem 1.25rem; margin-bottom:.75rem; font-size:.94rem; line-height:1.6; }
+  .enunciado strong { color:#78350F; }
+
+  /* PROYECTO FINAL */
+  .proyecto { border:2px solid var(--js); border-radius:16px; overflow:hidden; margin:1.5rem 0; }
+  .proyecto-header { background:var(--js); color:#1a1814; padding:1rem 1.5rem; font-weight:700; font-size:1rem; display:flex; align-items:center; gap:.5rem; }
+  .proyecto-body { padding:1.5rem; background:var(--surface); }
+
+  /* APP LISTA DE TAREAS */
+  #todo-app { font-family:'DM Sans',sans-serif; }
+  #todo-app .todo-input-row { display:flex; gap:.5rem; margin-bottom:1rem; }
+  #todo-app input { flex:1; border:1px solid var(--border); border-radius:8px; padding:.6rem .9rem; font-size:.9rem; outline:none; }
+  #todo-app input:focus { border-color:var(--primary); }
+  #todo-app .add-btn { background:var(--primary); color:white; border:none; border-radius:8px; padding:.6rem 1.2rem; font-weight:700; cursor:pointer; font-size:.9rem; white-space:nowrap; }
+  #todo-app .add-btn:hover { background:#a33b21; }
+  #todo-app .todo-list { list-style:none; padding:0; margin:0 0 1rem; }
+  #todo-app .todo-item { display:flex; align-items:center; gap:.75rem; padding:.65rem .9rem; border-bottom:1px solid var(--border); border-radius:8px; transition:background .15s; }
+  #todo-app .todo-item:hover { background:var(--bg); }
+  #todo-app .todo-item.completada .todo-texto { text-decoration:line-through; color:var(--muted); }
+  #todo-app .todo-check { width:18px; height:18px; cursor:pointer; accent-color:var(--secondary); flex-shrink:0; }
+  #todo-app .todo-texto { flex:1; font-size:.95rem; }
+  #todo-app .todo-del { background:none; border:none; color:var(--muted); cursor:pointer; font-size:1rem; padding:0 .25rem; transition:color .15s; }
+  #todo-app .todo-del:hover { color:var(--primary); }
+  #todo-app .todo-stats { font-size:.82rem; color:var(--muted); display:flex; gap:1rem; flex-wrap:wrap; }
+  #todo-app .filtros { display:flex; gap:.4rem; margin-bottom:.75rem; flex-wrap:wrap; }
+  #todo-app .filtro-btn { background:transparent; border:1px solid var(--border); border-radius:20px; padding:3px 12px; font-size:.78rem; cursor:pointer; color:var(--muted); transition:all .15s; }
+  #todo-app .filtro-btn.activo { background:var(--primary); color:white; border-color:var(--primary); }
+  #todo-app .empty { text-align:center; color:var(--muted); padding:1.5rem; font-size:.9rem; }
+
+  /* CALCULADORA */
+  #calc-app { max-width:280px; }
+  #calc-app .calc-display { background:#1a1814; color:#f0b429; font-family:'DM Mono',monospace; font-size:1.8rem; text-align:right; padding:.75rem 1rem; border-radius:10px 10px 0 0; min-height:60px; word-break:break-all; }
+  #calc-app .calc-op-display { background:#252525; color:#585B70; font-family:'DM Mono',monospace; font-size:.8rem; text-align:right; padding:.2rem 1rem .4rem; min-height:22px; }
+  #calc-app .calc-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:2px; background:#1a1814; border-radius:0 0 10px 10px; overflow:hidden; }
+  #calc-app .calc-btn { border:none; padding:.85rem; font-size:1rem; font-weight:600; cursor:pointer; transition:filter .1s; font-family:'DM Sans',sans-serif; }
+  #calc-app .calc-btn:hover { filter:brightness(1.15); }
+  #calc-app .calc-btn:active { filter:brightness(.85); }
+  #calc-app .btn-num { background:#3a3430; color:#f7f4ef; }
+  #calc-app .btn-op  { background:#c44a2a; color:white; }
+  #calc-app .btn-eq  { background:#f0b429; color:#1a1814; }
+  #calc-app .btn-ac  { background:#555; color:white; }
+  #calc-app .btn-wide { grid-column:span 2; }
+
+  .parte-badge { display:inline-flex; align-items:center; gap:.5rem; background:var(--js); color:#1a1814; border-radius:20px; padding:5px 16px; font-size:.82rem; font-weight:700; margin-bottom:1.5rem; }
+
+  h2 { font-size:1.2rem; font-weight:700; margin:1.75rem 0 .75rem; }
+  h3 { font-size:1rem; font-weight:700; margin:1.25rem 0 .5rem; }
+  p { margin-bottom:.8rem; }
+  ul,ol { padding-left:1.4rem; margin-bottom:.8rem; }
+  li { margin-bottom:.4rem; font-size:.96rem; }
+  code { font-family:'DM Mono',monospace; background:#f0ece6; color:var(--primary); padding:1px 5px; border-radius:4px; font-size:.9em; }
+  strong { font-weight:700; }
+
+  footer { text-align:center; padding:2rem; color:var(--muted); font-size:.85rem; border-top:1px solid var(--border); margin-top:1rem; background:var(--bg); }
+</style>
+</head>
+<body>
+
+<div class="cafe-bar">
+  <a href="../../index.html">← Volver a Café &lt;/&gt;</a>
+  <span>🟨 Guía JavaScript · Parte 4 de 4</span>
+</div>
+
+<div class="partes-nav">
+  <a class="partes-nav-prev" href="guia-js-parte-3.html">← Parte 3</a>
+  <div class="partes-nav-list">
+    <a href="guia-js-parte-1.html">Parte 1</a>
+    <a href="guia-js-parte-2.html">Parte 2</a>
+    <a href="guia-js-parte-3.html">Parte 3</a>
+    <a href="guia-js-parte-4.html" class="activa">Parte 4</a>
+  </div>
+  <span class="partes-nav-next" style="color:var(--muted);padding:0 .75rem;font-size:.78rem;">✅ Final</span>
+</div>
+
+<header>
+  <h1>JavaScript — Parte 4</h1>
+  <p>El DOM, eventos y el proyecto final interactivo</p>
+  <span class="badge">⚡ Parte 4 de 4 · 5:29 – 5:40+ del curso de Soy Dalto</span>
+</header>
+
+<nav>
+  <a href="#dom">🌳 ¿Qué es el DOM?</a>
+  <a href="#seleccionar">🎯 Seleccionar</a>
+  <a href="#manipular">✏️ Manipular</a>
+  <a href="#eventos">⚡ Eventos</a>
+  <a href="#demo-dom">🧪 Demo DOM</a>
+  <a href="#proyecto">🏗️ Proyecto Final</a>
+  <a href="#calculadora">🧮 Calculadora</a>
+  <a href="#resumen">📋 Resumen</a>
+</nav>
+
+<main>
+<div class="parte-badge">⚡ Parte 4 — DOM, Eventos y Proyecto Final (5:29 – fin)</div>
+
+
+<!-- ══════════════════════════════════════════
+     QUÉ ES EL DOM
+══════════════════════════════════════════ -->
+<section class="module" id="dom">
+  <div class="module-header">
+    <div class="module-icon">🌳</div>
+    <div>
+      <div class="module-title">¿Qué es el DOM?</div>
+      <div class="module-sub">Document Object Model — el puente entre JS y HTML · 5:29:23 – 5:40:39</div>
+    </div>
+  </div>
+
+  <p>El <strong>DOM (Document Object Model)</strong> es la representación que hace el navegador de tu página HTML convertida en objetos JavaScript. Es el puente que permite a JavaScript leer y modificar el HTML y CSS en tiempo real, sin recargar la página.</p>
+
+  <div class="analogy">
+    <h4>🗺️ Analogía: el plano editable del edificio</h4>
+    <p>Imagina que tienes un edificio (tu página HTML). El DOM es el plano digital de ese edificio — pero no un plano estático, sino uno que puedes editar en vivo. Si modificas una pared en el plano, la pared real del edificio cambia al instante. JavaScript trabaja con ese plano: puede mover paredes, pintar habitaciones, agregar pisos nuevos o demoler secciones, y el edificio (la página que ve el usuario) se actualiza inmediatamente.</p>
+  </div>
+
+  <h2>El DOM como árbol de nodos</h2>
+  <p>El navegador convierte cada etiqueta HTML en un <strong>nodo</strong> del árbol del DOM. Cada nodo tiene un padre, puede tener hijos y hermanos.</p>
+
+  <div class="dom-tree">
+<span class="dn">document</span>
+└── <span class="dn">html</span>
+    ├── <span class="dn">head</span>
+    │   ├── <span class="dn">title</span>
+    │   │   └── <span class="dt">"Mi Página"</span>          ← nodo de texto
+    │   └── <span class="dn">link</span> <span class="da">rel="stylesheet"</span>
+    └── <span class="dn">body</span>
+        ├── <span class="dn">header</span>
+        │   └── <span class="dn">h1</span>
+        │       └── <span class="dt">"Bienvenido"</span>
+        ├── <span class="dn">main</span>
+        │   ├── <span class="dn">p</span> <span class="da">id="intro"</span>
+        │   │   └── <span class="dt">"Texto del párrafo"</span>
+        │   └── <span class="dn">ul</span>
+        │       ├── <span class="dn">li</span> <span class="da">class="item"</span>
+        │       └── <span class="dn">li</span> <span class="da">class="item"</span>
+        └── <span class="dn">footer</span>
+  </div>
+
+  <div class="concept">
+    <h4>💡 document — la puerta de entrada al DOM</h4>
+    <p><code>document</code> es el objeto raíz del DOM en JavaScript. Desde él accedes a todo: <code>document.body</code>, <code>document.head</code>, <code>document.title</code>. Todos los métodos para seleccionar elementos (<code>querySelector</code>, <code>getElementById</code>...) se llaman sobre <code>document</code>. Cada vez que quieras hacer algo con el HTML, empiezas por <code>document</code>.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     SELECCIONAR ELEMENTOS
+══════════════════════════════════════════ -->
+<section class="module" id="seleccionar">
+  <div class="module-header">
+    <div class="module-icon">🎯</div>
+    <div>
+      <div class="module-title">Seleccionar elementos del DOM</div>
+      <div class="module-sub">querySelector, getElementById y más · 5:29:23 – 5:40:39</div>
+    </div>
+  </div>
+
+  <p>Antes de modificar un elemento HTML con JavaScript, tienes que <strong>seleccionarlo</strong>: decirle a JS cuál es el elemento que quieres manipular. Hay varias formas de hacerlo.</p>
+
+  <div class="code-block"><span class="lang">JavaScript</span><span class="cc">// ── Los dos métodos modernos (los más usados) ──────────</span>
+
+<span class="cc">// querySelector — devuelve el PRIMER elemento que coincide con el selector CSS</span>
+<span class="ct">const</span> titulo = document.<span class="cn">querySelector</span>(<span class="cv">"h1"</span>);           <span class="cc">// por etiqueta</span>
+<span class="ct">const</span> intro  = document.<span class="cn">querySelector</span>(<span class="cv">"#intro"</span>);       <span class="cc">// por id</span>
+<span class="ct">const</span> boton  = document.<span class="cn">querySelector</span>(<span class="cv">".btn-primario"</span>); <span class="cc">// por clase</span>
+<span class="ct">const</span> link   = document.<span class="cn">querySelector</span>(<span class="cv">"nav a"</span>);        <span class="cc">// selector compuesto</span>
+
+<span class="cc">// querySelectorAll — devuelve TODOS los elementos que coinciden (NodeList)</span>
+<span class="ct">const</span> todosLosItems  = document.<span class="cn">querySelectorAll</span>(<span class="cv">".item"</span>);
+<span class="ct">const</span> todosLosParraf = document.<span class="cn">querySelectorAll</span>(<span class="cv">"p"</span>);
+
+<span class="cc">// Recorrer NodeList con forEach</span>
+todosLosItems.<span class="cn">forEach</span>(item => {
+  item.<span class="cp">style</span>.color = <span class="cv">"red"</span>;
+});
+
+<span class="cc">// ── Métodos clásicos (siguen funcionando) ──────────────</span>
+document.<span class="cn">getElementById</span>(<span class="cv">"intro"</span>);          <span class="cc">// por id, sin "#"</span>
+document.<span class="cn">getElementsByClassName</span>(<span class="cv">"item"</span>);   <span class="cc">// por clase, sin "."</span>
+document.<span class="cn">getElementsByTagName</span>(<span class="cv">"p"</span>);       <span class="cc">// por etiqueta</span>
+
+<span class="cc">// ── Navegar por el árbol ───────────────────────────────</span>
+<span class="ct">const</span> lista = document.<span class="cn">querySelector</span>(<span class="cv">"ul"</span>);
+console.<span class="cn">log</span>(lista.<span class="cp">children</span>);         <span class="cc">// hijos directos</span>
+console.<span class="cn">log</span>(lista.<span class="cp">parentElement</span>);    <span class="cc">// elemento padre</span>
+console.<span class="cn">log</span>(lista.<span class="cp">nextElementSibling</span>); <span class="cc">// hermano siguiente</span>
+console.<span class="cn">log</span>(lista.<span class="cp">firstElementChild</span>);  <span class="cc">// primer hijo</span></div>
+
+  <div class="tip">
+    <h4>🟢 querySelector vs getElementById — ¿cuál usar?</h4>
+    <p><code>querySelector</code> es más flexible porque acepta cualquier selector CSS — lo usarás el 90% del tiempo. <code>getElementById</code> es marginalmente más rápido (directo al id sin parsear CSS) — úsalo si tienes miles de elementos y necesitas máxima performance. En proyectos normales, <code>querySelector</code> para todo.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     MANIPULAR EL DOM
+══════════════════════════════════════════ -->
+<section class="module" id="manipular">
+  <div class="module-header">
+    <div class="module-icon">✏️</div>
+    <div>
+      <div class="module-title">Manipular el DOM — Leer y modificar la página</div>
+      <div class="module-sub">Cambiar texto, HTML, estilos, clases y atributos · 5:29:23 – 5:40:39</div>
+    </div>
+  </div>
+
+  <h2>Leer y cambiar contenido</h2>
+  <div class="code-block"><span class="lang">JavaScript</span><span class="ct">const</span> parrafo = document.<span class="cn">querySelector</span>(<span class="cv">"#mi-parrafo"</span>);
+
+<span class="cc">// textContent — solo texto plano (más seguro, más rápido)</span>
+console.<span class="cn">log</span>(parrafo.<span class="cp">textContent</span>);        <span class="cc">// leer</span>
+parrafo.<span class="cp">textContent</span> = <span class="cv">"Nuevo texto"</span>;     <span class="cc">// escribir</span>
+
+<span class="cc">// innerHTML — texto con HTML (puede insertar etiquetas)</span>
+parrafo.<span class="cp">innerHTML</span> = <span class="cv">"&lt;strong&gt;Texto en negrita&lt;/strong&gt;"</span>;
+
+<span class="cc">// ⚠️ NUNCA pongas datos del usuario en innerHTML → XSS</span>
+<span class="cc">// parrafo.innerHTML = usuarioInput; // ← PELIGROSO</span>
+<span class="cc">// parrafo.textContent = usuarioInput; // ← SEGURO</span></div>
+
+  <h2>Cambiar estilos CSS</h2>
+  <div class="code-block"><span class="lang">JavaScript</span><span class="ct">const</span> caja = document.<span class="cn">querySelector</span>(<span class="cv">".caja"</span>);
+
+<span class="cc">// Estilo inline — cambia una propiedad CSS</span>
+<span class="cc">// (usa camelCase: background-color → backgroundColor)</span>
+caja.<span class="cp">style</span>.backgroundColor = <span class="cv">"#c44a2a"</span>;
+caja.<span class="cp">style</span>.color = <span class="cv">"white"</span>;
+caja.<span class="cp">style</span>.fontSize = <span class="cv">"20px"</span>;
+caja.<span class="cp">style</span>.display = <span class="cv">"none"</span>;    <span class="cc">// ocultar</span>
+caja.<span class="cp">style</span>.display = <span class="cv">"block"</span>;   <span class="cc">// mostrar</span></div>
+
+  <h2>Manipular clases CSS (la forma recomendada)</h2>
+  <div class="code-block"><span class="lang">JavaScript</span><span class="ct">const</span> btn = document.<span class="cn">querySelector</span>(<span class="cv">".mi-boton"</span>);
+
+<span class="cc">// classList — el objeto para gestionar clases</span>
+btn.<span class="cp">classList</span>.<span class="cn">add</span>(<span class="cv">"activo"</span>);        <span class="cc">// agregar clase</span>
+btn.<span class="cp">classList</span>.<span class="cn">remove</span>(<span class="cv">"activo"</span>);     <span class="cc">// quitar clase</span>
+btn.<span class="cp">classList</span>.<span class="cn">toggle</span>(<span class="cv">"activo"</span>);     <span class="cc">// agregar si no está, quitar si está</span>
+btn.<span class="cp">classList</span>.<span class="cn">contains</span>(<span class="cv">"activo"</span>);  <span class="cc">// ¿tiene la clase? → boolean</span>
+btn.<span class="cp">classList</span>.<span class="cn">replace</span>(<span class="cv">"activo"</span>, <span class="cv">"inactivo"</span>); <span class="cc">// reemplazar</span>
+
+<span class="cc">// En CSS tienes: .activo { background: green; }</span>
+<span class="cc">// JS solo agrega/quita la clase — CSS define el aspecto</span></div>
+
+  <h2>Leer y cambiar atributos</h2>
+  <div class="code-block"><span class="lang">JavaScript</span><span class="ct">const</span> img = document.<span class="cn">querySelector</span>(<span class="cv">"img"</span>);
+
+<span class="cc">// getAttribute / setAttribute</span>
+console.<span class="cn">log</span>(img.<span class="cn">getAttribute</span>(<span class="cv">"src"</span>));     <span class="cc">// leer src</span>
+img.<span class="cn">setAttribute</span>(<span class="cv">"src"</span>, <span class="cv">"nueva.jpg"</span>);    <span class="cc">// cambiar src</span>
+img.<span class="cn">setAttribute</span>(<span class="cv">"alt"</span>, <span class="cv">"Nueva imagen"</span>); <span class="cc">// cambiar alt</span>
+img.<span class="cn">removeAttribute</span>(<span class="cv">"hidden"</span>);          <span class="cc">// quitar atributo</span>
+
+<span class="cc">// Propiedades directas para atributos comunes</span>
+<span class="ct">const</span> input = document.<span class="cn">querySelector</span>(<span class="cv">"input"</span>);
+console.<span class="cn">log</span>(input.<span class="cp">value</span>);       <span class="cc">// valor del input</span>
+console.<span class="cn">log</span>(input.<span class="cp">disabled</span>);    <span class="cc">// ¿está deshabilitado?</span>
+input.<span class="cp">placeholder</span> = <span class="cv">"Escribe aquí..."</span>;</div>
+
+  <h2>Crear e insertar elementos</h2>
+  <div class="code-block"><span class="lang">JavaScript</span><span class="cc">// createElement — crear un elemento nuevo</span>
+<span class="ct">const</span> nuevoParrafo = document.<span class="cn">createElement</span>(<span class="cv">"p"</span>);
+nuevoParrafo.<span class="cp">textContent</span> = <span class="cv">"Soy un párrafo nuevo"</span>;
+nuevoParrafo.<span class="cp">classList</span>.<span class="cn">add</span>(<span class="cv">"destacado"</span>);
+
+<span class="cc">// Insertarlo en el DOM</span>
+<span class="ct">const</span> contenedor = document.<span class="cn">querySelector</span>(<span class="cv">"#contenedor"</span>);
+contenedor.<span class="cn">appendChild</span>(nuevoParrafo);      <span class="cc">// al final</span>
+contenedor.<span class="cn">prepend</span>(nuevoParrafo);           <span class="cc">// al inicio</span>
+contenedor.<span class="cn">insertAdjacentElement</span>(<span class="cv">"afterend"</span>, nuevoParrafo); <span class="cc">// después</span>
+
+<span class="cc">// Eliminar un elemento</span>
+nuevoParrafo.<span class="cn">remove</span>();
+
+<span class="cc">// innerHTML para insertar HTML complejo (con cuidado)</span>
+contenedor.<span class="cp">innerHTML</span> += <span class="cv">`
+  &lt;div class="tarjeta"&gt;
+    &lt;h3&gt;Título&lt;/h3&gt;
+    &lt;p&gt;Descripción&lt;/p&gt;
+  &lt;/div&gt;
+`</span>;</div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     EVENTOS
+══════════════════════════════════════════ -->
+<section class="module" id="eventos">
+  <div class="module-header">
+    <div class="module-icon">⚡</div>
+    <div>
+      <div class="module-title">Eventos — Reaccionar a las acciones del usuario</div>
+      <div class="module-sub">addEventListener, el objeto event y delegación · 5:29:23 – 5:40:39</div>
+    </div>
+  </div>
+
+  <p>Los eventos son lo que hace que JavaScript sea interactivo. Un evento es algo que <strong>sucede en la página</strong> — un clic, una tecla presionada, el mouse moviéndose, un formulario enviado — y JavaScript puede "escuchar" esos eventos y ejecutar código cuando ocurren.</p>
+
+  <div class="analogy">
+    <h4>🔔 Analogía: las alarmas del hogar inteligente</h4>
+    <p>En una casa inteligente instalas sensores: uno en la puerta (detecta cuando alguien entra), uno en la cocina (detecta humo), uno en la ventana (detecta que se abre). Cada sensor está "escuchando" un evento específico. Cuando el evento ocurre, dispara una acción: enciende luces, llama a los bomberos, suena una alarma. <code>addEventListener</code> es exactamente eso: le dices a un elemento "escucha este evento, y cuando ocurra, ejecuta esta función".</p>
+  </div>
+
+  <h2>addEventListener — la forma correcta de escuchar eventos</h2>
+  <div class="code-block"><span class="lang">JavaScript</span><span class="ct">const</span> boton = document.<span class="cn">querySelector</span>(<span class="cv">"#mi-boton"</span>);
+
+<span class="cc">// Sintaxis: elemento.addEventListener("evento", función)</span>
+boton.<span class="cn">addEventListener</span>(<span class="cv">"click"</span>, () => {
+  console.<span class="cn">log</span>(<span class="cv">"¡El botón fue clickeado!"</span>);
+});
+
+<span class="cc">// El objeto 'event' — información sobre lo que ocurrió</span>
+boton.<span class="cn">addEventListener</span>(<span class="cv">"click"</span>, (event) => {
+  console.<span class="cn">log</span>(event.<span class="cp">target</span>);        <span class="cc">// el elemento que recibió el clic</span>
+  console.<span class="cn">log</span>(event.<span class="cp">type</span>);          <span class="cc">// "click"</span>
+  console.<span class="cn">log</span>(event.<span class="cp">clientX</span>, event.<span class="cp">clientY</span>); <span class="cc">// coordenadas del mouse</span>
+  event.<span class="cn">preventDefault</span>();          <span class="cc">// evita el comportamiento por defecto</span>
+  event.<span class="cn">stopPropagation</span>();          <span class="cc">// evita que el evento suba al padre</span>
+});</div>
+
+  <h2>Los eventos más importantes</h2>
+  <table class="tbl">
+    <thead><tr><th>Categoría</th><th>Evento</th><th>¿Cuándo ocurre?</th></tr></thead>
+    <tbody>
+      <tr><td rowspan="4"><strong>Mouse</strong></td><td><code>click</code></td><td>Clic con botón izquierdo</td></tr>
+      <tr><td><code>dblclick</code></td><td>Doble clic</td></tr>
+      <tr><td><code>mouseenter / mouseleave</code></td><td>Mouse entra/sale del elemento</td></tr>
+      <tr><td><code>mousemove</code></td><td>Mouse se mueve sobre el elemento</td></tr>
+      <tr><td rowspan="3"><strong>Teclado</strong></td><td><code>keydown</code></td><td>Tecla presionada (se repite si se mantiene)</td></tr>
+      <tr><td><code>keyup</code></td><td>Tecla soltada</td></tr>
+      <tr><td><code>keypress</code></td><td>Tecla de carácter presionada (obsoleto)</td></tr>
+      <tr><td rowspan="4"><strong>Formulario</strong></td><td><code>submit</code></td><td>Formulario enviado</td></tr>
+      <tr><td><code>input</code></td><td>Valor del campo cambia (en tiempo real)</td></tr>
+      <tr><td><code>change</code></td><td>Valor cambia y el campo pierde foco</td></tr>
+      <tr><td><code>focus / blur</code></td><td>Campo recibe/pierde el foco</td></tr>
+      <tr><td rowspan="2"><strong>Documento</strong></td><td><code>DOMContentLoaded</code></td><td>HTML cargado y parseado (sin esperar imágenes)</td></tr>
+      <tr><td><code>load</code></td><td>Toda la página cargada (imágenes incluidas)</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Delegación de eventos — el truco profesional</h2>
+  <div class="code-block"><span class="lang">JavaScript</span><span class="cc">// PROBLEMA: Si agregas elementos dinámicamente, el listener no les aplica</span>
+<span class="cc">// SOLUCIÓN: Poner el listener en el padre y filtrar por el hijo</span>
+
+<span class="ct">const</span> lista = document.<span class="cn">querySelector</span>(<span class="cv">"#mi-lista"</span>);
+
+<span class="cc">// Un solo listener en el padre para todos los hijos (actuales y futuros)</span>
+lista.<span class="cn">addEventListener</span>(<span class="cv">"click"</span>, (e) => {
+  <span class="ct">if</span> (e.<span class="cp">target</span>.<span class="cp">tagName</span> === <span class="cv">"LI"</span>) {          <span class="cc">// filtrar solo los LI</span>
+    e.<span class="cp">target</span>.<span class="cp">classList</span>.<span class="cn">toggle</span>(<span class="cv">"completado"</span>); <span class="cc">// toggle la clase</span>
+  }
+});
+
+<span class="cc">// Ahora si agregas nuevos LI dinámicamente, también responden al clic</span></div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     DEMO INTERACTIVA DEL DOM
+══════════════════════════════════════════ -->
+<section class="module" id="demo-dom">
+  <div class="module-header">
+    <div class="module-icon">🧪</div>
+    <div>
+      <div class="module-title">Demo Interactiva — El DOM en acción</div>
+      <div class="module-sub">Experimenta con manipulación del DOM en tiempo real</div>
+    </div>
+  </div>
+
+  <div class="demo-box">
+    <h4>🎨 Manipulación de estilos y contenido</h4>
+    <div class="demo-output" id="demo-target" style="font-size:1.1rem;font-weight:600;transition:all .3s;">
+      Soy el elemento objetivo. ¡Manipúlame con los botones! 🎯
+    </div>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.5rem;">
+      <button class="demo-btn" onclick="document.getElementById('demo-target').style.background='#c44a2a';document.getElementById('demo-target').style.color='white'">🔴 Fondo rojo</button>
+      <button class="demo-btn sec" onclick="document.getElementById('demo-target').style.background='#edf7f3';document.getElementById('demo-target').style.color='#1a7a5a'">🟢 Fondo verde</button>
+      <button class="demo-btn acc" onclick="document.getElementById('demo-target').style.background='#fdf6e8';document.getElementById('demo-target').style.color='#b07010'">🟡 Fondo amarillo</button>
+      <button class="demo-btn neu" onclick="document.getElementById('demo-target').style.background='';document.getElementById('demo-target').style.color=''">⬜ Resetear</button>
+    </div>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;">
+      <button class="demo-btn" onclick="document.getElementById('demo-target').style.fontSize='2rem'">🔠 Texto grande</button>
+      <button class="demo-btn" onclick="document.getElementById('demo-target').style.fontSize='0.8rem'">🔡 Texto pequeño</button>
+      <button class="demo-btn sec" onclick="document.getElementById('demo-target').style.borderRadius='50px'">💊 Redondeado</button>
+      <button class="demo-btn neu" onclick="document.getElementById('demo-target').style.fontSize='';document.getElementById('demo-target').style.borderRadius=''">↺ Resetear</button>
+    </div>
+  </div>
+
+  <div class="demo-box">
+    <h4>✍️ Cambiar texto en tiempo real</h4>
+    <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin-bottom:.75rem;">
+      <input class="demo-input" type="text" id="demo-text-input" placeholder="Escribe algo..." oninput="document.getElementById('demo-text-output').textContent = this.value || 'El texto aparecerá aquí...'">
+    </div>
+    <div class="demo-output" id="demo-text-output" style="color:var(--muted);font-style:italic;">El texto aparecerá aquí...</div>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.5rem;">
+      <button class="demo-btn" onclick="const o=document.getElementById('demo-text-output');o.textContent=o.textContent.toUpperCase()">MAYÚSCULAS</button>
+      <button class="demo-btn sec" onclick="const o=document.getElementById('demo-text-output');o.textContent=o.textContent.toLowerCase()">minúsculas</button>
+      <button class="demo-btn acc" onclick="const o=document.getElementById('demo-text-output');o.textContent=o.textContent.split('').reverse().join('')">inverso</button>
+    </div>
+  </div>
+
+  <div class="demo-box">
+    <h4>➕ Crear y eliminar elementos</h4>
+    <div style="display:flex;gap:.5rem;margin-bottom:.75rem;flex-wrap:wrap;">
+      <input class="demo-input" type="text" id="demo-item-input" placeholder="Escribe y agrega un elemento...">
+      <button class="demo-btn" onclick="agregarElemento()">+ Agregar</button>
+      <button class="demo-btn neu" onclick="document.getElementById('demo-lista').innerHTML=''">🗑️ Limpiar todo</button>
+    </div>
+    <ul id="demo-lista" style="list-style:none;padding:0;min-height:40px;"></ul>
+    <p style="font-size:.82rem;color:var(--muted);">Haz clic en un elemento para eliminarlo.</p>
+  </div>
+
+  <div class="demo-box">
+    <h4>⌨️ Escuchar eventos de teclado</h4>
+    <input class="demo-input" type="text" id="demo-key-input" placeholder="Escribe aquí para ver los eventos...">
+    <div class="demo-output" id="demo-key-output" style="margin-top:.75rem;color:var(--muted);font-size:.85rem;">Los eventos de teclado aparecerán aquí...</div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     PROYECTO FINAL — LISTA DE TAREAS
+══════════════════════════════════════════ -->
+<section class="module" id="proyecto">
+  <div class="module-header">
+    <div class="module-icon">🏗️</div>
+    <div>
+      <div class="module-title">Proyecto Final — Lista de Tareas (To-Do App)</div>
+      <div class="module-sub">DOM + eventos + arrays + localStorage · 5:40:39 – fin</div>
+    </div>
+  </div>
+
+  <p>El proyecto final integra todo el curso: arrays para guardar tareas, funciones para la lógica, manipulación del DOM para mostrar y actualizar la lista, eventos para la interactividad, y localStorage para que las tareas persistan al recargar la página.</p>
+
+  <div class="proyecto">
+    <div class="proyecto-header">🗂️ To-Do App — Proyecto Final Interactivo</div>
+    <div class="proyecto-body">
+      <div id="todo-app">
+        <div class="todo-input-row">
+          <input type="text" id="todo-input" placeholder="¿Qué tienes que hacer hoy?" maxlength="80">
+          <button class="add-btn" onclick="agregarTarea()">+ Agregar</button>
+        </div>
+        <div class="filtros">
+          <button class="filtro-btn activo" onclick="cambiarFiltro('todas', this)">Todas</button>
+          <button class="filtro-btn" onclick="cambiarFiltro('pendientes', this)">Pendientes</button>
+          <button class="filtro-btn" onclick="cambiarFiltro('completadas', this)">Completadas</button>
+        </div>
+        <ul class="todo-list" id="todo-list"></ul>
+        <div class="todo-stats" id="todo-stats"></div>
+      </div>
+    </div>
+  </div>
+
+  <h2>Código comentado del proyecto</h2>
+  <div class="code-block"><span class="lang">JavaScript — To-Do App completa</span><span class="cc">// ══════════════════════════════════════════
+// LISTA DE TAREAS — Código explicado
+// ══════════════════════════════════════════</span>
+
+<span class="cc">// ── Estado de la aplicación ───────────────</span>
+<span class="ct">let</span> tareas = <span class="ca">JSON</span>.<span class="cn">parse</span>(localStorage.<span class="cn">getItem</span>(<span class="cv">"tareas"</span>)) || [];
+<span class="cc">// Si hay tareas guardadas en localStorage, las carga.
+// Si no, empieza con un array vacío.</span>
+
+<span class="ct">let</span> filtroActual = <span class="cv">"todas"</span>;
+<span class="ct">let</span> contadorId = tareas.<span class="cp">length</span> > <span class="cs">0</span>
+  ? <span class="ca">Math</span>.<span class="cn">max</span>(...tareas.<span class="cn">map</span>(t => t.id)) + <span class="cs">1</span>
+  : <span class="cs">1</span>;
+
+<span class="cc">// ── Guardar en localStorage ───────────────</span>
+<span class="ct">function</span> <span class="cn">guardar</span>() {
+  localStorage.<span class="cn">setItem</span>(<span class="cv">"tareas"</span>, <span class="ca">JSON</span>.<span class="cn">stringify</span>(tareas));
+}
+
+<span class="cc">// ── Agregar tarea ─────────────────────────</span>
+<span class="ct">function</span> <span class="cn">agregarTarea</span>() {
+  <span class="ct">const</span> texto = document.<span class="cn">querySelector</span>(<span class="cv">"#todo-input"</span>).<span class="cp">value</span>.<span class="cn">trim</span>();
+  <span class="ct">if</span> (!texto) <span class="ct">return</span>; <span class="cc">// no agregar vacías</span>
+
+  tareas.<span class="cn">push</span>({ id: contadorId++, texto, completada: <span class="cs">false</span> });
+  document.<span class="cn">querySelector</span>(<span class="cv">"#todo-input"</span>).<span class="cp">value</span> = <span class="cv">""</span>;
+  <span class="cn">guardar</span>();
+  <span class="cn">renderizar</span>();
+}
+
+<span class="cc">// ── Completar / descompletar ──────────────</span>
+<span class="ct">function</span> <span class="cn">toggleTarea</span>(id) {
+  tareas = tareas.<span class="cn">map</span>(t =>
+    t.id === id ? { ...t, completada: !t.completada } : t
+  );
+  <span class="cn">guardar</span>();
+  <span class="cn">renderizar</span>();
+}
+
+<span class="cc">// ── Eliminar tarea ────────────────────────</span>
+<span class="ct">function</span> <span class="cn">eliminarTarea</span>(id) {
+  tareas = tareas.<span class="cn">filter</span>(t => t.id !== id);
+  <span class="cn">guardar</span>();
+  <span class="cn">renderizar</span>();
+}
+
+<span class="cc">// ── Renderizar la lista ───────────────────</span>
+<span class="ct">function</span> <span class="cn">renderizar</span>() {
+  <span class="ct">const</span> lista = document.<span class="cn">querySelector</span>(<span class="cv">"#todo-list"</span>);
+
+  <span class="cc">// Filtrar según selección</span>
+  <span class="ct">const</span> tareasFiltradas = tareas.<span class="cn">filter</span>(t => {
+    <span class="ct">if</span> (filtroActual === <span class="cv">"pendientes"</span>) <span class="ct">return</span> !t.completada;
+    <span class="ct">if</span> (filtroActual === <span class="cv">"completadas"</span>) <span class="ct">return</span> t.completada;
+    <span class="ct">return</span> <span class="cs">true</span>;
+  });
+
+  <span class="cc">// Construir HTML</span>
+  lista.<span class="cp">innerHTML</span> = tareasFiltradas.<span class="cp">length</span> === <span class="cs">0</span>
+    ? <span class="cv">`&lt;li class="empty"&gt;No hay tareas ${filtroActual}&lt;/li&gt;`</span>
+    : tareasFiltradas.<span class="cn">map</span>(t => <span class="cv">`
+        &lt;li class="todo-item ${t.completada ? 'completada' : ''}"&gt;
+          &lt;input class="todo-check" type="checkbox"
+            ${t.completada ? 'checked' : ''}
+            onchange="toggleTarea(${t.id})"&gt;
+          &lt;span class="todo-texto"&gt;${t.texto}&lt;/span&gt;
+          &lt;button class="todo-del" onclick="eliminarTarea(${t.id})"&gt;✕&lt;/button&gt;
+        &lt;/li&gt;
+      `</span>).<span class="cn">join</span>(<span class="cv">""</span>);
+
+  <span class="cc">// Actualizar estadísticas</span>
+  <span class="ct">const</span> completadas = tareas.<span class="cn">filter</span>(t => t.completada).<span class="cp">length</span>;
+  document.<span class="cn">querySelector</span>(<span class="cv">"#todo-stats"</span>).<span class="cp">innerHTML</span> = tareas.<span class="cp">length</span> > <span class="cs">0</span>
+    ? <span class="cv">`&lt;span&gt;Total: ${tareas.length}&lt;/span&gt;
+       &lt;span&gt;✅ ${completadas} completadas&lt;/span&gt;
+       &lt;span&gt;⏳ ${tareas.length - completadas} pendientes&lt;/span&gt;`</span>
+    : <span class="cv">""</span>;
+}</div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     PROYECTO EXTRA — CALCULADORA
+══════════════════════════════════════════ -->
+<section class="module" id="calculadora">
+  <div class="module-header">
+    <div class="module-icon">🧮</div>
+    <div>
+      <div class="module-title">Proyecto Extra — Calculadora funcional</div>
+      <div class="module-sub">DOM + eventos + lógica de estados</div>
+    </div>
+  </div>
+
+  <p>Otro proyecto clásico para practicar el DOM: una calculadora que maneja estado (número actual, operador, número anterior) y actualiza la pantalla con cada pulsación.</p>
+
+  <div class="proyecto">
+    <div class="proyecto-header">🧮 Calculadora — Proyecto Extra</div>
+    <div class="proyecto-body">
+      <div id="calc-app">
+        <div class="calc-op-display" id="calc-op"></div>
+        <div class="calc-display" id="calc-display">0</div>
+        <div class="calc-grid">
+          <button class="calc-btn btn-ac" onclick="calcAC()">AC</button>
+          <button class="calc-btn btn-ac" onclick="calcSigno()">+/-</button>
+          <button class="calc-btn btn-ac" onclick="calcPorcentaje()">%</button>
+          <button class="calc-btn btn-op" onclick="calcOp('÷')">÷</button>
+
+          <button class="calc-btn btn-num" onclick="calcNum('7')">7</button>
+          <button class="calc-btn btn-num" onclick="calcNum('8')">8</button>
+          <button class="calc-btn btn-num" onclick="calcNum('9')">9</button>
+          <button class="calc-btn btn-op" onclick="calcOp('×')">×</button>
+
+          <button class="calc-btn btn-num" onclick="calcNum('4')">4</button>
+          <button class="calc-btn btn-num" onclick="calcNum('5')">5</button>
+          <button class="calc-btn btn-num" onclick="calcNum('6')">6</button>
+          <button class="calc-btn btn-op" onclick="calcOp('−')">−</button>
+
+          <button class="calc-btn btn-num" onclick="calcNum('1')">1</button>
+          <button class="calc-btn btn-num" onclick="calcNum('2')">2</button>
+          <button class="calc-btn btn-num" onclick="calcNum('3')">3</button>
+          <button class="calc-btn btn-op" onclick="calcOp('+')">+</button>
+
+          <button class="calc-btn btn-num btn-wide" onclick="calcNum('0')">0</button>
+          <button class="calc-btn btn-num" onclick="calcComa()">.</button>
+          <button class="calc-btn btn-eq" onclick="calcIgual()">=</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     RESUMEN FINAL DEL CURSO
+══════════════════════════════════════════ -->
+<section class="module" id="resumen">
+  <div class="module-header">
+    <div class="module-icon">📋</div>
+    <div>
+      <div class="module-title">Resumen Final — Todo el curso de JavaScript</div>
+      <div class="module-sub">Lo que aprendiste en las 4 partes</div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin-bottom:1.5rem;">
+
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:1.2rem;">
+      <div style="font-size:1.3rem;margin-bottom:.5rem;">📦</div>
+      <strong>Parte 1 — Fundamentos</strong>
+      <ul style="margin-top:.5rem;font-size:.88rem;color:var(--muted);">
+        <li>Variables: var, let, const</li>
+        <li>Tipos de datos y typeof</li>
+        <li>Operadores aritméticos y lógicos</li>
+        <li>Operador ternario</li>
+        <li>Template literals</li>
+      </ul>
+    </div>
+
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:1.2rem;">
+      <div style="font-size:1.3rem;margin-bottom:.5rem;">🔀</div>
+      <strong>Parte 2 — Control de flujo</strong>
+      <ul style="margin-top:.5rem;font-size:.88rem;color:var(--muted);">
+        <li>if / else if / else</li>
+        <li>switch / case / break</li>
+        <li>while, for, do...while</li>
+        <li>break y continue</li>
+        <li>prompt, confirm, Date</li>
+      </ul>
+    </div>
+
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:1.2rem;">
+      <div style="font-size:1.3rem;margin-bottom:.5rem;">📚</div>
+      <strong>Parte 3 — Colecciones y funciones</strong>
+      <ul style="margin-top:.5rem;font-size:.88rem;color:var(--muted);">
+        <li>Arrays y acceso por índice</li>
+        <li>map, filter, reduce, find</li>
+        <li>Funciones y arrow functions</li>
+        <li>Parámetros por defecto y rest</li>
+        <li>Métodos de strings</li>
+      </ul>
+    </div>
+
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:1.2rem;">
+      <div style="font-size:1.3rem;margin-bottom:.5rem;">🌳</div>
+      <strong>Parte 4 — DOM y proyectos</strong>
+      <ul style="margin-top:.5rem;font-size:.88rem;color:var(--muted);">
+        <li>querySelector y selectores</li>
+        <li>textContent, innerHTML</li>
+        <li>classList: add, remove, toggle</li>
+        <li>addEventListener y eventos</li>
+        <li>localStorage</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="tip">
+    <h4>🟢 ¿Qué aprender ahora?</h4>
+    <ul>
+      <li><strong>Objetos en profundidad:</strong> prototipos, clases ES6, herencia</li>
+      <li><strong>JavaScript asíncrono:</strong> callbacks, Promises, async/await, Fetch API</li>
+      <li><strong>Módulos ES6:</strong> import/export para organizar código en archivos</li>
+      <li><strong>Un framework:</strong> React, Vue o Svelte — construir apps completas</li>
+      <li><strong>Node.js:</strong> JavaScript en el servidor, APIs y bases de datos</li>
+    </ul>
+  </div>
+
+  <div style="background:linear-gradient(135deg,#1a1814,#2a2420);border-radius:12px;padding:2rem;text-align:center;margin-top:1.5rem;">
+    <div style="font-size:2.5rem;margin-bottom:.75rem;">🎉</div>
+    <h2 style="color:#f0b429;margin-bottom:.5rem;font-size:1.4rem;">¡Completaste el curso de JavaScript!</h2>
+    <p style="color:rgba(247,244,239,0.75);margin-bottom:1.25rem;">Pasaste de no saber nada a construir aplicaciones interactivas con DOM, eventos y persistencia de datos. Eso no es poca cosa.</p>
+    <a href="https://www.youtube.com/watch?v=EdWuxZVBEMA" target="_blank" rel="noopener" style="display:inline-block;background:var(--js);color:#1a1814;font-weight:700;padding:.75rem 1.75rem;border-radius:10px;text-decoration:none;font-size:.95rem;">Ver curso original en YouTube →</a>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Guía JavaScript desde Cero · Parte 4 de 4 · Basada en el curso de Soy Dalto · Hugo 2025
+</footer>
+
+<script>
+// ══════════════════════════════════════════
+// EJERCICIO SIMPLE (consola simulada)
+// ══════════════════════════════════════════
+function runCode(editorId, outputId) {
+  const code = document.getElementById(editorId).value;
+  const output = document.getElementById(outputId);
+  const logs = [];
+  const orig = { log: console.log, error: console.error, warn: console.warn };
+  console.log   = (...a) => logs.push(a.map(x => typeof x === 'object' ? JSON.stringify(x,null,2) : String(x)).join(' '));
+  console.error = (...a) => logs.push('❌ ' + a.join(' '));
+  console.warn  = (...a) => logs.push('⚠️ ' + a.join(' '));
+  try {
+    eval(code);
+    output.textContent = logs.length ? logs.join('\n') : '(sin salida)';
+    output.className = 'output';
+  } catch(e) {
+    output.textContent = '❌ Error: ' + e.message;
+    output.className = 'output error';
+  } finally { Object.assign(console, orig); }
+}
+
+function resetEj(editorId, outputId) {
+  const out = document.getElementById(outputId);
+  if (out) { out.textContent = 'Presiona ▶ Ejecutar...'; out.className = 'output'; }
+}
+
+// ══════════════════════════════════════════
+// DEMO INTERACTIVA DEL DOM
+// ══════════════════════════════════════════
+function agregarElemento() {
+  const input = document.getElementById('demo-item-input');
+  const texto = input.value.trim();
+  if (!texto) return;
+
+  const lista = document.getElementById('demo-lista');
+  const li = document.createElement('li');
+  li.textContent = texto;
+  li.style.cssText = 'padding:.5rem .75rem;margin:.25rem 0;background:var(--bg);border:1px solid var(--border);border-radius:8px;cursor:pointer;transition:all .15s;display:flex;justify-content:space-between;align-items:center;';
+  li.title = 'Clic para eliminar';
+  li.addEventListener('click', () => { li.style.opacity='0'; setTimeout(() => li.remove(), 200); });
+  li.addEventListener('mouseenter', () => { li.style.background='#fdf0ec'; li.style.borderColor='var(--primary)'; });
+  li.addEventListener('mouseleave', () => { li.style.background='var(--bg)'; li.style.borderColor='var(--border)'; });
+
+  const del = document.createElement('span');
+  del.textContent = '✕';
+  del.style.cssText = 'color:var(--muted);font-size:.8rem;';
+  li.appendChild(del);
+
+  lista.appendChild(li);
+  input.value = '';
+  input.focus();
+}
+
+// Evento enter para agregar elemento
+document.getElementById('demo-item-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') agregarElemento();
+});
+
+// Eventos de teclado demo
+document.getElementById('demo-key-input').addEventListener('keydown', e => {
+  const out = document.getElementById('demo-key-output');
+  const linea = `keydown → tecla: "${e.key}" | código: "${e.code}" | shift: ${e.shiftKey} | ctrl: ${e.ctrlKey}`;
+  const lineas = out.textContent.split('\n').filter(l => l && !l.includes('Los eventos'));
+  lineas.unshift(linea);
+  out.textContent = lineas.slice(0, 6).join('\n');
+  out.style.color = 'var(--text)';
+});
+
+// ══════════════════════════════════════════
+// TO-DO APP
+// ══════════════════════════════════════════
+let tareas = [];
+try { tareas = JSON.parse(localStorage.getItem('cafe-tareas-v1')) || []; } catch(e) { tareas = []; }
+let filtroActual = 'todas';
+let contadorId = tareas.length > 0 ? Math.max(...tareas.map(t => t.id)) + 1 : 1;
+
+function guardarTareas() {
+  try { localStorage.setItem('cafe-tareas-v1', JSON.stringify(tareas)); } catch(e) {}
+}
+
+function agregarTarea() {
+  const input = document.getElementById('todo-input');
+  const texto = input.value.trim();
+  if (!texto) { input.focus(); return; }
+  tareas.push({ id: contadorId++, texto, completada: false, fecha: new Date().toLocaleDateString('es-MX') });
+  input.value = '';
+  guardarTareas();
+  renderTareas();
+}
+
+function toggleTarea(id) {
+  tareas = tareas.map(t => t.id === id ? { ...t, completada: !t.completada } : t);
+  guardarTareas();
+  renderTareas();
+}
+
+function eliminarTarea(id) {
+  tareas = tareas.filter(t => t.id !== id);
+  guardarTareas();
+  renderTareas();
+}
+
+function cambiarFiltro(filtro, btn) {
+  filtroActual = filtro;
+  document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('activo'));
+  btn.classList.add('activo');
+  renderTareas();
+}
+
+function renderTareas() {
+  const lista = document.getElementById('todo-list');
+  const stats = document.getElementById('todo-stats');
+
+  const filtradas = tareas.filter(t => {
+    if (filtroActual === 'pendientes')  return !t.completada;
+    if (filtroActual === 'completadas') return t.completada;
+    return true;
+  });
+
+  if (filtradas.length === 0) {
+    const msgs = { todas: '¡No hay tareas! Agrega una arriba.', pendientes: '¡Todo completado! 🎉', completadas: 'Aún no has completado nada.' };
+    lista.innerHTML = `<li class="empty">${msgs[filtroActual]}</li>`;
+  } else {
+    lista.innerHTML = filtradas.map(t => `
+      <li class="todo-item ${t.completada ? 'completada' : ''}">
+        <input class="todo-check" type="checkbox" ${t.completada ? 'checked' : ''} onchange="toggleTarea(${t.id})">
+        <span class="todo-texto">${t.texto}</span>
+        <button class="todo-del" onclick="eliminarTarea(${t.id})" title="Eliminar">✕</button>
+      </li>
+    `).join('');
+  }
+
+  const completadas = tareas.filter(t => t.completada).length;
+  const pendientes  = tareas.length - completadas;
+  stats.innerHTML = tareas.length > 0
+    ? `<span>📋 Total: ${tareas.length}</span><span>✅ ${completadas}</span><span>⏳ ${pendientes}</span>`
+    : '';
+}
+
+document.getElementById('todo-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') agregarTarea();
+});
+
+renderTareas();
+
+// ══════════════════════════════════════════
+// CALCULADORA
+// ══════════════════════════════════════════
+let calcEstado = { display: '0', anterior: null, operador: null, esperandoNumero: false };
+
+function calcActualizar() {
+  document.getElementById('calc-display').textContent = calcEstado.display;
+  document.getElementById('calc-op').textContent =
+    calcEstado.anterior !== null && calcEstado.operador
+      ? `${calcEstado.anterior} ${calcEstado.operador}`
+      : '';
+}
+
+function calcNum(n) {
+  if (calcEstado.esperandoNumero) {
+    calcEstado.display = n;
+    calcEstado.esperandoNumero = false;
+  } else {
+    calcEstado.display = calcEstado.display === '0' ? n : calcEstado.display + n;
+  }
+  calcActualizar();
+}
+
+function calcComa() {
+  if (calcEstado.esperandoNumero) { calcEstado.display = '0.'; calcEstado.esperandoNumero = false; return; }
+  if (!calcEstado.display.includes('.')) calcEstado.display += '.';
+  calcActualizar();
+}
+
+function calcOp(op) {
+  const actual = parseFloat(calcEstado.display);
+  if (calcEstado.anterior !== null && !calcEstado.esperandoNumero) {
+    calcEstado.display = String(calcOperar(calcEstado.anterior, actual, calcEstado.operador));
+  }
+  calcEstado.anterior = parseFloat(calcEstado.display);
+  calcEstado.operador = op;
+  calcEstado.esperandoNumero = true;
+  calcActualizar();
+}
+
+function calcOperar(a, b, op) {
+  const res = op === '+' ? a + b : op === '−' ? a - b : op === '×' ? a * b : op === '÷' ? (b !== 0 ? a / b : 'Error') : b;
+  return typeof res === 'number' ? parseFloat(res.toPrecision(10)) : res;
+}
+
+function calcIgual() {
+  if (calcEstado.anterior === null || calcEstado.operador === null) return;
+  const actual = parseFloat(calcEstado.display);
+  const res = calcOperar(calcEstado.anterior, actual, calcEstado.operador);
+  calcEstado.display = String(res);
+  calcEstado.anterior = null;
+  calcEstado.operador = null;
+  calcEstado.esperandoNumero = true;
+  calcActualizar();
+}
+
+function calcAC() {
+  calcEstado = { display: '0', anterior: null, operador: null, esperandoNumero: false };
+  calcActualizar();
+}
+
+function calcSigno() {
+  calcEstado.display = String(parseFloat(calcEstado.display) * -1);
+  calcActualizar();
+}
+
+function calcPorcentaje() {
+  calcEstado.display = String(parseFloat(calcEstado.display) / 100);
+  calcActualizar();
+}
+
+// Soporte de teclado para la calculadora
+document.addEventListener('keydown', e => {
+  if (['0','1','2','3','4','5','6','7','8','9'].includes(e.key)) calcNum(e.key);
+  else if (e.key === '.') calcComa();
+  else if (e.key === '+') calcOp('+');
+  else if (e.key === '-') calcOp('−');
+  else if (e.key === '*') calcOp('×');
+  else if (e.key === '/') { e.preventDefault(); calcOp('÷'); }
+  else if (e.key === 'Enter' || e.key === '=') calcIgual();
+  else if (e.key === 'Escape') calcAC();
+  else if (e.key === 'Backspace') {
+    calcEstado.display = calcEstado.display.length > 1 ? calcEstado.display.slice(0,-1) : '0';
+    calcActualizar();
+  }
+});
+</script>
+</body>
+</html>

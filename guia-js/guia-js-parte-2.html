@@ -1,0 +1,1430 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía JavaScript — Parte 2 · Soy Dalto</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --primary: #c44a2a; --primary-light: #fdf0ec;
+    --secondary: #1a7a5a; --secondary-light: #edf7f3;
+    --accent: #b07010; --accent-light: #fdf6e8;
+    --bg: #f7f4ef; --surface: #ffffff;
+    --text: #1a1814; --muted: #8a8480; --border: #e8e4de;
+    --code-bg: #1a1814; --code-text: #e8e4de;
+    --js: #f0b429;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  .cafe-bar { background:#fff; border-bottom:1px solid #e8e4de; padding:0 24px; display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:200; height:45px; }
+  .cafe-bar a { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:#8a8480; text-decoration:none; padding:6px 14px; border:1px solid #e8e4de; border-radius:999px; transition:all .15s; }
+  .cafe-bar a:hover { color:#1a1814; border-color:#8a8480; }
+  .cafe-bar span { font-size:13px; color:#8a8480; }
+
+  .partes-nav { background:var(--surface); border-bottom:1px solid var(--border); position:sticky; top:45px; z-index:110; display:flex; align-items:center; height:38px; padding:0 1rem; }
+  .partes-nav-prev { flex-shrink:0; padding:0 .75rem; height:100%; text-decoration:none; color:var(--muted); font-size:.78rem; font-weight:500; border-right:1px solid var(--border); display:flex; align-items:center; transition:color .15s; white-space:nowrap; }
+  .partes-nav-prev:hover { color:var(--primary); }
+  .partes-nav-list { flex:1; display:flex; align-items:center; justify-content:center; gap:.15rem; overflow-x:auto; padding:0 .5rem; }
+  .partes-nav-list::-webkit-scrollbar { display:none; }
+  .partes-nav-list a { flex-shrink:0; padding:2px 10px; border-radius:20px; text-decoration:none; font-size:.73rem; font-weight:600; color:var(--muted); transition:color .15s, background .15s; }
+  .partes-nav-list a:hover { color:var(--text); background:var(--bg); }
+  .partes-nav-list a.activa { background:var(--primary-light); color:var(--primary); }
+  .partes-nav-next { flex-shrink:0; padding:0 .75rem; height:100%; text-decoration:none; color:var(--muted); font-size:.78rem; font-weight:500; border-left:1px solid var(--border); display:flex; align-items:center; transition:color .15s; white-space:nowrap; }
+  .partes-nav-next:hover { color:var(--primary); }
+
+  header { background:#1a1814; color:#f7f4ef; padding:3rem 2rem 2rem; text-align:center; position:relative; overflow:hidden; }
+  header::before { content:'{}'; position:absolute; font-size:16rem; font-weight:900; color:rgba(240,180,41,0.06); right:-2rem; top:-3rem; font-family:monospace; line-height:1; }
+  header h1 { font-size:2.5rem; font-weight:800; letter-spacing:-1px; font-family:'Fraunces',serif; }
+  header p { font-size:1.1rem; opacity:.85; margin-top:.5rem; }
+  header .badge { display:inline-block; background:rgba(240,180,41,.2); border:1px solid rgba(240,180,41,.4); color:#f0b429; border-radius:20px; padding:4px 14px; font-size:.8rem; margin-top:.75rem; font-weight:600; }
+
+  nav { background:var(--surface); border-bottom:1px solid var(--border); position:sticky; top:83px; z-index:100; display:flex; overflow-x:auto; }
+  nav::-webkit-scrollbar { display:none; }
+  nav a { flex-shrink:0; padding:.65rem .9rem; text-decoration:none; color:var(--muted); font-size:.78rem; font-weight:500; border-bottom:2px solid transparent; transition:color .2s, border-color .2s; white-space:nowrap; }
+  nav a:hover { color:var(--primary); border-bottom-color:var(--primary); }
+
+  main { max-width:940px; margin:0 auto; padding:2rem 1.5rem; }
+
+  .module { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:2rem; margin-bottom:2.5rem; }
+  .module-header { display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border); }
+  .module-icon { font-size:1.8rem; flex-shrink:0; }
+  .module-title { font-size:1.35rem; font-weight:700; }
+  .module-sub { font-size:.85rem; color:var(--muted); margin-top:2px; }
+
+  .analogy { background:#FFF7ED; border:1px solid #FDE68A; border-left:4px solid var(--accent); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .analogy h4 { color:#92400E; font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+  .analogy p { font-size:.95rem; color:#78350F; }
+
+  .concept { background:var(--primary-light); border-left:4px solid var(--primary); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .concept h4 { color:var(--primary); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+
+  .tip { background:var(--secondary-light); border-left:4px solid var(--secondary); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .tip h4 { color:var(--secondary); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+  .tip ul { padding-left:1.2rem; }
+
+  .warn { background:#fdf0ec; border-left:4px solid var(--primary); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .warn h4 { color:var(--primary); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+
+  .code-block { background:var(--code-bg); color:var(--code-text); border-radius:10px; padding:1.25rem 1.5rem; font-family:'DM Mono','Courier New',monospace; font-size:.88rem; line-height:1.9; overflow-x:auto; margin:1rem 0; position:relative; white-space:pre; }
+  .code-block .ct { color:#89B4FA; }
+  .code-block .ca { color:#CBA6F7; }
+  .code-block .cv { color:#A6E3A1; }
+  .code-block .cs { color:#F9E2AF; }
+  .code-block .cp { color:#89DCEB; }
+  .code-block .cc { color:#585B70; font-style:italic; }
+  .code-block .cn { color:#FAB387; }
+  .lang { position:absolute; top:.6rem; right:.75rem; background:rgba(255,255,255,.1); color:rgba(255,255,255,.5); font-size:.68rem; padding:2px 8px; border-radius:4px; font-family:sans-serif; }
+
+  .tbl { width:100%; border-collapse:collapse; margin:1rem 0; font-size:.9rem; }
+  .tbl th { background:var(--primary-light); color:var(--primary); padding:.65rem 1rem; text-align:left; font-weight:600; }
+  .tbl td { padding:.65rem 1rem; border-bottom:1px solid var(--border); vertical-align:top; }
+  .tbl tr:hover td { background:var(--bg); }
+
+  /* EJERCICIOS INTERACTIVOS */
+  .ejercicio { background:#FFFBEB; border:1px solid #FDE68A; border-radius:14px; padding:1.5rem; margin:1.5rem 0; }
+  .ejercicio-hd { display:flex; align-items:center; gap:.75rem; margin-bottom:1rem; font-weight:700; font-size:1rem; color:#78350F; flex-wrap:wrap; }
+  .ej-badge { background:var(--accent); color:#fff; font-size:.68rem; padding:2px 9px; border-radius:20px; font-weight:700; text-transform:uppercase; }
+  .ej-badge.int { background:var(--primary); }
+  .ej-badge.avz { background:#7c3aed; }
+  .editor-area { background:#1a1814; border-radius:10px; overflow:hidden; margin:.75rem 0; }
+  textarea.editor { width:100%; background:#252525; color:#e8e4de; border:none; padding:1rem 1.25rem; font-family:'DM Mono','Courier New',monospace; font-size:.87rem; line-height:1.8; resize:vertical; min-height:200px; outline:none; display:block; }
+  .btn-row { display:flex; gap:.5rem; flex-wrap:wrap; margin-top:.6rem; }
+  .run-btn { background:var(--js); color:#1a1814; border:none; padding:.6rem 1.4rem; border-radius:8px; font-weight:700; font-size:.9rem; cursor:pointer; transition:background .15s; display:inline-flex; align-items:center; gap:.4rem; }
+  .run-btn:hover { background:#d9a020; }
+  .reset-btn { background:transparent; color:var(--muted); border:1px solid var(--border); padding:.6rem 1.1rem; border-radius:8px; font-size:.85rem; cursor:pointer; transition:all .15s; }
+  .reset-btn:hover { border-color:var(--primary); color:var(--primary); }
+  .output-label { font-size:.72rem; color:var(--muted); margin-top:.75rem; margin-bottom:.25rem; text-transform:uppercase; letter-spacing:.06em; }
+  .output { background:#0f0f0f; border-radius:8px; padding:1rem 1.25rem; font-family:'DM Mono',monospace; font-size:.87rem; min-height:60px; color:#A6E3A1; white-space:pre-wrap; word-break:break-word; }
+  .output.error { color:#F38BA8; }
+  .enunciado { background:#fff; border:1px dashed #FDE68A; border-radius:8px; padding:1rem 1.25rem; margin-bottom:.75rem; font-size:.94rem; line-height:1.6; }
+  .enunciado strong { color:#78350F; }
+
+  /* DIAGRAMA DE FLUJO visual */
+  .flowbox { display:flex; flex-direction:column; align-items:center; gap:0; margin:1.25rem auto; max-width:340px; }
+  .fb-cond { background:var(--js); color:#1a1814; border-radius:8px; padding:.6rem 1.5rem; font-weight:700; font-size:.9rem; text-align:center; width:100%; }
+  .fb-arrow { color:var(--muted); font-size:1.2rem; line-height:1; margin:2px 0; }
+  .fb-row { display:flex; gap:1rem; width:100%; }
+  .fb-yes { background:var(--secondary-light); border:1px solid var(--secondary); color:var(--secondary); border-radius:8px; padding:.5rem 1rem; font-size:.85rem; font-weight:600; flex:1; text-align:center; }
+  .fb-no  { background:var(--primary-light); border:1px solid var(--primary); color:var(--primary); border-radius:8px; padding:.5rem 1rem; font-size:.85rem; font-weight:600; flex:1; text-align:center; }
+  .fb-label { display:flex; gap:1rem; width:100%; }
+  .fb-label span { flex:1; text-align:center; font-size:.75rem; color:var(--muted); font-weight:600; }
+
+  .parte-badge { display:inline-flex; align-items:center; gap:.5rem; background:var(--js); color:#1a1814; border-radius:20px; padding:5px 16px; font-size:.82rem; font-weight:700; margin-bottom:1.5rem; }
+
+  h2 { font-size:1.2rem; font-weight:700; margin:1.75rem 0 .75rem; }
+  h3 { font-size:1rem; font-weight:700; margin:1.25rem 0 .5rem; }
+  p { margin-bottom:.8rem; }
+  ul, ol { padding-left:1.4rem; margin-bottom:.8rem; }
+  li { margin-bottom:.4rem; font-size:.96rem; }
+  code { font-family:'DM Mono',monospace; background:#f0ece6; color:var(--primary); padding:1px 5px; border-radius:4px; font-size:.9em; }
+  strong { font-weight:700; }
+
+  footer { text-align:center; padding:2rem; color:var(--muted); font-size:.85rem; border-top:1px solid var(--border); margin-top:1rem; background:var(--bg); }
+</style>
+</head>
+<body>
+
+<div class="cafe-bar">
+  <a href="../../index.html">← Volver a Café &lt;/&gt;</a>
+  <span>🟨 Guía JavaScript · Parte 2 de 4</span>
+</div>
+
+<div class="partes-nav">
+  <a class="partes-nav-prev" href="guia-js-parte-1.html">← Parte 1</a>
+  <div class="partes-nav-list">
+    <a href="guia-js-parte-1.html">Parte 1</a>
+    <a href="guia-js-parte-2.html" class="activa">Parte 2</a>
+    <a href="guia-js-parte-3.html">Parte 3</a>
+    <a href="guia-js-parte-4.html">Parte 4</a>
+  </div>
+  <a class="partes-nav-next" href="guia-js-parte-3.html">Parte 3 →</a>
+</div>
+
+<header>
+  <h1>JavaScript — Parte 2</h1>
+  <p>Condicionales, ciclos, prompt y fechas</p>
+  <span class="badge">⚡ Parte 2 de 4 · 1:10 – 3:18 del curso de Soy Dalto</span>
+</header>
+
+<nav>
+  <a href="#if">🔀 if / else</a>
+  <a href="#switch">🎛 switch</a>
+  <a href="#ej-condicionales">🧪 Ej. Condicionales</a>
+  <a href="#while">🔁 while</a>
+  <a href="#for">🔂 for</a>
+  <a href="#dowhile">🔃 do...while</a>
+  <a href="#ej-ciclos1">🏋️ Ej. Ciclos 1</a>
+  <a href="#ej-ciclos2">🏋️ Ej. Ciclos 2</a>
+  <a href="#prompt">💬 prompt / confirm</a>
+  <a href="#fechas">📅 Fechas</a>
+  <a href="#ej-mayor">🥊 Ej. El Mayor</a>
+  <a href="#ej-diasemana">📆 Ej. Día Semana</a>
+</nav>
+
+<main>
+<div class="parte-badge">⚡ Parte 2 — Condicionales, Ciclos, Prompt y Fechas (1:10 – 3:18)</div>
+
+
+<!-- ══════════════════════════════════════════
+     ESTRUCTURAS CONDICIONALES
+══════════════════════════════════════════ -->
+<section class="module" id="if">
+  <div class="module-header">
+    <div class="module-icon">🔀</div>
+    <div>
+      <div class="module-title">Estructuras Condicionales — if / else if / else</div>
+      <div class="module-sub">Tomar decisiones en el código · 1:10:45 – 1:20:43</div>
+    </div>
+  </div>
+
+  <p>Las estructuras condicionales le permiten al programa <strong>tomar decisiones</strong>: si se cumple una condición, hace una cosa; si no, hace otra. Es la base de cualquier lógica en programación.</p>
+
+  <div class="analogy">
+    <h4>🚦 Analogía: el semáforo</h4>
+    <p>Cuando llegas a un semáforo, tu cerebro evalúa una condición: <em>¿está en rojo?</em> Si sí → para. Si no, evalúa: <em>¿está en amarillo?</em> Si sí → prepárate. Si no → avanza. Tu cerebro ejecuta un <code>if / else if / else</code> en milisegundos sin que te des cuenta. JavaScript hace exactamente lo mismo, pero con condiciones que tú defines.</p>
+  </div>
+
+  <h2>Sintaxis de if / else if / else</h2>
+
+  <div class="code-block"><span class="lang">JavaScript</span><span class="ct">const</span> hora = <span class="cs">14</span>;
+
+<span class="ct">if</span> (hora < <span class="cs">12</span>) {
+  console.<span class="cn">log</span>(<span class="cv">"Buenos días 🌅"</span>);
+} <span class="ct">else if</span> (hora < <span class="cs">20</span>) {
+  console.<span class="cn">log</span>(<span class="cv">"Buenas tardes ☀️"</span>);  <span class="cc">// ← Este se ejecuta</span>
+} <span class="ct">else</span> {
+  console.<span class="cn">log</span>(<span class="cv">"Buenas noches 🌙"</span>);
+}</div>
+
+  <div class="flowbox">
+    <div class="fb-cond">hora &lt; 12 ?</div>
+    <div class="fb-arrow">↓</div>
+    <div class="fb-label"><span>✅ true</span><span>❌ false</span></div>
+    <div class="fb-row">
+      <div class="fb-yes">"Buenos días"</div>
+      <div class="fb-no">hora &lt; 20 ?</div>
+    </div>
+  </div>
+
+  <h2>Condiciones compuestas</h2>
+  <div class="code-block"><span class="lang">JavaScript</span><span class="ct">const</span> edad = <span class="cs">22</span>;
+<span class="ct">const</span> tieneEntrada = <span class="cs">true</span>;
+
+<span class="cc">// Ambas condiciones deben cumplirse (AND)</span>
+<span class="ct">if</span> (edad >= <span class="cs">18</span> && tieneEntrada) {
+  console.<span class="cn">log</span>(<span class="cv">"Puedes entrar al evento ✅"</span>);
+} <span class="ct">else</span> {
+  console.<span class="cn">log</span>(<span class="cv">"No puedes entrar ❌"</span>);
+}
+
+<span class="cc">// Al menos una condición (OR)</span>
+<span class="ct">const</span> esAdmin = <span class="cs">false</span>;
+<span class="ct">const</span> esModerador = <span class="cs">true</span>;
+
+<span class="ct">if</span> (esAdmin || esModerador) {
+  console.<span class="cn">log</span>(<span class="cv">"Tienes acceso al panel"</span>);
+}
+
+<span class="cc">// Negación (NOT)</span>
+<span class="ct">const</span> estaLogueado = <span class="cs">false</span>;
+<span class="ct">if</span> (!estaLogueado) {
+  console.<span class="cn">log</span>(<span class="cv">"Por favor, inicia sesión"</span>);
+}</div>
+
+  <h2>Truthy y Falsy — qué considera JS verdadero/falso</h2>
+  <div class="code-block"><span class="lang">JavaScript</span><span class="cc">// Valores FALSY (se comportan como false en un if):</span>
+<span class="ct">if</span> (<span class="cs">0</span>)         { } <span class="cc">// no entra</span>
+<span class="ct">if</span> (<span class="cv">""</span>)        { } <span class="cc">// no entra</span>
+<span class="ct">if</span> (<span class="cs">null</span>)      { } <span class="cc">// no entra</span>
+<span class="ct">if</span> (<span class="cs">undefined</span>) { } <span class="cc">// no entra</span>
+<span class="ct">if</span> (<span class="ca">NaN</span>)       { } <span class="cc">// no entra</span>
+<span class="ct">if</span> (<span class="cs">false</span>)     { } <span class="cc">// no entra</span>
+
+<span class="cc">// Todo lo demás es TRUTHY (se comporta como true):</span>
+<span class="ct">if</span> (<span class="cs">1</span>)          { console.<span class="cn">log</span>(<span class="cv">"entra"</span>); }
+<span class="ct">if</span> (<span class="cv">"hola"</span>)    { console.<span class="cn">log</span>(<span class="cv">"entra"</span>); }
+<span class="ct">if</span> ([])         { console.<span class="cn">log</span>(<span class="cv">"entra"</span>); } <span class="cc">// ¡array vacío es truthy!</span>
+<span class="ct">if</span> ({})         { console.<span class="cn">log</span>(<span class="cv">"entra"</span>); } <span class="cc">// ¡objeto vacío es truthy!</span></div>
+
+  <div class="ejercicio">
+    <div class="ejercicio-hd">✏️ Sistema de calificaciones <span class="ej-badge">Principiante</span></div>
+    <div class="enunciado">
+      <strong>Objetivo:</strong> Dado una nota numérica (0-100), determina la calificación con letra y un mensaje.<br>
+      90-100 → A (Excelente) · 80-89 → B (Muy bien) · 70-79 → C (Bien) · 60-69 → D (Suficiente) · 0-59 → F (Reprobado)
+    </div>
+    <div class="editor-area">
+      <textarea class="editor" id="ej-if">// Cambia esta nota para probar distintos casos
+const nota = 85;
+
+let letra;
+let mensaje;
+
+if (nota >= 90) {
+  letra = "A";
+  mensaje = "¡Excelente! 🏆";
+} else if (nota >= 80) {
+  letra = "B";
+  mensaje = "¡Muy bien! 🌟";
+} else if (nota >= 70) {
+  letra = "C";
+  mensaje = "Bien 👍";
+} else if (nota >= 60) {
+  letra = "D";
+  mensaje = "Suficiente, puedes mejorar 📚";
+} else {
+  letra = "F";
+  mensaje = "Reprobado, a estudiar más 💪";
+}
+
+console.log(`Nota: ${nota}`);
+console.log(`Calificación: ${letra}`);
+console.log(`Resultado: ${mensaje}`);
+
+// DESAFÍO: agrega una condición para nota fuera de rango (< 0 o > 100)
+// DESAFÍO 2: agrega un "+" si la nota termina en 5 o más (ej: 85 → B+)</textarea>
+    </div>
+    <div class="btn-row">
+      <button class="run-btn" onclick="runCode('ej-if','out-if')">▶ Ejecutar</button>
+      <button class="reset-btn" onclick="resetEj('ej-if','out-if')">↺ Reiniciar</button>
+    </div>
+    <div class="output-label">Salida:</div>
+    <div class="output" id="out-if">Presiona ▶ Ejecutar...</div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     SWITCH
+══════════════════════════════════════════ -->
+<section class="module" id="switch">
+  <div class="module-header">
+    <div class="module-icon">🎛️</div>
+    <div>
+      <div class="module-title">Condicional Switch — Múltiples casos exactos</div>
+      <div class="module-sub">La alternativa a muchos if/else if · 1:20:43 – 1:28:44</div>
+    </div>
+  </div>
+
+  <p><code>switch</code> es ideal cuando tienes una variable que puede tener <strong>varios valores exactos</strong> y quieres hacer algo diferente en cada caso. Es más legible que una cadena larga de <code>else if</code> cuando comparas el mismo valor.</p>
+
+  <div class="analogy">
+    <h4>🎰 Analogía: la máquina de bebidas</h4>
+    <p>Presionas el botón 1 → sale Coca-Cola. Botón 2 → agua. Botón 3 → jugo. Botón desconocido → "selección no válida". La máquina no evalúa rangos ni condiciones complejas — solo compara el número que presionaste con cada opción disponible. Eso es exactamente lo que hace <code>switch</code>: compara un valor contra casos exactos.</p>
+  </div>
+
+  <h2>Sintaxis del switch</h2>
+
+  <div class="code-block"><span class="lang">JavaScript</span><span class="ct">const</span> dia = <span class="cs">3</span>;
+
+<span class="ct">switch</span> (dia) {
+  <span class="ct">case</span> <span class="cs">1</span>:
+    console.<span class="cn">log</span>(<span class="cv">"Lunes"</span>);
+    <span class="ct">break</span>;              <span class="cc">// ← IMPORTANTE: sin break, sigue al siguiente case</span>
+  <span class="ct">case</span> <span class="cs">2</span>:
+    console.<span class="cn">log</span>(<span class="cv">"Martes"</span>);
+    <span class="ct">break</span>;
+  <span class="ct">case</span> <span class="cs">3</span>:
+    console.<span class="cn">log</span>(<span class="cv">"Miércoles"</span>);  <span class="cc">// ← Este se ejecuta</span>
+    <span class="ct">break</span>;
+  <span class="ct">case</span> <span class="cs">4</span>:
+    console.<span class="cn">log</span>(<span class="cv">"Jueves"</span>);
+    <span class="ct">break</span>;
+  <span class="ct">case</span> <span class="cs">5</span>:
+    console.<span class="cn">log</span>(<span class="cv">"Viernes"</span>);
+    <span class="ct">break</span>;
+  <span class="ct">default</span>:              <span class="cc">// Se ejecuta si ningún case coincide</span>
+    console.<span class="cn">log</span>(<span class="cv">"Fin de semana"</span>);
+}</div>
+
+  <div class="warn">
+    <h4>⚠️ El break es obligatorio (casi siempre)</h4>
+    <p>Sin <code>break</code>, switch sigue ejecutando los casos siguientes aunque ya encontró el correcto — esto se llama <strong>fall-through</strong>. A veces es útil (para agrupar casos), pero generalmente es un bug. Acostúmbrate a poner <code>break</code> al final de cada caso o a usar <code>return</code> si estás dentro de una función.</p>
+  </div>
+
+  <h2>Fall-through intencional — agrupar casos</h2>
+  <div class="code-block"><span class="lang">JavaScript</span><span class="ct">const</span> mes = <span class="cs">4</span>; <span class="cc">// Abril</span>
+
+<span class="ct">switch</span> (mes) {
+  <span class="ct">case</span> <span class="cs">12</span>:
+  <span class="ct">case</span> <span class="cs">1</span>:
+  <span class="ct">case</span> <span class="cs">2</span>:
+    console.<span class="cn">log</span>(<span class="cv">"Invierno ❄️"</span>);
+    <span class="ct">break</span>;
+  <span class="ct">case</span> <span class="cs">3</span>:
+  <span class="ct">case</span> <span class="cs">4</span>:  <span class="cc">// ← Sin break en 3, cae al 4</span>
+  <span class="ct">case</span> <span class="cs">5</span>:
+    console.<span class="cn">log</span>(<span class="cv">"Primavera 🌸"</span>); <span class="cc">// ← Ejecuta para mes 3, 4 o 5</span>
+    <span class="ct">break</span>;
+  <span class="ct">case</span> <span class="cs">6</span>:
+  <span class="ct">case</span> <span class="cs">7</span>:
+  <span class="ct">case</span> <span class="cs">8</span>:
+    console.<span class="cn">log</span>(<span class="cv">"Verano ☀️"</span>);
+    <span class="ct">break</span>;
+  <span class="ct">default</span>:
+    console.<span class="cn">log</span>(<span class="cv">"Otoño 🍂"</span>);
+}</div>
+
+  <div class="ejercicio">
+    <div class="ejercicio-hd">✏️ Calculadora de operaciones <span class="ej-badge">Principiante</span></div>
+    <div class="enunciado">
+      <strong>Objetivo:</strong> Usa switch para crear una calculadora simple. Cambia <code>operacion</code> para probar los distintos casos: <code>"+"</code>, <code>"-"</code>, <code>"*"</code>, <code>"/"</code>, <code>"%"</code>.
+    </div>
+    <div class="editor-area">
+      <textarea class="editor" id="ej-switch">const numero1 = 20;
+const numero2 = 4;
+const operacion = "/";  // Cambia esto: "+", "-", "*", "/", "%"
+
+let resultado;
+
+switch (operacion) {
+  case "+":
+    resultado = numero1 + numero2;
+    break;
+  case "-":
+    resultado = numero1 - numero2;
+    break;
+  case "*":
+    resultado = numero1 * numero2;
+    break;
+  case "/":
+    if (numero2 === 0) {
+      console.log("❌ Error: No se puede dividir entre 0");
+    } else {
+      resultado = numero1 / numero2;
+    }
+    break;
+  case "%":
+    resultado = numero1 % numero2;
+    break;
+  default:
+    console.log(`❌ Operación "${operacion}" no reconocida`);
+    console.log('Usa: "+", "-", "*", "/" o "%"');
+}
+
+if (resultado !== undefined) {
+  console.log(`${numero1} ${operacion} ${numero2} = ${resultado}`);
+}
+
+// DESAFÍO: agrega el operador "**" para potencia</textarea>
+    </div>
+    <div class="btn-row">
+      <button class="run-btn" onclick="runCode('ej-switch','out-switch')">▶ Ejecutar</button>
+      <button class="reset-btn" onclick="resetEj('ej-switch','out-switch')">↺ Reiniciar</button>
+    </div>
+    <div class="output-label">Salida:</div>
+    <div class="output" id="out-switch">Presiona ▶ Ejecutar...</div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     EJERCICIO INTEGRADOR CONDICIONALES
+══════════════════════════════════════════ -->
+<section class="module" id="ej-condicionales">
+  <div class="module-header">
+    <div class="module-icon">🧪</div>
+    <div>
+      <div class="module-title">Ejercicio Integrador — Condicionales</div>
+      <div class="module-sub">if/else + switch combinados · 1:28:44 – 1:42:30</div>
+    </div>
+  </div>
+
+  <div class="ejercicio">
+    <div class="ejercicio-hd">🎮 Sistema de niveles de videojuego <span class="ej-badge int">Integrador</span></div>
+    <div class="enunciado">
+      <strong>El sistema debe determinar:</strong><br>
+      1. El rango del jugador según sus puntos (Bronze/Silver/Gold/Platinum/Diamond)<br>
+      2. Los beneficios que recibe según su rango (con switch)<br>
+      3. Si puede entrar al torneo (necesita Gold o superior Y más de 100 partidas jugadas)
+    </div>
+    <div class="editor-area">
+      <textarea class="editor" id="ej-cond-int">// ── Datos del jugador ─────────────────
+const jugador = "Akechi";
+const puntos = 3750;
+const partidasJugadas = 145;
+
+// ── 1. Determinar rango (if/else if) ──
+let rango;
+
+if (puntos >= 5000) {
+  rango = "Diamond";
+} else if (puntos >= 3000) {
+  rango = "Platinum";
+} else if (puntos >= 2000) {
+  rango = "Gold";
+} else if (puntos >= 1000) {
+  rango = "Silver";
+} else {
+  rango = "Bronze";
+}
+
+// ── 2. Beneficios por rango (switch) ──
+let beneficios;
+let multiplicadorXP;
+
+switch (rango) {
+  case "Diamond":
+    beneficios = "Skin exclusiva + XP x3 + acceso a torneos VIP";
+    multiplicadorXP = 3;
+    break;
+  case "Platinum":
+    beneficios = "Skin rara + XP x2.5 + acceso a torneos";
+    multiplicadorXP = 2.5;
+    break;
+  case "Gold":
+    beneficios = "Skin dorada + XP x2 + acceso a torneos";
+    multiplicadorXP = 2;
+    break;
+  case "Silver":
+    beneficios = "XP x1.5";
+    multiplicadorXP = 1.5;
+    break;
+  default:
+    beneficios = "Sin beneficios extra";
+    multiplicadorXP = 1;
+}
+
+// ── 3. Acceso al torneo ───────────────
+const puedeEntrarTorneo =
+  (rango === "Gold" || rango === "Platinum" || rango === "Diamond")
+  && partidasJugadas >= 100;
+
+// ── Mostrar resultados ────────────────
+console.log("══════════════════════════════");
+console.log(`  PERFIL: ${jugador}`);
+console.log("══════════════════════════════");
+console.log(`Puntos:           ${puntos}`);
+console.log(`Partidas jugadas: ${partidasJugadas}`);
+console.log(`Rango:            🏅 ${rango}`);
+console.log(`Multiplicador XP: x${multiplicadorXP}`);
+console.log(`Beneficios:       ${beneficios}`);
+console.log(`Torneo:           ${puedeEntrarTorneo ? "✅ Clasificado" : "❌ No clasificado"}`);
+
+// ── Mensaje personalizado ─────────────
+if (rango === "Bronze" || rango === "Silver") {
+  const puntosParaSiguiente = rango === "Bronze" ? 1000 - puntos : 2000 - puntos;
+  console.log(`\n📈 Te faltan ${puntosParaSiguiente} puntos para el siguiente rango`);
+}</textarea>
+    </div>
+    <div class="btn-row">
+      <button class="run-btn" onclick="runCode('ej-cond-int','out-cond-int')">▶ Ejecutar</button>
+      <button class="reset-btn" onclick="resetEj('ej-cond-int','out-cond-int')">↺ Reiniciar</button>
+    </div>
+    <div class="output-label">Salida:</div>
+    <div class="output" id="out-cond-int">Presiona ▶ Ejecutar...</div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     WHILE
+══════════════════════════════════════════ -->
+<section class="module" id="while">
+  <div class="module-header">
+    <div class="module-icon">🔁</div>
+    <div>
+      <div class="module-title">Estructura Repetitiva while</div>
+      <div class="module-sub">Repetir mientras se cumpla una condición · 1:42:30 – 1:52:20</div>
+    </div>
+  </div>
+
+  <p><code>while</code> repite un bloque de código <strong>mientras la condición sea verdadera</strong>. Se usa cuando no sabes de antemano cuántas veces vas a repetir — solo sabes cuándo parar.</p>
+
+  <div class="analogy">
+    <h4>🏃 Analogía: correr hasta quedar sin energía</h4>
+    <p>Imagina que corres en una cinta y la condición de parada es: "¿me queda energía?". Mientras la respuesta sea sí → sigues corriendo. En el momento en que la respuesta sea no → paras. No sabes de antemano cuántas vueltas darás — depende de cuánta energía tengas. Eso es exactamente el <code>while</code>: repite mientras la condición sea verdadera, sin importar cuántas veces.</p>
+  </div>
+
+  <h2>Sintaxis del while</h2>
+  <div class="code-block"><span class="lang">JavaScript</span><span class="ct">let</span> contador = <span class="cs">1</span>;
+
+<span class="ct">while</span> (contador <= <span class="cs">5</span>) {
+  console.<span class="cn">log</span>(<span class="cv">`Vuelta número ${contador}`</span>);
+  contador++;  <span class="cc">// ← CRÍTICO: sin esto, loop infinito 💀</span>
+}
+
+<span class="cc">// Salida:
+// Vuelta número 1
+// Vuelta número 2
+// Vuelta número 3
+// Vuelta número 4
+// Vuelta número 5</span></div>
+
+  <div class="warn">
+    <h4>⚠️ Loop infinito — el error más temido</h4>
+    <p>Si la condición del while <strong>nunca se vuelve falsa</strong>, el programa entra en un bucle infinito y se congela. Siempre asegúrate de que algo dentro del while modifique la condición para que eventualmente sea falsa. Si el navegador se congela, cierra la pestaña.</p>
+  </div>
+
+  <h2>while con break — salida anticipada</h2>
+  <div class="code-block"><span class="lang">JavaScript</span><span class="ct">let</span> numero = <span class="cs">1</span>;
+
+<span class="ct">while</span> (<span class="cs">true</span>) {             <span class="cc">// Loop "infinito" controlado</span>
+  <span class="ct">if</span> (numero > <span class="cs">10</span>) {
+    <span class="ct">break</span>;              <span class="cc">// Sale del while cuando número > 10</span>
+  }
+  console.<span class="cn">log</span>(numero);
+  numero++;
+}
+console.<span class="cn">log</span>(<span class="cv">"Loop terminado"</span>);</div>
+
+  <div class="ejercicio">
+    <div class="ejercicio-hd">✏️ Cuenta regresiva + búsqueda de múltiplos <span class="ej-badge">Principiante</span></div>
+    <div class="enunciado"><strong>Objetivo:</strong> Dos ejemplos clásicos del while — cuenta regresiva y búsqueda de números.</div>
+    <div class="editor-area">
+      <textarea class="editor" id="ej-while">// ── Ejemplo 1: Cuenta regresiva ──────────────
+console.log("=== CUENTA REGRESIVA ===");
+let cuenta = 10;
+
+while (cuenta >= 0) {
+  if (cuenta === 0) {
+    console.log("🚀 ¡DESPEGUE!");
+  } else {
+    console.log(`T-${cuenta}...`);
+  }
+  cuenta--;
+}
+
+// ── Ejemplo 2: Suma de números hasta límite ──
+console.log("\n=== SUMA ACUMULADA ===");
+let suma = 0;
+let n = 1;
+const LIMITE = 100;
+
+while (suma < LIMITE) {
+  suma += n;
+  n++;
+}
+console.log(`La suma llegó a ${suma} sumando hasta el número ${n - 1}`);
+
+// ── Ejemplo 3: Encontrar primer múltiplo ─────
+console.log("\n=== PRIMER MÚLTIPLO DE 7 MAYOR A 50 ===");
+let num = 51;
+while (num % 7 !== 0) {
+  num++;
+}
+console.log(`El primer múltiplo de 7 mayor que 50 es: ${num}`);</textarea>
+    </div>
+    <div class="btn-row">
+      <button class="run-btn" onclick="runCode('ej-while','out-while')">▶ Ejecutar</button>
+      <button class="reset-btn" onclick="resetEj('ej-while','out-while')">↺ Reiniciar</button>
+    </div>
+    <div class="output-label">Salida:</div>
+    <div class="output" id="out-while">Presiona ▶ Ejecutar...</div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     FOR
+══════════════════════════════════════════ -->
+<section class="module" id="for">
+  <div class="module-header">
+    <div class="module-icon">🔂</div>
+    <div>
+      <div class="module-title">Estructura Repetitiva for</div>
+      <div class="module-sub">Cuando sabes cuántas veces repetir · 1:52:20 – 2:00:29</div>
+    </div>
+  </div>
+
+  <p><code>for</code> es el ciclo más usado en JavaScript. Se usa cuando <strong>sabes exactamente cuántas veces</strong> quieres repetir algo, o cuando quieres recorrer una colección de datos.</p>
+
+  <div class="analogy">
+    <h4>📋 Analogía: la lista de asistencia</h4>
+    <p>Un profesor tiene 30 alumnos en la lista. Llama al alumno 1, anota si vino. Llama al alumno 2, anota. Así hasta el alumno 30. Sabe exactamente cuántas veces va a repetir la acción. El <code>for</code> funciona igual: tú defines el inicio (alumno 1), la condición de parada (hasta el 30), y cómo avanzar (siguiente alumno).</p>
+  </div>
+
+  <h2>Anatomía del for</h2>
+  <div class="code-block"><span class="lang">JavaScript</span><span class="cc">//    inicio    condición    incremento</span>
+<span class="ct">for</span> (<span class="ct">let</span> i = <span class="cs">0</span>; i < <span class="cs">5</span>;       i++       ) {
+  console.<span class="cn">log</span>(<span class="cv">`Iteración ${i}`</span>);
+}
+<span class="cc">// i = 0, 1, 2, 3, 4  (empieza en 0, termina ANTES del 5)</span></div>
+
+  <h2>Variantes del for</h2>
+  <div class="code-block"><span class="lang">JavaScript</span><span class="cc">// Hacia atrás</span>
+<span class="ct">for</span> (<span class="ct">let</span> i = <span class="cs">10</span>; i >= <span class="cs">1</span>; i--) {
+  console.<span class="cn">log</span>(i);  <span class="cc">// 10, 9, 8...1</span>
+}
+
+<span class="cc">// De 2 en 2 (saltos)</span>
+<span class="ct">for</span> (<span class="ct">let</span> i = <span class="cs">0</span>; i <= <span class="cs">20</span>; i += <span class="cs">2</span>) {
+  console.<span class="cn">log</span>(i);  <span class="cc">// 0, 2, 4, 6...20</span>
+}
+
+<span class="cc">// Recorrer un string carácter por carácter</span>
+<span class="ct">const</span> palabra = <span class="cv">"Hola"</span>;
+<span class="ct">for</span> (<span class="ct">let</span> i = <span class="cs">0</span>; i < palabra.<span class="cp">length</span>; i++) {
+  console.<span class="cn">log</span>(palabra[i]);  <span class="cc">// H, o, l, a</span>
+}
+
+<span class="cc">// for...of — la forma moderna de recorrer arrays</span>
+<span class="ct">const</span> frutas = [<span class="cv">"🍎"</span>, <span class="cv">"🍌"</span>, <span class="cv">"🍇"</span>];
+<span class="ct">for</span> (<span class="ct">const</span> fruta <span class="ct">of</span> frutas) {
+  console.<span class="cn">log</span>(fruta);  <span class="cc">// 🍎, 🍌, 🍇</span>
+}
+
+<span class="cc">// continue — salta a la siguiente iteración</span>
+<span class="ct">for</span> (<span class="ct">let</span> i = <span class="cs">1</span>; i <= <span class="cs">10</span>; i++) {
+  <span class="ct">if</span> (i % <span class="cs">2</span> === <span class="cs">0</span>) <span class="ct">continue</span>;  <span class="cc">// Salta los pares</span>
+  console.<span class="cn">log</span>(i);  <span class="cc">// 1, 3, 5, 7, 9</span>
+}</div>
+
+  <div class="ejercicio">
+    <div class="ejercicio-hd">✏️ Tablas de multiplicar y patrones <span class="ej-badge">Principiante</span></div>
+    <div class="enunciado"><strong>Objetivo:</strong> Usa for para generar tablas y patrones. Modifica el número de la tabla o el tamaño del patrón.</div>
+    <div class="editor-area">
+      <textarea class="editor" id="ej-for">// ── Tabla de multiplicar ─────────────────────
+const tabla = 7;  // Cambia este número
+console.log(`=== TABLA DEL ${tabla} ===`);
+
+for (let i = 1; i <= 10; i++) {
+  console.log(`${tabla} x ${i} = ${tabla * i}`);
+}
+
+// ── Suma de todos los números del 1 al N ─────
+const N = 100;
+let suma = 0;
+for (let i = 1; i <= N; i++) {
+  suma += i;
+}
+console.log(`\nSuma del 1 al ${N} = ${suma}`);
+
+// ── Números pares e impares ───────────────────
+console.log("\n=== PARES E IMPARES del 1 al 20 ===");
+let pares = [];
+let impares = [];
+
+for (let i = 1; i <= 20; i++) {
+  if (i % 2 === 0) {
+    pares.push(i);
+  } else {
+    impares.push(i);
+  }
+}
+console.log("Pares:   ", pares.join(", "));
+console.log("Impares: ", impares.join(", "));
+
+// ── Patrón de asteriscos ─────────────────────
+console.log("\n=== TRIÁNGULO ===");
+for (let i = 1; i <= 5; i++) {
+  console.log("*".repeat(i));
+}</textarea>
+    </div>
+    <div class="btn-row">
+      <button class="run-btn" onclick="runCode('ej-for','out-for')">▶ Ejecutar</button>
+      <button class="reset-btn" onclick="resetEj('ej-for','out-for')">↺ Reiniciar</button>
+    </div>
+    <div class="output-label">Salida:</div>
+    <div class="output" id="out-for">Presiona ▶ Ejecutar...</div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     DO...WHILE
+══════════════════════════════════════════ -->
+<section class="module" id="dowhile">
+  <div class="module-header">
+    <div class="module-icon">🔃</div>
+    <div>
+      <div class="module-title">Estructura Repetitiva do...while</div>
+      <div class="module-sub">Ejecutar al menos una vez · 2:00:29 – 2:09:19</div>
+    </div>
+  </div>
+
+  <p>La diferencia clave del <code>do...while</code>: el bloque de código se ejecuta <strong>al menos una vez</strong>, y después evalúa la condición. En <code>while</code>, si la condición es falsa desde el principio, nunca entra. En <code>do...while</code>, siempre entra al menos una vez.</p>
+
+  <div class="analogy">
+    <h4>🍕 Analogía: probar antes de decidir</h4>
+    <p>En un restaurante, el mesero te trae un plato de prueba y te pregunta si quieres más. Primero te lo dan (se ejecuta al menos una vez), y después preguntan. Si dijeras "while tengas hambre, come" pero no tienes hambre desde el principio, nunca comerías nada. El do...while te asegura que siempre comas al menos ese primer plato de prueba.</p>
+  </div>
+
+  <div class="code-block"><span class="lang">JavaScript</span><span class="cc">// WHILE: si condición empieza en false, NUNCA entra</span>
+<span class="ct">let</span> x = <span class="cs">10</span>;
+<span class="ct">while</span> (x < <span class="cs">5</span>) {
+  console.<span class="cn">log</span>(<span class="cv">"while ejecutado"</span>); <span class="cc">// Nunca se imprime</span>
+}
+
+<span class="cc">// DO...WHILE: entra siempre la primera vez</span>
+<span class="ct">let</span> y = <span class="cs">10</span>;
+<span class="ct">do</span> {
+  console.<span class="cn">log</span>(<span class="cv">"do...while ejecutado"</span>); <span class="cc">// Se imprime UNA vez</span>
+  y++;
+} <span class="ct">while</span> (y < <span class="cs">5</span>);  <span class="cc">// Condición falsa → para después de la primera vuelta</span>
+
+<span class="cc">// Caso típico: menú que se muestra siempre la primera vez</span>
+<span class="ct">let</span> intentos = <span class="cs">0</span>;
+<span class="ct">do</span> {
+  intentos++;
+  console.<span class="cn">log</span>(<span class="cv">`Intento número ${intentos}`</span>);
+} <span class="ct">while</span> (intentos < <span class="cs">3</span>);
+<span class="cc">// Ejecuta 3 veces: intento 1, 2 y 3</span></div>
+
+  <div class="ejercicio">
+    <div class="ejercicio-hd">✏️ Simula un menú interactivo con do...while <span class="ej-badge">Principiante</span></div>
+    <div class="enunciado"><strong>Objetivo:</strong> El menú siempre se muestra primero. Cambia la variable <code>opcion</code> para simular distintas selecciones del usuario.</div>
+    <div class="editor-area">
+      <textarea class="editor" id="ej-dowhile">// Simulamos las respuestas del "usuario"
+// Cambia estos valores para probar distintos flujos
+const respuestasUsuario = ["1", "2", "3", "salir"];
+let indiceRespuesta = 0;
+
+let opcion;
+let totalPedido = 0;
+
+do {
+  // Simulamos que el usuario elige del menú
+  opcion = respuestasUsuario[indiceRespuesta] || "salir";
+  indiceRespuesta++;
+
+  console.log("\n╔═══════ MENÚ ═══════╗");
+  console.log("║ 1. Pizza     $350  ║");
+  console.log("║ 2. Burger    $280  ║");
+  console.log("║ 3. Refresco  $120  ║");
+  console.log("║ salir → terminar  ║");
+  console.log("╚════════════════════╝");
+  console.log(`Usuario eligió: ${opcion}`);
+
+  switch (opcion) {
+    case "1":
+      totalPedido += 350;
+      console.log("✅ Pizza agregada. Total: $" + totalPedido);
+      break;
+    case "2":
+      totalPedido += 280;
+      console.log("✅ Burger agregada. Total: $" + totalPedido);
+      break;
+    case "3":
+      totalPedido += 120;
+      console.log("✅ Refresco agregado. Total: $" + totalPedido);
+      break;
+    case "salir":
+      console.log("👋 Cerrando menú...");
+      break;
+    default:
+      console.log("❌ Opción no válida");
+  }
+
+} while (opcion !== "salir");
+
+console.log(`\n💰 TOTAL A PAGAR: $${totalPedido}`);</textarea>
+    </div>
+    <div class="btn-row">
+      <button class="run-btn" onclick="runCode('ej-dowhile','out-dowhile')">▶ Ejecutar</button>
+      <button class="reset-btn" onclick="resetEj('ej-dowhile','out-dowhile')">↺ Reiniciar</button>
+    </div>
+    <div class="output-label">Salida:</div>
+    <div class="output" id="out-dowhile">Presiona ▶ Ejecutar...</div>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Ciclo</th><th>¿Cuándo usarlo?</th><th>¿Entra si condición es false?</th></tr></thead>
+    <tbody>
+      <tr><td><code>while</code></td><td>No sabes cuántas veces, condición al principio</td><td>❌ No</td></tr>
+      <tr><td><code>for</code></td><td>Sabes cuántas veces, o recorres colecciones</td><td>❌ No</td></tr>
+      <tr><td><code>do...while</code></td><td>Necesitas ejecutar al menos una vez</td><td>✅ Sí (una vez)</td></tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     EJERCICIOS INTEGRADORES CICLOS
+══════════════════════════════════════════ -->
+<section class="module" id="ej-ciclos1">
+  <div class="module-header">
+    <div class="module-icon">🏋️</div>
+    <div>
+      <div class="module-title">Ejercicio Integrador Ciclos — Nº 1</div>
+      <div class="module-sub">FizzBuzz y números primos · 2:09:19 – 2:21:43</div>
+    </div>
+  </div>
+
+  <div class="ejercicio">
+    <div class="ejercicio-hd">🔥 FizzBuzz — El clásico de las entrevistas <span class="ej-badge int">Integrador</span></div>
+    <div class="enunciado">
+      <strong>Regla:</strong> Para cada número del 1 al 30:<br>
+      • Si es múltiplo de 3 → imprime "Fizz"<br>
+      • Si es múltiplo de 5 → imprime "Buzz"<br>
+      • Si es múltiplo de ambos (15) → imprime "FizzBuzz"<br>
+      • Si no → imprime el número
+    </div>
+    <div class="editor-area">
+      <textarea class="editor" id="ej-ciclos1-code">// ── FizzBuzz ─────────────────────────────────
+console.log("=== FIZZBUZZ (1 al 30) ===");
+
+for (let i = 1; i <= 30; i++) {
+  if (i % 15 === 0) {
+    console.log(`${i} → FizzBuzz 🎉`);
+  } else if (i % 3 === 0) {
+    console.log(`${i} → Fizz`);
+  } else if (i % 5 === 0) {
+    console.log(`${i} → Buzz`);
+  } else {
+    console.log(i);
+  }
+}
+
+// ── Números primos del 1 al 50 ───────────────
+console.log("\n=== NÚMEROS PRIMOS del 1 al 50 ===");
+const primos = [];
+
+for (let n = 2; n <= 50; n++) {
+  let esPrimo = true;
+
+  for (let divisor = 2; divisor < n; divisor++) {
+    if (n % divisor === 0) {
+      esPrimo = false;
+      break;  // Ya encontramos un divisor, no seguir buscando
+    }
+  }
+
+  if (esPrimo) {
+    primos.push(n);
+  }
+}
+
+console.log("Primos:", primos.join(", "));
+console.log(`Hay ${primos.length} números primos entre 1 y 50`);
+
+// DESAFÍO: ¿Cuántos FizzBuzz hay entre 1 y 1000?</textarea>
+    </div>
+    <div class="btn-row">
+      <button class="run-btn" onclick="runCode('ej-ciclos1-code','out-ciclos1')">▶ Ejecutar</button>
+      <button class="reset-btn" onclick="resetEj('ej-ciclos1-code','out-ciclos1')">↺ Reiniciar</button>
+    </div>
+    <div class="output-label">Salida:</div>
+    <div class="output" id="out-ciclos1">Presiona ▶ Ejecutar...</div>
+  </div>
+</section>
+
+<section class="module" id="ej-ciclos2">
+  <div class="module-header">
+    <div class="module-icon">🏋️</div>
+    <div>
+      <div class="module-title">Ejercicio Integrador Ciclos — Nº 2</div>
+      <div class="module-sub">Pirámide y adivina el número · 2:21:43 – 2:31:26</div>
+    </div>
+  </div>
+
+  <div class="ejercicio">
+    <div class="ejercicio-hd">🎯 Adivina el número + Pirámide <span class="ej-badge int">Integrador</span></div>
+    <div class="enunciado">
+      <strong>Ejercicio 1:</strong> Genera una pirámide de números de N filas.<br>
+      <strong>Ejercicio 2:</strong> Simula el juego "adivina el número" con intentos predefinidos.
+    </div>
+    <div class="editor-area">
+      <textarea class="editor" id="ej-ciclos2-code">// ── Pirámide de números ──────────────────────
+const filas = 6;
+console.log(`=== PIRÁMIDE (${filas} filas) ===`);
+
+for (let i = 1; i <= filas; i++) {
+  let linea = "";
+  for (let j = 1; j <= i; j++) {
+    linea += j + " ";
+  }
+  console.log(linea.trim());
+}
+
+// ── Juego: adivina el número ─────────────────
+console.log("\n=== ADIVINA EL NÚMERO ===");
+const numeroSecreto = 42;
+const intentos = [10, 60, 42];  // Cambia estos intentos
+let encontrado = false;
+let turno = 1;
+
+for (let intento of intentos) {
+  console.log(`Intento ${turno}: ${intento}`);
+
+  if (intento < numeroSecreto) {
+    console.log("  📉 El número es MAYOR");
+  } else if (intento > numeroSecreto) {
+    console.log("  📈 El número es MENOR");
+  } else {
+    console.log(`  🎉 ¡CORRECTO! Lo adivinaste en ${turno} intentos`);
+    encontrado = true;
+    break;
+  }
+  turno++;
+}
+
+if (!encontrado) {
+  console.log(`\n❌ No lo adivinaste. Era el ${numeroSecreto}`);
+}
+
+// DESAFÍO: ¿Cuántos intentos mínimos necesitas si buscas de forma inteligente?
+// Pista: Búsqueda binaria — siempre prueba el punto medio</textarea>
+    </div>
+    <div class="btn-row">
+      <button class="run-btn" onclick="runCode('ej-ciclos2-code','out-ciclos2')">▶ Ejecutar</button>
+      <button class="reset-btn" onclick="resetEj('ej-ciclos2-code','out-ciclos2')">↺ Reiniciar</button>
+    </div>
+    <div class="output-label">Salida:</div>
+    <div class="output" id="out-ciclos2">Presiona ▶ Ejecutar...</div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     PROMPT Y CONFIRM
+══════════════════════════════════════════ -->
+<section class="module" id="prompt">
+  <div class="module-header">
+    <div class="module-icon">💬</div>
+    <div>
+      <div class="module-title">prompt() y confirm() — Interacción con el usuario</div>
+      <div class="module-sub">Pedir y confirmar datos por ventana emergente · 2:31:26 – 2:43:10</div>
+    </div>
+  </div>
+
+  <p><code>prompt()</code> y <code>confirm()</code> son funciones del navegador que abren ventanas emergentes para pedir información al usuario. Son simples y útiles para prototipos y ejercicios — aunque en producción se usan formularios HTML.</p>
+
+  <div class="analogy">
+    <h4>📞 Analogía: la recepcionista</h4>
+    <p><code>prompt()</code> es como una recepcionista que te llama por teléfono y te pregunta algo esperando tu respuesta: "Buenos días, ¿cuál es su nombre?" — y espera a que respondas antes de continuar. <code>confirm()</code> es como cuando te pregunta algo de sí o no: "¿Confirma su cita para mañana?" — solo puede decir Sí o Cancelar.</p>
+  </div>
+
+  <h2>prompt() — pedir texto al usuario</h2>
+  <div class="code-block"><span class="lang">JavaScript</span><span class="cc">// prompt() siempre devuelve un STRING o null si cancela</span>
+<span class="ct">const</span> nombre = <span class="cn">prompt</span>(<span class="cv">"¿Cuál es tu nombre?"</span>);
+
+<span class="ct">if</span> (nombre === <span class="cs">null</span>) {
+  console.<span class="cn">log</span>(<span class="cv">"El usuario canceló"</span>);
+} <span class="ct">else if</span> (nombre === <span class="cv">""</span>) {
+  console.<span class="cn">log</span>(<span class="cv">"El usuario no escribió nada"</span>);
+} <span class="ct">else</span> {
+  console.<span class="cn">log</span>(<span class="cv">`Hola, ${nombre}!`</span>);
+}
+
+<span class="cc">// ⚠️ prompt() devuelve STRING — convierte si necesitas número</span>
+<span class="ct">const</span> edadStr = <span class="cn">prompt</span>(<span class="cv">"¿Cuántos años tienes?"</span>);
+<span class="ct">const</span> edad = <span class="ca">Number</span>(edadStr); <span class="cc">// ← Convertir a número</span>
+
+<span class="ct">if</span> (<span class="ca">isNaN</span>(edad)) {
+  console.<span class="cn">log</span>(<span class="cv">"Eso no es un número válido"</span>);
+} <span class="ct">else</span> {
+  console.<span class="cn">log</span>(<span class="cv">`Tienes ${edad} años`</span>);
+}</div>
+
+  <h2>confirm() — preguntas de sí/no</h2>
+  <div class="code-block"><span class="lang">JavaScript</span><span class="cc">// confirm() devuelve true (Aceptar) o false (Cancelar)</span>
+<span class="ct">const</span> confirmado = <span class="cn">confirm</span>(<span class="cv">"¿Deseas eliminar este archivo?"</span>);
+
+<span class="ct">if</span> (confirmado) {
+  console.<span class="cn">log</span>(<span class="cv">"Archivo eliminado"</span>);
+} <span class="ct">else</span> {
+  console.<span class="cn">log</span>(<span class="cv">"Operación cancelada"</span>);
+}</div>
+
+  <div class="concept">
+    <h4>💡 Por qué no usamos prompt aquí en los ejercicios</h4>
+    <p>Las funciones <code>prompt()</code>, <code>confirm()</code> y <code>alert()</code> bloquean el navegador hasta que el usuario responde — esto impide que el editor de esta guía funcione correctamente. En los ejercicios de abajo simulamos las respuestas del usuario con variables. Pero puedes probarlas directamente en la consola de tu navegador (<code>F12</code>) escribiendo <code>prompt("hola")</code>.</p>
+  </div>
+
+  <div class="ejercicio">
+    <div class="ejercicio-hd">✏️ Simula un prompt con ciclo de validación <span class="ej-badge">Principiante</span></div>
+    <div class="enunciado"><strong>Objetivo:</strong> Simula un sistema que pide la edad hasta recibir un valor válido. Cambia el array de respuestas para probar distintos casos.</div>
+    <div class="editor-area">
+      <textarea class="editor" id="ej-prompt">// Simulamos las respuestas del prompt (en el navegador real, usarías prompt())
+// Cambia estas respuestas para probar distintos casos:
+const respuestasSimuladas = ["abc", "-5", "0", "17", "25"];
+let indice = 0;
+
+function simularPrompt(pregunta) {
+  const respuesta = respuestasSimuladas[indice] ?? null;
+  console.log(`  [prompt] ${pregunta}`);
+  console.log(`  [usuario escribe]: "${respuesta}"`);
+  indice++;
+  return respuesta;
+}
+
+// ── Sistema de validación de edad ────────────
+let edadValida = null;
+
+do {
+  const entrada = simularPrompt("Ingresa tu edad (18-99):");
+
+  if (entrada === null) {
+    console.log("❌ Usuario canceló");
+    break;
+  }
+
+  const numero = Number(entrada);
+
+  if (isNaN(numero) || numero <= 0) {
+    console.log("  ⚠️  Eso no es un número válido\n");
+  } else if (numero < 18) {
+    console.log("  ⚠️  Debes ser mayor de edad\n");
+  } else if (numero > 99) {
+    console.log("  ⚠️  Edad fuera de rango\n");
+  } else {
+    edadValida = numero;
+    console.log(`  ✅ Edad válida registrada: ${edadValida}`);
+  }
+
+} while (edadValida === null && indice < respuestasSimuladas.length);
+
+if (edadValida !== null) {
+  const categoria = edadValida < 30 ? "Joven" : edadValida < 60 ? "Adulto" : "Senior";
+  console.log(`\n🎉 Registro completado: ${edadValida} años (${categoria})`);
+}</textarea>
+    </div>
+    <div class="btn-row">
+      <button class="run-btn" onclick="runCode('ej-prompt','out-prompt')">▶ Ejecutar</button>
+      <button class="reset-btn" onclick="resetEj('ej-prompt','out-prompt')">↺ Reiniciar</button>
+    </div>
+    <div class="output-label">Salida:</div>
+    <div class="output" id="out-prompt">Presiona ▶ Ejecutar...</div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     MANEJO DE FECHAS
+══════════════════════════════════════════ -->
+<section class="module" id="fechas">
+  <div class="module-header">
+    <div class="module-icon">📅</div>
+    <div>
+      <div class="module-title">Manejo de Fechas — El objeto Date</div>
+      <div class="module-sub">Trabajar con fechas y horas en JavaScript · 2:43:10 – 2:58:53</div>
+    </div>
+  </div>
+
+  <p>JavaScript tiene el objeto <code>Date</code> para trabajar con fechas y horas. Puede obtener la fecha actual, crear fechas específicas, calcular diferencias y formatear cómo se muestra la información.</p>
+
+  <div class="analogy">
+    <h4>🕐 Analogía: el reloj con memoria</h4>
+    <p>Imagina un reloj que no solo te dice la hora, sino que también puede calcular cuántos días faltan para tu cumpleaños, qué día de la semana fue el 15 de julio de 1969, o cuántas horas llevas trabajando. El objeto <code>Date</code> de JavaScript es ese reloj inteligente: te da la fecha y hora actuales, pero también puede hacer cálculos complejos con cualquier momento en el tiempo.</p>
+  </div>
+
+  <h2>Crear y leer fechas</h2>
+  <div class="code-block"><span class="lang">JavaScript</span><span class="cc">// Fecha y hora actuales</span>
+<span class="ct">const</span> ahora = <span class="ct">new</span> <span class="ca">Date</span>();
+console.<span class="cn">log</span>(ahora); <span class="cc">// Ej: 2025-06-10T14:30:00.000Z</span>
+
+<span class="cc">// Crear una fecha específica</span>
+<span class="ct">const</span> navidad = <span class="ct">new</span> <span class="ca">Date</span>(<span class="cs">2025</span>, <span class="cs">11</span>, <span class="cs">25</span>); <span class="cc">// ojo: mes 11 = diciembre (0-indexado)</span>
+<span class="ct">const</span> desde_string = <span class="ct">new</span> <span class="ca">Date</span>(<span class="cv">"2025-12-25"</span>);
+
+<span class="cc">// Métodos GET — leer partes de la fecha</span>
+<span class="ct">const</span> hoy = <span class="ct">new</span> <span class="ca">Date</span>();
+
+console.<span class="cn">log</span>(hoy.<span class="cn">getFullYear</span>());  <span class="cc">// 2025 → Año completo</span>
+console.<span class="cn">log</span>(hoy.<span class="cn">getMonth</span>());     <span class="cc">// 0-11 → OJO: 0=enero, 11=diciembre</span>
+console.<span class="cn">log</span>(hoy.<span class="cn">getDate</span>());      <span class="cc">// 1-31 → Día del mes</span>
+console.<span class="cn">log</span>(hoy.<span class="cn">getDay</span>());       <span class="cc">// 0-6 → Día semana (0=domingo)</span>
+console.<span class="cn">log</span>(hoy.<span class="cn">getHours</span>());     <span class="cc">// 0-23 → Hora</span>
+console.<span class="cn">log</span>(hoy.<span class="cn">getMinutes</span>());   <span class="cc">// 0-59 → Minutos</span>
+console.<span class="cn">log</span>(hoy.<span class="cn">getSeconds</span>());   <span class="cc">// 0-59 → Segundos</span>
+console.<span class="cn">log</span>(hoy.<span class="cn">getTime</span>());      <span class="cc">// Milisegundos desde 01/01/1970 (timestamp)</span></div>
+
+  <h2>Calcular diferencias entre fechas</h2>
+  <div class="code-block"><span class="lang">JavaScript</span><span class="cc">// Los Date se pueden restar → resultado en milisegundos</span>
+<span class="ct">const</span> inicio = <span class="ct">new</span> <span class="ca">Date</span>(<span class="cv">"2025-01-01"</span>);
+<span class="ct">const</span> fin    = <span class="ct">new</span> <span class="ca">Date</span>(<span class="cv">"2025-12-31"</span>);
+
+<span class="ct">const</span> diferencia = fin - inicio;                     <span class="cc">// en milisegundos</span>
+<span class="ct">const</span> diasEnMili  = <span class="cs">1000</span> * <span class="cs">60</span> * <span class="cs">60</span> * <span class="cs">24</span>;           <span class="cc">// ms en un día</span>
+<span class="ct">const</span> dias        = <span class="ca">Math</span>.<span class="cn">round</span>(diferencia / diasEnMili);
+
+console.<span class="cn">log</span>(<span class="cv">`Días entre fechas: ${dias}`</span>); <span class="cc">// → 364</span></div>
+
+  <div class="ejercicio">
+    <div class="ejercicio-hd">✏️ Calculadora de fechas completa <span class="ej-badge">Principiante</span></div>
+    <div class="enunciado"><strong>Objetivo:</strong> Trabaja con el objeto Date — extrae información y calcula días.</div>
+    <div class="editor-area">
+      <textarea class="editor" id="ej-fechas">const meses = [
+  "enero","febrero","marzo","abril","mayo","junio",
+  "julio","agosto","septiembre","octubre","noviembre","diciembre"
+];
+const diasSemana = [
+  "domingo","lunes","martes","miércoles","jueves","viernes","sábado"
+];
+
+// ── Fecha de hoy ──────────────────────────────
+const hoy = new Date();
+console.log("=== HOY ===");
+console.log(`Fecha: ${diasSemana[hoy.getDay()]} ${hoy.getDate()} de ${meses[hoy.getMonth()]} de ${hoy.getFullYear()}`);
+console.log(`Hora:  ${hoy.getHours()}:${String(hoy.getMinutes()).padStart(2,'0')}:${String(hoy.getSeconds()).padStart(2,'0')}`);
+
+// ── Días transcurridos este año ───────────────
+const inicioAno = new Date(hoy.getFullYear(), 0, 1);
+const msPorDia = 1000 * 60 * 60 * 24;
+const diasTranscurridos = Math.floor((hoy - inicioAno) / msPorDia) + 1;
+const diasRestantes = (hoy.getFullYear() % 4 === 0 ? 366 : 365) - diasTranscurridos;
+
+console.log(`\n=== AÑO ${hoy.getFullYear()} ===`);
+console.log(`Día del año: ${diasTranscurridos} de ${hoy.getFullYear() % 4 === 0 ? 366 : 365}`);
+console.log(`Días restantes: ${diasRestantes}`);
+
+// ── Calcular tu edad exacta ───────────────────
+// Cambia esta fecha de nacimiento:
+const fechaNacimiento = new Date("2000-05-15");
+const edadMs = hoy - fechaNacimiento;
+const edadAnos = Math.floor(edadMs / (msPorDia * 365.25));
+const edadDias = Math.floor(edadMs / msPorDia);
+
+console.log(`\n=== EDAD ===`);
+console.log(`Nacimiento: ${fechaNacimiento.toLocaleDateString("es-MX")}`);
+console.log(`Edad: ${edadAnos} años`);
+console.log(`Días vividos: ${edadDias.toLocaleString()} días`);
+
+// ── Días para Año Nuevo ───────────────────────
+const anoNuevo = new Date(hoy.getFullYear() + 1, 0, 1);
+const diasParaAnoNuevo = Math.ceil((anoNuevo - hoy) / msPorDia);
+console.log(`\n🎆 Días para Año Nuevo: ${diasParaAnoNuevo}`);</textarea>
+    </div>
+    <div class="btn-row">
+      <button class="run-btn" onclick="runCode('ej-fechas','out-fechas')">▶ Ejecutar</button>
+      <button class="reset-btn" onclick="resetEj('ej-fechas','out-fechas')">↺ Reiniciar</button>
+    </div>
+    <div class="output-label">Salida:</div>
+    <div class="output" id="out-fechas">Presiona ▶ Ejecutar...</div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     EJERCICIO: EL MAYOR
+══════════════════════════════════════════ -->
+<section class="module" id="ej-mayor">
+  <div class="module-header">
+    <div class="module-icon">🥊</div>
+    <div>
+      <div class="module-title">Ejercicio Práctico — Determinar el Mayor</div>
+      <div class="module-sub">Comparar valores con condicionales · 2:58:53 – 3:08:33</div>
+    </div>
+  </div>
+
+  <div class="ejercicio">
+    <div class="ejercicio-hd">🥊 Encuentra el mayor de tres números <span class="ej-badge int">Integrador</span></div>
+    <div class="enunciado">
+      <strong>Objetivo:</strong> Dados tres números, determinar cuál es el mayor, cuál el menor, y cuál el del medio. También detectar si hay empates. Modifica los valores para probar distintos casos (incluyendo empates).
+    </div>
+    <div class="editor-area">
+      <textarea class="editor" id="ej-mayor-code">// Cambia estos valores para probar distintos casos
+const a = 47;
+const b = 83;
+const c = 31;
+
+console.log(`Números ingresados: A=${a}, B=${b}, C=${c}`);
+console.log("─────────────────────────────");
+
+// ── Encontrar el máximo ───────────────────────
+let maximo;
+if (a >= b && a >= c) {
+  maximo = a;
+} else if (b >= a && b >= c) {
+  maximo = b;
+} else {
+  maximo = c;
+}
+
+// ── Encontrar el mínimo ───────────────────────
+let minimo;
+if (a <= b && a <= c) {
+  minimo = a;
+} else if (b <= a && b <= c) {
+  minimo = b;
+} else {
+  minimo = c;
+}
+
+// ── Encontrar el del medio ────────────────────
+const medio = (a + b + c) - maximo - minimo;
+
+// ── Detectar empates ──────────────────────────
+const hayEmpate = a === b || b === c || a === c;
+const sonIguales = a === b && b === c;
+
+console.log(`Mayor:  ${maximo}`);
+console.log(`Medio:  ${medio}`);
+console.log(`Menor:  ${minimo}`);
+console.log(`─────────────────────────────`);
+
+if (sonIguales) {
+  console.log("⚠️  Los tres números son iguales");
+} else if (hayEmpate) {
+  console.log("⚠️  Hay un empate entre dos valores");
+} else {
+  console.log(`Orden ascendente: ${minimo} < ${medio} < ${maximo}`);
+}
+
+// ── Estadísticas extra ────────────────────────
+const promedio = ((a + b + c) / 3).toFixed(2);
+const rango = maximo - minimo;
+console.log(`\nPromedio: ${promedio}`);
+console.log(`Rango:    ${rango}`);
+
+// ── DESAFÍO: Usa Math.max() y Math.min() ─────
+console.log(`\n[Con Math]: Max=${Math.max(a,b,c)}, Min=${Math.min(a,b,c)}`);</textarea>
+    </div>
+    <div class="btn-row">
+      <button class="run-btn" onclick="runCode('ej-mayor-code','out-mayor')">▶ Ejecutar</button>
+      <button class="reset-btn" onclick="resetEj('ej-mayor-code','out-mayor')">↺ Reiniciar</button>
+    </div>
+    <div class="output-label">Salida:</div>
+    <div class="output" id="out-mayor">Presiona ▶ Ejecutar...</div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     EJERCICIO: DÍA DE LA SEMANA
+══════════════════════════════════════════ -->
+<section class="module" id="ej-diasemana">
+  <div class="module-header">
+    <div class="module-icon">📆</div>
+    <div>
+      <div class="module-title">Ejercicio Práctico — Días de la Semana</div>
+      <div class="module-sub">Date + switch + condicionales · 3:08:33 – 3:18:57</div>
+    </div>
+  </div>
+
+  <div class="ejercicio">
+    <div class="ejercicio-hd">📆 Sistema de agenda semanal <span class="ej-badge int">Integrador</span></div>
+    <div class="enunciado">
+      <strong>Objetivo:</strong> Dado un número de día (0=domingo a 6=sábado), muestra el nombre del día, si es laboral o fin de semana, la actividad programada, y calcula cuántos días faltan para el viernes (día de pago).
+    </div>
+    <div class="editor-area">
+      <textarea class="editor" id="ej-diasemana-code">// Obtener el día actual (o cambiar manualmente para probar)
+const hoy = new Date();
+const numeroDia = hoy.getDay(); // 0=dom, 1=lun...6=sab
+// const numeroDia = 3; // ← Descomenta para probar un día específico
+
+let nombreDia;
+let esLaboral;
+let actividad;
+
+// ── Nombre del día con switch ─────────────────
+switch (numeroDia) {
+  case 0:
+    nombreDia = "Domingo";
+    esLaboral = false;
+    actividad = "Descanso y familia 🏠";
+    break;
+  case 1:
+    nombreDia = "Lunes";
+    esLaboral = true;
+    actividad = "Reunión de equipo 📋";
+    break;
+  case 2:
+    nombreDia = "Martes";
+    esLaboral = true;
+    actividad = "Desarrollo de features 💻";
+    break;
+  case 3:
+    nombreDia = "Miércoles";
+    esLaboral = true;
+    actividad = "Code review 🔍";
+    break;
+  case 4:
+    nombreDia = "Jueves";
+    esLaboral = true;
+    actividad = "Testing y QA 🧪";
+    break;
+  case 5:
+    nombreDia = "Viernes";
+    esLaboral = true;
+    actividad = "Deploy y celebrar 🚀💰";
+    break;
+  case 6:
+    nombreDia = "Sábado";
+    esLaboral = false;
+    actividad = "Proyectos personales 🎮";
+    break;
+}
+
+// ── Días para el viernes (día de pago) ───────
+let diasParaViernes;
+if (numeroDia === 5) {
+  diasParaViernes = 0;
+} else if (numeroDia < 5) {
+  diasParaViernes = 5 - numeroDia;
+} else {
+  diasParaViernes = 7 - numeroDia + 5; // domingo (6) = 6 días
+}
+
+// ── Mostrar resultados ────────────────────────
+console.log("╔══════════════════════════════╗");
+console.log("║       AGENDA SEMANAL         ║");
+console.log("╚══════════════════════════════╝");
+console.log(`Día:       ${nombreDia} (${numeroDia})`);
+console.log(`Tipo:      ${esLaboral ? "🏢 Día laboral" : "🌴 Fin de semana"}`);
+console.log(`Actividad: ${actividad}`);
+console.log(`──────────────────────────────`);
+
+if (diasParaViernes === 0) {
+  console.log("💸 ¡HOY ES VIERNES! ¡Cobras hoy!");
+} else {
+  console.log(`💸 Días para el viernes: ${diasParaViernes}`);
+}
+
+// ── Semana laboral progress ───────────────────
+if (esLaboral) {
+  const diasCompletados = numeroDia === 0 ? 0 : Math.min(numeroDia, 5);
+  const barra = "█".repeat(diasCompletados) + "░".repeat(5 - diasCompletados);
+  console.log(`\nSemana: [${barra}] ${diasCompletados}/5 días`);
+}</textarea>
+    </div>
+    <div class="btn-row">
+      <button class="run-btn" onclick="runCode('ej-diasemana-code','out-diasemana')">▶ Ejecutar</button>
+      <button class="reset-btn" onclick="resetEj('ej-diasemana-code','out-diasemana')">↺ Reiniciar</button>
+    </div>
+    <div class="output-label">Salida:</div>
+    <div class="output" id="out-diasemana">Presiona ▶ Ejecutar...</div>
+  </div>
+</section>
+
+<!-- SIGUIENTE PARTE -->
+<section class="module" style="background:linear-gradient(135deg,#1a1814,#2a2420);border-color:#3a3430;text-align:center;">
+  <div style="font-size:2rem;margin-bottom:.75rem;">→</div>
+  <h2 style="color:#f7f4ef;margin-bottom:.5rem;">Parte 3 — Arrays, Métodos y Funciones</h2>
+  <p style="color:rgba(247,244,239,0.7);margin-bottom:1.25rem;">Arrays, métodos de arrays, funciones, arrow functions y el ejercicio integrador de Pokémon</p>
+  <a href="guia-js-parte-3.html" style="display:inline-block;background:var(--js);color:#1a1814;font-weight:700;padding:.8rem 2rem;border-radius:10px;text-decoration:none;font-size:.95rem;">Ir a Parte 3 →</a>
+</section>
+
+</main>
+
+<footer>
+  Guía JavaScript desde Cero · Parte 2 · Basada en el curso de Soy Dalto · Hugo 2025
+</footer>
+
+<script>
+function runCode(editorId, outputId) {
+  const code = document.getElementById(editorId).value;
+  const output = document.getElementById(outputId);
+  const logs = [];
+  const orig = { log: console.log, error: console.error, warn: console.warn };
+
+  console.log   = (...a) => logs.push(a.map(x => typeof x === 'object' ? JSON.stringify(x, null, 2) : String(x)).join(' '));
+  console.error = (...a) => logs.push('❌ ' + a.join(' '));
+  console.warn  = (...a) => logs.push('⚠️ ' + a.join(' '));
+
+  try {
+    eval(code);
+    output.textContent = logs.length ? logs.join('\n') : '(sin salida)';
+    output.className = 'output';
+  } catch(e) {
+    output.textContent = '❌ Error: ' + e.message;
+    output.className = 'output error';
+  } finally {
+    Object.assign(console, orig);
+  }
+}
+
+function resetEj(editorId, outputId) {
+  const defaults = {
+    'ej-if': `const nota = 85;\n\nlet letra;\nlet mensaje;\n\nif (nota >= 90) {\n  letra = "A";\n  mensaje = "¡Excelente! 🏆";\n} else if (nota >= 80) {\n  letra = "B";\n  mensaje = "¡Muy bien! 🌟";\n} else if (nota >= 70) {\n  letra = "C";\n  mensaje = "Bien 👍";\n} else if (nota >= 60) {\n  letra = "D";\n  mensaje = "Suficiente 📚";\n} else {\n  letra = "F";\n  mensaje = "Reprobado 💪";\n}\n\nconsole.log(\`Nota: \${nota}\`);\nconsole.log(\`Calificación: \${letra}\`);\nconsole.log(\`Resultado: \${mensaje}\`);`,
+  };
+  const ta = document.getElementById(editorId);
+  if (defaults[editorId]) ta.value = defaults[editorId];
+  const out = document.getElementById(outputId);
+  if (out) { out.textContent = 'Presiona ▶ Ejecutar...'; out.className = 'output'; }
+}
+</script>
+</body>
+</html>

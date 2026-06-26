@@ -1,0 +1,1474 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ejercicio 4 — Página de Contacto | Formularios · Animaciones · Pseudo-clases</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #c44a2a;
+    --primary-light:  #fdf0ec;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --danger:         #c44a2a;
+    --danger-light:   #fdf0ec;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1a1814;
+    --code-text:      #e8e4de;
+  }
+
+  body { font-family: 'DM Sans', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  /* TOPBAR */
+  .topbar { background:#ffffff; border-bottom:1px solid var(--border); padding:0 24px; display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:200; height:45px; }
+  .topbar a { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--muted); text-decoration:none; padding:6px 14px; border:1px solid var(--border); border-radius:999px; transition:all 0.15s; }
+  .topbar a:hover { color:var(--text); border-color:#8a8480; }
+  .topbar span { font-size:13px; color:var(--muted); }
+
+  /* HEADER */
+  header { background: #1a1814; color: #f7f4ef; padding: 3rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: '📬'; position: absolute; font-size: 12rem; right: -1rem; top: -2rem; opacity: .06; line-height: 1; }
+  header .ex-label { display: inline-block; background: var(--primary); color: white; border-radius: 20px; padding: 4px 16px; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 1rem; }
+  header h1 { font-size: 2.4rem; font-weight: 800; letter-spacing: -1px; }
+  header p.sub { font-size: 1.05rem; opacity: .8; margin-top: .5rem; font-style: italic; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  /* NAV */
+  nav.guide-nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 45px; z-index: 100; display: flex; overflow-x: auto; }
+  nav.guide-nav a { flex-shrink: 0; padding: .75rem 1.1rem; text-decoration: none; color: var(--muted); font-size: .82rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav.guide-nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  /* MAIN */
+  main { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: white; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  /* MODULE */
+  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2.5rem; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-size: 1.35rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  /* CALLOUTS */
+  .analogy { background: #FFF7ED; border: 1px solid #FDE68A; border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: #92400E; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; color: #78350F; }
+  .concept { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p, .tip ul { font-size: .95rem; }
+  .tip ul { padding-left: 1.2rem; }
+  .tip li { margin-bottom: .3rem; }
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  /* CODE BLOCKS */
+  .code-block { background: var(--code-bg); color: var(--code-text); border-radius: 10px; padding: 1.25rem 1.5rem; font-family: 'DM Mono', 'Courier New', monospace; font-size: .88rem; line-height: 1.85; overflow-x: auto; margin: 1rem 0; position: relative; white-space: pre; }
+  .code-block .ct { color: #89B4FA; }
+  .code-block .ca { color: #CBA6F7; }
+  .code-block .cv { color: #A6E3A1; }
+  .code-block .cs { color: #F9E2AF; }
+  .code-block .cp { color: #89DCEB; }
+  .code-block .cc { color: #585B70; font-style: italic; }
+  .code-block .cn { color: #FAB387; }
+  .lang { position: absolute; top: .6rem; right: .75rem; background: rgba(255,255,255,.1); color: rgba(255,255,255,.5); font-size: .68rem; padding: 2px 8px; border-radius: 4px; font-family: sans-serif; }
+
+  /* PREVIEW */
+  .preview { border: 2px dashed var(--border); border-radius: 10px; overflow: hidden; margin: 1rem 0; background: var(--surface); position: relative; }
+  .preview::before { content: '🖥 Vista en navegador'; position: absolute; top: -11px; left: 14px; background: var(--surface); font-size: .73rem; color: var(--muted); padding: 0 6px; z-index: 1; }
+
+  /* TABLES */
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  /* ANATOMY */
+  .anatomy { background: #F0F4FF; border: 1px solid #C7D2FE; border-radius: 12px; padding: 1.5rem; font-family: 'DM Mono', monospace; font-size: .95rem; line-height: 2.4; margin: 1.25rem 0; }
+  .anatomy .br { color: var(--primary); font-weight: 700; }
+  .anatomy .at { color: #0891B2; }
+  .anatomy .vl { color: #059669; }
+  .anatomy .lb  { display: inline-block; background: var(--primary); color: #fff; font-size: .68rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 6px; }
+  .anatomy .lb2 { display: inline-block; background: var(--accent); color: #fff; font-size: .68rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 6px; }
+  .anatomy .lb3 { display: inline-block; background: var(--secondary); color: #fff; font-size: .68rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 6px; }
+
+  /* GLOSARIO */
+  .glos { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .glos-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; }
+  .glos-item dt { font-weight: 700; color: var(--primary); font-size: .92rem; margin-bottom: .3rem; }
+  .glos-item dd { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+  .glos-item .emoji { font-size: 1.4rem; display: block; margin-bottom: .4rem; }
+
+  /* CHIPS */
+  .chip { display: inline-block; background: var(--primary-light); color: var(--primary); font-size: .8rem; padding: 3px 12px; border-radius: 20px; font-weight: 600; margin: 3px; font-family: 'DM Mono', monospace; }
+
+  /* RETO CARDS */
+  .reto-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin: 1.25rem 0; }
+  .reto-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+  .reto-card .nivel { display: inline-block; font-size: .72rem; font-weight: 700; padding: 2px 10px; border-radius: 20px; margin-bottom: .6rem; text-transform: uppercase; letter-spacing: .06em; }
+  .nivel-f { background: #FEF3C7; color: #92400E; }
+  .nivel-m { background: #FFEDD5; color: #C2410C; }
+  .nivel-a { background: #FEE2E2; color: #B91C1C; }
+  .nivel-ex { background: #1a1814; color: #f7f4ef; }
+  .reto-card h4 { font-size: .95rem; font-weight: 700; margin-bottom: .5rem; }
+  .reto-card p { font-size: .88rem; color: var(--muted); margin-bottom: .5rem; }
+  .reto-card strong { color: var(--text); }
+
+  /* ESTADO VISUAL de pseudo-clases */
+  .estado-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: .75rem; margin: 1.25rem 0; }
+  .estado-card { border-radius: 10px; padding: 1rem; border: 2px solid; }
+  .estado-card h5 { font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: .3rem; font-family: 'DM Mono', monospace; }
+  .estado-card p { font-size: .82rem; margin: 0; }
+  .estado-normal { background: #F9FAFB; border-color: #E5E7EB; }
+  .estado-normal h5 { color: #374151; }
+  .estado-focus  { background: #EEF2FF; border-color: #6D28D9; box-shadow: 0 0 0 3px rgba(109,40,217,.15); }
+  .estado-focus h5 { color: #6D28D9; }
+  .estado-valid  { background: #ECFDF5; border-color: #065F46; }
+  .estado-valid h5 { color: #065F46; }
+  .estado-invalid { background: #FEF2F2; border-color: #B91C1C; }
+  .estado-invalid h5 { color: #B91C1C; }
+
+  /* DEMO PÁGINA */
+  .demo-wrap { font-family: 'DM Sans', sans-serif; background: #F9FAFB; }
+
+  /* navbar demo */
+  .demo-navbar { display:flex; justify-content:space-between; align-items:center; padding:16px 32px; background:white; border-bottom:1px solid #E5E7EB; }
+  .demo-logo { font-size:1.1rem; font-weight:700; color:#6D28D9; letter-spacing:-.02em; }
+  .demo-nav-links { display:flex; gap:28px; list-style:none; }
+  .demo-nav-links a { color:#6B7280; text-decoration:none; font-size:.88rem; font-weight:500; }
+  .demo-nav-links a.activo { color:#6D28D9; font-weight:700; border-bottom:2px solid #6D28D9; padding-bottom:2px; }
+
+  /* hero demo */
+  .demo-hero { background:linear-gradient(135deg,#4C1D95 0%,#6D28D9 100%); color:white; padding:56px 40px; }
+  .demo-hero-content { max-width:560px; margin:0 auto; }
+  .demo-hero-tag { display:inline-block; background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.3); border-radius:20px; padding:4px 16px; font-size:.75rem; font-weight:600; letter-spacing:.1em; text-transform:uppercase; margin-bottom:20px; }
+  .demo-hero h1 { font-size:2.2rem; font-weight:700; line-height:1.1; margin-bottom:12px; }
+  .demo-acento { color:#FDE68A; }
+  .demo-hero p { font-size:1rem; color:rgba(255,255,255,.8); margin-bottom:32px; }
+  .demo-contacto-rapido { display:flex; flex-direction:column; gap:16px; }
+  .demo-dato { display:flex; align-items:center; gap:14px; }
+  .demo-icono { width:44px; height:44px; background:rgba(255,255,255,.15); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0; }
+  .demo-dato-label { display:block; font-size:.7rem; font-weight:600; text-transform:uppercase; letter-spacing:.08em; color:rgba(255,255,255,.6); margin-bottom:2px; }
+  .demo-dato a, .demo-dato span { color:white; text-decoration:none; font-size:.9rem; }
+
+  /* formulario demo */
+  .demo-form-wrap { padding:40px 32px; max-width:760px; margin:0 auto; }
+  .demo-form-card { background:white; border:1px solid #E5E7EB; border-radius:16px; padding:36px; box-shadow:0 4px 24px rgba(0,0,0,.06); }
+  .demo-form-titulo { font-size:1.45rem; font-weight:700; margin-bottom:6px; }
+  .demo-linea-acento { width:48px; height:3px; background:#D97706; border-radius:2px; margin-bottom:8px; }
+  .demo-form-sub { color:#6B7280; font-size:.88rem; margin-bottom:28px; }
+  .demo-fila { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:18px; }
+  .demo-campo { display:flex; flex-direction:column; gap:5px; margin-bottom:18px; }
+  .demo-campo label { font-size:.84rem; font-weight:600; color:#111827; }
+  .demo-campo label .ast { color:#B91C1C; }
+  .demo-input { width:100%; padding:11px 14px; border:2px solid #E5E7EB; border-radius:10px; font-size:.92rem; color:#111827; background:#F9FAFB; outline:none; font-family:inherit; }
+  .demo-input.focus { border-color:#6D28D9; background:white; box-shadow:0 0 0 3px rgba(109,40,217,.15); }
+  .demo-input.valid { border-color:#065F46; background:white; }
+  .demo-input.invalid { border-color:#B91C1C; background:white; }
+  .demo-error { font-size:.78rem; color:#B91C1C; display:block; margin-top:2px; }
+  .demo-radio-grupo { display:flex; flex-wrap:wrap; gap:8px; margin-top:6px; }
+  .demo-radio { padding:8px 16px; border:2px solid #E5E7EB; border-radius:20px; font-size:.85rem; font-weight:500; cursor:pointer; transition:all .2s; }
+  .demo-radio.sel { background:#6D28D9; border-color:#6D28D9; color:white; font-weight:600; }
+  .demo-check-row { display:flex; align-items:flex-start; gap:10px; font-size:.88rem; margin-bottom:20px; }
+  .demo-check-row a { color:#6D28D9; font-weight:600; text-decoration:none; }
+  .demo-btn { width:100%; padding:14px; background:#6D28D9; color:white; border:none; border-radius:10px; font-size:1rem; font-weight:700; cursor:pointer; letter-spacing:.02em; }
+  .demo-btn:hover { background:#4C1D95; }
+
+  /* footer demo */
+  .demo-footer { background:#111827; color:rgba(255,255,255,.7); text-align:center; padding:36px; font-size:.85rem; }
+  .demo-footer p { margin-bottom:4px; }
+  .demo-footer .logo { font-size:1.1rem; font-weight:700; color:white; margin-bottom:8px; }
+
+  /* TYPOGRAPHY */
+  h2 { font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; color: var(--text); }
+  h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 .5rem; }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: #f0ece6; color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  strong { font-weight: 700; }
+  em { font-style: italic; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+  footer.guia-footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <a href="#">← Volver al curso</a>
+  <span>📬 Ejercicio 4 — Página de Contacto · Formularios · Animaciones · Pseudo-clases</span>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="ex-label">✏️ Ejercicio 4</div>
+  <h1>Página de Contacto</h1>
+  <p class="sub">Formularios completos · Pseudo-clases de estado · Animaciones CSS</p>
+  <span class="badge">📋 Forms · 🎨 :focus :valid :invalid · ✨ @keyframes · 🔲 ::before ::after · 📐 CSS Grid</span>
+</header>
+
+<!-- NAV GUÍA -->
+<nav class="guide-nav">
+  <a href="#aprenderás">🎓 ¿Qué aprenderás?</a>
+  <a href="#formularios">📋 Formularios</a>
+  <a href="#pseudoclases">🚦 Pseudo-clases</a>
+  <a href="#animaciones">✨ Animaciones</a>
+  <a href="#pseudoelementos">🔲 ::before ::after</a>
+  <a href="#archivos">📁 Archivos</a>
+  <a href="#html">🧱 HTML</a>
+  <a href="#css">🎨 CSS</a>
+  <a href="#resultado">🖥 Resultado</a>
+  <a href="#retos">🏆 Retos</a>
+  <a href="#resumen">📋 Resumen</a>
+</nav>
+
+<main>
+
+<div class="parte-badge">📬 Ejercicio 4 — Nivel: Intermedio · El salto a páginas interactivas</div>
+
+
+<!-- ══════════════════════════════════
+     ¿QUÉ VAS A APRENDER?
+══════════════════════════════════ -->
+<section class="module" id="aprenderás">
+  <div class="module-header">
+    <div class="module-icon">🎓</div>
+    <div>
+      <div class="module-title">¿Qué vas a aprender en este ejercicio?</div>
+      <div class="module-sub">El salto a las páginas interactivas — sin JavaScript</div>
+    </div>
+  </div>
+
+  <div class="glos">
+    <div class="glos-item">
+      <span class="emoji">📋</span>
+      <dt>Formularios HTML</dt>
+      <dd><code>&lt;form&gt;</code>, <code>&lt;input&gt;</code>, <code>&lt;select&gt;</code>, <code>&lt;textarea&gt;</code>, <code>&lt;button&gt;</code> con todos sus atributos.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🚦</span>
+      <dt>Pseudo-clases de estado</dt>
+      <dd><code>:focus</code>, <code>:valid</code>, <code>:invalid</code>, <code>:placeholder-shown</code>, <code>:checked</code>, <code>:has()</code>.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">✨</span>
+      <dt>Animaciones CSS</dt>
+      <dd><code>@keyframes</code> para definir animaciones propias. <code>animation</code> para aplicarlas.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🔲</span>
+      <dt>Pseudo-elementos</dt>
+      <dd><code>::before</code> y <code>::after</code> para añadir contenido decorativo desde CSS sin tocar el HTML.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">📐</span>
+      <dt>CSS Grid básico</dt>
+      <dd><code>grid-template-columns: 1fr 1fr</code> para poner 2 campos de formulario lado a lado. <strong>Nota:</strong> aquí solo usamos Grid para los campos — en el Ejercicio 5 lo profundizas con layouts completos y Media Queries.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🌊</span>
+      <dt>Gradientes y sombras</dt>
+      <dd><code>linear-gradient()</code> para fondos degradados. <code>box-shadow</code> como anillo de enfoque accesible.</dd>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>💡 ¿Qué traes de los ejercicios anteriores?</h4>
+    <p>Ya dominas Box Model, Flexbox, Variables CSS, Tablas y selectores avanzados. Aquí usas todo eso <strong>más</strong> formularios interactivos, animaciones de entrada y pseudo-elementos. Es el ejercicio más cercano a lo que hacen los desarrolladores profesionales día a día.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     CONCEPTO 1 — FORMULARIOS
+══════════════════════════════════ -->
+<section class="module" id="formularios">
+  <div class="module-header">
+    <div class="module-icon">📋</div>
+    <div>
+      <div class="module-title">CONCEPTO 1 — Formularios HTML</div>
+      <div class="module-sub">La forma en que los usuarios envían información a través de una página web</div>
+    </div>
+  </div>
+
+  <p>Todo lo que conoces en internet — registro, login, búsqueda, compras, comentarios — funciona con formularios. Son la <strong>única manera</strong> que tiene el usuario de enviar datos sin JavaScript.</p>
+
+  <div class="analogy">
+    <h4>📝 Analogía: el formulario del banco</h4>
+    <p>Cuando vas al banco a hacer una transferencia, te dan un formulario en papel: campos para el beneficiario, la CLABE, el monto, y al final lo firmas y lo entregas al cajero. Un formulario HTML funciona exactamente igual: campos para que el usuario llene (<code>&lt;input&gt;</code>), un área de texto (<code>&lt;textarea&gt;</code>), y un botón para enviarlo (<code>&lt;button type="submit"&gt;</code>). El "cajero" que recibe los datos es el servidor web.</p>
+  </div>
+
+  <h2>Estructura básica de un formulario</h2>
+
+  <div class="anatomy">
+    <span class="br">&lt;form</span> <span class="at">action</span>=<span class="vl">"#"</span> <span class="at">method</span>=<span class="vl">"post"</span><span class="br">&gt;</span>  <span class="lb">contenedor del formulario</span>
+    <br>
+    &nbsp;&nbsp;<span class="br">&lt;label</span> <span class="at">for</span>=<span class="vl">"nombre"</span><span class="br">&gt;</span>Tu nombre:<span class="br">&lt;/label&gt;</span>  <span class="lb2">etiqueta descriptiva</span>
+    <br>
+    &nbsp;&nbsp;<span class="br">&lt;input</span> <span class="at">type</span>=<span class="vl">"text"</span> <span class="at">id</span>=<span class="vl">"nombre"</span> <span class="at">name</span>=<span class="vl">"nombre"</span> <span class="at">required</span><span class="br">&gt;</span>  <span class="lb3">campo de entrada</span>
+    <br>
+    &nbsp;&nbsp;<span class="br">&lt;button</span> <span class="at">type</span>=<span class="vl">"submit"</span><span class="br">&gt;</span>Enviar<span class="br">&lt;/button&gt;</span>  <span class="lb">botón de envío</span>
+    <br>
+    <span class="br">&lt;/form&gt;</span>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Atributo / Etiqueta</th><th>Definición completa</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">&lt;form&gt;</span></td><td>Contenedor de todo el formulario. Sin él, los campos no se agrupan y el botón no sabe qué datos enviar.</td></tr>
+      <tr><td><span class="tag">action="/url"</span></td><td>A dónde se envían los datos al hacer clic en Enviar. En práctica puedes poner <code>action="#"</code>.</td></tr>
+      <tr><td><span class="tag">method="post"</span></td><td><code>post</code> manda los datos de forma oculta (seguro para contraseñas). <code>get</code> los pone visibles en la URL.</td></tr>
+      <tr><td><span class="tag">novalidate</span></td><td>Desactiva los globos de error feos del navegador. Así podemos usar solo nuestra validación visual con CSS.</td></tr>
+      <tr><td><span class="tag">&lt;label for="id"&gt;</span></td><td>Etiqueta descriptiva. Al hacer clic en el label, el cursor va al campo con ese <code>id</code>. Accesibilidad esencial.</td></tr>
+      <tr><td><span class="tag">name="campo"</span></td><td>El nombre con que se envía el dato al servidor. Si el usuario escribe "Hugo", el servidor recibe <code>nombre=Hugo</code>.</td></tr>
+      <tr><td><span class="tag">required</span></td><td>Atributo booleano. El formulario no se envía si este campo está vacío.</td></tr>
+      <tr><td><span class="tag">autocomplete</span></td><td>Le dice al navegador que puede sugerir valores guardados. <code>autocomplete="email"</code> sugiere emails usados antes.</td></tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h2>Todos los tipos de &lt;input&gt; que debes conocer</h2>
+
+  <table class="tbl">
+    <thead><tr><th>type=</th><th>¿Qué muestra y cuándo usarlo?</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">text</span></td><td>Campo de texto libre. Para nombre, apellido, dirección, cualquier texto sin formato especial.</td></tr>
+      <tr><td><span class="tag">email</span></td><td>Valida automáticamente que tenga <code>@</code> y un dominio. En móvil abre teclado con @ visible.</td></tr>
+      <tr><td><span class="tag">tel</span></td><td>Campo de teléfono. En móvil abre el teclado numérico. No valida el formato (varía por país).</td></tr>
+      <tr><td><span class="tag">password</span></td><td>Oculta los caracteres con puntos. Para contraseñas y PINs.</td></tr>
+      <tr><td><span class="tag">number</span></td><td>Solo acepta números. Muestra flechas para subir/bajar. Atributos: <code>min</code>, <code>max</code>, <code>step</code>.</td></tr>
+      <tr><td><span class="tag">date</span></td><td>Abre un selector de calendario. El valor se guarda en formato <code>YYYY-MM-DD</code>.</td></tr>
+      <tr><td><span class="tag">checkbox</span></td><td>Casilla de verificación. Para opciones múltiples independientes (puede haber varias marcadas).</td></tr>
+      <tr><td><span class="tag">radio</span></td><td>Botón de opción. Solo uno del grupo puede estar activo. Todos del mismo grupo deben tener el mismo <code>name</code>.</td></tr>
+      <tr><td><span class="tag">file</span></td><td>Botón para subir archivos. <code>accept="image/*"</code> limita a imágenes.</td></tr>
+      <tr><td><span class="tag">range</span></td><td>Deslizador (slider). Con <code>min</code>, <code>max</code> y <code>step</code>. Para volumen, precio, valoraciones.</td></tr>
+      <tr><td><span class="tag">color</span></td><td>Abre un selector de color. Devuelve un valor hexadecimal (<code>#FF0000</code>).</td></tr>
+      <tr><td><span class="tag">hidden</span></td><td>Campo invisible al usuario. Para enviar datos que el usuario no debe ver ni cambiar.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- ══════════════════════════════════
+     CONCEPTO 2 — PSEUDO-CLASES
+══════════════════════════════════ -->
+<section class="module" id="pseudoclases">
+  <div class="module-header">
+    <div class="module-icon">🚦</div>
+    <div>
+      <div class="module-title">CONCEPTO 2 — Pseudo-clases de estado</div>
+      <div class="module-sub">CSS detecta el estado del campo automáticamente — sin JavaScript</div>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <h4>🚦 Analogía: los semáforos del formulario</h4>
+    <p>Imagina que cada campo tiene su propio semáforo. Cuando el usuario hace clic, el semáforo se pone amarillo (<code>:focus</code>). Si escribe un email correcto, pasa a verde (<code>:valid</code>). Si escribe algo inválido, pasa a rojo (<code>:invalid</code>). Todo esto sin JavaScript — CSS lo detecta solo porque el navegador ya sabe qué es un email válido, qué es un número, etc.</p>
+  </div>
+
+  <!-- DEMO VISUAL DE ESTADOS -->
+  <div class="estado-grid">
+    <div class="estado-card estado-normal">
+      <h5>Estado normal</h5>
+      <p>Campo en reposo. Sin interacción. Borde gris por defecto.</p>
+    </div>
+    <div class="estado-card estado-focus">
+      <h5>:focus</h5>
+      <p>El usuario hizo clic dentro. Borde morado + anillo de enfoque.</p>
+    </div>
+    <div class="estado-card estado-valid">
+      <h5>:valid</h5>
+      <p>El contenido cumple las reglas (email correcto, no vacío). Borde verde.</p>
+    </div>
+    <div class="estado-card estado-invalid">
+      <h5>:invalid</h5>
+      <p>El contenido no cumple las reglas. Borde rojo + mensaje de error visible.</p>
+    </div>
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* :focus — el usuario hizo clic dentro del campo */</span>
+<span class="cp">input:focus</span> {
+  <span class="ca">border-color</span>: var(<span class="cv">--primario</span>);
+  <span class="ca">outline</span>: none;   <span class="cc">/* quita el borde azul feo del navegador */</span>
+  <span class="ca">box-shadow</span>: <span class="cn">0 0 0 3px</span> rgba(<span class="cn">109, 40, 217, 0.15</span>); <span class="cc">/* anillo suave */</span>
+}
+
+<span class="cc">/* :valid — campo con contenido correcto */</span>
+<span class="cc">/* :not(:placeholder-shown) evita que verde aparezca en campos vacíos */</span>
+<span class="cp">input:not(:placeholder-shown):valid</span> {
+  <span class="ca">border-color</span>: var(<span class="cv">--exito</span>); <span class="cc">/* verde */</span>
+}
+
+<span class="cc">/* :invalid — campo con contenido incorrecto (y ya tocado por el usuario) */</span>
+<span class="cp">input:not(:placeholder-shown):invalid</span> {
+  <span class="ca">border-color</span>: var(<span class="cv">--error</span>); <span class="cc">/* rojo */</span>
+}
+
+<span class="cc">/* ~ (tilde) = selector hermano siguiente: .campo-msg que siga al input inválido */</span>
+<span class="cp">input:not(:placeholder-shown):invalid ~ .campo-msg</span> {
+  <span class="ca">display</span>: block; <span class="cc">/* muestra el mensaje de error */</span>
+}
+
+<span class="cc">/* ::placeholder (pseudo-ELEMENTO, doble ::) — el texto gris dentro del campo */</span>
+<span class="cp">input::placeholder</span> {
+  <span class="ca">color</span>: <span class="cn">#9CA3AF</span>;
+  <span class="ca">font-style</span>: italic;
+}
+
+<span class="cc">/* :has() — aplica al .radio-label si CONTIENE un input:checked */</span>
+<span class="cp">.radio-label:has(input:checked)</span> {
+  <span class="ca">background</span>: var(<span class="cv">--primario</span>);
+  <span class="ca">color</span>: white;
+}
+
+<span class="cc">/* accent-color — cambia el color del checkbox/radio en 1 línea */</span>
+<span class="cp">input[type='checkbox']</span> {
+  <span class="ca">accent-color</span>: var(<span class="cv">--primario</span>);
+}</div>
+
+  <table class="tbl">
+    <thead><tr><th>Pseudo-clase</th><th>¿Cuándo se activa?</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">:focus</span></td><td>Cuando el usuario hace clic dentro del campo o navega con Tab. Se desactiva al hacer clic afuera.</td></tr>
+      <tr><td><span class="tag">:valid</span></td><td>Cuando el valor cumple todas las restricciones: <code>required</code> + <code>type</code> correcto + <code>pattern</code> si lo hay.</td></tr>
+      <tr><td><span class="tag">:invalid</span></td><td>Cuando el valor no cumple las restricciones. Sin <code>:not(:placeholder-shown)</code> se activa desde que carga la página.</td></tr>
+      <tr><td><span class="tag">:placeholder-shown</span></td><td>Mientras el placeholder es visible, es decir, mientras el campo está vacío.</td></tr>
+      <tr><td><span class="tag">:checked</span></td><td>Cuando un checkbox o radio está marcado.</td></tr>
+      <tr><td><span class="tag">:has(selector)</span></td><td>Aplica al elemento si <em>contiene</em> algo que coincida. Pseudo-clase moderna (Chrome 105+).</td></tr>
+      <tr><td><span class="tag">:disabled</span></td><td>Cuando el campo tiene el atributo <code>disabled</code>. El usuario no puede interactuar.</td></tr>
+      <tr><td><span class="tag">:active</span></td><td>Mientras el botón está siendo presionado. Permite el efecto de "hundirse".</td></tr>
+      <tr><td><span class="tag">~ (tilde)</span></td><td>Selector de hermano siguiente. <code>input:invalid ~ .msg</code> selecciona <code>.msg</code> que venga después del input en el mismo padre.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="warn">
+    <h4>⚠️ El problema de :valid e :invalid desde cero</h4>
+    <p>Por defecto, un <code>input required</code> vacío ya es <code>:invalid</code> desde que carga la página — antes de que el usuario lo toque. Eso hace que todos los campos aparezcan en rojo al abrir el formulario. La solución: combinar con <code>:not(:placeholder-shown)</code>. Así la pseudo-clase solo se activa cuando el campo tiene texto (el placeholder desapareció).</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     CONCEPTO 3 — ANIMACIONES
+══════════════════════════════════ -->
+<section class="module" id="animaciones">
+  <div class="module-header">
+    <div class="module-icon">✨</div>
+    <div>
+      <div class="module-title">CONCEPTO 3 — Animaciones CSS con @keyframes</div>
+      <div class="module-sub">Movimiento y efectos visuales sin una sola línea de JavaScript</div>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <h4>🎬 Analogía: el guion de una película</h4>
+    <p><code>@keyframes</code> es como escribir el guion de una animación. Defines qué pasa en cada escena: "al inicio (0%) el elemento está transparente y 30px abajo. Al final (100%) es opaco y está en su posición normal". Luego la propiedad <code>animation</code> en el elemento es como decirle al actor: "sigue este guion, tarda 0.6 segundos y repítelo 1 vez".</p>
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* PASO 1: Define la animación con @keyframes */</span>
+<span class="cp">@keyframes</span> aparecer {
+  <span class="cn">from</span> {                           <span class="cc">/* = 0% — estado INICIAL */</span>
+    <span class="ca">opacity</span>: <span class="cn">0</span>;                    <span class="cc">/* transparente */</span>
+    <span class="ca">transform</span>: translateY(<span class="cn">30px</span>);  <span class="cc">/* 30px hacia abajo */</span>
+  }
+  <span class="cn">to</span> {                             <span class="cc">/* = 100% — estado FINAL */</span>
+    <span class="ca">opacity</span>: <span class="cn">1</span>;                    <span class="cc">/* visible */</span>
+    <span class="ca">transform</span>: translateY(<span class="cn">0</span>);     <span class="cc">/* en su posición normal */</span>
+  }
+}
+
+<span class="cc">/* PASO 2: Aplica la animación al elemento */</span>
+<span class="cp">.hero</span> {
+  <span class="ca">animation</span>: aparecer <span class="cn">0.5s</span> ease forwards;
+  <span class="cc">/*         ↑nombre  ↑dur  ↑curva ↑qué-hacer-al-final */</span>
+}
+
+<span class="cc">/* Con delay: la tarjeta aparece 0.2s después del hero */</span>
+<span class="cp">.form-card</span> {
+  <span class="ca">opacity</span>: <span class="cn">0</span>;   <span class="cc">/* empieza invisible para que la animación tome control */</span>
+  <span class="ca">animation</span>: aparecer <span class="cn">0.6s</span> ease <span class="cn">0.2s</span> forwards;
+  <span class="cc">/*                              ↑delay */</span>
+}
+
+<span class="cc">/* Animación de pulso continuo (el botón de enviar) */</span>
+<span class="cp">@keyframes</span> latir {
+  <span class="cn">0%, 100%</span> { <span class="ca">box-shadow</span>: <span class="cn">0 0 0 0px</span> rgba(<span class="cn">109,40,217,0.4</span>); }
+  <span class="cn">50%</span>       { <span class="ca">box-shadow</span>: <span class="cn">0 0 0 8px</span> rgba(<span class="cn">109,40,217,0</span>);   }
+}
+
+<span class="cp">.btn-enviar</span> {
+  <span class="ca">animation</span>: latir <span class="cn">2s</span> ease-in-out <span class="cn">infinite</span>; <span class="cc">/* se repite para siempre */</span>
+}
+<span class="cp">.btn-enviar:hover</span> {
+  <span class="ca">animation</span>: none; <span class="cc">/* detiene el pulso al hacer hover */</span>
+}</div>
+
+  <table class="tbl">
+    <thead><tr><th>Concepto</th><th>Explicación</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">@keyframes nombre</span></td><td>Define la animación. El nombre lo inventas tú. Dentro usas porcentajes <code>0% … 100%</code> o <code>from … to</code>.</td></tr>
+      <tr><td><span class="tag">animation: nombre dur curva</span></td><td>Aplica la animación. Mínimo necesitas nombre y duración. El 4° valor es el delay.</td></tr>
+      <tr><td><span class="tag">forwards</span></td><td>El elemento mantiene el estado <em>final</em> de la animación. Sin <code>forwards</code>, regresa al estado inicial.</td></tr>
+      <tr><td><span class="tag">infinite</span></td><td>La animación se repite para siempre. Para spinners, pulsaciones, indicadores.</td></tr>
+      <tr><td><span class="tag">opacity: 0</span></td><td>El elemento empieza invisible antes de que inicie la animación. Sin esto aparecería un instante antes.</td></tr>
+      <tr><td><span class="tag">translateY(30px)</span></td><td>Mueve el elemento 30px hacia abajo. En el <code>to</code> está en <code>0</code> = posición normal. Efecto: sube desde abajo.</td></tr>
+      <tr><td><span class="tag">ease / linear / ease-out</span></td><td>Curva de velocidad. <code>ease</code> = natural (lento-rápido-lento). <code>linear</code> = constante. <code>ease-out</code> = frena al final.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- ══════════════════════════════════
+     CONCEPTO 4 — PSEUDO-ELEMENTOS
+══════════════════════════════════ -->
+<section class="module" id="pseudoelementos">
+  <div class="module-header">
+    <div class="module-icon">🔲</div>
+    <div>
+      <div class="module-title">CONCEPTO 4 — Pseudo-elementos ::before y ::after</div>
+      <div class="module-sub">Contenido decorativo desde CSS — sin tocar el HTML</div>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <h4>🎭 Analogía: los extras de una película</h4>
+    <p><code>::before</code> y <code>::after</code> son como contratar extras para una escena. Los actores principales ya están en el guion (HTML). Pero puedes añadir personajes de fondo desde la dirección (CSS) sin modificar el guion. Aparecen antes o después del actor principal y pueden ser decorativos, llevar un traje especial, o hacer un movimiento específico.</p>
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* ::before y ::after SIEMPRE necesitan la propiedad content (aunque esté vacía) */</span>
+
+<span class="cc">/* Ejemplo 1: el asterisco * de los campos obligatorios */</span>
+<span class="cp">.requerido::after</span> {
+  <span class="ca">content</span>: <span class="cv">' *'</span>;    <span class="cc">/* el asterisco — CSS lo añade, no el HTML */</span>
+  <span class="ca">color</span>: var(<span class="cv">--error</span>);
+  <span class="ca">font-weight</span>: <span class="cn">700</span>;
+}
+
+<span class="cc">/* Ejemplo 2: la línea naranja decorativa bajo el título */</span>
+<span class="cp">.titulo-deco::after</span> {
+  <span class="ca">content</span>: <span class="cv">''</span>;        <span class="cc">/* vacío — solo queremos la forma visual */</span>
+  <span class="ca">display</span>: block;
+  <span class="ca">width</span>: <span class="cn">48px</span>;
+  <span class="ca">height</span>: <span class="cn">3px</span>;
+  <span class="ca">background</span>: var(<span class="cv">--acento</span>);
+  <span class="ca">margin-top</span>: <span class="cn">8px</span>;
+  <span class="ca">border-radius</span>: <span class="cn">2px</span>;
+}
+
+<span class="cc">/* Ejemplo 3: la línea animada bajo los links del navbar */</span>
+<span class="cp">.nav-links a::after</span> {
+  <span class="ca">content</span>: <span class="cv">''</span>;
+  <span class="ca">position</span>: absolute;
+  <span class="ca">bottom</span>: <span class="cn">-4px</span>;
+  <span class="ca">left</span>: <span class="cn">0</span>;
+  <span class="ca">width</span>: <span class="cn">0</span>;           <span class="cc">/* empieza con ancho 0 — invisible */</span>
+  <span class="ca">height</span>: <span class="cn">2px</span>;
+  <span class="ca">background</span>: var(<span class="cv">--primario</span>);
+  <span class="ca">transition</span>: width <span class="cn">0.25s</span> ease; <span class="cc">/* anima el crecimiento */</span>
+}
+<span class="cp">.nav-links a:hover::after</span> {
+  <span class="ca">width</span>: <span class="cn">100%</span>;        <span class="cc">/* crece a 100% al hacer hover */</span>
+}</div>
+
+  <table class="tbl">
+    <thead><tr><th>Concepto</th><th>Explicación</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">::before</span></td><td>Inserta contenido <strong>antes</strong> del contenido real del elemento. <strong>Siempre necesita <code>content</code></strong>.</td></tr>
+      <tr><td><span class="tag">::after</span></td><td>Inserta contenido <strong>después</strong> del contenido real. También necesita <code>content</code>.</td></tr>
+      <tr><td><span class="tag">content: ''</span></td><td>Vacío = solo queremos el elemento visual (la línea, el punto), no texto. Obligatorio de todas formas.</td></tr>
+      <tr><td><span class="tag">content: ' *'</span></td><td>Texto que CSS inserta. Se usa para asteriscos, numeración, iconos de texto, sin tocar el HTML.</td></tr>
+      <tr><td><span class="tag">display: block</span></td><td>Los pseudo-elementos son inline por defecto. Con <code>block</code> pueden tener <code>width</code> y <code>height</code> propios.</td></tr>
+      <tr><td><span class="tag">position: absolute</span></td><td>Necesario cuando el pseudo-elemento debe posicionarse relativo a su padre (como la línea del navbar).</td></tr>
+    </tbody>
+  </table>
+
+  <div class="concept">
+    <h4>💡 :: (doble dos puntos) vs : (un dos puntos)</h4>
+    <p>En CSS moderno, los pseudo-<strong>elementos</strong> usan <code>::</code> doble: <code>::before</code>, <code>::after</code>, <code>::placeholder</code>. Las pseudo-<strong>clases</strong> usan <code>:</code> simple: <code>:hover</code>, <code>:focus</code>, <code>:valid</code>. Esta distinción es intencional — los elementos crean algo nuevo en el DOM, las clases aplican a elementos existentes.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     ARCHIVOS
+══════════════════════════════════ -->
+<section class="module" id="archivos">
+  <div class="module-header">
+    <div class="module-icon">📁</div>
+    <div>
+      <div class="module-title">PARTE 1 — Crea el proyecto</div>
+      <div class="module-sub">Carpeta nueva, misma estructura</div>
+    </div>
+  </div>
+  <ul>
+    <li>Crea una carpeta nueva: <code>contacto-estudio-pixel</code></li>
+    <li>Dentro crea: <code>index.html</code> y <code>styles.css</code></li>
+    <li>Abre la carpeta en VS Code → activa Live Server</li>
+  </ul>
+  <div class="concept">
+    <h4>💡 El proyecto de este ejercicio</h4>
+    <p>Vas a construir la página de contacto de <strong>Estudio Pixel</strong>, una agencia de diseño web. Tendrá: navbar con animación de entrada, hero con degradado morado, formulario completo con validación visual, y footer oscuro.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     HTML
+══════════════════════════════════ -->
+<section class="module" id="html">
+  <div class="module-header">
+    <div class="module-icon">🧱</div>
+    <div>
+      <div class="module-title">PARTE 2 — El HTML completo</div>
+      <div class="module-sub">5 bloques: base, navbar, hero, formulario, footer</div>
+    </div>
+  </div>
+
+  <h2>BLOQUE 1 — Estructura base con fuente Inter</h2>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="ct">&lt;!DOCTYPE html&gt;</span>
+<span class="ct">&lt;html</span> <span class="ca">lang</span>=<span class="cv">"es"</span><span class="ct">&gt;</span>
+<span class="ct">&lt;head&gt;</span>
+  <span class="ct">&lt;meta</span> <span class="ca">charset</span>=<span class="cv">"UTF-8"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;meta</span> <span class="ca">name</span>=<span class="cv">"viewport"</span> <span class="ca">content</span>=<span class="cv">"width=device-width, initial-scale=1.0"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;title&gt;</span><span class="cs">Contacto — Estudio Pixel</span><span class="ct">&lt;/title&gt;</span>
+  <span class="ct">&lt;link</span> <span class="ca">rel</span>=<span class="cv">"preconnect"</span> <span class="ca">href</span>=<span class="cv">"https://fonts.googleapis.com"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;link</span> <span class="ca">href</span>=<span class="cv">"https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"</span>
+        <span class="ca">rel</span>=<span class="cv">"stylesheet"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;link</span> <span class="ca">rel</span>=<span class="cv">"stylesheet"</span> <span class="ca">href</span>=<span class="cv">"styles.css"</span><span class="ct">&gt;</span>
+<span class="ct">&lt;/head&gt;</span>
+<span class="ct">&lt;body&gt;</span>
+  <span class="cc">&lt;!-- Bloques 2 al 5 aquí --&gt;</span>
+<span class="ct">&lt;/body&gt;</span>
+<span class="ct">&lt;/html&gt;</span></div>
+
+  <hr>
+
+  <h2>BLOQUE 2 — La barra de navegación</h2>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="cc">&lt;!-- ① NAVBAR --&gt;</span>
+<span class="ct">&lt;header</span> <span class="ca">class</span>=<span class="cv">"navbar"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"#"</span> <span class="ca">class</span>=<span class="cv">"logo"</span><span class="ct">&gt;</span><span class="cs">✦ Estudio Pixel</span><span class="ct">&lt;/a&gt;</span>
+  <span class="ct">&lt;nav</span> <span class="ca">class</span>=<span class="cv">"nav-links"</span><span class="ct">&gt;</span>
+    <span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"#"</span><span class="ct">&gt;</span><span class="cs">Inicio</span><span class="ct">&lt;/a&gt;</span>
+    <span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"#"</span><span class="ct">&gt;</span><span class="cs">Servicios</span><span class="ct">&lt;/a&gt;</span>
+    <span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"#"</span><span class="ct">&gt;</span><span class="cs">Portafolio</span><span class="ct">&lt;/a&gt;</span>
+    <span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"#"</span> <span class="ca">class</span>=<span class="cv">"activo"</span><span class="ct">&gt;</span><span class="cs">Contacto</span><span class="ct">&lt;/a&gt;</span>
+  <span class="ct">&lt;/nav&gt;</span>
+<span class="ct">&lt;/header&gt;</span></div>
+
+  <table class="tbl">
+    <thead><tr><th>Elemento</th><th>Explicación</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">&lt;header class="navbar"&gt;</span></td><td>Usamos <code>&lt;header&gt;</code> como contenedor de la navbar. En CSS le pondremos <code>display: flex; justify-content: space-between</code> para separar logo y links.</td></tr>
+      <tr><td><span class="tag">&lt;a class="logo"&gt;</span></td><td>El logo es un enlace <code>&lt;a&gt;</code> — al hacer clic en el logo, el usuario regresa al inicio. Es la convención universal.</td></tr>
+      <tr><td><span class="tag">class="activo"</span></td><td>El enlace de la página actual lleva la clase <code>activo</code>. En CSS lo estilizamos diferente para que el usuario sepa dónde está.</td></tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h2>BLOQUE 3 — El hero de la página</h2>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="cc">&lt;!-- ② HERO --&gt;</span>
+<span class="ct">&lt;section</span> <span class="ca">class</span>=<span class="cv">"hero"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"hero-contenido"</span><span class="ct">&gt;</span>
+    <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"hero-tag"</span><span class="ct">&gt;</span><span class="cs">Hablemos</span><span class="ct">&lt;/span&gt;</span>
+    <span class="ct">&lt;h1</span> <span class="ca">class</span>=<span class="cv">"hero-titulo"</span><span class="ct">&gt;</span>
+      <span class="cs">Cuéntanos tu</span>
+      <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"texto-acento"</span><span class="ct">&gt;</span><span class="cs"> proyecto</span><span class="ct">&lt;/span&gt;</span>
+    <span class="ct">&lt;/h1&gt;</span>
+    <span class="ct">&lt;p</span> <span class="ca">class</span>=<span class="cv">"hero-sub"</span><span class="ct">&gt;</span>
+      <span class="cs">Respondemos en menos de </span><span class="ct">&lt;strong&gt;</span><span class="cs">24 horas</span><span class="ct">&lt;/strong&gt;</span><span class="cs">.
+      Nos encanta conocer ideas nuevas.</span>
+    <span class="ct">&lt;/p&gt;</span>
+    <span class="cc">&lt;!-- Datos de contacto rápido --&gt;</span>
+    <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"contacto-rapido"</span><span class="ct">&gt;</span>
+      <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"dato-contacto"</span><span class="ct">&gt;</span>
+        <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"dato-icono"</span><span class="ct">&gt;</span><span class="cs">📧</span><span class="ct">&lt;/span&gt;</span>
+        <span class="ct">&lt;div&gt;</span>
+          <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"dato-label"</span><span class="ct">&gt;</span><span class="cs">Email</span><span class="ct">&lt;/span&gt;</span>
+          <span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"mailto:hola@estudiopixel.com"</span><span class="ct">&gt;</span><span class="cs">hola@estudiopixel.com</span><span class="ct">&lt;/a&gt;</span>
+        <span class="ct">&lt;/div&gt;</span>
+      <span class="ct">&lt;/div&gt;</span>
+      <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"dato-contacto"</span><span class="ct">&gt;</span>
+        <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"dato-icono"</span><span class="ct">&gt;</span><span class="cs">📍</span><span class="ct">&lt;/span&gt;</span>
+        <span class="ct">&lt;div&gt;</span>
+          <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"dato-label"</span><span class="ct">&gt;</span><span class="cs">Ubicación</span><span class="ct">&lt;/span&gt;</span>
+          <span class="ct">&lt;span&gt;</span><span class="cs">Veracruz, México</span><span class="ct">&lt;/span&gt;</span>
+        <span class="ct">&lt;/div&gt;</span>
+      <span class="ct">&lt;/div&gt;</span>
+      <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"dato-contacto"</span><span class="ct">&gt;</span>
+        <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"dato-icono"</span><span class="ct">&gt;</span><span class="cs">🕐</span><span class="ct">&lt;/span&gt;</span>
+        <span class="ct">&lt;div&gt;</span>
+          <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"dato-label"</span><span class="ct">&gt;</span><span class="cs">Horario</span><span class="ct">&lt;/span&gt;</span>
+          <span class="ct">&lt;span&gt;</span><span class="cs">Lun–Vie, 9am–6pm</span><span class="ct">&lt;/span&gt;</span>
+        <span class="ct">&lt;/div&gt;</span>
+      <span class="ct">&lt;/div&gt;</span>
+    <span class="ct">&lt;/div&gt;</span>
+  <span class="ct">&lt;/div&gt;</span>
+<span class="ct">&lt;/section&gt;</span></div>
+
+  <table class="tbl">
+    <thead><tr><th>Clase</th><th>Explicación</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">.texto-acento</span></td><td><code>&lt;span&gt;</code> dentro del <code>&lt;h1&gt;</code>. En CSS le damos <code>color: #FDE68A</code> (amarillo cálido) para que "proyecto" contraste con el fondo morado.</td></tr>
+      <tr><td><span class="tag">.dato-contacto</span></td><td>Contenedor flex (<code>display: flex; align-items: center; gap</code>) para poner el ícono circular y el texto en fila.</td></tr>
+      <tr><td><span class="tag">.dato-icono</span></td><td>El círculo del ícono. Lo hacemos circular con <code>border-radius: 50%</code>, tamaño fijo <code>48×48px</code> y fondo semitransparente.</td></tr>
+      <tr><td><span class="tag">.dato-label</span></td><td><code>display: block</code> para que el label (Email, Ubicación) esté en su propia línea, arriba del enlace o texto.</td></tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h2>BLOQUE 4 — El formulario completo</h2>
+  <p>Este es el bloque más importante. Lee cada campo antes de escribirlo.</p>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="cc">&lt;!-- ③ FORMULARIO --&gt;</span>
+<span class="ct">&lt;section</span> <span class="ca">class</span>=<span class="cv">"seccion-form"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"form-card"</span><span class="ct">&gt;</span>
+    <span class="ct">&lt;h2</span> <span class="ca">class</span>=<span class="cv">"form-titulo titulo-deco"</span><span class="ct">&gt;</span><span class="cs">Envíanos un mensaje</span><span class="ct">&lt;/h2&gt;</span>
+    <span class="ct">&lt;p</span> <span class="ca">class</span>=<span class="cv">"form-sub"</span><span class="ct">&gt;</span><span class="cs">Los campos marcados con * son obligatorios.</span><span class="ct">&lt;/p&gt;</span>
+
+    <span class="ct">&lt;form</span> <span class="ca">class</span>=<span class="cv">"formulario"</span> <span class="ca">action</span>=<span class="cv">"#"</span> <span class="ca">method</span>=<span class="cv">"post"</span> <span class="ca">novalidate</span><span class="ct">&gt;</span>
+
+      <span class="cc">&lt;!-- FILA 1: Nombre y Email --&gt;</span>
+      <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"form-fila"</span><span class="ct">&gt;</span>
+        <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"campo-grupo"</span><span class="ct">&gt;</span>
+          <span class="ct">&lt;label</span> <span class="ca">for</span>=<span class="cv">"nombre"</span> <span class="ca">class</span>=<span class="cv">"requerido"</span><span class="ct">&gt;</span><span class="cs">Nombre completo</span><span class="ct">&lt;/label&gt;</span>
+          <span class="ct">&lt;input</span> <span class="ca">type</span>=<span class="cv">"text"</span> <span class="ca">id</span>=<span class="cv">"nombre"</span> <span class="ca">name</span>=<span class="cv">"nombre"</span>
+                 <span class="ca">placeholder</span>=<span class="cv">"Ej: María García"</span>
+                 <span class="ca">required</span> <span class="ca">autocomplete</span>=<span class="cv">"name"</span><span class="ct">&gt;</span>
+          <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"campo-msg"</span><span class="ct">&gt;</span><span class="cs">Ingresa tu nombre completo</span><span class="ct">&lt;/span&gt;</span>
+        <span class="ct">&lt;/div&gt;</span>
+        <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"campo-grupo"</span><span class="ct">&gt;</span>
+          <span class="ct">&lt;label</span> <span class="ca">for</span>=<span class="cv">"email"</span> <span class="ca">class</span>=<span class="cv">"requerido"</span><span class="ct">&gt;</span><span class="cs">Correo electrónico</span><span class="ct">&lt;/label&gt;</span>
+          <span class="ct">&lt;input</span> <span class="ca">type</span>=<span class="cv">"email"</span> <span class="ca">id</span>=<span class="cv">"email"</span> <span class="ca">name</span>=<span class="cv">"email"</span>
+                 <span class="ca">placeholder</span>=<span class="cv">"tu@email.com"</span>
+                 <span class="ca">required</span> <span class="ca">autocomplete</span>=<span class="cv">"email"</span><span class="ct">&gt;</span>
+          <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"campo-msg"</span><span class="ct">&gt;</span><span class="cs">Ingresa un email válido</span><span class="ct">&lt;/span&gt;</span>
+        <span class="ct">&lt;/div&gt;</span>
+      <span class="ct">&lt;/div&gt;</span>
+
+      <span class="cc">&lt;!-- FILA 2: Teléfono y Asunto --&gt;</span>
+      <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"form-fila"</span><span class="ct">&gt;</span>
+        <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"campo-grupo"</span><span class="ct">&gt;</span>
+          <span class="ct">&lt;label</span> <span class="ca">for</span>=<span class="cv">"telefono"</span><span class="ct">&gt;</span><span class="cs">Teléfono</span><span class="ct">&lt;/label&gt;</span>
+          <span class="ct">&lt;input</span> <span class="ca">type</span>=<span class="cv">"tel"</span> <span class="ca">id</span>=<span class="cv">"telefono"</span> <span class="ca">name</span>=<span class="cv">"telefono"</span>
+                 <span class="ca">placeholder</span>=<span class="cv">"+52 229 000 0000"</span>
+                 <span class="ca">autocomplete</span>=<span class="cv">"tel"</span><span class="ct">&gt;</span>
+        <span class="ct">&lt;/div&gt;</span>
+        <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"campo-grupo"</span><span class="ct">&gt;</span>
+          <span class="ct">&lt;label</span> <span class="ca">for</span>=<span class="cv">"asunto"</span> <span class="ca">class</span>=<span class="cv">"requerido"</span><span class="ct">&gt;</span><span class="cs">Asunto</span><span class="ct">&lt;/label&gt;</span>
+          <span class="ct">&lt;select</span> <span class="ca">id</span>=<span class="cv">"asunto"</span> <span class="ca">name</span>=<span class="cv">"asunto"</span> <span class="ca">required</span><span class="ct">&gt;</span>
+            <span class="ct">&lt;option</span> <span class="ca">value</span>=<span class="cv">""</span><span class="ct">&gt;</span><span class="cs">— Selecciona un asunto —</span><span class="ct">&lt;/option&gt;</span>
+            <span class="ct">&lt;option</span> <span class="ca">value</span>=<span class="cv">"web"</span><span class="ct">&gt;</span><span class="cs">Diseño de sitio web</span><span class="ct">&lt;/option&gt;</span>
+            <span class="ct">&lt;option</span> <span class="ca">value</span>=<span class="cv">"app"</span><span class="ct">&gt;</span><span class="cs">Aplicación móvil</span><span class="ct">&lt;/option&gt;</span>
+            <span class="ct">&lt;option</span> <span class="ca">value</span>=<span class="cv">"logo"</span><span class="ct">&gt;</span><span class="cs">Identidad / Logo</span><span class="ct">&lt;/option&gt;</span>
+            <span class="ct">&lt;option</span> <span class="ca">value</span>=<span class="cv">"seo"</span><span class="ct">&gt;</span><span class="cs">SEO y Marketing</span><span class="ct">&lt;/option&gt;</span>
+            <span class="ct">&lt;option</span> <span class="ca">value</span>=<span class="cv">"otro"</span><span class="ct">&gt;</span><span class="cs">Otro</span><span class="ct">&lt;/option&gt;</span>
+          <span class="ct">&lt;/select&gt;</span>
+          <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"campo-msg"</span><span class="ct">&gt;</span><span class="cs">Selecciona un asunto</span><span class="ct">&lt;/span&gt;</span>
+        <span class="ct">&lt;/div&gt;</span>
+      <span class="ct">&lt;/div&gt;</span>
+
+      <span class="cc">&lt;!-- FILA 3: Presupuesto (radio buttons) --&gt;</span>
+      <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"campo-grupo"</span><span class="ct">&gt;</span>
+        <span class="ct">&lt;label</span> <span class="ca">class</span>=<span class="cv">"label-bloque"</span><span class="ct">&gt;</span><span class="cs">Presupuesto aproximado</span><span class="ct">&lt;/label&gt;</span>
+        <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"radio-grupo"</span><span class="ct">&gt;</span>
+          <span class="ct">&lt;label</span> <span class="ca">class</span>=<span class="cv">"radio-label"</span><span class="ct">&gt;</span>
+            <span class="ct">&lt;input</span> <span class="ca">type</span>=<span class="cv">"radio"</span> <span class="ca">name</span>=<span class="cv">"presupuesto"</span> <span class="ca">value</span>=<span class="cv">"menos5k"</span><span class="ct">&gt;</span>
+            <span class="cs">Menos de $5,000</span>
+          <span class="ct">&lt;/label&gt;</span>
+          <span class="ct">&lt;label</span> <span class="ca">class</span>=<span class="cv">"radio-label"</span><span class="ct">&gt;</span>
+            <span class="ct">&lt;input</span> <span class="ca">type</span>=<span class="cv">"radio"</span> <span class="ca">name</span>=<span class="cv">"presupuesto"</span> <span class="ca">value</span>=<span class="cv">"5k-15k"</span><span class="ct">&gt;</span>
+            <span class="cs">$5,000 – $15,000</span>
+          <span class="ct">&lt;/label&gt;</span>
+          <span class="ct">&lt;label</span> <span class="ca">class</span>=<span class="cv">"radio-label"</span><span class="ct">&gt;</span>
+            <span class="ct">&lt;input</span> <span class="ca">type</span>=<span class="cv">"radio"</span> <span class="ca">name</span>=<span class="cv">"presupuesto"</span> <span class="ca">value</span>=<span class="cv">"mas15k"</span><span class="ct">&gt;</span>
+            <span class="cs">Más de $15,000</span>
+          <span class="ct">&lt;/label&gt;</span>
+          <span class="ct">&lt;label</span> <span class="ca">class</span>=<span class="cv">"radio-label"</span><span class="ct">&gt;</span>
+            <span class="ct">&lt;input</span> <span class="ca">type</span>=<span class="cv">"radio"</span> <span class="ca">name</span>=<span class="cv">"presupuesto"</span> <span class="ca">value</span>=<span class="cv">"cotizar"</span><span class="ct">&gt;</span>
+            <span class="cs">Quiero cotización</span>
+          <span class="ct">&lt;/label&gt;</span>
+        <span class="ct">&lt;/div&gt;</span>
+      <span class="ct">&lt;/div&gt;</span>
+
+      <span class="cc">&lt;!-- FILA 4: Mensaje --&gt;</span>
+      <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"campo-grupo"</span><span class="ct">&gt;</span>
+        <span class="ct">&lt;label</span> <span class="ca">for</span>=<span class="cv">"mensaje"</span> <span class="ca">class</span>=<span class="cv">"requerido"</span><span class="ct">&gt;</span><span class="cs">Mensaje</span><span class="ct">&lt;/label&gt;</span>
+        <span class="ct">&lt;textarea</span> <span class="ca">id</span>=<span class="cv">"mensaje"</span> <span class="ca">name</span>=<span class="cv">"mensaje"</span>
+                  <span class="ca">rows</span>=<span class="cv">"5"</span>
+                  <span class="ca">placeholder</span>=<span class="cv">"Cuéntanos brevemente en qué podemos ayudarte..."</span>
+                  <span class="ca">required</span><span class="ct">&gt;&lt;/textarea&gt;</span>
+        <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"campo-msg"</span><span class="ct">&gt;</span><span class="cs">El mensaje no puede estar vacío</span><span class="ct">&lt;/span&gt;</span>
+      <span class="ct">&lt;/div&gt;</span>
+
+      <span class="cc">&lt;!-- FILA 5: Checkbox términos --&gt;</span>
+      <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"campo-check"</span><span class="ct">&gt;</span>
+        <span class="ct">&lt;input</span> <span class="ca">type</span>=<span class="cv">"checkbox"</span> <span class="ca">id</span>=<span class="cv">"terminos"</span>
+               <span class="ca">name</span>=<span class="cv">"terminos"</span> <span class="ca">required</span><span class="ct">&gt;</span>
+        <span class="ct">&lt;label</span> <span class="ca">for</span>=<span class="cv">"terminos"</span><span class="ct">&gt;</span>
+          <span class="cs">Acepto los </span><span class="ct">&lt;strong&gt;&lt;a</span> <span class="ca">href</span>=<span class="cv">"#"</span><span class="ct">&gt;</span><span class="cs">términos y condiciones</span><span class="ct">&lt;/a&gt;&lt;/strong&gt;</span>
+          <span class="cs">y la </span><span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"#"</span><span class="ct">&gt;</span><span class="cs">política de privacidad</span><span class="ct">&lt;/a&gt;</span>
+        <span class="ct">&lt;/label&gt;</span>
+      <span class="ct">&lt;/div&gt;</span>
+
+      <span class="cc">&lt;!-- BOTÓN DE ENVÍO --&gt;</span>
+      <span class="ct">&lt;button</span> <span class="ca">type</span>=<span class="cv">"submit"</span> <span class="ca">class</span>=<span class="cv">"btn-enviar"</span><span class="ct">&gt;</span>
+        <span class="cs">Enviar mensaje ✦</span>
+      <span class="ct">&lt;/button&gt;</span>
+
+    <span class="ct">&lt;/form&gt;</span>
+  <span class="ct">&lt;/div&gt;</span>
+<span class="ct">&lt;/section&gt;</span></div>
+
+  <table class="tbl">
+    <thead><tr><th>Elemento / Atributo</th><th>Explicación detallada</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">novalidate</span></td><td>Desactiva los globos de error feos del navegador para usar solo nuestra validación CSS.</td></tr>
+      <tr><td><span class="tag">.form-fila</span></td><td>Contenedor de 2 campos. En CSS le pondremos <code>display: grid; grid-template-columns: 1fr 1fr</code>.</td></tr>
+      <tr><td><span class="tag">.campo-grupo</span></td><td>Agrupa label + input + mensaje de error. Los 3 juntos forman una unidad visual.</td></tr>
+      <tr><td><span class="tag">class="requerido"</span></td><td>Clase en el label. Con <code>.requerido::after { content: ' *'; }</code> CSS añade el asterisco sin tocar el HTML.</td></tr>
+      <tr><td><span class="tag">&lt;span class="campo-msg"&gt;</span></td><td>Mensaje de error. Empieza oculto (<code>display: none</code>) y CSS lo muestra solo cuando el campo es <code>:invalid</code>.</td></tr>
+      <tr><td><span class="tag">&lt;select&gt; + &lt;option&gt;</span></td><td>Lista desplegable. El <code>value</code> de cada option es lo que se envía al servidor. El texto es lo que ve el usuario.</td></tr>
+      <tr><td><span class="tag">type="radio" + name igual</span></td><td>Todos los radio buttons del mismo grupo comparten el mismo <code>name</code>. El navegador los hace mutuamente excluyentes.</td></tr>
+      <tr><td><span class="tag">&lt;label&gt; envolviendo el radio</span></td><td>Al envolver el input radio y su texto en un <code>&lt;label&gt;</code>, el usuario puede hacer clic en el texto además del círculo.</td></tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h2>BLOQUE 5 — Footer</h2>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="cc">&lt;!-- ④ FOOTER --&gt;</span>
+<span class="ct">&lt;footer</span> <span class="ca">class</span>=<span class="cv">"pie"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"pie-contenido"</span><span class="ct">&gt;</span>
+    <span class="ct">&lt;p</span> <span class="ca">class</span>=<span class="cv">"pie-logo"</span><span class="ct">&gt;</span><span class="cs">✦ Estudio Pixel</span><span class="ct">&lt;/p&gt;</span>
+    <span class="ct">&lt;p&gt;</span><span class="cs">Diseño web con propósito · Veracruz, México</span><span class="ct">&lt;/p&gt;</span>
+    <span class="ct">&lt;p</span> <span class="ca">class</span>=<span class="cv">"pie-copy"</span><span class="ct">&gt;</span><span class="cs">© 2025 Estudio Pixel. Hecho con ❤️ y mucho CSS.</span><span class="ct">&lt;/p&gt;</span>
+  <span class="ct">&lt;/div&gt;</span>
+<span class="ct">&lt;/footer&gt;</span></div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     CSS
+══════════════════════════════════ -->
+<section class="module" id="css">
+  <div class="module-header">
+    <div class="module-icon">🎨</div>
+    <div>
+      <div class="module-title">PARTE 3 — El CSS completo</div>
+      <div class="module-sub">Animaciones, pseudo-clases, pseudo-elementos y validación visual</div>
+    </div>
+  </div>
+
+  <h2>CSS BLOQUE 1 — Reset, Variables y @keyframes</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* ── RESET ── */</span>
+<span class="cp">*, *::before, *::after</span> {
+  <span class="ca">margin</span>: <span class="cn">0</span>; <span class="ca">padding</span>: <span class="cn">0</span>; <span class="ca">box-sizing</span>: border-box;
+}
+
+<span class="cc">/* ── VARIABLES ── */</span>
+<span class="cp">:root</span> {
+  <span class="ca">--primario</span>:   <span class="cn">#6D28D9</span>;  <span class="cc">/* morado */</span>
+  <span class="ca">--primario-d</span>: <span class="cn">#4C1D95</span>;  <span class="cc">/* morado oscuro */</span>
+  <span class="ca">--acento</span>:     <span class="cn">#D97706</span>;  <span class="cc">/* naranja */</span>
+  <span class="ca">--texto</span>:      <span class="cn">#111827</span>;
+  <span class="ca">--texto-s</span>:    <span class="cn">#6B7280</span>;
+  <span class="ca">--fondo</span>:      <span class="cn">#F9FAFB</span>;
+  <span class="ca">--surface</span>:    <span class="cn">#FFFFFF</span>;
+  <span class="ca">--borde</span>:      <span class="cn">#E5E7EB</span>;
+  <span class="ca">--exito</span>:      <span class="cn">#065F46</span>;  <span class="cc">/* verde :valid */</span>
+  <span class="ca">--error</span>:      <span class="cn">#B91C1C</span>;  <span class="cc">/* rojo :invalid */</span>
+  <span class="ca">--radio</span>:      <span class="cn">10px</span>;
+}
+
+<span class="cc">/* ── ANIMACIONES ── */</span>
+
+<span class="cc">/* Aparece desde abajo */</span>
+<span class="cp">@keyframes</span> aparecer {
+  <span class="cn">from</span> { <span class="ca">opacity</span>: <span class="cn">0</span>; <span class="ca">transform</span>: translateY(<span class="cn">30px</span>); }
+  <span class="cn">to</span>   { <span class="ca">opacity</span>: <span class="cn">1</span>; <span class="ca">transform</span>: translateY(<span class="cn">0</span>); }
+}
+
+<span class="cc">/* Pulso de onda expansiva para el botón */</span>
+<span class="cp">@keyframes</span> latir {
+  <span class="cn">0%, 100%</span> { <span class="ca">box-shadow</span>: <span class="cn">0 0 0 0px</span> rgba(<span class="cn">109,40,217,0.4</span>); }
+  <span class="cn">50%</span>       { <span class="ca">box-shadow</span>: <span class="cn">0 0 0 8px</span> rgba(<span class="cn">109,40,217,0</span>); }
+}
+
+<span class="cp">body</span> {
+  <span class="ca">font-family</span>: <span class="cn">'Inter'</span>, Arial, sans-serif;
+  <span class="ca">background-color</span>: var(<span class="cv">--fondo</span>);
+  <span class="ca">color</span>: var(<span class="cv">--texto</span>);
+  <span class="ca">font-size</span>: <span class="cn">16px</span>;
+  <span class="ca">line-height</span>: <span class="cn">1.6</span>;
+}</div>
+
+  <hr>
+
+  <h2>CSS BLOQUE 2 — Navbar y Hero</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* ── NAVBAR ── */</span>
+<span class="cp">.navbar</span> {
+  <span class="ca">display</span>: flex;
+  <span class="ca">justify-content</span>: space-between;
+  <span class="ca">align-items</span>: center;
+  <span class="ca">padding</span>: <span class="cn">1rem 2.5rem</span>;
+  <span class="ca">background-color</span>: var(<span class="cv">--surface</span>);
+  <span class="ca">border-bottom</span>: <span class="cn">1px solid</span> var(<span class="cv">--borde</span>);
+  <span class="ca">position</span>: sticky; <span class="ca">top</span>: <span class="cn">0</span>; <span class="ca">z-index</span>: <span class="cn">100</span>;
+  <span class="ca">animation</span>: aparecer <span class="cn">0.4s</span> ease forwards;
+}
+<span class="cp">.logo</span> {
+  <span class="ca">font-size</span>: <span class="cn">1.2rem</span>; <span class="ca">font-weight</span>: <span class="cn">700</span>;
+  <span class="ca">color</span>: var(<span class="cv">--primario</span>); <span class="ca">text-decoration</span>: none;
+}
+<span class="cp">.nav-links</span> { <span class="ca">display</span>: flex; <span class="ca">gap</span>: <span class="cn">2rem</span>; }
+
+<span class="cp">.nav-links a</span> {
+  <span class="ca">color</span>: var(<span class="cv">--texto-s</span>); <span class="ca">text-decoration</span>: none;
+  <span class="ca">font-size</span>: <span class="cn">0.9rem</span>; <span class="ca">font-weight</span>: <span class="cn">500</span>;
+  <span class="ca">position</span>: relative; <span class="ca">transition</span>: color <span class="cn">0.2s</span>;
+}
+<span class="cc">/* Línea animada debajo del link (con ::after) */</span>
+<span class="cp">.nav-links a::after</span> {
+  <span class="ca">content</span>: <span class="cv">''</span>;
+  <span class="ca">position</span>: absolute; <span class="ca">bottom</span>: <span class="cn">-4px</span>; <span class="ca">left</span>: <span class="cn">0</span>;
+  <span class="ca">width</span>: <span class="cn">0</span>;            <span class="cc">/* empieza invisible */</span>
+  <span class="ca">height</span>: <span class="cn">2px</span>; <span class="ca">background</span>: var(<span class="cv">--primario</span>);
+  <span class="ca">transition</span>: width <span class="cn">0.25s</span> ease;
+}
+<span class="cp">.nav-links a:hover::after,
+.nav-links a.activo::after</span> { <span class="ca">width</span>: <span class="cn">100%</span>; }
+<span class="cp">.nav-links a:hover,
+.nav-links a.activo</span> { <span class="ca">color</span>: var(<span class="cv">--primario</span>); }
+
+<span class="cc">/* ── HERO ── */</span>
+<span class="cp">.hero</span> {
+  <span class="ca">background</span>: linear-gradient(<span class="cn">135deg</span>, var(<span class="cv">--primario-d</span>) <span class="cn">0%</span>, var(<span class="cv">--primario</span>) <span class="cn">100%</span>);
+  <span class="ca">color</span>: white; <span class="ca">padding</span>: <span class="cn">5rem 2.5rem</span>;
+  <span class="ca">animation</span>: aparecer <span class="cn">0.5s</span> ease forwards;
+}
+<span class="cp">.hero-contenido</span> { <span class="ca">max-width</span>: <span class="cn">600px</span>; <span class="ca">margin</span>: <span class="cn">0 auto</span>; }
+
+<span class="cp">.hero-tag</span> {
+  <span class="ca">display</span>: inline-block;
+  <span class="ca">background</span>: rgba(<span class="cn">255,255,255,0.15</span>); <span class="ca">border</span>: <span class="cn">1px solid</span> rgba(<span class="cn">255,255,255,0.3</span>);
+  <span class="ca">border-radius</span>: <span class="cn">20px</span>; <span class="ca">padding</span>: <span class="cn">4px 16px</span>;
+  <span class="ca">font-size</span>: <span class="cn">0.8rem</span>; <span class="ca">font-weight</span>: <span class="cn">600</span>;
+  <span class="ca">letter-spacing</span>: <span class="cn">0.1em</span>; <span class="ca">text-transform</span>: uppercase;
+  <span class="ca">margin-bottom</span>: <span class="cn">1.25rem</span>;
+}
+<span class="cp">.hero-titulo</span> {
+  <span class="ca">font-size</span>: <span class="cn">3rem</span>; <span class="ca">font-weight</span>: <span class="cn">700</span>;
+  <span class="ca">line-height</span>: <span class="cn">1.1</span>; <span class="ca">margin-bottom</span>: <span class="cn">1rem</span>;
+}
+<span class="cp">.texto-acento</span> { <span class="ca">color</span>: <span class="cn">#FDE68A</span>; } <span class="cc">/* amarillo cálido */</span>
+<span class="cp">.hero-sub</span> {
+  <span class="ca">font-size</span>: <span class="cn">1.1rem</span>; <span class="ca">color</span>: rgba(<span class="cn">255,255,255,0.8</span>);
+  <span class="ca">margin-bottom</span>: <span class="cn">2.5rem</span>;
+}
+<span class="cp">.contacto-rapido</span> { <span class="ca">display</span>: flex; <span class="ca">flex-direction</span>: column; <span class="ca">gap</span>: <span class="cn">1.25rem</span>; }
+<span class="cp">.dato-contacto</span> { <span class="ca">display</span>: flex; <span class="ca">align-items</span>: center; <span class="ca">gap</span>: <span class="cn">1rem</span>; }
+<span class="cp">.dato-icono</span> {
+  <span class="ca">font-size</span>: <span class="cn">1.4rem</span>; <span class="ca">width</span>: <span class="cn">48px</span>; <span class="ca">height</span>: <span class="cn">48px</span>;
+  <span class="ca">background</span>: rgba(<span class="cn">255,255,255,0.15</span>); <span class="ca">border-radius</span>: <span class="cn">50%</span>;
+  <span class="ca">display</span>: flex; <span class="ca">align-items</span>: center; <span class="ca">justify-content</span>: center;
+  <span class="ca">flex-shrink</span>: <span class="cn">0</span>;
+}
+<span class="cp">.dato-label</span> {
+  <span class="ca">display</span>: block; <span class="ca">font-size</span>: <span class="cn">0.72rem</span>; <span class="ca">font-weight</span>: <span class="cn">600</span>;
+  <span class="ca">text-transform</span>: uppercase; <span class="ca">letter-spacing</span>: <span class="cn">0.08em</span>;
+  <span class="ca">color</span>: rgba(<span class="cn">255,255,255,0.6</span>); <span class="ca">margin-bottom</span>: <span class="cn">2px</span>;
+}
+<span class="cp">.dato-contacto a, .dato-contacto span</span> {
+  <span class="ca">color</span>: white; <span class="ca">text-decoration</span>: none; <span class="ca">font-size</span>: <span class="cn">0.95rem</span>;
+}</div>
+
+  <table class="tbl">
+    <thead><tr><th>Propiedad nueva</th><th>Explicación</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">linear-gradient(135deg,...)</span></td><td>Degradado diagonal de morado oscuro a morado claro. <code>135deg</code> es la dirección. Se usa como valor de <code>background</code>.</td></tr>
+      <tr><td><span class="tag">animation: aparecer 0.4s ease forwards</span></td><td>Aplica la animación <code>@keyframes aparecer</code>. <code>forwards</code> mantiene el estado final (visible). Sin él regresaría a <code>opacity: 0</code>.</td></tr>
+      <tr><td><span class="tag">.nav-links a::after { width: 0 }</span></td><td>La línea empieza con ancho 0 (invisible). Al hacer hover, crece a <code>100%</code>. El <code>transition</code> la anima suavemente.</td></tr>
+      <tr><td><span class="tag">flex-shrink: 0</span></td><td>El icono circular no se encoja en pantallas pequeñas. Sin esto podría deformarse cuando el espacio es limitado.</td></tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h2>CSS BLOQUE 3 — Tarjeta del formulario</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">.seccion-form</span> {
+  <span class="ca">padding</span>: <span class="cn">4rem 2rem</span>; <span class="ca">max-width</span>: <span class="cn">800px</span>; <span class="ca">margin</span>: <span class="cn">0 auto</span>;
+  <span class="ca">opacity</span>: <span class="cn">0</span>;    <span class="cc">/* empieza invisible — la animación lo revela */</span>
+  <span class="ca">animation</span>: aparecer <span class="cn">0.6s</span> ease <span class="cn">0.2s</span> forwards; <span class="cc">/* delay 0.2s */</span>
+}
+<span class="cp">.form-card</span> {
+  <span class="ca">background</span>: var(<span class="cv">--surface</span>);
+  <span class="ca">border</span>: <span class="cn">1px solid</span> var(<span class="cv">--borde</span>); <span class="ca">border-radius</span>: <span class="cn">16px</span>;
+  <span class="ca">padding</span>: <span class="cn">2.5rem</span>;
+  <span class="ca">box-shadow</span>: <span class="cn">0 4px 24px</span> rgba(<span class="cn">0,0,0,0.06</span>);
+}
+<span class="cp">.form-titulo</span> { <span class="ca">font-size</span>: <span class="cn">1.6rem</span>; <span class="ca">font-weight</span>: <span class="cn">700</span>; <span class="ca">margin-bottom</span>: <span class="cn">0.25rem</span>; }
+
+<span class="cc">/* Línea naranja bajo el título — con ::after, sin tocar el HTML */</span>
+<span class="cp">.titulo-deco::after</span> {
+  <span class="ca">content</span>: <span class="cv">''</span>;
+  <span class="ca">display</span>: block; <span class="ca">width</span>: <span class="cn">48px</span>; <span class="ca">height</span>: <span class="cn">3px</span>;
+  <span class="ca">background</span>: var(<span class="cv">--acento</span>); <span class="ca">margin-top</span>: <span class="cn">8px</span>; <span class="ca">border-radius</span>: <span class="cn">2px</span>;
+}
+<span class="cp">.form-sub</span> {
+  <span class="ca">color</span>: var(<span class="cv">--texto-s</span>); <span class="ca">font-size</span>: <span class="cn">0.9rem</span>;
+  <span class="ca">margin-top</span>: <span class="cn">0.5rem</span>; <span class="ca">margin-bottom</span>: <span class="cn">2rem</span>;
+}</div>
+
+  <hr>
+
+  <h2>CSS BLOQUE 4 — Campos, estados y validación</h2>
+  <p>El bloque más importante: aquí entran en juego todas las pseudo-clases.</p>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* ── FORMULARIO ── */</span>
+<span class="cp">.formulario</span> { <span class="ca">display</span>: flex; <span class="ca">flex-direction</span>: column; <span class="ca">gap</span>: <span class="cn">1.5rem</span>; }
+
+<span class="cc">/* 2 campos lado a lado con CSS Grid */</span>
+<span class="cp">.form-fila</span> {
+  <span class="ca">display</span>: grid;
+  <span class="ca">grid-template-columns</span>: <span class="cn">1fr 1fr</span>; <span class="cc">/* 2 columnas iguales */</span>
+  <span class="ca">gap</span>: <span class="cn">1.25rem</span>;
+}
+<span class="cp">.campo-grupo</span> {
+  <span class="ca">display</span>: flex; <span class="ca">flex-direction</span>: column; <span class="ca">gap</span>: <span class="cn">0.4rem</span>;
+}
+<span class="cp">.campo-grupo label, .label-bloque</span> {
+  <span class="ca">font-size</span>: <span class="cn">0.875rem</span>; <span class="ca">font-weight</span>: <span class="cn">600</span>;
+}
+
+<span class="cc">/* El asterisco rojo — CSS lo pone, el HTML no lo tiene */</span>
+<span class="cp">.requerido::after</span> {
+  <span class="ca">content</span>: <span class="cv">' *'</span>; <span class="ca">color</span>: var(<span class="cv">--error</span>); <span class="ca">font-weight</span>: <span class="cn">700</span>;
+}
+
+<span class="cc">/* Estilos BASE para todos los campos */</span>
+<span class="cp">input[type='text'],
+input[type='email'],
+input[type='tel'],
+select,
+textarea</span> {
+  <span class="ca">width</span>: <span class="cn">100%</span>;
+  <span class="ca">padding</span>: <span class="cn">0.75rem 1rem</span>;
+  <span class="ca">border</span>: <span class="cn">2px solid</span> var(<span class="cv">--borde</span>);
+  <span class="ca">border-radius</span>: var(<span class="cv">--radio</span>);
+  <span class="ca">font-family</span>: inherit; <span class="ca">font-size</span>: <span class="cn">0.95rem</span>;
+  <span class="ca">background-color</span>: var(<span class="cv">--fondo</span>); <span class="ca">color</span>: var(<span class="cv">--texto</span>);
+  <span class="ca">outline</span>: none;
+  <span class="ca">transition</span>: border-color <span class="cn">0.2s</span>, box-shadow <span class="cn">0.2s</span>, background-color <span class="cn">0.2s</span>;
+}
+
+<span class="cc">/* :FOCUS — campo activo */</span>
+<span class="cp">input[type='text']:focus,
+input[type='email']:focus,
+input[type='tel']:focus,
+select:focus,
+textarea:focus</span> {
+  <span class="ca">border-color</span>: var(<span class="cv">--primario</span>);
+  <span class="ca">background-color</span>: var(<span class="cv">--surface</span>);
+  <span class="ca">box-shadow</span>: <span class="cn">0 0 0 3px</span> rgba(<span class="cn">109, 40, 217, 0.15</span>); <span class="cc">/* anillo */</span>
+}
+
+<span class="cc">/* :VALID — campo con contenido correcto (y no vacío) */</span>
+<span class="cp">input[type='text']:not(:placeholder-shown):valid,
+input[type='email']:not(:placeholder-shown):valid</span> {
+  <span class="ca">border-color</span>: var(<span class="cv">--exito</span>); <span class="cc">/* verde */</span>
+}
+
+<span class="cc">/* :INVALID — campo con error (ya fue tocado) */</span>
+<span class="cp">input[type='text']:not(:placeholder-shown):invalid,
+input[type='email']:not(:placeholder-shown):invalid</span> {
+  <span class="ca">border-color</span>: var(<span class="cv">--error</span>); <span class="cc">/* rojo */</span>
+}
+
+<span class="cc">/* Mensaje de error — oculto por defecto */</span>
+<span class="cp">.campo-msg</span> { <span class="ca">font-size</span>: <span class="cn">0.8rem</span>; <span class="ca">color</span>: var(<span class="cv">--error</span>); <span class="ca">display</span>: none; }
+
+<span class="cc">/* ~ = selector hermano siguiente: muestra .campo-msg si el input es :invalid */</span>
+<span class="cp">input:not(:placeholder-shown):invalid ~ .campo-msg</span> { <span class="ca">display</span>: block; }
+
+<span class="cc">/* Placeholder */</span>
+<span class="cp">input::placeholder, textarea::placeholder</span> {
+  <span class="ca">color</span>: <span class="cn">#9CA3AF</span>; <span class="ca">font-style</span>: italic;
+}
+
+<span class="cc">/* Textarea: solo puede redimensionarse verticalmente */</span>
+<span class="cp">textarea</span> { <span class="ca">resize</span>: vertical; <span class="ca">min-height</span>: <span class="cn">120px</span>; }</div>
+
+  <table class="tbl">
+    <thead><tr><th>Selector / Propiedad</th><th>Explicación</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">grid-template-columns: 1fr 1fr</span></td><td>CSS Grid: 2 columnas iguales. Los 2 campos dentro de <code>.form-fila</code> quedan lado a lado automáticamente.</td></tr>
+      <tr><td><span class="tag">input[type='email']</span></td><td>Selector de atributo: aplica solo a inputs con <code>type='email'</code>. Más preciso que solo <code>input</code> que afectaría también checkboxes y radios.</td></tr>
+      <tr><td><span class="tag">transition: border-color, box-shadow, background-color</span></td><td>Anima 3 propiedades a la vez separadas por coma. Todas tardan 0.2s.</td></tr>
+      <tr><td><span class="tag">box-shadow: 0 0 0 3px rgba()</span></td><td>El "anillo de enfoque" accesible. <code>0 0</code> sin desplazamiento, <code>0</code> sin desenfoque, <code>3px</code> es el spread (expansión del anillo).</td></tr>
+      <tr><td><span class="tag">:not(:placeholder-shown):valid</span></td><td>El campo es válido <strong>y</strong> el placeholder ya no es visible (hay texto). Sin <code>:not()</code>, todos los campos aparecerían verdes vacíos desde el inicio.</td></tr>
+      <tr><td><span class="tag">input:invalid ~ .campo-msg</span></td><td>El selector <code>~</code> (tilde) es "hermano siguiente". Selecciona <code>.campo-msg</code> que venga después del input inválido en el mismo contenedor padre.</td></tr>
+      <tr><td><span class="tag">resize: vertical</span></td><td>El textarea solo puede redimensionarse verticalmente. Sin esto el usuario puede estirar el formulario horizontalmente y romper el layout.</td></tr>
+    </tbody>
+  </table>
+
+  <hr>
+
+  <h2>CSS BLOQUE 5 — Radio buttons, Checkbox y Botón de envío</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* ── RADIO BUTTONS ── */</span>
+<span class="cp">.radio-grupo</span> { <span class="ca">display</span>: flex; <span class="ca">flex-wrap</span>: wrap; <span class="ca">gap</span>: <span class="cn">0.75rem</span>; <span class="ca">margin-top</span>: <span class="cn">0.5rem</span>; }
+
+<span class="cp">.radio-label</span> {
+  <span class="ca">display</span>: flex; <span class="ca">align-items</span>: center; <span class="ca">gap</span>: <span class="cn">0.5rem</span>;
+  <span class="ca">cursor</span>: pointer; <span class="ca">font-size</span>: <span class="cn">0.9rem</span>;
+  <span class="ca">padding</span>: <span class="cn">0.5rem 1rem</span>;
+  <span class="ca">border</span>: <span class="cn">2px solid</span> var(<span class="cv">--borde</span>); <span class="ca">border-radius</span>: <span class="cn">20px</span>;
+  <span class="ca">transition</span>: all <span class="cn">0.2s</span>;
+}
+<span class="cp">.radio-label:hover</span> {
+  <span class="ca">border-color</span>: var(<span class="cv">--primario</span>); <span class="ca">color</span>: var(<span class="cv">--primario</span>);
+}
+
+<span class="cc">/* :has() — el label cambia color si CONTIENE un radio:checked */</span>
+<span class="cp">.radio-label:has(input:checked)</span> {
+  <span class="ca">background</span>: var(<span class="cv">--primario</span>); <span class="ca">border-color</span>: var(<span class="cv">--primario</span>);
+  <span class="ca">color</span>: white; <span class="ca">font-weight</span>: <span class="cn">600</span>;
+}
+
+<span class="cc">/* ── CHECKBOX ── */</span>
+<span class="cp">.campo-check</span> {
+  <span class="ca">display</span>: flex; <span class="ca">align-items</span>: flex-start; <span class="ca">gap</span>: <span class="cn">0.75rem</span>; <span class="ca">font-size</span>: <span class="cn">0.9rem</span>;
+}
+<span class="cp">.campo-check input[type='checkbox']</span> {
+  <span class="ca">width</span>: <span class="cn">18px</span>; <span class="ca">height</span>: <span class="cn">18px</span>; <span class="ca">margin-top</span>: <span class="cn">2px</span>;
+  <span class="ca">accent-color</span>: var(<span class="cv">--primario</span>); <span class="cc">/* color del check al marcarse */</span>
+  <span class="ca">cursor</span>: pointer; <span class="ca">flex-shrink</span>: <span class="cn">0</span>;
+}
+<span class="cp">.campo-check a</span> { <span class="ca">color</span>: var(<span class="cv">--primario</span>); <span class="ca">font-weight</span>: <span class="cn">600</span>; }
+
+<span class="cc">/* ── BOTÓN DE ENVÍO ── */</span>
+<span class="cp">.btn-enviar</span> {
+  <span class="ca">width</span>: <span class="cn">100%</span>; <span class="ca">padding</span>: <span class="cn">1rem</span>;
+  <span class="ca">background</span>: var(<span class="cv">--primario</span>); <span class="ca">color</span>: white;
+  <span class="ca">border</span>: none; <span class="ca">border-radius</span>: var(<span class="cv">--radio</span>);
+  <span class="ca">font-family</span>: inherit; <span class="ca">font-size</span>: <span class="cn">1rem</span>; <span class="ca">font-weight</span>: <span class="cn">700</span>;
+  <span class="ca">cursor</span>: pointer; <span class="ca">letter-spacing</span>: <span class="cn">0.02em</span>;
+  <span class="ca">transition</span>: background-color <span class="cn">0.2s</span>, transform <span class="cn">0.15s</span>;
+  <span class="ca">animation</span>: latir <span class="cn">2s</span> ease-in-out <span class="cn">infinite</span>; <span class="cc">/* pulso constante */</span>
+}
+<span class="cp">.btn-enviar:hover</span> {
+  <span class="ca">background-color</span>: var(<span class="cv">--primario-d</span>);
+  <span class="ca">transform</span>: translateY(<span class="cn">-2px</span>); <span class="cc">/* sube 2px */</span>
+  <span class="ca">animation</span>: none;              <span class="cc">/* detiene el pulso */</span>
+}
+<span class="cp">.btn-enviar:active</span> {
+  <span class="ca">transform</span>: translateY(<span class="cn">0</span>); <span class="cc">/* vuelve abajo al presionar */</span>
+}
+
+<span class="cc">/* ── FOOTER ── */</span>
+<span class="cp">.pie</span> {
+  <span class="ca">background-color</span>: var(<span class="cv">--texto</span>); <span class="ca">color</span>: rgba(<span class="cn">255,255,255,0.7</span>);
+  <span class="ca">text-align</span>: center; <span class="ca">padding</span>: <span class="cn">3rem 2rem</span>; <span class="ca">margin-top</span>: <span class="cn">4rem</span>;
+}
+<span class="cp">.pie-contenido</span> { <span class="ca">display</span>: flex; <span class="ca">flex-direction</span>: column; <span class="ca">gap</span>: <span class="cn">0.5rem</span>; <span class="ca">align-items</span>: center; }
+<span class="cp">.pie-logo</span> { <span class="ca">font-size</span>: <span class="cn">1.2rem</span>; <span class="ca">font-weight</span>: <span class="cn">700</span>; <span class="ca">color</span>: white; }
+<span class="cp">.pie-copy</span> { <span class="ca">font-size</span>: <span class="cn">0.8rem</span>; <span class="ca">opacity</span>: <span class="cn">0.5</span>; <span class="ca">margin-top</span>: <span class="cn">0.5rem</span>; }</div>
+
+  <table class="tbl">
+    <thead><tr><th>Selector / Propiedad</th><th>Explicación</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">.radio-label:has(input:checked)</span></td><td><code>:has()</code> es una pseudo-clase moderna: aplica al elemento si <strong>contiene</strong> lo que indica el selector. Aquí: colorea el label entero si tiene un radio marcado.</td></tr>
+      <tr><td><span class="tag">accent-color: var(--primario)</span></td><td>Cambia el color del checkbox/radio con una sola línea. Antes requería técnicas complejas con SVG o posicionamiento absoluto.</td></tr>
+      <tr><td><span class="tag">animation: latir 2s infinite</span></td><td>El botón pulsa suavemente para siempre. <code>infinite</code> repite la animación.</td></tr>
+      <tr><td><span class="tag">animation: none</span></td><td>En <code>:hover</code> desactivamos el pulso. El hover tiene su propio efecto (<code>translateY(-2px)</code>) más dramático y claro.</td></tr>
+      <tr><td><span class="tag">:active { transform: translateY(0) }</span></td><td>Mientras el botón está presionado, baja de vuelta. Combinado con el <code>-2px</code> del hover, simula un botón físico que se hunde.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- ══════════════════════════════════
+     RESULTADO VISUAL
+══════════════════════════════════ -->
+<section class="module" id="resultado">
+  <div class="module-header">
+    <div class="module-icon">🖥</div>
+    <div>
+      <div class="module-title">PARTE 4 — Así debe verse tu página</div>
+      <div class="module-sub">Vista previa completa de Estudio Pixel</div>
+    </div>
+  </div>
+
+  <div class="preview">
+    <div class="demo-wrap">
+
+      <!-- NAVBAR -->
+      <div class="demo-navbar">
+        <div class="demo-logo">✦ Estudio Pixel</div>
+        <ul class="demo-nav-links">
+          <li><a href="#">Inicio</a></li>
+          <li><a href="#">Servicios</a></li>
+          <li><a href="#">Portafolio</a></li>
+          <li><a href="#" class="activo">Contacto</a></li>
+        </ul>
+      </div>
+
+      <!-- HERO -->
+      <div class="demo-hero">
+        <div class="demo-hero-content">
+          <div class="demo-hero-tag">Hablemos</div>
+          <h1>Cuéntanos tu <span class="demo-acento">proyecto</span></h1>
+          <p>Respondemos en menos de <strong>24 horas</strong>. Nos encanta conocer ideas nuevas.</p>
+          <div class="demo-contacto-rapido">
+            <div class="demo-dato">
+              <div class="demo-icono">📧</div>
+              <div>
+                <span class="demo-dato-label">Email</span>
+                <a href="#">hola@estudiopixel.com</a>
+              </div>
+            </div>
+            <div class="demo-dato">
+              <div class="demo-icono">📍</div>
+              <div>
+                <span class="demo-dato-label">Ubicación</span>
+                <span>Veracruz, México</span>
+              </div>
+            </div>
+            <div class="demo-dato">
+              <div class="demo-icono">🕐</div>
+              <div>
+                <span class="demo-dato-label">Horario</span>
+                <span>Lun–Vie, 9am–6pm</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FORMULARIO -->
+      <div class="demo-form-wrap">
+        <div class="demo-form-card">
+          <div class="demo-form-titulo">Envíanos un mensaje</div>
+          <div class="demo-linea-acento"></div>
+          <p class="demo-form-sub">Los campos marcados con <span style="color:#B91C1C;font-weight:700">*</span> son obligatorios.</p>
+
+          <div class="demo-fila">
+            <div class="demo-campo">
+              <label>Nombre completo <span class="ast">*</span></label>
+              <input class="demo-input valid" value="María García" readonly>
+            </div>
+            <div class="demo-campo">
+              <label>Correo electrónico <span class="ast">*</span></label>
+              <input class="demo-input invalid" value="maria@" readonly>
+              <span class="demo-error">Ingresa un email válido</span>
+            </div>
+          </div>
+          <div class="demo-fila">
+            <div class="demo-campo">
+              <label>Teléfono</label>
+              <input class="demo-input focus" value="+52 229..." readonly>
+            </div>
+            <div class="demo-campo">
+              <label>Asunto <span class="ast">*</span></label>
+              <select class="demo-input" style="color:#374151">
+                <option>Diseño de sitio web</option>
+              </select>
+            </div>
+          </div>
+          <div class="demo-campo">
+            <label>Presupuesto aproximado</label>
+            <div class="demo-radio-grupo">
+              <div class="demo-radio">Menos de $5,000</div>
+              <div class="demo-radio sel">$5,000 – $15,000</div>
+              <div class="demo-radio">Más de $15,000</div>
+              <div class="demo-radio">Quiero cotización</div>
+            </div>
+          </div>
+          <div class="demo-campo">
+            <label>Mensaje <span class="ast">*</span></label>
+            <textarea class="demo-input" rows="4" placeholder="Cuéntanos brevemente en qué podemos ayudarte..." readonly></textarea>
+          </div>
+          <div class="demo-check-row">
+            <input type="checkbox" checked style="accent-color:#6D28D9;width:18px;height:18px">
+            <label>Acepto los <a href="#">términos y condiciones</a> y la <a href="#">política de privacidad</a></label>
+          </div>
+          <button class="demo-btn">Enviar mensaje ✦</button>
+        </div>
+      </div>
+
+      <!-- FOOTER -->
+      <div class="demo-footer">
+        <p class="logo">✦ Estudio Pixel</p>
+        <p>Diseño web con propósito · Veracruz, México</p>
+        <p style="font-size:.75rem;opacity:.5;margin-top:8px">© 2025 Estudio Pixel. Hecho con ❤️ y mucho CSS.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>✅ Lista de verificación visual</h4>
+    <ul>
+      <li>Navbar blanca con logo morado. Los links muestran una <strong>línea morada que crece</strong> al hacer hover (animada con <code>::after</code>)</li>
+      <li>Hero con <strong>degradado diagonal</strong> morado. La palabra "proyecto" en amarillo. Íconos en círculos translúcidos</li>
+      <li>Tarjeta blanca con sombra. Título con <strong>línea naranja debajo</strong> (hecha con <code>::after</code>, sin HTML extra)</li>
+      <li>Labels con clase <code>requerido</code> muestran <strong>* rojo</strong> (puesto por CSS, no por HTML)</li>
+      <li>Campo "Nombre" en <strong>verde</strong> (<code>:valid</code>). Campo "Email" en <strong>rojo</strong> + mensaje de error (<code>:invalid</code>). Campo "Teléfono" con <strong>anillo morado</strong> (<code>:focus</code>)</li>
+      <li>Radio button <strong>"$5,000 – $15,000"</strong> en morado sólido al estar seleccionado (<code>:has(input:checked)</code>)</li>
+      <li>Checkbox marcado en <strong>morado</strong> (<code>accent-color</code>)</li>
+      <li>Botón con <strong>pulso suave constante</strong> (<code>@keyframes latir</code>). Al hover: sube 2px y detiene el pulso</li>
+    </ul>
+  </div>
+
+  <div class="warn">
+    <h4>🔍 Si algo no funciona</h4>
+    <p>Si <code>:valid</code> e <code>:invalid</code> se activan desde que carga la página: falta el <code>:not(:placeholder-shown)</code>. Si la animación del formulario no se ve: verifica que hayas puesto <code>opacity: 0</code> en <code>.seccion-form</code> — sin eso el elemento es visible antes de que inicie la animación. Si los radio buttons no cambian de color con <code>:has()</code>: actualiza tu navegador (requiere Chrome 105+ o Firefox 121+).</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     RETOS
+══════════════════════════════════ -->
+<section class="module" id="retos">
+  <div class="module-header">
+    <div class="module-icon">🏆</div>
+    <div>
+      <div class="module-title">PARTE 5 — Retos para practicar</div>
+      <div class="module-sub">Del más sencillo al más desafiante</div>
+    </div>
+  </div>
+
+  <div class="reto-grid">
+    <div class="reto-card">
+      <span class="nivel nivel-f">🟡 Fácil</span>
+      <h4>Reto 1 — Modo oscuro con variables</h4>
+      <p>En el <code>:root</code>, cambia: <strong><code>--fondo</code></strong> a <code>#111827</code>, <strong><code>--surface</code></strong> a <code>#1F2937</code>, <strong><code>--texto</code></strong> a <code>#F9FAFB</code>, <strong><code>--borde</code></strong> a <code>#374151</code>.</p>
+      <p>Toda la página cambia a modo oscuro con solo 4 líneas. Observa el poder de las variables CSS.</p>
+    </div>
+    <div class="reto-card">
+      <span class="nivel nivel-m">🟠 Medio</span>
+      <h4>Reto 2 — Nueva animación</h4>
+      <p>Crea un nuevo <code>@keyframes</code> llamado <strong><code>entrar-izquierda</code></strong> que mueva el elemento de <code>translateX(-40px)</code> a <code>translateX(0)</code> con <code>opacity: 0 → 1</code>. Aplícalo al <code>.form-card</code> con un delay de <code>0.4s</code>.</p>
+    </div>
+    <div class="reto-card">
+      <span class="nivel nivel-m">🟠 Medio</span>
+      <h4>Reto 3 — Campo de archivos</h4>
+      <p>Agrega un <code>.campo-grupo</code> con <strong><code>&lt;input type="file" accept="image/*,.pdf"&gt;</code></strong> y el label "Adjuntar archivos (opcional)". En CSS dale estilos al <code>input[type='file']</code>: borde punteado, fondo gris claro, <code>padding</code> generoso y <code>cursor: pointer</code>.</p>
+    </div>
+    <div class="reto-card">
+      <span class="nivel nivel-a">⚫ Avanzado</span>
+      <h4>Reto 4 — Contador de caracteres</h4>
+      <p>Al textarea agrégale <code>maxlength="500"</code>. Debajo pon un <code>&lt;span class="contador"&gt;0 / 500&lt;/span&gt;</code>. Con CSS puedes cambiar el color del contador cuando el textarea es <code>:invalid</code>. Para que cuente dinámicamente necesitarías JavaScript — ¡el siguiente paso en tu camino!</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     RESUMEN
+══════════════════════════════════ -->
+<section class="module" id="resumen">
+  <div class="module-header">
+    <div class="module-icon">📋</div>
+    <div>
+      <div class="module-title">Resumen — Todo lo nuevo que aprendiste</div>
+      <div class="module-sub">Ejercicio 4 = Ejercicios 1+2+3 + todo esto</div>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Concepto</th><th>Lo que aprendiste</th></tr></thead>
+    <tbody>
+      <tr><td><strong>&lt;form&gt; completo</strong></td><td>Estructura con <code>action</code>, <code>method</code>, <code>novalidate</code>. Todos los tipos de campos: text, email, tel, select, textarea, checkbox, radio, button.</td></tr>
+      <tr><td><strong>:focus</strong></td><td>Se activa cuando el campo está activo. Borde de color + anillo de enfoque con <code>box-shadow: 0 0 0 3px</code>.</td></tr>
+      <tr><td><strong>:valid / :invalid</strong></td><td>CSS detecta automáticamente si un campo cumple las reglas. Combinado con <code>:not(:placeholder-shown)</code> evita que se active en campos vacíos.</td></tr>
+      <tr><td><strong>::placeholder</strong></td><td>Pseudo-elemento (doble ::) para el texto de ayuda dentro del campo.</td></tr>
+      <tr><td><strong>:has()</strong></td><td>Pseudo-clase moderna: aplica si el elemento contiene algo. Usada para radio buttons que cambian de color al seleccionarse.</td></tr>
+      <tr><td><strong>:active</strong></td><td>Se activa mientras el usuario tiene el botón presionado. Permite el efecto visual de "hundirse".</td></tr>
+      <tr><td><strong>~ (hermano siguiente)</strong></td><td>Selecciona el elemento hermano que sigue. <code>input:invalid ~ .msg</code> muestra el mensaje de error.</td></tr>
+      <tr><td><strong>@keyframes</strong></td><td>Define una animación paso a paso. Se aplica con la propiedad <code>animation</code>.</td></tr>
+      <tr><td><strong>animation</strong></td><td>Aplica una <code>@keyframes</code>: nombre, duración, curva, delay, iteraciones. <code>forwards</code> mantiene el estado final.</td></tr>
+      <tr><td><strong>::before / ::after</strong></td><td>Insertan contenido decorativo desde CSS sin tocar el HTML. Siempre necesitan la propiedad <code>content</code>.</td></tr>
+      <tr><td><strong>linear-gradient()</strong></td><td>Degradado de color. Controla la dirección en grados y los colores separados por coma.</td></tr>
+      <tr><td><strong>grid-template-columns: 1fr 1fr</strong></td><td>CSS Grid de 2 columnas iguales. Los campos del formulario quedan lado a lado automáticamente.</td></tr>
+      <tr><td><strong>accent-color</strong></td><td>Cambia el color de checkboxes y radio buttons con una sola línea.</td></tr>
+      <tr><td><strong>input[type='email']</strong></td><td>Selector de atributo. Más específico que solo <code>input</code> — aplica solo al tipo indicado.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="concept" style="margin-top:1.5rem">
+    <h4>✦ ¡Ejercicio 4 completado!</h4>
+    <p>Cuando termines avísale a tu instructor y preparen el <strong>Ejercicio 5</strong>: CSS Grid avanzado · Responsive Design · Media Queries · Diseño Mobile-First.</p>
+  </div>
+
+  <h2 style="margin-top:1.5rem">Chips de todo lo visto en el ejercicio</h2>
+  <div>
+    <span class="chip">&lt;form&gt;</span>
+    <span class="chip">&lt;input type&gt;</span>
+    <span class="chip">&lt;select&gt;</span>
+    <span class="chip">&lt;textarea&gt;</span>
+    <span class="chip">&lt;button type="submit"&gt;</span>
+    <span class="chip">novalidate</span>
+    <span class="chip">required</span>
+    <span class="chip">autocomplete</span>
+    <span class="chip">:focus</span>
+    <span class="chip">:valid</span>
+    <span class="chip">:invalid</span>
+    <span class="chip">:not(:placeholder-shown)</span>
+    <span class="chip">::placeholder</span>
+    <span class="chip">:checked</span>
+    <span class="chip">:has()</span>
+    <span class="chip">:active</span>
+    <span class="chip">~ hermano siguiente</span>
+    <span class="chip">@keyframes</span>
+    <span class="chip">animation</span>
+    <span class="chip">forwards</span>
+    <span class="chip">infinite</span>
+    <span class="chip">animation-delay</span>
+    <span class="chip">::before</span>
+    <span class="chip">::after</span>
+    <span class="chip">content</span>
+    <span class="chip">linear-gradient()</span>
+    <span class="chip">grid-template-columns</span>
+    <span class="chip">accent-color</span>
+    <span class="chip">resize: vertical</span>
+    <span class="chip">input[type=]</span>
+    <span class="chip">cursor: pointer</span>
+    <span class="chip">box-shadow anillo</span>
+  </div>
+</section>
+
+</main>
+
+<footer class="guia-footer">
+  Ejercicio 4 — Página de Contacto · Formularios · Animaciones CSS · Pseudo-clases · Hugo 2025
+</footer>
+
+</body>
+</html>

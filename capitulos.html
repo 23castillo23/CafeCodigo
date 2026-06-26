@@ -13,10 +13,102 @@
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
   <style>
+
+    /* ============================================
+       TABS — NAVEGACIÓN PRINCIPAL
+       ============================================ */
+
+    /* Compensar header (64px) + barra de tabs (~50px) */
+    html { scroll-padding-top: 130px; }
+
+    .tabs-bar {
+      position: sticky;
+      top: 64px; /* debajo del header fijo */
+      z-index: 90;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+    }
+    .tabs-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 20px;
+      display: flex;
+      gap: 0;
+      overflow-x: auto;
+    }
+    .tabs-inner::-webkit-scrollbar { display: none; }
+
+    .tab-btn {
+      flex-shrink: 0;
+      padding: 14px 20px;
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ink3);
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.15s, border-color 0.15s;
+      white-space: nowrap;
+    }
+    .tab-btn:hover { color: var(--ink); }
+    .tab-btn.activa {
+      color: var(--ink);
+      border-bottom-color: #c44a2a;
+      font-weight: 600;
+    }
+    .tab-btn .tab-count {
+      font-family: var(--font-code);
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: var(--border);
+      color: var(--ink2);
+    }
+    .tab-btn.activa .tab-count {
+      background: #fdf0ec;
+      color: #c44a2a;
+    }
+
+    /* ============================================
+       PANELES DE CONTENIDO
+       ============================================ */
+    .tab-panel { display: none; }
+    .tab-panel.visible { display: block; }
+
+    /* ============================================
+       BIBLIOTECA (CAPÍTULOS)
+       ============================================ */
+    .biblioteca {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 56px 20px 80px;
+    }
+    .biblioteca-intro {
+      margin-bottom: 36px;
+    }
+    .biblioteca-titulo {
+      font-family: var(--font-title);
+      font-size: clamp(24px, 4vw, 32px);
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .biblioteca-desc {
+      font-size: 15px;
+      color: var(--ink2);
+      max-width: 540px;
+      line-height: 1.7;
+    }
+
+    /* BANNER PRÁCTICA */
     .practica-banner {
       background: #1a1814;
       border-radius: 14px;
-      margin-bottom: 40px;
+      margin-top: 40px;
       overflow: hidden;
     }
     .practica-banner-inner {
@@ -39,7 +131,7 @@
       margin-bottom: 8px;
     }
     .practica-banner-texto h3 {
-      font-family: 'Fraunces', serif;
+      font-family: var(--font-title);
       font-size: 20px;
       font-weight: 700;
       color: #f7f4ef;
@@ -65,6 +157,824 @@
       transition: background 0.15s;
     }
     .practica-btn:hover { background: #a33b21; }
+
+    /* ============================================
+       SECCIÓN GUÍAS
+       ============================================ */
+    .seccion-contenido {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 56px 20px 80px;
+    }
+    .seccion-intro {
+      margin-bottom: 36px;
+    }
+    .seccion-titulo {
+      font-family: var(--font-title);
+      font-size: clamp(24px, 4vw, 32px);
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .seccion-desc {
+      font-size: 15px;
+      color: var(--ink2);
+      max-width: 560px;
+      line-height: 1.7;
+    }
+
+    /* GRUPOS DE GUÍAS */
+    .guias-grupo {
+      margin-bottom: 40px;
+    }
+    .guias-grupo-label {
+      font-family: var(--font-code);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .guias-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 14px;
+    }
+
+    /* TARJETA GUÍA */
+    .guia-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+      position: relative;
+    }
+    .guia-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      border-color: #c44a2a;
+    }
+    .guia-card-icon { font-size: 28px; line-height: 1; }
+    .guia-card-badge {
+      display: inline-block;
+      font-family: var(--font-code);
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      width: fit-content;
+    }
+    .guia-card-titulo {
+      font-family: var(--font-title);
+      font-size: 17px;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+    .guia-card-desc {
+      font-size: 13px;
+      color: var(--ink2);
+      line-height: 1.6;
+      flex: 1;
+    }
+    .guia-card-partes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 4px;
+    }
+    .guia-parte-pill {
+      font-size: 11px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 2px 9px;
+      color: var(--ink2);
+      font-family: var(--font-code);
+    }
+    .guia-card-ver {
+      font-size: 13px;
+      font-weight: 600;
+      color: #c44a2a;
+      margin-top: 4px;
+    }
+
+    /* ============================================
+       SECCIÓN EJERCICIOS
+       ============================================ */
+    .ejercicios-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 14px;
+    }
+    .ejercicio-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+    }
+    .ejercicio-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      border-color: #c44a2a;
+    }
+    .ejercicio-num {
+      font-family: var(--font-title);
+      font-size: 38px;
+      font-weight: 700;
+      color: var(--border);
+      line-height: 1;
+    }
+    .ejercicio-titulo {
+      font-family: var(--font-title);
+      font-size: 17px;
+      font-weight: 700;
+    }
+    .ejercicio-desc {
+      font-size: 13px;
+      color: var(--ink2);
+      line-height: 1.6;
+      flex: 1;
+    }
+    .ejercicio-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+    .ejercicio-chip {
+      font-family: var(--font-code);
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--ink2);
+    }
+    .ejercicio-ver {
+      font-size: 13px;
+      font-weight: 600;
+      color: #c44a2a;
+    }
+
+    /* BANNER AGREGAR EJERCICIO */
+    .agregar-banner {
+      background: var(--card);
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: flex-start;
+      color: var(--ink3);
+    }
+    .agregar-banner-titulo {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--ink2);
+    }
+    .agregar-banner-desc {
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    /* ============================================
+       SECCIÓN VIDEOS
+       ============================================ */
+    .videos-hero {
+      background: #1a1814;
+      border-radius: 14px;
+      padding: 32px;
+      margin-bottom: 36px;
+      color: #f7f4ef;
+    }
+    .videos-hero-badge {
+      display: inline-block;
+      background: #c44a2a;
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      padding: 3px 12px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+    }
+    .videos-hero h3 {
+      font-family: var(--font-title);
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .videos-hero p {
+      font-size: 14px;
+      color: rgba(247,244,239,0.65);
+      max-width: 500px;
+      line-height: 1.7;
+    }
+
+    /* FORMULARIO AGREGAR VIDEO */
+    .video-form {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 36px;
+    }
+    .video-form-titulo {
+      font-family: var(--font-title);
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+    .video-form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 600px) { .video-form-grid { grid-template-columns: 1fr; } }
+    .video-form-campo {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .video-form-campo.full { grid-column: 1 / -1; }
+    .video-form-campo label {
+      font-family: var(--font-code);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink3);
+    }
+    .video-form-campo input,
+    .video-form-campo select,
+    .video-form-campo textarea {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-family: var(--font-body);
+      font-size: 14px;
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .video-form-campo input:focus,
+    .video-form-campo select:focus,
+    .video-form-campo textarea:focus {
+      border-color: #c44a2a;
+    }
+    .video-form-campo textarea { min-height: 80px; resize: vertical; }
+    .video-form-acciones {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+    .btn-guardar-video {
+      background: #c44a2a;
+      color: white;
+      padding: 10px 22px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      font-family: var(--font-body);
+      transition: background 0.15s;
+    }
+    .btn-guardar-video:hover { background: #a33b21; }
+    .btn-cancelar-video {
+      background: none;
+      color: var(--ink3);
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 14px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      font-family: var(--font-body);
+      transition: all 0.15s;
+    }
+    .btn-cancelar-video:hover { color: var(--ink); border-color: var(--ink3); }
+
+    /* GRID DE VIDEOS */
+    .videos-grupo { margin-bottom: 36px; }
+    .videos-grupo-label {
+      font-family: var(--font-code);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink3);
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .videos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 14px;
+    }
+
+    /* TARJETA VIDEO */
+    .video-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+    }
+    .video-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      border-color: #c44a2a;
+    }
+    .video-thumb {
+      background: #1a1814;
+      aspect-ratio: 16/9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 36px;
+      position: relative;
+      overflow: hidden;
+    }
+    .video-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      position: absolute;
+      top: 0; left: 0;
+    }
+    .video-thumb-play {
+      width: 44px;
+      height: 44px;
+      background: rgba(196,74,42,0.9);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      position: relative;
+      z-index: 1;
+    }
+    .video-card-body {
+      padding: 16px 18px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+    }
+    .video-card-cat {
+      display: inline-block;
+      font-family: var(--font-code);
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--ink2);
+      width: fit-content;
+    }
+    .video-card-titulo {
+      font-family: var(--font-title);
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+    .video-card-autor {
+      font-size: 12px;
+      color: var(--ink3);
+    }
+    .video-card-acciones {
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .btn-ver-video {
+      flex: 1;
+      background: #c44a2a;
+      color: white;
+      border: none;
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      text-align: center;
+      display: block;
+      font-family: var(--font-body);
+      transition: background 0.15s;
+    }
+    .btn-ver-video:hover { background: #a33b21; }
+    .btn-eliminar-video {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 12px;
+      cursor: pointer;
+      color: var(--ink3);
+      transition: all 0.15s;
+      font-family: var(--font-body);
+    }
+    .btn-eliminar-video:hover { border-color: #c44a2a; color: #c44a2a; }
+
+    /* ESTADO VACÍO VIDEOS */
+    .videos-vacio {
+      background: var(--card);
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 40px 24px;
+      text-align: center;
+      color: var(--ink3);
+    }
+    .videos-vacio-icon { font-size: 36px; margin-bottom: 12px; }
+    .videos-vacio-titulo {
+      font-family: var(--font-title);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ink2);
+      margin-bottom: 6px;
+    }
+    .videos-vacio-desc {
+      font-size: 14px;
+      line-height: 1.6;
+      max-width: 360px;
+      margin: 0 auto 16px;
+    }
+    .btn-agregar-primer-video {
+      display: inline-block;
+      background: #c44a2a;
+      color: white;
+      padding: 10px 22px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      font-family: var(--font-body);
+      transition: background 0.15s;
+    }
+    .btn-agregar-primer-video:hover { background: #a33b21; }
+
+    /* BOTÓN FLOTANTE AGREGAR */
+    .btn-agregar-video-flotante {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #c44a2a;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      font-family: var(--font-body);
+      transition: background 0.15s;
+      margin-bottom: 28px;
+    }
+    .btn-agregar-video-flotante:hover { background: #a33b21; }
+
+    /* BADGE COLORES POR CATEGORÍA */
+    .cat-html { background: var(--html-bg); color: var(--html); border-color: var(--html-border); }
+    .cat-css  { background: var(--css-bg);  color: var(--css);  border-color: var(--css-border); }
+    .cat-js   { background: var(--js-bg);   color: var(--js);   border-color: var(--js-border); }
+    .cat-gen  { background: var(--gen-bg);  color: var(--gen);  border-color: var(--gen-border); }
+
+    /* ============================================
+       RESPONSIVE
+       ============================================ */
+    @media (max-width: 640px) {
+      .biblioteca { padding: 40px 16px 60px; }
+      .seccion-contenido { padding: 40px 16px 60px; }
+      .guias-grid, .ejercicios-grid, .videos-grid { grid-template-columns: 1fr; }
+      .practica-banner-inner { padding: 22px 20px; }
+    }
+
+    /* ============================================
+       GLOSARIO
+       ============================================ */
+    .glosario-hero {
+      background: #1a1814;
+      border-radius: 14px;
+      padding: 32px;
+      margin-bottom: 36px;
+      color: #f7f4ef;
+    }
+    .glosario-hero-badge {
+      display: inline-block;
+      background: #c44a2a;
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      padding: 3px 12px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+    }
+    .glosario-hero h3 {
+      font-family: var(--font-title);
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .glosario-hero p {
+      font-size: 14px;
+      color: rgba(247,244,239,0.65);
+      max-width: 500px;
+      line-height: 1.7;
+    }
+
+    /* CONTROLES */
+    .glosario-controles {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .glosario-buscar {
+      flex: 1;
+      min-width: 200px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 10px 18px;
+      font-family: var(--font-body);
+      font-size: 14px;
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .glosario-buscar:focus { border-color: #c44a2a; }
+    .glosario-filtro {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 10px 18px;
+      font-family: var(--font-body);
+      font-size: 13px;
+      color: var(--ink);
+      outline: none;
+      cursor: pointer;
+    }
+
+    /* GRID */
+    .glosario-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 14px;
+    }
+
+    /* TARJETA TÉRMINO — igual estilo que guia-card */
+    .termino-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+      position: relative;
+    }
+    .termino-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      border-color: #c44a2a;
+    }
+    .termino-icono { font-size: 28px; line-height: 1; }
+    .termino-cat {
+      display: inline-block;
+      font-family: var(--font-code);
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 999px;
+      width: fit-content;
+    }
+    .termino-titulo {
+      font-family: var(--font-title);
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    .termino-definicion {
+      font-size: 13px;
+      color: var(--ink2);
+      line-height: 1.7;
+      flex: 1;
+    }
+    .termino-analogia {
+      background: #fff7ed;
+      border-left: 3px solid #b07010;
+      border-radius: 0 8px 8px 0;
+      padding: 8px 12px;
+      font-size: 12px;
+      color: #78350f;
+      line-height: 1.6;
+    }
+    .termino-analogia::before {
+      content: "💡 ";
+    }
+    .termino-fuente {
+      font-family: var(--font-code);
+      font-size: 11px;
+      color: var(--ink3);
+    }
+    .termino-acciones {
+      display: flex;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .btn-borrar-termino {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 5px 12px;
+      font-size: 11px;
+      cursor: pointer;
+      color: var(--ink3);
+      font-family: var(--font-body);
+      transition: all 0.15s;
+    }
+    .btn-borrar-termino:hover { border-color: #c44a2a; color: #c44a2a; }
+
+    /* TARJETA AGREGAR — igual estilo que placeholder de Guías */
+    .termino-card-agregar {
+      background: var(--card);
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      align-items: flex-start;
+    }
+    .termino-card-agregar:hover {
+      border-color: #c44a2a;
+      background: #fdf0ec;
+    }
+    .termino-card-agregar-icon {
+      font-size: 28px;
+      color: var(--ink3);
+    }
+    .termino-card-agregar:hover .termino-card-agregar-icon { color: #c44a2a; }
+    .termino-card-agregar-titulo {
+      font-family: var(--font-title);
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--ink2);
+    }
+    .termino-card-agregar:hover .termino-card-agregar-titulo { color: #c44a2a; }
+    .termino-card-agregar-desc {
+      font-size: 13px;
+      color: var(--ink3);
+      line-height: 1.6;
+    }
+
+    /* MODAL */
+    .glosario-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(26,24,20,0.55);
+      z-index: 500;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .glosario-modal-overlay.visible { display: flex; }
+    .glosario-modal {
+      background: var(--card);
+      border-radius: 18px;
+      padding: 32px;
+      width: 100%;
+      max-width: 520px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.25);
+      position: relative;
+    }
+    .glosario-modal-titulo {
+      font-family: var(--font-title);
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+    .glosario-modal-campo {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-bottom: 14px;
+    }
+    .glosario-modal-campo label {
+      font-family: var(--font-code);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink3);
+    }
+    .glosario-modal-campo input,
+    .glosario-modal-campo select,
+    .glosario-modal-campo textarea {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 11px 14px;
+      font-family: var(--font-body);
+      font-size: 14px;
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.15s;
+      width: 100%;
+    }
+    .glosario-modal-campo input:focus,
+    .glosario-modal-campo select:focus,
+    .glosario-modal-campo textarea:focus { border-color: #c44a2a; }
+    .glosario-modal-campo textarea { min-height: 100px; resize: vertical; }
+    .glosario-modal-acciones {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+    .btn-modal-guardar {
+      background: #c44a2a;
+      color: white;
+      padding: 11px 24px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      font-family: var(--font-body);
+      transition: background 0.15s;
+    }
+    .btn-modal-guardar:hover { background: #a33b21; }
+    .btn-modal-cancelar {
+      background: none;
+      color: var(--ink3);
+      padding: 11px 18px;
+      border-radius: 999px;
+      font-size: 14px;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      font-family: var(--font-body);
+      transition: all 0.15s;
+    }
+    .btn-modal-cancelar:hover { color: var(--ink); border-color: var(--ink3); }
+    .btn-modal-cerrar {
+      position: absolute;
+      top: 16px; right: 16px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      width: 32px; height: 32px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+      cursor: pointer;
+      color: var(--ink3);
+      transition: all 0.15s;
+    }
+    .btn-modal-cerrar:hover { color: var(--ink); border-color: var(--ink3); }
+
+    /* SIN RESULTADOS */
+    .glosario-sin-resultados {
+      grid-column: 1/-1;
+      text-align: center;
+      padding: 40px;
+      color: var(--ink3);
+      font-size: 15px;
+    }
+
+    @media (max-width: 640px) {
+      .glosario-grid { grid-template-columns: 1fr; }
+      .glosario-controles { flex-direction: column; }
+      .glosario-modal { padding: 24px 20px; }
+    }
   </style>
 </head>
 <body class="pagina-capitulos">
@@ -77,7 +987,7 @@
         <span class="logo-icon">☕</span>
         <div>
           <h1 class="logo-title">Café <span class="logo-code">&lt;/&gt;</span></h1>
-          <p class="logo-sub">Biblioteca de capítulos</p>
+          <p class="logo-sub">Biblioteca de aprendizaje</p>
         </div>
       </div>
       <div class="header-badges">
@@ -86,39 +996,858 @@
         <span class="badge badge-js">JS</span>
       </div>
     </div>
-   
   </header>
 
-  <!-- BIBLIOTECA -->
-  <main class="biblioteca">
-
-    <!-- INTRO -->
-    <div class="biblioteca-intro">
-      <h2 class="biblioteca-titulo">Elige un capítulo</h2>
-      <p class="biblioteca-desc">Cada capítulo agrupa lecciones de un tema. Conforme aprendas se irán desbloqueando más.</p>
+  <!-- BARRA DE PESTAÑAS -->
+  <div class="tabs-bar">
+    <div class="tabs-inner">
+      <button class="tab-btn activa" data-tab="capitulos">
+        📚 Capítulos <span class="tab-count" id="cnt-caps">14</span>
+      </button>
+      <button class="tab-btn" data-tab="guias">
+        📖 Guías <span class="tab-count" id="cnt-guias">12</span>
+      </button>
+      <button class="tab-btn" data-tab="ejercicios">
+        ✏️ Ejercicios <span class="tab-count" id="cnt-ejer">5</span>
+      </button>
+      <button class="tab-btn" data-tab="practica">
+        🏋️ Práctica <span class="tab-count">6</span>
+      </button>
+      <button class="tab-btn" data-tab="videos">
+        🎬 Videos <span class="tab-count" id="cnt-videos">0</span>
+      </button>
+      <button class="tab-btn" data-tab="glosario">
+        🗂️ Mi glosario <span class="tab-count" id="cnt-glosario">0</span>
+      </button>
     </div>
-    
-    <!-- TEMAS — se generan desde script.js -->
-    <div id="temasContainer"></div>
+  </div>
 
-    <!-- ACCESO RÁPIDO A PRÁCTICA -->
-    <div class="practica-banner">
-      <div class="practica-banner-inner">
-        <div class="practica-banner-texto">
-          <span class="practica-badge">🏋️ PRÁCTICA</span>
-          <h3>Ejercicios interactivos</h3>
-          <p>Escribe código real, ejecútalo y ve el resultado al instante. Desde cero hasta proyectos completos.</p>
+  <!-- ============================================
+       PANEL 1: CAPÍTULOS (original)
+       ============================================ -->
+  <div class="tab-panel visible" id="panel-capitulos">
+    <main class="biblioteca">
+      <div class="biblioteca-intro">
+        <h2 class="biblioteca-titulo">Capítulos</h2>
+        <p class="biblioteca-desc">Cada capítulo agrupa lecciones de un tema. Conforme aprendas se irán desbloqueando más.</p>
+      </div>
+
+      <!-- TEMAS — se generan desde script.js -->
+      <div id="temasContainer"></div>
+
+      <!-- ACCESO RÁPIDO A PRÁCTICA -->
+      <div class="practica-banner">
+        <div class="practica-banner-inner">
+          <div class="practica-banner-texto">
+            <span class="practica-badge">🏋️ PRÁCTICA</span>
+            <h3>Ejercicios interactivos</h3>
+            <p>Escribe código real, ejecútalo y ve el resultado al instante. Desde cero hasta proyectos completos.</p>
+          </div>
+          <a href="practica/practica.html" class="practica-btn">Empezar a practicar →</a>
         </div>
-        <a href="practica/practica.html" class="practica-btn">Empezar a practicar →</a>
+      </div>
+    </main>
+  </div>
+
+  <!-- ============================================
+       PANEL 2: GUÍAS
+       ============================================ -->
+  <div class="tab-panel" id="panel-guias">
+    <div class="seccion-contenido">
+      <div class="seccion-intro">
+        <h2 class="seccion-titulo">Guías de referencia</h2>
+        <p class="seccion-desc">Guías detalladas organizadas por tema. Perfectas para repasar o profundizar en áreas específicas fuera del flujo de los capítulos.</p>
+      </div>
+
+      <!-- GRUPO: HTML & CSS -->
+      <div class="guias-grupo">
+        <p class="guias-grupo-label">🌐 HTML &amp; CSS</p>
+        <div class="guias-grid">
+
+          <a href="guia-html-css/guia-html-css.html" class="guia-card">
+            <div class="guia-card-icon">🏗️</div>
+            <span class="guia-card-badge badge-html">HTML + CSS</span>
+            <h3 class="guia-card-titulo">HTML &amp; CSS desde Cero</h3>
+            <p class="guia-card-desc">La guía completa de HTML semántico y CSS moderno. Desde la primera etiqueta hasta diseño responsive.</p>
+            <div class="guia-card-partes">
+              <span class="guia-parte-pill">Parte A · HTML avanzado</span>
+              <span class="guia-parte-pill">Parte B · HTML avanzado II</span>
+              <span class="guia-parte-pill">Parte C · CSS avanzado</span>
+              <span class="guia-parte-pill">Parte D · Posicionamiento</span>
+            </div>
+            <span class="guia-card-ver">Ver guía →</span>
+          </a>
+
+          <!-- PLACEHOLDER — agregar más guías HTML/CSS aquí -->
+          <div class="guia-card" style="border-style:dashed;opacity:0.5;pointer-events:none;">
+            <div class="guia-card-icon">➕</div>
+            <span class="guia-card-badge" style="background:var(--bg);color:var(--ink3);border:1px solid var(--border);">PRÓXIMAMENTE</span>
+            <h3 class="guia-card-titulo">Próxima guía HTML/CSS</h3>
+            <p class="guia-card-desc">Aquí puedes agregar otra guía de HTML o CSS cuando la tengas lista.</p>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- GRUPO: JAVASCRIPT -->
+      <div class="guias-grupo">
+        <p class="guias-grupo-label">⚙️ JavaScript</p>
+        <div class="guias-grid">
+
+          <a href="guia-js/guia-js-parte-1.html" class="guia-card">
+            <div class="guia-card-icon">⚡</div>
+            <span class="guia-card-badge badge-js">JavaScript</span>
+            <h3 class="guia-card-titulo">Guía JavaScript Completa</h3>
+            <p class="guia-card-desc">De cero a intermedio. Variables, funciones, DOM, eventos, asincronismo y más — en 4 partes.</p>
+            <div class="guia-card-partes">
+              <span class="guia-parte-pill">Parte 1 · Fundamentos</span>
+              <span class="guia-parte-pill">Parte 2 · Funciones</span>
+              <span class="guia-parte-pill">Parte 3 · DOM</span>
+              <span class="guia-parte-pill">Parte 4 · Async</span>
+            </div>
+            <span class="guia-card-ver">Ver guía →</span>
+          </a>
+
+          <!-- PLACEHOLDER -->
+          <div class="guia-card" style="border-style:dashed;opacity:0.5;pointer-events:none;">
+            <div class="guia-card-icon">➕</div>
+            <span class="guia-card-badge" style="background:var(--bg);color:var(--ink3);border:1px solid var(--border);">PRÓXIMAMENTE</span>
+            <h3 class="guia-card-titulo">Próxima guía JavaScript</h3>
+            <p class="guia-card-desc">Agrega aquí tu siguiente guía de JS: APIs, frameworks, etc.</p>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- GRUPO: HERRAMIENTAS -->
+      <div class="guias-grupo">
+        <p class="guias-grupo-label">🔧 Herramientas</p>
+        <div class="guias-grid">
+
+          <a href="guia-vscode/guia-vscode.html" class="guia-card">
+            <div class="guia-card-icon">✏️</div>
+            <span class="guia-card-badge" style="background:var(--gen-bg);color:var(--gen);border:1px solid var(--gen-border);">HERRAMIENTA</span>
+            <h3 class="guia-card-titulo">VS Code desde Cero</h3>
+            <p class="guia-card-desc">Instalación, configuración, extensiones imprescindibles, atajos y flujo de trabajo diario con VS Code.</p>
+            <div class="guia-card-partes">
+              <span class="guia-parte-pill">Instalación</span>
+              <span class="guia-parte-pill">Extensiones</span>
+              <span class="guia-parte-pill">Atajos clave</span>
+            </div>
+            <span class="guia-card-ver">Ver guía →</span>
+          </a>
+
+          <!-- PLACEHOLDER GIT -->
+          <div class="guia-card" style="border-style:dashed;opacity:0.5;pointer-events:none;">
+            <div class="guia-card-icon">➕</div>
+            <span class="guia-card-badge" style="background:var(--bg);color:var(--ink3);border:1px solid var(--border);">PRÓXIMAMENTE</span>
+            <h3 class="guia-card-titulo">Guía Git desde Cero</h3>
+            <p class="guia-card-desc">Control de versiones, ramas, merge y GitHub — todo lo que necesitas en equipo.</p>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- GRUPO: GENERAL / CONCEPTOS -->
+      <div class="guias-grupo">
+        <p class="guias-grupo-label">💡 General / Conceptos</p>
+        <div class="guias-grid">
+
+          <a href="guia-conceptos/guia-http-todocode.html" class="guia-card">
+            <div class="guia-card-icon">🌐</div>
+            <span class="guia-card-badge" style="background:var(--gen-bg);color:var(--gen);border:1px solid var(--gen-border);">CONCEPTO</span>
+            <h3 class="guia-card-titulo">¿Qué es el Protocolo HTTP?</h3>
+            <p class="guia-card-desc">Requests, Responses y métodos: GET, POST, PUT, PATCH y DELETE. La base de toda comunicación en la web.</p>
+            <div class="guia-card-partes">
+              <span class="guia-parte-pill">Ciclo Request/Response</span>
+              <span class="guia-parte-pill">Métodos HTTP</span>
+              <span class="guia-parte-pill">GET · POST · PUT</span>
+            </div>
+            <span class="guia-card-ver">Ver guía →</span>
+          </a>
+
+          <a href="guia-conceptos/guia-json-todocode.html" class="guia-card">
+            <div class="guia-card-icon">📦</div>
+            <span class="guia-card-badge" style="background:var(--gen-bg);color:var(--gen);border:1px solid var(--gen-border);">CONCEPTO</span>
+            <h3 class="guia-card-titulo">¿Qué es JSON?</h3>
+            <p class="guia-card-desc">JavaScript Object Notation — el idioma universal del intercambio de datos entre sistemas.</p>
+            <div class="guia-card-partes">
+              <span class="guia-parte-pill">Clave-Valor</span>
+              <span class="guia-parte-pill">Objetos y Arrays</span>
+              <span class="guia-parte-pill">stringify / parse</span>
+            </div>
+            <span class="guia-card-ver">Ver guía →</span>
+          </a>
+
+          <a href="guia-conceptos/guia-tipado-edteam.html" class="guia-card">
+            <div class="guia-card-icon">🔢</div>
+            <span class="guia-card-badge" style="background:var(--gen-bg);color:var(--gen);border:1px solid var(--gen-border);">CONCEPTO</span>
+            <h3 class="guia-card-titulo">Lenguajes Tipados vs No Tipados</h3>
+            <p class="guia-card-desc">Entiende el tipado estático, dinámico, fuerte y débil de una vez por todas.</p>
+            <div class="guia-card-partes">
+              <span class="guia-parte-pill">Tipado estático</span>
+              <span class="guia-parte-pill">Tipado dinámico</span>
+              <span class="guia-parte-pill">Fuerte vs débil</span>
+            </div>
+            <span class="guia-card-ver">Ver guía →</span>
+          </a>
+
+          <!-- PLACEHOLDER — agrega más guías de conceptos aquí -->
+          <div class="guia-card" style="border-style:dashed;opacity:0.5;pointer-events:none;">
+            <div class="guia-card-icon">➕</div>
+            <span class="guia-card-badge" style="background:var(--bg);color:var(--ink3);border:1px solid var(--border);">PRÓXIMAMENTE</span>
+            <h3 class="guia-card-titulo">Próximo concepto</h3>
+            <p class="guia-card-desc">Agrega aquí otra guía de conceptos cuando la tengas lista en la carpeta <code>guia-conceptos/</code>.</p>
+          </div>
+
+        </div>
+      </div>
+
+
+    </div>
+  </div>
+
+  <!-- ============================================
+       PANEL 3: EJERCICIOS
+       ============================================ -->
+  <div class="tab-panel" id="panel-ejercicios">
+    <div class="seccion-contenido">
+      <div class="seccion-intro">
+        <h2 class="seccion-titulo">Ejercicios prácticos</h2>
+        <p class="seccion-desc">Proyectos reales hechos con lo que aprendes. Cada ejercicio aplica conceptos de HTML, CSS y JavaScript en páginas funcionales.</p>
+      </div>
+
+      <div class="guias-grupo">
+        <p class="guias-grupo-label">🌐 HTML &amp; CSS</p>
+        <div class="ejercicios-grid">
+
+          <a href="Ejercicios/ejercicio1-receta-tacos.html" class="ejercicio-card">
+            <div class="ejercicio-num">01</div>
+            <span class="badge badge-html" style="width:fit-content;">HTML + CSS</span>
+            <h3 class="ejercicio-titulo">Receta de Tacos</h3>
+            <p class="ejercicio-desc">Página de receta con HTML semántico: encabezados, listas, imágenes y estructura básica.</p>
+            <div class="ejercicio-chips">
+              <span class="ejercicio-chip">HTML semántico</span>
+              <span class="ejercicio-chip">Listas</span>
+              <span class="ejercicio-chip">Estructura</span>
+            </div>
+            <span class="ejercicio-ver">Ver ejercicio →</span>
+          </a>
+
+          <a href="Ejercicios/ejercicio2-pagina-negocio.html" class="ejercicio-card">
+            <div class="ejercicio-num">02</div>
+            <span class="badge badge-html" style="width:fit-content;">HTML + CSS</span>
+            <h3 class="ejercicio-titulo">Página de Negocio</h3>
+            <p class="ejercicio-desc">Landing page de un negocio con secciones, estilos CSS y diseño básico responsive.</p>
+            <div class="ejercicio-chips">
+              <span class="ejercicio-chip">CSS</span>
+              <span class="ejercicio-chip">Flexbox</span>
+              <span class="ejercicio-chip">Landing page</span>
+            </div>
+            <span class="ejercicio-ver">Ver ejercicio →</span>
+          </a>
+
+          <a href="Ejercicios/ejercicio3-perfil-futbol.html" class="ejercicio-card">
+            <div class="ejercicio-num">03</div>
+            <span class="badge badge-html" style="width:fit-content;">HTML + CSS</span>
+            <h3 class="ejercicio-titulo">Perfil de Fútbol</h3>
+            <p class="ejercicio-desc">Tarjeta de perfil de jugador con estadísticas, colores de equipo y diseño de tarjeta.</p>
+            <div class="ejercicio-chips">
+              <span class="ejercicio-chip">CSS avanzado</span>
+              <span class="ejercicio-chip">Tarjeta</span>
+              <span class="ejercicio-chip">Grid</span>
+            </div>
+            <span class="ejercicio-ver">Ver ejercicio →</span>
+          </a>
+
+          <a href="Ejercicios/ejercicio4-pagina-contacto.html" class="ejercicio-card">
+            <div class="ejercicio-num">04</div>
+            <span class="badge badge-html" style="width:fit-content;">HTML + CSS</span>
+            <h3 class="ejercicio-titulo">Página de Contacto</h3>
+            <p class="ejercicio-desc">Formulario de contacto con validación visual, inputs estilizados y feedback al usuario.</p>
+            <div class="ejercicio-chips">
+              <span class="ejercicio-chip">Formularios</span>
+              <span class="ejercicio-chip">Inputs</span>
+              <span class="ejercicio-chip">CSS</span>
+            </div>
+            <span class="ejercicio-ver">Ver ejercicio →</span>
+          </a>
+
+          <a href="Ejercicios/ejercicio5-portfolio-responsive.html" class="ejercicio-card">
+            <div class="ejercicio-num">05</div>
+            <span class="badge badge-html" style="width:fit-content;">HTML + CSS</span>
+            <h3 class="ejercicio-titulo">Portfolio Responsive</h3>
+            <p class="ejercicio-desc">Portfolio personal completo con navegación, secciones y diseño adaptable a móvil.</p>
+            <div class="ejercicio-chips">
+              <span class="ejercicio-chip">Responsive</span>
+              <span class="ejercicio-chip">Grid</span>
+              <span class="ejercicio-chip">Portfolio</span>
+            </div>
+            <span class="ejercicio-ver">Ver ejercicio →</span>
+          </a>
+
+          <!-- PLACEHOLDER — agregar más ejercicios -->
+          <div class="agregar-banner">
+            <div style="font-size:28px;">➕</div>
+            <p class="agregar-banner-titulo">Agregar ejercicio HTML/CSS</p>
+            <p class="agregar-banner-desc">Crea un archivo en la carpeta <code>Ejercicios/</code> y agrega la tarjeta aquí siguiendo el mismo patrón.</p>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- PLACEHOLDER GRUPO JS -->
+      <div class="guias-grupo">
+        <p class="guias-grupo-label">⚙️ JavaScript</p>
+        <div class="ejercicios-grid">
+          <div class="agregar-banner">
+            <div style="font-size:28px;">➕</div>
+            <p class="agregar-banner-titulo">Próximos ejercicios de JavaScript</p>
+            <p class="agregar-banner-desc">Aquí irán los ejercicios de JS cuando los tengas listos. Agrega la tarjeta igual que las de arriba.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============================================
+       PANEL 4: PRÁCTICA INTERACTIVA
+       ============================================ -->
+  <div class="tab-panel" id="panel-practica">
+    <div class="seccion-contenido">
+      <div class="seccion-intro">
+        <h2 class="seccion-titulo">Práctica interactiva</h2>
+        <p class="seccion-desc">Escribe código real, ejecútalo y ve el resultado al instante — directo en el navegador, sin instalar nada.</p>
+      </div>
+
+      <div class="practica-banner" style="margin-top:0;margin-bottom:36px;">
+        <div class="practica-banner-inner">
+          <div class="practica-banner-texto">
+            <span class="practica-badge">🏋️ ZONA DE PRÁCTICA</span>
+            <h3>Aprende haciendo</h3>
+            <p>6 niveles con más de 40 ejercicios interactivos. Cada nivel construye sobre el anterior — desde variables hasta tu primera app completa.</p>
+          </div>
+          <a href="practica/practica.html" class="practica-btn">Ir a la práctica →</a>
+        </div>
+      </div>
+
+      <!-- TARJETAS DE NIVEL (resumen) -->
+      <p class="guias-grupo-label" style="font-family:var(--font-code);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border);">Niveles disponibles</p>
+      <div class="ejercicios-grid" style="margin-bottom:0;">
+        <a href="practica/nivel-01-variables.html" class="ejercicio-card">
+          <div class="ejercicio-num">01</div>
+          <span class="badge badge-js" style="width:fit-content;">JavaScript</span>
+          <h3 class="ejercicio-titulo">Variables</h3>
+          <p class="ejercicio-desc">const, let, tipos de datos, conversión y operaciones básicas.</p>
+          <div class="ejercicio-chips"><span class="ejercicio-chip">const / let</span><span class="ejercicio-chip">typeof</span></div>
+          <span class="ejercicio-ver">Ir al nivel →</span>
+        </a>
+        <a href="practica/nivel-02-condicionales.html" class="ejercicio-card">
+          <div class="ejercicio-num">02</div>
+          <span class="badge badge-js" style="width:fit-content;">JavaScript</span>
+          <h3 class="ejercicio-titulo">Condicionales</h3>
+          <p class="ejercicio-desc">if/else, else if, switch, operadores lógicos y ternario.</p>
+          <div class="ejercicio-chips"><span class="ejercicio-chip">if/else</span><span class="ejercicio-chip">switch</span></div>
+          <span class="ejercicio-ver">Ir al nivel →</span>
+        </a>
+        <a href="practica/nivel-03-funciones.html" class="ejercicio-card">
+          <div class="ejercicio-num">03</div>
+          <span class="badge badge-js" style="width:fit-content;">JavaScript</span>
+          <h3 class="ejercicio-titulo">Funciones</h3>
+          <p class="ejercicio-desc">Crear funciones, parámetros, return y arrow functions.</p>
+          <div class="ejercicio-chips"><span class="ejercicio-chip">function</span><span class="ejercicio-chip">return</span></div>
+          <span class="ejercicio-ver">Ir al nivel →</span>
+        </a>
+        <a href="practica/nivel-04-bucles.html" class="ejercicio-card">
+          <div class="ejercicio-num">04</div>
+          <span class="badge badge-js" style="width:fit-content;">JavaScript</span>
+          <h3 class="ejercicio-titulo">Bucles y Arreglos</h3>
+          <p class="ejercicio-desc">for, while, forEach, map, filter y reduce.</p>
+          <div class="ejercicio-chips"><span class="ejercicio-chip">for/while</span><span class="ejercicio-chip">map/filter</span></div>
+          <span class="ejercicio-ver">Ir al nivel →</span>
+        </a>
+        <a href="practica/nivel-05-dom.html" class="ejercicio-card">
+          <div class="ejercicio-num">05</div>
+          <span class="badge" style="background:#eef2fa;color:#3a5a9a;border:1px solid #c0cce8;width:fit-content;">HTML + JS</span>
+          <h3 class="ejercicio-titulo">DOM — La página viva</h3>
+          <p class="ejercicio-desc">Modificar la página en tiempo real con JavaScript.</p>
+          <div class="ejercicio-chips"><span class="ejercicio-chip">querySelector</span><span class="ejercicio-chip">eventos</span></div>
+          <span class="ejercicio-ver">Ir al nivel →</span>
+        </a>
+        <a href="practica/nivel-06-proyecto.html" class="ejercicio-card">
+          <div class="ejercicio-num">06</div>
+          <span class="badge" style="background:#eef2fa;color:#3a5a9a;border:1px solid #c0cce8;width:fit-content;">Proyecto</span>
+          <h3 class="ejercicio-titulo">Lista de Tareas</h3>
+          <p class="ejercicio-desc">Construye una app completa paso a paso con todo lo aprendido.</p>
+          <div class="ejercicio-chips"><span class="ejercicio-chip">DOM</span><span class="ejercicio-chip">localStorage</span></div>
+          <span class="ejercicio-ver">Ir al nivel →</span>
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============================================
+       PANEL 5: VIDEOS
+       ============================================ -->
+  <div class="tab-panel" id="panel-videos">
+    <div class="seccion-contenido">
+
+      <div class="videos-hero">
+        <span class="videos-hero-badge">🎬 VIDEOTECA</span>
+        <h3>Tutoriales en video</h3>
+        <p>Guarda links de los videos que más te ayudan a aprender. Organízalos por tema y tenlos siempre a la mano, en un solo lugar.</p>
+      </div>
+
+      <!-- BOTÓN AGREGAR -->
+      <button class="btn-agregar-video-flotante" id="btnMostrarForm">
+        ＋ Agregar video
+      </button>
+
+      <!-- FORMULARIO (oculto por defecto) -->
+      <div class="video-form" id="videoForm" style="display:none;">
+        <p class="video-form-titulo">Agregar nuevo video</p>
+        <div class="video-form-grid">
+          <div class="video-form-campo full">
+            <label>Título del video *</label>
+            <input type="text" id="vTitulo" placeholder="Ej: CSS Flexbox completo — Midudev">
+          </div>
+          <div class="video-form-campo full">
+            <label>URL del video * (YouTube, Twitch, etc.)</label>
+            <input type="url" id="vUrl" placeholder="https://www.youtube.com/watch?v=...">
+          </div>
+          <div class="video-form-campo">
+            <label>Canal / Autor</label>
+            <input type="text" id="vAutor" placeholder="Ej: Midudev">
+          </div>
+          <div class="video-form-campo">
+            <label>Categoría</label>
+            <select id="vCategoria">
+              <option value="html">HTML</option>
+              <option value="css">CSS</option>
+              <option value="js" selected>JavaScript</option>
+              <option value="gen">General / Herramientas</option>
+            </select>
+          </div>
+          <div class="video-form-campo full">
+            <label>Notas (opcional)</label>
+            <textarea id="vNotas" placeholder="¿Qué aprendiste? ¿Qué parte fue útil?"></textarea>
+          </div>
+        </div>
+        <div class="video-form-acciones">
+          <button class="btn-guardar-video" id="btnGuardarVideo">Guardar video</button>
+          <button class="btn-cancelar-video" id="btnCancelarForm">Cancelar</button>
+        </div>
+      </div>
+
+      <!-- CONTENEDOR DINÁMICO DE VIDEOS -->
+      <div id="videosContainer">
+        <!-- Se genera con JS -->
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============================================
+       PANEL 6: MI GLOSARIO
+       ============================================ -->
+  <div class="tab-panel" id="panel-glosario">
+    <div class="seccion-contenido">
+
+      <div class="glosario-hero">
+        <span class="glosario-hero-badge">🗂️ MI GLOSARIO</span>
+        <h3>Términos y conceptos</h3>
+        <p>Tu diccionario personal. Agrega cualquier término que encuentres en videos, guías o capítulos — con definición, analogía y fuente.</p>
+      </div>
+
+      <!-- BÚSQUEDA Y FILTRO -->
+      <div class="glosario-controles" id="glosarioControles" style="display:none;">
+        <input type="text" class="glosario-buscar" id="glosarioBuscar" placeholder="🔍 Buscar término…">
+        <select class="glosario-filtro" id="glosarioFiltro">
+          <option value="todos">Todas las categorías</option>
+          <option value="html">HTML</option>
+          <option value="css">CSS</option>
+          <option value="js">JavaScript</option>
+          <option value="http">HTTP / APIs</option>
+          <option value="gen">General / Conceptos</option>
+          <option value="herr">Herramientas</option>
+        </select>
+      </div>
+
+      <!-- GRID — tarjetas + tarjeta agregar al final -->
+      <div class="glosario-grid" id="glosarioContainer">
+        <!-- Se genera con JS -->
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL AGREGAR TÉRMINO -->
+  <div class="glosario-modal-overlay" id="glosarioModalOverlay">
+    <div class="glosario-modal">
+      <button class="btn-modal-cerrar" id="btnCerrarModal">✕</button>
+      <p class="glosario-modal-titulo">Agregar término</p>
+
+      <div class="glosario-modal-campo">
+        <label>Término / Concepto *</label>
+        <input type="text" id="gTitulo" placeholder="Ej: Protocolo HTTP, JSON, Tipado estático…">
+      </div>
+      <div class="glosario-modal-campo">
+        <label>Categoría</label>
+        <select id="gCategoria">
+          <option value="gen">General / Conceptos</option>
+          <option value="html">HTML</option>
+          <option value="css">CSS</option>
+          <option value="js" selected>JavaScript</option>
+          <option value="http">HTTP / APIs</option>
+          <option value="herr">Herramientas</option>
+        </select>
+      </div>
+      <div class="glosario-modal-campo">
+        <label>Definición * — con tus propias palabras</label>
+        <textarea id="gDefinicion" placeholder="¿Qué es? ¿Para qué sirve? Escríbelo como si se lo explicaras a alguien…"></textarea>
+      </div>
+      <div class="glosario-modal-campo">
+        <label>Analogía (opcional) — algo del mundo real que te ayude a recordarlo</label>
+        <input type="text" id="gAnalogia" placeholder="Ej: HTTP es como el cartero entre tu navegador y el servidor">
+      </div>
+      <div class="glosario-modal-campo">
+        <label>Fuente (opcional)</label>
+        <input type="text" id="gFuente" placeholder="Ej: TodoCode · Playlist API REST · cap09">
+      </div>
+
+      <div class="glosario-modal-acciones">
+        <button class="btn-modal-guardar" id="btnGuardarTermino">Guardar término</button>
+        <button class="btn-modal-cancelar" id="btnCancelarModal">Cancelar</button>
       </div>
     </div>
+  </div>
 
-  </main>
 
   <footer class="site-footer">
     <p>☕ Café &lt;/&gt; · Hecho con paciencia y analogías</p>
   </footer>
 
   <script src="js/script.js"></script>
+  <script>
+    /* ============================================
+       TABS — Lógica de navegación
+       ============================================ */
+    const tabBtns   = document.querySelectorAll('.tab-btn')
+    const tabPanels = document.querySelectorAll('.tab-panel')
+
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.dataset.tab
+
+        tabBtns.forEach(b => b.classList.remove('activa'))
+        tabPanels.forEach(p => p.classList.remove('visible'))
+
+        btn.classList.add('activa')
+        document.getElementById(`panel-${target}`).classList.add('visible')
+
+        // Scroll al inicio para que el título quede visible bajo las barras fijas
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      })
+    })
+  </script>
+
+  <script type="module">
+    /* ============================================
+       FIREBASE — Configuración
+       ⚠️ REEMPLAZA estos valores con los de tu
+       proyecto en Firebase Console
+       ============================================ */
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"
+    import {
+      getFirestore, collection, addDoc, getDocs,
+      deleteDoc, doc, query, orderBy, onSnapshot
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAjNUAY81r5rUfwlslE_d9fHsJxZFptvf4",
+      authDomain: "cafecodigo-276ba.firebaseapp.com",
+      projectId: "cafecodigo-276ba",
+      storageBucket: "cafecodigo-276ba.firebasestorage.app",
+      messagingSenderId: "924422990613",
+      appId: "1:924422990613:web:a7beafb991146549f2571c"
+    }
+
+    const app = initializeApp(firebaseConfig)
+    const db  = getFirestore(app)
+
+    // Colecciones en Firestore
+    const colVideos   = collection(db, 'videos')
+    const colGlosario = collection(db, 'glosario')
+
+    /* ============================================
+       VIDEOS — Firestore
+       ============================================ */
+
+    function obtenerIdYoutube(url) {
+      const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([^&?\/\s]{11})/)
+      return match ? match[1] : null
+    }
+
+    function renderizarVideos(videos) {
+      const contenedor = document.getElementById('videosContainer')
+      const cntEl = document.getElementById('cnt-videos')
+      if (cntEl) cntEl.textContent = videos.length
+
+      if (videos.length === 0) {
+        contenedor.innerHTML = `
+          <div class="videos-vacio">
+            <div class="videos-vacio-icon">🎬</div>
+            <p class="videos-vacio-titulo">Todavía no hay videos</p>
+            <p class="videos-vacio-desc">Guarda links de tus tutoriales favoritos para tenerlos siempre a la mano y organizados por tema.</p>
+            <button class="btn-agregar-primer-video" onclick="document.getElementById('btnMostrarForm').click()">
+              ＋ Agregar mi primer video
+            </button>
+          </div>`
+        return
+      }
+
+      // Agrupar por categoría
+      const categorias = {
+        html: { label: '🌐 HTML', videos: [] },
+        css:  { label: '🎨 CSS', videos: [] },
+        js:   { label: '⚙️ JavaScript', videos: [] },
+        gen:  { label: '🔧 General / Herramientas', videos: [] }
+      }
+      videos.forEach(v => {
+        const cat = categorias[v.categoria] || categorias.gen
+        cat.videos.push(v)
+      })
+
+      let html = ''
+      Object.entries(categorias).forEach(([key, grupo]) => {
+        if (!grupo.videos.length) return
+        html += `
+          <div class="videos-grupo">
+            <p class="videos-grupo-label">
+              ${grupo.label}
+              <span style="font-size:12px;color:var(--ink3);">${grupo.videos.length} video${grupo.videos.length !== 1 ? 's' : ''}</span>
+            </p>
+            <div class="videos-grid">
+              ${grupo.videos.map(v => {
+                const ytId = obtenerIdYoutube(v.url)
+                const thumb = ytId
+                  ? `<img src="https://img.youtube.com/vi/${ytId}/mqdefault.jpg" alt="${v.titulo}" loading="lazy">`
+                  : ''
+                return `
+                  <div class="video-card">
+                    <div class="video-thumb">
+                      ${thumb}
+                      <div class="video-thumb-play">▶</div>
+                    </div>
+                    <div class="video-card-body">
+                      <span class="video-card-cat cat-${v.categoria}">${v.categoria.toUpperCase()}</span>
+                      <h4 class="video-card-titulo">${v.titulo}</h4>
+                      ${v.autor ? `<p class="video-card-autor">📺 ${v.autor}</p>` : ''}
+                      ${v.notas ? `<p style="font-size:12px;color:var(--ink2);line-height:1.5;background:var(--bg);padding:8px 10px;border-radius:8px;">${v.notas}</p>` : ''}
+                      <div class="video-card-acciones">
+                        <a href="${v.url}" target="_blank" rel="noopener" class="btn-ver-video">Ver video →</a>
+                        <button class="btn-eliminar-video" onclick="eliminarVideo('${v.id}')">🗑️</button>
+                      </div>
+                    </div>
+                  </div>`
+              }).join('')}
+            </div>
+          </div>`
+      })
+      contenedor.innerHTML = html
+    }
+
+    async function eliminarVideo(id) {
+      if (!confirm('¿Eliminar este video?')) return
+      await deleteDoc(doc(db, 'videos', id))
+      // onSnapshot actualizará la UI automáticamente
+    }
+
+    // FORMULARIO
+    const btnMostrarForm  = document.getElementById('btnMostrarForm')
+    const btnCancelarForm = document.getElementById('btnCancelarForm')
+    const btnGuardar      = document.getElementById('btnGuardarVideo')
+    const videoForm       = document.getElementById('videoForm')
+
+    btnMostrarForm.addEventListener('click', () => {
+      videoForm.style.display = 'block'
+      btnMostrarForm.style.display = 'none'
+      document.getElementById('vTitulo').focus()
+    })
+
+    btnCancelarForm.addEventListener('click', () => {
+      videoForm.style.display = 'none'
+      btnMostrarForm.style.display = 'inline-flex'
+    })
+
+    btnGuardar.addEventListener('click', () => {
+      const titulo    = document.getElementById('vTitulo').value.trim()
+      const url       = document.getElementById('vUrl').value.trim()
+      const autor     = document.getElementById('vAutor').value.trim()
+      const categoria = document.getElementById('vCategoria').value
+      const notas     = document.getElementById('vNotas').value.trim()
+
+      if (!titulo || !url) {
+        alert('El título y la URL son obligatorios.')
+        return
+      }
+
+      try {
+        await addDoc(colVideos, {
+          titulo, url, autor, categoria, notas,
+          creadoEn: new Date().toISOString()
+        })
+        // Limpiar formulario
+        document.getElementById('vTitulo').value = ''
+        document.getElementById('vUrl').value = ''
+        document.getElementById('vAutor').value = ''
+        document.getElementById('vNotas').value = ''
+        document.getElementById('vCategoria').value = 'js'
+        videoForm.style.display = 'none'
+        btnMostrarForm.style.display = 'inline-flex'
+      } catch(e) {
+        alert('Error al guardar el video. Revisa tu conexión o la config de Firebase.')
+        console.error(e)
+      }
+    })
+
+    // Escuchar cambios en tiempo real — Firestore actualiza la UI automáticamente
+    onSnapshot(query(colVideos, orderBy('creadoEn', 'desc')), snapshot => {
+      const videos = snapshot.docs.map(d => ({ id: d.id, ...d.data() }))
+      renderizarVideos(videos)
+    })
+    /* ============================================
+       GLOSARIO — Firestore
+       ============================================ */
+    const CAT_META = {
+      html:  { label: 'HTML',          clase: 'cat-html', icono: '🏗️' },
+      css:   { label: 'CSS',           clase: 'cat-css',  icono: '🎨' },
+      js:    { label: 'JavaScript',    clase: 'cat-js',   icono: '⚙️' },
+      http:  { label: 'HTTP / APIs',   clase: 'cat-gen',  icono: '🌐' },
+      gen:   { label: 'General',       clase: 'cat-gen',  icono: '💡' },
+      herr:  { label: 'Herramientas',  clase: 'cat-gen',  icono: '🔧' }
+    }
+
+    function abrirModal() {
+      document.getElementById('glosarioModalOverlay').classList.add('visible')
+      document.getElementById('gTitulo').focus()
+    }
+    function cerrarModal() {
+      document.getElementById('glosarioModalOverlay').classList.remove('visible')
+      // Limpiar campos
+      ;['gTitulo','gDefinicion','gAnalogia','gFuente'].forEach(id => {
+        document.getElementById(id).value = ''
+      })
+      document.getElementById('gCategoria').value = 'js'
+    }
+
+    function renderizarGlosario(terminos = []) {
+      const container = document.getElementById('glosarioContainer')
+      const controles = document.getElementById('glosarioControles')
+      const cntEl     = document.getElementById('cnt-glosario')
+      if (cntEl) cntEl.textContent = terminos.length
+
+      // Mostrar / ocultar barra de búsqueda
+      if (controles) controles.style.display = terminos.length ? 'flex' : 'none'
+
+      const busqueda = (document.getElementById('glosarioBuscar')?.value || '').toLowerCase()
+      const filtro   = document.getElementById('glosarioFiltro')?.value || 'todos'
+
+      const filtrados = terminos.filter(t => {
+        const coincideCat  = filtro === 'todos' || t.categoria === filtro
+        const coincideBusq = !busqueda ||
+          t.titulo.toLowerCase().includes(busqueda) ||
+          t.definicion.toLowerCase().includes(busqueda)
+        return coincideCat && coincideBusq
+      })
+
+      // Tarjeta de "agregar nuevo" — siempre al final
+      const cardAgregar = `
+        <div class="termino-card-agregar" onclick="abrirModal()">
+          <div class="termino-card-agregar-icon">＋</div>
+          <p class="termino-card-agregar-titulo">Agregar término</p>
+          <p class="termino-card-agregar-desc">Guarda un nuevo concepto, término o definición que quieras recordar.</p>
+        </div>`
+
+      if (filtrados.length === 0 && busqueda) {
+        container.innerHTML = `<div class="glosario-sin-resultados">🔍 No hay términos que coincidan.</div>` + cardAgregar
+        return
+      }
+
+      const cardsTerminos = filtrados.map(t => {
+        const meta = CAT_META[t.categoria] || CAT_META.gen
+        return `
+          <div class="termino-card">
+            <div class="termino-icono">${meta.icono}</div>
+            <span class="termino-cat ${meta.clase}">${meta.label}</span>
+            <h4 class="termino-titulo">${t.titulo}</h4>
+            <p class="termino-definicion">${t.definicion}</p>
+            ${t.analogia ? `<div class="termino-analogia">${t.analogia}</div>` : ''}
+            ${t.fuente   ? `<p class="termino-fuente">📎 ${t.fuente}</p>` : ''}
+            <div class="termino-acciones">
+              <button class="btn-borrar-termino" onclick="borrarTermino('${t.id}')">🗑️ Eliminar</button>
+            </div>
+          </div>`
+      }).join('')
+
+      container.innerHTML = cardsTerminos + cardAgregar
+    }
+
+    async function borrarTermino(id) {
+      if (!confirm('¿Eliminar este término?')) return
+      await deleteDoc(doc(db, 'glosario', id))
+      // onSnapshot actualizará la UI automáticamente
+    }
+
+    // Eventos del modal
+    document.getElementById('btnCerrarModal').addEventListener('click', cerrarModal)
+    document.getElementById('btnCancelarModal').addEventListener('click', cerrarModal)
+    document.getElementById('glosarioModalOverlay').addEventListener('click', e => {
+      if (e.target === e.currentTarget) cerrarModal()
+    })
+
+    document.getElementById('btnGuardarTermino').addEventListener('click', () => {
+      const titulo     = document.getElementById('gTitulo').value.trim()
+      const definicion = document.getElementById('gDefinicion').value.trim()
+      const analogia   = document.getElementById('gAnalogia').value.trim()
+      const categoria  = document.getElementById('gCategoria').value
+      const fuente     = document.getElementById('gFuente').value.trim()
+
+      if (!titulo || !definicion) {
+        alert('El término y la definición son obligatorios.')
+        return
+      }
+
+      try {
+        await addDoc(colGlosario, {
+          titulo, definicion, analogia, categoria, fuente,
+          creadoEn: new Date().toISOString()
+        })
+        cerrarModal()
+      } catch(e) {
+        alert('Error al guardar el término. Revisa tu conexión o la config de Firebase.')
+        console.error(e)
+      }
+    })
+
+    // Búsqueda y filtro en tiempo real (filtran sobre los datos ya cargados)
+    let _terminosCache = []
+    document.getElementById('glosarioBuscar')?.addEventListener('input', () => renderizarGlosario(_terminosCache))
+    document.getElementById('glosarioFiltro')?.addEventListener('change', () => renderizarGlosario(_terminosCache))
+
+    // Escuchar cambios en tiempo real — Firestore
+    onSnapshot(query(colGlosario, orderBy('creadoEn', 'desc')), snapshot => {
+      _terminosCache = snapshot.docs.map(d => ({ id: d.id, ...d.data() }))
+      renderizarGlosario(_terminosCache)
+    })
+
+    // ── Exponer funciones globales (necesario con type="module") ──
+    window.eliminarVideo  = eliminarVideo
+    window.abrirModal     = abrirModal
+    window.borrarTermino  = borrarTermino
+
+  </script>
 </body>
 </html>

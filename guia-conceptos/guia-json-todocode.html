@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía: ¿Qué es JSON? — TodoCode</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --primary:#c44a2a;--primary-light:#fdf0ec;
+    --secondary:#1a7a5a;--secondary-light:#edf7f3;
+    --accent:#b07010;--accent-light:#fdf6e8;
+    --bg:#f7f4ef;--surface:#ffffff;
+    --text:#1a1814;--muted:#8a8480;--border:#e8e4de;
+    --code-bg:#1a1814;--code-text:#e8e4de;
+  }
+  body{font-family:'DM Sans','Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:16px}
+
+  header{background:#1a1814;color:#f7f4ef;padding:3rem 2rem 2rem;text-align:center;position:relative;overflow:hidden}
+  header::before{content:'{}';position:absolute;font-size:14rem;font-weight:900;color:rgba(255,255,255,0.04);right:-1rem;top:-2rem;font-family:monospace;line-height:1}
+  header h1{font-size:2.5rem;font-weight:800;letter-spacing:-1px;font-family:'Fraunces',serif}
+  header p{font-size:1.1rem;opacity:.85;margin-top:.5rem}
+  header .badge{display:inline-block;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:4px 14px;font-size:.8rem;margin-top:.75rem}
+
+  nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;display:flex;overflow-x:auto}
+  nav a{flex-shrink:0;padding:.75rem 1rem;text-decoration:none;color:var(--muted);font-size:.78rem;font-weight:500;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;white-space:nowrap}
+  nav a:hover{color:var(--primary);border-bottom-color:var(--primary)}
+
+  main{max-width:920px;margin:0 auto;padding:2rem 1.5rem}
+  .parte-badge{display:inline-flex;align-items:center;gap:.5rem;background:var(--primary);color:white;border-radius:20px;padding:5px 16px;font-size:.82rem;font-weight:700;margin-bottom:1.5rem}
+
+  .module{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;margin-bottom:2.5rem}
+  .module-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border)}
+  .module-icon{font-size:1.8rem;flex-shrink:0}
+  .module-title{font-size:1.35rem;font-weight:700}
+  .module-sub{font-size:.85rem;color:var(--muted);margin-top:2px}
+
+  .analogy{background:#FFF7ED;border:1px solid #FDE68A;border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0}
+  .analogy h4{color:#92400E;font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem}
+  .analogy p{font-size:.95rem;color:#78350F}
+  .concept{background:var(--primary-light);border-left:4px solid var(--primary);border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0}
+  .concept h4{color:var(--primary);font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem}
+  .concept p{font-size:.95rem}
+  .tip{background:var(--secondary-light);border-left:4px solid var(--secondary);border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0}
+  .tip h4{color:var(--secondary);font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem}
+  .tip p,.tip ul{font-size:.95rem}.tip ul{padding-left:1.2rem}
+  .warn{background:#fdf0ec;border-left:4px solid var(--primary);border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0}
+  .warn h4{color:var(--primary);font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem}
+  .warn p{font-size:.95rem}
+
+  .code-block{background:var(--code-bg);color:var(--code-text);border-radius:10px;padding:1.25rem 1.5rem;font-family:'DM Mono','Courier New',monospace;font-size:.88rem;line-height:1.85;overflow-x:auto;margin:1rem 0;position:relative;white-space:pre}
+  .ct{color:#89B4FA}.ca{color:#CBA6F7}.cv{color:#A6E3A1}.cs{color:#F9E2AF}.cp{color:#89DCEB}.cc{color:#585B70;font-style:italic}.cn{color:#FAB387}.ce{color:#F38BA8}
+  .lang{position:absolute;top:.6rem;right:.75rem;background:rgba(255,255,255,.1);color:rgba(255,255,255,.5);font-size:.68rem;padding:2px 8px;border-radius:4px;font-family:sans-serif}
+
+  .tbl{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem}
+  .tbl th{background:var(--primary-light);color:var(--primary);padding:.65rem 1rem;text-align:left;font-weight:600}
+  .tbl td{padding:.65rem 1rem;border-bottom:1px solid var(--border);vertical-align:top}
+  .tbl tr:hover td{background:var(--bg)}
+
+  .tag{display:inline-block;background:var(--primary-light);color:var(--primary);font-family:'DM Mono',monospace;font-size:.84rem;padding:1px 7px;border-radius:4px;font-weight:600}
+  .tag-green{background:var(--secondary-light);color:var(--secondary)}
+  .tag-amber{background:var(--accent-light);color:var(--accent)}
+  .tag-gray{background:#f0ece6;color:#5a5650}
+
+  .glos{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin:1rem 0}
+  .glos-item{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1rem 1.1rem}
+  .glos-item dt{font-weight:700;color:var(--primary);font-size:.92rem;margin-bottom:.3rem}
+  .glos-item dd{font-size:.85rem;color:var(--muted);line-height:1.5}
+  .glos-item .emoji{font-size:1.3rem;display:block;margin-bottom:.3rem}
+
+  /* SANDBOX */
+  .sandbox{background:#f0ece6;border:1px solid var(--border);border-radius:14px;margin:1.5rem 0;overflow:hidden}
+  .sandbox-bar{background:#1a1814;color:#f7f4ef;padding:.75rem 1.25rem;display:flex;align-items:center;gap:.75rem;flex-wrap:wrap}
+  .sandbox-bar span{font-family:'DM Mono',monospace;font-size:.78rem;color:#A6E3A1}
+  .sandbox-bar .sb-title{font-size:.85rem;font-weight:600;flex:1}
+  .sandbox-body{padding:1.25rem}
+  .sandbox-body label{font-size:.82rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:.3rem}
+  .sb-textarea{width:100%;font-family:'DM Mono',monospace;font-size:.85rem;padding:.6rem .8rem;border:1px solid var(--border);border-radius:7px;background:var(--surface);color:var(--text);min-height:90px;resize:vertical;margin-bottom:.75rem}
+  .sb-input{width:100%;font-family:'DM Mono',monospace;font-size:.88rem;padding:.5rem .8rem;border:1px solid var(--border);border-radius:7px;background:var(--surface);color:var(--text);margin-bottom:.75rem}
+  .sb-select{font-family:'DM Mono',monospace;font-size:.9rem;padding:.45rem .75rem;border:1px solid var(--border);border-radius:7px;background:var(--surface);color:var(--text);cursor:pointer;margin-bottom:.75rem}
+  .sb-btn{background:var(--primary);color:white;border:none;padding:.5rem 1.2rem;border-radius:7px;font-size:.9rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-right:.5rem}
+  .sb-btn:hover{background:#a83920}
+  .sb-btn-sec{background:var(--secondary);color:white;border:none;padding:.5rem 1.2rem;border-radius:7px;font-size:.9rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+  .sb-btn-sec:hover{background:#145e45}
+  .sb-output{background:var(--code-bg);color:var(--code-text);border-radius:8px;padding:1rem 1.2rem;font-family:'DM Mono',monospace;font-size:.82rem;line-height:1.7;margin-top:.75rem;min-height:50px;white-space:pre-wrap;word-break:break-all;display:none}
+  .sb-output.visible{display:block}
+  .sb-quizrow{display:flex;gap:.5rem;flex-wrap:wrap;margin:.5rem 0}
+  .sb-quiz-btn{background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:.4rem .9rem;font-size:.88rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .15s}
+  .sb-quiz-btn:hover{background:var(--bg)}
+  .sb-quiz-btn.correct{background:#E6F9F0;border-color:#7DD5A8;color:#0A6B3E;font-weight:700}
+  .sb-quiz-btn.wrong{background:#FFF0F0;border-color:#F8A8A8;color:#9B1C1C}
+  .sb-feedback{font-size:.88rem;margin-top:.5rem;min-height:1.2rem}
+  .sb-row{display:flex;gap:.75rem;align-items:flex-start;flex-wrap:wrap;margin-bottom:.5rem}
+  .sb-row>div{flex:1;min-width:140px}
+
+  h2{font-size:1.2rem;font-weight:700;margin:1.75rem 0 .75rem;color:var(--text)}
+  h3{font-size:1rem;font-weight:700;margin:1.25rem 0 .5rem}
+  p{margin-bottom:.8rem}
+  ul,ol{padding-left:1.4rem;margin-bottom:.8rem}
+  li{margin-bottom:.4rem;font-size:.96rem}
+  code{font-family:'DM Mono',monospace;background:#f0ece6;color:var(--primary);padding:1px 5px;border-radius:4px;font-size:.9em}
+  strong{font-weight:700}
+  footer{text-align:center;padding:2rem;color:var(--muted);font-size:.85rem;border-top:1px solid var(--border);margin-top:1rem;background:var(--bg)}
+
+  .tipo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.85rem;margin:1rem 0}
+  .tipo-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.9rem 1rem}
+  .tipo-card .tc-tipo{font-family:'DM Mono',monospace;font-size:.8rem;font-weight:700;padding:2px 8px;border-radius:4px;display:inline-block;margin-bottom:.4rem}
+  .tipo-card p{font-size:.85rem;color:var(--muted);margin:0}
+  .tipo-card code{font-size:.82rem}
+
+  .regla-list{list-style:none;padding:0}
+  .regla-list li{display:flex;gap:.75rem;align-items:flex-start;padding:.6rem 0;border-bottom:1px solid var(--border);font-size:.93rem}
+  .regla-list li:last-child{border-bottom:none}
+  .regla-list .ri{font-size:1rem;flex-shrink:0;margin-top:.1rem}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>¿Qué es JSON?</h1>
+  <p>JavaScript Object Notation — el idioma universal del intercambio de datos</p>
+  <span class="badge">✦ Video de TodoCode · Ing. Luisina de Paula · Playlist: Aprender términos 2/3 · 11:58 min ✦</span>
+</header>
+
+<nav>
+  <a href="#intro">📦 ¿Qué es JSON?</a>
+  <a href="#sintaxis">🔑 Clave-Valor</a>
+  <a href="#tipos">🎨 Tipos de datos</a>
+  <a href="#objetos">🗂 Objetos {}</a>
+  <a href="#arrays">📋 Arrays []</a>
+  <a href="#anidado">🪆 Anidado</a>
+  <a href="#reglas">📐 Reglas estrictas</a>
+  <a href="#stringify">🔄 stringify</a>
+  <a href="#parse">🔍 parse</a>
+  <a href="#usos">🌐 Usos reales</a>
+  <a href="#resumen">✅ Resumen</a>
+</nav>
+
+<main>
+<div class="parte-badge">📺 Guía basada en el video de TodoCode — Ing. Luisina de Paula · Aprender términos 2/3</div>
+
+
+<!-- ═══ QUÉ ES JSON ═══ -->
+<section class="module" id="intro">
+  <div class="module-header">
+    <div class="module-icon">📦</div>
+    <div>
+      <div class="module-title">¿Qué es JSON?</div>
+      <div class="module-sub">El formato de datos más usado en el desarrollo web · 0:00 – 1:30</div>
+    </div>
+  </div>
+
+  <p>Cuando dos sistemas necesitan intercambiar información — tu app y un servidor, un frontend y un backend, dos APIs distintas — necesitan ponerse de acuerdo en el <strong>formato</strong> que usarán para empacar esos datos. El formato ganador en el mundo moderno es <strong>JSON</strong>.</p>
+
+  <dl class="glos">
+    <div class="glos-item">
+      <span class="emoji">📛</span>
+      <dt>JSON</dt>
+      <dd><strong>J</strong>ava<strong>S</strong>cript <strong>O</strong>bject <strong>N</strong>otation. Notación de Objetos de JavaScript. A pesar del nombre, sirve con <em>cualquier</em> lenguaje.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">📄</span>
+      <dt>Formato de texto</dt>
+      <dd>JSON es simplemente texto plano con una estructura específica. Cualquier lenguaje puede leerlo y escribirlo.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">⚖️</span>
+      <dt>Ligero</dt>
+      <dd>Ocupa poco espacio comparado con alternativas como XML. Fácil de leer para humanos y para máquinas.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🌍</span>
+      <dt>Universal</dt>
+      <dd>Python, Java, PHP, Go, Ruby, Kotlin, Swift… todos tienen soporte nativo para JSON. Es el estándar de facto.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🔗</span>
+      <dt>Intercambio</dt>
+      <dd>Su función principal es viajar entre sistemas: del servidor al cliente, entre microservicios, entre APIs.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">📁</span>
+      <dt>Archivo .json</dt>
+      <dd>Los archivos JSON tienen extensión <code>.json</code> y tipo MIME <code>application/json</code>. Son texto plano.</dd>
+    </div>
+  </dl>
+
+  <div class="analogy">
+    <h4>📮 Analogía: el formulario aduanal internacional</h4>
+    <p>Cuando mandas un paquete de México a Japón, la aduana requiere un formulario estándar con campos específicos: descripción, peso, valor, destinatario. Sin ese formulario estandarizado, cada país tendría su propio sistema y nada funcionaría. JSON es ese formulario universal para los datos digitales: un formato que todos los países (lenguajes de programación) entienden sin necesidad de traducción, y que permite que los datos "crucen fronteras" entre sistemas completamente distintos.</p>
+  </div>
+
+  <div class="concept">
+    <h4>💡 ¿Por qué no usar JavaScript directamente?</h4>
+    <p>JavaScript tiene cosas que JSON no puede representar: funciones, métodos, referencias circulares, <code>undefined</code>. JSON es solo datos puros. Al eliminar esas cosas, se vuelve un formato neutral que cualquier lenguaje puede procesar, no solo JavaScript.</p>
+  </div>
+
+  <!-- QUIZ 1 -->
+  <div class="sandbox">
+    <div class="sandbox-bar">
+      <span>🧠 EJERCICIO INTERACTIVO</span>
+      <span class="sb-title">¿Qué es JSON? — Identifica lo correcto</span>
+    </div>
+    <div class="sandbox-body">
+      <div id="q1" style="margin-bottom:1.1rem">
+        <strong style="font-size:.95rem">¿JSON solo funciona con JavaScript?</strong>
+        <div class="sb-quizrow">
+          <button class="sb-quiz-btn" onclick="chk('q1',this,false)">Sí, es exclusivo de JS</button>
+          <button class="sb-quiz-btn" onclick="chk('q1',this,true)">No, funciona con cualquier lenguaje</button>
+        </div>
+        <div class="sb-feedback" id="q1-fb"></div>
+      </div>
+      <div id="q2" style="margin-bottom:1.1rem">
+        <strong style="font-size:.95rem">¿Qué significa la N en JSON?</strong>
+        <div class="sb-quizrow">
+          <button class="sb-quiz-btn" onclick="chk('q2',this,false)">Node</button>
+          <button class="sb-quiz-btn" onclick="chk('q2',this,true)">Notation (Notación)</button>
+          <button class="sb-quiz-btn" onclick="chk('q2',this,false)">Network</button>
+        </div>
+        <div class="sb-feedback" id="q2-fb"></div>
+      </div>
+      <div id="q3">
+        <strong style="font-size:.95rem">¿Cuál es la extensión de un archivo JSON?</strong>
+        <div class="sb-quizrow">
+          <button class="sb-quiz-btn" onclick="chk('q3',this,false)">.js</button>
+          <button class="sb-quiz-btn" onclick="chk('q3',this,false)">.txt</button>
+          <button class="sb-quiz-btn" onclick="chk('q3',this,true)">.json</button>
+        </div>
+        <div class="sb-feedback" id="q3-fb"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ CLAVE-VALOR ═══ -->
+<section class="module" id="sintaxis">
+  <div class="module-header">
+    <div class="module-icon">🔑</div>
+    <div>
+      <div class="module-title">La sintaxis de JSON: pares clave-valor</div>
+      <div class="module-sub">La estructura fundamental de todo JSON · 1:30 – 3:00</div>
+    </div>
+  </div>
+
+  <p>JSON se basa en un concepto muy simple: <strong>clave-valor</strong>. Para cada clave (nombre del dato) existe un valor asociado. Un conjunto de pares clave-valor forma un <strong>objeto</strong>, representado entre llaves <code>{}</code>.</p>
+
+  <div class="code-block"><span class="lang">JSON</span><span class="cc">// Objeto JSON básico — como se ve en el video de TodoCode</span>
+{
+  <span class="ca">"nombre"</span>  : <span class="cs">"Cristiano"</span>,
+  <span class="ca">"apellido"</span> : <span class="cs">"Ronaldo"</span>,
+  <span class="ca">"edad"</span>     : <span class="cn">36</span>
+}
+
+<span class="cc">// Estructura:  "clave" : valor</span>
+<span class="cc">//              ↑ string ↑ cualquier tipo válido</span></div>
+
+  <div class="analogy">
+    <h4>🏷 Analogía: la ficha del expediente</h4>
+    <p>Imagina una ficha de paciente en un consultorio. Tiene campos con su etiqueta: <em>Nombre:</em> Juan, <em>Edad:</em> 30, <em>Alergias:</em> Ninguna. Cada campo tiene una <strong>clave</strong> (la etiqueta impresa) y un <strong>valor</strong> (lo que se rellena). JSON funciona exactamente igual, pero en formato digital. La clave siempre va entre comillas dobles y el valor puede ser de varios tipos.</p>
+  </div>
+
+  <h2>Reglas básicas de la sintaxis clave-valor</h2>
+  <ul class="regla-list">
+    <li><span class="ri">🔤</span><span>La <strong>clave</strong> siempre va entre <strong>comillas dobles</strong>: <code>"nombre"</code>. Nunca con comillas simples ni sin comillas.</span></li>
+    <li><span class="ri">➡️</span><span>Se separan con dos puntos: <code>"clave" : valor</code></span></li>
+    <li><span class="ri">➕</span><span>Los pares se separan entre sí con <strong>comas</strong>: <code>"a":1, "b":2</code></span></li>
+    <li><span class="ri">🚫</span><span>El <strong>último par NO lleva coma</strong> al final. <code>{"a":1, "b":2}</code> ✅ vs <code>{"a":1, "b":2,}</code> ❌</span></li>
+    <li><span class="ri">🚫</span><span>No se permiten <strong>comentarios</strong> en JSON (<code>//</code> ni <code>/* */</code>). JSON es solo datos.</span></li>
+  </ul>
+
+  <!-- SANDBOX editor JSON -->
+  <div class="sandbox">
+    <div class="sandbox-bar">
+      <span>⚡ EJERCICIO INTERACTIVO</span>
+      <span class="sb-title">Valida tu JSON — escribe y verifica si es válido</span>
+    </div>
+    <div class="sandbox-body">
+      <p style="font-size:.9rem;margin-bottom:.6rem">Escribe un objeto JSON y verifica si tiene la sintaxis correcta:</p>
+      <label>Tu JSON</label>
+      <textarea class="sb-textarea" id="json-validar" style="min-height:110px">{
+  "nombre": "Cristiano",
+  "apellido": "Ronaldo",
+  "edad": 36
+}</textarea>
+      <button class="sb-btn" onclick="validarJSON()">✅ Validar JSON</button>
+      <button class="sb-btn-sec" onclick="formatearJSON()">🎨 Formatear</button>
+      <div class="sb-output" id="out-validar"></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ TIPOS DE DATOS ═══ -->
+<section class="module" id="tipos">
+  <div class="module-header">
+    <div class="module-icon">🎨</div>
+    <div>
+      <div class="module-title">Tipos de datos en JSON</div>
+      <div class="module-sub">Los 6 tipos que JSON acepta como valores · 3:00 – 4:30</div>
+    </div>
+  </div>
+
+  <p>El <strong>valor</strong> en un par clave-valor no puede ser cualquier cosa. JSON acepta exactamente <strong>6 tipos</strong> de datos. Ni más ni menos.</p>
+
+  <div class="tipo-grid">
+    <div class="tipo-card">
+      <span class="tc-tipo" style="background:#E6F4FF;color:#0550AE">string</span>
+      <p>Texto entre <strong>comillas dobles</strong>. <code>"Hola mundo"</code>, <code>"Veracruz"</code></p>
+    </div>
+    <div class="tipo-card">
+      <span class="tc-tipo" style="background:#E6F9F0;color:#0A6B3E">number</span>
+      <p>Enteros o decimales, sin comillas. <code>36</code>, <code>3.14</code>, <code>-5</code></p>
+    </div>
+    <div class="tipo-card">
+      <span class="tc-tipo" style="background:#F3E8FF;color:#6B21A8">boolean</span>
+      <p>Solo <code>true</code> o <code>false</code>. En minúsculas, sin comillas.</p>
+    </div>
+    <div class="tipo-card">
+      <span class="tc-tipo" style="background:#f0ece6;color:#5a5650">null</span>
+      <p>Representa ausencia de valor. <code>null</code>. Sin comillas, en minúsculas.</p>
+    </div>
+    <div class="tipo-card">
+      <span class="tc-tipo" style="background:#FFF3E0;color:#8B4500">object</span>
+      <p>Otro objeto anidado entre <code>{}</code>. Permite estructuras jerárquicas.</p>
+    </div>
+    <div class="tipo-card">
+      <span class="tc-tipo" style="background:#FAECE7;color:#993C1D">array</span>
+      <p>Lista ordenada de valores entre <code>[]</code>. Puede contener cualquier tipo.</p>
+    </div>
+  </div>
+
+  <div class="code-block"><span class="lang">JSON</span>{
+  <span class="ca">"nombre"</span>     : <span class="cs">"Luisina"</span>,          <span class="cc">// string</span>
+  <span class="ca">"edad"</span>        : <span class="cn">28</span>,               <span class="cc">// number (entero)</span>
+  <span class="ca">"promedio"</span>    : <span class="cn">9.75</span>,             <span class="cc">// number (decimal)</span>
+  <span class="ca">"activo"</span>      : <span class="cv">true</span>,             <span class="cc">// boolean</span>
+  <span class="ca">"telefono"</span>    : <span class="cv">null</span>,             <span class="cc">// null (sin dato)</span>
+  <span class="ca">"direccion"</span>   : { <span class="ca">"ciudad"</span>: <span class="cs">"BsAs"</span> }, <span class="cc">// object anidado</span>
+  <span class="ca">"habilidades"</span> : [<span class="cs">"JS"</span>, <span class="cs">"Python"</span>]    <span class="cc">// array</span>
+}</div>
+
+  <div class="warn">
+    <h4>⚠️ Tipos que JSON NO acepta</h4>
+    <p>JSON no puede representar: <code>undefined</code>, funciones/métodos, fechas como <code>Date</code> (solo strings de fecha), <code>Infinity</code>, <code>NaN</code>, ni referencias circulares. Si intentas convertir estos con <code>JSON.stringify()</code>, los omite o los convierte a <code>null</code>.</p>
+  </div>
+
+  <div class="analogy">
+    <h4>🎲 Analogía: el formulario oficial del gobierno</h4>
+    <p>Un formulario oficial del gobierno solo acepta respuestas en campos muy específicos: nombre (texto), edad (número), casado (sí/no), dirección (otro formulario adjunto), hijos (lista). No puedes poner una foto, ni un archivo MP3, ni dejar campos con respuestas inventadas. JSON es igual de estricto: solo esos 6 tipos, nada más. Lo que no cabe en esos 6 tipos simplemente no se puede enviar en JSON tal cual.</p>
+  </div>
+
+  <!-- QUIZ tipos -->
+  <div class="sandbox">
+    <div class="sandbox-bar">
+      <span>🧠 EJERCICIO INTERACTIVO</span>
+      <span class="sb-title">¿Qué tipo de dato es cada valor?</span>
+    </div>
+    <div class="sandbox-body">
+      <div id="tq1" style="margin-bottom:1.1rem">
+        <strong style="font-size:.95rem">¿Qué tipo es este valor? → <code>true</code></strong>
+        <div class="sb-quizrow">
+          <button class="sb-quiz-btn" onclick="chk('tq1',this,false)">string</button>
+          <button class="sb-quiz-btn" onclick="chk('tq1',this,true)">boolean</button>
+          <button class="sb-quiz-btn" onclick="chk('tq1',this,false)">number</button>
+        </div>
+        <div class="sb-feedback" id="tq1-fb"></div>
+      </div>
+      <div id="tq2" style="margin-bottom:1.1rem">
+        <strong style="font-size:.95rem">¿Qué tipo es este valor? → <code>"36"</code></strong>
+        <div class="sb-quizrow">
+          <button class="sb-quiz-btn" onclick="chk('tq2',this,true)">string (tiene comillas)</button>
+          <button class="sb-quiz-btn" onclick="chk('tq2',this,false)">number</button>
+          <button class="sb-quiz-btn" onclick="chk('tq2',this,false)">boolean</button>
+        </div>
+        <div class="sb-feedback" id="tq2-fb"></div>
+      </div>
+      <div id="tq3" style="margin-bottom:1.1rem">
+        <strong style="font-size:.95rem">¿Qué tipo es este valor? → <code>null</code></strong>
+        <div class="sb-quizrow">
+          <button class="sb-quiz-btn" onclick="chk('tq3',this,false)">string</button>
+          <button class="sb-quiz-btn" onclick="chk('tq3',this,false)">number</button>
+          <button class="sb-quiz-btn" onclick="chk('tq3',this,true)">null</button>
+        </div>
+        <div class="sb-feedback" id="tq3-fb"></div>
+      </div>
+      <div id="tq4">
+        <strong style="font-size:.95rem">¿Cuál de estas NO es válida en JSON?</strong>
+        <div class="sb-quizrow">
+          <button class="sb-quiz-btn" onclick="chk('tq4',this,false)"><code>"texto"</code></button>
+          <button class="sb-quiz-btn" onclick="chk('tq4',this,false)"><code>42</code></button>
+          <button class="sb-quiz-btn" onclick="chk('tq4',this,true)"><code>undefined</code></button>
+        </div>
+        <div class="sb-feedback" id="tq4-fb"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ OBJETOS ═══ -->
+<section class="module" id="objetos">
+  <div class="module-header">
+    <div class="module-icon">🗂</div>
+    <div>
+      <div class="module-title">Objetos JSON con {}</div>
+      <div class="module-sub">La estructura principal de JSON · 3:00 – 5:00</div>
+    </div>
+  </div>
+
+  <p>Un <strong>objeto JSON</strong> es una colección de pares clave-valor encerrados entre llaves <code>{}</code>. Es la unidad principal de JSON — todo JSON empieza siendo un objeto o un array.</p>
+
+  <div class="code-block"><span class="lang">JSON</span><span class="cc">// Objeto completo de un jugador (ejemplo del video)</span>
+{
+  <span class="ca">"nombre"</span>   : <span class="cs">"Cristiano"</span>,
+  <span class="ca">"apellido"</span>  : <span class="cs">"Ronaldo"</span>,
+  <span class="ca">"edad"</span>      : <span class="cn">36</span>,
+  <span class="ca">"activo"</span>    : <span class="cv">true</span>,
+  <span class="ca">"equipo"</span>    : <span class="cs">"Al Nassr"</span>,
+  <span class="ca">"goles"</span>     : <span class="cn">874</span>
+}</div>
+
+  <div class="analogy">
+    <h4>🪪 Analogía: la credencial de identificación</h4>
+    <p>Un objeto JSON es como una credencial de identificación: tiene campos definidos (nombre, apellido, fecha de nacimiento, número de ID) y cada uno tiene su valor. El objeto agrupa todo lo que describe a <em>una entidad</em> — una persona, un producto, un pedido. Las llaves <code>{}</code> son el marco físico de la credencial: definen dónde empieza y termina la información de esa entidad.</p>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 JSON vs Objeto de JavaScript — las diferencias</h4>
+    <ul>
+      <li>En JS un objeto puede tener claves sin comillas: <code>{nombre: "Juan"}</code>. En JSON las claves <strong>siempre</strong> llevan comillas dobles.</li>
+      <li>En JS puedes poner funciones como valores. En JSON <strong>no</strong> — solo datos.</li>
+      <li>En JS puedes usar <code>undefined</code>. En JSON <strong>no existe</strong>.</li>
+      <li>JSON no admite <strong>comentarios</strong>. JS sí.</li>
+    </ul>
+  </div>
+
+  <!-- SANDBOX construir objeto -->
+  <div class="sandbox">
+    <div class="sandbox-bar">
+      <span>⚡ EJERCICIO INTERACTIVO</span>
+      <span class="sb-title">Construye tu propio objeto JSON</span>
+    </div>
+    <div class="sandbox-body">
+      <p style="font-size:.9rem;margin-bottom:.75rem">Llena los campos y el sandbox construirá el JSON automáticamente:</p>
+      <div class="sb-row">
+        <div><label>Nombre</label><input class="sb-input" id="o-nombre" value="Cristiano" oninput="construirObjeto()"></div>
+        <div><label>Apellido</label><input class="sb-input" id="o-apellido" value="Ronaldo" oninput="construirObjeto()"></div>
+      </div>
+      <div class="sb-row">
+        <div><label>Edad (número)</label><input class="sb-input" id="o-edad" type="number" value="36" oninput="construirObjeto()"></div>
+        <div><label>¿Activo? (true/false)</label>
+          <select class="sb-select" id="o-activo" onchange="construirObjeto()">
+            <option value="true">true</option>
+            <option value="false">false</option>
+          </select>
+        </div>
+      </div>
+      <div class="sb-row">
+        <div><label>Equipo</label><input class="sb-input" id="o-equipo" value="Al Nassr" oninput="construirObjeto()"></div>
+        <div><label>Goles (número)</label><input class="sb-input" id="o-goles" type="number" value="874" oninput="construirObjeto()"></div>
+      </div>
+      <div class="sb-output visible" id="out-objeto"></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ ARRAYS ═══ -->
+<section class="module" id="arrays">
+  <div class="module-header">
+    <div class="module-icon">📋</div>
+    <div>
+      <div class="module-title">Arrays JSON con []</div>
+      <div class="module-sub">Listas ordenadas de valores · 5:00 – 6:30</div>
+    </div>
+  </div>
+
+  <p>Un <strong>array JSON</strong> es una lista ordenada de valores encerrada entre corchetes <code>[]</code>. Puede contener cualquier tipo de dato válido en JSON: strings, números, booleans, objetos, o incluso otros arrays.</p>
+
+  <div class="code-block"><span class="lang">JSON</span><span class="cc">// Array de strings</span>
+[<span class="cs">"JavaScript"</span>, <span class="cs">"Python"</span>, <span class="cs">"Java"</span>, <span class="cs">"Go"</span>]
+
+<span class="cc">// Array de números</span>
+[<span class="cn">10</span>, <span class="cn">20</span>, <span class="cn">30</span>, <span class="cn">40</span>, <span class="cn">50</span>]
+
+<span class="cc">// Array de objetos — el patrón MÁS COMÚN en APIs</span>
+[
+  { <span class="ca">"id"</span>: <span class="cn">1</span>, <span class="ca">"nombre"</span>: <span class="cs">"Cristiano"</span>, <span class="ca">"goles"</span>: <span class="cn">874</span> },
+  { <span class="ca">"id"</span>: <span class="cn">2</span>, <span class="ca">"nombre"</span>: <span class="cs">"Messi"</span>,     <span class="ca">"goles"</span>: <span class="cn">838</span> },
+  { <span class="ca">"id"</span>: <span class="cn">3</span>, <span class="ca">"nombre"</span>: <span class="cs">"Mbappé"</span>,    <span class="ca">"goles"</span>: <span class="cn">302</span> }
+]</div>
+
+  <div class="analogy">
+    <h4>📋 Analogía: la lista del super con compartimentos</h4>
+    <p>Un array JSON es como una lista del supermercado: tiene posiciones ordenadas (0, 1, 2, 3…), puedes tener ítems repetidos, y cada ítem puede ser cualquier cosa. Un array de objetos es como una lista de la compra donde cada ítem trae su ficha completa: "Producto: manzana, Cantidad: 3, Precio: $25, Disponible: true". El orden importa — el primer ítem siempre será el índice 0.</p>
+  </div>
+
+  <div class="concept">
+    <h4>💡 El patrón más común en APIs: array de objetos</h4>
+    <p>Cuando una API te devuelve <em>varios</em> registros (lista de usuarios, lista de productos, lista de pedidos), casi siempre lo hace como un <strong>array de objetos</strong>. Cada objeto en el array representa un registro. Este es el patrón que más vas a ver consumiendo APIs reales.</p>
+  </div>
+
+  <!-- SANDBOX array real de API -->
+  <div class="sandbox">
+    <div class="sandbox-bar">
+      <span>⚡ EJERCICIO INTERACTIVO</span>
+      <span class="sb-title">Recibe y explora un array JSON real de una API</span>
+    </div>
+    <div class="sandbox-body">
+      <p style="font-size:.9rem;margin-bottom:.75rem">Obtén un array de usuarios reales de la API JSONPlaceholder y explora la estructura:</p>
+      <div class="sb-row">
+        <div>
+          <label>¿Cuántos usuarios traer?</label>
+          <select class="sb-select" id="arr-cant">
+            <option value="3">3 usuarios</option>
+            <option value="5">5 usuarios</option>
+            <option value="10">10 usuarios (completo)</option>
+          </select>
+        </div>
+      </div>
+      <button class="sb-btn" onclick="traerArray()">📥 GET /users → Array JSON</button>
+      <div class="sb-output" id="out-array"></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ ANIDADO ═══ -->
+<section class="module" id="anidado">
+  <div class="module-header">
+    <div class="module-icon">🪆</div>
+    <div>
+      <div class="module-title">JSON Anidado — objetos dentro de objetos</div>
+      <div class="module-sub">Representar estructuras jerárquicas · 6:30 – 7:45</div>
+    </div>
+  </div>
+
+  <p>Una de las capacidades más poderosas de JSON es el <strong>anidamiento</strong>: un valor puede ser otro objeto o array completo. Esto permite representar datos con jerarquías complejas de forma natural.</p>
+
+  <div class="code-block"><span class="lang">JSON — objeto anidado completo</span>{
+  <span class="ca">"id"</span>: <span class="cn">1</span>,
+  <span class="ca">"nombre"</span>: <span class="cs">"Cristiano Ronaldo"</span>,
+  <span class="ca">"activo"</span>: <span class="cv">true</span>,
+
+  <span class="cc">// Objeto anidado</span>
+  <span class="ca">"equipo"</span>: {
+    <span class="ca">"nombre"</span>: <span class="cs">"Al Nassr"</span>,
+    <span class="ca">"pais"</span>: <span class="cs">"Arabia Saudita"</span>,
+    <span class="ca">"fundado"</span>: <span class="cn">1955</span>
+  },
+
+  <span class="cc">// Array de strings</span>
+  <span class="ca">"posiciones"</span>: [<span class="cs">"delantero"</span>, <span class="cs">"extremo"</span>],
+
+  <span class="cc">// Array de objetos</span>
+  <span class="ca">"titulos"</span>: [
+    { <span class="ca">"competicion"</span>: <span class="cs">"Champions League"</span>, <span class="ca">"cantidad"</span>: <span class="cn">5</span> },
+    { <span class="ca">"competicion"</span>: <span class="cs">"Balón de Oro"</span>,     <span class="ca">"cantidad"</span>: <span class="cn">5</span> },
+    { <span class="ca">"competicion"</span>: <span class="cs">"Liga española"</span>,    <span class="ca">"cantidad"</span>: <span class="cn">2</span> }
+  ]
+}</div>
+
+  <div class="analogy">
+    <h4>🪆 Analogía: las muñecas matrushka rusas</h4>
+    <p>El JSON anidado es como las famosas muñecas matrushka: una muñeca grande contiene una mediana, que contiene una pequeña, que contiene otra más pequeña. El objeto principal ("jugador") contiene un objeto "equipo", que a su vez podría contener otro objeto "ciudad", que podría contener coordenadas geográficas. Puedes anidar tan profundo como necesites, aunque en APIs reales conviene no pasarse de 3-4 niveles.</p>
+  </div>
+
+  <!-- SANDBOX anidado -->
+  <div class="sandbox">
+    <div class="sandbox-bar">
+      <span>⚡ EJERCICIO INTERACTIVO</span>
+      <span class="sb-title">Explora JSON anidado — accede a propiedades anidadas</span>
+    </div>
+    <div class="sandbox-body">
+      <p style="font-size:.9rem;margin-bottom:.6rem">Obtén un usuario de la API (que tiene objetos anidados) y luego accede a sus propiedades:</p>
+      <button class="sb-btn" onclick="traerAnidado()">📥 GET /users/1</button>
+      <div class="sb-output" id="out-anidado"></div>
+      <div id="anidado-acceso" style="display:none;margin-top:.75rem">
+        <label>Accede a una propiedad (ej: address.city, address.geo.lat, company.name)</label>
+        <div style="display:flex;gap:.5rem;align-items:center">
+          <input class="sb-input" id="anidado-prop" value="address.city" style="margin:0;flex:1">
+          <button class="sb-btn" onclick="accederPropiedad()" style="margin:0;flex-shrink:0">Acceder →</button>
+        </div>
+        <div class="sb-output" id="out-acceso" style="margin-top:.5rem"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ REGLAS ESTRICTAS ═══ -->
+<section class="module" id="reglas">
+  <div class="module-header">
+    <div class="module-icon">📐</div>
+    <div>
+      <div class="module-title">Las reglas estrictas de JSON</div>
+      <div class="module-sub">Los errores más comunes y cómo evitarlos · 7:45 – 9:00</div>
+    </div>
+  </div>
+
+  <p>JSON es mucho más estricto que JavaScript. Un solo carácter incorrecto hace que el JSON completo sea <strong>inválido</strong> y no pueda procesarse. Estas son las reglas que más se violan:</p>
+
+  <table class="tbl">
+    <thead><tr><th>Regla</th><th>❌ Incorrecto</th><th>✅ Correcto</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Claves entre comillas dobles</td>
+        <td><code>{nombre: "Juan"}</code></td>
+        <td><code>{"nombre": "Juan"}</code></td>
+      </tr>
+      <tr>
+        <td>Sin comillas simples</td>
+        <td><code>{'nombre': 'Juan'}</code></td>
+        <td><code>{"nombre": "Juan"}</code></td>
+      </tr>
+      <tr>
+        <td>Sin coma final</td>
+        <td><code>{"a": 1, "b": 2,}</code></td>
+        <td><code>{"a": 1, "b": 2}</code></td>
+      </tr>
+      <tr>
+        <td>Sin comentarios</td>
+        <td><code>{"a": 1 // comentario}</code></td>
+        <td><code>{"a": 1}</code></td>
+      </tr>
+      <tr>
+        <td>Boolean en minúsculas</td>
+        <td><code>{"activo": True}</code></td>
+        <td><code>{"activo": true}</code></td>
+      </tr>
+      <tr>
+        <td>null en minúsculas</td>
+        <td><code>{"tel": Null}</code></td>
+        <td><code>{"tel": null}</code></td>
+      </tr>
+      <tr>
+        <td>Sin undefined</td>
+        <td><code>{"valor": undefined}</code></td>
+        <td><code>{"valor": null}</code></td>
+      </tr>
+      <tr>
+        <td>Sin funciones</td>
+        <td><code>{"fn": function(){}}</code></td>
+        <td>No tiene equivalente — omitir</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="analogy">
+    <h4>🧾 Analogía: el formulario de la DIAN / SAT</h4>
+    <p>Un formulario fiscal es extremadamente estricto: si escribes el CURP en el campo del RFC, si dejas un campo en blanco que era obligatorio, si usas una abreviación no autorizada — el formulario es rechazado. No importa que "casi" esté correcto. JSON es igual: una coma de más, unas comillas simples en lugar de dobles, o un <code>True</code> en lugar de <code>true</code> — y todo el JSON es inválido. Los parsers no adivinan tu intención.</p>
+  </div>
+
+  <!-- SANDBOX caza errores -->
+  <div class="sandbox">
+    <div class="sandbox-bar">
+      <span>🕵️ EJERCICIO INTERACTIVO</span>
+      <span class="sb-title">Caza el error — encuentra y corrige el JSON inválido</span>
+    </div>
+    <div class="sandbox-body">
+      <p style="font-size:.9rem;margin-bottom:.6rem">El siguiente JSON tiene errores. Encuéntralos, corrígelos y valídalo:</p>
+      <label>JSON con errores (hay al menos 3)</label>
+      <textarea class="sb-textarea" id="json-errores" style="min-height:130px">{
+  nombre: "Cristiano",
+  'apellido': 'Ronaldo',
+  "edad": 36,
+  "activo": True,
+  "habilidades": ["dribling", "velocidad",]
+}</textarea>
+      <button class="sb-btn" onclick="cazarError()">🔍 Verificar</button>
+      <button class="sb-btn-sec" onclick="mostrarSolucion()">💡 Ver solución</button>
+      <div class="sb-output" id="out-errores"></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ JSON.stringify ═══ -->
+<section class="module" id="stringify">
+  <div class="module-header">
+    <div class="module-icon">🔄</div>
+    <div>
+      <div class="module-title">JSON.stringify() — de objeto a texto JSON</div>
+      <div class="module-sub">Serializar datos para enviarlos · 9:00 – 10:10</div>
+    </div>
+  </div>
+
+  <p><code>JSON.stringify()</code> convierte un <strong>objeto JavaScript</strong> en una <strong>cadena de texto JSON</strong>. Se usa cuando necesitas enviar datos a un servidor o guardarlos como texto.</p>
+
+  <div class="code-block"><span class="lang">JavaScript</span><span class="cc">// Objeto JavaScript normal</span>
+<span class="ct">const</span> jugador = {
+  nombre: <span class="cs">"Cristiano"</span>,
+  apellido: <span class="cs">"Ronaldo"</span>,
+  edad: <span class="cn">36</span>,
+  activo: <span class="cv">true</span>
+};
+
+<span class="cc">// Convertir a string JSON</span>
+<span class="ct">const</span> jsonString = JSON.<span class="cp">stringify</span>(jugador);
+console.<span class="cp">log</span>(jsonString);
+<span class="cc">// → '{"nombre":"Cristiano","apellido":"Ronaldo","edad":36,"activo":true}'</span>
+
+<span class="cc">// Con formato legible (indentación de 2 espacios)</span>
+<span class="ct">const</span> jsonBonito = JSON.<span class="cp">stringify</span>(jugador, <span class="cv">null</span>, <span class="cn">2</span>);
+console.<span class="cp">log</span>(jsonBonito);
+<span class="cc">// → {
+//      "nombre": "Cristiano",
+//      ...
+//    }</span>
+
+<span class="cc">// ⚠️ Las funciones y undefined se OMITEN</span>
+<span class="ct">const</span> obj = { nombre: <span class="cs">"Ana"</span>, saludar: <span class="cv">function</span>(){}, valor: <span class="cv">undefined</span> };
+JSON.<span class="cp">stringify</span>(obj);
+<span class="cc">// → '{"nombre":"Ana"}'  ← función y undefined desaparecen</span></div>
+
+  <div class="analogy">
+    <h4>📦 Analogía: empacar una caja para enviar por correo</h4>
+    <p><code>JSON.stringify()</code> es como el proceso de empacar objetos en una caja para enviarlos por correo. Tienes tu objeto JavaScript (los artículos: libros, ropa, gadgets) y stringify los "aplana" en una representación de texto que puede viajar por internet (como una lista de contenidos en papel). Cuando lleguen al destino, el receptor los "desempacará" con <code>JSON.parse()</code> para usar los objetos de nuevo.</p>
+  </div>
+
+  <!-- SANDBOX stringify -->
+  <div class="sandbox">
+    <div class="sandbox-bar">
+      <span>⚡ EJERCICIO INTERACTIVO</span>
+      <span class="sb-title">Prueba JSON.stringify() en tiempo real</span>
+    </div>
+    <div class="sandbox-body">
+      <p style="font-size:.9rem;margin-bottom:.6rem">Escribe un objeto JavaScript y convierte a JSON string. Prueba con funciones, undefined y null para ver qué pasa:</p>
+      <label>Objeto JavaScript (escribe como JS normal)</label>
+      <textarea class="sb-textarea" id="js-para-stringify" style="min-height:110px">const obj = {
+  nombre: "Cristiano",
+  edad: 36,
+  activo: true,
+  saludar: function() { return "hola"; },
+  valor: undefined,
+  equipo: { nombre: "Al Nassr" }
+}</textarea>
+      <div style="display:flex;gap:.5rem;align-items:center;margin-bottom:.5rem">
+        <label style="margin:0;flex-shrink:0">Indentación:</label>
+        <select class="sb-select" id="indent-val" style="margin:0">
+          <option value="0">Sin formato (compacto)</option>
+          <option value="2" selected>2 espacios (legible)</option>
+          <option value="4">4 espacios</option>
+        </select>
+      </div>
+      <button class="sb-btn" onclick="ejecutarStringify()">🔄 JSON.stringify() →</button>
+      <div class="sb-output" id="out-stringify"></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ JSON.parse ═══ -->
+<section class="module" id="parse">
+  <div class="module-header">
+    <div class="module-icon">🔍</div>
+    <div>
+      <div class="module-title">JSON.parse() — de texto JSON a objeto</div>
+      <div class="module-sub">Deserializar datos recibidos · 10:10 – 11:10</div>
+    </div>
+  </div>
+
+  <p><code>JSON.parse()</code> hace lo contrario a stringify: convierte una <strong>cadena de texto JSON</strong> en un <strong>objeto JavaScript</strong> con el que puedes trabajar. Se usa cuando recibes datos de un servidor o lees un archivo .json.</p>
+
+  <div class="code-block"><span class="lang">JavaScript</span><span class="cc">// Supón que recibiste este string desde una API</span>
+<span class="ct">const</span> respuestaAPI = <span class="cs">'{"nombre":"Cristiano","apellido":"Ronaldo","edad":36,"activo":true}'</span>;
+
+<span class="cc">// Convertir el string JSON a objeto JavaScript</span>
+<span class="ct">const</span> jugador = JSON.<span class="cp">parse</span>(respuestaAPI);
+
+<span class="cc">// Ahora puedes acceder a sus propiedades normalmente</span>
+console.<span class="cp">log</span>(jugador.nombre);      <span class="cc">// → "Cristiano"</span>
+console.<span class="cp">log</span>(jugador.edad);         <span class="cc">// → 36</span>
+console.<span class="cp">log</span>(jugador.activo);       <span class="cc">// → true</span>
+
+<span class="cc">// Parsear un array JSON</span>
+<span class="ct">const</span> listaJSON = <span class="cs">'[{"id":1,"nombre":"Messi"},{"id":2,"nombre":"CR7"}]'</span>;
+<span class="ct">const</span> lista = JSON.<span class="cp">parse</span>(listaJSON);
+console.<span class="cp">log</span>(lista[<span class="cn">0</span>].nombre);      <span class="cc">// → "Messi"</span>
+console.<span class="cp">log</span>(lista.<span class="cp">length</span>);         <span class="cc">// → 2</span>
+
+<span class="cc">// ⚠️ Si el string no es JSON válido, lanza SyntaxError</span>
+JSON.<span class="cp">parse</span>(<span class="cs">"esto no es json"</span>);  <span class="ce">// SyntaxError!</span></div>
+
+  <div class="analogy">
+    <h4>📬 Analogía: abrir y desempacar la caja del correo</h4>
+    <p><code>JSON.parse()</code> es el proceso inverso al stringify: es como recibir la caja del correo y abrirla. El texto JSON (la caja sellada con la lista de contenidos) se "desempaca" y se convierte en los objetos reales con los que puedes interactuar: acceder a propiedades, modificarlas, recorrerlas. Sin parse, el texto JSON es solo un string — un papel con nombres escritos. Con parse, se convierte en los objetos reales.</p>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 El ciclo completo: stringify ↔ parse</h4>
+    <ul>
+      <li><strong>Enviar datos al servidor</strong> → <code>JSON.stringify(objeto)</code> → viaja como texto</li>
+      <li><strong>Recibir datos del servidor</strong> → <code>JSON.parse(texto)</code> → usas como objeto</li>
+      <li><strong>En el medio</strong> → el texto JSON viaja por HTTP, se guarda en archivos .json, se almacena en bases de datos NoSQL</li>
+    </ul>
+  </div>
+
+  <!-- SANDBOX parse interactivo -->
+  <div class="sandbox">
+    <div class="sandbox-bar">
+      <span>⚡ EJERCICIO INTERACTIVO</span>
+      <span class="sb-title">Prueba JSON.parse() — convierte y accede a propiedades</span>
+    </div>
+    <div class="sandbox-body">
+      <p style="font-size:.9rem;margin-bottom:.6rem">Escribe un JSON string válido, parsealo y accede a sus propiedades:</p>
+      <label>JSON String (texto que "llegó del servidor")</label>
+      <textarea class="sb-textarea" id="json-para-parse" style="min-height:80px">{"nombre":"Cristiano","apellido":"Ronaldo","edad":36,"activo":true,"equipo":{"nombre":"Al Nassr","pais":"Arabia Saudita"}}</textarea>
+      <button class="sb-btn" onclick="ejecutarParse()">🔍 JSON.parse() →</button>
+      <div class="sb-output" id="out-parse"></div>
+      <div id="parse-acceso" style="display:none;margin-top:.75rem">
+        <label>Accede a una propiedad del objeto parseado (ej: nombre, equipo.pais)</label>
+        <div style="display:flex;gap:.5rem;align-items:center">
+          <input class="sb-input" id="parse-prop" value="nombre" style="margin:0;flex:1">
+          <button class="sb-btn" onclick="accederParsed()" style="margin:0;flex-shrink:0">→ Acceder</button>
+        </div>
+        <div class="sb-output" id="out-parse-prop" style="margin-top:.5rem"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ USOS REALES ═══ -->
+<section class="module" id="usos">
+  <div class="module-header">
+    <div class="module-icon">🌐</div>
+    <div>
+      <div class="module-title">¿Dónde se usa JSON en el mundo real?</div>
+      <div class="module-sub">JSON en APIs, configuraciones y bases de datos · 11:10 – 11:58</div>
+    </div>
+  </div>
+
+  <p>JSON no es solo teoría. Está en absolutamente todo el desarrollo moderno. Aquí los casos más importantes que menciona el video:</p>
+
+  <table class="tbl">
+    <thead><tr><th>Uso</th><th>Descripción</th><th>Ejemplo</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>🌐 <strong>APIs REST</strong></td>
+        <td>Las respuestas de todas las APIs modernas vienen en JSON. Es el estándar.</td>
+        <td>Instagram, Twitter, Google Maps, Spotify</td>
+      </tr>
+      <tr>
+        <td>⚙️ <strong>Archivos de configuración</strong></td>
+        <td>Muchas herramientas usan JSON para configuración de proyectos.</td>
+        <td><code>package.json</code>, <code>tsconfig.json</code>, <code>.eslintrc.json</code></td>
+      </tr>
+      <tr>
+        <td>💾 <strong>Bases de datos NoSQL</strong></td>
+        <td>MongoDB, CouchDB, Firebase almacenan los datos en formato JSON/BSON.</td>
+        <td>Cada "documento" es un objeto JSON</td>
+      </tr>
+      <tr>
+        <td>📱 <strong>Apps móviles</strong></td>
+        <td>Apps iOS y Android consumen APIs que devuelven JSON.</td>
+        <td>Toda app que tenga backend usa JSON</td>
+      </tr>
+      <tr>
+        <td>🔄 <strong>Comunicación entre microservicios</strong></td>
+        <td>Los microservicios se comunican entre sí usando JSON sobre HTTP.</td>
+        <td>Netflix, Uber, Airbnb usan esta arquitectura</td>
+      </tr>
+      <tr>
+        <td>💻 <strong>localStorage del navegador</strong></td>
+        <td>Para guardar objetos en el navegador se usa JSON.stringify y JSON.parse.</td>
+        <td>Guardar preferencias, carrito de compras</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="analogy">
+    <h4>🗣 Analogía: el inglés como idioma universal de negocios</h4>
+    <p>En el mundo de los negocios internacionales, el inglés es el idioma neutral que usan dos partes que hablan lenguas distintas: un coreano y un brasileño negocian en inglés porque los dos lo entienden. JSON es exactamente eso en el mundo del software: un servidor en Python y una app en Swift no "hablan el mismo idioma", pero los dos entienden JSON. Es el inglés del intercambio de datos.</p>
+  </div>
+
+  <!-- SANDBOX con API real -->
+  <div class="sandbox">
+    <div class="sandbox-bar">
+      <span>⚡ EJERCICIO INTERACTIVO</span>
+      <span class="sb-title">JSON en una API real — obtén y explora la respuesta</span>
+    </div>
+    <div class="sandbox-body">
+      <p style="font-size:.9rem;margin-bottom:.75rem">Consume una API pública real y observa el JSON que devuelve:</p>
+      <div class="sb-row">
+        <div>
+          <label>API pública</label>
+          <select class="sb-select" id="api-real">
+            <option value="https://jsonplaceholder.typicode.com/users/1">JSONPlaceholder — usuario (objeto anidado)</option>
+            <option value="https://jsonplaceholder.typicode.com/posts?_limit=3">JSONPlaceholder — posts (array)</option>
+            <option value="https://jsonplaceholder.typicode.com/todos?_limit=5">JSONPlaceholder — todos (array)</option>
+          </select>
+        </div>
+      </div>
+      <button class="sb-btn" onclick="consultarAPIReal()">🌐 Consumir API → JSON</button>
+      <div class="sb-output" id="out-api-real"></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ RESUMEN ═══ -->
+<section class="module" id="resumen">
+  <div class="module-header">
+    <div class="module-icon">✅</div>
+    <div>
+      <div class="module-title">Resumen — Todo lo que explica el video de TodoCode</div>
+      <div class="module-sub">JSON de la A a la Z en una sola vista</div>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Los 6 conceptos clave del video</h4>
+    <ul>
+      <li><strong>JSON</strong> = JavaScript Object Notation. Formato de texto para intercambiar datos entre sistemas.</li>
+      <li>Se basa en <strong>pares clave-valor</strong>. La clave siempre entre comillas dobles, el valor puede ser 1 de 6 tipos.</li>
+      <li><strong>Objeto</strong> <code>{}</code> = colección de pares clave-valor. <strong>Array</strong> <code>[]</code> = lista ordenada de valores.</li>
+      <li>Permite <strong>anidamiento</strong>: objetos dentro de objetos, arrays dentro de objetos, etc.</li>
+      <li><code>JSON.stringify()</code> → objeto JS a string. <code>JSON.parse()</code> → string a objeto JS.</li>
+      <li>Es el <strong>estándar universal</strong> de APIs REST, configuraciones, bases de datos NoSQL y más.</li>
+    </ul>
+  </div>
+
+  <h2>Tabla de los 6 tipos de datos</h2>
+  <table class="tbl">
+    <thead><tr><th>Tipo</th><th>Ejemplo en JSON</th><th>Notas</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag" style="background:#E6F4FF;color:#0550AE">string</span></td><td><code>"Cristiano"</code></td><td>Siempre comillas dobles</td></tr>
+      <tr><td><span class="tag" style="background:#E6F9F0;color:#0A6B3E">number</span></td><td><code>36</code> / <code>3.14</code></td><td>Sin comillas. Enteros y decimales.</td></tr>
+      <tr><td><span class="tag" style="background:#F3E8FF;color:#6B21A8">boolean</span></td><td><code>true</code> / <code>false</code></td><td>Minúsculas, sin comillas</td></tr>
+      <tr><td><span class="tag tag-gray">null</span></td><td><code>null</code></td><td>Minúsculas, sin comillas</td></tr>
+      <tr><td><span class="tag" style="background:#FFF3E0;color:#8B4500">object</span></td><td><code>{"clave": "valor"}</code></td><td>Objeto anidado entre <code>{}</code></td></tr>
+      <tr><td><span class="tag" style="background:#FAECE7;color:#993C1D">array</span></td><td><code>[1, "dos", true]</code></td><td>Lista entre <code>[]</code></td></tr>
+    </tbody>
+  </table>
+
+  <!-- EJERCICIO INTEGRADOR -->
+  <div class="sandbox">
+    <div class="sandbox-bar">
+      <span>🏆 EJERCICIO INTEGRADOR FINAL</span>
+      <span class="sb-title">Crea, valida, stringify y parsea — ciclo completo</span>
+    </div>
+    <div class="sandbox-body">
+      <p style="font-size:.9rem;margin-bottom:.75rem">Crea un JSON de una persona con nombre, edad, activo (boolean), habilidades (array) y dirección (objeto anidado). Luego pasa por el ciclo completo:</p>
+      <label>Tu JSON completo</label>
+      <textarea class="sb-textarea" id="json-final" style="min-height:150px">{
+  "nombre": "Luisina",
+  "edad": 28,
+  "activo": true,
+  "habilidades": ["JavaScript", "Python", "SQL"],
+  "direccion": {
+    "ciudad": "Buenos Aires",
+    "pais": "Argentina"
+  }
+}</textarea>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+        <button class="sb-btn" onclick="finalValidar()">✅ 1. Validar JSON</button>
+        <button class="sb-btn-sec" onclick="finalStringify()">🔄 2. stringify</button>
+        <button class="sb-btn" style="background:var(--accent)" onclick="finalParse()">🔍 3. parse + acceder</button>
+      </div>
+      <div class="sb-output" id="out-final"></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Guía basada en el video de TodoCode: "¿Qué es JSON? JavaScript Object Notation" · Ing. Luisina de Paula ·
+  <a href="https://www.youtube.com/watch?v=RhxOTqFbI5Q&list=PLoNE_hb5QJQUmTUBp1A8ynDCM295Qam7G&index=2" target="_blank" rel="noopener" style="color:var(--primary)">Ver video original →</a>
+</footer>
+
+<script>
+/* ───── QUIZ ───── */
+function chk(id, btn, correct) {
+  const c = document.getElementById(id);
+  c.querySelectorAll('.sb-quiz-btn').forEach(b => b.disabled = true);
+  const fb = document.getElementById(id+'-fb');
+  if (correct) {
+    btn.classList.add('correct');
+    fb.innerHTML = '<span style="color:#0A6B3E;font-weight:600">✅ ¡Correcto!</span>';
+  } else {
+    btn.classList.add('wrong');
+    fb.innerHTML = '<span style="color:#9B1C1C;font-weight:600">❌ Incorrecto — busca la opción verde</span>';
+    c.querySelectorAll('.sb-quiz-btn').forEach(b => {
+      if(b.onclick && b.onclick.toString().includes(',this,true)')) b.classList.add('correct');
+    });
+  }
+}
+
+function out(id, txt, ok) {
+  const el = document.getElementById(id);
+  el.className = 'sb-output visible';
+  el.style.borderLeft = ok === undefined ? '' : ok ? '3px solid #A6E3A1' : '3px solid #F38BA8';
+  el.textContent = txt;
+}
+
+/* ───── VALIDAR JSON ───── */
+function validarJSON() {
+  const txt = document.getElementById('json-validar').value.trim();
+  try { JSON.parse(txt); out('out-validar','✅ JSON válido!\n\n' + JSON.stringify(JSON.parse(txt),null,2),true); }
+  catch(e) { out('out-validar','❌ JSON inválido:\n' + e.message,false); }
+}
+function formatearJSON() {
+  const txt = document.getElementById('json-validar').value.trim();
+  try {
+    document.getElementById('json-validar').value = JSON.stringify(JSON.parse(txt),null,2);
+    out('out-validar','✅ Formateado correctamente',true);
+  } catch(e) { out('out-validar','❌ No se puede formatear: ' + e.message,false); }
+}
+
+/* ───── CONSTRUIR OBJETO ───── */
+function construirObjeto() {
+  const obj = {
+    nombre: document.getElementById('o-nombre').value,
+    apellido: document.getElementById('o-apellido').value,
+    edad: parseInt(document.getElementById('o-edad').value)||0,
+    activo: document.getElementById('o-activo').value === 'true',
+    equipo: document.getElementById('o-equipo').value,
+    goles: parseInt(document.getElementById('o-goles').value)||0
+  };
+  document.getElementById('out-objeto').className = 'sb-output visible';
+  document.getElementById('out-objeto').textContent = JSON.stringify(obj,null,2);
+}
+construirObjeto();
+
+/* ───── ARRAY API ───── */
+async function traerArray() {
+  const cant = document.getElementById('arr-cant').value;
+  out('out-array','⏳ Cargando array de usuarios...', undefined);
+  try {
+    const r = await fetch('https://jsonplaceholder.typicode.com/users');
+    const data = await r.json();
+    const slice = data.slice(0, parseInt(cant));
+    out('out-array', `✅ Array de ${slice.length} usuarios recibido:\n\n` + JSON.stringify(slice,null,2), true);
+  } catch(e) { out('out-array','❌ Error: '+e.message,false); }
+}
+
+/* ───── ANIDADO ───── */
+let datosAnidados = null;
+async function traerAnidado() {
+  out('out-anidado','⏳ Cargando...', undefined);
+  try {
+    const r = await fetch('https://jsonplaceholder.typicode.com/users/1');
+    datosAnidados = await r.json();
+    out('out-anidado','✅ Objeto JSON con propiedades anidadas:\n\n'+JSON.stringify(datosAnidados,null,2),true);
+    document.getElementById('anidado-acceso').style.display = 'block';
+  } catch(e) { out('out-anidado','❌ '+e.message,false); }
+}
+function accederPropiedad() {
+  if(!datosAnidados) return;
+  const prop = document.getElementById('anidado-prop').value.trim();
+  try {
+    const keys = prop.split('.');
+    let val = datosAnidados;
+    for(const k of keys) { val = val[k]; }
+    const el = document.getElementById('out-acceso');
+    el.className = 'sb-output visible';
+    if(val === undefined) { el.textContent = `⚠️ La propiedad "${prop}" no existe en este objeto`; }
+    else { el.textContent = `✅ objeto["${prop}"] = ${JSON.stringify(val, null, 2)}\n\nTipo: ${Array.isArray(val)?'array':typeof val}`; }
+  } catch(e) { out('out-acceso','❌ Error al acceder: '+e.message,false); }
+}
+
+/* ───── CAZA ERRORES ───── */
+function cazarError() {
+  const txt = document.getElementById('json-errores').value.trim();
+  try { JSON.parse(txt); out('out-errores','✅ JSON válido — ¡lo corregiste correctamente!',true); }
+  catch(e) { out('out-errores','❌ Aún hay errores:\n'+e.message+'\n\nPistas: revisa las comillas de las claves, los booleanos y la coma final en el array',false); }
+}
+function mostrarSolucion() {
+  document.getElementById('json-errores').value = `{
+  "nombre": "Cristiano",
+  "apellido": "Ronaldo",
+  "edad": 36,
+  "activo": true,
+  "habilidades": ["dribling", "velocidad"]
+}`;
+  out('out-errores','💡 Errores corregidos:\n1. nombre → "nombre" (clave sin comillas)\n2. \'apellido\': \'Ronaldo\' → "apellido":"Ronaldo" (comillas simples)\n3. True → true (mayúscula inválida)\n4. "velocidad", ] → "velocidad"] (coma final en array)',true);
+}
+
+/* ───── STRINGIFY ───── */
+function ejecutarStringify() {
+  const codigo = document.getElementById('js-para-stringify').value;
+  const indent = parseInt(document.getElementById('indent-val').value);
+  try {
+    let obj;
+    const match = codigo.match(/(?:const|let|var)\s+\w+\s*=\s*([\s\S]+)/);
+    if(match) { obj = eval('('+match[1]+')'); }
+    else { obj = eval('('+codigo+')'); }
+    const resultado = JSON.stringify(obj, null, indent||undefined);
+    out('out-stringify', '✅ JSON.stringify() resultado:\n\n' + resultado + '\n\n(Tipo: ' + typeof resultado + ', Longitud: ' + resultado.length + ' chars)', true);
+  } catch(e) { out('out-stringify','❌ Error: '+e.message+'\n\nRevisa que el objeto JS sea válido',false); }
+}
+
+/* ───── PARSE ───── */
+let objParseado = null;
+function ejecutarParse() {
+  const txt = document.getElementById('json-para-parse').value.trim();
+  try {
+    objParseado = JSON.parse(txt);
+    const tipo = Array.isArray(objParseado) ? 'array' : typeof objParseado;
+    out('out-parse','✅ JSON.parse() exitoso!\n\nObjeto JavaScript resultante:\n'+JSON.stringify(objParseado,null,2)+'\n\nTipo: '+tipo,true);
+    document.getElementById('parse-acceso').style.display = 'block';
+  } catch(e) { out('out-parse','❌ SyntaxError — JSON inválido:\n'+e.message,false); }
+}
+function accederParsed() {
+  if(!objParseado) return;
+  const prop = document.getElementById('parse-prop').value.trim();
+  try {
+    const keys = prop.split('.');
+    let val = objParseado;
+    for(const k of keys) val = val[k];
+    const el = document.getElementById('out-parse-prop');
+    el.className = 'sb-output visible';
+    if(val === undefined) el.textContent = `⚠️ "${prop}" no existe`;
+    else el.textContent = `objeto["${prop}"] = ${JSON.stringify(val)}\nTipo: ${Array.isArray(val)?'array':typeof val}`;
+  } catch(e) { out('out-parse-prop','❌ '+e.message,false); }
+}
+
+/* ───── API REAL ───── */
+async function consultarAPIReal() {
+  const url = document.getElementById('api-real').value;
+  out('out-api-real','⏳ Consultando API real...', undefined);
+  try {
+    const r = await fetch(url);
+    const data = await r.json();
+    const tipo = Array.isArray(data) ? `array de ${data.length} objetos` : 'objeto';
+    out('out-api-real',`✅ Respuesta recibida (${tipo}) — Status ${r.status}\n\n`+JSON.stringify(data,null,2),true);
+  } catch(e) { out('out-api-real','❌ '+e.message,false); }
+}
+
+/* ───── FINAL ───── */
+function finalValidar() {
+  const txt = document.getElementById('json-final').value.trim();
+  try { JSON.parse(txt); out('out-final','✅ Paso 1 — JSON válido!\n\n'+JSON.stringify(JSON.parse(txt),null,2),true); }
+  catch(e) { out('out-final','❌ JSON inválido: '+e.message,false); }
+}
+function finalStringify() {
+  const txt = document.getElementById('json-final').value.trim();
+  try {
+    const obj = JSON.parse(txt);
+    const str = JSON.stringify(obj);
+    out('out-final','🔄 Paso 2 — JSON.stringify() (como viaja por la red):\n\n'+str+'\n\n← Texto plano de '+ str.length +' caracteres. Así viaja en el body de un HTTP request.',true);
+  } catch(e) { out('out-final','❌ '+e.message,false); }
+}
+function finalParse() {
+  const txt = document.getElementById('json-final').value.trim();
+  try {
+    const obj = JSON.parse(txt);
+    const str = JSON.stringify(obj);
+    const parseado = JSON.parse(str);
+    let res = '🔍 Paso 3 — JSON.parse() + acceder propiedades:\n\n';
+    res += 'Objeto JavaScript listo para usar:\n';
+    const flat = (o, prefix='') => {
+      for(const k in o){
+        const v = o[k];
+        const key = prefix ? prefix+'.'+k : k;
+        if(v && typeof v === 'object' && !Array.isArray(v)) flat(v, key);
+        else res += `  objeto["${key}"] = ${JSON.stringify(v)}\n`;
+      }
+    };
+    flat(parseado);
+    out('out-final', res, true);
+  } catch(e) { out('out-final','❌ '+e.message,false); }
+}
+</script>
+</body>
+</html>

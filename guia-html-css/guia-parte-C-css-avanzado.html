@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía HTML & CSS — Parte C: CSS Avanzado</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #c44a2a;
+    --primary-light:  #fdf0ec;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --danger:         #c44a2a;
+    --danger-light:   #fdf0ec;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1a1814;
+    --code-text:      #e8e4de;
+  }
+
+  body { font-family: 'DM Sans', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  header { background: #1a1814; color: #f7f4ef; padding: 3rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: '</>'; position: absolute; font-size: 14rem; font-weight: 900; color: rgba(255,255,255,0.05); right: -2rem; top: -3rem; font-family: monospace; line-height: 1; }
+  header h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; }
+  header p { font-size: 1.1rem; opacity: .85; margin-top: .5rem; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  .partes-nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 45px; z-index: 110; display: flex; align-items: center; gap: 0; height: 38px; padding: 0 1rem; }
+  .partes-nav-prev, .partes-nav-next { flex-shrink: 0; display: flex; align-items: center; gap: .3rem; padding: 0 .75rem; height: 100%; text-decoration: none; color: var(--muted); font-size: .78rem; font-weight: 500; border-right: 1px solid var(--border); transition: color .15s; white-space: nowrap; }
+  .partes-nav-next { border-right: none; border-left: 1px solid var(--border); }
+  .partes-nav-prev:hover, .partes-nav-next:hover { color: var(--primary); }
+  .partes-nav-list { flex: 1; display: flex; align-items: center; justify-content: center; gap: .15rem; overflow-x: auto; padding: 0 .5rem; }
+  .partes-nav-list::-webkit-scrollbar { display: none; }
+  .partes-nav-list a { flex-shrink: 0; padding: 2px 9px; border-radius: 20px; text-decoration: none; font-size: .73rem; font-weight: 600; color: var(--muted); transition: color .15s, background .15s; }
+  .partes-nav-list a:hover { color: var(--text); background: var(--bg); }
+  .partes-nav-list a.activa { background: var(--primary-light); color: var(--primary); }
+
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 83px; z-index: 100; display: flex; overflow-x: auto; gap: 0; }
+  nav a { flex-shrink: 0; padding: .75rem 1.1rem; text-decoration: none; color: var(--muted); font-size: .82rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2.5rem; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-size: 1.35rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  .analogy { background: #FFF7ED; border: 1px solid #FDE68A; border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: #92400E; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; color: #78350F; }
+
+  .concept { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p { font-size: .95rem; }
+  .tip ul { font-size: .95rem; padding-left: 1.2rem; }
+
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  .anatomy { background: #F0F4FF; border: 1px solid #C7D2FE; border-radius: 12px; padding: 1.5rem; font-family: monospace; font-size: 1.05rem; line-height: 2.6; margin: 1.25rem 0; }
+  .anatomy .br  { color: var(--primary); font-weight: 700; }
+  .anatomy .at  { color: #0891B2; }
+  .anatomy .vl  { color: #059669; }
+  .anatomy .lb  { display: inline-block; background: var(--primary);   color: #fff; font-size: .68rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 6px; }
+  .anatomy .lb2 { display: inline-block; background: var(--accent);    color: #fff; font-size: .68rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 6px; }
+  .anatomy .lb3 { display: inline-block; background: var(--secondary); color: #fff; font-size: .68rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 6px; }
+
+  .code-block { background: var(--code-bg); color: var(--code-text); border-radius: 10px; padding: 1.25rem 1.5rem; font-family: 'Courier New', monospace; font-size: .88rem; line-height: 1.85; overflow-x: auto; margin: 1rem 0; position: relative; white-space: pre; }
+  .code-block .ct { color: #89B4FA; }
+  .code-block .ca { color: #CBA6F7; }
+  .code-block .cv { color: #A6E3A1; }
+  .code-block .cs { color: #F9E2AF; }
+  .code-block .cp { color: #89DCEB; }
+  .code-block .cc { color: #585B70; font-style: italic; }
+  .code-block .cn { color: #FAB387; }
+  .lang { position: absolute; top: .6rem; right: .75rem; background: rgba(255,255,255,.1); color: rgba(255,255,255,.5); font-size: .68rem; padding: 2px 8px; border-radius: 4px; font-family: sans-serif; }
+
+  .preview { border: 2px dashed var(--border); border-radius: 10px; padding: 1.5rem; margin: 1rem 0; background: var(--surface); position: relative; }
+  .preview::before { content: '🖥 Vista en navegador'; position: absolute; top: -11px; left: 14px; background: var(--surface); font-size: .73rem; color: var(--muted); padding: 0 6px; font-family: sans-serif; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  .ex { background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 12px; padding: 1.5rem; margin: 1.5rem 0; }
+  .ex-hd { display: flex; align-items: center; gap: .75rem; margin-bottom: 1rem; font-weight: 700; font-size: 1rem; color: #78350F; flex-wrap: wrap; }
+  .ex-badge { background: var(--accent); color: #fff; font-size: .68rem; padding: 2px 9px; border-radius: 20px; font-weight: 700; text-transform: uppercase; }
+  .ex ol { padding-left: 1.4rem; }
+  .ex ol li { margin-bottom: .6rem; font-size: .95rem; }
+  .ex p { font-size: .95rem; margin-bottom: .6rem; }
+
+  h2 { font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; }
+  h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 .5rem; }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: #f0ece6; color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  strong { font-weight: 700; }
+
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: white; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  /* ── GRIDS DE SELECTORES ── */
+  .sel-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .sel-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem; }
+  .sel-card .sc-sel { font-family: 'DM Mono', monospace; font-size: .92rem; font-weight: 700; color: var(--primary); background: var(--primary-light); padding: 3px 10px; border-radius: 6px; display: inline-block; margin-bottom: .45rem; }
+  .sel-card .sc-name { font-weight: 700; font-size: .88rem; margin-bottom: .25rem; }
+  .sel-card .sc-desc { font-size: .86rem; color: var(--muted); margin-bottom: .4rem; }
+  .sel-card .sc-ex { font-size: .78rem; font-family: monospace; background: var(--code-bg); color: var(--code-text); border-radius: 6px; padding: .45rem .75rem; white-space: pre; overflow-x: auto; }
+
+  /* ── PSEUDO GRID ── */
+  .pseudo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .pseudo-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem; }
+  .pseudo-card .pc-name { font-family: 'DM Mono', monospace; font-size: .88rem; font-weight: 700; color: var(--secondary); background: var(--secondary-light); padding: 2px 9px; border-radius: 6px; display: inline-block; margin-bottom: .4rem; }
+  .pseudo-card .pc-desc { font-size: .87rem; margin-bottom: .4rem; }
+  .pseudo-card .pc-ex { font-size: .78rem; font-family: monospace; background: var(--code-bg); color: var(--code-text); border-radius: 6px; padding: .45rem .75rem; white-space: pre; overflow-x: auto; }
+
+  /* ── BEM DEMO ── */
+  .bem-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+  @media (max-width: 600px) { .bem-row { grid-template-columns: 1fr; } }
+  .bem-box { border-radius: 12px; padding: 1.1rem; border: 1px solid var(--border); }
+  .bem-box.bad  { background: #FFF0F0; border-left: 4px solid #EF4444; }
+  .bem-box.good { background: var(--secondary-light); border-left: 4px solid var(--secondary); }
+  .bem-box .bb-label { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .5rem; }
+  .bem-box.bad  .bb-label { color: #EF4444; }
+  .bem-box.good .bb-label { color: var(--secondary); }
+
+  /* ── DEMOS INTERACTIVOS ── */
+  /* Pseudoclases hover/focus */
+  .demo-btn {
+    display: inline-block; padding: .6rem 1.4rem; background: var(--primary); color: white;
+    border: none; border-radius: 8px; font-family: inherit; font-size: .95rem;
+    cursor: pointer; transition: background .2s, transform .15s;
+    margin: .3rem;
+  }
+  .demo-btn:hover { background: #9c3920; transform: translateY(-2px); }
+  .demo-btn:active { transform: translateY(0); }
+
+  .demo-input {
+    padding: .55rem .9rem; border: 2px solid var(--border); border-radius: 8px;
+    font-family: inherit; font-size: .95rem; outline: none; transition: border-color .2s, box-shadow .2s;
+    display: block; width: 100%; max-width: 320px; margin: .4rem 0;
+  }
+  .demo-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(196,74,42,.15); }
+  .demo-input:valid:not(:placeholder-shown) { border-color: var(--secondary); }
+  .demo-input:invalid:not(:placeholder-shown) { border-color: var(--danger); }
+
+  /* nth-child demo */
+  .demo-lista { list-style: none; padding: 0; }
+  .demo-lista li { padding: .5rem 1rem; border-bottom: 1px solid var(--border); font-size: .92rem; }
+  .demo-lista li:first-child  { background: #FEF9C3; font-weight: 700; }
+  .demo-lista li:last-child   { background: #DCFCE7; font-weight: 700; }
+  .demo-lista li:nth-child(even) { background: var(--bg); }
+  .demo-lista li:hover { background: var(--primary-light); cursor: default; }
+
+  /* ::before / ::after demo */
+  .demo-before-box { position: relative; display: inline-block; }
+  .demo-before-box .cita {
+    font-size: 1.05rem; font-style: italic; padding: 1rem 1.5rem;
+    background: var(--bg); border-radius: 10px; color: var(--text);
+    position: relative;
+  }
+  .demo-before-box .cita::before {
+    content: '\201C'; font-size: 3rem; color: var(--primary);
+    position: absolute; top: -.5rem; left: .4rem;
+    font-family: Georgia, serif; line-height: 1;
+  }
+  .demo-before-box .cita::after {
+    content: '\201D'; font-size: 3rem; color: var(--primary);
+    position: absolute; bottom: -1.4rem; right: .4rem;
+    font-family: Georgia, serif; line-height: 1;
+  }
+
+  /* ::selection demo */
+  .demo-seleccion::selection { background: var(--primary); color: white; }
+
+  /* Tooltip con ::before */
+  .demo-tooltip { position: relative; display: inline-block; }
+  .demo-tooltip .tt {
+    position: relative; display: inline-block;
+    border-bottom: 2px dashed var(--primary); cursor: help;
+    padding-bottom: 1px;
+  }
+  .demo-tooltip .tt::before {
+    content: attr(data-tip);
+    position: absolute; bottom: calc(100% + 8px); left: 50%;
+    transform: translateX(-50%);
+    background: #1a1814; color: white; font-size: .78rem; font-style: normal;
+    padding: 5px 10px; border-radius: 6px; white-space: nowrap;
+    opacity: 0; pointer-events: none; transition: opacity .2s;
+  }
+  .demo-tooltip .tt::after {
+    content: ''; position: absolute; bottom: calc(100% + 2px); left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent; border-top-color: #1a1814;
+    opacity: 0; pointer-events: none; transition: opacity .2s;
+  }
+  .demo-tooltip .tt:hover::before,
+  .demo-tooltip .tt:hover::after { opacity: 1; }
+
+  /* Contador ::before */
+  .demo-counter { counter-reset: pasos; list-style: none; padding: 0; }
+  .demo-counter li { counter-increment: pasos; padding: .55rem .75rem .55rem 3rem; position: relative; border-bottom: 1px solid var(--border); font-size: .92rem; }
+  .demo-counter li::before {
+    content: counter(pasos);
+    position: absolute; left: .6rem; top: 50%; transform: translateY(-50%);
+    background: var(--primary); color: white; width: 22px; height: 22px;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: .72rem; font-weight: 700;
+  }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); }
+</style>
+</head>
+<body>
+
+<!-- BARRA SUPERIOR -->
+<div style="background:#ffffff;border-bottom:1px solid #e8e4de;padding:0 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:200;height:45px;">
+  <a href="../index.html" style="display:inline-flex;align-items:center;gap:6px;font-family:'DM Sans',sans-serif;font-size:13px;color:#8a8480;text-decoration:none;padding:6px 14px;border:1px solid #e8e4de;border-radius:999px;transition:all 0.15s;" onmouseover="this.style.color='#1a1814';this.style.borderColor='#8a8480'" onmouseout="this.style.color='#8a8480';this.style.borderColor='#e8e4de'">← Volver a Café &lt;/&gt;</a>
+  <span style="font-family:'DM Sans',sans-serif;font-size:13px;color:#8a8480;">☕ Guía HTML &amp; CSS · Parte C</span>
+</div>
+
+<header>
+  <h1>HTML &amp; CSS — Parte C</h1>
+  <p>Selectores avanzados, Pseudoclases, Pseudoelementos y metodología BEM</p>
+  <span class="badge">✦ Curso de Soy Dalto · 8:19:00 – 9:49:00 ✦</span>
+</header>
+
+<div class="partes-nav">
+  <a class="partes-nav-prev" href="guia-parte-B-html-avanzado.html">← B</a>
+  <div class="partes-nav-list">
+    <a href="guia-html-css.html">Base</a>
+    <a href="guia-parte-A-html-avanzado.html">A</a>
+    <a href="guia-parte-B-html-avanzado.html">B</a>
+    <a href="guia-parte-C-css-avanzado.html" class="activa">C</a>
+    <a href="#">D</a>
+    <a href="#">E</a>
+    <a href="#">F</a>
+    <a href="#">G</a>
+    <a href="#">H</a>
+    <a href="#">I</a>
+    <a href="#">J</a>
+  </div>
+  <a class="partes-nav-next" href="#">D →</a>
+</div>
+
+<nav>
+  <a href="#selectores">🎯 Selectores</a>
+  <a href="#combinadores">🔗 Combinadores</a>
+  <a href="#atributo">📌 Atributo</a>
+  <a href="#pseudoclases">✨ Pseudoclases</a>
+  <a href="#nth">🔢 nth-child</a>
+  <a href="#pseudoelementos">🖊 Pseudoelementos</a>
+  <a href="#bem">🏗 BEM</a>
+  <a href="#ejercicio">✏️ Ejercicio</a>
+</nav>
+
+<main>
+
+<div class="parte-badge">📦 Parte C — CSS Avanzado (8:19 – 9:49 del video)</div>
+
+
+<!-- ═══════════════════════════════════════════
+     SELECTORES AVANZADOS
+═══════════════════════════════════════════ -->
+<section class="module" id="selectores">
+  <div class="module-header">
+    <div class="module-icon">🎯</div>
+    <div>
+      <div class="module-title">Selectores avanzados — Apunta exactamente donde quieres</div>
+      <div class="module-sub">Más allá de clases e ids: seleccionar con precisión quirúrgica</div>
+    </div>
+  </div>
+
+  <p>Ya conoces los selectores básicos: por etiqueta (<code>p</code>), por clase (<code>.mi-clase</code>) y por id (<code>#mi-id</code>). Los selectores avanzados te permiten apuntar a elementos según su relación con otros, sus atributos, o su posición en la página, sin necesitar agregar clases extra al HTML.</p>
+
+  <div class="analogy">
+    <h4>🔦 Analogía: las diferentes linternas</h4>
+    <p>Un selector básico es como una linterna que ilumina toda una habitación. Los selectores avanzados son como linternas con zoom, filtros y detectores de movimiento: puedes iluminar exactamente el tercer elemento de la segunda fila, o solo los elementos que tienen cierto atributo, o solo el primero que sigue a otro específico. Mismo resultado visible, pero con control total.</p>
+  </div>
+
+  <h2>Repaso rápido: los selectores básicos</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">p</span>        { <span class="ca">color</span>: red; }     <span class="cc">/* Etiqueta: todos los &lt;p&gt; */</span>
+<span class="cp">.tarjeta</span> { <span class="ca">color</span>: blue; }   <span class="cc">/* Clase: todos los elementos con class="tarjeta" */</span>
+<span class="cp">#logo</span>    { <span class="ca">color</span>: green; }  <span class="cc">/* ID: el elemento con id="logo" (único en la página) */</span>
+<span class="cp">*</span>        { <span class="ca">margin</span>: <span class="cn">0</span>; }      <span class="cc">/* Universal: todos los elementos */</span></div>
+
+  <h2>Selector múltiple — aplicar el mismo estilo a varios</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* Sin selector múltiple — repites el mismo código */</span>
+<span class="cp">h1</span> { <span class="ca">font-family</span>: sans-serif; }
+<span class="cp">h2</span> { <span class="ca">font-family</span>: sans-serif; }
+<span class="cp">h3</span> { <span class="ca">font-family</span>: sans-serif; }
+
+<span class="cc">/* Con selector múltiple — separas con coma */</span>
+<span class="cp">h1, h2, h3</span> { <span class="ca">font-family</span>: sans-serif; }
+
+<span class="cc">/* Puedes mezclar cualquier tipo de selector */</span>
+<span class="cp">h1, .titulo, #encabezado-principal</span> { <span class="ca">font-weight</span>: <span class="cn">800</span>; }</div>
+
+  <h2>Selector descendiente vs hijo directo</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* Descendiente (espacio): selecciona TODOS los &lt;a&gt; dentro de nav, sin importar profundidad */</span>
+<span class="cp">nav a</span> { <span class="ca">color</span>: white; }
+
+<span class="cc">/* Hijo directo (&gt;): solo los &lt;li&gt; que son hijos DIRECTOS de ul, no nietos */</span>
+<span class="cp">ul &gt; li</span> { <span class="ca">list-style</span>: none; }</div>
+
+  <div class="preview">
+    <strong>¿Cuál es la diferencia?</strong>
+    <div style="margin-top:.75rem;font-size:.9rem">
+      <div style="background:var(--bg);border-radius:8px;padding:.75rem;margin-bottom:.5rem">
+        <code>nav a</code> → selecciona el link aunque esté dentro de un <code>&lt;ul&gt; &lt;li&gt;</code> dentro del nav. Cualquier nivel de profundidad.
+      </div>
+      <div style="background:var(--bg);border-radius:8px;padding:.75rem">
+        <code>ul &gt; li</code> → selecciona solo los <code>&lt;li&gt;</code> que son hijos inmediatos del <code>&lt;ul&gt;</code>. Un <code>&lt;li&gt;</code> dentro de otro <code>&lt;li&gt;</code> (lista anidada) <strong>no</strong> quedaría seleccionado.
+      </div>
+    </div>
+  </div>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     COMBINADORES
+═══════════════════════════════════════════ -->
+<section class="module" id="combinadores">
+  <div class="module-header">
+    <div class="module-icon">🔗</div>
+    <div>
+      <div class="module-title">Combinadores — Seleccionar por relación entre elementos</div>
+      <div class="module-sub">Hermano adyacente, hermano general, hijo y descendiente</div>
+    </div>
+  </div>
+
+  <p>Los <strong>combinadores</strong> son los símbolos que van entre selectores para indicar qué relación debe existir entre ellos. Son cuatro: espacio, <code>&gt;</code>, <code>+</code> y <code>~</code>.</p>
+
+  <div class="analogy">
+    <h4>👨‍👩‍👧‍👦 Analogía: relaciones familiares</h4>
+    <p>Imagina un árbol genealógico. El combinador de espacio es "cualquier descendiente" (hijos, nietos, bisnietos). El <code>&gt;</code> es "solo mis hijos directos, no mis nietos". El <code>+</code> es "mi hermano que está justo a mi lado". El <code>~</code> es "todos mis hermanos menores". Misma familia, distintos grados de parentesco.</p>
+  </div>
+
+  <div class="sel-grid">
+
+    <div class="sel-card">
+      <span class="sc-sel">A B</span>
+      <div class="sc-name">Descendiente (espacio)</div>
+      <div class="sc-desc">Selecciona B si está dentro de A, a cualquier nivel de profundidad.</div>
+      <div class="sc-ex">/* Todos los &lt;p&gt; dentro de .articulo */
+.articulo p { color: #555; }</div>
+    </div>
+
+    <div class="sel-card">
+      <span class="sc-sel">A &gt; B</span>
+      <div class="sc-name">Hijo directo</div>
+      <div class="sc-desc">Selecciona B solo si es hijo <em>inmediato</em> de A. No afecta nietos.</div>
+      <div class="sc-ex">/* Solo &lt;li&gt; directos del &lt;ul&gt;,
+   no los &lt;li&gt; de listas anidadas */
+ul > li { margin-bottom: .5rem; }</div>
+    </div>
+
+    <div class="sel-card">
+      <span class="sc-sel">A + B</span>
+      <div class="sc-name">Hermano adyacente</div>
+      <div class="sc-desc">Selecciona B si está <em>justo después</em> de A y son hermanos (mismo padre).</div>
+      <div class="sc-ex">/* El &lt;p&gt; que viene JUSTO después
+   de un &lt;h2&gt; (el primer párrafo) */
+h2 + p { font-size: 1.1rem; font-weight: 500; }</div>
+    </div>
+
+    <div class="sel-card">
+      <span class="sc-sel">A ~ B</span>
+      <div class="sc-name">Hermanos generales</div>
+      <div class="sc-desc">Selecciona <em>todos</em> los B que siguen a A y son hermanos, no solo el primero.</div>
+      <div class="sc-ex">/* TODOS los &lt;p&gt; que vienen
+   después de un &lt;h2&gt; */
+h2 ~ p { color: #666; }</div>
+    </div>
+
+  </div>
+
+  <h2>Ejemplo práctico: estilizar formularios con combinadores</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* El label que viene JUSTO después de un input inválido */</span>
+<span class="cp">input:invalid + label</span> { <span class="ca">color</span>: red; }
+
+<span class="cc">/* El mensaje de error que sigue a un input inválido */</span>
+<span class="cp">input:invalid ~ .error-msg</span> { <span class="ca">display</span>: block; }
+
+<span class="cc">/* Quitar margen al primer elemento dentro de una tarjeta */</span>
+<span class="cp">.tarjeta > *:first-child</span> { <span class="ca">margin-top</span>: <span class="cn">0</span>; }
+
+<span class="cc">/* Separadores entre items de una lista sin margen al primero */</span>
+<span class="cp">.lista-item + .lista-item</span> { <span class="ca">border-top</span>: <span class="cn">1px</span> solid <span class="cn">#eee</span>; }</div>
+
+  <div class="tip">
+    <h4>🟢 El truco del + más usado en el mundo real</h4>
+    <p>El selector <code>* + *</code> (llamado "lobotomized owl" o búho lobotomizado) es uno de los más elegantes: selecciona cualquier elemento que tenga un hermano antes que él. Úsalo para agregar espacio entre elementos de forma automática sin tocar el primero:</p>
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* Agrega margen-top a todo elemento que tenga un hermano anterior */</span>
+<span class="cc">/* El primero NO tiene margen porque no tiene hermano antes */</span>
+<span class="cp">.contenedor > * + *</span> { <span class="ca">margin-top</span>: <span class="cn">1rem</span>; }</div>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     SELECTOR DE ATRIBUTO
+═══════════════════════════════════════════ -->
+<section class="module" id="atributo">
+  <div class="module-header">
+    <div class="module-icon">📌</div>
+    <div>
+      <div class="module-title">Selector de atributo — Seleccionar por características del HTML</div>
+      <div class="module-sub">Apuntar a elementos según sus atributos y valores</div>
+    </div>
+  </div>
+
+  <p>El selector de atributo te permite seleccionar elementos basándote en sus atributos HTML: si tiene un atributo, si tiene cierto valor, si el valor empieza o termina con algo. Se escribe entre corchetes <code>[]</code>.</p>
+
+  <div class="analogy">
+    <h4>🏷️ Analogía: filtrar productos en una tienda online</h4>
+    <p>En una tienda online puedes filtrar por "color: rojo", "talla: M", "marca: empieza con Nike". Los selectores de atributo son esos filtros aplicados a los elementos HTML: "dame todos los inputs que tengan type='email'", "dame todos los links que empiecen con https".</p>
+  </div>
+
+  <table class="tbl">
+    <thead>
+      <tr><th>Selector</th><th>Selecciona</th><th>Ejemplo en CSS</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="tag">[atributo]</span></td>
+        <td>Elementos que <em>tienen</em> ese atributo (sin importar el valor)</td>
+        <td><code>[disabled]</code> → todos los elementos disabled</td>
+      </tr>
+      <tr>
+        <td><span class="tag">[atributo="valor"]</span></td>
+        <td>Elementos cuyo atributo es <em>exactamente</em> ese valor</td>
+        <td><code>[type="email"]</code> → inputs de tipo email</td>
+      </tr>
+      <tr>
+        <td><span class="tag">[atributo^="valor"]</span></td>
+        <td>Elementos cuyo atributo <em>empieza con</em> ese valor (<code>^</code> = inicio)</td>
+        <td><code>[href^="https"]</code> → links seguros</td>
+      </tr>
+      <tr>
+        <td><span class="tag">[atributo$="valor"]</span></td>
+        <td>Elementos cuyo atributo <em>termina con</em> ese valor (<code>$</code> = final)</td>
+        <td><code>[href$=".pdf"]</code> → links a PDFs</td>
+      </tr>
+      <tr>
+        <td><span class="tag">[atributo*="valor"]</span></td>
+        <td>Elementos cuyo atributo <em>contiene</em> ese valor en cualquier posición (<code>*</code> = contiene)</td>
+        <td><code>[class*="btn"]</code> → cualquier clase que incluya "btn"</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Ejemplos reales — los más útiles</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* Estilizar inputs según su tipo — sin agregar clases al HTML */</span>
+<span class="cp">input[type="text"]</span>     { <span class="ca">border</span>: <span class="cn">1px</span> solid <span class="cn">#ccc</span>; }
+<span class="cp">input[type="email"]</span>    { <span class="ca">border</span>: <span class="cn">1px</span> solid blue; }
+<span class="cp">input[type="password"]</span> { <span class="ca">letter-spacing</span>: <span class="cn">.2em</span>; }
+
+<span class="cc">/* Íconos automáticos en links externos vs internos */</span>
+<span class="cp">a[href^="https"]::after</span> { <span class="ca">content</span>: <span class="cv">' ↗'</span>; <span class="ca">font-size</span>: <span class="cn">.75em</span>; }
+<span class="cp">a[href$=".pdf"]::after</span>  { <span class="ca">content</span>: <span class="cv">' 📄'</span>; }
+<span class="cp">a[href$=".zip"]::after</span>  { <span class="ca">content</span>: <span class="cv">' 📦'</span>; }
+
+<span class="cc">/* Campos deshabilitados — sin necesidad de clase .disabled */</span>
+<span class="cp">input[disabled]</span> {
+  <span class="ca">background</span>: <span class="cn">#f5f5f5</span>;
+  <span class="ca">cursor</span>: not-allowed;
+  <span class="ca">opacity</span>: <span class="cn">.6</span>;
+}
+
+<span class="cc">/* Selector de atributo con insensibilidad a mayúsculas (i al final) */</span>
+<span class="cp">a[href$=".PDF" i]</span> { <span class="ca">color</span>: red; } <span class="cc">/* Funciona con .pdf, .PDF, .Pdf */</span></div>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     PSEUDOCLASES
+═══════════════════════════════════════════ -->
+<section class="module" id="pseudoclases">
+  <div class="module-header">
+    <div class="module-icon">✨</div>
+    <div>
+      <div class="module-title">Pseudoclases — Estilos según el estado o situación del elemento</div>
+      <div class="module-sub">:hover, :focus, :checked, :not(), :is(), :where() y muchas más</div>
+    </div>
+  </div>
+
+  <p>Una <strong>pseudoclase</strong> selecciona un elemento según su <em>estado</em> o su <em>posición</em> en el documento, no por su nombre o clase. Siempre empiezan con dos puntos <code>:</code>. Son uno de los conceptos más poderosos de CSS porque permiten cambiar estilos según lo que el usuario está haciendo.</p>
+
+  <div class="analogy">
+    <h4>🚦 Analogía: el semáforo y sus estados</h4>
+    <p>Un semáforo siempre es el mismo objeto, pero tiene tres estados: rojo, amarillo, verde. Cada estado tiene un comportamiento diferente. Las pseudoclases son exactamente eso: el mismo elemento HTML, pero con estilos diferentes según su estado actual (el usuario está pasando el mouse, el campo está activo, el checkbox está marcado, etc.).</p>
+  </div>
+
+  <h2>Pseudoclases de interacción del usuario</h2>
+
+  <div class="pseudo-grid">
+
+    <div class="pseudo-card">
+      <span class="pc-name">:hover</span>
+      <p class="pc-desc">El mouse está encima del elemento. El más usado de todos.</p>
+      <div class="pc-ex">.boton:hover {
+  background: #9c3920;
+  transform: translateY(-2px);
+}</div>
+    </div>
+
+    <div class="pseudo-card">
+      <span class="pc-name">:focus</span>
+      <p class="pc-desc">El elemento está enfocado (el cursor está dentro de un input, o se llegó con Tab). Importantísimo para accesibilidad.</p>
+      <div class="pc-ex">input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(196,74,42,.2);
+  outline: none;
+}</div>
+    </div>
+
+    <div class="pseudo-card">
+      <span class="pc-name">:focus-visible</span>
+      <p class="pc-desc">Como :focus, pero solo muestra el estilo cuando el usuario navega con teclado, no con el mouse. Más moderno que :focus.</p>
+      <div class="pc-ex">button:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+}</div>
+    </div>
+
+    <div class="pseudo-card">
+      <span class="pc-name">:active</span>
+      <p class="pc-desc">El elemento está siendo presionado (el instante en que el usuario hace clic y no ha soltado).</p>
+      <div class="pc-ex">.boton:active {
+  transform: translateY(1px);
+  box-shadow: none;
+}</div>
+    </div>
+
+    <div class="pseudo-card">
+      <span class="pc-name">:visited</span>
+      <p class="pc-desc">Un link que el usuario ya visitó. Por privacidad, solo puedes cambiar color, background y font-style.</p>
+      <div class="pc-ex">a:visited {
+  color: purple;
+}</div>
+    </div>
+
+    <div class="pseudo-card">
+      <span class="pc-name">:checked</span>
+      <p class="pc-desc">Un checkbox o radio que está marcado. Permite crear interactividad sin JavaScript.</p>
+      <div class="pc-ex">input[type="checkbox"]:checked + label {
+  color: var(--secondary);
+  font-weight: 700;
+}</div>
+    </div>
+
+    <div class="pseudo-card">
+      <span class="pc-name">:disabled / :enabled</span>
+      <p class="pc-desc">Elementos de formulario desactivados o activados.</p>
+      <div class="pc-ex">button:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}</div>
+    </div>
+
+    <div class="pseudo-card">
+      <span class="pc-name">:valid / :invalid</span>
+      <p class="pc-desc">Inputs según si su valor pasa o no la validación HTML (required, type, pattern).</p>
+      <div class="pc-ex">input:valid   { border-color: green; }
+input:invalid { border-color: red; }</div>
+    </div>
+
+    <div class="pseudo-card">
+      <span class="pc-name">:placeholder-shown</span>
+      <p class="pc-desc">El input que aún muestra su placeholder (está vacío). Muy útil combinado con :not.</p>
+      <div class="pc-ex">/* Input vacío */
+input:placeholder-shown {
+  border-style: dashed;
+}
+/* Input con contenido */
+input:not(:placeholder-shown) {
+  border-style: solid;
+}</div>
+    </div>
+
+    <div class="pseudo-card">
+      <span class="pc-name">:empty</span>
+      <p class="pc-desc">El elemento no tiene hijos ni texto. Útil para ocultar contenedores vacíos.</p>
+      <div class="pc-ex">.notificacion:empty {
+  display: none;
+}</div>
+    </div>
+
+  </div>
+
+  <div class="preview">
+    <strong>Prueba estos estados interactivos:</strong>
+    <div style="margin-top:1rem;display:flex;flex-wrap:wrap;align-items:flex-start;gap:1rem">
+      <div>
+        <p style="font-size:.85rem;color:var(--muted);margin-bottom:.4rem">:hover y :active en botón</p>
+        <button class="demo-btn">Pasa el mouse aquí</button>
+      </div>
+      <div>
+        <p style="font-size:.85rem;color:var(--muted);margin-bottom:.4rem">:focus en input + :valid/:invalid</p>
+        <input class="demo-input" type="email" placeholder="Escribe un email válido" required>
+        <p style="font-size:.78rem;color:var(--muted)">Verde = válido · Rojo = inválido</p>
+      </div>
+    </div>
+  </div>
+
+  <h2>:not() — excluir elementos</h2>
+
+  <p><code>:not()</code> selecciona todos los elementos que <em>no</em> coinciden con el selector del paréntesis. Muy útil para aplicar estilos a "todos excepto uno".</p>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* Todos los botones excepto los disabled */</span>
+<span class="cp">button:not([disabled])</span> { <span class="ca">cursor</span>: pointer; }
+
+<span class="cc">/* Todos los párrafos excepto el que tiene clase .intro */</span>
+<span class="cp">p:not(.intro)</span> { <span class="ca">color</span>: <span class="cn">#555</span>; }
+
+<span class="cc">/* Todos los li excepto el último (quita el borde del último) */</span>
+<span class="cp">li:not(:last-child)</span> { <span class="ca">border-bottom</span>: <span class="cn">1px</span> solid <span class="cn">#eee</span>; }
+
+<span class="cc">/* En CSS moderno, :not() acepta varios selectores separados por coma */</span>
+<span class="cp">:not(h1, h2, h3)</span> { <span class="ca">font-size</span>: <span class="cn">1rem</span>; }</div>
+
+  <h2>:is() y :where() — agrupar selectores de forma elegante</h2>
+
+  <p>Estas dos pseudoclases modernas permiten agrupar selectores para no repetir código. La diferencia es la especificidad:</p>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* Sin :is() — código repetitivo */</span>
+<span class="cp">header h1, header h2, header h3</span> { <span class="ca">color</span>: white; }
+<span class="cp">footer h1, footer h2, footer h3</span>  { <span class="ca">color</span>: <span class="cn">#ccc</span>; }
+
+<span class="cc">/* Con :is() — mucho más limpio */</span>
+<span class="cp">header :is(h1, h2, h3)</span> { <span class="ca">color</span>: white; }
+<span class="cp">footer :is(h1, h2, h3)</span>  { <span class="ca">color</span>: <span class="cn">#ccc</span>; }
+
+<span class="cc">/* :where() hace lo mismo pero con especificidad 0 (más fácil de sobreescribir) */</span>
+<span class="cp">:where(h1, h2, h3, h4)</span> { <span class="ca">font-family</span>: <span class="cv">'Fraunces', serif</span>; }
+<span class="cc">/* Útil en librerías y resets donde no quieres que interfiera con estilos del usuario */</span></div>
+
+  <div class="concept">
+    <h4>💡 :is() vs :where() — la diferencia de especificidad</h4>
+    <p><code>:is()</code> toma la especificidad del selector más específico que tiene dentro. <code>:where()</code> siempre tiene especificidad 0, lo que lo hace ideal para estilos base que el usuario puede sobreescribir fácilmente. Para la mayoría de casos en proyectos propios, usa <code>:is()</code>.</p>
+  </div>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     NTH-CHILD Y POSICIÓN
+═══════════════════════════════════════════ -->
+<section class="module" id="nth">
+  <div class="module-header">
+    <div class="module-icon">🔢</div>
+    <div>
+      <div class="module-title">Pseudoclases de posición — nth-child y familia</div>
+      <div class="module-sub">Seleccionar elementos según su número de orden</div>
+    </div>
+  </div>
+
+  <p>Las pseudoclases de posición seleccionan elementos según su lugar dentro del padre: el primero, el último, el tercero, los pares, los impares, o cualquier patrón matemático que quieras.</p>
+
+  <div class="analogy">
+    <h4>🏟️ Analogía: los asientos numerados de un estadio</h4>
+    <p>En un estadio, puedes decir "pinta de rojo los asientos 1, 3, 5, 7..." (impares), o "da descuento a los asientos múltiplos de 5", o "reserva el primer y último asiento de cada fila". Las pseudoclases de posición son exactamente eso: reglas que aplican según el número del elemento.</p>
+  </div>
+
+  <table class="tbl">
+    <thead>
+      <tr><th>Pseudoclase</th><th>Selecciona</th><th>Ejemplo real</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="tag">:first-child</span></td><td>El primer hijo dentro de su padre</td><td>Quitar margen-top al primer párrafo de un artículo</td></tr>
+      <tr><td><span class="tag">:last-child</span></td><td>El último hijo dentro de su padre</td><td>Quitar border-bottom al último item de una lista</td></tr>
+      <tr><td><span class="tag">:nth-child(n)</span></td><td>El hijo número n exacto</td><td><code>:nth-child(3)</code> → el tercero</td></tr>
+      <tr><td><span class="tag">:nth-child(even)</span></td><td>Todos los hijos en posición par (2, 4, 6…)</td><td>Filas alternas de una tabla</td></tr>
+      <tr><td><span class="tag">:nth-child(odd)</span></td><td>Todos los hijos en posición impar (1, 3, 5…)</td><td>Filas alternas de una tabla</td></tr>
+      <tr><td><span class="tag">:nth-child(3n)</span></td><td>Cada tercer hijo (3, 6, 9, 12…)</td><td>Resaltar cada tercera tarjeta en un grid</td></tr>
+      <tr><td><span class="tag">:nth-child(3n+1)</span></td><td>El primero de cada grupo de 3 (1, 4, 7, 10…)</td><td>Grid de 3 columnas: el primero de cada fila</td></tr>
+      <tr><td><span class="tag">:only-child</span></td><td>El elemento que es hijo único dentro de su padre</td><td>Centrar imagen cuando es la única en su contenedor</td></tr>
+      <tr><td><span class="tag">:nth-last-child(n)</span></td><td>Como nth-child pero contando desde el final</td><td><code>:nth-last-child(2)</code> → el penúltimo</td></tr>
+    </tbody>
+  </table>
+
+  <h2>La fórmula de nth-child: An+B</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* La fórmula es: An+B donde A=paso, B=inicio, n empieza en 0 */</span>
+
+<span class="cp">li:nth-child(2n)</span>    <span class="cc">/* even: 2, 4, 6, 8...    → A=2, B=0 */</span>
+<span class="cp">li:nth-child(2n+1)</span>  <span class="cc">/* odd:  1, 3, 5, 7...    → A=2, B=1 */</span>
+<span class="cp">li:nth-child(3n)</span>    <span class="cc">/* cada 3: 3, 6, 9, 12... → A=3, B=0 */</span>
+<span class="cp">li:nth-child(3n+1)</span>  <span class="cc">/* 1, 4, 7, 10...          → A=3, B=1 */</span>
+<span class="cp">li:nth-child(n+4)</span>   <span class="cc">/* desde el 4 en adelante: 4, 5, 6... */</span>
+<span class="cp">li:nth-child(-n+3)</span>  <span class="cc">/* solo los 3 primeros:    1, 2, 3 */</span></div>
+
+  <div class="preview">
+    <strong>Prueba nth-child en acción — pasa el mouse sobre los items:</strong>
+    <ul class="demo-lista" style="margin-top:.75rem;border:1px solid var(--border);border-radius:8px;overflow:hidden">
+      <li>Item 1 — :first-child (fondo amarillo)</li>
+      <li>Item 2 — :nth-child(even) (fondo gris)</li>
+      <li>Item 3</li>
+      <li>Item 4 — :nth-child(even) (fondo gris)</li>
+      <li>Item 5</li>
+      <li>Item 6 — :nth-child(even) (fondo gris)</li>
+      <li>Item 7 — :last-child (fondo verde)</li>
+    </ul>
+    <p style="font-size:.8rem;color:var(--muted);margin-top:.5rem">:first-child = amarillo · :nth-child(even) = gris · :last-child = verde · :hover = rojo claro</p>
+  </div>
+
+  <h2>:nth-of-type — por tipo de etiqueta</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* :nth-child cuenta TODOS los hijos sin importar tipo */</span>
+<span class="cc">/* :nth-of-type cuenta solo los hijos del mismo tipo de etiqueta */</span>
+
+<span class="cc">/* El tercer &lt;p&gt; dentro de article (ignora h2, img, etc.) */</span>
+<span class="cp">article p:nth-of-type(3)</span> { <span class="ca">font-style</span>: italic; }
+
+<span class="cc">/* La primera imagen de cada sección */</span>
+<span class="cp">section img:first-of-type</span> { <span class="ca">border-radius</span>: <span class="cn">12px</span>; }</div>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     PSEUDOELEMENTOS
+═══════════════════════════════════════════ -->
+<section class="module" id="pseudoelementos">
+  <div class="module-header">
+    <div class="module-icon">🖊️</div>
+    <div>
+      <div class="module-title">Pseudoelementos — Crear o apuntar partes que no existen en el HTML</div>
+      <div class="module-sub">::before, ::after, ::placeholder, ::selection, ::first-line y más</div>
+    </div>
+  </div>
+
+  <p>Los <strong>pseudoelementos</strong> se escriben con doble dos puntos <code>::</code> (para distinguirlos de las pseudoclases que usan uno). Permiten dos cosas: <strong>apuntar a una parte específica de un elemento</strong> (la primera letra, la primera línea, el placeholder) o <strong>crear elementos virtuales</strong> antes y después del contenido sin tocar el HTML.</p>
+
+  <div class="analogy">
+    <h4>🎭 Analogía: el maquillaje y los accesorios</h4>
+    <p>Un actor es el elemento HTML. El maquillaje que le ponen antes de salir a escena es <code>::before</code>. El accesorio que le ponen detrás es <code>::after</code>. El color de los labios pintados es <code>::selection</code> (lo que se resalta al seleccionar). Ninguno de estos es parte del actor en sí, son capas que se agregan por encima sin modificar al actor.</p>
+  </div>
+
+  <h2>::before y ::after — Los más poderosos</h2>
+
+  <p><code>::before</code> inserta contenido virtual <em>antes</em> del contenido real del elemento. <code>::after</code> lo inserta <em>después</em>. Siempre necesitan la propiedad <code>content</code> (aunque sea vacía).</p>
+
+  <div class="anatomy">
+    <span class="br">.elemento::before</span> {
+    <br>&nbsp;&nbsp;<span class="at">content</span>: <span class="vl">"★"</span>;<span class="lb">OBLIGATORIO — puede ser texto, emoji, o vacío ""</span>
+    <br>&nbsp;&nbsp;<span class="at">display</span>: <span class="vl">block</span>;<span class="lb2">por defecto es inline</span>
+    <br>&nbsp;&nbsp;<span class="at">color</span>: <span class="vl">gold</span>;
+    <br>}
+  </div>
+
+  <h2>Casos de uso reales de ::before y ::after</h2>
+
+  <h3>1 — Comillas decorativas en citas</h3>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">.cita</span> { <span class="ca">position</span>: relative; <span class="ca">padding</span>: <span class="cn">1rem 1.5rem</span>; }
+
+<span class="cp">.cita::before</span> {
+  <span class="ca">content</span>: <span class="cv">'\201C'</span>;  <span class="cc">/* " en código unicode */</span>
+  <span class="ca">font-size</span>: <span class="cn">3rem</span>;
+  <span class="ca">color</span>: var(<span class="cv">--primary</span>);
+  <span class="ca">position</span>: absolute;
+  <span class="ca">top</span>: <span class="cn">-.5rem</span>; <span class="ca">left</span>: <span class="cn">.4rem</span>;
+}
+
+<span class="cp">.cita::after</span> {
+  <span class="ca">content</span>: <span class="cv">'\201D'</span>;  <span class="cc">/* " en código unicode */</span>
+  <span class="ca">font-size</span>: <span class="cn">3rem</span>;
+  <span class="ca">color</span>: var(<span class="cv">--primary</span>);
+  <span class="ca">position</span>: absolute;
+  <span class="ca">bottom</span>: <span class="cn">-1.4rem</span>; <span class="ca">right</span>: <span class="cn">.4rem</span>;
+}</div>
+
+  <div class="preview">
+    <div class="demo-before-box" style="padding:1rem 0">
+      <p class="cita">La práctica hace al maestro. Escribe código todos los días, aunque sea un poquito.</p>
+    </div>
+  </div>
+
+  <h3>2 — Tooltips sin JavaScript</h3>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">.tooltip</span> { <span class="ca">position</span>: relative; <span class="ca">display</span>: inline-block; }
+
+<span class="cp">.tooltip::before</span> {
+  <span class="cc">/* content: attr(data-tip) lee el atributo data-tip del HTML */</span>
+  <span class="ca">content</span>: attr(<span class="cv">data-tip</span>);
+  <span class="ca">position</span>: absolute;
+  <span class="ca">bottom</span>: calc(<span class="cn">100%</span> + <span class="cn">8px</span>);
+  <span class="ca">left</span>: <span class="cn">50%</span>;
+  <span class="ca">transform</span>: translateX(<span class="cn">-50%</span>);
+  <span class="ca">background</span>: <span class="cn">#1a1814</span>;
+  <span class="ca">color</span>: white;
+  <span class="ca">padding</span>: <span class="cn">5px 10px</span>;
+  <span class="ca">border-radius</span>: <span class="cn">6px</span>;
+  <span class="ca">font-size</span>: <span class="cn">.8rem</span>;
+  <span class="ca">white-space</span>: nowrap;
+  <span class="ca">opacity</span>: <span class="cn">0</span>;
+  <span class="ca">transition</span>: opacity <span class="cn">.2s</span>;
+}
+<span class="cp">.tooltip:hover::before</span> { <span class="ca">opacity</span>: <span class="cn">1</span>; }</div>
+
+  <div class="preview">
+    <p>Pasa el mouse sobre las palabras subrayadas:</p>
+    <p style="margin-top:.75rem;font-size:1rem">
+      El
+      <span class="demo-tooltip"><span class="tt" data-tip="HyperText Markup Language">HTML</span></span>
+      se combina con
+      <span class="demo-tooltip"><span class="tt" data-tip="Cascading Style Sheets">CSS</span></span>
+      para crear páginas web. Luego agregas
+      <span class="demo-tooltip"><span class="tt" data-tip="El lenguaje de programación del navegador">JavaScript</span></span>
+      para la interactividad.
+    </p>
+  </div>
+
+  <h3>3 — Contadores automáticos con CSS</h3>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">.pasos</span> {
+  <span class="ca">list-style</span>: none;
+  <span class="ca">counter-reset</span>: pasos; <span class="cc">/* Inicializa el contador llamado "pasos" */</span>
+}
+
+<span class="cp">.pasos li</span> {
+  <span class="ca">counter-increment</span>: pasos; <span class="cc">/* Aumenta el contador en 1 por cada &lt;li&gt; */</span>
+  <span class="ca">padding-left</span>: <span class="cn">3rem</span>;
+  <span class="ca">position</span>: relative;
+}
+
+<span class="cp">.pasos li::before</span> {
+  <span class="ca">content</span>: counter(<span class="cv">pasos</span>); <span class="cc">/* Muestra el número del contador */</span>
+  <span class="ca">position</span>: absolute;
+  <span class="ca">left</span>: <span class="cn">0</span>;
+  <span class="ca">background</span>: var(<span class="cv">--primary</span>);
+  <span class="ca">color</span>: white;
+  <span class="ca">width</span>: <span class="cn">22px</span>; <span class="ca">height</span>: <span class="cn">22px</span>;
+  <span class="ca">border-radius</span>: <span class="cn">50%</span>;
+  <span class="ca">font-size</span>: <span class="cn">.75rem</span>; <span class="ca">font-weight</span>: bold;
+  <span class="ca">display</span>: flex; <span class="ca">align-items</span>: center; <span class="ca">justify-content</span>: center;
+}</div>
+
+  <div class="preview">
+    <strong>Pasos del proyecto (números generados automáticamente por CSS):</strong>
+    <ol class="demo-counter" style="margin-top:.75rem">
+      <li>Crear el archivo HTML base con su estructura</li>
+      <li>Agregar el CSS y las fuentes de Google Fonts</li>
+      <li>Construir la sección hero con imagen de fondo</li>
+      <li>Agregar la navegación sticky</li>
+      <li>Crear la sección de proyectos con grid</li>
+    </ol>
+  </div>
+
+  <h2>Otros pseudoelementos importantes</h2>
+
+  <div class="pseudo-grid">
+
+    <div class="pseudo-card">
+      <span class="pc-name">::placeholder</span>
+      <p class="pc-desc">El texto de placeholder de los inputs. Permite cambiar su color y estilo.</p>
+      <div class="pc-ex">input::placeholder {
+  color: #aaa;
+  font-style: italic;
+  font-size: .9rem;
+}</div>
+    </div>
+
+    <div class="pseudo-card">
+      <span class="pc-name">::selection</span>
+      <p class="pc-desc">El texto que el usuario selecciona con el mouse. Un detalle visual que impresiona.</p>
+      <div class="pc-ex">::selection {
+  background: var(--primary);
+  color: white;
+}</div>
+    </div>
+
+    <div class="pseudo-card">
+      <span class="pc-name">::first-line</span>
+      <p class="pc-desc">La primera línea de un párrafo (la que el navegador calcula como primera, cambia con el ancho).</p>
+      <div class="pc-ex">p::first-line {
+  font-weight: 700;
+  font-size: 1.05em;
+}</div>
+    </div>
+
+    <div class="pseudo-card">
+      <span class="pc-name">::first-letter</span>
+      <p class="pc-desc">La primera letra de un párrafo. Clásico efecto de letra capital (drop cap).</p>
+      <div class="pc-ex">p::first-letter {
+  font-size: 3em;
+  float: left;
+  line-height: .8;
+  margin-right: .1em;
+  color: var(--primary);
+}</div>
+    </div>
+
+    <div class="pseudo-card">
+      <span class="pc-name">::marker</span>
+      <p class="pc-desc">El marcador de las listas (el punto, el número). Puedes cambiar su color y tamaño.</p>
+      <div class="pc-ex">li::marker {
+  color: var(--primary);
+  font-size: 1.2em;
+}</div>
+    </div>
+
+    <div class="pseudo-card">
+      <span class="pc-name">::backdrop</span>
+      <p class="pc-desc">El fondo oscuro detrás de un elemento en modo pantalla completa o de un dialog nativo.</p>
+      <div class="pc-ex">dialog::backdrop {
+  background: rgba(0,0,0,.6);
+  backdrop-filter: blur(4px);
+}</div>
+    </div>
+
+  </div>
+
+  <div class="preview">
+    <strong>Prueba ::selection — selecciona este texto con el mouse:</strong>
+    <p class="demo-seleccion" style="margin-top:.6rem;font-size:1.05rem;padding:.5rem;background:var(--bg);border-radius:8px">
+      Selecciona cualquier parte de este párrafo y verás que el color de selección cambia a rojo (en lugar del azul por defecto del navegador). Eso es el pseudoelemento ::selection en acción. Es un detalle pequeño pero que hace tu sitio sentir muy pulido.
+    </p>
+  </div>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     BEM
+═══════════════════════════════════════════ -->
+<section class="module" id="bem">
+  <div class="module-header">
+    <div class="module-icon">🏗️</div>
+    <div>
+      <div class="module-title">BEM — Block, Element, Modifier</div>
+      <div class="module-sub">La metodología para nombrar clases CSS como un profesional</div>
+    </div>
+  </div>
+
+  <p><strong>BEM</strong> (Block, Element, Modifier) es una convención para nombrar clases CSS que hace que tu código sea predecible, fácil de leer, y evite conflictos entre estilos. No es una librería ni un framework: es simplemente una forma de pensar y nombrar clases.</p>
+
+  <div class="analogy">
+    <h4>🚗 Analogía: el sistema de identificación de un auto</h4>
+    <p>Un auto (Block) tiene partes: puerta, ventana, rueda (Elements). Y esas partes pueden tener variantes: puerta-delantera, puerta-trasera (Modifiers). Si alguien te dice "reemplaza la puerta-trasera-izquierda del Sedán Rojo", sabes exactamente de qué habla. BEM hace lo mismo con las clases CSS: sabes exactamente qué es cada cosa solo leyendo el nombre.</p>
+  </div>
+
+  <h2>La sintaxis de BEM</h2>
+
+  <div class="anatomy">
+    <span class="br">.bloque</span><span class="lb">El componente principal</span>
+    <br>
+    <span class="br">.bloque__elemento</span><span class="lb2">Parte del bloque (doble guión bajo)</span>
+    <br>
+    <span class="br">.bloque--modificador</span><span class="lb3">Variante del bloque (doble guión)</span>
+    <br>
+    <span class="br">.bloque__elemento--modificador</span><span class="lb">Variante de un elemento</span>
+  </div>
+
+  <h2>BEM en la práctica — Tarjeta de proyecto</h2>
+
+  <div class="bem-row">
+    <div class="bem-box bad">
+      <div class="bb-label">❌ Sin BEM — clases genéricas y confusas</div>
+      <div class="code-block" style="margin:0;font-size:.78rem"><span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"card"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;img</span> <span class="ca">class</span>=<span class="cv">"image"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"body"</span><span class="ct">&gt;</span>
+    <span class="ct">&lt;h3</span> <span class="ca">class</span>=<span class="cv">"title"</span><span class="ct">&gt;&lt;/h3&gt;</span>
+    <span class="ct">&lt;p</span>  <span class="ca">class</span>=<span class="cv">"text"</span><span class="ct">&gt;&lt;/p&gt;</span>
+    <span class="ct">&lt;a</span>  <span class="ca">class</span>=<span class="cv">"btn featured"</span><span class="ct">&gt;&lt;/a&gt;</span>
+  <span class="ct">&lt;/div&gt;</span>
+<span class="ct">&lt;/div&gt;</span></div>
+      <p style="font-size:.82rem;margin-top:.6rem;color:#EF4444">¿"title" es el título de la tarjeta o de la página? ¿"body" es el body del HTML? ¿"btn featured" — qué significa "featured" aquí?</p>
+    </div>
+    <div class="bem-box good">
+      <div class="bb-label">✅ Con BEM — clases descriptivas y sin ambigüedad</div>
+      <div class="code-block" style="margin:0;font-size:.78rem"><span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"tarjeta"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;img</span> <span class="ca">class</span>=<span class="cv">"tarjeta__imagen"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"tarjeta__cuerpo"</span><span class="ct">&gt;</span>
+    <span class="ct">&lt;h3</span> <span class="ca">class</span>=<span class="cv">"tarjeta__titulo"</span><span class="ct">&gt;&lt;/h3&gt;</span>
+    <span class="ct">&lt;p</span>  <span class="ca">class</span>=<span class="cv">"tarjeta__texto"</span><span class="ct">&gt;&lt;/p&gt;</span>
+    <span class="ct">&lt;a</span>  <span class="ca">class</span>=<span class="cv">"tarjeta__boton tarjeta__boton--destacado"</span><span class="ct">&gt;&lt;/a&gt;</span>
+  <span class="ct">&lt;/div&gt;</span>
+<span class="ct">&lt;/div&gt;</span></div>
+      <p style="font-size:.82rem;margin-top:.6rem;color:var(--secondary)">Todo se entiende solo: "tarjeta__titulo" es el título de la tarjeta. "tarjeta__boton--destacado" es la variante destacada del botón de la tarjeta.</p>
+    </div>
+  </div>
+
+  <h2>El CSS de BEM — sin anidamiento excesivo</h2>
+
+  <div class="bem-row">
+    <div class="bem-box bad">
+      <div class="bb-label">❌ CSS sin BEM — muy anidado, difícil de sobreescribir</div>
+      <div class="code-block" style="margin:0;font-size:.78rem"><span class="cp">.card .body .title</span> { ... }
+<span class="cp">.card .body .btn</span>   { ... }
+<span class="cp">.card .body .btn.featured</span> { ... }
+<span class="cc">/* Alta especificidad, difícil sobreescribir */</span></div>
+    </div>
+    <div class="bem-box good">
+      <div class="bb-label">✅ CSS con BEM — plano, fácil de mantener</div>
+      <div class="code-block" style="margin:0;font-size:.78rem"><span class="cp">.tarjeta</span>                  { ... }
+<span class="cp">.tarjeta__titulo</span>          { ... }
+<span class="cp">.tarjeta__boton</span>           { ... }
+<span class="cp">.tarjeta__boton--destacado</span>{ ... }
+<span class="cc">/* Especificidad uniforme, fácil de entender */</span></div>
+    </div>
+  </div>
+
+  <h2>Ejemplo completo — Componente de botón con BEM</h2>
+
+  <div class="code-block"><span class="lang">HTML + CSS</span><span class="cc">&lt;!-- HTML --&gt;</span>
+<span class="ct">&lt;button</span> <span class="ca">class</span>=<span class="cv">"boton"</span><span class="ct">&gt;</span><span class="cs">Normal</span><span class="ct">&lt;/button&gt;</span>
+<span class="ct">&lt;button</span> <span class="ca">class</span>=<span class="cv">"boton boton--primario"</span><span class="ct">&gt;</span><span class="cs">Primario</span><span class="ct">&lt;/button&gt;</span>
+<span class="ct">&lt;button</span> <span class="ca">class</span>=<span class="cv">"boton boton--peligro"</span><span class="ct">&gt;</span><span class="cs">Peligro</span><span class="ct">&lt;/button&gt;</span>
+<span class="ct">&lt;button</span> <span class="ca">class</span>=<span class="cv">"boton boton--grande"</span><span class="ct">&gt;</span><span class="cs">Grande</span><span class="ct">&lt;/button&gt;</span>
+<span class="ct">&lt;button</span> <span class="ca">class</span>=<span class="cv">"boton boton--primario boton--grande"</span><span class="ct">&gt;</span><span class="cs">Primario Grande</span><span class="ct">&lt;/button&gt;</span>
+
+<span class="cc">/* CSS */</span>
+<span class="cc">/* BLOQUE: estilos base del botón */</span>
+<span class="cp">.boton</span> {
+  <span class="ca">padding</span>: <span class="cn">.5rem 1.25rem</span>;
+  <span class="ca">border</span>: <span class="cn">2px</span> solid <span class="cn">#ccc</span>;
+  <span class="ca">border-radius</span>: <span class="cn">8px</span>;
+  <span class="ca">background</span>: white;
+  <span class="ca">cursor</span>: pointer;
+  <span class="ca">font-family</span>: inherit;
+  <span class="ca">font-size</span>: <span class="cn">1rem</span>;
+}
+
+<span class="cc">/* MODIFICADORES: variantes del botón */</span>
+<span class="cp">.boton--primario</span> { <span class="ca">background</span>: <span class="cn">#c44a2a</span>; <span class="ca">color</span>: white; <span class="ca">border-color</span>: <span class="cn">#c44a2a</span>; }
+<span class="cp">.boton--peligro</span>  { <span class="ca">background</span>: <span class="cn">#dc2626</span>; <span class="ca">color</span>: white; <span class="ca">border-color</span>: <span class="cn">#dc2626</span>; }
+<span class="cp">.boton--grande</span>   { <span class="ca">padding</span>: <span class="cn">.75rem 2rem</span>;  <span class="ca">font-size</span>: <span class="cn">1.1rem</span>; }</div>
+
+  <div class="preview">
+    <div style="display:flex;flex-wrap:wrap;gap:.6rem;align-items:center">
+      <button style="padding:.5rem 1.25rem;border:2px solid #ccc;border-radius:8px;background:white;cursor:pointer;font-family:inherit;font-size:1rem">Normal</button>
+      <button style="padding:.5rem 1.25rem;border:2px solid #c44a2a;border-radius:8px;background:#c44a2a;color:white;cursor:pointer;font-family:inherit;font-size:1rem">Primario</button>
+      <button style="padding:.5rem 1.25rem;border:2px solid #dc2626;border-radius:8px;background:#dc2626;color:white;cursor:pointer;font-family:inherit;font-size:1rem">Peligro</button>
+      <button style="padding:.75rem 2rem;border:2px solid #ccc;border-radius:8px;background:white;cursor:pointer;font-family:inherit;font-size:1.1rem">Grande</button>
+      <button style="padding:.75rem 2rem;border:2px solid #c44a2a;border-radius:8px;background:#c44a2a;color:white;cursor:pointer;font-family:inherit;font-size:1.1rem">Primario Grande</button>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Reglas de oro de BEM</h4>
+    <ul>
+      <li>El <strong>Block</strong> es un componente que tiene sentido por sí solo: <code>.menu</code>, <code>.tarjeta</code>, <code>.formulario</code></li>
+      <li>El <strong>Element</strong> no tiene sentido sin su bloque: <code>.menu__item</code>, <code>.tarjeta__titulo</code></li>
+      <li>El <strong>Modifier</strong> es una variante: <code>.menu--horizontal</code>, <code>.tarjeta--destacada</code></li>
+      <li>Los elementos BEM se escriben con un <strong>solo nivel</strong>: nunca <code>.bloque__elemento__subelemento</code>. Si llegas ahí, crea un nuevo bloque.</li>
+      <li>En CSS, los selectores BEM son casi todos de <strong>una sola clase</strong>: especificidad baja y uniforme.</li>
+    </ul>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ BEM no es obligatorio, pero sí muy recomendado</h4>
+    <p>BEM es una convención, no una regla del lenguaje. No hay nada que te obligue a usarlo. Pero cuando trabajas en proyectos medianos o grandes, o en equipo, BEM hace que todos entiendan el código sin tener que preguntar. Es una de las habilidades que más diferencian a un desarrollador junior de uno senior.</p>
+  </div>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     EJERCICIO FINAL
+═══════════════════════════════════════════ -->
+<section class="module" id="ejercicio">
+  <div class="module-header">
+    <div class="module-icon">✏️</div>
+    <div>
+      <div class="module-title">Ejercicio integrador — Tarjeta de jugador con CSS avanzado</div>
+      <div class="module-sub">Selectores, pseudoclases, pseudoelementos y BEM en un solo proyecto</div>
+    </div>
+  </div>
+
+  <div class="ex">
+    <div class="ex-hd">✏️ Ejercicio — Componente de tarjeta de jugador <span class="ex-badge">Avanzado</span></div>
+
+    <p>Crea un archivo <code>tarjeta-jugador.html</code> con CSS en el mismo archivo. Vas a construir un componente de tarjeta de jugador de fútbol aplicando todo lo de esta parte.</p>
+
+    <ol>
+      <li>
+        <strong>HTML con BEM</strong>: Estructura la tarjeta con clases BEM. El bloque es <code>.jugador-card</code>. Necesita estos elementos: <code>__imagen</code>, <code>__nombre</code>, <code>__posicion</code>, <code>__stats</code>, <code>__stat</code>, <code>__boton</code>. Crea al menos 3 tarjetas: una normal, una con modificador <code>--destacado</code> y una con <code>--lesionado</code>.
+      </li>
+      <li>
+        <strong>Selectores avanzados</strong>:
+        <ul style="margin-top:.35rem">
+          <li>Usa <code>.jugador-card + .jugador-card</code> para agregar separación entre tarjetas</li>
+          <li>Usa <code>.jugador-card > .jugador-card__imagen</code> para estilizar solo la imagen directa</li>
+          <li>Usa <code>input[type="search"]</code> para estilizar un campo de búsqueda sin clase</li>
+        </ul>
+      </li>
+      <li>
+        <strong>Pseudoclases</strong>:
+        <ul style="margin-top:.35rem">
+          <li><code>:hover</code> en la tarjeta: que suba con <code>transform: translateY(-4px)</code></li>
+          <li><code>:focus</code> en el input de búsqueda: borde de color y sombra</li>
+          <li><code>:nth-child(odd)</code> en los stats para alternar colores de fondo</li>
+          <li><code>:not(.jugador-card--lesionado)</code> para estilizar solo los jugadores disponibles</li>
+        </ul>
+      </li>
+      <li>
+        <strong>Pseudoelementos</strong>:
+        <ul style="margin-top:.35rem">
+          <li><code>::before</code> en <code>.jugador-card--destacado</code> para agregar una estrella ⭐ decorativa</li>
+          <li><code>::after</code> en <code>.jugador-card--lesionado</code> para mostrar el texto "Lesionado 🩹"</li>
+          <li><code>::selection</code> personalizado en toda la página</li>
+          <li><code>::placeholder</code> con estilo en el input de búsqueda</li>
+        </ul>
+      </li>
+      <li>
+        <strong>Contador CSS</strong>: Usando <code>counter-reset</code> y <code>counter-increment</code>, agrega un número automático a cada tarjeta con <code>::before</code>.
+      </li>
+    </ol>
+
+    <p style="margin-top:1rem"><strong>Bonus desafiante:</strong> Usa <code>input[type="checkbox"]:checked ~ .jugador-card--lesionado</code> para ocultar/mostrar los jugadores lesionados cuando el usuario marca un checkbox que diga "Mostrar solo disponibles" — todo sin JavaScript.</p>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Resumen de lo que aprendiste en la Parte C</h4>
+    <ul>
+      <li><strong>Selectores avanzados:</strong> múltiple (,), descendiente (espacio), hijo directo (&gt;)</li>
+      <li><strong>Combinadores:</strong> hermano adyacente (+), hermanos generales (~)</li>
+      <li><strong>Selector de atributo:</strong> [attr], [attr="val"], [attr^=], [attr$=], [attr*=]</li>
+      <li><strong>Pseudoclases de estado:</strong> :hover, :focus, :focus-visible, :active, :visited, :checked, :disabled, :valid, :invalid, :placeholder-shown, :empty</li>
+      <li><strong>Pseudoclases funcionales:</strong> :not(), :is(), :where()</li>
+      <li><strong>Pseudoclases de posición:</strong> :first-child, :last-child, :nth-child(An+B), :nth-of-type, :only-child</li>
+      <li><strong>Pseudoelementos:</strong> ::before, ::after, ::placeholder, ::selection, ::first-line, ::first-letter, ::marker, ::backdrop</li>
+      <li><strong>BEM:</strong> Block, Element (doble guión bajo __), Modifier (doble guión --)</li>
+    </ul>
+  </div>
+
+  <div class="concept">
+    <h4>💡 ¿Qué sigue? — Parte D</h4>
+    <p>La siguiente parte entra a <strong>Posicionamiento CSS avanzado</strong>: position relative, absolute, fixed y sticky en profundidad, z-index y el contexto de apilamiento, cómo construir <strong>Ventanas Modales</strong>, <strong>Transitions</strong> para animar cambios de estado, <strong>Overflow</strong> y control del desbordamiento, y técnicas para controlar el flujo del texto. Pídela cuando estés listo.</p>
+  </div>
+
+</section>
+
+</main>
+
+<footer>
+  Guía HTML &amp; CSS · Parte C — CSS Avanzado · Basada en el curso de Soy Dalto · Hugo 2025
+</footer>
+
+</body>
+</html>

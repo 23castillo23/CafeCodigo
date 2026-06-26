@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía: Lenguajes Tipados vs No Tipados — EDteam</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #c44a2a;
+    --primary-light:  #fdf0ec;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --danger:         #c44a2a;
+    --danger-light:   #fdf0ec;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1a1814;
+    --code-text:      #e8e4de;
+  }
+
+  body { font-family: 'DM Sans', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  header { background: #1a1814; color: #f7f4ef; padding: 3rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: '<T>'; position: absolute; font-size: 14rem; font-weight: 900; color: rgba(255,255,255,0.04); right: -2rem; top: -3rem; font-family: monospace; line-height: 1; }
+  header h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; font-family: 'Fraunces', serif; }
+  header p { font-size: 1.1rem; opacity: .85; margin-top: .5rem; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; display: flex; overflow-x: auto; gap: 0; }
+  nav a { flex-shrink: 0; padding: .75rem 1rem; text-decoration: none; color: var(--muted); font-size: .78rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2.5rem; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-size: 1.35rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  .analogy { background: #FFF7ED; border: 1px solid #FDE68A; border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: #92400E; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; color: #78350F; }
+
+  .concept { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p, .tip ul { font-size: .95rem; }
+  .tip ul { padding-left: 1.2rem; }
+
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  .code-block { background: var(--code-bg); color: var(--code-text); border-radius: 10px; padding: 1.25rem 1.5rem; font-family: 'DM Mono', 'Courier New', monospace; font-size: .88rem; line-height: 1.85; overflow-x: auto; margin: 1rem 0; position: relative; white-space: pre; }
+  .code-block .ct { color: #89B4FA; }
+  .code-block .ca { color: #CBA6F7; }
+  .code-block .cv { color: #A6E3A1; }
+  .code-block .cs { color: #F9E2AF; }
+  .code-block .cp { color: #89DCEB; }
+  .code-block .cc { color: #585B70; font-style: italic; }
+  .code-block .cn { color: #FAB387; }
+  .code-block .ce { color: #F38BA8; }
+  .lang { position: absolute; top: .6rem; right: .75rem; background: rgba(255,255,255,.1); color: rgba(255,255,255,.5); font-size: .68rem; padding: 2px 8px; border-radius: 4px; font-family: sans-serif; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+  .tag-green { background: var(--secondary-light); color: var(--secondary); }
+  .tag-amber { background: var(--accent-light); color: var(--accent); }
+  .tag-gray { background: #f0ece6; color: #5a5650; }
+  .kbd { display: inline-block; background: #f0ece6; border: 1px solid var(--border); border-bottom: 2px solid #ccc; border-radius: 5px; font-family: 'DM Mono', monospace; font-size: .8rem; padding: 1px 8px; color: var(--text); }
+
+  .ex { background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 12px; padding: 1.5rem; margin: 1.5rem 0; }
+  .ex-hd { display: flex; align-items: center; gap: .75rem; margin-bottom: 1rem; font-weight: 700; font-size: 1rem; color: #78350F; flex-wrap: wrap; }
+  .ex-badge { background: var(--accent); color: #fff; font-size: .68rem; padding: 2px 9px; border-radius: 20px; font-weight: 700; text-transform: uppercase; }
+  .ex ol { padding-left: 1.4rem; }
+  .ex ol li { margin-bottom: .6rem; font-size: .95rem; }
+  .ex p { font-size: .95rem; margin-bottom: .6rem; }
+
+  .glos { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .glos-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; }
+  .glos-item dt { font-weight: 700; color: var(--primary); font-size: .92rem; margin-bottom: .3rem; }
+  .glos-item dd { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+  .glos-item .emoji { font-size: 1.3rem; display: block; margin-bottom: .3rem; }
+
+  .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+  .compare-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem 1.4rem; }
+  .compare-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: .6rem; margin-top: 0; }
+  .compare-card ul { padding-left: 1.2rem; font-size: .92rem; color: var(--muted); }
+  .compare-card li { margin-bottom: .35rem; }
+  .compare-card .langs { margin-top: .75rem; font-size: .82rem; color: var(--muted); }
+  .compare-card .langs strong { color: var(--text); }
+
+  .matrix-wrap { overflow-x: auto; margin: 1rem 0; }
+  .matrix { width: 100%; border-collapse: collapse; font-size: .9rem; }
+  .matrix th { background: var(--primary-light); color: var(--primary); padding: .7rem 1.1rem; text-align: center; font-weight: 700; border: 1px solid var(--border); }
+  .matrix td { padding: .7rem 1.1rem; border: 1px solid var(--border); vertical-align: top; font-size: .88rem; }
+  .matrix .row-label { background: var(--bg); font-weight: 700; color: var(--text); text-align: center; }
+  .matrix td ul { padding-left: 1.1rem; margin: 0; }
+  .matrix td li { margin-bottom: .2rem; color: var(--muted); }
+
+  .steps { counter-reset: steps; }
+  .step { display: flex; gap: 1rem; margin-bottom: 1rem; align-items: flex-start; }
+  .step::before { counter-increment: steps; content: counter(steps); background: var(--primary); color: white; font-size: .78rem; font-weight: 700; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: .2rem; font-family: 'DM Mono', monospace; }
+  .step p { font-size: .95rem; margin: 0; }
+
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: white; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  h2 { font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; color: var(--text); }
+  h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 .5rem; }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: #f0ece6; color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+  strong { font-weight: 700; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Lenguajes Tipados vs No Tipados</h1>
+  <p>Entiende el tipado estático, dinámico, fuerte y débil de una vez por todas</p>
+  <span class="badge">✦ Video de EDteam · Playlist: Fundamentos de Programación ✦</span>
+</header>
+
+<nav>
+  <a href="#intro">🎯 Intro</a>
+  <a href="#tipos-datos">📦 Tipos de datos</a>
+  <a href="#tipados-no">🏷 Tipados vs no tipados</a>
+  <a href="#estatico-dinamico">⚡ Estático vs dinámico</a>
+  <a href="#fuerte-debil">💪 Fuerte vs débil</a>
+  <a href="#matriz">🗺 La matriz</a>
+  <a href="#inferencia">🔍 Inferencia de tipos</a>
+  <a href="#resumen">✅ Resumen</a>
+</nav>
+
+<main>
+
+<div class="parte-badge">📺 Guía basada en el video de EDteam — Fundamentos de Programación</div>
+
+
+<!-- ═══════════════════════════════════════════
+     INTRODUCCIÓN
+═══════════════════════════════════════════ -->
+<section class="module" id="intro">
+  <div class="module-header">
+    <div class="module-icon">🎯</div>
+    <div>
+      <div class="module-title">Introducción — ¿De qué trata este video?</div>
+      <div class="module-sub">El trabalenguas del tipado explicado de una vez · 0:00 – 1:09</div>
+    </div>
+  </div>
+
+  <p>La programación consiste en hacer operaciones con datos. Pero los datos no son todos iguales: no puedes sumar un número con un texto como si fueran la misma cosa. De ahí nace el concepto de <strong>tipado</strong>.</p>
+
+  <p>Según cómo los lenguajes manejen los tipos, se clasifican en diferentes categorías: tipados y no tipados, estáticamente y dinámicamente tipados, débilmente y fuertemente tipados. ¿Son sinónimos? ¿Son cosas diferentes? Este video de EDteam responde esas preguntas.</p>
+
+  <div class="analogy">
+    <h4>🧩 Analogía: los cajones de la cocina</h4>
+    <p>En una cocina organizada, los cubiertos van en un cajón, las ollas en otro y las especias en otro. El <strong>tipado</strong> es exactamente eso: un sistema que clasifica los datos en "cajones" según su tipo, para saber qué puedes hacer con cada uno. No tiene sentido intentar mezclar la sal con el aceite de la misma manera que mezclas dos líquidos — el tipo importa.</p>
+  </div>
+
+  <div class="concept">
+    <h4>💡 Lo que aprenderás en esta guía</h4>
+    <p>Esta guía cubre cada tema del video de EDteam: qué son los tipos de datos, las 3 clasificaciones de los lenguajes (tipado/no tipado, estático/dinámico, fuerte/débil), la inferencia de tipos, y ejercicios prácticos en Python, Java y JavaScript.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     TIPOS DE DATOS
+═══════════════════════════════════════════ -->
+<section class="module" id="tipos-datos">
+  <div class="module-header">
+    <div class="module-icon">📦</div>
+    <div>
+      <div class="module-title">Tipos de datos — la materia prima de la programación</div>
+      <div class="module-sub">¿Qué tipos existen y por qué importan? · 1:09 – 2:39</div>
+    </div>
+  </div>
+
+  <p>Todo programa trabaja con datos. Pero no todos los datos son iguales: puedes sumar dos números, pero no un número y un texto. Por eso existe el concepto de <strong>tipo de dato</strong>: una clasificación que le dice al lenguaje qué operaciones son válidas con cada valor.</p>
+
+  <h2>Los 3 tipos básicos en cualquier lenguaje</h2>
+
+  <dl class="glos">
+    <div class="glos-item">
+      <span class="emoji">🔢</span>
+      <dt>Números</dt>
+      <dd>Valores numéricos. Pueden ser enteros (<code>int</code>) o decimales (<code>float</code>). Ejemplos: tu año de nacimiento, tu número de teléfono, la duración de un video.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🔤</span>
+      <dt>Textos (Strings)</dt>
+      <dd>Cadenas de caracteres. Todo lo que va entre comillas. Ejemplos: tu nombre, un correo electrónico, un mensaje.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">☑️</span>
+      <dt>Booleans (lógicos)</dt>
+      <dd>Solo dos valores posibles: <code>true</code> o <code>false</code>. Representan condiciones. Ejemplos: ¿el usuario está logueado?, ¿tiene descuento?, ¿es mayor de edad?</dd>
+    </div>
+  </dl>
+
+  <div class="analogy">
+    <h4>🧪 Analogía: los estados de la materia</h4>
+    <p>En química, el agua puede ser sólida (hielo), líquida o gaseosa. No puedes tratar el hielo exactamente igual que el vapor — son el mismo elemento pero en estados distintos con propiedades distintas. Los tipos de datos funcionan igual: son datos, pero cada tipo tiene sus propias "propiedades" (operaciones que puedes hacer con él). Sumar dos números es válido. Sumar un número con un texto… depende del lenguaje, y eso nos lleva al siguiente tema.</p>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 ¿Por qué importa saber los tipos?</h4>
+    <p>Porque determina qué errores puedes cometer y cuándo los descubres. Dependiendo del lenguaje, un error de tipos puede explotar mientras escribes el código, cuando lo compilas, o peor: cuando ya está en producción con usuarios reales. Entender el tipado es entender cuándo y cómo te protege (o no te protege) el lenguaje.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     TIPADOS VS NO TIPADOS
+═══════════════════════════════════════════ -->
+<section class="module" id="tipados-no">
+  <div class="module-header">
+    <div class="module-icon">🏷</div>
+    <div>
+      <div class="module-title">Tipados vs No tipados — la primera clasificación</div>
+      <div class="module-sub">¿El lenguaje distingue tipos de datos? · 2:39 – 4:36</div>
+    </div>
+  </div>
+
+  <p>La primera gran pregunta sobre cualquier lenguaje es: <strong>¿distingue los tipos de datos o trata todo igual?</strong> Aquí nace la clasificación entre lenguajes tipados y no tipados.</p>
+
+  <div class="compare-grid">
+    <div class="compare-card">
+      <h3 style="color: var(--secondary);">✅ Lenguajes tipados</h3>
+      <ul>
+        <li>Diferencian entre tipos de datos</li>
+        <li>Controlan qué operaciones son válidas con cada tipo</li>
+        <li>Si mezclas tipos incompatibles, el lenguaje reacciona</li>
+      </ul>
+      <div class="langs"><strong>Ejemplos:</strong> Python, Java, JavaScript, C, C++, PHP, Ruby, TypeScript</div>
+    </div>
+    <div class="compare-card">
+      <h3 style="color: var(--muted);">⬜ Lenguajes no tipados</h3>
+      <ul>
+        <li>No distinguen tipos de datos</li>
+        <li>Todo se trata como una secuencia de bytes en memoria</li>
+        <li>La responsabilidad de interpretar los datos es 100% del programador</li>
+      </ul>
+      <div class="langs"><strong>Ejemplos:</strong> Assembly (ensamblador), Forth, Brainfuck</div>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <h4>🏪 Analogía: la tienda con y sin categorías</h4>
+    <p>Un lenguaje <strong>tipado</strong> es como una tienda con pasillos organizados: bebidas con bebidas, frutas con frutas, lácteos con lácteos. Si intentas poner leche en el pasillo de electrónica, el sistema lo rechaza. Un lenguaje <strong>no tipado</strong> es como un almacén sin organización: todo está en el suelo revuelto, y tú tienes que saber dónde está cada cosa. Más flexible, pero mucho más peligroso.</p>
+  </div>
+
+  <div class="concept">
+    <h4>💡 ¿Cuándo usas lenguajes no tipados hoy?</h4>
+    <p>Casi nunca en el desarrollo moderno. Assembly se usa en sistemas embebidos, firmware de hardware muy específico, o cuando necesitas controlar exactamente cada byte de memoria. Para el 99.9% del desarrollo (web, apps, IA, videojuegos) usarás lenguajes tipados. La distinción tipado/no tipado es más histórica que práctica — lo que realmente importa es cómo manejan los tipos los lenguajes modernos.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     ESTÁTICO VS DINÁMICO
+═══════════════════════════════════════════ -->
+<section class="module" id="estatico-dinamico">
+  <div class="module-header">
+    <div class="module-icon">⚡</div>
+    <div>
+      <div class="module-title">Tipado estático vs dinámico — ¿cuándo se comprueban los tipos?</div>
+      <div class="module-sub">La clasificación más importante para tu día a día · 4:36 – hasta aprox. minuto 9</div>
+    </div>
+  </div>
+
+  <p>Esta es la clasificación más importante en la práctica. Responde a la pregunta: <strong>¿el tipo va ligado a la variable o al valor?</strong> Y en consecuencia, ¿cuándo se detectan los errores de tipo?</p>
+
+  <div class="compare-grid">
+    <div class="compare-card" style="border-left: 4px solid var(--primary);">
+      <h3 style="color: var(--primary);">🗿 Tipado estático</h3>
+      <ul>
+        <li>El tipo va ligado a la <strong>variable</strong></li>
+        <li>Una vez declarada, la variable no puede cambiar de tipo</li>
+        <li>Los tipos se verifican en <strong>tiempo de compilación</strong> (antes de ejecutar)</li>
+        <li>Los errores de tipo se detectan antes de que el programa corra</li>
+      </ul>
+      <div class="langs"><strong>Ejemplos:</strong> Java, C, C++, C#, TypeScript, Go, Kotlin, Swift, Rust</div>
+    </div>
+    <div class="compare-card" style="border-left: 4px solid var(--secondary);">
+      <h3 style="color: var(--secondary);">🌊 Tipado dinámico</h3>
+      <ul>
+        <li>El tipo va ligado al <strong>valor</strong></li>
+        <li>Una variable puede cambiar de tipo durante la ejecución</li>
+        <li>Los tipos se verifican en <strong>tiempo de ejecución</strong> (mientras corre)</li>
+        <li>Los errores de tipo solo aparecen cuando esa línea se ejecuta</li>
+      </ul>
+      <div class="langs"><strong>Ejemplos:</strong> Python, JavaScript, PHP, Ruby, Clojure</div>
+    </div>
+  </div>
+
+  <h2>Ejemplo en código</h2>
+
+  <div class="code-block"><span class="lang">Java — estático</span><span class="cc">// Java: debes declarar el tipo explícitamente</span>
+<span class="ct">int</span> edad = <span class="cs">25</span>;
+edad = <span class="cs">"veinticinco"</span>;   <span class="ce">// ❌ Error en compilación — antes de ejecutar</span>
+                          <span class="cc">// "incompatible types: String cannot be converted to int"</span>
+
+<span class="ct">String</span> nombre = <span class="cs">"María"</span>;
+nombre = <span class="cs">42</span>;             <span class="ce">// ❌ Error — una String no puede ser int</span></div>
+
+  <div class="code-block"><span class="lang">Python — dinámico</span><span class="cc"># Python: el tipo se asigna al asignar el valor</span>
+edad = <span class="cs">25</span>
+<span class="ct">print</span>(<span class="ct">type</span>(edad))    <span class="cc"># &lt;class 'int'&gt;</span>
+
+edad = <span class="cs">"veinticinco"</span>  <span class="cv"># ✅ Válido — la variable cambió de int a str</span>
+<span class="ct">print</span>(<span class="ct">type</span>(edad))    <span class="cc"># &lt;class 'str'&gt;</span>
+
+edad = <span class="cs">True</span>           <span class="cv"># ✅ También válido — ahora es bool</span></div>
+
+  <div class="analogy">
+    <h4>🗄 Analogía: los cajones con y sin etiquetas fijas</h4>
+    <p>El <strong>tipado estático</strong> es como un archivador de oficina donde cada cajón tiene una etiqueta fija grabada: "Facturas", "Contratos", "Fotos". Si intentas meter una foto en el cajón de facturas, el sistema no te lo permite — y te avisa <em>antes</em> de intentarlo. El <strong>tipado dinámico</strong> es como una mochila sin compartimentos fijos: puedes meter lo que quieras en cualquier bolsillo, pero si luego buscas "las llaves" y metiste una manzana, solo te enteras cuando metes la mano.</p>
+  </div>
+
+  <h2>¿Cuál es mejor?</h2>
+
+  <table class="tbl">
+    <thead>
+      <tr>
+        <th>Aspecto</th>
+        <th>Estático</th>
+        <th>Dinámico</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Detección de errores</td>
+        <td>Antes de ejecutar ✅ más seguro</td>
+        <td>Al ejecutar ⚠️ más riesgoso</td>
+      </tr>
+      <tr>
+        <td>Velocidad de escritura</td>
+        <td>Más lento (debes declarar tipos)</td>
+        <td>Más rápido (escribes menos)</td>
+      </tr>
+      <tr>
+        <td>Proyectos grandes</td>
+        <td>Más manejable ✅</td>
+        <td>Puede volverse difícil de controlar</td>
+      </tr>
+      <tr>
+        <td>Prototipado rápido</td>
+        <td>Más lento</td>
+        <td>Ideal para probar ideas rápido ✅</td>
+      </tr>
+      <tr>
+        <td>Rendimiento</td>
+        <td>Generalmente más rápido en ejecución</td>
+        <td>Puede ser más lento (chequea en runtime)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="warn">
+    <h4>⚠️ El problema de JavaScript en proyectos grandes</h4>
+    <p>JavaScript es dinámicamente tipado. Cuando los proyectos crecen, esto hace que los errores de tipo sean muy difíciles de detectar. Esta fue una de las razones principales por las que Anders Hejlsberg y el equipo de Microsoft crearon <strong>TypeScript</strong>: un lenguaje que añade tipado estático opcional encima de JavaScript, permitiendo detectar errores antes de ejecutar el código.</p>
+  </div>
+
+  <div class="ex">
+    <div class="ex-hd">✏️ Ejercicio — Clasifica estos lenguajes <span class="ex-badge">Principiante</span></div>
+    <p>Sin buscar, intenta clasificar cada lenguaje como <span class="tag">estático</span> o <span class="tag tag-green">dinámico</span>:</p>
+    <table class="tbl">
+      <thead><tr><th>Lenguaje</th><th>¿Estático o dinámico?</th><th>Pista</th></tr></thead>
+      <tbody>
+        <tr><td><code>C++</code></td><td><span class="tag">Estático</span></td><td>Necesitas declarar <code>int x = 5;</code></td></tr>
+        <tr><td><code>Ruby</code></td><td><span class="tag tag-green">Dinámico</span></td><td>Similar a Python en filosofía</td></tr>
+        <tr><td><code>TypeScript</code></td><td><span class="tag">Estático</span></td><td>Fue creado exactamente para añadir esto a JS</td></tr>
+        <tr><td><code>PHP</code></td><td><span class="tag tag-green">Dinámico</span></td><td>Muy usado en web con WordPress</td></tr>
+        <tr><td><code>Kotlin</code></td><td><span class="tag">Estático</span></td><td>Alternativa moderna a Java en Android</td></tr>
+        <tr><td><code>Go</code></td><td><span class="tag">Estático</span></td><td>Creado por Google para sistemas eficientes</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     FUERTE VS DÉBIL
+═══════════════════════════════════════════ -->
+<section class="module" id="fuerte-debil">
+  <div class="module-header">
+    <div class="module-icon">💪</div>
+    <div>
+      <div class="module-title">Tipado fuerte vs débil — ¿qué tan permisivo es el lenguaje?</div>
+      <div class="module-sub">Casting, coerción y los "resultados raros" de JavaScript · aprox. minuto 9 – 12</div>
+    </div>
+  </div>
+
+  <p>Esta clasificación responde a: <strong>¿qué pasa cuando intentas operar con tipos incompatibles?</strong> El proceso de cambiar un tipo de dato por otro se llama <strong>casting</strong> (explícito) o <strong>coerción de tipos</strong> (automático).</p>
+
+  <div class="compare-grid">
+    <div class="compare-card" style="border-left: 4px solid var(--secondary);">
+      <h3 style="color: var(--secondary);">🔒 Tipado fuerte</h3>
+      <ul>
+        <li>Para cambiar el tipo debes seguir reglas estrictas</li>
+        <li>No hace conversiones automáticas entre tipos incompatibles</li>
+        <li>Si mezclas tipos sin permiso, lanza un error claro</li>
+        <li>El programador debe ser <strong>explícito</strong> cuando quiere cambiar un tipo</li>
+      </ul>
+      <div class="langs"><strong>Ejemplos:</strong> Python, Java, Swift, Rust, C#</div>
+    </div>
+    <div class="compare-card" style="border-left: 4px solid var(--accent);">
+      <h3 style="color: var(--accent);">🌀 Tipado débil</h3>
+      <ul>
+        <li>Hace conversiones de tipo automáticamente ("al vuelo")</li>
+        <li>Intenta completar la operación aunque los tipos sean distintos</li>
+        <li>Puede dar resultados <em>inesperados y difíciles de debuggear</em></li>
+        <li>Es más permisivo, pero también más impredecible</li>
+      </ul>
+      <div class="langs"><strong>Ejemplos:</strong> JavaScript, PHP, Perl, C (en algunos casos)</div>
+    </div>
+  </div>
+
+  <h2>El ejemplo clásico: JavaScript vs Python</h2>
+
+  <div class="code-block"><span class="lang">JavaScript — tipado débil</span><span class="cc">// JavaScript convierte tipos automáticamente</span>
+<span class="cs">5</span> + <span class="cs">"3"</span>        <span class="cc">// → "53"   (convirtió el 5 a string y concatenó)</span>
+<span class="cs">true</span> + <span class="cs">1</span>      <span class="cc">// → 2      (convirtió true a 1)</span>
+<span class="cs">false</span> + <span class="cs">1</span>     <span class="cc">// → 1      (convirtió false a 0)</span>
+<span class="cs">"5"</span> - <span class="cs">3</span>       <span class="cc">// → 2      (convirtió el "5" a número)</span>
+<span class="cs">"5"</span> * <span class="cs">"3"</span>     <span class="cc">// → 15     (convirtió ambos a números)</span>
+[] + []       <span class="cc">// → ""     (dos arrays vacíos suman... un string vacío)</span>
+[] + {}       <span class="cc">// → "[object Object]"  (¿?)</span></div>
+
+  <div class="code-block"><span class="lang">Python — tipado fuerte</span><span class="cc"># Python NO hace conversiones automáticas entre incompatibles</span>
+<span class="cs">5</span> + <span class="cs">"3"</span>        <span class="ce"># ❌ TypeError: unsupported operand type(s) for +: 'int' and 'str'</span>
+<span class="cs">True</span> + <span class="cs">1</span>      <span class="cv"># → 2  (en Python bool es subclase de int — excepción intencional)</span>
+
+<span class="cc"># Para sumar un número y un string en Python, debes ser explícito:</span>
+<span class="ct">str</span>(<span class="cs">5</span>) + <span class="cs">"3"</span>   <span class="cv"># → "53"   (casting explícito)</span>
+<span class="cs">5</span> + <span class="ct">int</span>(<span class="cs">"3"</span>)   <span class="cv"># → 8     (casting explícito)</span></div>
+
+  <div class="analogy">
+    <h4>🧑‍🍳 Analogía: el asistente demasiado servicial vs el estricto</h4>
+    <p>Imagina que le pides a un asistente que sume <em>manzanas con naranjas</em>. El <strong>tipado débil</strong> es un asistente demasiado servicial: mezcla todo sin preguntar y te da un resultado que parece coherente pero en realidad no lo es. El <strong>tipado fuerte</strong> es un asistente estricto que te dice: "Espera — ¿quieres sumar manzanas como frutas o como unidades? Dímelo claramente y lo hago." Te obliga a ser preciso, pero el resultado siempre es confiable.</p>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ Estático/dinámico ≠ Fuerte/débil — no son sinónimos</h4>
+    <p>Este es el error más común. Son dos ejes <em>completamente independientes</em>. Un lenguaje puede ser estático y débil (C), dinámico y fuerte (Python), estático y fuerte (Java), o dinámico y débil (JavaScript). Tienen que ver con cosas distintas: el primero habla de <em>cuándo</em> se verifican los tipos, el segundo de <em>qué tan estricto</em> es el lenguaje al mezclarlos.</p>
+  </div>
+
+  <div class="ex">
+    <div class="ex-hd">✏️ Ejercicio — Predice el resultado <span class="ex-badge">Intermedio</span></div>
+    <p>Sin ejecutar el código, predice qué dará cada expresión en JavaScript. Luego compruébalo en la consola del navegador (<kbd class="kbd">F12</kbd> → Console):</p>
+    <table class="tbl">
+      <thead><tr><th>Expresión</th><th>¿Qué crees que da?</th><th>Resultado real</th></tr></thead>
+      <tbody>
+        <tr><td><code>"10" - 5</code></td><td></td><td><code>5</code> (convirtió "10" a número)</td></tr>
+        <tr><td><code>"10" + 5</code></td><td></td><td><code>"105"</code> (convirtió 5 a string)</td></tr>
+        <tr><td><code>true + true</code></td><td></td><td><code>2</code> (true = 1)</td></tr>
+        <tr><td><code>null + 1</code></td><td></td><td><code>1</code> (null = 0)</td></tr>
+        <tr><td><code>undefined + 1</code></td><td></td><td><code>NaN</code> (no es convertible)</td></tr>
+      </tbody>
+    </table>
+    <p><strong>Reflexión:</strong> ¿Ves por qué el tipado débil puede causar bugs difíciles de encontrar en proyectos grandes?</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     LA MATRIZ DE COMBINACIONES
+═══════════════════════════════════════════ -->
+<section class="module" id="matriz">
+  <div class="module-header">
+    <div class="module-icon">🗺</div>
+    <div>
+      <div class="module-title">La matriz — Las 4 combinaciones posibles</div>
+      <div class="module-sub">Todos los lenguajes entran en uno de estos 4 cuadrantes · aprox. minuto 12 – 15</div>
+    </div>
+  </div>
+
+  <p>Ya que estático/dinámico y fuerte/débil son ejes independientes, se pueden combinar de 4 maneras distintas. Todos los lenguajes tipados caen en uno de estos cuadrantes:</p>
+
+  <div class="matrix-wrap">
+    <table class="matrix">
+      <thead>
+        <tr>
+          <th style="background: var(--bg); color: var(--muted);">Clasificación</th>
+          <th>🔒 Tipado fuerte</th>
+          <th>🌀 Tipado débil</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="row-label">🗿 Estático</td>
+          <td>
+            <ul>
+              <li><strong>Java</strong> — el más clásico</li>
+              <li><strong>C#</strong> — ecosistema Microsoft</li>
+              <li><strong>TypeScript</strong> — JS con tipos</li>
+              <li><strong>Kotlin</strong> — Android moderno</li>
+              <li><strong>Swift</strong> — iOS y macOS</li>
+              <li><strong>Rust</strong> — sistemas seguros</li>
+              <li><strong>Go</strong> — creado por Google</li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li><strong>C</strong> — bajo nivel, permite reinterpretar memoria</li>
+              <li><strong>C++</strong> — hereda la permisividad de C</li>
+            </ul>
+          </td>
+        </tr>
+        <tr>
+          <td class="row-label">🌊 Dinámico</td>
+          <td>
+            <ul>
+              <li><strong>Python</strong> — el más popular hoy</li>
+              <li><strong>Ruby</strong> — muy usado en Rails</li>
+              <li><strong>Elixir</strong> — concurrencia funcional</li>
+              <li><strong>Clojure</strong> — LISP moderno</li>
+            </ul>
+          </td>
+          <td>
+            <ul>
+              <li><strong>JavaScript</strong> — el de los navegadores</li>
+              <li><strong>PHP</strong> — web del lado servidor</li>
+              <li><strong>Perl</strong> — texto y scripting</li>
+            </ul>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="analogy">
+    <h4>🧭 Analogía: los 4 tipos de conductores</h4>
+    <p>Imagina el tipado como el comportamiento al volante. <strong>Estático + fuerte</strong> (Java) es el conductor que sigue todas las reglas de tránsito y te avisa de los errores antes de salir. <strong>Dinámico + fuerte</strong> (Python) es el conductor flexible que se adapta a las condiciones pero no improvisa reglas. <strong>Estático + débil</strong> (C) conoce las reglas pero a veces se las salta por eficiencia. <strong>Dinámico + débil</strong> (JavaScript) improvisa constantemente — puede llegar al destino, pero el camino puede ser impredecible.</p>
+  </div>
+
+  <div class="concept">
+    <h4>💡 ¿Por qué existe TypeScript?</h4>
+    <p>JavaScript es <strong>dinámico + débil</strong>. Esto lo hace muy flexible y fácil para empezar, pero cuando los proyectos crecen (miles de líneas, decenas de desarrolladores), los errores de tipo son imposibles de controlar. Por eso Anders Hejlsberg y Microsoft crearon TypeScript: toma JavaScript y le añade un sistema de tipado estático + fuerte. TypeScript se compila a JavaScript, así que funciona en todos los navegadores, pero durante el desarrollo te protege como Java.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     INFERENCIA DE TIPOS
+═══════════════════════════════════════════ -->
+<section class="module" id="inferencia">
+  <div class="module-header">
+    <div class="module-icon">🔍</div>
+    <div>
+      <div class="module-title">Inferencia de tipos — cuando el lenguaje adivina el tipo</div>
+      <div class="module-sub">Solo es sintaxis, no cambia el sistema de tipos · aprox. minuto 15 – 18</div>
+    </div>
+  </div>
+
+  <p>La <strong>inferencia de tipos</strong> es la capacidad de un lenguaje para <em>deducir</em> el tipo de un dato aunque el programador no lo haya declarado explícitamente. Parece que el lenguaje se vuelve dinámico, pero es solo una cuestión de <strong>sintaxis</strong> — el comportamiento interno es exactamente el mismo.</p>
+
+  <div class="concept">
+    <h4>💡 Clave: la inferencia no cambia el sistema de tipos</h4>
+    <p>Un lenguaje con inferencia de tipos puede seguir siendo perfectamente estático y fuerte. Solo significa que no tienes que escribir el tipo manualmente — el compilador lo deduce por ti. El tipo sigue siendo fijo e inamovible.</p>
+  </div>
+
+  <h2>Ejemplos de inferencia en lenguajes estáticos</h2>
+
+  <div class="code-block"><span class="lang">TypeScript — con y sin inferencia</span><span class="cc">// Sin inferencia (declaración explícita)</span>
+<span class="ct">let</span> nombre: <span class="cp">string</span> = <span class="cs">"María"</span>;
+<span class="ct">let</span> edad: <span class="cp">number</span> = <span class="cs">30</span>;
+
+<span class="cc">// Con inferencia (TypeScript deduce el tipo)</span>
+<span class="ct">let</span> nombre = <span class="cs">"María"</span>;   <span class="cc">// TypeScript infiere: string</span>
+<span class="ct">let</span> edad = <span class="cs">30</span>;         <span class="cc">// TypeScript infiere: number</span>
+
+<span class="cc">// Pero sigue siendo estático — esto da error:</span>
+nombre = <span class="cs">42</span>;           <span class="ce">// ❌ Type 'number' is not assignable to type 'string'</span></div>
+
+  <div class="code-block"><span class="lang">C++ — inferencia con auto</span><span class="cc">// C++ moderno (C++11+) tiene inferencia con la palabra 'auto'</span>
+<span class="ct">auto</span> x = <span class="cs">42</span>;       <span class="cc">// infiere: int</span>
+<span class="ct">auto</span> y = <span class="cs">3.14</span>;    <span class="cc">// infiere: double</span>
+<span class="ct">auto</span> z = <span class="cs">"hola"</span>;  <span class="cc">// infiere: const char*</span>
+
+<span class="cc">// Pero el tipo es fijo — esto falla:</span>
+x = <span class="cs">"texto"</span>;       <span class="ce">// ❌ Error — x fue inferido como int</span></div>
+
+  <div class="code-block"><span class="lang">Python — anotaciones de tipo (opcional)</span><span class="cc"># Python soporta anotaciones de tipo como sintaxis opcional</span>
+edad: <span class="cp">int</span> = <span class="cs">25</span>
+nombre: <span class="cp">str</span> = <span class="cs">"Juan"</span>
+
+<span class="cc"># IMPORTANTE: el intérprete de Python NO verifica esto por sí solo</span>
+edad = <span class="cs">"veinticinco"</span>  <span class="cv"># ✅ No da error en Python — las anotaciones son informativas</span>
+
+<span class="cc"># Para que se verifiquen, se necesita una herramienta externa:</span>
+<span class="cc"># mypy, Pyre, o Pyright — analizan el código sin ejecutarlo</span></div>
+
+  <div class="analogy">
+    <h4>🍷 Analogía: el sommelier y la etiqueta del vino</h4>
+    <p>La inferencia de tipos es como un sommelier experto que, al oler una copa de vino, te dice "este es un Merlot del 2018 de Bordeaux" — sin que tú le hayas dado la etiqueta de la botella. Él <em>infirió</em> toda esa información solo por las características del vino. Pero el vino siempre fue ese Merlot — la inferencia no cambió el vino. Igual con los tipos: el lenguaje deduce que <code>x = 42</code> es un <code>int</code>, pero <code>x</code> sigue siendo int aunque no lo hayas escrito.</p>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Lenguaje</th><th>¿Tiene inferencia?</th><th>¿Cómo?</th></tr></thead>
+    <tbody>
+      <tr><td><code>TypeScript</code></td><td>✅ Sí</td><td>Automática — infiere desde el primer valor asignado</td></tr>
+      <tr><td><code>C++ (moderno)</code></td><td>✅ Sí</td><td>Con la palabra clave <code>auto</code></td></tr>
+      <tr><td><code>Go</code></td><td>✅ Sí</td><td>Con <code>:=</code> en vez de <code>var x int =</code></td></tr>
+      <tr><td><code>Kotlin</code></td><td>✅ Sí</td><td>Automática — <code>val x = 5</code> infiere Int</td></tr>
+      <tr><td><code>Python</code></td><td>⚠️ Parcial</td><td>Las anotaciones son informativas, no verificadas por el intérprete</td></tr>
+      <tr><td><code>Java (antiguo)</code></td><td>❌ No (antes de Java 10)</td><td>Siempre debes declarar <code>int x = 5;</code></td></tr>
+      <tr><td><code>Java (moderno)</code></td><td>✅ Sí (desde Java 10)</td><td>Con la palabra clave <code>var</code></td></tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     RESUMEN
+═══════════════════════════════════════════ -->
+<section class="module" id="resumen">
+  <div class="module-header">
+    <div class="module-icon">✅</div>
+    <div>
+      <div class="module-title">Resumen — Todo lo que explica el video de EDteam</div>
+      <div class="module-sub">Las 4 clasificaciones y los conceptos clave de una sola vez</div>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Las 4 clasificaciones del video</h4>
+    <ul>
+      <li><strong>Tipados vs no tipados:</strong> ¿El lenguaje distingue tipos de datos? Los no tipados (Assembly) tratan todo como bytes. Los tipados (casi todos los modernos) diferencian números, textos y booleans.</li>
+      <li><strong>Estático vs dinámico:</strong> ¿El tipo va en la variable (estático) o en el valor (dinámico)? ¿Se verifica al compilar (estático) o al ejecutar (dinámico)?</li>
+      <li><strong>Fuerte vs débil:</strong> ¿El lenguaje hace conversiones de tipo automáticas (débil) o te obliga a ser explícito (fuerte)?</li>
+      <li><strong>Inferencia de tipos:</strong> El lenguaje deduce el tipo sin que lo declares. Solo es sintaxis — no cambia el sistema de tipos del lenguaje.</li>
+    </ul>
+  </div>
+
+  <h2>Mapa completo de lenguajes por clasificación</h2>
+
+  <table class="tbl">
+    <thead>
+      <tr>
+        <th>Lenguaje</th>
+        <th>Estático / Dinámico</th>
+        <th>Fuerte / Débil</th>
+        <th>Inferencia</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><code>Java</code></td><td><span class="tag">Estático</span></td><td><span class="tag tag-green">Fuerte</span></td><td>Sí (desde Java 10)</td></tr>
+      <tr><td><code>TypeScript</code></td><td><span class="tag">Estático</span></td><td><span class="tag tag-green">Fuerte</span></td><td>Sí</td></tr>
+      <tr><td><code>Go</code></td><td><span class="tag">Estático</span></td><td><span class="tag tag-green">Fuerte</span></td><td>Sí</td></tr>
+      <tr><td><code>Rust</code></td><td><span class="tag">Estático</span></td><td><span class="tag tag-green">Fuerte</span></td><td>Sí</td></tr>
+      <tr><td><code>C</code></td><td><span class="tag">Estático</span></td><td><span class="tag tag-amber">Débil</span></td><td>No</td></tr>
+      <tr><td><code>C++</code></td><td><span class="tag">Estático</span></td><td><span class="tag tag-amber">Débil</span></td><td>Sí (auto)</td></tr>
+      <tr><td><code>Python</code></td><td><span class="tag tag-green">Dinámico</span></td><td><span class="tag tag-green">Fuerte</span></td><td>Parcial</td></tr>
+      <tr><td><code>Ruby</code></td><td><span class="tag tag-green">Dinámico</span></td><td><span class="tag tag-green">Fuerte</span></td><td>No</td></tr>
+      <tr><td><code>JavaScript</code></td><td><span class="tag tag-green">Dinámico</span></td><td><span class="tag tag-amber">Débil</span></td><td>No aplica</td></tr>
+      <tr><td><code>PHP</code></td><td><span class="tag tag-green">Dinámico</span></td><td><span class="tag tag-amber">Débil</span></td><td>No aplica</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Ejercicio final integrador</h2>
+
+  <div class="ex">
+    <div class="ex-hd">✏️ Ejercicio — ¿Qué pasa en cada caso? <span class="ex-badge">Avanzado</span></div>
+    <p>Analiza cada situación y responde por qué ocurre lo que ocurre, basándote en lo que aprendiste:</p>
+    <ol>
+      <li>En Java escribes <code>int x = "hola";</code> — ¿qué pasa y por qué?</li>
+      <li>En Python escribes <code>x = 5</code> y luego <code>x = "cinco"</code> — ¿da error? ¿por qué no?</li>
+      <li>En JavaScript escribes <code>"3" * 2</code> — ¿cuánto da? ¿por qué?</li>
+      <li>En Python escribes <code>"3" * 2</code> — ¿cuánto da? ¿por qué (pista: no es error)?</li>
+      <li>TypeScript infiere <code>let x = 5;</code> — si luego haces <code>x = "cinco"</code>, ¿da error? ¿qué tipo infirió?</li>
+    </ol>
+    <p><strong>Respuestas:</strong></p>
+    <ol>
+      <li>Error en compilación — Java es <em>estático</em>, el tipo de <code>x</code> fue declarado como <code>int</code> y no puede cambiar.</li>
+      <li>No da error — Python es <em>dinámico</em>, el tipo va ligado al valor, no a la variable.</li>
+      <li>Da <code>6</code> — JS es <em>débilmente tipado</em> y convierte <code>"3"</code> a número para la multiplicación.</li>
+      <li>Da <code>"33"</code> — Python interpreta <code>str * int</code> como repetición de string. Es un comportamiento <em>definido explícitamente</em>, no coerción automática.</li>
+      <li>Sí, da error — TypeScript infirió que <code>x</code> es <code>number</code> (estático con inferencia) y no puede reasignarse como <code>string</code>.</li>
+    </ol>
+  </div>
+
+  <div class="concept">
+    <h4>💡 ¿Qué lenguaje aprender primero?</h4>
+    <p>EDteam recomienda empezar con un lenguaje que te enseñe buenos hábitos. <strong>Python</strong> (dinámico + fuerte) es ideal para principiantes porque es legible y te protege de errores de tipo. <strong>TypeScript</strong> (estático + fuerte) es ideal si quieres trabajar en web. Aprende uno bien antes de juzgar el sistema de tipos de los demás — cada uno tiene su razón de ser.</p>
+  </div>
+
+  <div class="analogy">
+    <h4>🎓 El siguiente paso según EDteam</h4>
+    <p>El video termina recomendando tomar el curso <strong>"Programación desde cero"</strong> disponible en <a href="https://ed.team" target="_blank" rel="noopener" style="color: var(--primary);">ed.team</a>, donde se aplican todos estos conceptos en la práctica con ejercicios reales. Entender el tipado es el primer paso para elegir el lenguaje correcto para cada proyecto.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Guía basada en el video de EDteam: "Lenguajes tipados vs no tipados" · <a href="https://www.youtube.com/watch?v=CliV92TLT3s&list=PLoNE_hb5QJQUmTUBp1A8ynDCM295Qam7G&index=3" target="_blank" rel="noopener" style="color:var(--primary);">Ver video original en YouTube →</a>
+</footer>
+
+</body>
+</html>

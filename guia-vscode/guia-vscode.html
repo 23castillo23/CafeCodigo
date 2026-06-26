@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía VS Code desde Cero — Soy Dalto</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #c44a2a;
+    --primary-light:  #fdf0ec;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --danger:         #c44a2a;
+    --danger-light:   #fdf0ec;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1a1814;
+    --code-text:      #e8e4de;
+  }
+
+  body { font-family: 'DM Sans', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  /* BARRA CAFÉ */
+  .cafe-bar { background:#ffffff; border-bottom:1px solid #e8e4de; padding:0 24px; display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:200; height:45px; }
+  .cafe-bar a { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:#8a8480; text-decoration:none; padding:6px 14px; border:1px solid #e8e4de; border-radius:999px; transition:all 0.15s; }
+  .cafe-bar a:hover { color:#1a1814; border-color:#8a8480; }
+  .cafe-bar span { font-size:13px; color:#8a8480; }
+
+  header { background: #1a1814; color: #f7f4ef; padding: 3rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: '>_'; position: absolute; font-size: 14rem; font-weight: 900; color: rgba(255,255,255,0.04); right: -2rem; top: -3rem; font-family: monospace; line-height: 1; }
+  header h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; font-family: 'Fraunces', serif; }
+  header p { font-size: 1.1rem; opacity: .85; margin-top: .5rem; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 45px; z-index: 100; display: flex; overflow-x: auto; gap: 0; }
+  nav a { flex-shrink: 0; padding: .75rem 1rem; text-decoration: none; color: var(--muted); font-size: .78rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2.5rem; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-size: 1.35rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  .analogy { background: #FFF7ED; border: 1px solid #FDE68A; border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: #92400E; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; color: #78350F; }
+
+  .concept { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p, .tip ul { font-size: .95rem; }
+  .tip ul { padding-left: 1.2rem; }
+
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  .anatomy { background: #F0F4FF; border: 1px solid #C7D2FE; border-radius: 12px; padding: 1.5rem; font-family: monospace; font-size: 1.05rem; line-height: 2.4; margin: 1.25rem 0; }
+  .anatomy .br { color: var(--primary); font-weight: 700; }
+  .anatomy .at { color: #0891B2; }
+  .anatomy .vl { color: #059669; }
+  .anatomy .lb { display: inline-block; background: var(--primary); color: #fff; font-size: .68rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 6px; }
+  .anatomy .lb2 { display: inline-block; background: var(--accent); color: #fff; font-size: .68rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 6px; }
+  .anatomy .lb3 { display: inline-block; background: var(--secondary); color: #fff; font-size: .68rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 6px; }
+
+  .code-block { background: var(--code-bg); color: var(--code-text); border-radius: 10px; padding: 1.25rem 1.5rem; font-family: 'DM Mono', 'Courier New', monospace; font-size: .88rem; line-height: 1.85; overflow-x: auto; margin: 1rem 0; position: relative; white-space: pre; }
+  .code-block .ct { color: #89B4FA; }
+  .code-block .ca { color: #CBA6F7; }
+  .code-block .cv { color: #A6E3A1; }
+  .code-block .cs { color: #F9E2AF; }
+  .code-block .cp { color: #89DCEB; }
+  .code-block .cc { color: #585B70; font-style: italic; }
+  .code-block .cn { color: #FAB387; }
+  .lang { position: absolute; top: .6rem; right: .75rem; background: rgba(255,255,255,.1); color: rgba(255,255,255,.5); font-size: .68rem; padding: 2px 8px; border-radius: 4px; font-family: sans-serif; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+  .kbd { display: inline-block; background: #f0ece6; border: 1px solid var(--border); border-bottom: 2px solid #ccc; border-radius: 5px; font-family: 'DM Mono', monospace; font-size: .8rem; padding: 1px 8px; color: var(--text); }
+
+  .ex { background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 12px; padding: 1.5rem; margin: 1.5rem 0; }
+  .ex-hd { display: flex; align-items: center; gap: .75rem; margin-bottom: 1rem; font-weight: 700; font-size: 1rem; color: #78350F; flex-wrap: wrap; }
+  .ex-badge { background: var(--accent); color: #fff; font-size: .68rem; padding: 2px 9px; border-radius: 20px; font-weight: 700; text-transform: uppercase; }
+  .ex ol { padding-left: 1.4rem; }
+  .ex ol li { margin-bottom: .6rem; font-size: .95rem; }
+  .ex p { font-size: .95rem; margin-bottom: .6rem; }
+
+  .glos { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .glos-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; }
+  .glos-item dt { font-weight: 700; color: var(--primary); font-size: .92rem; margin-bottom: .3rem; }
+  .glos-item dd { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+  .glos-item .emoji { font-size: 1.3rem; display: block; margin-bottom: .3rem; }
+
+  .ext-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .ext-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem; }
+  .ext-card .ec-name { font-family: 'DM Mono', monospace; font-size: .9rem; font-weight: 700; color: var(--primary); background: var(--primary-light); padding: 2px 9px; border-radius: 6px; display: inline-block; margin-bottom: .5rem; }
+  .ext-card .ec-author { font-size: .75rem; color: var(--muted); margin-bottom: .5rem; }
+  .ext-card .ec-desc { font-size: .87rem; margin-bottom: .5rem; }
+  .ext-card .ec-analogy { font-size: .82rem; color: #92400E; background: #FFF7ED; border-radius: 6px; padding: .5rem .75rem; border-left: 3px solid var(--accent); }
+
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: white; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  .steps { counter-reset: steps; }
+  .step { display: flex; gap: 1rem; margin-bottom: 1rem; align-items: flex-start; }
+  .step::before { counter-increment: steps; content: counter(steps); background: var(--primary); color: white; font-size: .78rem; font-weight: 700; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: .2rem; font-family: 'DM Mono', monospace; }
+  .step p { font-size: .95rem; margin: 0; }
+
+  h2 { font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; color: var(--text); }
+  h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 .5rem; }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: #f0ece6; color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+  strong { font-weight: 700; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); }
+</style>
+</head>
+<body>
+
+<!-- BARRA CAFÉ -->
+<div class="cafe-bar">
+  <a href="../index.html">← Volver a Café &lt;/&gt;</a>
+  <span>💻 Guía VS Code</span>
+</div>
+
+<header>
+  <h1>Visual Studio Code</h1>
+  <p>El taller de trabajo del desarrollador — de cero a experto</p>
+  <span class="badge">✦ Curso completo de Soy Dalto · 2h 19min ✦</span>
+</header>
+
+<nav>
+  <a href="#intro">🎯 Intro</a>
+  <a href="#entendiendo">🧠 ¿Qué es?</a>
+  <a href="#instalacion">⬇️ Instalación</a>
+  <a href="#interfaz">🖥 Interfaz</a>
+  <a href="#explorer">📁 Explorer</a>
+  <a href="#search">🔍 Search</a>
+  <a href="#git">🌿 Git</a>
+  <a href="#debugger">🐛 Debugger</a>
+  <a href="#extensiones">🧩 Extensiones</a>
+  <a href="#settings">⚙️ Settings</a>
+  <a href="#shortcuts">⌨️ Shortcuts</a>
+  <a href="#snippets">✂️ Snippets</a>
+  <a href="#emmet">⚡ Emmet</a>
+  <a href="#copilot">🤖 Copilot</a>
+</nav>
+
+<main>
+
+<div class="parte-badge">💻 Curso VS Code desde Cero — Soy Dalto</div>
+
+
+<!-- ═══════════════════════════════════════════
+     INTRODUCCIÓN
+═══════════════════════════════════════════ -->
+<section class="module" id="intro">
+  <div class="module-header">
+    <div class="module-icon">🎯</div>
+    <div>
+      <div class="module-title">Introducción — ¿Por qué importa el editor?</div>
+      <div class="module-sub">El instrumento de trabajo más importante de un programador · 0:00 – 1:22</div>
+    </div>
+  </div>
+
+  <p>Todo en el mundo digital —páginas web, apps móviles, inteligencia artificial— empieza como texto escrito en un archivo. Ese texto es el <strong>código</strong>. Y el lugar donde escribes ese código es el <strong>editor</strong>.</p>
+
+  <div class="analogy">
+    <h4>🎻 Analogía: el instrumento del músico</h4>
+    <p>Un guitarrista puede tocar con cualquier guitarra, hasta con una de juguete. Pero un guitarrista profesional cuida su instrumento, lo afina, lo personaliza. El editor de código es exactamente eso: tu instrumento. Puedes escribir código en el Bloc de Notas, pero es como tocar con una guitarra de plástico. VS Code es la guitarra profesional: misma música, mil veces más fácil y poderosa.</p>
+  </div>
+
+  <div class="concept">
+    <h4>💡 Lo que aprenderás en esta guía</h4>
+    <p>Esta guía cubre el curso completo de VS Code de Soy Dalto: desde cero hasta dominar la herramienta con la que escribirás código todos los días. No hace falta saber programar para empezar — el editor se aprende primero, el código viene después.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     ENTENDIENDO VS CODE
+═══════════════════════════════════════════ -->
+<section class="module" id="entendiendo">
+  <div class="module-header">
+    <div class="module-icon">🧠</div>
+    <div>
+      <div class="module-title">Entendiendo VS Code — ¿Qué es exactamente?</div>
+      <div class="module-sub">Editor vs IDE, y por qué VS Code es la mejor opción · 1:22 – 8:09</div>
+    </div>
+  </div>
+
+  <p>Visual Studio Code (también llamado VSCode o simplemente "VS Code") es un <strong>editor de código</strong> creado por Microsoft. Es gratuito, open source, y actualmente el más usado en el mundo por programadores de todos los niveles.</p>
+
+  <h2>Editor de código vs IDE — ¿cuál es la diferencia?</h2>
+
+  <dl class="glos">
+    <div class="glos-item">
+      <span class="emoji">📝</span>
+      <dt>Editor de código</dt>
+      <dd>Un programa que te ayuda a escribir texto (código) con autocompletado, colores y detección de errores. Ligero y rápido. Ej: VS Code, Sublime Text, Notepad++.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🏭</span>
+      <dt>IDE (Entorno de Desarrollo Integrado)</dt>
+      <dd>Todo lo que tiene un editor MÁS herramientas integradas: emuladores, compiladores, depuradores avanzados, gestión de bases de datos. Más pesado. Ej: Visual Studio, IntelliJ, Android Studio.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🦄</span>
+      <dt>VS Code: el híbrido</dt>
+      <dd>Nace como editor ligero pero con extensiones se convierte en un IDE completo. Lo mejor de ambos mundos: arranca rápido y crece según lo que necesites.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🧩</span>
+      <dt>IntelliSense</dt>
+      <dd>El motor de autocompletado de VS Code. Mientras escribes, sugiere cómo terminar el código, qué parámetros acepta una función, y detecta errores en tiempo real.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🌿</span>
+      <dt>Control de versiones</dt>
+      <dd>Sistema para guardar el historial de cambios del código. VS Code tiene Git integrado — puedes subir archivos a GitHub sin salir del editor.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🐛</span>
+      <dt>Debugger (Depurador)</dt>
+      <dd>Herramienta para encontrar errores ejecutando el código línea por línea y viendo qué valor tiene cada variable en cada momento.</dd>
+    </div>
+  </dl>
+
+  <div class="analogy">
+    <h4>🏎 Analogía: el auto de carreras vs el auto familiar</h4>
+    <p>Un IDE es como un auto de Fórmula 1: potentísimo, lleno de botones, especializado para un circuito específico. Un editor de código es como un auto deportivo: rápido, ágil, y con el tiempo le puedes agregar los accesorios que necesitas. VS Code es ese auto deportivo al que puedes agregarle turbo, GPS, sistema de audio de carreras — pero solo cuando lo necesitas.</p>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 ¿Por qué no usar el Bloc de Notas?</h4>
+    <ul>
+      <li>Sin colores — todo se ve igual, los errores no se destacan</li>
+      <li>Sin autocompletado — tienes que escribir cada carácter manualmente</li>
+      <li>Sin detección de errores — sabrás que algo falló solo cuando ejecutes el código</li>
+      <li>Sin atajos útiles — cada tarea que en VS Code son 2 teclas, en el bloc son 30 clics</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     INSTALACIÓN
+═══════════════════════════════════════════ -->
+<section class="module" id="instalacion">
+  <div class="module-header">
+    <div class="module-icon">⬇️</div>
+    <div>
+      <div class="module-title">Descarga e instalación de VS Code</div>
+      <div class="module-sub">Desde cero, paso a paso · 8:09 – 14:12</div>
+    </div>
+  </div>
+
+  <p>Si ya tienes VS Code instalado y quieres empezar desde cero (sin configuraciones viejas), primero hay que <strong>resetear todo</strong>. Si es tu primera instalación, salta al paso 4.</p>
+
+  <h2>Cómo resetear VS Code (instalación limpia)</h2>
+
+  <div class="ex">
+    <div class="ex-hd">🔄 Reset completo — borra toda configuración anterior <span class="ex-badge">Opcional</span></div>
+    <ol>
+      <li>Abre VS Code → presiona <kbd class="kbd">Ctrl</kbd> + <kbd class="kbd">Shift</kbd> + <kbd class="kbd">P</kbd> para abrir la Paleta de Comandos.</li>
+      <li>Escribe <code>Open User Settings (JSON)</code> y presiona Enter. Borra todo el contenido del archivo y guarda.</li>
+      <li>Cierra VS Code.</li>
+      <li>Abre el explorador de archivos y ve a la carpeta de usuario: <code>C:\Users\TuNombre\AppData\Roaming\Code</code> (en Windows). Borra la carpeta <code>Code</code> completa.</li>
+      <li>Desinstala VS Code desde Panel de Control → Programas → Desinstalar.</li>
+    </ol>
+    <p>Ahora sí, instalación limpia.</p>
+  </div>
+
+  <h2>Instalación paso a paso</h2>
+
+  <div class="steps">
+    <div class="step"><p>Ve a <strong>code.visualstudio.com</strong> en tu navegador. Es la página oficial de Microsoft.</p></div>
+    <div class="step"><p>Haz clic en <strong>"Download for Free"</strong>. El botón detecta automáticamente tu sistema operativo (Windows, Mac o Linux).</p></div>
+    <div class="step"><p>Ejecuta el instalador descargado. Acepta el acuerdo de licencia.</p></div>
+    <div class="step"><p>Durante la instalación, marca la opción <strong>"Agregar al PATH"</strong> y <strong>"Crear acceso directo en el escritorio"</strong>. Esto te permitirá abrir VS Code desde la terminal escribiendo <code>code .</code></p></div>
+    <div class="step"><p>Haz clic en Instalar y espera que termine.</p></div>
+    <div class="step"><p>Abre VS Code. Al primer arranque te preguntará qué <strong>tema de color</strong> prefieres. El curso recomienda <strong>Dark Modern</strong>: buen contraste, no cansa la vista.</p></div>
+  </div>
+
+  <div class="analogy">
+    <h4>🏠 Analogía: mudarte a una casa nueva</h4>
+    <p>Instalar VS Code es como mudarte a una casa vacía. La casa ya tiene todo lo estructural (paredes, puertas, ventanas), pero aún está sin muebles. En los siguientes pasos vas a decorarla: agregarás extensiones (muebles), configurarás temas (pintura), y crearás tus propios atajos (costumbres del hogar). Al final será tu casa, no la de nadie más.</p>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Sobre el idioma — no lo cambies a español</h4>
+    <p>Dalto lo dice claro en el curso: <strong>no cambies VS Code al español</strong>. El 99% de la documentación, tutoriales, errores y soluciones en internet están en inglés. Si usas VS Code en inglés desde el principio, vas a entender el lenguaje técnico antes y vas a poder buscar soluciones mucho más fácil cuando algo falle.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     INTERFAZ
+═══════════════════════════════════════════ -->
+<section class="module" id="interfaz">
+  <div class="module-header">
+    <div class="module-icon">🖥️</div>
+    <div>
+      <div class="module-title">Interfaz de VS Code — Conocer el taller</div>
+      <div class="module-sub">Cada parte de la pantalla y para qué sirve · 14:12 – 21:29</div>
+    </div>
+  </div>
+
+  <p>VS Code tiene una interfaz pensada para que todo esté a uno o dos clics de distancia. Entender qué es cada parte te ahorra horas de confusión.</p>
+
+  <div class="anatomy">
+    <span class="lb">① Activity Bar</span> — Barra vertical izquierda. Los íconos principales del editor.<br>
+    <span class="lb2">② Side Bar</span> — Panel que se abre al hacer clic en un ícono de la Activity Bar.<br>
+    <span class="lb3">③ Editor</span> — La zona central donde escribes el código.<br>
+    <span class="lb">④ Panel</span> — Parte inferior: Terminal, Problemas, Output, Debug Console.<br>
+    <span class="lb2">⑤ Status Bar</span> — Barra del fondo: idioma del archivo, línea/columna, Git, errores.
+  </div>
+
+  <h2>Los 5 íconos de la Activity Bar</h2>
+
+  <table class="tbl">
+    <thead><tr><th>Ícono</th><th>Nombre</th><th>¿Para qué sirve?</th><th>Atajo</th></tr></thead>
+    <tbody>
+      <tr><td>📁</td><td>Explorer</td><td>Ver y gestionar archivos y carpetas del proyecto</td><td><kbd class="kbd">Ctrl+Shift+E</kbd></td></tr>
+      <tr><td>🔍</td><td>Search</td><td>Buscar y reemplazar texto en todos los archivos</td><td><kbd class="kbd">Ctrl+Shift+F</kbd></td></tr>
+      <tr><td>🌿</td><td>Source Control</td><td>Git integrado: commits, ramas, push/pull</td><td><kbd class="kbd">Ctrl+Shift+G</kbd></td></tr>
+      <tr><td>▶️</td><td>Run & Debug</td><td>Ejecutar código y depurar errores línea por línea</td><td><kbd class="kbd">Ctrl+Shift+D</kbd></td></tr>
+      <tr><td>🧩</td><td>Extensions</td><td>Instalar, desactivar y gestionar extensiones</td><td><kbd class="kbd">Ctrl+Shift+X</kbd></td></tr>
+    </tbody>
+  </table>
+
+  <div class="concept">
+    <h4>💡 La Paleta de Comandos — el control central</h4>
+    <p>Presiona <kbd class="kbd">Ctrl</kbd> + <kbd class="kbd">Shift</kbd> + <kbd class="kbd">P</kbd> en cualquier momento. Se abre una caja de búsqueda donde puedes ejecutar cualquier comando de VS Code escribiendo su nombre en inglés. Si alguna vez no sabes dónde está algo, ábrela y escribe lo que buscas. Es el GPS del editor.</p>
+  </div>
+
+  <div class="analogy">
+    <h4>✈️ Analogía: la cabina del avión</h4>
+    <p>Un avión tiene docenas de botones, palancas e indicadores. Al principio parece imposible. Pero los pilotos aprenden que hay instrumentos que usan todo el tiempo (altímetro, velocímetro) y otros que usan solo en situaciones específicas. VS Code es igual: la mayoría del tiempo solo usas el Explorer y el Editor. El resto lo aprendes cuando lo necesitas, y la Paleta de Comandos es la cabina de control desde donde puedes acceder a todo.</p>
+  </div>
+
+  <h2>La Status Bar — el panel de información</h2>
+  <p>La barra de abajo del todo te dice en todo momento:</p>
+  <ul>
+    <li><strong>Rama de Git activa</strong> — ej. <code>main</code> o <code>feature/login</code></li>
+    <li><strong>Errores y advertencias</strong> — número en rojo/amarillo, clic para verlos</li>
+    <li><strong>Línea y columna</strong> — dónde está el cursor exactamente</li>
+    <li><strong>Codificación</strong> — normalmente <code>UTF-8</code> (acepta tildes, ñ, emojis)</li>
+    <li><strong>Saltos de línea</strong> — <code>LF</code> (Linux/Mac) o <code>CRLF</code> (Windows)</li>
+    <li><strong>Lenguaje del archivo</strong> — clic para cambiar el resaltado de sintaxis</li>
+  </ul>
+
+  <div class="warn">
+    <h4>⚠️ LF vs CRLF — el problema invisible</h4>
+    <p>Windows usa dos caracteres para los saltos de línea (CRLF), mientras que Linux/Mac usan uno solo (LF). Si subes un archivo creado en Windows a un servidor Linux, puede dar errores extraños. Lo más seguro: configura VS Code para que siempre use <strong>LF</strong>. En Settings busca <code>files.eol</code> y ponlo en <code>\n</code>.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     EXPLORER
+═══════════════════════════════════════════ -->
+<section class="module" id="explorer">
+  <div class="module-header">
+    <div class="module-icon">📁</div>
+    <div>
+      <div class="module-title">Explorer — Tu gestor de archivos</div>
+      <div class="module-sub">Crear, renombrar, mover y organizar archivos · 21:29 – 33:41</div>
+    </div>
+  </div>
+
+  <p>El Explorer es tu vista de archivos y carpetas. Siempre deberías trabajar con una carpeta abierta (no archivos sueltos), porque así VS Code puede ayudarte con rutas, importaciones y Git.</p>
+
+  <div class="ex">
+    <div class="ex-hd">✏️ Ejercicio — Abre tu primer proyecto <span class="ex-badge">Principiante</span></div>
+    <ol>
+      <li>Crea una carpeta nueva en tu escritorio. Llámala <code>mi-proyecto-web</code>.</li>
+      <li>En VS Code: <strong>File → Open Folder</strong> (o <kbd class="kbd">Ctrl+K</kbd> luego <kbd class="kbd">Ctrl+O</kbd>).</li>
+      <li>Selecciona la carpeta que creaste. VS Code preguntará si confías en los autores — di que sí (es tu carpeta).</li>
+      <li>En el Explorer, haz clic en el ícono de "New File" (hoja en blanco) y crea <code>index.html</code>.</li>
+      <li>Crea otra carpeta con el ícono "New Folder": llámala <code>css</code>. Dentro crea <code>style.css</code>.</li>
+    </ol>
+  </div>
+
+  <h2>Acciones del Explorer</h2>
+
+  <table class="tbl">
+    <thead><tr><th>Acción</th><th>Cómo hacerlo</th><th>Truco</th></tr></thead>
+    <tbody>
+      <tr><td>Crear archivo</td><td>Clic en ícono 📄 o clic derecho → New File</td><td>Si escribes <code>css/style.css</code> crea la carpeta y el archivo en un solo paso</td></tr>
+      <tr><td>Crear carpeta</td><td>Clic en ícono 📁 o clic derecho → New Folder</td><td>Puedes anidar: <code>src/components/ui</code></td></tr>
+      <tr><td>Renombrar</td><td>Clic derecho → Rename, o seleccionar y presionar <kbd class="kbd">F2</kbd></td><td>—</td></tr>
+      <tr><td>Mover</td><td>Arrastrar y soltar dentro del Explorer</td><td>VS Code actualiza las rutas automáticamente</td></tr>
+      <tr><td>Eliminar</td><td>Clic derecho → Delete, o seleccionar y presionar <kbd class="kbd">Del</kbd></td><td><kbd class="kbd">Ctrl+Z</kbd> deshace el borrado</td></tr>
+      <tr><td>Ver historial (Timeline)</td><td>Parte inferior del Explorer → Timeline</td><td>Muestra todos los commits de Git del archivo</td></tr>
+    </tbody>
+  </table>
+
+  <div class="concept">
+    <h4>💡 Indentación — la presentación del código</h4>
+    <p>Por defecto VS Code usa <strong>4 espacios</strong> por nivel de indentación. Para web (HTML/CSS/JS), la convención más extendida son <strong>2 espacios</strong>. Puedes cambiarlo en Settings → <code>editor.tabSize</code>. La indentación no afecta cómo funciona el código (excepto en Python), pero sí afecta muchísimo cómo se lee.</p>
+  </div>
+
+  <div class="concept">
+    <h4>💡 UTF-8 — por qué tu ñ no aparece rota</h4>
+    <p>UTF-8 es el estándar de codificación que permite usar tildes (á, é, í, ó, ú), la ñ, emojis y caracteres de cualquier idioma. VS Code lo usa por defecto. Si alguna vez abres un archivo y ves símbolos raros como <code>Ã±</code> en vez de <code>ñ</code>, el archivo fue guardado con otra codificación. En la Status Bar haz clic en <code>UTF-8</code> y elige "Reopen with encoding".</p>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 El punto en el nombre del archivo</h4>
+    <p>Cuando abres VS Code y un archivo tiene cambios sin guardar, aparece un <strong>punto • blanco</strong> en la pestaña. Es pequeño pero importante. Acostúmbrate a mirar ese punto y a guardar seguido con <kbd class="kbd">Ctrl+S</kbd>. O activa el guardado automático (lo veremos en Settings).</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     SEARCH
+═══════════════════════════════════════════ -->
+<section class="module" id="search">
+  <div class="module-header">
+    <div class="module-icon">🔍</div>
+    <div>
+      <div class="module-title">Search — Buscar y reemplazar texto</div>
+      <div class="module-sub">Buscar en todos los archivos del proyecto · 33:41 – 43:02</div>
+    </div>
+  </div>
+
+  <p>El panel de Search no solo busca texto — puede buscar en todos los archivos del proyecto a la vez, distinguir mayúsculas, buscar palabras completas, usar expresiones regulares, y reemplazar texto en masa con un solo clic.</p>
+
+  <h2>Tipos de búsqueda</h2>
+
+  <table class="tbl">
+    <thead><tr><th>Opción</th><th>Ícono</th><th>¿Qué hace?</th><th>Ejemplo</th></tr></thead>
+    <tbody>
+      <tr><td>Match Case</td><td><code>Aa</code></td><td>Distingue MAYÚSCULAS de minúsculas</td><td><code>color</code> ≠ <code>Color</code></td></tr>
+      <tr><td>Match Whole Word</td><td><code>ab</code></td><td>Solo encuentra la palabra completa, no si está dentro de otra</td><td><code>div</code> no encontrará <code>divide</code></td></tr>
+      <tr><td>Use Regular Expression</td><td><code>.*</code></td><td>Busca usando patrones avanzados (regex)</td><td>Buscar todos los emails de un archivo</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Atajos de búsqueda esenciales</h2>
+  <ul>
+    <li><kbd class="kbd">Ctrl+F</kbd> — Buscar en el archivo actual</li>
+    <li><kbd class="kbd">Ctrl+H</kbd> — Buscar y reemplazar en el archivo actual</li>
+    <li><kbd class="kbd">Ctrl+Shift+F</kbd> — Buscar en todos los archivos del proyecto</li>
+    <li><kbd class="kbd">Ctrl+Alt+Enter</kbd> — Reemplazar TODAS las ocurrencias de golpe</li>
+    <li><kbd class="kbd">Enter</kbd> (en búsqueda) — Reemplazar de uno en uno</li>
+  </ul>
+
+  <div class="analogy">
+    <h4>📚 Analogía: el buscador de libros</h4>
+    <p>Imagina que tienes 50 archivos de código y necesitas cambiar el nombre de una variable que se llama <code>usuario</code> por <code>user</code> en todos lados. Hacerlo manualmente sería abrir cada archivo y buscar uno por uno. Con Search Global + Reemplazar todo, en 10 segundos cambia en los 50 archivos simultáneamente. Es como tener un asistente que lee todos los libros de la biblioteca y tach tacha la palabra en cada página.</p>
+  </div>
+
+  <h2>Expresiones regulares — búsqueda avanzada</h2>
+  <p>Las expresiones regulares (regex) son patrones de texto para búsquedas complejas. No hay que memorizarlas todas — solo conocer las básicas:</p>
+
+  <table class="tbl">
+    <thead><tr><th>Patrón</th><th>Significa</th><th>Ejemplo</th></tr></thead>
+    <tbody>
+      <tr><td><code>.</code></td><td>Cualquier carácter</td><td><code>c.sa</code> encuentra "casa", "cosa", "cesa"</td></tr>
+      <tr><td><code>*</code></td><td>El anterior, 0 o más veces</td><td><code>ho*la</code> encuentra "hla", "hola", "hooola"</td></tr>
+      <tr><td><code>+</code></td><td>El anterior, 1 o más veces</td><td><code>ho+la</code> encuentra "hola", "hooola" pero NO "hla"</td></tr>
+      <tr><td><code>[abc]</code></td><td>Cualquiera de esos caracteres</td><td><code>[aeiou]</code> encuentra cualquier vocal</td></tr>
+      <tr><td><code>\d</code></td><td>Cualquier dígito (0-9)</td><td><code>\d+</code> encuentra cualquier número</td></tr>
+      <tr><td><code>^</code></td><td>Inicio de línea</td><td><code>^import</code> solo líneas que empiecen con "import"</td></tr>
+    </tbody>
+  </table>
+
+  <div class="tip">
+    <h4>🟢 Word Wrap — ver líneas largas sin scroll horizontal</h4>
+    <p>Si tienes líneas muy largas que se van de la pantalla, presiona <kbd class="kbd">Ctrl+Shift+P</kbd> → escribe <code>word wrap</code> → Toggle Word Wrap. El texto se partirá visualmente para ajustarse a la ventana (sin afectar el archivo real). También puedes activarlo permanentemente en Settings → <code>editor.wordWrap: "on"</code>.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     SOURCE CONTROL / GIT
+═══════════════════════════════════════════ -->
+<section class="module" id="git">
+  <div class="module-header">
+    <div class="module-icon">🌿</div>
+    <div>
+      <div class="module-title">Source Control — Git integrado en VS Code</div>
+      <div class="module-sub">Control de versiones sin salir del editor · 43:02 – 51:50</div>
+    </div>
+  </div>
+
+  <p>Git es el sistema de control de versiones más usado en el mundo. VS Code lo tiene integrado de forma nativa — puedes hacer commits, crear ramas, subir a GitHub y sincronizar cambios sin abrir ninguna terminal.</p>
+
+  <div class="analogy">
+    <h4>📸 Analogía: el álbum de fotos de tu código</h4>
+    <p>Imagina que cada vez que avanzas en tu proyecto tomas una foto del estado actual. Si algo sale mal, puedes volver a cualquier foto anterior. Eso es exactamente lo que hace Git: cada <strong>commit</strong> es una foto del código en ese momento. Y <strong>GitHub</strong> es el álbum en la nube donde guardas todas esas fotos para que no se pierdan aunque se rompa tu computadora.</p>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ Aprende Git antes de continuar</h4>
+    <p>Dalto lo dice explícitamente en el curso: <strong>si no sabes Git, aprende Git primero</strong>. Esta sección de VS Code asume que ya conoces los conceptos básicos (init, add, commit, push, pull, branches). Si no, busca el curso de Git de Soy Dalto en YouTube antes de seguir aquí.</p>
+  </div>
+
+  <h2>Flujo básico con Git desde VS Code</h2>
+
+  <div class="steps">
+    <div class="step"><p><strong>Inicializar repositorio:</strong> En el panel Source Control, haz clic en "Initialize Repository". Equivale a <code>git init</code> en la terminal.</p></div>
+    <div class="step"><p><strong>Ver cambios:</strong> Cada archivo modificado aparece en la lista. Una <code>M</code> significa "Modified", una <code>U</code> significa "Untracked" (nuevo).</p></div>
+    <div class="step"><p><strong>Hacer staging:</strong> Haz clic en el <code>+</code> junto al archivo para agregarlo al staging. Equivale a <code>git add archivo.html</code>.</p></div>
+    <div class="step"><p><strong>Escribir el commit:</strong> En el campo de texto de arriba, escribe un mensaje descriptivo. Ej: "Agrego formulario de contacto".</p></div>
+    <div class="step"><p><strong>Hacer commit:</strong> Haz clic en el botón azul "Commit" o presiona <kbd class="kbd">Ctrl+Enter</kbd>. Equivale a <code>git commit -m "mensaje"</code>.</p></div>
+    <div class="step"><p><strong>Subir a GitHub:</strong> Haz clic en "Publish Branch" la primera vez (te pedirá autenticarte con GitHub). Después usa "Sync Changes" para hacer push/pull.</p></div>
+  </div>
+
+  <h2>Operaciones avanzadas desde VS Code</h2>
+  <ul>
+    <li><strong>Crear/cambiar ramas:</strong> Clic en el nombre de la rama en la Status Bar (abajo a la izquierda)</li>
+    <li><strong>Ver historial de commits:</strong> Explorer → Timeline (parte inferior del panel)</li>
+    <li><strong>Clonar repositorio:</strong> <kbd class="kbd">Ctrl+Shift+P</kbd> → "Git: Clone" → pega la URL del repositorio</li>
+    <li><strong>Git fetch automático:</strong> Settings → <code>git.autofetch: true</code> — mantiene actualizado el repositorio local</li>
+  </ul>
+
+  <div class="tip">
+    <h4>🟢 Git Bash como terminal por defecto</h4>
+    <p>Si instalaste Git para Windows, puedes configurar VS Code para usar Git Bash como terminal integrada. <kbd class="kbd">Ctrl+Shift+P</kbd> → "Terminal: Select Default Profile" → elige "Git Bash". Así puedes escribir comandos de Linux/Unix directamente en VS Code sin instalar nada extra.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     DEBUGGER
+═══════════════════════════════════════════ -->
+<section class="module" id="debugger">
+  <div class="module-header">
+    <div class="module-icon">🐛</div>
+    <div>
+      <div class="module-title">Run & Debug — Encontrar errores como un detective</div>
+      <div class="module-sub">Ejecutar y depurar código paso a paso · 51:50 – 1:00:20</div>
+    </div>
+  </div>
+
+  <p>El Debugger (depurador) es una de las herramientas más poderosas de VS Code. Te permite ejecutar el código <strong>línea por línea</strong>, pausarlo en cualquier punto, y ver exactamente qué valor tiene cada variable en ese preciso instante.</p>
+
+  <div class="analogy">
+    <h4>🔬 Analogía: el microscopio del código</h4>
+    <p>Cuando el código falla y no sabes por qué, tienes dos opciones: poner <code>console.log</code> en todos lados (como buscar bacterias a simple vista) o usar el debugger (como usar un microscopio). El microscopio te muestra exactamente dónde está el problema, con precisión total, sin contaminar el código con logs que después tienes que borrar.</p>
+  </div>
+
+  <h2>Conceptos clave del Debugger</h2>
+
+  <dl class="glos">
+    <div class="glos-item">
+      <span class="emoji">🔴</span>
+      <dt>Breakpoint (punto de interrupción)</dt>
+      <dd>Una marca en una línea de código donde la ejecución se pausará. Haz clic en el número de línea (a la izquierda) para activarlo — aparece un punto rojo.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">⏭</span>
+      <dt>Step Over</dt>
+      <dd>Ejecuta la línea actual y pasa a la siguiente, sin entrar en funciones. El atajo es <kbd class="kbd">F10</kbd>.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">⬇️</span>
+      <dt>Step Into</dt>
+      <dd>Entra dentro de la función que se llama en la línea actual para ver qué hace por dentro. El atajo es <kbd class="kbd">F11</kbd>.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">▶️</span>
+      <dt>Continue</dt>
+      <dd>Reanuda la ejecución hasta el siguiente breakpoint (o hasta el final si no hay más). El atajo es <kbd class="kbd">F5</kbd>.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🔁</span>
+      <dt>Restart</dt>
+      <dd>Reinicia la depuración desde el principio sin cerrar la sesión. Útil cuando corriges un error y quieres volver a probar.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">📊</span>
+      <dt>Variables Panel</dt>
+      <dd>Panel izquierdo que muestra el valor actual de todas las variables en el momento en que está pausada la ejecución.</dd>
+    </div>
+  </dl>
+
+  <h2>Ejemplo práctico — depurar JavaScript</h2>
+
+  <div class="code-block"><span class="lang">JavaScript</span><span class="cc">// Ejemplo con un error intencional</span>
+<span class="ct">function</span> <span class="cn">sumar</span>(a, b) {
+  <span class="ct">return</span> a <span class="cs">+</span> b<span class="cs">;</span>    <span class="cc">// ← pon un breakpoint aquí (clic en el número de línea)</span>
+}
+
+<span class="ct">let</span> <span class="cv">resultado</span> <span class="cs">=</span> <span class="cn">sumar</span>(<span class="cs">3</span>, <span class="cs">4</span>)<span class="cs">;</span>
+console<span class="cs">.</span><span class="cn">log</span>(resultado)<span class="cs">;</span></div>
+
+  <div class="ex">
+    <div class="ex-hd">✏️ Ejercicio — Tu primera sesión de debugging <span class="ex-badge">Principiante</span></div>
+    <ol>
+      <li>Crea un archivo <code>index.html</code> con la estructura básica y enlaza un <code>main.js</code>.</li>
+      <li>En <code>main.js</code>, escribe el código del ejemplo de arriba.</li>
+      <li>Haz clic en el número de la línea <code>return a + b</code> para poner un breakpoint (aparece un punto rojo).</li>
+      <li>Ve al panel Run & Debug (<kbd class="kbd">Ctrl+Shift+D</kbd>) y haz clic en "Run and Debug".</li>
+      <li>Elige "Chrome" como entorno de ejecución.</li>
+      <li>La ejecución se pausará en el breakpoint. En el panel izquierdo verás que <code>a = 3</code> y <code>b = 4</code>.</li>
+      <li>Presiona <kbd class="kbd">F10</kbd> para avanzar línea por línea y ver cómo cambian las variables.</li>
+    </ol>
+    <p><strong>Resultado esperado:</strong> Ves en tiempo real cómo <code>resultado</code> pasa de <code>undefined</code> a <code>7</code> cuando se ejecuta la función.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     EXTENSIONES
+═══════════════════════════════════════════ -->
+<section class="module" id="extensiones">
+  <div class="module-header">
+    <div class="module-icon">🧩</div>
+    <div>
+      <div class="module-title">Extensions — Superpoderes para tu editor</div>
+      <div class="module-sub">Instalar, configurar y las extensiones esenciales · 1:00:20 – 1:11:48</div>
+    </div>
+  </div>
+
+  <p>Las extensiones son mini-programas que se agregan a VS Code para darle nuevas funcionalidades. Hay más de 40,000 extensiones gratuitas en el Marketplace. Con ellas, VS Code se convierte en el editor exactamente que tú necesitas.</p>
+
+  <div class="analogy">
+    <h4>🛠 Analogía: las apps del celular</h4>
+    <p>Tu celular nuevo viene con apps básicas: teléfono, cámara, mensajes. Pero tú le instalas WhatsApp, Instagram, Spotify — lo personalizas para tu uso. VS Code es igual: viene con lo esencial, y tú le instalas las "apps" (extensiones) que necesitas según qué tipo de proyectos haces. Un desarrollador web instala unas, un científico de datos instala otras.</p>
+  </div>
+
+  <h2>Cómo instalar una extensión</h2>
+
+  <div class="steps">
+    <div class="step"><p>Abre el panel de Extensions con <kbd class="kbd">Ctrl+Shift+X</kbd>.</p></div>
+    <div class="step"><p>En la barra de búsqueda escribe el nombre de la extensión.</p></div>
+    <div class="step"><p>Haz clic en la extensión que aparece (verifica el autor para evitar fakes).</p></div>
+    <div class="step"><p>Haz clic en el botón azul <strong>"Install"</strong>.</p></div>
+    <div class="step"><p>Algunas extensiones requieren reiniciar VS Code — si aparece un botón "Reload Required", haz clic en él.</p></div>
+  </div>
+
+  <h2>Extensiones esenciales recomendadas por Dalto</h2>
+
+  <div class="ext-grid">
+
+    <div class="ext-card">
+      <span class="ec-name">Prettier</span>
+      <div class="ec-author">by Prettier</div>
+      <p class="ec-desc">Formatea tu código automáticamente al guardar: indentación, espacios, comillas — todo queda ordenado y consistente sin que lo hagas manualmente.</p>
+      <div class="ec-analogy">🧹 Como tener un conserje que ordena tu escritorio cada vez que sales de la oficina. Tú escribes rápido y sucio, Prettier lo limpia.</div>
+    </div>
+
+    <div class="ext-card">
+      <span class="ec-name">Live Server</span>
+      <div class="ec-author">by Ritwick Dey</div>
+      <p class="ec-desc">Lanza un servidor local y recarga el navegador automáticamente cada vez que guardas un archivo HTML/CSS/JS. Imprescindible para desarrollo web.</p>
+      <div class="ec-analogy">🪞 Como tener un espejo en tiempo real: cada cambio que haces se refleja al instante en el navegador sin tener que recargar manualmente.</div>
+    </div>
+
+    <div class="ext-card">
+      <span class="ec-name">GitLens</span>
+      <div class="ec-author">by GitKraken</div>
+      <p class="ec-desc">Superpoderes para Git: muestra quién escribió cada línea de código, cuándo, y en qué commit. Visualiza el historial de ramas en forma de gráfico.</p>
+      <div class="ec-analogy">🕵️ Como el historial de ediciones de Google Docs pero para código: ves exactamente quién cambió qué y cuándo.</div>
+    </div>
+
+    <div class="ext-card">
+      <span class="ec-name">IntelliCode</span>
+      <div class="ec-author">by Microsoft</div>
+      <p class="ec-desc">Autocompletado inteligente potenciado por IA. Aprende de millones de líneas de código para sugerir qué vas a escribir a continuación con más precisión que el IntelliSense básico.</p>
+      <div class="ec-analogy">🔮 Como un teclado predictivo que ha leído millones de programas y ya sabe qué función usas después de <code>array.</code></div>
+    </div>
+
+    <div class="ext-card">
+      <span class="ec-name">Indent Rainbow</span>
+      <div class="ec-author">by oderwat</div>
+      <p class="ec-desc">Colorea los diferentes niveles de indentación con colores distintos. Hace que la estructura anidada del código sea visualmente obvia de un vistazo.</p>
+      <div class="ec-analogy">🌈 Como tener niveles de un edificio pintados de diferentes colores: el sótano es rojo, planta baja azul, primer piso verde — nunca te pierdes.</div>
+    </div>
+
+    <div class="ext-card">
+      <span class="ec-name">Temas de color</span>
+      <div class="ec-author">varios autores</div>
+      <p class="ec-desc">Cambian los colores del editor. Los más populares: <strong>One Dark Pro</strong>, <strong>Andromeda</strong>, <strong>Catppuccin</strong>, <strong>Dracula</strong>. El tema es personal — prueba varios y quédate con el que no te canse la vista.</p>
+      <div class="ec-analogy">🎨 Como pintar las paredes de tu oficina. Mismo trabajo, diferente ambiente. Elige el que te ponga de mejor humor para programar.</div>
+    </div>
+
+  </div>
+
+  <div class="concept">
+    <h4>💡 Linked Editing — edita etiquetas HTML en pareja</h4>
+    <p>Esta funcionalidad viene <strong>integrada en VS Code</strong>, sin necesidad de extensión. Actívala en Settings → busca <code>Linked Editing</code> → activa el toggle. Cuando edites una etiqueta de apertura (ej: cambias <code>&lt;div&gt;</code> por <code>&lt;section&gt;</code>), la etiqueta de cierre se actualiza automáticamente. Un ahorro enorme en HTML.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     SETTINGS
+═══════════════════════════════════════════ -->
+<section class="module" id="settings">
+  <div class="module-header">
+    <div class="module-icon">⚙️</div>
+    <div>
+      <div class="module-title">User Settings — Personaliza tu entorno</div>
+      <div class="module-sub">Configurar VS Code a tu medida · 1:11:48 – 1:26:34</div>
+    </div>
+  </div>
+
+  <p>Las Settings (configuraciones) de VS Code son un archivo JSON donde defines cómo debe comportarse el editor. Piénsalas como el CSS de tu editor: cambias propiedades para adaptar la apariencia y el comportamiento a lo que tú necesitas.</p>
+
+  <h2>Cómo abrir Settings</h2>
+  <ul>
+    <li><strong>Interfaz visual:</strong> <kbd class="kbd">Ctrl+,</kbd> — abre la pantalla de configuración con campos y toggles</li>
+    <li><strong>JSON directo:</strong> <kbd class="kbd">Ctrl+Shift+P</kbd> → "Open User Settings (JSON)" — editas el archivo de configuración directamente</li>
+  </ul>
+
+  <h2>Configuraciones recomendadas por Dalto</h2>
+
+  <div class="code-block"><span class="lang">JSON — settings.json</span>{
+  <span class="cc">// ── EDITOR ────────────────────────────────</span>
+
+  <span class="ca">"editor.fontSize"</span>: <span class="cs">16</span>,               <span class="cc">// Tamaño de fuente (defecto: 14)</span>
+  <span class="ca">"editor.tabSize"</span>: <span class="cs">2</span>,                <span class="cc">// 2 espacios por tabulación (web estándar)</span>
+  <span class="ca">"editor.wordWrap"</span>: <span class="cv">"on"</span>,           <span class="cc">// Líneas largas se parten visualmente</span>
+  <span class="ca">"editor.cursorBlinking"</span>: <span class="cv">"smooth"</span>, <span class="cc">// Cursor con animación suave</span>
+  <span class="ca">"editor.smoothScrolling"</span>: <span class="cs">true</span>,   <span class="cc">// Scroll con animación</span>
+  <span class="ca">"editor.linkedEditing"</span>: <span class="cs">true</span>,     <span class="cc">// Editar etiquetas HTML en pareja</span>
+  <span class="ca">"editor.renderLineHighlight"</span>: <span class="cv">"line"</span>, <span class="cc">// Resaltar línea actual</span>
+
+  <span class="cc">// ── GUARDADO AUTOMÁTICO ───────────────────</span>
+
+  <span class="ca">"files.autoSave"</span>: <span class="cv">"afterDelay"</span>,   <span class="cc">// Guarda automáticamente</span>
+  <span class="ca">"files.autoSaveDelay"</span>: <span class="cs">3000</span>,       <span class="cc">// ... cada 3 segundos</span>
+  <span class="ca">"files.eol"</span>: <span class="cv">"\n"</span>,               <span class="cc">// Saltos de línea estilo Linux (LF)</span>
+
+  <span class="cc">// ── FORMATEO ──────────────────────────────</span>
+
+  <span class="ca">"editor.formatOnSave"</span>: <span class="cs">true</span>,      <span class="cc">// Prettier formatea al guardar</span>
+  <span class="ca">"editor.defaultFormatter"</span>: <span class="cv">"esbenp.prettier-vscode"</span>,
+
+  <span class="cc">// ── TERMINAL ──────────────────────────────</span>
+
+  <span class="ca">"terminal.integrated.fontSize"</span>: <span class="cs">14</span>,
+  <span class="ca">"terminal.integrated.defaultProfile.windows"</span>: <span class="cv">"Git Bash"</span>,
+
+  <span class="cc">// ── SNIPPETS ──────────────────────────────</span>
+
+  <span class="ca">"editor.snippetSuggestions"</span>: <span class="cv">"top"</span> <span class="cc">// Tus snippets aparecen primero</span>
+}</div>
+
+  <div class="concept">
+    <h4>💡 Breadcrumbs — las migas de pan del código</h4>
+    <p>Activa <code>"breadcrumbs.enabled": true</code> en Settings. Aparece una barra encima del editor que muestra la ruta completa de donde estás: carpeta → archivo → función → clase. Muy útil cuando trabajas con archivos grandes o proyectos con muchos archivos anidados.</p>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Editor Rules — las guías de ancho</h4>
+    <p>Puedes poner líneas verticales en el editor para recordarte cuándo una línea es demasiado larga. Agrega en settings: <code>"editor.rulers": [80, 120]</code>. La convención más usada es que las líneas de código no superen los 80 o 120 caracteres de ancho — más que eso se vuelve difícil de leer.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     SHORTCUTS
+═══════════════════════════════════════════ -->
+<section class="module" id="shortcuts">
+  <div class="module-header">
+    <div class="module-icon">⌨️</div>
+    <div>
+      <div class="module-title">Atajos de teclado — Programar a velocidad de pensamiento</div>
+      <div class="module-sub">Los shortcuts más importantes del curso · 1:26:34 – 1:39:01</div>
+    </div>
+  </div>
+
+  <p>Los atajos de teclado son la diferencia entre un programador lento y uno rápido. No los memorices todos de golpe — aprende 3 por semana y en dos meses los tendrás todos incorporados.</p>
+
+  <div class="analogy">
+    <h4>🎹 Analogía: el músico y los acordes</h4>
+    <p>Un pianista principiante busca cada tecla con los ojos. Un pianista experimentado toca sin mirar porque sus dedos ya memorizaron los movimientos. Los atajos de teclado funcionan igual: al principio tienes que pensar en ellos, con la práctica se vuelven reflejos automáticos y tu velocidad de trabajo se multiplica.</p>
+  </div>
+
+  <h2>Atajos esenciales — los que usarás todos los días</h2>
+
+  <table class="tbl">
+    <thead><tr><th>Atajo (Windows/Linux)</th><th>Atajo (Mac)</th><th>¿Qué hace?</th></tr></thead>
+    <tbody>
+      <tr><td><kbd class="kbd">Ctrl+S</kbd></td><td><kbd class="kbd">Cmd+S</kbd></td><td>Guardar archivo. El más importante — hazlo constantemente.</td></tr>
+      <tr><td><kbd class="kbd">Ctrl+Z</kbd></td><td><kbd class="kbd">Cmd+Z</kbd></td><td>Deshacer. Tu mejor amigo cuando algo sale mal.</td></tr>
+      <tr><td><kbd class="kbd">Ctrl+Shift+Z</kbd></td><td><kbd class="kbd">Cmd+Shift+Z</kbd></td><td>Rehacer (deshacer el deshacer).</td></tr>
+      <tr><td><kbd class="kbd">Ctrl+/</kbd></td><td><kbd class="kbd">Cmd+/</kbd></td><td>Comentar / descomentar la línea actual o selección.</td></tr>
+      <tr><td><kbd class="kbd">Ctrl+D</kbd></td><td><kbd class="kbd">Cmd+D</kbd></td><td>Seleccionar la siguiente ocurrencia de la palabra seleccionada.</td></tr>
+      <tr><td><kbd class="kbd">Ctrl+Shift+L</kbd></td><td><kbd class="kbd">Cmd+Shift+L</kbd></td><td>Seleccionar TODAS las ocurrencias de la palabra seleccionada a la vez.</td></tr>
+      <tr><td><kbd class="kbd">Alt+Clic</kbd></td><td><kbd class="kbd">Option+Clic</kbd></td><td>Crear múltiples cursores. Escribe en varios lugares simultáneamente.</td></tr>
+      <tr><td><kbd class="kbd">Alt+↑ / ↓</kbd></td><td><kbd class="kbd">Option+↑ / ↓</kbd></td><td>Mover la línea actual hacia arriba o hacia abajo.</td></tr>
+      <tr><td><kbd class="kbd">Shift+Alt+↑ / ↓</kbd></td><td><kbd class="kbd">Shift+Option+↑ / ↓</kbd></td><td>Duplicar la línea actual hacia arriba o hacia abajo.</td></tr>
+      <tr><td><kbd class="kbd">Ctrl+G</kbd></td><td><kbd class="kbd">Cmd+G</kbd></td><td>Ir a una línea específica. Escribe el número y Enter.</td></tr>
+      <tr><td><kbd class="kbd">Ctrl+P</kbd></td><td><kbd class="kbd">Cmd+P</kbd></td><td>Abrir archivo rápido. Escribe parte del nombre del archivo.</td></tr>
+      <tr><td><kbd class="kbd">Ctrl+Shift+P</kbd></td><td><kbd class="kbd">Cmd+Shift+P</kbd></td><td>Paleta de Comandos. Ejecuta cualquier acción de VS Code.</td></tr>
+      <tr><td><kbd class="kbd">Ctrl+Shift+N</kbd></td><td><kbd class="kbd">Cmd+Shift+N</kbd></td><td>Abrir nueva ventana de VS Code.</td></tr>
+      <tr><td><kbd class="kbd">Ctrl+W</kbd></td><td><kbd class="kbd">Cmd+W</kbd></td><td>Cerrar la pestaña actual.</td></tr>
+      <tr><td><kbd class="kbd">F12</kbd></td><td><kbd class="kbd">F12</kbd></td><td>Ir a la definición de la función o variable bajo el cursor.</td></tr>
+      <tr><td><kbd class="kbd">Shift+F12</kbd></td><td><kbd class="kbd">Shift+F12</kbd></td><td>Ver todas las referencias a la función/variable (inline).</td></tr>
+      <tr><td><kbd class="kbd">Ctrl+Shift+M</kbd></td><td><kbd class="kbd">Cmd+Shift+M</kbd></td><td>Abrir panel de Problemas (errores y advertencias).</td></tr>
+      <tr><td><kbd class="kbd">Ctrl+K Z</kbd></td><td><kbd class="kbd">Cmd+K Z</kbd></td><td>Modo Zen: elimina todo lo que distrae. Solo código.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Cómo personalizar tus propios atajos</h2>
+  <p>Abre la Paleta de Comandos → "Open Keyboard Shortcuts". Puedes buscar cualquier acción y asignarle la combinación de teclas que quieras. Si alguna combinación ya está ocupada, VS Code te avisa del conflicto.</p>
+
+  <div class="tip">
+    <h4>🟢 Consejo de Dalto sobre los atajos</h4>
+    <p>No te obsesiones con aprenderlos todos. Los atajos más valiosos son los que usas todos los días: <kbd class="kbd">Ctrl+S</kbd>, <kbd class="kbd">Ctrl+Z</kbd>, <kbd class="kbd">Ctrl+/</kbd>, <kbd class="kbd">Alt+↑↓</kbd> y <kbd class="kbd">Ctrl+D</kbd>. Con esos cinco ya eres notablemente más rápido. Los demás los incorporarás naturalmente con el tiempo.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     SNIPPETS
+═══════════════════════════════════════════ -->
+<section class="module" id="snippets">
+  <div class="module-header">
+    <div class="module-icon">✂️</div>
+    <div>
+      <div class="module-title">Snippets — Plantillas de código a medida</div>
+      <div class="module-sub">Crea tus propios atajos de código reutilizable · 1:39:01 – 1:49:07</div>
+    </div>
+  </div>
+
+  <p>Un snippet es un fragmento de código que puedes insertar escribiendo una palabra clave y presionando Tab. Son como sellos de goma para código: en vez de escribir 20 líneas repetidas, escribes 3 letras y Tab.</p>
+
+  <div class="analogy">
+    <h4>🖊 Analogía: las respuestas predefinidas del chat</h4>
+    <p>Los agentes de servicio al cliente tienen respuestas predefinidas para preguntas frecuentes: en vez de escribir "Estimado cliente, lamentamos el inconveniente..." cada vez, hacen clic en un botón y sale la respuesta completa. Los snippets son exactamente eso para el código: escribes el "atajo" y sale el bloque completo que usas una y otra vez.</p>
+  </div>
+
+  <h2>Crear un snippet personalizado</h2>
+
+  <div class="steps">
+    <div class="step"><p>Abre la Paleta de Comandos (<kbd class="kbd">Ctrl+Shift+P</kbd>) → escribe <strong>"Configure User Snippets"</strong>.</p></div>
+    <div class="step"><p>Elige el lenguaje para el snippet: <code>html</code>, <code>javascript</code>, <code>python</code>, etc. O elige "New Global Snippets File" para que funcione en todos los lenguajes.</p></div>
+    <div class="step"><p>Se abre un archivo JSON. Escribe tu snippet siguiendo la estructura de abajo.</p></div>
+    <div class="step"><p>Guarda el archivo. Ya puedes usar el snippet en cualquier archivo del lenguaje que elegiste.</p></div>
+  </div>
+
+  <h2>Estructura de un snippet</h2>
+
+  <div class="code-block"><span class="lang">JSON</span>{
+  <span class="ca">"Estructura HTML básica"</span>: {
+    <span class="ca">"prefix"</span>: <span class="cv">"htmlbase"</span>,          <span class="cc">// La palabra que escribes para activarlo</span>
+    <span class="ca">"body"</span>: [                       <span class="cc">// El código que se inserta (array de líneas)</span>
+      <span class="cv">"&lt;!DOCTYPE html&gt;"</span>,
+      <span class="cv">"&lt;html lang=\"es\"&gt;"</span>,
+      <span class="cv">"&lt;head&gt;"</span>,
+      <span class="cv">"  &lt;meta charset=\"UTF-8\"&gt;"</span>,
+      <span class="cv">"  &lt;title&gt;$1&lt;/title&gt;"</span>,    <span class="cc">// $1 = primer campo donde va el cursor</span>
+      <span class="cv">"&lt;/head&gt;"</span>,
+      <span class="cv">"&lt;body&gt;"</span>,
+      <span class="cv">"  $2"</span>,                       <span class="cc">// $2 = segundo cursor (Tab salta aquí)</span>
+      <span class="cv">"&lt;/body&gt;"</span>,
+      <span class="cv">"&lt;/html&gt;"</span>
+    ],
+    <span class="ca">"description"</span>: <span class="cv">"Estructura HTML completa desde cero"</span>
+  }
+}</div>
+
+  <h2>Variables especiales en snippets</h2>
+
+  <table class="tbl">
+    <thead><tr><th>Variable</th><th>¿Qué hace?</th></tr></thead>
+    <tbody>
+      <tr><td><code>$1</code>, <code>$2</code>, <code>$3</code></td><td>Posiciones del cursor. Al presionar Tab, el cursor salta de $1 a $2 a $3...</td></tr>
+      <tr><td><code>$0</code></td><td>Posición final del cursor después de completar todos los campos.</td></tr>
+      <tr><td><code>${1:placeholder}</code></td><td>Campo con texto de ayuda. El texto "placeholder" se selecciona para reemplazar.</td></tr>
+      <tr><td><code>$CLIPBOARD</code></td><td>Pega el contenido del portapapeles en ese punto.</td></tr>
+      <tr><td><code>$TM_FILENAME</code></td><td>Inserta el nombre del archivo actual.</td></tr>
+      <tr><td><code>$CURRENT_DATE</code></td><td>Inserta la fecha actual.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="ex">
+    <div class="ex-hd">✏️ Ejercicio — Crea tu primer snippet <span class="ex-badge">Principiante</span></div>
+    <ol>
+      <li><kbd class="kbd">Ctrl+Shift+P</kbd> → "Configure User Snippets" → elige <code>html</code>.</li>
+      <li>Borra el comentario de ejemplo y escribe este snippet:</li>
+    </ol>
+    <div class="code-block"><span class="lang">JSON</span>{
+  <span class="ca">"Enlace con clase"</span>: {
+    <span class="ca">"prefix"</span>: <span class="cv">"enlace"</span>,
+    <span class="ca">"body"</span>: [<span class="cv">"&lt;a href=\"${1:#}\" class=\"${2:btn}\"&gt;${3:texto}&lt;/a&gt;"</span>],
+    <span class="ca">"description"</span>: <span class="cv">"Enlace HTML con href y class"</span>
+  }
+}</div>
+    <ol start="3">
+      <li>Guarda el archivo (<kbd class="kbd">Ctrl+S</kbd>).</li>
+      <li>Abre cualquier archivo HTML, escribe <code>enlace</code> y presiona Tab.</li>
+      <li>Aparece el enlace completo. El cursor está en el href. Escribe la URL, presiona Tab para ir a la clase, Tab de nuevo para el texto.</li>
+    </ol>
+  </div>
+
+  <div class="concept">
+    <h4>💡 Snippets vs Emmet — ¿cuándo usar cada uno?</h4>
+    <p><strong>Emmet</strong> (la siguiente sección) es mejor para estructuras HTML dinámicas y variadas. <strong>Snippets</strong> son mejores para bloques que siempre repites igual: un comentario de sección, un console.log de debugging, una configuración que usas en todos tus proyectos. Ambas herramientas se complementan perfectamente.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     EMMET
+═══════════════════════════════════════════ -->
+<section class="module" id="emmet">
+  <div class="module-header">
+    <div class="module-icon">⚡</div>
+    <div>
+      <div class="module-title">Emmet — HTML y CSS a velocidad de rayo</div>
+      <div class="module-sub">El plugin que ya viene en VS Code y nadie usa al máximo · 1:49:07 – 2:07:37</div>
+    </div>
+  </div>
+
+  <p>Emmet es un plugin que viene integrado en VS Code (sin necesidad de instalarlo). Convierte abreviaciones cortas en bloques completos de HTML o CSS. Es una de las herramientas más poderosas para desarrollo web.</p>
+
+  <div class="analogy">
+    <h4>⚡ Analogía: el taquígrafo del código</h4>
+    <p>Los taquígrafos escriben a velocidades imposibles usando símbolos abreviados que después se convierten en texto completo. Emmet es el taquígrafo del HTML: escribes <code>ul>li*5</code> (15 caracteres) y Tab — aparecen 30 líneas de código completas. No es magia, es eficiencia.</p>
+  </div>
+
+  <h2>Emmet en HTML — los atajos más usados</h2>
+
+  <table class="tbl">
+    <thead><tr><th>Abreviación Emmet</th><th>Resultado</th><th>Explicación</th></tr></thead>
+    <tbody>
+      <tr><td><code>!</code></td><td>Estructura HTML completa</td><td>El atajo más básico y útil. Genera todo el esqueleto.</td></tr>
+      <tr><td><code>div</code></td><td><code>&lt;div&gt;&lt;/div&gt;</code></td><td>Cualquier etiqueta HTML se genera con su cierre.</td></tr>
+      <tr><td><code>div.contenedor</code></td><td><code>&lt;div class="contenedor"&gt;</code></td><td>Punto = agregar una clase.</td></tr>
+      <tr><td><code>div#app</code></td><td><code>&lt;div id="app"&gt;</code></td><td>Almohadilla = agregar un id.</td></tr>
+      <tr><td><code>ul>li</code></td><td>ul con un li dentro</td><td>Mayor que = elemento hijo (anidado).</td></tr>
+      <tr><td><code>ul>li*5</code></td><td>ul con 5 li dentro</td><td>Asterisco = multiplicar el elemento.</td></tr>
+      <tr><td><code>ul>li*5{Item $}</code></td><td>5 li con texto "Item 1", "Item 2"...</td><td>Llaves = texto dentro. $ = número autoincrementable.</td></tr>
+      <tr><td><code>div>p+span</code></td><td>div con p y span como hermanos</td><td>Más = elemento hermano (mismo nivel).</td></tr>
+      <tr><td><code>(header>nav)+(main>section)</code></td><td>Estructura con header y main</td><td>Paréntesis = agrupar para multiplicar o anidar.</td></tr>
+      <tr><td><code>a[href="#"]</code></td><td><code>&lt;a href="#"&gt;</code></td><td>Corchetes = atributos personalizados.</td></tr>
+      <tr><td><code>lorem</code></td><td>Párrafo de texto lorem ipsum</td><td>Genera texto de relleno. <code>lorem5</code> = 5 palabras.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Emmet en CSS — abreviaciones de propiedades</h2>
+
+  <table class="tbl">
+    <thead><tr><th>Abreviación</th><th>Propiedad CSS</th><th>Ejemplo completo</th></tr></thead>
+    <tbody>
+      <tr><td><code>m10</code></td><td><code>margin: 10px</code></td><td><code>m10-20</code> = <code>margin: 10px 20px</code></td></tr>
+      <tr><td><code>p20</code></td><td><code>padding: 20px</code></td><td><code>p10e</code> = <code>padding: 10em</code></td></tr>
+      <tr><td><code>w100p</code></td><td><code>width: 100%</code></td><td><code>w200</code> = <code>width: 200px</code></td></tr>
+      <tr><td><code>h50</code></td><td><code>height: 50px</code></td><td>—</td></tr>
+      <tr><td><code>c#333</code></td><td><code>color: #333</code></td><td>—</td></tr>
+      <tr><td><code>bgc#fff</code></td><td><code>background-color: #fff</code></td><td>—</td></tr>
+      <tr><td><code>df</code></td><td><code>display: flex</code></td><td>—</td></tr>
+      <tr><td><code>fz16</code></td><td><code>font-size: 16px</code></td><td>—</td></tr>
+      <tr><td><code>fw700</code></td><td><code>font-weight: 700</code></td><td>—</td></tr>
+      <tr><td><code>bd1#333</code></td><td><code>border: 1px solid #333</code></td><td>—</td></tr>
+    </tbody>
+  </table>
+
+  <div class="ex">
+    <div class="ex-hd">✏️ Ejercicio — Construye una página con puro Emmet <span class="ex-badge">Intermedio</span></div>
+    <ol>
+      <li>Crea un archivo <code>practica-emmet.html</code>.</li>
+      <li>Escribe <code>!</code> y presiona Tab → estructura HTML completa.</li>
+      <li>Dentro del body, escribe esta abreviación y presiona Tab:</li>
+    </ol>
+    <div class="code-block"><span class="lang">Emmet</span>header.site-header>nav>ul>li*4>a[href="#"]{Enlace $}
+</div>
+    <ol start="4">
+      <li>Luego escribe esta otra abreviación y presiona Tab:</li>
+    </ol>
+    <div class="code-block"><span class="lang">Emmet</span>main>section.hero>h1{Mi Portafolio}+p{Bienvenido}+a.btn[href="#proyectos"]{Ver proyectos}
+</div>
+    <ol start="5">
+      <li>Finalmente, genera una galería de proyectos:</li>
+    </ol>
+    <div class="code-block"><span class="lang">Emmet</span>section#proyectos>div.grid>(article.card>h2{Proyecto $}+p{lorem20}+a.btn[href="#"]{Ver más})*3
+</div>
+    <p><strong>Resultado esperado:</strong> Una página HTML completa con header, navegación, sección hero y 3 tarjetas de proyectos — todo generado con 3 líneas de Emmet.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     COPILOT / PAIR PROGRAMMING
+═══════════════════════════════════════════ -->
+<section class="module" id="copilot">
+  <div class="module-header">
+    <div class="module-icon">🤖</div>
+    <div>
+      <div class="module-title">Pair Programming & GitHub Copilot — Tu copiloto IA</div>
+      <div class="module-sub">Programar en pareja con inteligencia artificial · 2:07:37 – 2:17:20</div>
+    </div>
+  </div>
+
+  <p>El pair programming (programación en pares) es una técnica donde dos programadores trabajan juntos: uno escribe el código (el <strong>Driver</strong>) y el otro lo revisa, sugiere y detecta errores (el <strong>Copiloto</strong>). Hoy, la IA puede ocupar el rol de copiloto.</p>
+
+  <div class="analogy">
+    <h4>✈️ Analogía: el piloto y el copiloto</h4>
+    <p>En un avión, el piloto conduce pero el copiloto revisa los instrumentos, lee los procedimientos y alerta sobre problemas. Tú eres el piloto: tomas las decisiones, escribes el código, defines el rumbo. GitHub Copilot es el copiloto: observa lo que escribes, anticipa lo que necesitas y te alerta cuando algo podría estar mal. Ninguno reemplaza al otro — juntos vuelan más seguro.</p>
+  </div>
+
+  <h2>¿Qué es GitHub Copilot?</h2>
+  <p>GitHub Copilot es un asistente de IA desarrollado por GitHub y OpenAI. Analiza el código que estás escribiendo y el contexto de tu proyecto para sugerir completados de línea, funciones enteras e incluso archivos completos.</p>
+
+  <div class="ext-grid">
+    <div class="ext-card">
+      <span class="ec-name">GitHub Copilot</span>
+      <div class="ec-author">by GitHub — Pago (prueba gratis 30 días)</div>
+      <p class="ec-desc">El más potente. Sugiere código basándose en el contexto completo de tu proyecto. Puede escribir funciones enteras, explicar código seleccionado, y corregir errores automáticamente.</p>
+      <div class="ec-analogy">🏆 La opción premium. Más inteligente y contextual que las alternativas gratuitas.</div>
+    </div>
+    <div class="ext-card">
+      <span class="ec-name">Codium AI</span>
+      <div class="ec-author">by Codium — Gratuito</div>
+      <p class="ec-desc">Alternativa gratuita a Copilot. Genera tests automáticamente, sugiere código y analiza el comportamiento de las funciones. Buena opción para aprender sin pagar.</p>
+      <div class="ec-analogy">✅ La opción gratuita más completa según Dalto.</div>
+    </div>
+    <div class="ext-card">
+      <span class="ec-name">Code GPT</span>
+      <div class="ec-author">by Daniel Sanchez — Gratuito</div>
+      <p class="ec-desc">Conecta VS Code con modelos de lenguaje (GPT-4, Claude, Gemini). Puedes hacer preguntas sobre tu código directamente desde el editor.</p>
+      <div class="ec-analogy">🔌 Como tener ChatGPT integrado dentro de VS Code.</div>
+    </div>
+  </div>
+
+  <h2>Cómo instalar GitHub Copilot</h2>
+
+  <div class="steps">
+    <div class="step"><p>Abre Extensions (<kbd class="kbd">Ctrl+Shift+X</kbd>) y busca <strong>"GitHub Copilot"</strong>. Instala la extensión oficial de GitHub.</p></div>
+    <div class="step"><p>VS Code te pedirá que inicies sesión con tu cuenta de GitHub. Haz clic en "Sign in to GitHub".</p></div>
+    <div class="step"><p>Se abrirá el navegador para autorizar la conexión. Acepta los permisos.</p></div>
+    <div class="step"><p>De vuelta en VS Code, verás el ícono de Copilot en la Status Bar. Si tiene un tilde verde, está activo.</p></div>
+    <div class="step"><p>Escribe un comentario describiendo lo que quieres hacer (ej: <code>// función que recibe un array y devuelve el promedio</code>) y presiona Enter. Copilot sugerirá el código completo — presiona Tab para aceptar.</p></div>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ Importante — el copiloto no es el piloto</h4>
+    <p>Dalto lo enfatiza: <strong>no copies el código de Copilot sin entenderlo</strong>. Si aceptas sugerencias que no comprendes, construyes sobre bases que no controlas y cuando algo falla no sabes por qué. Usa Copilot para acelerar código que ya sabes hacer, no para saltarte el aprendizaje.</p>
+  </div>
+
+  <div class="concept">
+    <h4>💡 El futuro de la programación con IA</h4>
+    <p>Los asistentes de IA van a ser cada vez más comunes en el desarrollo. La habilidad que vale no es "escribir código rápido" — esa la tiene la IA. La habilidad que vale es <strong>saber qué pedirle</strong>, entender lo que genera, detectar sus errores, y decidir cuándo no usarla. El programador del futuro es el que sabe dirigir la IA, no el que la teme.</p>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Resumen de todo lo aprendido</h4>
+    <ul>
+      <li><strong>VS Code:</strong> El editor más potente y flexible del mercado. Gratuito.</li>
+      <li><strong>Interfaz:</strong> Activity Bar, Explorer, Search, Source Control, Debug, Extensions.</li>
+      <li><strong>Explorer:</strong> Gestión de archivos y carpetas. Siempre trabaja con carpeta abierta.</li>
+      <li><strong>Search:</strong> Busca y reemplaza en todos los archivos. Las regex son tus aliadas.</li>
+      <li><strong>Git integrado:</strong> Commits, ramas, push/pull sin salir del editor.</li>
+      <li><strong>Debugger:</strong> Breakpoints, step over/into, panel de variables. Olvídate del console.log.</li>
+      <li><strong>Extensiones:</strong> Prettier, Live Server, GitLens, IntelliCode, Indent Rainbow.</li>
+      <li><strong>Settings:</strong> El JSON de configuración. Personaliza todo a tu gusto.</li>
+      <li><strong>Shortcuts:</strong> 5 básicos. El resto llega solo con la práctica.</li>
+      <li><strong>Snippets:</strong> Plantillas para código repetitivo. Tab lo expande.</li>
+      <li><strong>Emmet:</strong> HTML y CSS desde abreviaciones. Ya viene en VS Code.</li>
+      <li><strong>Copilot:</strong> Tu copiloto de IA. Úsalo para acelerar, no para reemplazar el aprendizaje.</li>
+    </ul>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Guía VS Code desde Cero · Basada en el curso de Soy Dalto · Hugo 2025 · <a href="https://www.youtube.com/watch?v=TbzrOz8HbFM" target="_blank" rel="noopener" style="color:var(--primary);">Ver curso original en YouTube →</a>
+</footer>
+
+</body>
+</html>

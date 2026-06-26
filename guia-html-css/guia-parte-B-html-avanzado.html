@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía HTML & CSS — Parte B: HTML Avanzado II</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #c44a2a;
+    --primary-light:  #fdf0ec;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --danger:         #c44a2a;
+    --danger-light:   #fdf0ec;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1a1814;
+    --code-text:      #e8e4de;
+  }
+
+  body { font-family: 'DM Sans', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  header { background: #1a1814; color: #f7f4ef; padding: 3rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: '</>'; position: absolute; font-size: 14rem; font-weight: 900; color: rgba(255,255,255,0.05); right: -2rem; top: -3rem; font-family: monospace; line-height: 1; }
+  header h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; }
+  header p { font-size: 1.1rem; opacity: .85; margin-top: .5rem; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  /* ── BARRA DE PARTES ── */
+  .partes-nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 45px; z-index: 110; display: flex; align-items: center; gap: 0; height: 38px; padding: 0 1rem; }
+  .partes-nav-prev, .partes-nav-next { flex-shrink: 0; display: flex; align-items: center; gap: .3rem; padding: 0 .75rem; height: 100%; text-decoration: none; color: var(--muted); font-size: .78rem; font-weight: 500; border-right: 1px solid var(--border); transition: color .15s; white-space: nowrap; }
+  .partes-nav-next { border-right: none; border-left: 1px solid var(--border); }
+  .partes-nav-prev:hover, .partes-nav-next:hover { color: var(--primary); }
+  .partes-nav-list { flex: 1; display: flex; align-items: center; justify-content: center; gap: .15rem; overflow-x: auto; padding: 0 .5rem; }
+  .partes-nav-list::-webkit-scrollbar { display: none; }
+  .partes-nav-list a { flex-shrink: 0; padding: 2px 9px; border-radius: 20px; text-decoration: none; font-size: .73rem; font-weight: 600; color: var(--muted); transition: color .15s, background .15s; }
+  .partes-nav-list a:hover { color: var(--text); background: var(--bg); }
+  .partes-nav-list a.activa { background: var(--primary-light); color: var(--primary); }
+
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 83px; z-index: 100; display: flex; overflow-x: auto; gap: 0; }
+  nav a { flex-shrink: 0; padding: .75rem 1.1rem; text-decoration: none; color: var(--muted); font-size: .82rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2.5rem; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-size: 1.35rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  .analogy { background: #FFF7ED; border: 1px solid #FDE68A; border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: #92400E; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; color: #78350F; }
+
+  .concept { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p { font-size: .95rem; }
+  .tip ul { font-size: .95rem; padding-left: 1.2rem; }
+
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  .anatomy { background: #F0F4FF; border: 1px solid #C7D2FE; border-radius: 12px; padding: 1.5rem; font-family: monospace; font-size: 1.05rem; line-height: 2.4; margin: 1.25rem 0; }
+  .anatomy .br { color: var(--primary); font-weight: 700; }
+  .anatomy .at { color: #0891B2; }
+  .anatomy .vl { color: #059669; }
+  .anatomy .lb  { display: inline-block; background: var(--primary); color: #fff; font-size: .68rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 6px; }
+  .anatomy .lb2 { display: inline-block; background: var(--accent); color: #fff; font-size: .68rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 6px; }
+  .anatomy .lb3 { display: inline-block; background: var(--secondary); color: #fff; font-size: .68rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 6px; }
+
+  .code-block { background: var(--code-bg); color: var(--code-text); border-radius: 10px; padding: 1.25rem 1.5rem; font-family: 'Courier New', monospace; font-size: .88rem; line-height: 1.85; overflow-x: auto; margin: 1rem 0; position: relative; white-space: pre; }
+  .code-block .ct { color: #89B4FA; }
+  .code-block .ca { color: #CBA6F7; }
+  .code-block .cv { color: #A6E3A1; }
+  .code-block .cs { color: #F9E2AF; }
+  .code-block .cp { color: #89DCEB; }
+  .code-block .cc { color: #585B70; font-style: italic; }
+  .code-block .cn { color: #FAB387; }
+  .lang { position: absolute; top: .6rem; right: .75rem; background: rgba(255,255,255,.1); color: rgba(255,255,255,.5); font-size: .68rem; padding: 2px 8px; border-radius: 4px; font-family: sans-serif; }
+
+  .preview { border: 2px dashed var(--border); border-radius: 10px; padding: 1.25rem 1.5rem; margin: 1rem 0; background: var(--surface); position: relative; }
+  .preview::before { content: '🖥 Vista en navegador'; position: absolute; top: -11px; left: 14px; background: var(--surface); font-size: .73rem; color: var(--muted); padding: 0 6px; font-family: sans-serif; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  .ex { background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 12px; padding: 1.5rem; margin: 1.5rem 0; }
+  .ex-hd { display: flex; align-items: center; gap: .75rem; margin-bottom: 1rem; font-weight: 700; font-size: 1rem; color: #78350F; flex-wrap: wrap; }
+  .ex-badge { background: var(--accent); color: #fff; font-size: .68rem; padding: 2px 9px; border-radius: 20px; font-weight: 700; text-transform: uppercase; }
+  .ex ol { padding-left: 1.4rem; }
+  .ex ol li { margin-bottom: .6rem; font-size: .95rem; }
+  .ex p { font-size: .95rem; margin-bottom: .6rem; }
+
+  h2 { font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; color: var(--text); }
+  h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 .5rem; }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: #f0ece6; color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  strong { font-weight: 700; }
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: white; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  /* TABLA HTML DEMO */
+  .html-table-demo { width: 100%; border-collapse: collapse; font-size: .9rem; }
+  .html-table-demo caption { font-weight: 700; font-size: .95rem; margin-bottom: .5rem; color: var(--text); }
+  .html-table-demo th { background: var(--primary); color: white; padding: .6rem 1rem; text-align: left; }
+  .html-table-demo td { padding: .6rem 1rem; border: 1px solid var(--border); }
+  .html-table-demo tfoot td { background: var(--primary-light); font-weight: 700; color: var(--primary); border: 1px solid var(--border); padding: .6rem 1rem; }
+  .html-table-demo tbody tr:nth-child(even) td { background: var(--bg); }
+
+  /* DEPRECATED GRID */
+  .dep-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .dep-card { border-radius: 12px; padding: 1.1rem; border: 1px solid var(--border); }
+  .dep-card.bad  { background: #FFF0F0; border-left: 4px solid #EF4444; }
+  .dep-card.good { background: var(--secondary-light); border-left: 4px solid var(--secondary); }
+  .dep-card .dc-label { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .dep-card.bad  .dc-label { color: #EF4444; }
+  .dep-card.good .dc-label { color: var(--secondary); }
+  .dep-card .dc-tag { font-family: 'DM Mono', monospace; font-size: 1rem; font-weight: 700; margin-bottom: .3rem; }
+  .dep-card.bad  .dc-tag { color: #EF4444; }
+  .dep-card.good .dc-tag { color: var(--secondary); }
+  .dep-card .dc-desc { font-size: .85rem; color: var(--muted); }
+
+  /* ARIA GRID */
+  .aria-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .aria-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem; }
+  .aria-card .ac-attr { font-family: 'DM Mono', monospace; font-size: .88rem; font-weight: 700; color: var(--primary); background: var(--primary-light); padding: 2px 8px; border-radius: 5px; display: inline-block; margin-bottom: .4rem; }
+  .aria-card .ac-desc { font-size: .88rem; margin-bottom: .35rem; }
+  .aria-card .ac-ex { font-size: .78rem; font-family: monospace; background: #F1F5F9; border-radius: 6px; padding: .4rem .7rem; color: #334155; overflow-x: auto; white-space: pre; }
+
+  /* LINK TIPOS */
+  .link-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .link-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem; }
+  .link-card .lc-type { font-weight: 700; font-size: .9rem; color: var(--primary); margin-bottom: .3rem; }
+  .link-card .lc-code { font-family: monospace; font-size: .8rem; background: #F1F5F9; border-radius: 6px; padding: .4rem .7rem; margin: .4rem 0; display: block; white-space: pre; overflow-x: auto; color: #334155; }
+  .link-card .lc-desc { font-size: .85rem; color: var(--muted); }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); }
+</style>
+</head>
+<body>
+
+<!-- BARRA SUPERIOR -->
+<div style="background:#ffffff;border-bottom:1px solid #e8e4de;padding:0 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:200;height:45px;">
+  <a href="../index.html" style="display:inline-flex;align-items:center;gap:6px;font-family:'DM Sans',sans-serif;font-size:13px;color:#8a8480;text-decoration:none;padding:6px 14px;border:1px solid #e8e4de;border-radius:999px;transition:all 0.15s;" onmouseover="this.style.color='#1a1814';this.style.borderColor='#8a8480'" onmouseout="this.style.color='#8a8480';this.style.borderColor='#e8e4de'">← Volver a Café &lt;/&gt;</a>
+  <span style="font-family:'DM Sans',sans-serif;font-size:13px;color:#8a8480;">☕ Guía HTML &amp; CSS · Parte B</span>
+</div>
+
+<header>
+  <h1>HTML &amp; CSS — Parte B</h1>
+  <p>Links avanzados, Tablas, Audio, Video, Lazy Loading, HTML Deprecated y Accesibilidad</p>
+  <span class="badge">✦ Curso de Soy Dalto · 6:51:34 – 8:19:00 ✦</span>
+</header>
+
+<!-- BARRA DE PARTES A-J -->
+<div class="partes-nav">
+  <a class="partes-nav-prev" href="guia-parte-A-html-avanzado.html">← A</a>
+  <div class="partes-nav-list">
+    <a href="guia-html-css.html">Base</a>
+    <a href="guia-parte-A-html-avanzado.html">A</a>
+    <a href="guia-parte-B-html-avanzado.html" class="activa">B</a>
+    <a href="#">C</a>
+    <a href="#">D</a>
+    <a href="#">E</a>
+    <a href="#">F</a>
+    <a href="#">G</a>
+    <a href="#">H</a>
+    <a href="#">I</a>
+    <a href="#">J</a>
+  </div>
+  <a class="partes-nav-next" href="#">C →</a>
+</div>
+
+<nav>
+  <a href="#links">🔗 Links avanzados</a>
+  <a href="#tablas">📊 Tablas</a>
+  <a href="#audio">🎵 Audio</a>
+  <a href="#video">🎬 Video</a>
+  <a href="#lazy">⚡ Lazy Loading</a>
+  <a href="#deprecated">🚫 Deprecated</a>
+  <a href="#accesibilidad">♿ Accesibilidad</a>
+  <a href="#ejercicio">✏️ Ejercicio</a>
+</nav>
+
+<main>
+
+<div class="parte-badge">📦 Parte B — HTML Avanzado II (6:51 – 8:19 del video)</div>
+
+
+<!-- ═══════════════════════════════════════════
+     LINKS AVANZADOS
+═══════════════════════════════════════════ -->
+<section class="module" id="links">
+  <div class="module-header">
+    <div class="module-icon">🔗</div>
+    <div>
+      <div class="module-title">Links avanzados — Mucho más que href</div>
+      <div class="module-sub">target, download, tel, mailto, anclas y todo lo que &lt;a&gt; puede hacer</div>
+    </div>
+  </div>
+
+  <p>Ya conoces el link básico con <code>&lt;a href="url"&gt;</code>. Pero la etiqueta <code>&lt;a&gt;</code> tiene muchas más capacidades que la mayoría de principiantes no conoce. Puede abrir en nueva pestaña, descargar archivos, llamar por teléfono, abrir el correo, o saltar a una sección de la misma página.</p>
+
+  <div class="analogy">
+    <h4>🚪 Analogía: los tipos de puertas de un edificio</h4>
+    <p>Un link básico es como una puerta que lleva a otra habitación del mismo edificio. Pero también hay puertas que llevan a otro edificio (nueva pestaña), puertas que entregan un paquete (download), puertas que conectan un teléfono (tel:), y puertas que abren un buzón de correo (mailto:). Todas son puertas — todas son <code>&lt;a&gt;</code> — pero llevan a lugares diferentes.</p>
+  </div>
+
+  <h2>El atributo target — ¿dónde se abre el link?</h2>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="cc">&lt;!-- _self: en la misma pestaña (comportamiento por defecto) --&gt;</span>
+<span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"pagina.html"</span> <span class="ca">target</span>=<span class="cv">"_self"</span><span class="ct">&gt;</span><span class="cs">Ir a Pagina</span><span class="ct">&lt;/a&gt;</span>
+
+<span class="cc">&lt;!-- _blank: en una pestaña NUEVA — muy útil para links externos --&gt;</span>
+<span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"https://google.com"</span> <span class="ca">target</span>=<span class="cv">"_blank"</span><span class="ct">&gt;</span><span class="cs">Abrir Google</span><span class="ct">&lt;/a&gt;</span>
+
+<span class="cc">&lt;!-- _parent: en el frame padre (para páginas con iframes) --&gt;</span>
+<span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"pagina.html"</span> <span class="ca">target</span>=<span class="cv">"_parent"</span><span class="ct">&gt;</span><span class="cs">Ir al padre</span><span class="ct">&lt;/a&gt;</span>
+
+<span class="cc">&lt;!-- _top: en la ventana completa, saliendo de todos los iframes --&gt;</span>
+<span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"pagina.html"</span> <span class="ca">target</span>=<span class="cv">"_top"</span><span class="ct">&gt;</span><span class="cs">Ir al tope</span><span class="ct">&lt;/a&gt;</span></div>
+
+  <div class="warn">
+    <h4>⚠️ Seguridad con target="_blank"</h4>
+    <p>Cuando usas <code>target="_blank"</code>, siempre agrega <code>rel="noopener noreferrer"</code>. Sin esto, la página que abres puede acceder a tu página original mediante JavaScript (vulnerabilidad llamada "tabnabbing"). Con el rel queda seguro:</p>
+  </div>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="cc">&lt;!-- ✅ Forma correcta y segura para abrir links externos --&gt;</span>
+<span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"https://github.com"</span>
+   <span class="ca">target</span>=<span class="cv">"_blank"</span>
+   <span class="ca">rel</span>=<span class="cv">"noopener noreferrer"</span><span class="ct">&gt;</span>
+  <span class="cs">Ver mi GitHub</span>
+<span class="ct">&lt;/a&gt;</span></div>
+
+  <h2>Los tipos de links que puedes crear</h2>
+
+  <div class="link-grid">
+
+    <div class="link-card">
+      <div class="lc-type">🌐 Link a página web</div>
+      <code class="lc-code">&lt;a href="https://mipagina.com"&gt;
+  Ir a mi página
+&lt;/a&gt;</code>
+      <div class="lc-desc">El link más común. Usa siempre <code>https://</code> para URLs externas.</div>
+    </div>
+
+    <div class="link-card">
+      <div class="lc-type">📂 Link a archivo interno</div>
+      <code class="lc-code">&lt;a href="sobre-mi.html"&gt;
+  Sobre mí
+&lt;/a&gt;
+&lt;a href="./proyectos/web.html"&gt;
+  Proyectos
+&lt;/a&gt;</code>
+      <div class="lc-desc">Ruta relativa al archivo HTML en tu propio proyecto.</div>
+    </div>
+
+    <div class="link-card">
+      <div class="lc-type">⬇️ Link de descarga</div>
+      <code class="lc-code">&lt;a href="cv-hugo.pdf"
+   download&gt;
+  Descargar mi CV
+&lt;/a&gt;
+
+&lt;a href="foto.png"
+   download="mi-foto.png"&gt;
+  Descargar foto
+&lt;/a&gt;</code>
+      <div class="lc-desc">El atributo <code>download</code> fuerza la descarga en vez de abrir el archivo. Puedes darle un nombre personalizado al archivo descargado.</div>
+    </div>
+
+    <div class="link-card">
+      <div class="lc-type">📧 Link de correo electrónico</div>
+      <code class="lc-code">&lt;!-- Abre el cliente de correo --&gt;
+&lt;a href="mailto:hugo@email.com"&gt;
+  Envíame un correo
+&lt;/a&gt;
+
+&lt;!-- Con asunto y cuerpo predefinidos --&gt;
+&lt;a href="mailto:hugo@email.com
+?subject=Hola Hugo
+&amp;body=Te contacto desde..."&gt;
+  Escribir con asunto
+&lt;/a&gt;</code>
+      <div class="lc-desc">Abre la app de correo del usuario con el destinatario ya puesto. Muy usado en páginas de contacto.</div>
+    </div>
+
+    <div class="link-card">
+      <div class="lc-type">📞 Link de teléfono</div>
+      <code class="lc-code">&lt;!-- En móvil, llama directamente --&gt;
+&lt;a href="tel:+521234567890"&gt;
+  Llamar ahora
+&lt;/a&gt;
+
+&lt;!-- WhatsApp directo --&gt;
+&lt;a href="https://wa.me/521234567890"
+   target="_blank"&gt;
+  WhatsApp
+&lt;/a&gt;</code>
+      <div class="lc-desc">En dispositivos móviles, <code>tel:</code> abre el marcador de llamadas directamente. Imprescindible en sitios de negocios.</div>
+    </div>
+
+    <div class="link-card">
+      <div class="lc-type">⚓ Ancla — salto en la misma página</div>
+      <code class="lc-code">&lt;!-- El link apunta al id --&gt;
+&lt;a href="#contacto"&gt;
+  Ir a Contacto
+&lt;/a&gt;
+
+&lt;!-- El destino tiene ese id --&gt;
+&lt;section id="contacto"&gt;
+  &lt;h2&gt;Contacto&lt;/h2&gt;
+&lt;/section&gt;
+
+&lt;!-- Volver al inicio de la página --&gt;
+&lt;a href="#"&gt;↑ Subir arriba&lt;/a&gt;</code>
+      <div class="lc-desc">El <code>#id</code> hace que la página se desplace hasta el elemento con ese id. Muy usado en menús de navegación de una sola página (one-page).</div>
+    </div>
+
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Puedes poner cualquier cosa dentro de un &lt;a&gt;</h4>
+    <p>Un link no tiene que ser solo texto. Puedes envolver imágenes, botones, tarjetas completas, íconos, o cualquier elemento HTML para que sean clicables:</p>
+  </div>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="cc">&lt;!-- Link con imagen — la imagen entera es clicable --&gt;</span>
+<span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"proyecto.html"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;img</span> <span class="ca">src</span>=<span class="cv">"captura.png"</span> <span class="ca">alt</span>=<span class="cv">"Ver proyecto"</span><span class="ct">&gt;</span>
+<span class="ct">&lt;/a&gt;</span>
+
+<span class="cc">&lt;!-- Link con tarjeta completa --&gt;</span>
+<span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"proyecto.html"</span> <span class="ca">class</span>=<span class="cv">"tarjeta"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;h3&gt;</span><span class="cs">Mi Proyecto</span><span class="ct">&lt;/h3&gt;</span>
+  <span class="ct">&lt;p&gt;</span><span class="cs">Descripción del proyecto...</span><span class="ct">&lt;/p&gt;</span>
+<span class="ct">&lt;/a&gt;</span></div>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     TABLAS
+═══════════════════════════════════════════ -->
+<section class="module" id="tablas">
+  <div class="module-header">
+    <div class="module-icon">📊</div>
+    <div>
+      <div class="module-title">Tablas HTML — Datos estructurados en filas y columnas</div>
+      <div class="module-sub">Para mostrar información tabular: precios, horarios, estadísticas, comparaciones</div>
+    </div>
+  </div>
+
+  <p>Las tablas son para mostrar <strong>datos que tienen una relación entre filas y columnas</strong>: una tabla de precios, los resultados de un torneo, un horario de clases, estadísticas de jugadores. Lo que NO se debe hacer es usar tablas para maquetar el diseño de una página (eso se hacía en los años 90, hoy se usa Flexbox y Grid).</p>
+
+  <div class="analogy">
+    <h4>📋 Analogía: la tabla de posiciones de la Liga MX</h4>
+    <p>Cuando ves la tabla de posiciones del fútbol, cada fila es un equipo y cada columna es un dato: Pos, Equipo, PJ, G, E, P, GF, GC, Pts. Los datos tienen sentido porque están en la intersección correcta de fila y columna. Eso es una tabla HTML: cada celda está en el lugar exacto que le corresponde.</p>
+  </div>
+
+  <h2>Anatomía completa de una tabla</h2>
+
+  <div class="anatomy">
+    <span class="br">&lt;table&gt;</span><span class="lb">Contenedor de toda la tabla</span>
+    <br>&nbsp;&nbsp;<span class="br">&lt;caption&gt;</span><span class="cs">Título descriptivo</span><span class="br">&lt;/caption&gt;</span><span class="lb2">Opcional: título arriba</span>
+    <br>&nbsp;&nbsp;<span class="br">&lt;thead&gt;</span><span class="lb">Cabecera — fila de títulos</span>
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="br">&lt;tr&gt;</span><span class="lb2">Table Row — una fila</span>
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="br">&lt;th&gt;</span><span class="cs">Equipo</span><span class="br">&lt;/th&gt;</span><span class="lb3">Table Header — celda de encabezado</span>
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="br">&lt;/tr&gt;</span>
+    <br>&nbsp;&nbsp;<span class="br">&lt;/thead&gt;</span>
+    <br>&nbsp;&nbsp;<span class="br">&lt;tbody&gt;</span><span class="lb">Cuerpo — filas de datos</span>
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="br">&lt;tr&gt;</span>
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="br">&lt;td&gt;</span><span class="cs">América</span><span class="br">&lt;/td&gt;</span><span class="lb3">Table Data — celda de dato</span>
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="br">&lt;/tr&gt;</span>
+    <br>&nbsp;&nbsp;<span class="br">&lt;/tbody&gt;</span>
+    <br>&nbsp;&nbsp;<span class="br">&lt;tfoot&gt;</span><span class="lb">Pie — totales o notas</span>
+    <br>&nbsp;&nbsp;<span class="br">&lt;/tfoot&gt;</span>
+    <br><span class="br">&lt;/table&gt;</span>
+  </div>
+
+  <h2>Los elementos de una tabla y qué hace cada uno</h2>
+
+  <table class="tbl">
+    <thead>
+      <tr><th>Elemento</th><th>Nombre</th><th>Para qué sirve</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="tag">&lt;table&gt;</span></td><td>Table</td><td>Contenedor principal de toda la tabla. Sin él, nada funciona.</td></tr>
+      <tr><td><span class="tag">&lt;caption&gt;</span></td><td>Caption</td><td>Título descriptivo de la tabla. Aparece arriba. Importante para accesibilidad.</td></tr>
+      <tr><td><span class="tag">&lt;thead&gt;</span></td><td>Table Head</td><td>Agrupa la fila o filas de encabezado. El navegador puede repetirlas al imprimir.</td></tr>
+      <tr><td><span class="tag">&lt;tbody&gt;</span></td><td>Table Body</td><td>Agrupa las filas de datos. Si hay mucho contenido, puede tener scroll independiente.</td></tr>
+      <tr><td><span class="tag">&lt;tfoot&gt;</span></td><td>Table Foot</td><td>Fila o filas de pie: totales, promedios, notas. El navegador también puede repetirlas al imprimir.</td></tr>
+      <tr><td><span class="tag">&lt;tr&gt;</span></td><td>Table Row</td><td>Una fila completa de la tabla. Contiene los <code>&lt;th&gt;</code> o <code>&lt;td&gt;</code>.</td></tr>
+      <tr><td><span class="tag">&lt;th&gt;</span></td><td>Table Header</td><td>Celda de encabezado. El navegador la muestra en negrita y centrada por defecto. Semánticamente indica que es un título de columna o fila.</td></tr>
+      <tr><td><span class="tag">&lt;td&gt;</span></td><td>Table Data</td><td>Celda de dato normal. Aquí va la información de cada intersección fila-columna.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>colspan y rowspan — Fusionar celdas</h2>
+
+  <p>A veces necesitas que una celda ocupe varias columnas o varias filas, como en Excel cuando fusionas celdas. Para eso existen <code>colspan</code> y <code>rowspan</code>:</p>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="ct">&lt;table&gt;</span>
+  <span class="ct">&lt;thead&gt;</span>
+    <span class="ct">&lt;tr&gt;</span>
+      <span class="cc">&lt;!-- Esta celda ocupa 3 columnas horizontalmente --&gt;</span>
+      <span class="ct">&lt;th</span> <span class="ca">colspan</span>=<span class="cv">"3"</span><span class="ct">&gt;</span><span class="cs">Estadísticas del Torneo 2025</span><span class="ct">&lt;/th&gt;</span>
+    <span class="ct">&lt;/tr&gt;</span>
+    <span class="ct">&lt;tr&gt;</span>
+      <span class="ct">&lt;th&gt;</span><span class="cs">Equipo</span><span class="ct">&lt;/th&gt;</span>
+      <span class="ct">&lt;th&gt;</span><span class="cs">Goles</span><span class="ct">&lt;/th&gt;</span>
+      <span class="ct">&lt;th&gt;</span><span class="cs">Puntos</span><span class="ct">&lt;/th&gt;</span>
+    <span class="ct">&lt;/tr&gt;</span>
+  <span class="ct">&lt;/thead&gt;</span>
+  <span class="ct">&lt;tbody&gt;</span>
+    <span class="ct">&lt;tr&gt;</span>
+      <span class="cc">&lt;!-- Esta celda ocupa 2 filas verticalmente --&gt;</span>
+      <span class="ct">&lt;td</span> <span class="ca">rowspan</span>=<span class="cv">"2"</span><span class="ct">&gt;</span><span class="cs">América</span><span class="ct">&lt;/td&gt;</span>
+      <span class="ct">&lt;td&gt;</span><span class="cs">42</span><span class="ct">&lt;/td&gt;</span>
+      <span class="ct">&lt;td&gt;</span><span class="cs">56</span><span class="ct">&lt;/td&gt;</span>
+    <span class="ct">&lt;/tr&gt;</span>
+  <span class="ct">&lt;/tbody&gt;</span>
+<span class="ct">&lt;/table&gt;</span></div>
+
+  <h2>Ejemplo completo — Tabla de posiciones de Liga MX</h2>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="ct">&lt;table&gt;</span>
+  <span class="ct">&lt;caption&gt;</span><span class="cs">⚽ Liga MX — Tabla de Posiciones 2025</span><span class="ct">&lt;/caption&gt;</span>
+
+  <span class="ct">&lt;thead&gt;</span>
+    <span class="ct">&lt;tr&gt;</span>
+      <span class="ct">&lt;th&gt;</span><span class="cs">Pos</span><span class="ct">&lt;/th&gt;</span>
+      <span class="ct">&lt;th&gt;</span><span class="cs">Equipo</span><span class="ct">&lt;/th&gt;</span>
+      <span class="ct">&lt;th&gt;</span><span class="cs">PJ</span><span class="ct">&lt;/th&gt;</span>
+      <span class="ct">&lt;th&gt;</span><span class="cs">G</span><span class="ct">&lt;/th&gt;</span>
+      <span class="ct">&lt;th&gt;</span><span class="cs">E</span><span class="ct">&lt;/th&gt;</span>
+      <span class="ct">&lt;th&gt;</span><span class="cs">P</span><span class="ct">&lt;/th&gt;</span>
+      <span class="ct">&lt;th&gt;</span><span class="cs">Pts</span><span class="ct">&lt;/th&gt;</span>
+    <span class="ct">&lt;/tr&gt;</span>
+  <span class="ct">&lt;/thead&gt;</span>
+
+  <span class="ct">&lt;tbody&gt;</span>
+    <span class="ct">&lt;tr&gt;</span>
+      <span class="ct">&lt;td&gt;</span><span class="cs">1</span><span class="ct">&lt;/td&gt;</span> <span class="ct">&lt;td&gt;</span><span class="cs">América</span><span class="ct">&lt;/td&gt;</span>
+      <span class="ct">&lt;td&gt;</span><span class="cs">17</span><span class="ct">&lt;/td&gt;</span> <span class="ct">&lt;td&gt;</span><span class="cs">11</span><span class="ct">&lt;/td&gt;</span>
+      <span class="ct">&lt;td&gt;</span><span class="cs">3</span><span class="ct">&lt;/td&gt;</span>  <span class="ct">&lt;td&gt;</span><span class="cs">3</span><span class="ct">&lt;/td&gt;</span>
+      <span class="ct">&lt;td&gt;</span><span class="cs">36</span><span class="ct">&lt;/td&gt;</span>
+    <span class="ct">&lt;/tr&gt;</span>
+    <span class="ct">&lt;tr&gt;</span>
+      <span class="ct">&lt;td&gt;</span><span class="cs">2</span><span class="ct">&lt;/td&gt;</span> <span class="ct">&lt;td&gt;</span><span class="cs">Monterrey</span><span class="ct">&lt;/td&gt;</span>
+      <span class="ct">&lt;td&gt;</span><span class="cs">17</span><span class="ct">&lt;/td&gt;</span> <span class="ct">&lt;td&gt;</span><span class="cs">10</span><span class="ct">&lt;/td&gt;</span>
+      <span class="ct">&lt;td&gt;</span><span class="cs">4</span><span class="ct">&lt;/td&gt;</span>  <span class="ct">&lt;td&gt;</span><span class="cs">3</span><span class="ct">&lt;/td&gt;</span>
+      <span class="ct">&lt;td&gt;</span><span class="cs">34</span><span class="ct">&lt;/td&gt;</span>
+    <span class="ct">&lt;/tr&gt;</span>
+  <span class="ct">&lt;/tbody&gt;</span>
+
+  <span class="ct">&lt;tfoot&gt;</span>
+    <span class="ct">&lt;tr&gt;</span>
+      <span class="ct">&lt;td</span> <span class="ca">colspan</span>=<span class="cv">"7"</span><span class="ct">&gt;</span><span class="cs">* PJ=Partidos Jugados · G=Ganados · E=Empatados · P=Perdidos · Pts=Puntos</span><span class="ct">&lt;/td&gt;</span>
+    <span class="ct">&lt;/tr&gt;</span>
+  <span class="ct">&lt;/tfoot&gt;</span>
+<span class="ct">&lt;/table&gt;</span></div>
+
+  <div class="preview">
+    <table class="html-table-demo">
+      <caption>⚽ Liga MX — Tabla de Posiciones 2025</caption>
+      <thead>
+        <tr><th>Pos</th><th>Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>Pts</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td>América</td><td>17</td><td>11</td><td>3</td><td>3</td><td><strong>36</strong></td></tr>
+        <tr><td>2</td><td>Monterrey</td><td>17</td><td>10</td><td>4</td><td>3</td><td><strong>34</strong></td></tr>
+        <tr><td>3</td><td>Tigres</td><td>17</td><td>9</td><td>5</td><td>3</td><td><strong>32</strong></td></tr>
+        <tr><td>4</td><td>Chivas</td><td>17</td><td>8</td><td>4</td><td>5</td><td><strong>28</strong></td></tr>
+      </tbody>
+      <tfoot>
+        <tr><td colspan="7">* PJ=Partidos Jugados · G=Ganados · E=Empatados · P=Perdidos · Pts=Puntos</td></tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Estilizar tablas con CSS — lo básico</h4>
+    <ul>
+      <li><code>border-collapse: collapse</code> en la <code>table</code> elimina el doble borde entre celdas</li>
+      <li><code>tr:nth-child(even)</code> colorea las filas alternas (efecto "cebra") para facilitar la lectura</li>
+      <li><code>overflow-x: auto</code> en un contenedor div hace que la tabla tenga scroll horizontal en móvil</li>
+    </ul>
+  </div>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     AUDIO
+═══════════════════════════════════════════ -->
+<section class="module" id="audio">
+  <div class="module-header">
+    <div class="module-icon">🎵</div>
+    <div>
+      <div class="module-title">Audio — Reproducción de sonido nativa</div>
+      <div class="module-sub">Sin plugins, sin Flash: audio directo con HTML5</div>
+    </div>
+  </div>
+
+  <p>HTML5 introdujo la etiqueta <code>&lt;audio&gt;</code> que permite reproducir audio directamente en el navegador sin necesidad de Flash ni plugins externos. El navegador muestra sus controles nativos: play, pausa, volumen y barra de progreso.</p>
+
+  <div class="analogy">
+    <h4>📻 Analogía: el radio integrado de un auto</h4>
+    <p>En los autos viejos tenías que instalar un radio especial con adaptadores. Los autos modernos ya traen el radio integrado en el tablero: solo enchufas el USB y funciona. Eso es <code>&lt;audio&gt;</code>: el "radio" que el navegador moderno trae integrado, sin necesitar nada externo.</p>
+  </div>
+
+  <h2>Anatomía de &lt;audio&gt;</h2>
+
+  <div class="anatomy">
+    <span class="br">&lt;audio</span>
+      <span class="at">controls</span><span class="lb">Muestra los controles del navegador</span>
+      <span class="at">autoplay</span><span class="lb2">Empieza a reproducir solo</span>
+      <span class="at">loop</span><span class="lb3">Se repite al terminar</span>
+      <span class="at">muted</span><span class="lb">Empieza en silencio</span><span class="br">&gt;</span>
+    <br>&nbsp;&nbsp;<span class="br">&lt;source</span> <span class="at">src</span>=<span class="vl">"cancion.mp3"</span> <span class="at">type</span>=<span class="vl">"audio/mpeg"</span><span class="br">&gt;</span>
+    <br>&nbsp;&nbsp;<span class="br">&lt;source</span> <span class="at">src</span>=<span class="vl">"cancion.ogg"</span> <span class="at">type</span>=<span class="vl">"audio/ogg"</span><span class="br">&gt;</span>
+    <br>&nbsp;&nbsp;<span class="cs">Tu navegador no soporta audio HTML5.</span>
+    <br><span class="br">&lt;/audio&gt;</span>
+  </div>
+
+  <h2>Los atributos de &lt;audio&gt;</h2>
+
+  <table class="tbl">
+    <thead>
+      <tr><th>Atributo</th><th>Qué hace</th><th>Nota importante</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="tag">controls</span></td><td>Muestra los controles nativos del navegador (play, volumen, barra)</td><td>Sin este atributo, el audio es invisible e inutilizable para el usuario</td></tr>
+      <tr><td><span class="tag">autoplay</span></td><td>Empieza a reproducirse automáticamente al cargar la página</td><td>⚠️ La mayoría de navegadores lo bloquean a menos que también tenga <code>muted</code></td></tr>
+      <tr><td><span class="tag">loop</span></td><td>Cuando termina, vuelve a empezar</td><td>Útil para música de fondo o efectos de sonido</td></tr>
+      <tr><td><span class="tag">muted</span></td><td>Empieza en silencio (el usuario puede subir el volumen)</td><td>Combinado con autoplay sí funciona en todos los navegadores</td></tr>
+      <tr><td><span class="tag">preload</span></td><td>Indica cuánto debe precargar el navegador</td><td><code>auto</code>, <code>metadata</code> (solo duración), o <code>none</code> (no precarga)</td></tr>
+    </tbody>
+  </table>
+
+  <h2>¿Por qué usar múltiples &lt;source&gt;?</h2>
+
+  <p>No todos los navegadores soportan todos los formatos de audio. Por eso pones varias fuentes y el navegador elige la primera que puede reproducir:</p>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="ct">&lt;audio</span> <span class="ca">controls</span><span class="ct">&gt;</span>
+  <span class="cc">&lt;!-- El navegador prueba de arriba para abajo y usa el primero que soporta --&gt;</span>
+  <span class="ct">&lt;source</span> <span class="ca">src</span>=<span class="cv">"audio/cancion.mp3"</span>  <span class="ca">type</span>=<span class="cv">"audio/mpeg"</span><span class="ct">&gt;</span>  <span class="cc">&lt;!-- MP3: soportado por todos --&gt;</span>
+  <span class="ct">&lt;source</span> <span class="ca">src</span>=<span class="cv">"audio/cancion.ogg"</span>  <span class="ca">type</span>=<span class="cv">"audio/ogg"</span><span class="ct">&gt;</span>   <span class="cc">&lt;!-- OGG: mejor calidad, Firefox --&gt;</span>
+  <span class="ct">&lt;source</span> <span class="ca">src</span>=<span class="cv">"audio/cancion.webm"</span> <span class="ca">type</span>=<span class="cv">"audio/webm"</span><span class="ct">&gt;</span>  <span class="cc">&lt;!-- WEBM: Chrome/Edge --&gt;</span>
+
+  <span class="cc">&lt;!-- Mensaje de respaldo si el navegador no soporta &lt;audio&gt; --&gt;</span>
+  <span class="cs">Tu navegador no soporta la reproducción de audio.</span>
+  <span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"audio/cancion.mp3"</span><span class="ct">&gt;</span><span class="cs">Descargar el audio</span><span class="ct">&lt;/a&gt;</span>
+<span class="ct">&lt;/audio&gt;</span></div>
+
+  <div class="tip">
+    <h4>🟢 Formato recomendado en 2025</h4>
+    <p>Usa <strong>MP3</strong> como formato principal: es soportado por absolutamente todos los navegadores modernos y tiene buena compresión. Si quieres ofrecer mejor calidad sin sacrificar mucho peso, agrega también <strong>OGG</strong> como alternativa.</p>
+  </div>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     VIDEO
+═══════════════════════════════════════════ -->
+<section class="module" id="video">
+  <div class="module-header">
+    <div class="module-icon">🎬</div>
+    <div>
+      <div class="module-title">Video — Reproducción de video nativa</div>
+      <div class="module-sub">Videos propios, YouTube embebido y todo lo que necesitas saber</div>
+    </div>
+  </div>
+
+  <p>La etiqueta <code>&lt;video&gt;</code> funciona exactamente igual que <code>&lt;audio&gt;</code> pero para video. Tiene los mismos atributos (<code>controls</code>, <code>autoplay</code>, <code>loop</code>, <code>muted</code>) más algunos exclusivos como <code>poster</code> y <code>width</code>/<code>height&gt;</code>.</p>
+
+  <div class="analogy">
+    <h4>📺 Analogía: la televisión integrada vs el proyector externo</h4>
+    <p>Antes de <code>&lt;video&gt;</code>, mostrar video en una web era como usar un proyector externo: necesitabas instalar Flash, configurarlo, rezar para que funcionara. Con <code>&lt;video&gt;</code>, es como una smart TV integrada en la pared: enchufa el cable (pon la ruta del video) y listo.</p>
+  </div>
+
+  <h2>Anatomía de &lt;video&gt; con todos sus atributos</h2>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="ct">&lt;video</span>
+  <span class="ca">controls</span>                           <span class="cc">&lt;!-- Muestra los controles --&gt;</span>
+  <span class="ca">width</span>=<span class="cv">"800"</span>                        <span class="cc">&lt;!-- Ancho en píxeles --&gt;</span>
+  <span class="ca">height</span>=<span class="cv">"450"</span>                       <span class="cc">&lt;!-- Alto en píxeles --&gt;</span>
+  <span class="ca">poster</span>=<span class="cv">"miniatura.jpg"</span>             <span class="cc">&lt;!-- Imagen que se muestra antes de darle play --&gt;</span>
+  <span class="ca">autoplay</span>                           <span class="cc">&lt;!-- Reproduce solo (bloqueado sin muted) --&gt;</span>
+  <span class="ca">muted</span>                              <span class="cc">&lt;!-- Necesario para que autoplay funcione --&gt;</span>
+  <span class="ca">loop</span>                               <span class="cc">&lt;!-- Se repite al terminar --&gt;</span>
+  <span class="ca">preload</span>=<span class="cv">"metadata"</span>                 <span class="cc">&lt;!-- Solo carga la duración y miniatura --&gt;</span>
+  <span class="ca">playsinline</span>                        <span class="cc">&lt;!-- En iPhone: reproduce dentro de la página, no en pantalla completa --&gt;</span>
+<span class="ct">&gt;</span>
+  <span class="ct">&lt;source</span> <span class="ca">src</span>=<span class="cv">"video/presentacion.mp4"</span>  <span class="ca">type</span>=<span class="cv">"video/mp4"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;source</span> <span class="ca">src</span>=<span class="cv">"video/presentacion.webm"</span> <span class="ca">type</span>=<span class="cv">"video/webm"</span><span class="ct">&gt;</span>
+  <span class="cs">Tu navegador no soporta video HTML5.</span>
+<span class="ct">&lt;/video&gt;</span></div>
+
+  <h2>El atributo poster — imagen de previsualización</h2>
+
+  <p>El <code>poster</code> es la imagen que aparece en el reproductor de video <strong>antes de que el usuario le dé play</strong>, como la miniatura de un video de YouTube. Si no lo pones, el navegador muestra el primer fotograma del video (que a veces es negro).</p>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="cc">&lt;!-- El video muestra "portada.jpg" hasta que el usuario presione play --&gt;</span>
+<span class="ct">&lt;video</span> <span class="ca">controls</span> <span class="ca">poster</span>=<span class="cv">"portada.jpg"</span> <span class="ca">width</span>=<span class="cv">"100%"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;source</span> <span class="ca">src</span>=<span class="cv">"mi-video.mp4"</span> <span class="ca">type</span>=<span class="cv">"video/mp4"</span><span class="ct">&gt;</span>
+<span class="ct">&lt;/video&gt;</span></div>
+
+  <h2>Embeber videos de YouTube / Vimeo con &lt;iframe&gt;</h2>
+
+  <p>Para videos de YouTube no usas <code>&lt;video&gt;</code>: YouTube te da un código <code>&lt;iframe&gt;</code> para copiar y pegar. El <code>&lt;iframe&gt;</code> incrusta una página web dentro de otra.</p>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="cc">&lt;!-- Código que YouTube te da al hacer clic en "Compartir → Insertar" --&gt;</span>
+<span class="ct">&lt;iframe</span>
+  <span class="ca">width</span>=<span class="cv">"560"</span>
+  <span class="ca">height</span>=<span class="cv">"315"</span>
+  <span class="ca">src</span>=<span class="cv">"https://www.youtube.com/embed/ID_DEL_VIDEO"</span>
+  <span class="ca">title</span>=<span class="cv">"Nombre descriptivo del video"</span>
+  <span class="ca">frameborder</span>=<span class="cv">"0"</span>
+  <span class="ca">allow</span>=<span class="cv">"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"</span>
+  <span class="ca">allowfullscreen</span>
+<span class="ct">&gt;&lt;/iframe&gt;</span>
+
+<span class="cc">&lt;!-- Para que sea responsive, envuélvelo en un div con CSS --&gt;</span>
+<span class="ct">&lt;div</span> <span class="ca">style</span>=<span class="cv">"position:relative; padding-bottom:56.25%; height:0; overflow:hidden;"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;iframe</span>
+    <span class="ca">style</span>=<span class="cv">"position:absolute; top:0; left:0; width:100%; height:100%;"</span>
+    <span class="ca">src</span>=<span class="cv">"https://www.youtube.com/embed/ID_DEL_VIDEO"</span>
+    <span class="ca">allowfullscreen</span>
+  <span class="ct">&gt;&lt;/iframe&gt;</span>
+<span class="ct">&lt;/div&gt;</span></div>
+
+  <div class="concept">
+    <h4>💡 ¿Cuándo usar &lt;video&gt; y cuándo &lt;iframe&gt;?</h4>
+    <p>Usa <code>&lt;video&gt;</code> para <strong>videos propios</strong> que tienes en tu servidor (tu portafolio, demos, presentaciones). Usa <code>&lt;iframe&gt;</code> para videos de <strong>plataformas externas</strong> como YouTube o Vimeo: son más livianos (no guardas el video en tu servidor) y ya incluyen el reproductor completo con las funciones de la plataforma.</p>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Video de fondo (hero) — técnica profesional</h4>
+    <p>Para usar un video como fondo de una sección hero, se combina <code>autoplay muted loop playsinline</code> y se posiciona con CSS. El <code>muted</code> es obligatorio para que el autoplay funcione en todos los navegadores.</p>
+  </div>
+
+  <div class="code-block"><span class="lang">HTML + CSS</span><span class="cc">&lt;!-- HTML --&gt;</span>
+<span class="ct">&lt;section</span> <span class="ca">class</span>=<span class="cv">"hero"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;video</span> <span class="ca">autoplay</span> <span class="ca">muted</span> <span class="ca">loop</span> <span class="ca">playsinline</span> <span class="ca">class</span>=<span class="cv">"hero-video"</span><span class="ct">&gt;</span>
+    <span class="ct">&lt;source</span> <span class="ca">src</span>=<span class="cv">"fondo.mp4"</span> <span class="ca">type</span>=<span class="cv">"video/mp4"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;/video&gt;</span>
+  <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"hero-content"</span><span class="ct">&gt;</span>
+    <span class="ct">&lt;h1&gt;</span><span class="cs">Bienvenido a mi Portafolio</span><span class="ct">&lt;/h1&gt;</span>
+  <span class="ct">&lt;/div&gt;</span>
+<span class="ct">&lt;/section&gt;</span>
+
+<span class="cc">/* CSS */</span>
+<span class="cp">.hero</span> { <span class="ca">position</span>: relative; <span class="ca">height</span>: <span class="cn">100vh</span>; <span class="ca">overflow</span>: hidden; }
+<span class="cp">.hero-video</span> {
+  <span class="ca">position</span>: absolute;
+  <span class="ca">top</span>: <span class="cn">50%</span>; <span class="ca">left</span>: <span class="cn">50%</span>;
+  <span class="ca">transform</span>: translate(<span class="cn">-50%, -50%</span>);
+  <span class="ca">min-width</span>: <span class="cn">100%</span>; <span class="ca">min-height</span>: <span class="cn">100%</span>;
+  <span class="ca">object-fit</span>: cover;
+}
+<span class="cp">.hero-content</span> { <span class="ca">position</span>: relative; <span class="ca">z-index</span>: <span class="cn">1</span>; <span class="ca">color</span>: white; }</div>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     LAZY LOADING
+═══════════════════════════════════════════ -->
+<section class="module" id="lazy">
+  <div class="module-header">
+    <div class="module-icon">⚡</div>
+    <div>
+      <div class="module-title">Lazy Loading — Carga diferida de imágenes y videos</div>
+      <div class="module-sub">Haz tu página más rápida sin escribir JavaScript</div>
+    </div>
+  </div>
+
+  <p>Por defecto, cuando el navegador carga una página descarga <strong>todas</strong> las imágenes al mismo tiempo, aunque el usuario esté viendo solo la parte de arriba. Con <strong>lazy loading</strong>, las imágenes que están fuera de la pantalla no se descargan hasta que el usuario hace scroll y están a punto de verse.</p>
+
+  <div class="analogy">
+    <h4>🛒 Analogía: el supermercado que pide mercancía bajo demanda</h4>
+    <p>Un supermercado normal tiene el almacén lleno desde el primer día. Un supermercado inteligente solo pide mercancía cuando el anaquel está a punto de vaciarse: ahorra espacio, dinero y esfuerzo. Lazy loading es eso: solo descarga las imágenes cuando el usuario está a punto de verlas.</p>
+  </div>
+
+  <h2>Cómo activarlo — un solo atributo</h2>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="cc">&lt;!-- Sin lazy loading: se descarga aunque el usuario no la vea --&gt;</span>
+<span class="ct">&lt;img</span> <span class="ca">src</span>=<span class="cv">"foto-grande.jpg"</span> <span class="ca">alt</span>=<span class="cv">"Descripción"</span><span class="ct">&gt;</span>
+
+<span class="cc">&lt;!-- Con lazy loading: solo se descarga cuando el usuario hace scroll hasta aquí --&gt;</span>
+<span class="ct">&lt;img</span> <span class="ca">src</span>=<span class="cv">"foto-grande.jpg"</span> <span class="ca">alt</span>=<span class="cv">"Descripción"</span> <span class="ca">loading</span>=<span class="cv">"lazy"</span><span class="ct">&gt;</span>
+
+<span class="cc">&lt;!-- También funciona en iframes (videos de YouTube) --&gt;</span>
+<span class="ct">&lt;iframe</span>
+  <span class="ca">src</span>=<span class="cv">"https://www.youtube.com/embed/ID"</span>
+  <span class="ca">loading</span>=<span class="cv">"lazy"</span>
+  <span class="ca">allowfullscreen</span>
+<span class="ct">&gt;&lt;/iframe&gt;</span></code></div>
+
+  <table class="tbl">
+    <thead>
+      <tr><th>Valor de loading</th><th>Qué hace</th><th>Cuándo usar</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="tag">lazy</span></td><td>Se descarga solo cuando está cerca del viewport (la parte visible)</td><td>Todas las imágenes que estén debajo del "fold" (lo que no se ve al cargar)</td></tr>
+      <tr><td><span class="tag">eager</span></td><td>Se descarga inmediatamente (comportamiento por defecto)</td><td>Imágenes críticas que deben aparecer al instante: el logo, la imagen hero</td></tr>
+      <tr><td><span class="tag">auto</span></td><td>El navegador decide (equivale a no poner el atributo)</td><td>No recomendado: mejor ser explícito</td></tr>
+    </tbody>
+  </table>
+
+  <div class="warn">
+    <h4>⚠️ Nunca pongas lazy en la imagen hero o el logo</h4>
+    <p>Las imágenes que aparecen en la parte visible inmediatamente al cargar la página (arriba del "fold") <strong>nunca</strong> deben tener <code>loading="lazy"</code>. Si lo haces, el navegador las retrasará y verás un parpadeo feo al cargar. El lazy loading es solo para imágenes que están abajo en la página.</p>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Siempre define width y height en las imágenes con lazy</h4>
+    <p>Cuando usas lazy loading, el navegador necesita saber el tamaño de la imagen para reservar el espacio en el layout antes de descargarla. Sin <code>width</code> y <code>height</code>, la página "saltará" visualmente cuando la imagen cargue.</p>
+  </div>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="cc">&lt;!-- ✅ Correcto: tiene dimensiones para que el navegador reserve el espacio --&gt;</span>
+<span class="ct">&lt;img</span>
+  <span class="ca">src</span>=<span class="cv">"proyecto-1.jpg"</span>
+  <span class="ca">alt</span>=<span class="cv">"Captura del proyecto de portafolio web"</span>
+  <span class="ca">width</span>=<span class="cv">"800"</span>
+  <span class="ca">height</span>=<span class="cv">"450"</span>
+  <span class="ca">loading</span>=<span class="cv">"lazy"</span>
+<span class="ct">&gt;</span></div>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     HTML DEPRECATED
+═══════════════════════════════════════════ -->
+<section class="module" id="deprecated">
+  <div class="module-header">
+    <div class="module-icon">🚫</div>
+    <div>
+      <div class="module-title">HTML Deprecated — Etiquetas que ya no debes usar</div>
+      <div class="module-sub">Lo que HTML5 eliminó y por qué — con su alternativa moderna</div>
+    </div>
+  </div>
+
+  <p>A lo largo de la historia de HTML, muchas etiquetas fueron <strong>deprecadas</strong> (marcadas como obsoletas). Esto significa que todavía pueden funcionar en algunos navegadores, pero no debes usarlas en código nuevo porque pueden dejar de funcionar en cualquier momento y van en contra de las buenas prácticas modernas.</p>
+
+  <div class="analogy">
+    <h4>📼 Analogía: el videocasete VHS</h4>
+    <p>Un VHS todavía "funciona" si tienes una reproductora vieja. Pero nadie hace películas nuevas en VHS porque hay mejores formatos: Blu-ray, streaming. Las etiquetas deprecated son como el VHS: técnicamente podrían funcionar en algún lugar, pero son tecnología del pasado que no debes usar para cosas nuevas.</p>
+  </div>
+
+  <h2>Las etiquetas deprecated más comunes — y su reemplazo</h2>
+
+  <div class="dep-grid">
+    <div class="dep-card bad">
+      <div class="dc-label">❌ Deprecada</div>
+      <div class="dc-tag">&lt;center&gt;</div>
+      <div class="dc-desc">Centraba texto o elementos horizontalmente</div>
+    </div>
+    <div class="dep-card good">
+      <div class="dc-label">✅ Alternativa moderna</div>
+      <div class="dc-tag">CSS text-align / margin: auto</div>
+      <div class="dc-desc"><code>text-align: center</code> para texto, <code>margin: 0 auto</code> para bloques, o Flexbox con <code>justify-content: center</code></div>
+    </div>
+
+    <div class="dep-card bad">
+      <div class="dc-label">❌ Deprecada</div>
+      <div class="dc-tag">&lt;font&gt;</div>
+      <div class="dc-desc">Cambiaba la fuente, tamaño y color del texto con atributos HTML</div>
+    </div>
+    <div class="dep-card good">
+      <div class="dc-label">✅ Alternativa moderna</div>
+      <div class="dc-tag">CSS font-family, color, font-size</div>
+      <div class="dc-desc">Todo el estilo de tipografía se maneja con CSS. HTML solo estructura, CSS decora.</div>
+    </div>
+
+    <div class="dep-card bad">
+      <div class="dc-label">❌ Deprecada</div>
+      <div class="dc-tag">&lt;marquee&gt;</div>
+      <div class="dc-desc">Creaba texto desplazándose horizontalmente (el famoso "ticker")</div>
+    </div>
+    <div class="dep-card good">
+      <div class="dc-label">✅ Alternativa moderna</div>
+      <div class="dc-tag">CSS animations / JS</div>
+      <div class="dc-desc">Animaciones CSS con <code>@keyframes</code> o JavaScript para efectos similares con mucho más control.</div>
+    </div>
+
+    <div class="dep-card bad">
+      <div class="dc-label">❌ Deprecada</div>
+      <div class="dc-tag">&lt;blink&gt;</div>
+      <div class="dc-desc">Hacía parpadear el texto (era horrible). Solo funcionaba en Netscape.</div>
+    </div>
+    <div class="dep-card good">
+      <div class="dc-label">✅ Alternativa moderna</div>
+      <div class="dc-tag">CSS animation opacity</div>
+      <div class="dc-desc"><code>animation: blink 1s step-end infinite</code> con <code>@keyframes</code> que alterna <code>opacity</code> entre 0 y 1.</div>
+    </div>
+
+    <div class="dep-card bad">
+      <div class="dc-label">❌ Deprecada</div>
+      <div class="dc-tag">&lt;b&gt; y &lt;i&gt; (semánticamente)</div>
+      <div class="dc-desc">Originalmente solo eran estilos visuales: negrita y cursiva sin significado semántico</div>
+    </div>
+    <div class="dep-card good">
+      <div class="dc-label">✅ Alternativa moderna</div>
+      <div class="dc-tag">&lt;strong&gt; y &lt;em&gt;</div>
+      <div class="dc-desc"><code>&lt;strong&gt;</code> = importante (negrita + significado). <code>&lt;em&gt;</code> = énfasis (cursiva + significado). Los lectores de pantalla los pronuncian diferente.</div>
+    </div>
+
+    <div class="dep-card bad">
+      <div class="dc-label">❌ Deprecada</div>
+      <div class="dc-tag">&lt;frame&gt; / &lt;frameset&gt;</div>
+      <div class="dc-desc">Dividía la ventana del navegador en secciones independientes con URLs propias</div>
+    </div>
+    <div class="dep-card good">
+      <div class="dc-label">✅ Alternativa moderna</div>
+      <div class="dc-tag">&lt;iframe&gt; + CSS Grid/Flex</div>
+      <div class="dc-desc"><code>&lt;iframe&gt;</code> para incrustar páginas externas. CSS Grid/Flex para dividir visualmente la página.</div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>💡 La regla de oro de HTML moderno</h4>
+    <p><strong>HTML estructura, CSS decora.</strong> Casi todas las etiquetas deprecated existían porque en los años 90 HTML hacía también el trabajo visual. Con CSS moderno, toda la presentación (colores, fuentes, posición, animaciones) se maneja en CSS. HTML solo debe describir el significado del contenido, nunca su apariencia.</p>
+  </div>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     ACCESIBILIDAD WEB
+═══════════════════════════════════════════ -->
+<section class="module" id="accesibilidad">
+  <div class="module-header">
+    <div class="module-icon">♿</div>
+    <div>
+      <div class="module-title">Accesibilidad Web — Diseñar para todos</div>
+      <div class="module-sub">alt, ARIA, roles, tabindex y las buenas prácticas que marcan la diferencia</div>
+    </div>
+  </div>
+
+  <p>La <strong>accesibilidad web</strong> (a11y) es diseñar y programar páginas que puedan ser usadas por <strong>todas las personas</strong>, incluyendo aquellas con discapacidades visuales, auditivas, motoras o cognitivas. No es solo ético: en muchos países es un requisito legal, y además mejora el SEO y la experiencia de todos los usuarios.</p>
+
+  <div class="analogy">
+    <h4>🏛️ Analogía: las rampas del edificio</h4>
+    <p>Cuando un edificio tiene escaleras, una persona en silla de ruedas no puede entrar. La rampa es accesibilidad: permite que todos entren por la misma puerta. Y resulta que la rampa también la usan personas con carriolas, repartidores con carros, personas mayores. La accesibilidad web es exactamente así: hace el sitio mejor para todos, no solo para quienes tienen discapacidades.</p>
+  </div>
+
+  <h2>El atributo alt — descripción de imágenes</h2>
+
+  <p>El atributo <code>alt</code> es el más básico y más ignorado de la accesibilidad. Un lector de pantalla (software que usan personas con discapacidad visual) lee el <code>alt</code> en voz alta cuando encuentra una imagen.</p>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="cc">&lt;!-- ❌ MAL: alt vacío en imagen importante --&gt;</span>
+<span class="ct">&lt;img</span> <span class="ca">src</span>=<span class="cv">"equipo.jpg"</span> <span class="ca">alt</span>=<span class="cv">""</span><span class="ct">&gt;</span>         <span class="cc">&lt;!-- El lector de pantalla la ignora --&gt;</span>
+<span class="ct">&lt;img</span> <span class="ca">src</span>=<span class="cv">"equipo.jpg"</span><span class="ct">&gt;</span>                  <span class="cc">&lt;!-- Sin alt: lee la ruta del archivo (horrible) --&gt;</span>
+<span class="ct">&lt;img</span> <span class="ca">src</span>=<span class="cv">"equipo.jpg"</span> <span class="ca">alt</span>=<span class="cv">"imagen"</span><span class="ct">&gt;</span>   <span class="cc">&lt;!-- ❌ MAL: no describe nada --&gt;</span>
+
+<span class="cc">&lt;!-- ✅ BIEN: describe lo que hay en la imagen, con contexto --&gt;</span>
+<span class="ct">&lt;img</span> <span class="ca">src</span>=<span class="cv">"equipo.jpg"</span> <span class="ca">alt</span>=<span class="cv">"Equipo de América celebrando el campeonato 2025, con el trofeo al centro"</span><span class="ct">&gt;</span>
+
+<span class="cc">&lt;!-- ✅ Imagen decorativa: alt vacío adrede (el lector de pantalla la omite) --&gt;</span>
+<span class="ct">&lt;img</span> <span class="ca">src</span>=<span class="cv">"separador.png"</span> <span class="ca">alt</span>=<span class="cv">""</span> <span class="ca">role</span>=<span class="cv">"presentation"</span><span class="ct">&gt;</span></div>
+
+  <h2>ARIA — Accessible Rich Internet Applications</h2>
+
+  <p>ARIA es un conjunto de atributos que agregan información semántica a elementos HTML para que los lectores de pantalla entiendan mejor la interfaz. Se usa cuando el HTML semántico por sí solo no es suficiente.</p>
+
+  <div class="aria-grid">
+
+    <div class="aria-card">
+      <span class="ac-attr">aria-label</span>
+      <p class="ac-desc">Da un nombre descriptivo a un elemento cuando no tiene texto visible.</p>
+      <div class="ac-ex">&lt;button aria-label="Cerrar menú"&gt;
+  ✕
+&lt;/button&gt;
+&lt;!-- Sin aria-label, el lector diría solo "✕" --&gt;</div>
+    </div>
+
+    <div class="aria-card">
+      <span class="ac-attr">aria-hidden</span>
+      <p class="ac-desc">Oculta un elemento de los lectores de pantalla (para íconos decorativos).</p>
+      <div class="ac-ex">&lt;i class="fa-star" aria-hidden="true"&gt;&lt;/i&gt;
+&lt;span&gt;Favorito&lt;/span&gt;
+&lt;!-- Solo "Favorito" se anuncia, el ícono no --&gt;</div>
+    </div>
+
+    <div class="aria-card">
+      <span class="ac-attr">aria-expanded</span>
+      <p class="ac-desc">Indica si un menú, acordeón o dropdown está abierto o cerrado.</p>
+      <div class="ac-ex">&lt;button aria-expanded="false"
+        aria-controls="menu"&gt;
+  Menú
+&lt;/button&gt;
+&lt;ul id="menu" hidden&gt;...&lt;/ul&gt;</div>
+    </div>
+
+    <div class="aria-card">
+      <span class="ac-attr">aria-describedby</span>
+      <p class="ac-desc">Apunta a otro elemento que describe el elemento actual en detalle.</p>
+      <div class="ac-ex">&lt;input type="password"
+  aria-describedby="ayuda-pass"&gt;
+&lt;p id="ayuda-pass"&gt;
+  Mínimo 8 caracteres
+&lt;/p&gt;</div>
+    </div>
+
+    <div class="aria-card">
+      <span class="ac-attr">aria-live</span>
+      <p class="ac-desc">Anuncia cambios dinámicos del contenido (notificaciones, errores en vivo).</p>
+      <div class="ac-ex">&lt;div aria-live="polite"&gt;
+  &lt;!-- El lector anuncia cuando
+       este contenido cambia --&gt;
+  Cargando resultados...
+&lt;/div&gt;</div>
+    </div>
+
+    <div class="aria-card">
+      <span class="ac-attr">role</span>
+      <p class="ac-desc">Define el rol semántico de un elemento cuando no es el correcto por defecto.</p>
+      <div class="ac-ex">&lt;div role="button"
+     tabindex="0"&gt;
+  Hacer clic
+&lt;/div&gt;
+&lt;!-- Aunque es un div, se
+     comporta como un botón --&gt;</div>
+    </div>
+
+  </div>
+
+  <h2>tabindex — Navegación con teclado</h2>
+
+  <p>Muchos usuarios navegan con el teclado (Tab para moverse, Enter para activar). Por defecto, solo los elementos interactivos nativos (links, inputs, botones) son alcanzables con Tab. Con <code>tabindex</code> puedes controlarlo:</p>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="cc">&lt;!-- tabindex="0": entra en el flujo natural del teclado --&gt;</span>
+<span class="ct">&lt;div</span> <span class="ca">role</span>=<span class="cv">"button"</span> <span class="ca">tabindex</span>=<span class="cv">"0"</span><span class="ct">&gt;</span><span class="cs">Elemento clickeable con teclado</span><span class="ct">&lt;/div&gt;</span>
+
+<span class="cc">&lt;!-- tabindex="-1": NO entra en flujo del teclado, pero JS puede enfocarlo --&gt;</span>
+<span class="ct">&lt;div</span> <span class="ca">tabindex</span>=<span class="cv">"-1"</span> <span class="ca">id</span>=<span class="cv">"modal"</span><span class="ct">&gt;</span><span class="cs">Modal que recibe foco por JS</span><span class="ct">&lt;/div&gt;</span>
+
+<span class="cc">&lt;!-- tabindex="1", "2", etc.: define el ORDEN del Tab (evitar — dificulta accesibilidad) --&gt;</span>
+<span class="ct">&lt;input</span> <span class="ca">tabindex</span>=<span class="cv">"2"</span><span class="ct">&gt;</span>  <span class="cc">&lt;!-- ❌ Evitar: rompe el orden natural --&gt;</span></div>
+
+  <h2>Resumen de buenas prácticas de accesibilidad</h2>
+
+  <table class="tbl">
+    <thead>
+      <tr><th>Práctica</th><th>Por qué es importante</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Siempre incluir <code>alt</code> en <code>&lt;img&gt;</code></td><td>Los lectores de pantalla lo necesitan para describir imágenes a usuarios ciegos</td></tr>
+      <tr><td>Usar HTML semántico (<code>&lt;nav&gt;</code>, <code>&lt;main&gt;</code>, <code>&lt;header&gt;</code>)</td><td>Define la estructura para navegadores y tecnologías asistivas</td></tr>
+      <tr><td>Usar <code>&lt;label&gt;</code> vinculado en todos los inputs</td><td>Los lectores de pantalla leen el label cuando el usuario llega al campo</td></tr>
+      <tr><td>Asegurar contraste de color suficiente (4.5:1 mínimo)</td><td>Personas con baja visión necesitan buen contraste para leer</td></tr>
+      <tr><td>No depender solo del color para transmitir información</td><td>Personas daltónicas no distinguen ciertos colores; agrega íconos o texto</td></tr>
+      <tr><td>Todos los elementos interactivos deben ser usables con teclado</td><td>Muchas personas no pueden usar el ratón</td></tr>
+      <tr><td>Agregar <code>lang="es"</code> en el <code>&lt;html&gt;</code></td><td>El lector de pantalla pronuncia correctamente el idioma</td></tr>
+    </tbody>
+  </table>
+
+  <div class="tip">
+    <h4>🟢 Herramienta para verificar accesibilidad</h4>
+    <p>En Chrome, instala la extensión <strong>Lighthouse</strong> (ya viene en DevTools, F12 → Lighthouse → Accessibility). Te da una puntuación de 0 a 100 y te explica exactamente qué debes corregir. Apunta a mantener una puntuación superior a 90.</p>
+  </div>
+
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+     EJERCICIO FINAL
+═══════════════════════════════════════════ -->
+<section class="module" id="ejercicio">
+  <div class="module-header">
+    <div class="module-icon">✏️</div>
+    <div>
+      <div class="module-title">Ejercicio integrador — Página de jugador de fútbol</div>
+      <div class="module-sub">Pon en práctica todos los elementos de esta parte</div>
+    </div>
+  </div>
+
+  <div class="ex">
+    <div class="ex-hd">✏️ Ejercicio — Página de jugador favorito <span class="ex-badge">Intermedio</span></div>
+
+    <p>Crea una página llamada <code>jugador.html</code> sobre tu jugador de fútbol favorito que use <strong>todos los elementos que aprendiste en esta parte</strong>.</p>
+
+    <ol>
+      <li>
+        <strong>Header y navegación</strong>: Un <code>&lt;header&gt;</code> con el nombre del jugador y una <code>&lt;nav&gt;</code> con anclas (<code>#estadisticas</code>, <code>#galeria</code>, <code>#videos</code>) que salten a cada sección.
+      </li>
+      <li>
+        <strong>Links de contacto/redes</strong>: En el header o footer, incluye al menos:
+        <ul style="margin-top:.3rem">
+          <li>Un link al Instagram del jugador con <code>target="_blank" rel="noopener noreferrer"</code></li>
+          <li>Un link de <code>mailto:</code> para "contactar al equipo"</li>
+          <li>Un link de <code>download</code> para "descargar estadísticas" (puede ser cualquier archivo)</li>
+        </ul>
+      </li>
+      <li>
+        <strong>Tabla de estadísticas</strong> (<code>id="estadisticas"</code>): Crea una tabla con <code>&lt;thead&gt;</code>, <code>&lt;tbody&gt;</code> y <code>&lt;tfoot&gt;</code> mostrando temporadas: Año, Equipo, Partidos, Goles, Asistencias. En el <code>&lt;tfoot&gt;</code> pon los totales de carrera con <code>colspan</code>.
+      </li>
+      <li>
+        <strong>Galería con lazy loading</strong> (<code>id="galeria"</code>): Al menos 4 imágenes del jugador con:
+        <ul style="margin-top:.3rem">
+          <li><code>loading="lazy"</code> en todas</li>
+          <li><code>alt</code> descriptivo en cada una</li>
+          <li><code>width</code> y <code>height</code> definidos</li>
+        </ul>
+      </li>
+      <li>
+        <strong>Video</strong> (<code>id="videos"</code>): Embebe un video de YouTube del jugador usando <code>&lt;iframe&gt;</code> con <code>loading="lazy"</code> y el <code>title</code> correcto.
+      </li>
+      <li>
+        <strong>Accesibilidad</strong>: Revisa que todos tus inputs tengan <code>&lt;label&gt;</code>, todas las imágenes tengan <code>alt</code>, el <code>&lt;html&gt;</code> tenga <code>lang="es"</code>, y cualquier botón de ícono tenga <code>aria-label</code>.
+      </li>
+    </ol>
+
+    <p style="margin-top:1rem"><strong>Bonus:</strong> Agrega un elemento <code>&lt;audio&gt;</code> con el himno del equipo del jugador. Si no tienes el archivo, puedes usar cualquier MP3 de ejemplo.</p>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Resumen de lo que aprendiste en la Parte B</h4>
+    <ul>
+      <li><strong>Links avanzados:</strong> target, rel, download, mailto, tel, anclas con #id</li>
+      <li><strong>Tablas:</strong> table, caption, thead, tbody, tfoot, tr, th, td, colspan, rowspan</li>
+      <li><strong>Audio:</strong> &lt;audio&gt; con &lt;source&gt;, controls, autoplay, loop, muted, preload</li>
+      <li><strong>Video:</strong> &lt;video&gt; con poster, playsinline; &lt;iframe&gt; para YouTube; video de fondo hero</li>
+      <li><strong>Lazy Loading:</strong> atributo loading="lazy" en img e iframe</li>
+      <li><strong>HTML Deprecated:</strong> center, font, marquee, blink, frameset y sus reemplazos</li>
+      <li><strong>Accesibilidad:</strong> alt descriptivo, ARIA (aria-label, aria-hidden, aria-expanded, aria-live, role), tabindex, HTML semántico</li>
+    </ul>
+  </div>
+
+  <div class="concept">
+    <h4>💡 ¿Qué sigue? — Parte C</h4>
+    <p>La siguiente parte entra de lleno en <strong>CSS Avanzado</strong>: Selectores avanzados (hermanos, adyacentes, nth-child), Pseudoclases completas (:hover, :focus, :checked, :not, :is, :where), Pseudoelementos (::before, ::after, ::selection, ::placeholder) y la metodología <strong>BEM</strong> para nombrar clases CSS como un profesional. Pídela cuando estés listo.</p>
+  </div>
+
+</section>
+
+</main>
+
+<footer>
+  Guía HTML &amp; CSS · Parte B — HTML Avanzado II · Basada en el curso de Soy Dalto · Hugo 2025
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía JavaScript — Parte 1 · Soy Dalto</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --primary: #c44a2a; --primary-light: #fdf0ec;
+    --secondary: #1a7a5a; --secondary-light: #edf7f3;
+    --accent: #b07010; --accent-light: #fdf6e8;
+    --bg: #f7f4ef; --surface: #ffffff;
+    --text: #1a1814; --muted: #8a8480; --border: #e8e4de;
+    --code-bg: #1a1814; --code-text: #e8e4de;
+    --js: #f0b429;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  .cafe-bar { background:#fff; border-bottom:1px solid #e8e4de; padding:0 24px; display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:200; height:45px; }
+  .cafe-bar a { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:#8a8480; text-decoration:none; padding:6px 14px; border:1px solid #e8e4de; border-radius:999px; transition:all .15s; }
+  .cafe-bar a:hover { color:#1a1814; border-color:#8a8480; }
+  .cafe-bar span { font-size:13px; color:#8a8480; }
+
+  /* PARTES NAV */
+  .partes-nav { background:var(--surface); border-bottom:1px solid var(--border); position:sticky; top:45px; z-index:110; display:flex; align-items:center; height:38px; padding:0 1rem; }
+  .partes-nav-list { flex:1; display:flex; align-items:center; justify-content:center; gap:.15rem; overflow-x:auto; padding:0 .5rem; }
+  .partes-nav-list::-webkit-scrollbar { display:none; }
+  .partes-nav-list a { flex-shrink:0; padding:2px 10px; border-radius:20px; text-decoration:none; font-size:.73rem; font-weight:600; color:var(--muted); transition:color .15s, background .15s; }
+  .partes-nav-list a:hover { color:var(--text); background:var(--bg); }
+  .partes-nav-list a.activa { background:var(--primary-light); color:var(--primary); }
+  .partes-nav-next { flex-shrink:0; padding:0 .75rem; height:100%; text-decoration:none; color:var(--muted); font-size:.78rem; font-weight:500; border-left:1px solid var(--border); display:flex; align-items:center; transition:color .15s; white-space:nowrap; }
+  .partes-nav-next:hover { color:var(--primary); }
+
+  header { background:#1a1814; color:#f7f4ef; padding:3rem 2rem 2rem; text-align:center; position:relative; overflow:hidden; }
+  header::before { content:'JS'; position:absolute; font-size:16rem; font-weight:900; color:rgba(240,180,41,0.07); right:-2rem; top:-3rem; font-family:monospace; line-height:1; }
+  header h1 { font-size:2.5rem; font-weight:800; letter-spacing:-1px; font-family:'Fraunces',serif; }
+  header p { font-size:1.1rem; opacity:.85; margin-top:.5rem; }
+  header .badge { display:inline-block; background:rgba(240,180,41,.2); border:1px solid rgba(240,180,41,.4); color:#f0b429; border-radius:20px; padding:4px 14px; font-size:.8rem; margin-top:.75rem; font-weight:600; }
+
+  nav { background:var(--surface); border-bottom:1px solid var(--border); position:sticky; top:83px; z-index:100; display:flex; overflow-x:auto; gap:0; }
+  nav::-webkit-scrollbar { display:none; }
+  nav a { flex-shrink:0; padding:.65rem .9rem; text-decoration:none; color:var(--muted); font-size:.78rem; font-weight:500; border-bottom:2px solid transparent; transition:color .2s, border-color .2s; white-space:nowrap; }
+  nav a:hover { color:var(--primary); border-bottom-color:var(--primary); }
+
+  main { max-width:940px; margin:0 auto; padding:2rem 1.5rem; }
+
+  .module { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:2rem; margin-bottom:2.5rem; }
+  .module-header { display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border); }
+  .module-icon { font-size:1.8rem; flex-shrink:0; }
+  .module-title { font-size:1.35rem; font-weight:700; }
+  .module-sub { font-size:.85rem; color:var(--muted); margin-top:2px; }
+
+  .analogy { background:#FFF7ED; border:1px solid #FDE68A; border-left:4px solid var(--accent); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .analogy h4 { color:#92400E; font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+  .analogy p { font-size:.95rem; color:#78350F; }
+
+  .concept { background:var(--primary-light); border-left:4px solid var(--primary); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .concept h4 { color:var(--primary); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+
+  .tip { background:var(--secondary-light); border-left:4px solid var(--secondary); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .tip h4 { color:var(--secondary); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+
+  .warn { background:#fdf0ec; border-left:4px solid var(--primary); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .warn h4 { color:var(--primary); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+
+  .code-block { background:var(--code-bg); color:var(--code-text); border-radius:10px; padding:1.25rem 1.5rem; font-family:'DM Mono','Courier New',monospace; font-size:.88rem; line-height:1.9; overflow-x:auto; margin:1rem 0; position:relative; white-space:pre; }
+  .code-block .ct { color:#89B4FA; } /* keyword */
+  .code-block .ca { color:#CBA6F7; } /* type/class */
+  .code-block .cv { color:#A6E3A1; } /* string */
+  .code-block .cs { color:#F9E2AF; } /* number/symbol */
+  .code-block .cp { color:#89DCEB; } /* property */
+  .code-block .cc { color:#585B70; font-style:italic; } /* comment */
+  .code-block .cn { color:#FAB387; } /* function name */
+  .code-block .cw { color:#F38BA8; } /* warning/error */
+  .lang { position:absolute; top:.6rem; right:.75rem; background:rgba(255,255,255,.1); color:rgba(255,255,255,.5); font-size:.68rem; padding:2px 8px; border-radius:4px; font-family:sans-serif; }
+
+  .tbl { width:100%; border-collapse:collapse; margin:1rem 0; font-size:.9rem; }
+  .tbl th { background:var(--primary-light); color:var(--primary); padding:.65rem 1rem; text-align:left; font-weight:600; }
+  .tbl td { padding:.65rem 1rem; border-bottom:1px solid var(--border); vertical-align:top; }
+  .tbl tr:hover td { background:var(--bg); }
+
+  .glos { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1rem; margin:1rem 0; }
+  .glos-item { background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:1rem 1.1rem; }
+  .glos-item dt { font-weight:700; color:var(--primary); font-size:.92rem; margin-bottom:.3rem; }
+  .glos-item dd { font-size:.85rem; color:var(--muted); line-height:1.5; }
+  .glos-item .emoji { font-size:1.3rem; display:block; margin-bottom:.3rem; }
+
+  /* EJERCICIO INTERACTIVO */
+  .ejercicio { background:#FFFBEB; border:1px solid #FDE68A; border-radius:14px; padding:1.5rem; margin:1.5rem 0; }
+  .ejercicio-hd { display:flex; align-items:center; gap:.75rem; margin-bottom:1rem; font-weight:700; font-size:1rem; color:#78350F; flex-wrap:wrap; }
+  .ej-badge { background:var(--accent); color:#fff; font-size:.68rem; padding:2px 9px; border-radius:20px; font-weight:700; text-transform:uppercase; }
+  .ej-badge.int { background:var(--primary); }
+  .ej-badge.avz { background:#7c3aed; }
+  .editor-area { background:#1a1814; border-radius:10px; overflow:hidden; margin:.75rem 0; }
+  .editor-tabs { display:flex; gap:0; border-bottom:1px solid #333; }
+  .editor-tab { padding:.4rem 1rem; font-size:.75rem; color:#888; font-family:'DM Mono',monospace; border-right:1px solid #333; cursor:pointer; background:transparent; border-top:none; border-left:none; border-bottom:none; }
+  .editor-tab.activa { background:#252525; color:#f7f4ef; }
+  textarea.editor { width:100%; background:#252525; color:#e8e4de; border:none; padding:1rem 1.25rem; font-family:'DM Mono','Courier New',monospace; font-size:.87rem; line-height:1.8; resize:vertical; min-height:180px; outline:none; display:block; }
+  .run-btn { background:var(--js); color:#1a1814; border:none; padding:.6rem 1.4rem; border-radius:8px; font-weight:700; font-size:.9rem; cursor:pointer; transition:background .15s; margin-top:.6rem; display:inline-flex; align-items:center; gap:.4rem; }
+  .run-btn:hover { background:#d9a020; }
+  .reset-btn { background:transparent; color:var(--muted); border:1px solid var(--border); padding:.6rem 1.1rem; border-radius:8px; font-size:.85rem; cursor:pointer; transition:all .15s; margin-top:.6rem; margin-left:.5rem; }
+  .reset-btn:hover { border-color:var(--primary); color:var(--primary); }
+  .output { background:#0f0f0f; border-radius:8px; padding:1rem 1.25rem; margin-top:.75rem; font-family:'DM Mono',monospace; font-size:.87rem; min-height:60px; color:#A6E3A1; white-space:pre-wrap; }
+  .output.error { color:#F38BA8; }
+  .output-label { font-size:.72rem; color:var(--muted); margin-bottom:.25rem; text-transform:uppercase; letter-spacing:.06em; }
+  .enunciado { background:#fff; border:1px dashed #FDE68A; border-radius:8px; padding:1rem 1.25rem; margin-bottom:.75rem; font-size:.94rem; }
+  .enunciado strong { color:#78350F; }
+
+  .parte-badge { display:inline-flex; align-items:center; gap:.5rem; background:var(--js); color:#1a1814; border-radius:20px; padding:5px 16px; font-size:.82rem; font-weight:700; margin-bottom:1.5rem; }
+
+  h2 { font-size:1.2rem; font-weight:700; margin:1.75rem 0 .75rem; }
+  h3 { font-size:1rem; font-weight:700; margin:1.25rem 0 .5rem; }
+  p { margin-bottom:.8rem; }
+  ul, ol { padding-left:1.4rem; margin-bottom:.8rem; }
+  li { margin-bottom:.4rem; font-size:.96rem; }
+  code { font-family:'DM Mono',monospace; background:#f0ece6; color:var(--primary); padding:1px 5px; border-radius:4px; font-size:.9em; }
+  strong { font-weight:700; }
+
+  footer { text-align:center; padding:2rem; color:var(--muted); font-size:.85rem; border-top:1px solid var(--border); margin-top:1rem; background:var(--bg); }
+</style>
+</head>
+<body>
+
+<!-- BARRA CAFÉ -->
+<div class="cafe-bar">
+  <a href="../../index.html">← Volver a Café &lt;/&gt;</a>
+  <span>🟨 Guía JavaScript · Parte 1 de 4</span>
+</div>
+
+<!-- PARTES NAV -->
+<div class="partes-nav">
+  <div class="partes-nav-list">
+    <a href="guia-js-parte-1.html" class="activa">Parte 1</a>
+    <a href="guia-js-parte-2.html">Parte 2</a>
+    <a href="guia-js-parte-3.html">Parte 3</a>
+    <a href="guia-js-parte-4.html">Parte 4</a>
+  </div>
+  <a class="partes-nav-next" href="guia-js-parte-2.html">Parte 2 →</a>
+</div>
+
+<header>
+  <h1>JavaScript desde Cero</h1>
+  <p>Variables, tipos de datos, operadores y condicionales</p>
+  <span class="badge">⚡ Parte 1 de 4 · 0:00 – 1:28 del curso de Soy Dalto</span>
+</header>
+
+<nav>
+  <a href="#intro">🌐 ¿Qué es JS?</a>
+  <a href="#variables">📦 Variables</a>
+  <a href="#tipos">🔢 Tipos de datos</a>
+  <a href="#asignacion">🔄 Asignación</a>
+  <a href="#varletconst">🔒 var · let · const</a>
+  <a href="#operadores">➕ Operadores</a>
+  <a href="#restaurante">🍽 Ejercicio Restaurante</a>
+</nav>
+
+<main>
+<div class="parte-badge">⚡ Parte 1 — Fundamentos de JavaScript (0:00 – 1:28)</div>
+
+
+<!-- ══════════════════════════════════════════
+     INTRODUCCIÓN A JAVASCRIPT
+══════════════════════════════════════════ -->
+<section class="module" id="intro">
+  <div class="module-header">
+    <div class="module-icon">🌐</div>
+    <div>
+      <div class="module-title">Introducción a JavaScript</div>
+      <div class="module-sub">El lenguaje que da vida a las páginas web · 0:00 – 10:55</div>
+    </div>
+  </div>
+
+  <p>Si HTML es el esqueleto de una página web y CSS es su ropa, <strong>JavaScript es el cerebro</strong>: el que hace que las cosas sucedan cuando el usuario interactúa.</p>
+
+  <div class="analogy">
+    <h4>🏠 Analogía: la casa inteligente</h4>
+    <p>HTML construye la casa (paredes, puertas, ventanas). CSS la decora (colores, muebles, iluminación). JavaScript la hace inteligente: cuando llegas a casa, las luces se encienden solas. Cuando detecta que hay alguien en la puerta, suena un timbre. Cuando presionas un botón, el aire acondicionado se ajusta. Esa inteligencia, esa reacción a eventos, es lo que hace JavaScript en una página web.</p>
+  </div>
+
+  <h2>¿Qué puede hacer JavaScript?</h2>
+  <div class="glos">
+    <div class="glos-item"><span class="emoji">🖱️</span><dt>Interactividad</dt><dd>Responder a clics, teclas, movimientos del mouse, formularios enviados.</dd></div>
+    <div class="glos-item"><span class="emoji">🔄</span><dt>Cambiar el HTML</dt><dd>Agregar, quitar o modificar elementos de la página sin recargarla.</dd></div>
+    <div class="glos-item"><span class="emoji">🌐</span><dt>Comunicación con servidores</dt><dd>Pedir y enviar datos a APIs sin recargar la página (AJAX/Fetch).</dd></div>
+    <div class="glos-item"><span class="emoji">✅</span><dt>Validación de formularios</dt><dd>Verificar que el email tenga @, que la contraseña tenga 8 caracteres, etc.</dd></div>
+    <div class="glos-item"><span class="emoji">🎮</span><dt>Animaciones y juegos</dt><dd>Mover elementos, crear efectos visuales, construir juegos en el navegador.</dd></div>
+    <div class="glos-item"><span class="emoji">🖥️</span><dt>Backend (Node.js)</dt><dd>Con Node.js, JavaScript también corre en servidores, no solo en el navegador.</dd></div>
+  </div>
+
+  <h2>¿Cómo se vincula JavaScript a HTML?</h2>
+  <p>Igual que CSS, JS se puede incluir de dos formas: <strong>inline</strong> (dentro del HTML) o en un <strong>archivo externo</strong> (recomendado).</p>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="cc">&lt;!-- Forma 1: inline (no recomendada para proyectos reales) --&gt;</span>
+&lt;<span class="ct">script</span>&gt;
+  console.<span class="cn">log</span>(<span class="cv">"Hola desde JavaScript"</span>);
+&lt;/<span class="ct">script</span>&gt;
+
+<span class="cc">&lt;!-- Forma 2: archivo externo (recomendada) --&gt;</span>
+<span class="cc">&lt;!-- Siempre al FINAL del body, antes de &lt;/body&gt; --&gt;</span>
+&lt;<span class="ct">script</span> <span class="cp">src</span>=<span class="cv">"js/main.js"</span>&gt;&lt;/<span class="ct">script</span>&gt;</div>
+
+  <div class="concept">
+    <h4>💡 ¿Por qué al final del body?</h4>
+    <p>El navegador lee el HTML de arriba hacia abajo. Si pones el script al principio, JS intenta modificar elementos HTML que todavía no existen — y falla. Al ponerlo al final, el HTML ya está completamente cargado cuando JS empieza a ejecutarse.</p>
+  </div>
+
+  <h2>La consola del navegador — tu mejor herramienta</h2>
+  <p>Presiona <code>F12</code> o clic derecho → Inspeccionar → pestaña "Console". Aquí verás los mensajes de <code>console.log()</code> y los errores de tu código.</p>
+
+  <div class="ejercicio">
+    <div class="ejercicio-hd">✏️ Hola Mundo en JavaScript <span class="ej-badge">Principiante</span></div>
+    <div class="enunciado"><strong>Objetivo:</strong> Tu primer programa en JavaScript. Prueba las tres formas de mostrar texto.</div>
+    <div class="editor-area">
+      <div class="editor-tabs"><button class="editor-tab activa">main.js</button></div>
+      <textarea class="editor" id="ej-hola">// Las tres formas de mostrar información en JS
+
+// 1. Console.log — aparece en la consola del navegador (la más usada)
+console.log("¡Hola Mundo desde JavaScript!");
+
+// 2. Alert — ventana emergente (molesta, evitar en producción)
+// alert("¡Hola Mundo!");  // descomenta para probar
+
+// 3. Document.write — escribe directamente en el HTML (rara vez usada)
+// document.write("¡Hola Mundo!");
+
+// También puedes loguear números, operaciones, y variables:
+console.log(2 + 2);
+console.log("Mi nombre es", "Dalto");
+console.log("El resultado es:", 10 * 5);</textarea>
+    </div>
+    <button class="run-btn" onclick="runCode('ej-hola','out-hola')">▶ Ejecutar</button>
+    <button class="reset-btn" onclick="resetCode('ej-hola', `// Las tres formas de mostrar información en JS\n\n// 1. Console.log — aparece en la consola del navegador (la más usada)\nconsole.log(\"¡Hola Mundo desde JavaScript!\");\n\n// 2. Alert — ventana emergente (molesta, evitar en producción)\n// alert(\"¡Hola Mundo!\");  // descomenta para probar\n\n// También puedes loguear números, operaciones, y variables:\nconsole.log(2 + 2);\nconsole.log(\"Mi nombre es\", \"Dalto\");\nconsole.log(\"El resultado es:\", 10 * 5);`)">↺ Reiniciar</button>
+    <div class="output-label">Salida:</div>
+    <div class="output" id="out-hola">Presiona ▶ Ejecutar para ver el resultado...</div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     VARIABLES Y TIPOS DE DATOS
+══════════════════════════════════════════ -->
+<section class="module" id="variables">
+  <div class="module-header">
+    <div class="module-icon">📦</div>
+    <div>
+      <div class="module-title">Variables — Las cajas del programa</div>
+      <div class="module-sub">Qué son, para qué sirven y cómo crearlas · 10:55 – 21:33</div>
+    </div>
+  </div>
+
+  <p>Una variable es un <strong>espacio en la memoria del programa</strong> donde guardas un valor para poder usarlo y modificarlo más adelante. Sin variables, cada dato que el usuario ingresa desaparecería inmediatamente.</p>
+
+  <div class="analogy">
+    <h4>📦 Analogía: las cajas etiquetadas</h4>
+    <p>Imagina que te mudas de casa. Tienes cajas para guardar tus cosas. Cada caja tiene una etiqueta: "libros", "ropa", "cocina". En programación, las variables son esas cajas. La etiqueta es el <strong>nombre</strong> de la variable, y lo que metes dentro es el <strong>valor</strong>. Cuando necesitas algo, no buscas en todas las cajas — solo buscas la caja por su etiqueta.</p>
+  </div>
+
+  <h2>Declarar una variable</h2>
+
+  <div class="code-block"><span class="lang">JavaScript</span><span class="cc">// Declarar = crear la caja</span>
+<span class="ct">let</span> nombre;
+
+<span class="cc">// Asignar = meter algo dentro de la caja</span>
+nombre = <span class="cv">"Dalto"</span>;
+
+<span class="cc">// Declarar Y asignar en una sola línea (lo más común)</span>
+<span class="ct">let</span> edad = <span class="cs">28</span>;
+<span class="ct">let</span> ciudad = <span class="cv">"Buenos Aires"</span>;
+<span class="ct">let</span> esEstudiante = <span class="cs">true</span>;
+
+<span class="cc">// Mostrar en consola</span>
+console.<span class="cn">log</span>(nombre);        <span class="cc">// → "Dalto"</span>
+console.<span class="cn">log</span>(edad);         <span class="cc">// → 28</span>
+console.<span class="cn">log</span>(esEstudiante); <span class="cc">// → true</span></div>
+
+  <h2>Reglas para nombrar variables</h2>
+  <table class="tbl">
+    <thead><tr><th>Regla</th><th>Ejemplo válido</th><th>Ejemplo inválido</th></tr></thead>
+    <tbody>
+      <tr><td>Solo letras, números, _ y $</td><td><code>nombre1</code>, <code>_privado</code></td><td><code>mi-nombre</code> ❌ (el guión es resta)</td></tr>
+      <tr><td>No puede empezar con número</td><td><code>dato2</code></td><td><code>2dato</code> ❌</td></tr>
+      <tr><td>Sin espacios</td><td><code>nombreCompleto</code></td><td><code>nombre completo</code> ❌</td></tr>
+      <tr><td>Sin palabras reservadas de JS</td><td><code>miLet</code></td><td><code>let</code>, <code>if</code>, <code>for</code> ❌</td></tr>
+      <tr><td>Sensible a mayúsculas</td><td><code>nombre</code> ≠ <code>Nombre</code></td><td>Son variables diferentes</td></tr>
+    </tbody>
+  </table>
+
+  <div class="concept">
+    <h4>💡 camelCase — la convención de JavaScript</h4>
+    <p>Cuando un nombre de variable tiene varias palabras, en JavaScript se usa <strong>camelCase</strong>: la primera palabra en minúscula y cada palabra siguiente empieza con mayúscula. Ej: <code>nombreCompleto</code>, <code>edadDelUsuario</code>, <code>precioTotalConDescuento</code>. No es una regla del lenguaje, pero es la convención universal de la comunidad JS.</p>
+  </div>
+
+  <div class="ejercicio">
+    <div class="ejercicio-hd">✏️ Practica declarar variables <span class="ej-badge">Principiante</span></div>
+    <div class="enunciado"><strong>Objetivo:</strong> Crea variables para tu perfil personal y muéstralas en consola.</div>
+    <div class="editor-area">
+      <textarea class="editor" id="ej-vars">// Crea variables con tu información personal
+let nombre = "Tu nombre aquí";
+let edad = 0;          // Tu edad
+let ciudad = "Tu ciudad";
+let lenguajeFavorito = "JavaScript";
+let estoyAprendiendo = true;
+
+// Muéstralas todas en consola
+console.log("=== Mi Perfil ===");
+console.log("Nombre:", nombre);
+console.log("Edad:", edad);
+console.log("Ciudad:", ciudad);
+console.log("Lenguaje favorito:", lenguajeFavorito);
+console.log("¿Estoy aprendiendo?", estoyAprendiendo);
+
+// Ahora intenta cambiar el valor de una variable
+nombre = "Nuevo nombre";
+console.log("Nombre actualizado:", nombre);</textarea>
+    </div>
+    <button class="run-btn" onclick="runCode('ej-vars','out-vars')">▶ Ejecutar</button>
+    <button class="reset-btn" onclick="resetCode('ej-vars',`// Crea variables con tu información personal\nlet nombre = \"Tu nombre aquí\";\nlet edad = 0;\nlet ciudad = \"Tu ciudad\";\nlet lenguajeFavorito = \"JavaScript\";\nlet estoyAprendiendo = true;\n\nconsole.log(\"=== Mi Perfil ===\");\nconsole.log(\"Nombre:\", nombre);\nconsole.log(\"Edad:\", edad);\nconsole.log(\"Ciudad:\", ciudad);`)">↺ Reiniciar</button>
+    <div class="output-label">Salida:</div>
+    <div class="output" id="out-vars">Presiona ▶ Ejecutar...</div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     TIPOS DE DATOS
+══════════════════════════════════════════ -->
+<section class="module" id="tipos">
+  <div class="module-header">
+    <div class="module-icon">🔢</div>
+    <div>
+      <div class="module-title">Tipos de Datos en JavaScript</div>
+      <div class="module-sub">Los 7 tipos primitivos + Objetos · 10:55 – 21:33</div>
+    </div>
+  </div>
+
+  <p>Cada valor en JavaScript pertenece a un <strong>tipo de dato</strong>. Saber el tipo importa porque determina qué operaciones puedes hacer con él: no puedes sumar textos como si fueran números (bueno, sí puedes, pero no de la forma que esperas).</p>
+
+  <div class="analogy">
+    <h4>🧪 Analogía: los recipientes del laboratorio</h4>
+    <p>En un laboratorio hay diferentes recipientes según lo que vas a guardar: matraces para líquidos, cajas de Petri para muestras sólidas, jeringas para inyectables. No puedes guardar un gas en una caja de Petri. En JavaScript, los tipos de datos son como esos recipientes: cada tipo está diseñado para guardar un tipo específico de información.</p>
+  </div>
+
+  <h2>Los tipos primitivos</h2>
+
+  <div class="code-block"><span class="lang">JavaScript</span><span class="cc">// 1. NUMBER — números (enteros y decimales, JS no los distingue)</span>
+<span class="ct">let</span> entero = <span class="cs">42</span>;
+<span class="ct">let</span> decimal = <span class="cs">3.14</span>;
+<span class="ct">let</span> negativo = <span class="cs">-100</span>;
+<span class="ct">let</span> infinito = <span class="ca">Infinity</span>;     <span class="cc">// resultado de 1/0</span>
+<span class="ct">let</span> noEsNum = <span class="ca">NaN</span>;           <span class="cc">// Not a Number: resultado de "texto" * 2</span>
+
+<span class="cc">// 2. STRING — texto, siempre entre comillas</span>
+<span class="ct">let</span> simple = <span class="cv">'Comillas simples'</span>;
+<span class="ct">let</span> doble = <span class="cv">"Comillas dobles"</span>;
+<span class="ct">let</span> template = <span class="cv">`Template literal: puedo usar ${entero} variables aquí`</span>;
+
+<span class="cc">// 3. BOOLEAN — solo dos valores posibles: verdadero o falso</span>
+<span class="ct">let</span> esMayor = <span class="cs">true</span>;
+<span class="ct">let</span> estaVacio = <span class="cs">false</span>;
+
+<span class="cc">// 4. UNDEFINED — variable declarada pero sin valor asignado</span>
+<span class="ct">let</span> sinValor;
+console.<span class="cn">log</span>(sinValor); <span class="cc">// → undefined</span>
+
+<span class="cc">// 5. NULL — ausencia intencional de valor (tú lo asignas a propósito)</span>
+<span class="ct">let</span> usuarioActual = <span class="cs">null</span>; <span class="cc">// "no hay usuario, a propósito"</span>
+
+<span class="cc">// 6. BIGINT — números MUY grandes (más de 15 dígitos)</span>
+<span class="ct">let</span> numeroGrande = <span class="cs">9007199254740991n</span>; <span class="cc">// nota la n al final</span>
+
+<span class="cc">// 7. SYMBOL — identificadores únicos (uso avanzado)</span>
+<span class="ct">let</span> id = <span class="ca">Symbol</span>(<span class="cv">"id"</span>);</div>
+
+  <h2>typeof — saber el tipo de un valor</h2>
+  <div class="code-block"><span class="lang">JavaScript</span>console.<span class="cn">log</span>(<span class="ct">typeof</span> <span class="cs">42</span>);          <span class="cc">// → "number"</span>
+console.<span class="cn">log</span>(<span class="ct">typeof</span> <span class="cv">"hola"</span>);      <span class="cc">// → "string"</span>
+console.<span class="cn">log</span>(<span class="ct">typeof</span> <span class="cs">true</span>);        <span class="cc">// → "boolean"</span>
+console.<span class="cn">log</span>(<span class="ct">typeof</span> <span class="cs">undefined</span>);   <span class="cc">// → "undefined"</span>
+console.<span class="cn">log</span>(<span class="ct">typeof</span> <span class="cs">null</span>);        <span class="cc">// → "object" ⚠️ BUG histórico de JS</span>
+console.<span class="cn">log</span>(<span class="ct">typeof</span> []);           <span class="cc">// → "object"</span>
+console.<span class="cn">log</span>(<span class="ct">typeof</span> {});           <span class="cc">// → "object"</span>
+console.<span class="cn">log</span>(<span class="ct">typeof</span> <span class="ct">function</span>(){}); <span class="cc">// → "function"</span></div>
+
+  <div class="warn">
+    <h4>⚠️ El bug de typeof null</h4>
+    <p><code>typeof null</code> devuelve <code>"object"</code> — esto es un error histórico de JavaScript que nunca se corrigió por compatibilidad con código antiguo. <code>null</code> NO es un objeto. Para verificar si algo es null, usa comparación directa: <code>valor === null</code>.</p>
+  </div>
+
+  <h2>Conversión de tipos (Type Coercion)</h2>
+  <div class="code-block"><span class="lang">JavaScript</span><span class="cc">// JS convierte tipos automáticamente — a veces de formas sorprendentes</span>
+console.<span class="cn">log</span>(<span class="cv">"5"</span> + <span class="cs">3</span>);    <span class="cc">// → "53"  (concatena, no suma)</span>
+console.<span class="cn">log</span>(<span class="cv">"5"</span> - <span class="cs">3</span>);    <span class="cc">// → 2    (resta, convierte "5" a número)</span>
+console.<span class="cn">log</span>(<span class="cv">"5"</span> * <span class="cs">2</span>);    <span class="cc">// → 10   (multiplica, convierte)</span>
+console.<span class="cn">log</span>(<span class="cv">"abc"</span> * <span class="cs">2</span>);  <span class="cc">// → NaN  (no puede convertir "abc")</span>
+
+<span class="cc">// Conversión explícita (mejor práctica)</span>
+<span class="ca">Number</span>(<span class="cv">"42"</span>)       <span class="cc">// → 42</span>
+<span class="ca">String</span>(<span class="cs">42</span>)       <span class="cc">// → "42"</span>
+<span class="ca">Boolean</span>(<span class="cs">0</span>)       <span class="cc">// → false</span>
+<span class="ca">Boolean</span>(<span class="cv">"hola"</span>) <span class="cc">// → true</span>
+parseInt(<span class="cv">"42px"</span>) <span class="cc">// → 42  (extrae el número del inicio del string)</span></div>
+
+  <div class="ejercicio">
+    <div class="ejercicio-hd">✏️ Explora los tipos de datos <span class="ej-badge">Principiante</span></div>
+    <div class="enunciado"><strong>Objetivo:</strong> Experimenta con typeof y la conversión de tipos. Predice el resultado antes de ejecutar.</div>
+    <div class="editor-area">
+      <textarea class="editor" id="ej-tipos">// ¿Qué tipo de dato es cada uno?
+console.log("--- typeof ---");
+console.log(typeof 42);
+console.log(typeof "42");
+console.log(typeof true);
+console.log(typeof undefined);
+console.log(typeof null);       // Sorpresa...
+console.log(typeof [1, 2, 3]);  // Otra sorpresa...
+
+// Conversiones automáticas de JS (type coercion)
+console.log("--- Coercion ---");
+console.log("10" + 5);   // ¿"105" o 15?
+console.log("10" - 5);   // ¿"105" o 5?
+console.log(true + 1);   // ¿Error o número?
+console.log(false + 1);  // ¿Y este?
+console.log("" == false); // ¿Verdadero o falso?
+
+// Conversión explícita
+console.log("--- Conversión explícita ---");
+console.log(Number("123"));
+console.log(Number("abc"));   // ¿Qué pasa?
+console.log(String(999));
+console.log(Boolean(0));
+console.log(Boolean(""));</textarea>
+    </div>
+    <button class="run-btn" onclick="runCode('ej-tipos','out-tipos')">▶ Ejecutar</button>
+    <button class="reset-btn" onclick="resetCode('ej-tipos',`console.log(typeof 42);\nconsole.log(typeof \"42\");\nconsole.log(typeof true);\nconsole.log(\"10\" + 5);\nconsole.log(\"10\" - 5);`)">↺ Reiniciar</button>
+    <div class="output-label">Salida:</div>
+    <div class="output" id="out-tipos">Presiona ▶ Ejecutar...</div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     ASIGNACIÓN DE VARIABLES
+══════════════════════════════════════════ -->
+<section class="module" id="asignacion">
+  <div class="module-header">
+    <div class="module-icon">🔄</div>
+    <div>
+      <div class="module-title">Asignación de Variables</div>
+      <div class="module-sub">Operadores de asignación y cómo actualizar valores · 21:33 – 35:01</div>
+    </div>
+  </div>
+
+  <p>Asignar una variable es meterle un valor. Puedes hacerlo cuando la creas o en cualquier momento después. JavaScript tiene varios operadores de asignación que te permiten actualizar un valor de forma compacta.</p>
+
+  <div class="analogy">
+    <h4>🌡️ Analogía: el marcador de temperatura</h4>
+    <p>Un termostato tiene una temperatura guardada. Puedes decirle "ponlo en 22°" (asignación directa), o "súbelo 2 grados" (asignación con operación). No necesitas saber la temperatura actual para subirla — solo le dices cuánto más. Los operadores de asignación compuesta hacen exactamente eso: modifican el valor actual sin tener que repetirlo.</p>
+  </div>
+
+  <h2>Operadores de asignación</h2>
+  <table class="tbl">
+    <thead><tr><th>Operador</th><th>Significado</th><th>Ejemplo</th><th>Equivalente a</th></tr></thead>
+    <tbody>
+      <tr><td><code>=</code></td><td>Asignación simple</td><td><code>x = 5</code></td><td>x vale 5</td></tr>
+      <tr><td><code>+=</code></td><td>Suma y asigna</td><td><code>x += 3</code></td><td><code>x = x + 3</code></td></tr>
+      <tr><td><code>-=</code></td><td>Resta y asigna</td><td><code>x -= 2</code></td><td><code>x = x - 2</code></td></tr>
+      <tr><td><code>*=</code></td><td>Multiplica y asigna</td><td><code>x *= 4</code></td><td><code>x = x * 4</code></td></tr>
+      <tr><td><code>/=</code></td><td>Divide y asigna</td><td><code>x /= 2</code></td><td><code>x = x / 2</code></td></tr>
+      <tr><td><code>%=</code></td><td>Módulo y asigna</td><td><code>x %= 3</code></td><td><code>x = x % 3</code></td></tr>
+      <tr><td><code>**=</code></td><td>Potencia y asigna</td><td><code>x **= 2</code></td><td><code>x = x ** 2</code></td></tr>
+      <tr><td><code>++</code></td><td>Incrementa en 1</td><td><code>x++</code></td><td><code>x = x + 1</code></td></tr>
+      <tr><td><code>--</code></td><td>Decrementa en 1</td><td><code>x--</code></td><td><code>x = x - 1</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>Concatenación de strings con +=</h2>
+  <div class="code-block"><span class="lang">JavaScript</span><span class="ct">let</span> mensaje = <span class="cv">"Hola"</span>;
+mensaje += <span class="cv">" "</span>;
+mensaje += <span class="cv">"Mundo"</span>;
+console.<span class="cn">log</span>(mensaje); <span class="cc">// → "Hola Mundo"</span>
+
+<span class="cc">// Con template literals es más limpio:</span>
+<span class="ct">let</span> nombre = <span class="cv">"Dalto"</span>;
+<span class="ct">let</span> saludo = <span class="cv">`Hola, ${nombre}! Bienvenido.`</span>;
+console.<span class="cn">log</span>(saludo); <span class="cc">// → "Hola, Dalto! Bienvenido."</span></div>
+
+  <div class="ejercicio">
+    <div class="ejercicio-hd">✏️ Contador de puntos <span class="ej-badge">Principiante</span></div>
+    <div class="enunciado"><strong>Objetivo:</strong> Simula un sistema de puntos de un juego usando operadores de asignación.</div>
+    <div class="editor-area">
+      <textarea class="editor" id="ej-asig">// Sistema de puntos de un juego
+let puntos = 0;
+let nivel = 1;
+let nombre = "Jugador1";
+
+console.log(`${nombre} empieza con ${puntos} puntos en nivel ${nivel}`);
+
+// El jugador mata un enemigo (+10 puntos)
+puntos += 10;
+console.log(`¡Enemigo derrotado! Puntos: ${puntos}`);
+
+// Recoge una moneda de oro (+25 puntos)
+puntos += 25;
+console.log(`¡Moneda de oro! Puntos: ${puntos}`);
+
+// Recibe daño (-5 puntos)
+puntos -= 5;
+console.log(`¡Recibió daño! Puntos: ${puntos}`);
+
+// Multiplica puntos por bonus x2
+puntos *= 2;
+console.log(`¡Bonus x2 activado! Puntos: ${puntos}`);
+
+// Sube de nivel
+nivel++;
+console.log(`¡Subió al nivel ${nivel}!`);
+
+// Divide puntos a la mitad (penalización de nivel)
+puntos /= 2;
+console.log(`Penalización de nivel. Puntos finales: ${puntos}`);</textarea>
+    </div>
+    <button class="run-btn" onclick="runCode('ej-asig','out-asig')">▶ Ejecutar</button>
+    <button class="reset-btn" onclick="resetCode('ej-asig',`let puntos = 0;\nlet nivel = 1;\nlet nombre = \"Jugador1\";\nconsole.log(\`\${nombre} empieza con \${puntos} puntos en nivel \${nivel}\`);`)">↺ Reiniciar</button>
+    <div class="output-label">Salida:</div>
+    <div class="output" id="out-asig">Presiona ▶ Ejecutar...</div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     VAR, LET Y CONST
+══════════════════════════════════════════ -->
+<section class="module" id="varletconst">
+  <div class="module-header">
+    <div class="module-icon">🔒</div>
+    <div>
+      <div class="module-title">var, let y const — Las tres formas de declarar variables</div>
+      <div class="module-sub">Sus diferencias, el scope y cuándo usar cada una · 35:01 – 44:38</div>
+    </div>
+  </div>
+
+  <p>En JavaScript hay tres palabras para declarar variables: <code>var</code> (la antigua), <code>let</code> (la moderna) y <code>const</code> (para valores que no cambian). Elegir mal genera errores difíciles de detectar.</p>
+
+  <div class="analogy">
+    <h4>🚗 Analogía: tres tipos de contratos de arrendamiento</h4>
+    <p><strong>var</strong> es como un contrato verbal sin papeles — flexible pero impredecible, puede generar problemas legales (bugs) que no esperabas. <strong>let</strong> es un contrato estándar — claro, seguro, con reglas bien definidas. <strong>const</strong> es un contrato de propiedad — una vez firmado, el bien no puede reasignarse a otra persona (aunque su contenido interno sí puede cambiar).</p>
+  </div>
+
+  <h2>var — la forma antigua (evitar)</h2>
+  <div class="code-block"><span class="lang">JavaScript</span><span class="cc">// VAR tiene dos problemas graves:</span>
+
+<span class="cc">// 1. Se puede redeclarar sin error (genera bugs silenciosos)</span>
+<span class="ct">var</span> nombre = <span class="cv">"Dalto"</span>;
+<span class="ct">var</span> nombre = <span class="cv">"Otro"</span>; <span class="cc">// ¡Sin error! Pero perdiste el valor original</span>
+
+<span class="cc">// 2. Tiene scope de función, NO de bloque</span>
+<span class="ct">if</span> (<span class="cs">true</span>) {
+  <span class="ct">var</span> mensaje = <span class="cv">"Hola"</span>; <span class="cc">// Definida dentro del if...</span>
+}
+console.<span class="cn">log</span>(mensaje); <span class="cc">// → "Hola" (¡escapó del bloque! Bug potencial)</span>
+
+<span class="cc">// 3. Hoisting — se "sube" al tope, puede dar undefined</span>
+console.<span class="cn">log</span>(x); <span class="cc">// → undefined (no error, pero raro)</span>
+<span class="ct">var</span> x = <span class="cs">5</span>;</div>
+
+  <h2>let — la forma moderna</h2>
+  <div class="code-block"><span class="lang">JavaScript</span><span class="cc">// LET: scope de bloque, no se puede redeclarar, sí reasignar</span>
+<span class="ct">let</span> contador = <span class="cs">0</span>;
+contador = <span class="cs">1</span>;      <span class="cc">// ✅ Se puede cambiar el valor</span>
+<span class="cc">// let contador = 2; // ❌ Error: no se puede redeclarar</span>
+
+<span class="ct">if</span> (<span class="cs">true</span>) {
+  <span class="ct">let</span> local = <span class="cv">"Solo existo aquí dentro"</span>;
+  console.<span class="cn">log</span>(local); <span class="cc">// ✅</span>
+}
+<span class="cc">// console.log(local); // ❌ Error: local no está definida aquí fuera</span>
+
+<span class="cc">// Tampoco se puede usar antes de declarar:</span>
+<span class="cc">// console.log(y); // ❌ ReferenceError</span>
+<span class="ct">let</span> y = <span class="cs">10</span>;</div>
+
+  <h2>const — para valores que no cambian</h2>
+  <div class="code-block"><span class="lang">JavaScript</span><span class="cc">// CONST: no se puede reasignar, pero los objetos/arrays SÍ se pueden modificar</span>
+<span class="ct">const</span> PI = <span class="cs">3.14159</span>;
+<span class="cc">// PI = 3; // ❌ Error: no se puede reasignar una constante</span>
+
+<span class="ct">const</span> COLORES = [<span class="cv">"rojo"</span>, <span class="cv">"azul"</span>];
+COLORES.<span class="cn">push</span>(<span class="cv">"verde"</span>); <span class="cc">// ✅ El array se puede modificar</span>
+<span class="cc">// COLORES = []; // ❌ Pero no se puede reasignar la constante completa</span>
+
+<span class="ct">const</span> persona = { nombre: <span class="cv">"Dalto"</span> };
+persona.nombre = <span class="cv">"Lucas"</span>; <span class="cc">// ✅ Podemos modificar propiedades</span>
+<span class="cc">// persona = {}; // ❌ Pero no reasignar</span></div>
+
+  <table class="tbl">
+    <thead><tr><th>Característica</th><th>var</th><th>let</th><th>const</th></tr></thead>
+    <tbody>
+      <tr><td>Scope</td><td>Función</td><td>Bloque <code>{}</code></td><td>Bloque <code>{}</code></td></tr>
+      <tr><td>Redeclarar</td><td>✅ Sí</td><td>❌ No</td><td>❌ No</td></tr>
+      <tr><td>Reasignar</td><td>✅ Sí</td><td>✅ Sí</td><td>❌ No</td></tr>
+      <tr><td>Hoisting</td><td>Sí (undefined)</td><td>Sí (TDZ*)</td><td>Sí (TDZ*)</td></tr>
+      <tr><td>¿Usar hoy?</td><td>❌ Evitar</td><td>✅ Sí</td><td>✅ Sí (preferir)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="tip">
+    <h4>🟢 Regla de oro de Dalto: const primero, let si necesitas cambiar</h4>
+    <p>Cuando declares una variable, empieza siempre con <code>const</code>. Si en algún momento necesitas cambiar su valor, cámbiala a <code>let</code>. Nunca uses <code>var</code> en código moderno. Esta regla reduce bugs y hace el código más predecible.</p>
+  </div>
+
+  <div class="ejercicio">
+    <div class="ejercicio-hd">✏️ Explora var, let y const <span class="ej-badge">Principiante</span></div>
+    <div class="enunciado"><strong>Objetivo:</strong> Observa las diferencias de comportamiento entre var, let y const.</div>
+    <div class="editor-area">
+      <textarea class="editor" id="ej-vlc">// PRUEBA 1: Redeclaración
+var x = 1;
+var x = 2;  // Sin error con var
+console.log("var redeclarada:", x);
+
+// PRUEBA 2: Scope de bloque
+let dentroDelIf;
+if (true) {
+  let soloAqui = "Solo en el bloque";
+  var escapa = "¡Escapo del bloque!";
+  dentroDelIf = soloAqui; // Guardamos para mostrar fuera
+}
+console.log("let (guardada antes):", dentroDelIf);
+console.log("var (escapó):", escapa);
+// console.log(soloAqui); // Descomenta para ver el error
+
+// PRUEBA 3: const con objeto
+const config = {
+  tema: "oscuro",
+  idioma: "es"
+};
+config.tema = "claro";  // Modificar propiedad: OK
+console.log("config modificada:", config.tema);
+// config = {}; // Descomenta para ver el error de reasignación
+
+// PRUEBA 4: ¿Cuál usar?
+const nombre = "Dalto";     // No cambia → const
+let puntos = 0;             // Cambia → let
+puntos += 100;
+console.log(`${nombre} tiene ${puntos} puntos`);</textarea>
+    </div>
+    <button class="run-btn" onclick="runCode('ej-vlc','out-vlc')">▶ Ejecutar</button>
+    <button class="reset-btn" onclick="resetCode('ej-vlc',`var x = 1;\nvar x = 2;\nconsole.log(\"var redeclarada:\", x);`)">↺ Reiniciar</button>
+    <div class="output-label">Salida:</div>
+    <div class="output" id="out-vlc">Presiona ▶ Ejecutar...</div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     OPERADORES
+══════════════════════════════════════════ -->
+<section class="module" id="operadores">
+  <div class="module-header">
+    <div class="module-icon">➕</div>
+    <div>
+      <div class="module-title">Operadores en JavaScript</div>
+      <div class="module-sub">Aritméticos, de comparación, lógicos y más · 44:38 – 1:01:38</div>
+    </div>
+  </div>
+
+  <p>Los operadores son los símbolos que le dicen a JavaScript qué hacer con los valores. Sin operadores no hay cálculos, no hay comparaciones, no hay lógica.</p>
+
+  <h2>1. Operadores Aritméticos</h2>
+  <div class="code-block"><span class="lang">JavaScript</span><span class="ct">let</span> a = <span class="cs">10</span>, b = <span class="cs">3</span>;
+
+console.<span class="cn">log</span>(a + b);   <span class="cc">// 13  → Suma</span>
+console.<span class="cn">log</span>(a - b);   <span class="cc">// 7   → Resta</span>
+console.<span class="cn">log</span>(a * b);   <span class="cc">// 30  → Multiplicación</span>
+console.<span class="cn">log</span>(a / b);   <span class="cc">// 3.33... → División</span>
+console.<span class="cn">log</span>(a % b);   <span class="cc">// 1   → Módulo (resto de la división)</span>
+console.<span class="cn">log</span>(a ** b);  <span class="cc">// 1000 → Potencia (10³)</span>
+
+<span class="cc">// El módulo es muy útil para saber si un número es par o impar:</span>
+console.<span class="cn">log</span>(<span class="cs">10</span> % <span class="cs">2</span>); <span class="cc">// 0 → par (resto 0)</span>
+console.<span class="cn">log</span>(<span class="cs">7</span> % <span class="cs">2</span>);  <span class="cc">// 1 → impar (resto 1)</span></div>
+
+  <h2>2. Operadores de Comparación</h2>
+  <p>Siempre devuelven <code>true</code> o <code>false</code>.</p>
+  <div class="code-block"><span class="lang">JavaScript</span><span class="cc">// == vs === : la diferencia más importante de JS</span>
+console.<span class="cn">log</span>(<span class="cs">5</span> == <span class="cv">"5"</span>);   <span class="cc">// true  → == compara valor, ignora tipo</span>
+console.<span class="cn">log</span>(<span class="cs">5</span> === <span class="cv">"5"</span>);  <span class="cc">// false → === compara valor Y tipo (recomendado)</span>
+console.<span class="cn">log</span>(<span class="cs">5</span> != <span class="cv">"5"</span>);   <span class="cc">// false → != ignora tipo</span>
+console.<span class="cn">log</span>(<span class="cs">5</span> !== <span class="cv">"5"</span>);  <span class="cc">// true  → !== compara valor Y tipo</span>
+
+console.<span class="cn">log</span>(<span class="cs">10</span> > <span class="cs">5</span>);   <span class="cc">// true</span>
+console.<span class="cn">log</span>(<span class="cs">10</span> < <span class="cs">5</span>);   <span class="cc">// false</span>
+console.<span class="cn">log</span>(<span class="cs">10</span> >= <span class="cs">10</span>); <span class="cc">// true</span>
+console.<span class="cn">log</span>(<span class="cs">10</span> <= <span class="cs">9</span>);  <span class="cc">// false</span></div>
+
+  <div class="concept">
+    <h4>💡 Siempre usa === en vez de ==</h4>
+    <p>El operador <code>==</code> hace conversión de tipos automáticamente, lo que produce resultados confusos: <code>0 == false</code> es <code>true</code>, <code>"" == false</code> es <code>true</code>, <code>null == undefined</code> es <code>true</code>. El operador <code>===</code> (triple igual) compara valor Y tipo — sin conversiones, sin sorpresas. Úsalo siempre.</p>
+  </div>
+
+  <h2>3. Operadores Lógicos</h2>
+  <div class="code-block"><span class="lang">JavaScript</span><span class="cc">// AND (&&) — true solo si AMBOS son true</span>
+console.<span class="cn">log</span>(<span class="cs">true</span> && <span class="cs">true</span>);   <span class="cc">// true</span>
+console.<span class="cn">log</span>(<span class="cs">true</span> && <span class="cs">false</span>);  <span class="cc">// false</span>
+console.<span class="cn">log</span>(<span class="cs">5</span> > <span class="cs">3</span> && <span class="cs">10</span> > <span class="cs">8</span>); <span class="cc">// true (ambas condiciones se cumplen)</span>
+
+<span class="cc">// OR (||) — true si AL MENOS UNO es true</span>
+console.<span class="cn">log</span>(<span class="cs">true</span> || <span class="cs">false</span>);  <span class="cc">// true</span>
+console.<span class="cn">log</span>(<span class="cs">false</span> || <span class="cs">false</span>); <span class="cc">// false</span>
+console.<span class="cn">log</span>(<span class="cs">5</span> > <span class="cs">10</span> || <span class="cs">3</span> > <span class="cs">1</span>); <span class="cc">// true (la segunda se cumple)</span>
+
+<span class="cc">// NOT (!) — invierte el valor</span>
+console.<span class="cn">log</span>(!<span class="cs">true</span>);  <span class="cc">// false</span>
+console.<span class="cn">log</span>(!<span class="cs">false</span>); <span class="cc">// true</span>
+console.<span class="cn">log</span>(!(<span class="cs">5</span> > <span class="cs">3</span>)); <span class="cc">// false (5 > 3 es true, !true = false)</span>
+
+<span class="cc">// Nullish Coalescing (??) — usa el derecho si el izquierdo es null/undefined</span>
+<span class="ct">let</span> usuario = <span class="cs">null</span>;
+<span class="ct">let</span> nombre = usuario ?? <span class="cv">"Invitado"</span>;
+console.<span class="cn">log</span>(nombre); <span class="cc">// → "Invitado"</span>
+
+<span class="cc">// Optional Chaining (?.) — accede a propiedad sin error si el objeto es null</span>
+<span class="ct">let</span> perfil = <span class="cs">null</span>;
+console.<span class="cn">log</span>(perfil?.nombre); <span class="cc">// → undefined (sin error)</span></div>
+
+  <h2>4. Operador Ternario</h2>
+  <p>Un <code>if/else</code> en una sola línea.</p>
+  <div class="code-block"><span class="lang">JavaScript</span><span class="cc">// condición ? valorSiTrue : valorSiFalse</span>
+<span class="ct">let</span> edad = <span class="cs">20</span>;
+<span class="ct">let</span> acceso = edad >= <span class="cs">18</span> ? <span class="cv">"Permitido"</span> : <span class="cv">"Denegado"</span>;
+console.<span class="cn">log</span>(acceso); <span class="cc">// → "Permitido"</span>
+
+<span class="cc">// Equivalente al if/else:</span>
+<span class="ct">let</span> acceso2;
+<span class="ct">if</span> (edad >= <span class="cs">18</span>) {
+  acceso2 = <span class="cv">"Permitido"</span>;
+} <span class="ct">else</span> {
+  acceso2 = <span class="cv">"Denegado"</span>;
+}</div>
+
+  <div class="ejercicio">
+    <div class="ejercicio-hd">✏️ Practica todos los operadores <span class="ej-badge">Principiante</span></div>
+    <div class="enunciado"><strong>Objetivo:</strong> Experimenta con operadores. Cambia los valores y predice los resultados.</div>
+    <div class="editor-area">
+      <textarea class="editor" id="ej-ops">const a = 15;
+const b = 4;
+
+// ARITMÉTICOS
+console.log("=== Aritméticos ===");
+console.log("Suma:", a + b);
+console.log("Resta:", a - b);
+console.log("Multiplicación:", a * b);
+console.log("División:", a / b);
+console.log("Módulo:", a % b);        // ¿Cuánto sobra?
+console.log("Potencia:", a ** b);     // 15 a la 4
+
+// COMPARACIÓN
+console.log("\n=== Comparación ===");
+console.log(a > b);       // ¿Mayor?
+console.log(a === 15);    // ¿Igual en valor Y tipo?
+console.log(a === "15");  // ¿Y comparando con string?
+console.log(a !== b);     // ¿Distintos?
+
+// LÓGICOS
+console.log("\n=== Lógicos ===");
+const esMayor = a > 10;
+const esPar = a % 2 === 0;
+console.log("¿Es mayor que 10 Y par?", esMayor && esPar);
+console.log("¿Es mayor que 10 O par?", esMayor || esPar);
+console.log("¿No es mayor de 10?", !esMayor);
+
+// TERNARIO
+console.log("\n=== Ternario ===");
+const nota = 75;
+const resultado = nota >= 60 ? "Aprobado ✅" : "Reprobado ❌";
+console.log(`Nota ${nota}: ${resultado}`);</textarea>
+    </div>
+    <button class="run-btn" onclick="runCode('ej-ops','out-ops')">▶ Ejecutar</button>
+    <button class="reset-btn" onclick="resetCode('ej-ops',`const a = 15;\nconst b = 4;\nconsole.log(a + b);`)">↺ Reiniciar</button>
+    <div class="output-label">Salida:</div>
+    <div class="output" id="out-ops">Presiona ▶ Ejecutar...</div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     EJERCICIO INTEGRADOR — RESTAURANTE
+══════════════════════════════════════════ -->
+<section class="module" id="restaurante">
+  <div class="module-header">
+    <div class="module-icon">🍽️</div>
+    <div>
+      <div class="module-title">Ejercicio Integrador — Sistema de Restaurante</div>
+      <div class="module-sub">Variables, tipos, operadores y strings juntos · 1:01:38 – 1:10:45</div>
+    </div>
+  </div>
+
+  <p>Este es el ejercicio integrador del curso: construir la lógica de una orden de restaurante usando todo lo aprendido hasta ahora.</p>
+
+  <div class="analogy">
+    <h4>🍽️ Analogía: la comanda del mozo</h4>
+    <p>Cuando un mozo toma un pedido, anota: qué se pidió, cuántas unidades, el precio de cada cosa, si hay descuento, y calcula el total. Eso es exactamente lo que vamos a programar: una comanda digital que almacena los datos del pedido y calcula el total automáticamente.</p>
+  </div>
+
+  <div class="ejercicio">
+    <div class="ejercicio-hd">🍽️ Ejercicio Integrador — Restaurante "El Código" <span class="ej-badge int">Integrador</span></div>
+    <div class="enunciado">
+      <strong>El restaurante "El Código" necesita calcular la cuenta de una mesa.</strong><br>
+      La mesa pidió: 2 hamburguesas ($850 c/u), 3 refrescos ($320 c/u), y 1 postre ($450).<br>
+      Hay un descuento del 15% para clientes frecuentes.<br>
+      Calcula el subtotal, el descuento, el total y muestra una cuenta detallada.
+    </div>
+    <div class="editor-area">
+      <textarea class="editor" id="ej-rest">// ===========================
+// RESTAURANTE "EL CÓDIGO"
+// Sistema de facturación
+// ===========================
+
+// Datos del pedido
+const MESA = 5;
+const CLIENTE = "Carlos García";
+const ES_CLIENTE_FRECUENTE = true;
+const PORCENTAJE_DESCUENTO = 15;
+
+// Productos y cantidades
+const hamburguesaPrecio = 850;
+const hamburguesaCantidad = 2;
+
+const refrescoPrecio = 320;
+const refrescoCantidad = 3;
+
+const postrePrecio = 450;
+const postreCantidad = 1;
+
+// ── Cálculos ──────────────────────────────
+const totalHamburguesas = hamburguesaPrecio * hamburguesaCantidad;
+const totalRefrescos    = refrescoPrecio * refrescoCantidad;
+const totalPostre       = postrePrecio * postreCantidad;
+
+const subtotal = totalHamburguesas + totalRefrescos + totalPostre;
+
+const descuento = ES_CLIENTE_FRECUENTE
+  ? subtotal * (PORCENTAJE_DESCUENTO / 100)
+  : 0;
+
+const total = subtotal - descuento;
+
+// ── Mostrar la cuenta ─────────────────────
+console.log("╔════════════════════════════╗");
+console.log("║   RESTAURANTE EL CÓDIGO    ║");
+console.log("╚════════════════════════════╝");
+console.log(`Mesa: ${MESA}  |  Cliente: ${CLIENTE}`);
+console.log("────────────────────────────");
+console.log(`Hamburguesas (x${hamburguesaCantidad}) .... $${totalHamburguesas}`);
+console.log(`Refrescos    (x${refrescoCantidad}) .... $${totalRefrescos}`);
+console.log(`Postre       (x${postreCantidad}) .... $${totalPostre}`);
+console.log("────────────────────────────");
+console.log(`Subtotal:              $${subtotal}`);
+
+if (ES_CLIENTE_FRECUENTE) {
+  console.log(`Descuento ${PORCENTAJE_DESCUENTO}%:         -$${descuento}`);
+}
+
+console.log("════════════════════════════");
+console.log(`TOTAL A PAGAR:         $${total}`);
+console.log("════════════════════════════");
+console.log(`¡Gracias, ${CLIENTE}!`);
+
+// ── DESAFÍO EXTRA ─────────────────────────
+// Modifica el ejercicio:
+// 1. Agrega un producto más al menú
+// 2. Cambia el descuento a 20%
+// 3. Calcula cuánto paga cada persona si son 4 en la mesa</textarea>
+    </div>
+    <button class="run-btn" onclick="runCode('ej-rest','out-rest')">▶ Ejecutar</button>
+    <button class="reset-btn" onclick="resetCode('ej-rest',`const MESA = 5;\nconst CLIENTE = \"Carlos García\";\nconst hamburguesaPrecio = 850;\nconst hamburguesaCantidad = 2;`)">↺ Reiniciar</button>
+    <div class="output-label">Salida:</div>
+    <div class="output" id="out-rest">Presiona ▶ Ejecutar...</div>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Desafíos para practicar por tu cuenta</h4>
+    <ul>
+      <li>Agrega un IVA del 16% que se calcula <strong>sobre el total después del descuento</strong></li>
+      <li>Agrega una propina opcional del 10% si el cliente está satisfecho</li>
+      <li>Calcula el precio por persona si hay 4 comensales</li>
+      <li>Muestra los precios con 2 decimales usando <code>.toFixed(2)</code></li>
+    </ul>
+  </div>
+</section>
+
+<!-- SIGUIENTE PARTE -->
+<section class="module" style="background:linear-gradient(135deg,#1a1814,#2a2420);border-color:#3a3430;text-align:center;">
+  <div style="font-size:2rem;margin-bottom:.75rem;">→</div>
+  <h2 style="color:#f7f4ef;margin-bottom:.5rem;">Parte 2 — Condicionales y Ciclos</h2>
+  <p style="color:rgba(247,244,239,0.7);margin-bottom:1.25rem;">if/else, switch, while, for, do-while y sus ejercicios integradores</p>
+  <a href="guia-js-parte-2.html" style="display:inline-block;background:var(--js);color:#1a1814;font-weight:700;padding:.8rem 2rem;border-radius:10px;text-decoration:none;font-size:.95rem;">Ir a Parte 2 →</a>
+</section>
+
+</main>
+
+<footer>
+  Guía JavaScript desde Cero · Parte 1 · Basada en el curso de Soy Dalto · Hugo 2025
+</footer>
+
+<script>
+function runCode(editorId, outputId) {
+  const code = document.getElementById(editorId).value;
+  const output = document.getElementById(outputId);
+  const logs = [];
+  const originalLog = console.log;
+  const originalError = console.error;
+  const originalWarn = console.warn;
+
+  console.log = (...args) => logs.push(args.map(a =>
+    typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a)
+  ).join(' '));
+  console.error = (...args) => logs.push('❌ ' + args.join(' '));
+  console.warn = (...args) => logs.push('⚠️ ' + args.join(' '));
+
+  try {
+    eval(code);
+    output.textContent = logs.length ? logs.join('\n') : '(sin salida)';
+    output.className = 'output';
+  } catch (e) {
+    output.textContent = '❌ Error: ' + e.message;
+    output.className = 'output error';
+  } finally {
+    console.log = originalLog;
+    console.error = originalError;
+    console.warn = originalWarn;
+  }
+}
+
+function resetCode(editorId, defaultCode) {
+  document.getElementById(editorId).value = defaultCode;
+  const outputId = editorId.replace('ej-', 'out-');
+  const output = document.getElementById(outputId);
+  if (output) {
+    output.textContent = 'Presiona ▶ Ejecutar...';
+    output.className = 'output';
+  }
+}
+</script>
+</body>
+</html>
