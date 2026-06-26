@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía HTML & CSS — Parte E: Flexbox Completo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #c44a2a;
+    --primary-light:  #fdf0ec;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --danger:         #c44a2a;
+    --danger-light:   #fdf0ec;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1a1814;
+    --code-text:      #e8e4de;
+  }
+
+  body { font-family: 'DM Sans', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  header { background: #1a1814; color: #f7f4ef; padding: 3rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: '</>'; position: absolute; font-size: 14rem; font-weight: 900; color: rgba(255,255,255,0.05); right: -2rem; top: -3rem; font-family: monospace; line-height: 1; }
+  header h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; }
+  header p  { font-size: 1.1rem; opacity: .85; margin-top: .5rem; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  .partes-nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 45px; z-index: 110; display: flex; align-items: center; height: 38px; padding: 0 1rem; }
+  .partes-nav-prev, .partes-nav-next { flex-shrink: 0; display: flex; align-items: center; padding: 0 .75rem; height: 100%; text-decoration: none; color: var(--muted); font-size: .78rem; font-weight: 500; border-right: 1px solid var(--border); transition: color .15s; white-space: nowrap; }
+  .partes-nav-next { border-right: none; border-left: 1px solid var(--border); }
+  .partes-nav-prev:hover, .partes-nav-next:hover { color: var(--primary); }
+  .partes-nav-list { flex: 1; display: flex; align-items: center; justify-content: center; gap: .15rem; overflow-x: auto; padding: 0 .5rem; }
+  .partes-nav-list::-webkit-scrollbar { display: none; }
+  .partes-nav-list a { flex-shrink: 0; padding: 2px 9px; border-radius: 20px; text-decoration: none; font-size: .73rem; font-weight: 600; color: var(--muted); transition: color .15s, background .15s; }
+  .partes-nav-list a:hover { color: var(--text); background: var(--bg); }
+  .partes-nav-list a.activa { background: var(--primary-light); color: var(--primary); }
+
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 83px; z-index: 100; display: flex; overflow-x: auto; }
+  nav a { flex-shrink: 0; padding: .75rem 1.1rem; text-decoration: none; color: var(--muted); font-size: .82rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2.5rem; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-size: 1.35rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  .analogy { background: #FFF7ED; border: 1px solid #FDE68A; border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: #92400E; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p  { font-size: .95rem; color: #78350F; }
+
+  .concept { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p  { font-size: .95rem; }
+
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p  { font-size: .95rem; }
+  .tip ul { font-size: .95rem; padding-left: 1.2rem; }
+
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p  { font-size: .95rem; }
+
+  .anatomy { background: #F0F4FF; border: 1px solid #C7D2FE; border-radius: 12px; padding: 1.5rem; font-family: monospace; font-size: 1rem; line-height: 2.6; margin: 1.25rem 0; }
+  .anatomy .br  { color: var(--primary); font-weight: 700; }
+  .anatomy .at  { color: #0891B2; }
+  .anatomy .vl  { color: #059669; }
+  .anatomy .lb  { display: inline-block; background: var(--primary);   color: #fff; font-size: .68rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 6px; }
+  .anatomy .lb2 { display: inline-block; background: var(--accent);    color: #fff; font-size: .68rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 6px; }
+  .anatomy .lb3 { display: inline-block; background: var(--secondary); color: #fff; font-size: .68rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 6px; }
+
+  .code-block { background: var(--code-bg); color: var(--code-text); border-radius: 10px; padding: 1.25rem 1.5rem; font-family: 'Courier New', monospace; font-size: .88rem; line-height: 1.85; overflow-x: auto; margin: 1rem 0; position: relative; white-space: pre; }
+  .code-block .ct { color: #89B4FA; }
+  .code-block .ca { color: #CBA6F7; }
+  .code-block .cv { color: #A6E3A1; }
+  .code-block .cs { color: #F9E2AF; }
+  .code-block .cp { color: #89DCEB; }
+  .code-block .cc { color: #585B70; font-style: italic; }
+  .code-block .cn { color: #FAB387; }
+  .lang { position: absolute; top: .6rem; right: .75rem; background: rgba(255,255,255,.1); color: rgba(255,255,255,.5); font-size: .68rem; padding: 2px 8px; border-radius: 4px; font-family: sans-serif; }
+
+  .preview { border: 2px dashed var(--border); border-radius: 10px; padding: 1.5rem; margin: 1rem 0; background: var(--surface); position: relative; }
+  .preview::before { content: '🖥 Vista en navegador'; position: absolute; top: -11px; left: 14px; background: var(--surface); font-size: .73rem; color: var(--muted); padding: 0 6px; font-family: sans-serif; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  .ex { background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 12px; padding: 1.5rem; margin: 1.5rem 0; }
+  .ex-hd { display: flex; align-items: center; gap: .75rem; margin-bottom: 1rem; font-weight: 700; font-size: 1rem; color: #78350F; flex-wrap: wrap; }
+  .ex-badge { background: var(--accent); color: #fff; font-size: .68rem; padding: 2px 9px; border-radius: 20px; font-weight: 700; text-transform: uppercase; }
+  .ex ol { padding-left: 1.4rem; }
+  .ex ol li { margin-bottom: .6rem; font-size: .95rem; }
+  .ex p { font-size: .95rem; margin-bottom: .6rem; }
+
+  h2 { font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; }
+  h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 .5rem; }
+  p  { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: #f0ece6; color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  strong { font-weight: 700; }
+
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: white; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  /* ══════════════════════════════════════
+     CAJAS FLEXBOX DEMO
+  ══════════════════════════════════════ */
+  .fx-scene {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1rem; margin: .75rem 0;
+    display: flex; gap: .5rem;
+  }
+  .fx-box {
+    background: var(--primary); color: white;
+    border-radius: 7px; padding: .5rem .75rem;
+    font-size: .78rem; font-weight: 700; text-align: center;
+    min-width: 44px;
+  }
+  .fx-box.sec { background: var(--secondary); }
+  .fx-box.acc { background: var(--accent); }
+  .fx-box.muted { background: var(--muted); }
+
+  /* direction demos */
+  .fx-row      { flex-direction: row; }
+  .fx-row-rev  { flex-direction: row-reverse; }
+  .fx-col      { flex-direction: column; }
+  .fx-col-rev  { flex-direction: column-reverse; }
+
+  /* justify-content demos */
+  .fx-jc-start    { justify-content: flex-start; }
+  .fx-jc-end      { justify-content: flex-end; }
+  .fx-jc-center   { justify-content: center; }
+  .fx-jc-between  { justify-content: space-between; }
+  .fx-jc-around   { justify-content: space-around; }
+  .fx-jc-evenly   { justify-content: space-evenly; }
+
+  /* align-items demos */
+  .fx-ai-scene { height: 90px; align-items: flex-start; }
+  .fx-ai-start   { align-items: flex-start; }
+  .fx-ai-end     { align-items: flex-end; }
+  .fx-ai-center  { align-items: center; }
+  .fx-ai-stretch { align-items: stretch; }
+  .fx-ai-base    { align-items: baseline; }
+
+  /* wrap demo */
+  .fx-wrap-scene { flex-wrap: wrap; }
+  .fx-nowrap-scene { flex-wrap: nowrap; overflow: hidden; }
+
+  /* align-content demo */
+  .fx-ac-scene { flex-wrap: wrap; height: 160px; }
+  .fx-ac-start   { align-content: flex-start; }
+  .fx-ac-center  { align-content: center; }
+  .fx-ac-between { align-content: space-between; }
+
+  /* grow / shrink demos */
+  .fx-grow-scene { }
+  .fx-grow-1 { flex-grow: 1; }
+  .fx-grow-2 { flex-grow: 2; background: var(--secondary); }
+  .fx-grow-3 { flex-grow: 3; background: var(--accent); }
+
+  /* order demo */
+  .fx-order-scene { }
+  .fx-o1 { order: 3; background: var(--muted); }
+  .fx-o2 { order: 1; background: var(--secondary); }
+  .fx-o3 { order: 2; background: var(--accent); }
+
+  /* align-self demo */
+  .fx-as-scene { height: 100px; align-items: flex-start; }
+  .fx-as-auto    { align-self: auto; }
+  .fx-as-end     { align-self: flex-end; background: var(--secondary); }
+  .fx-as-center  { align-self: center; background: var(--accent); }
+  .fx-as-stretch { align-self: stretch; background: #7C3AED; }
+
+  /* gap demo */
+  .fx-gap-scene { gap: 1rem; }
+
+  /* ── LABEL STRIP ── */
+  .demo-label {
+    font-size: .72rem; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .06em;
+    margin-bottom: .25rem; margin-top: .75rem;
+  }
+
+  /* ── DEMOS DE LAYOUTS REALES ── */
+
+  /* Navbar */
+  .demo-navbar {
+    display: flex; align-items: center; justify-content: space-between;
+    background: #1a1814; color: white; padding: .75rem 1.25rem;
+    border-radius: 10px; gap: 1rem;
+  }
+  .demo-navbar-logo { font-weight: 800; font-size: 1rem; }
+  .demo-navbar-links { display: flex; gap: 1.25rem; list-style: none; }
+  .demo-navbar-links a { color: rgba(255,255,255,.75); text-decoration: none; font-size: .85rem; transition: color .2s; }
+  .demo-navbar-links a:hover { color: white; }
+  .demo-navbar-btn { background: var(--primary); color: white; border: none; border-radius: 7px; padding: .4rem .9rem; font-size: .82rem; font-weight: 600; cursor: pointer; white-space: nowrap; }
+
+  /* Hero flex */
+  .demo-hero {
+    display: flex; align-items: center; gap: 2rem;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1.5rem; margin: .75rem 0;
+  }
+  .demo-hero-text { flex: 1; }
+  .demo-hero-img  {
+    flex-shrink: 0; width: 110px; height: 80px;
+    background: var(--primary-light); border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.5rem;
+  }
+
+  /* Cards */
+  .demo-cards {
+    display: flex; gap: 1rem; flex-wrap: wrap;
+    margin: .75rem 0;
+  }
+  .demo-card {
+    flex: 1 1 160px;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1rem;
+    display: flex; flex-direction: column; gap: .4rem;
+  }
+  .demo-card-icon { font-size: 1.5rem; }
+  .demo-card-title { font-weight: 700; font-size: .9rem; }
+  .demo-card-desc { font-size: .82rem; color: var(--muted); flex: 1; }
+  .demo-card-btn {
+    margin-top: auto; background: var(--primary); color: white;
+    border: none; border-radius: 6px; padding: .35rem .75rem;
+    font-size: .78rem; font-weight: 600; cursor: pointer; text-align: center;
+  }
+
+  /* Sidebar layout */
+  .demo-sidebar-layout {
+    display: flex; gap: 1rem; margin: .75rem 0;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 10px; overflow: hidden;
+  }
+  .demo-sidebar {
+    width: 140px; flex-shrink: 0;
+    background: #1a1814; color: white; padding: 1rem;
+  }
+  .demo-sidebar-item {
+    font-size: .8rem; padding: .4rem .5rem; border-radius: 5px;
+    cursor: pointer; margin-bottom: .2rem; transition: background .15s;
+  }
+  .demo-sidebar-item:hover { background: rgba(255,255,255,.1); }
+  .demo-sidebar-item.active { background: var(--primary); }
+  .demo-main-content { flex: 1; padding: 1rem; }
+
+  /* Centered */
+  .demo-centered {
+    display: flex; align-items: center; justify-content: center;
+    height: 100px; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 10px; margin: .75rem 0;
+    font-weight: 700; color: var(--primary); font-size: 1.1rem;
+  }
+
+  /* Input group */
+  .demo-input-group {
+    display: flex; gap: 0; margin: .75rem 0;
+  }
+  .demo-input-group input {
+    flex: 1; padding: .6rem 1rem; border: 1px solid var(--border);
+    border-right: none; border-radius: 8px 0 0 8px;
+    font-family: inherit; font-size: .9rem;
+  }
+  .demo-input-group button {
+    background: var(--primary); color: white; border: none;
+    padding: .6rem 1.1rem; border-radius: 0 8px 8px 0;
+    font-family: inherit; font-size: .9rem; cursor: pointer; font-weight: 600; white-space: nowrap;
+  }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); }
+</style>
+</head>
+<body>
+
+<div style="background:#fff;border-bottom:1px solid #e8e4de;padding:0 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:200;height:45px;">
+  <a href="../capitulos.html" style="display:inline-flex;align-items:center;gap:6px;font-family:'DM Sans',sans-serif;font-size:13px;color:#8a8480;text-decoration:none;padding:6px 14px;border:1px solid #e8e4de;border-radius:999px;" onmouseover="this.style.color='#1a1814';this.style.borderColor='#8a8480'" onmouseout="this.style.color='#8a8480';this.style.borderColor='#e8e4de'">← Volver a Guías &lt;/&gt;</a>
+  <span style="font-family:'DM Sans',sans-serif;font-size:13px;color:#8a8480;">☕ Guía HTML &amp; CSS · Parte E</span>
+</div>
+
+<header>
+  <h1>HTML &amp; CSS — Parte E</h1>
+  <p>Flexbox completo: ejes, wrap, grow/shrink/basis, order, align-self y layouts reales</p>
+  <span class="badge">✦ Curso de Soy Dalto · 11:43:00 – 13:35:00 ✦</span>
+</header>
+
+<div class="partes-nav">
+  <a class="partes-nav-prev" href="guia-parte-D-posicionamiento.html">← D</a>
+  <div class="partes-nav-list">
+    <a href="guia-html-css.html">Base</a>
+    <a href="guia-parte-A-html-avanzado.html">A</a>
+    <a href="guia-parte-B-html-avanzado.html">B</a>
+    <a href="guia-parte-C-css-avanzado.html">C</a>
+    <a href="guia-parte-D-posicionamiento.html">D</a>
+    <a href="guia-parte-E-flexbox.html" class="activa">E</a>
+    <a href="#">F</a>
+    <a href="#">G</a>
+    <a href="#">H</a>
+    <a href="#">I</a>
+    <a href="#">J</a>
+  </div>
+  <a class="partes-nav-next" href="#">F →</a>
+</div>
+
+<nav>
+  <a href="#intro">🧠 Concepto</a>
+  <a href="#direction">↔ Direction</a>
+  <a href="#justify">↔ Justify</a>
+  <a href="#align">↕ Align</a>
+  <a href="#wrap">🔀 Wrap</a>
+  <a href="#grow">📐 Grow/Shrink</a>
+  <a href="#basis">📏 Basis</a>
+  <a href="#self">🎯 align-self</a>
+  <a href="#order">🔢 Order</a>
+  <a href="#gap">📦 Gap</a>
+  <a href="#layouts">🏗 Layouts reales</a>
+  <a href="#ejercicio">✏️ Ejercicio</a>
+</nav>
+
+<main>
+<div class="parte-badge">📦 Parte E — Flexbox Completo (11:43 – 13:35 del video)</div>
+
+
+<!-- ══════════════════════════════════════════
+     INTRO — CONCEPTO DE FLEXBOX
+══════════════════════════════════════════ -->
+<section class="module" id="intro">
+  <div class="module-header">
+    <div class="module-icon">🧠</div>
+    <div>
+      <div class="module-title">Flexbox — El sistema de layout de una dimensión</div>
+      <div class="module-sub">Contenedor y elementos hijos: los dos mundos de Flexbox</div>
+    </div>
+  </div>
+
+  <p>Flexbox (Flexible Box Layout) es un sistema de CSS que organiza elementos en <strong>una sola dimensión</strong>: una fila o una columna. Lo activas con <code>display: flex</code> en el elemento padre y, a partir de ese momento, todos sus hijos directos se convierten en <strong>flex items</strong> que puedes controlar con precisión.</p>
+
+  <div class="analogy">
+    <h4>🚂 Analogía: el tren con vagones</h4>
+    <p>El contenedor flex es la <strong>locomotora</strong>: decide la dirección del tren (¿va hacia adelante o hacia atrás?), cómo se distribuyen los vagones (¿pegados, separados, centrados?) y qué altura tienen. Los flex items son los <strong>vagones</strong>: pueden crecer para llenar espacio vacío, encogerse si hay poco espacio, o mantener un tamaño fijo. Y cada vagón puede pedir estar en un lugar diferente del tren.</p>
+  </div>
+
+  <h2>Los dos mundos de Flexbox</h2>
+
+  <div class="anatomy">
+    <span class="cc">/* Propiedades del CONTENEDOR (el padre) */</span>
+    <br><span class="br">.padre</span> {
+    <br>&nbsp;&nbsp;<span class="at">display</span>:          <span class="vl">flex</span>;<span class="lb">Activa Flexbox</span>
+    <br>&nbsp;&nbsp;<span class="at">flex-direction</span>:  <span class="vl">row</span>;<span class="lb2">Dirección del eje principal</span>
+    <br>&nbsp;&nbsp;<span class="at">flex-wrap</span>:       <span class="vl">nowrap</span>;<span class="lb3">¿Se rompe en varias líneas?</span>
+    <br>&nbsp;&nbsp;<span class="at">justify-content</span>: <span class="vl">flex-start</span>;<span class="lb">Distribución en eje principal</span>
+    <br>&nbsp;&nbsp;<span class="at">align-items</span>:     <span class="vl">stretch</span>;<span class="lb2">Alineación en eje cruzado</span>
+    <br>&nbsp;&nbsp;<span class="at">align-content</span>:   <span class="vl">normal</span>;<span class="lb3">Alineación de líneas (con wrap)</span>
+    <br>&nbsp;&nbsp;<span class="at">gap</span>:             <span class="vl">0</span>;<span class="lb">Espacio entre hijos</span>
+    <br>}
+    <br><br>
+    <span class="cc">/* Propiedades de los HIJOS (flex items) */</span>
+    <br><span class="br">.hijo</span> {
+    <br>&nbsp;&nbsp;<span class="at">flex-grow</span>:   <span class="vl">0</span>;<span class="lb">¿Puede crecer para llenar espacio?</span>
+    <br>&nbsp;&nbsp;<span class="at">flex-shrink</span>: <span class="vl">1</span>;<span class="lb2">¿Puede encogerse si no hay espacio?</span>
+    <br>&nbsp;&nbsp;<span class="at">flex-basis</span>:  <span class="vl">auto</span>;<span class="lb3">Tamaño base antes de grow/shrink</span>
+    <br>&nbsp;&nbsp;<span class="at">flex</span>:        <span class="vl">0 1 auto</span>;<span class="lb">Shorthand de los tres anteriores</span>
+    <br>&nbsp;&nbsp;<span class="at">align-self</span>:  <span class="vl">auto</span>;<span class="lb2">Sobreescribe align-items solo para este hijo</span>
+    <br>&nbsp;&nbsp;<span class="at">order</span>:       <span class="vl">0</span>;<span class="lb3">Orden visual (sin cambiar el HTML)</span>
+    <br>}
+  </div>
+
+  <h2>Los dos ejes de Flexbox</h2>
+
+  <p>Flexbox tiene dos ejes que cambian según la dirección:</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1rem 0">
+    <div style="background:var(--primary-light);border:1px solid var(--border);border-radius:10px;padding:1.1rem">
+      <p style="font-weight:700;color:var(--primary);margin-bottom:.4rem">Eje principal (Main Axis)</p>
+      <p style="font-size:.9rem">La dirección en la que fluyen los flex items. Si <code>flex-direction: row</code>, el eje principal va de izquierda a derecha. Si es <code>column</code>, de arriba a abajo.</p>
+      <p style="font-size:.88rem;margin-top:.4rem"><strong>Lo controla:</strong> <code>justify-content</code></p>
+    </div>
+    <div style="background:var(--secondary-light);border:1px solid var(--border);border-radius:10px;padding:1.1rem">
+      <p style="font-weight:700;color:var(--secondary);margin-bottom:.4rem">Eje cruzado (Cross Axis)</p>
+      <p style="font-size:.9rem">El eje perpendicular al principal. Si el eje principal es horizontal, el cruzado es vertical (y viceversa).</p>
+      <p style="font-size:.88rem;margin-top:.4rem"><strong>Lo controla:</strong> <code>align-items</code> / <code>align-self</code></p>
+    </div>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ El error más común de Flexbox</h4>
+    <p>Confundir <code>justify-content</code> con <code>align-items</code>. Recuerda: <strong>justify</strong> siempre controla el eje <em>principal</em> (donde fluyen los elementos), y <strong>align</strong> siempre controla el eje <em>cruzado</em> (perpendicular). Si cambias <code>flex-direction</code>, los ejes se invierten y por lo tanto también lo que hacen justify y align.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     FLEX-DIRECTION
+══════════════════════════════════════════ -->
+<section class="module" id="direction">
+  <div class="module-header">
+    <div class="module-icon">↔️</div>
+    <div>
+      <div class="module-title">flex-direction — La dirección del tren</div>
+      <div class="module-sub">¿Los elementos van en fila o en columna? ¿Normal o al revés?</div>
+    </div>
+  </div>
+
+  <p><code>flex-direction</code> define el <strong>eje principal</strong>: la dirección en la que los flex items se colocan dentro del contenedor. Tiene cuatro valores posibles.</p>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">.contenedor</span> {
+  <span class="ca">display</span>: flex;
+  <span class="ca">flex-direction</span>: row;            <span class="cc">/* → Izquierda a derecha (por defecto) */</span>
+  <span class="ca">flex-direction</span>: row-reverse;    <span class="cc">/* ← Derecha a izquierda */</span>
+  <span class="ca">flex-direction</span>: column;         <span class="cc">/* ↓ De arriba a abajo */</span>
+  <span class="ca">flex-direction</span>: column-reverse; <span class="cc">/* ↑ De abajo a arriba */</span>
+}</div>
+
+  <div class="preview">
+    <div class="demo-label">row (por defecto) →</div>
+    <div class="fx-scene fx-row">
+      <div class="fx-box">1</div>
+      <div class="fx-box sec">2</div>
+      <div class="fx-box acc">3</div>
+    </div>
+
+    <div class="demo-label">row-reverse ←</div>
+    <div class="fx-scene fx-row-rev">
+      <div class="fx-box">1</div>
+      <div class="fx-box sec">2</div>
+      <div class="fx-box acc">3</div>
+    </div>
+
+    <div class="demo-label">column ↓</div>
+    <div class="fx-scene fx-col" style="width:80px">
+      <div class="fx-box">1</div>
+      <div class="fx-box sec">2</div>
+      <div class="fx-box acc">3</div>
+    </div>
+
+    <div class="demo-label">column-reverse ↑</div>
+    <div class="fx-scene fx-col-rev" style="width:80px">
+      <div class="fx-box">1</div>
+      <div class="fx-box sec">2</div>
+      <div class="fx-box acc">3</div>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 ¿Cuándo usar column?</h4>
+    <p>Usa <code>flex-direction: column</code> cuando necesitas apilar elementos verticalmente con control fino sobre su alineación y espaciado: menús verticales, tarjetas que deben tener el botón siempre al fondo, formularios, sidebars. Para layouts de página completa (columnas lado a lado), usa Grid.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     JUSTIFY-CONTENT
+══════════════════════════════════════════ -->
+<section class="module" id="justify">
+  <div class="module-header">
+    <div class="module-icon">↔️</div>
+    <div>
+      <div class="module-title">justify-content — Distribuir en el eje principal</div>
+      <div class="module-sub">Cómo se distribuye el espacio libre entre los flex items</div>
+    </div>
+  </div>
+
+  <p><code>justify-content</code> controla cómo se distribuyen los flex items a lo largo del <strong>eje principal</strong>. Solo tiene efecto cuando hay espacio libre en ese eje (es decir, cuando los items no llenan todo el contenedor).</p>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">.contenedor</span> {
+  <span class="ca">display</span>: flex;
+  <span class="ca">justify-content</span>: flex-start;    <span class="cc">/* Items al inicio (por defecto) */</span>
+  <span class="ca">justify-content</span>: flex-end;      <span class="cc">/* Items al final */</span>
+  <span class="ca">justify-content</span>: center;        <span class="cc">/* Items centrados */</span>
+  <span class="ca">justify-content</span>: space-between; <span class="cc">/* Espacio entre items, sin espacio en bordes */</span>
+  <span class="ca">justify-content</span>: space-around;  <span class="cc">/* Espacio alrededor de items (bordes = mitad) */</span>
+  <span class="ca">justify-content</span>: space-evenly;  <span class="cc">/* Espacio igual entre items Y en bordes */</span>
+}</div>
+
+  <div class="preview">
+    <div class="demo-label">flex-start</div>
+    <div class="fx-scene fx-jc-start">
+      <div class="fx-box">A</div><div class="fx-box sec">B</div><div class="fx-box acc">C</div>
+    </div>
+    <div class="demo-label">flex-end</div>
+    <div class="fx-scene fx-jc-end">
+      <div class="fx-box">A</div><div class="fx-box sec">B</div><div class="fx-box acc">C</div>
+    </div>
+    <div class="demo-label">center</div>
+    <div class="fx-scene fx-jc-center">
+      <div class="fx-box">A</div><div class="fx-box sec">B</div><div class="fx-box acc">C</div>
+    </div>
+    <div class="demo-label">space-between — el más usado en navbars</div>
+    <div class="fx-scene fx-jc-between">
+      <div class="fx-box">A</div><div class="fx-box sec">B</div><div class="fx-box acc">C</div>
+    </div>
+    <div class="demo-label">space-around</div>
+    <div class="fx-scene fx-jc-around">
+      <div class="fx-box">A</div><div class="fx-box sec">B</div><div class="fx-box acc">C</div>
+    </div>
+    <div class="demo-label">space-evenly</div>
+    <div class="fx-scene fx-jc-evenly">
+      <div class="fx-box">A</div><div class="fx-box sec">B</div><div class="fx-box acc">C</div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>💡 space-between vs space-around vs space-evenly</h4>
+    <p><strong>between</strong>: el espacio va <em>entre</em> los items. Los extremos tocan los bordes del contenedor. Ideal para navbars.<br>
+    <strong>around</strong>: cada item tiene el mismo espacio a sus lados, pero los espacios de dos items adyacentes se suman, haciendo el espacio interno el doble del externo.<br>
+    <strong>evenly</strong>: todos los espacios (incluidos bordes) son iguales. El más "matemáticamente perfecto".</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     ALIGN-ITEMS Y ALIGN-CONTENT
+══════════════════════════════════════════ -->
+<section class="module" id="align">
+  <div class="module-header">
+    <div class="module-icon">↕️</div>
+    <div>
+      <div class="module-title">align-items y align-content — El eje cruzado</div>
+      <div class="module-sub">Alinear verticalmente (o perpendicular al eje principal)</div>
+    </div>
+  </div>
+
+  <p><code>align-items</code> controla cómo se alinean los flex items en el <strong>eje cruzado</strong> (perpendicular al principal). Si la dirección es <code>row</code>, el eje cruzado es vertical. Si es <code>column</code>, el eje cruzado es horizontal.</p>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">.contenedor</span> {
+  <span class="ca">display</span>: flex;
+  <span class="ca">align-items</span>: stretch;      <span class="cc">/* Los items se estiran al alto del contenedor (por defecto) */</span>
+  <span class="ca">align-items</span>: flex-start;   <span class="cc">/* Pegados al inicio del eje cruzado (arriba en row) */</span>
+  <span class="ca">align-items</span>: flex-end;     <span class="cc">/* Pegados al final del eje cruzado (abajo en row) */</span>
+  <span class="ca">align-items</span>: center;       <span class="cc">/* Centrados en el eje cruzado */</span>
+  <span class="ca">align-items</span>: baseline;     <span class="cc">/* Alineados por la línea base del texto */</span>
+}</div>
+
+  <div class="preview">
+    <div class="demo-label">stretch (por defecto) — todos se estiran al mismo alto</div>
+    <div class="fx-scene fx-ai-scene fx-ai-stretch" style="gap:.5rem">
+      <div class="fx-box" style="padding:1rem .75rem">A<br>grande</div>
+      <div class="fx-box sec">B</div>
+      <div class="fx-box acc" style="padding:.25rem .75rem">C<br>mediano<br>ítem</div>
+    </div>
+
+    <div class="demo-label">flex-start — cada uno a su altura natural, pegado arriba</div>
+    <div class="fx-scene fx-ai-scene fx-ai-start" style="gap:.5rem">
+      <div class="fx-box" style="padding:1rem .75rem">A<br>grande</div>
+      <div class="fx-box sec">B</div>
+      <div class="fx-box acc" style="padding:.25rem .75rem">C<br>mediano<br>ítem</div>
+    </div>
+
+    <div class="demo-label">center — centrado verticalmente (el más usado)</div>
+    <div class="fx-scene fx-ai-scene fx-ai-center" style="gap:.5rem">
+      <div class="fx-box" style="padding:1rem .75rem">A<br>grande</div>
+      <div class="fx-box sec">B</div>
+      <div class="fx-box acc" style="padding:.25rem .75rem">C<br>mediano<br>ítem</div>
+    </div>
+
+    <div class="demo-label">flex-end — pegado abajo</div>
+    <div class="fx-scene fx-ai-scene fx-ai-end" style="gap:.5rem">
+      <div class="fx-box" style="padding:1rem .75rem">A<br>grande</div>
+      <div class="fx-box sec">B</div>
+      <div class="fx-box acc" style="padding:.25rem .75rem">C<br>mediano<br>ítem</div>
+    </div>
+  </div>
+
+  <h2>align-content — cuando hay varias filas (con wrap)</h2>
+
+  <p><code>align-content</code> solo funciona cuando hay <code>flex-wrap: wrap</code> y los items se distribuyen en <strong>múltiples líneas</strong>. Controla cómo se distribuyen esas líneas en el eje cruzado, igual que <code>justify-content</code> pero perpendicular.</p>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">.contenedor</span> {
+  <span class="ca">display</span>: flex;
+  <span class="ca">flex-wrap</span>: wrap;            <span class="cc">/* Necesario para que align-content funcione */</span>
+  <span class="ca">align-content</span>: flex-start;  <span class="cc">/* Líneas pegadas arriba */</span>
+  <span class="ca">align-content</span>: center;      <span class="cc">/* Líneas centradas */</span>
+  <span class="ca">align-content</span>: space-between;<span class="cc">/* Espacio entre líneas */</span>
+}</div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     FLEX-WRAP
+══════════════════════════════════════════ -->
+<section class="module" id="wrap">
+  <div class="module-header">
+    <div class="module-icon">🔀</div>
+    <div>
+      <div class="module-title">flex-wrap — ¿Se rompe en varias líneas?</div>
+      <div class="module-sub">Controlar qué pasa cuando los items no caben en una sola línea</div>
+    </div>
+  </div>
+
+  <p>Por defecto, Flexbox intenta meter todos los items en <strong>una sola línea</strong>, encogiendo los items si es necesario. Con <code>flex-wrap: wrap</code> le dices que si no caben, que pase los sobrantes a la línea siguiente.</p>
+
+  <div class="analogy">
+    <h4>🥚 Analogía: la caja de huevos</h4>
+    <p>Una caja de huevos normal tiene una fila de 6 slots. Si tienes 10 huevos, no los aplastas para que quepan: usas una segunda fila. Eso es <code>flex-wrap: wrap</code>: en vez de comprimir los items para que quepan en una línea, los pasa a la siguiente.</p>
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">.contenedor</span> {
+  <span class="ca">display</span>: flex;
+  <span class="ca">flex-wrap</span>: nowrap;       <span class="cc">/* Una línea, items se encogen si no caben (por defecto) */</span>
+  <span class="ca">flex-wrap</span>: wrap;         <span class="cc">/* Pasa a siguiente línea si no caben */</span>
+  <span class="ca">flex-wrap</span>: wrap-reverse; <span class="cc">/* Wrap pero las líneas van en orden inverso */</span>
+}
+
+<span class="cc">/* Shorthand: flex-flow = flex-direction + flex-wrap */</span>
+<span class="cp">.contenedor</span> { <span class="ca">flex-flow</span>: row wrap; }     <span class="cc">/* Lo más común en layouts de cards */</span>
+<span class="cp">.contenedor</span> { <span class="ca">flex-flow</span>: column nowrap; } <span class="cc">/* Para listas verticales */</span></div>
+
+  <div class="preview">
+    <div class="demo-label">nowrap — los items se comprimen para caber en una línea</div>
+    <div class="fx-scene fx-nowrap-scene" style="width:260px">
+      <div class="fx-box">Equipo A</div>
+      <div class="fx-box sec">Equipo B</div>
+      <div class="fx-box acc">Equipo C</div>
+      <div class="fx-box muted">Equipo D</div>
+      <div class="fx-box">Equipo E</div>
+    </div>
+
+    <div class="demo-label" style="margin-top:1rem">wrap — los items que no caben pasan a la siguiente línea</div>
+    <div class="fx-scene fx-wrap-scene" style="width:260px">
+      <div class="fx-box">Equipo A</div>
+      <div class="fx-box sec">Equipo B</div>
+      <div class="fx-box acc">Equipo C</div>
+      <div class="fx-box muted">Equipo D</div>
+      <div class="fx-box">Equipo E</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     FLEX-GROW Y FLEX-SHRINK
+══════════════════════════════════════════ -->
+<section class="module" id="grow">
+  <div class="module-header">
+    <div class="module-icon">📐</div>
+    <div>
+      <div class="module-title">flex-grow y flex-shrink — Crecer y encogerse</div>
+      <div class="module-sub">Cómo se distribuye el espacio sobrante (o faltante) entre los items</div>
+    </div>
+  </div>
+
+  <p>Estas dos propiedades controlan cómo reaccionan los flex items cuando hay espacio sobrante o cuando el espacio es insuficiente.</p>
+
+  <div class="analogy">
+    <h4>🎈 Analogía: globos en una cuerda</h4>
+    <p>Imagina tres globos atados a una cuerda. El <code>flex-grow</code> es como la capacidad de inflarse: si un globo tiene <code>flex-grow: 2</code> y los otros dos tienen <code>flex-grow: 1</code>, el primero se infla el doble que los demás con el aire disponible. El <code>flex-shrink</code> es lo contrario: si la cuerda es muy corta, ¿cuánto puede desinflarse cada globo?</p>
+  </div>
+
+  <h2>flex-grow — repartir el espacio sobrante</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* flex-grow: 0 = no crece (por defecto) */</span>
+<span class="cc">/* flex-grow: 1 = crece para ocupar el espacio sobrante */</span>
+<span class="cc">/* El número es una proporción — no píxeles ni porcentaje */</span>
+
+<span class="cp">.item-a</span> { <span class="ca">flex-grow</span>: <span class="cn">1</span>; } <span class="cc">/* Recibe 1 parte del espacio sobrante */</span>
+<span class="cp">.item-b</span> { <span class="ca">flex-grow</span>: <span class="cn">2</span>; } <span class="cc">/* Recibe 2 partes — el doble que item-a */</span>
+<span class="cp">.item-c</span> { <span class="ca">flex-grow</span>: <span class="cn">1</span>; } <span class="cc">/* Recibe 1 parte — igual que item-a */</span>
+<span class="cc">/* Total: 4 partes. item-b ocupa el 50%, a y c el 25% cada uno */</span></div>
+
+  <div class="preview">
+    <div class="demo-label">flex-grow: 1 | 2 | 1 — el del medio recibe el doble de espacio libre</div>
+    <div class="fx-scene fx-grow-scene">
+      <div class="fx-box fx-grow-1">grow:1</div>
+      <div class="fx-box fx-grow-2">grow:2</div>
+      <div class="fx-box fx-grow-3" style="background:var(--accent)">grow:1</div>
+    </div>
+
+    <div class="demo-label" style="margin-top:.75rem">flex-grow: 1 en todos — todos iguales, llenan el contenedor</div>
+    <div class="fx-scene">
+      <div class="fx-box" style="flex-grow:1">A</div>
+      <div class="fx-box sec" style="flex-grow:1">B</div>
+      <div class="fx-box acc" style="flex-grow:1">C</div>
+    </div>
+  </div>
+
+  <h2>flex-shrink — encogerse cuando no hay espacio</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* flex-shrink: 1 = puede encogerse (por defecto) */</span>
+<span class="cc">/* flex-shrink: 0 = NO puede encogerse — mantiene su tamaño */</span>
+<span class="cc">/* flex-shrink: 2 = se encoge el doble que un item con shrink:1 */</span>
+
+<span class="cp">.logo</span>    { <span class="ca">flex-shrink</span>: <span class="cn">0</span>; } <span class="cc">/* El logo nunca se encoge */</span>
+<span class="cp">.nav</span>     { <span class="ca">flex-shrink</span>: <span class="cn">1</span>; } <span class="cc">/* La nav puede encogerse si es necesario */</span>
+<span class="cp">.sidebar</span> { <span class="ca">flex-shrink</span>: <span class="cn">0</span>; } <span class="cc">/* El sidebar mantiene su ancho fijo */</span>
+<span class="cp">.content</span> { <span class="ca">flex-grow</span>: <span class="cn">1</span>; }   <span class="cc">/* El contenido ocupa el espacio restante */</span></div>
+
+  <div class="tip">
+    <h4>🟢 El patrón más útil: flex-shrink: 0 en elementos fijos</h4>
+    <p>Cuando tienes una navbar con logo + links + botón, el logo y el botón normalmente tienen tamaño fijo (<code>flex-shrink: 0</code>) y los links en el centro pueden comprimirse. Esto evita que el logo se deforme en pantallas pequeñas.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     FLEX-BASIS Y FLEX SHORTHAND
+══════════════════════════════════════════ -->
+<section class="module" id="basis">
+  <div class="module-header">
+    <div class="module-icon">📏</div>
+    <div>
+      <div class="module-title">flex-basis y el shorthand flex</div>
+      <div class="module-sub">El tamaño inicial antes de que entren grow y shrink</div>
+    </div>
+  </div>
+
+  <p><code>flex-basis</code> define el <strong>tamaño base</strong> del flex item antes de que <code>flex-grow</code> y <code>flex-shrink</code> ajusten el espacio. Es como el punto de partida desde el cual el item puede crecer o encogerse.</p>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">.item</span> { <span class="ca">flex-basis</span>: auto; }    <span class="cc">/* Usa width/height del elemento (por defecto) */</span>
+<span class="cp">.item</span> { <span class="ca">flex-basis</span>: 200px; }  <span class="cc">/* Empieza en 200px, luego crece/encoge */</span>
+<span class="cp">.item</span> { <span class="ca">flex-basis</span>: 30%; }    <span class="cc">/* Empieza en 30% del contenedor */</span>
+<span class="cp">.item</span> { <span class="ca">flex-basis</span>: 0; }      <span class="cc">/* Empieza en 0, todo su tamaño viene de flex-grow */</span>
+
+<span class="cc">/* ─────────────────────────────────────────── */</span>
+<span class="cc">/* El shorthand flex = grow shrink basis       */</span>
+<span class="cc">/* ─────────────────────────────────────────── */</span>
+
+<span class="cp">.item</span> { <span class="ca">flex</span>: <span class="cn">1</span>; }           <span class="cc">/* = flex: 1 1 0  (crece y encoge, base 0) */</span>
+<span class="cp">.item</span> { <span class="ca">flex</span>: auto; }        <span class="cc">/* = flex: 1 1 auto */</span>
+<span class="cp">.item</span> { <span class="ca">flex</span>: none; }        <span class="cc">/* = flex: 0 0 auto (tamaño fijo, no crece ni encoge) */</span>
+<span class="cp">.item</span> { <span class="ca">flex</span>: <span class="cn">2 1 200px</span>; }  <span class="cc">/* Crece el doble, puede encoger, base 200px */</span>
+
+<span class="cc">/* Patrón sidebar + contenido principal */</span>
+<span class="cp">.sidebar</span>  { <span class="ca">flex</span>: <span class="cn">0 0 260px</span>; } <span class="cc">/* Fijo en 260px, no crece ni encoge */</span>
+<span class="cp">.contenido</span>{ <span class="ca">flex</span>: <span class="cn">1</span>; }          <span class="cc">/* Ocupa todo el espacio restante */</span></div>
+
+  <div class="concept">
+    <h4>💡 ¿Cuándo usar flex: 1?</h4>
+    <p><code>flex: 1</code> es el valor más usado en el día a día. Significa: "crece para llenar el espacio disponible". Si pones <code>flex: 1</code> en todos los items, se reparten el espacio en partes iguales. Si lo pones solo en uno, ese uno ocupa todo el espacio que los demás no usan.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     ALIGN-SELF
+══════════════════════════════════════════ -->
+<section class="module" id="self">
+  <div class="module-header">
+    <div class="module-icon">🎯</div>
+    <div>
+      <div class="module-title">align-self — La excepción individual</div>
+      <div class="module-sub">Sobreescribir align-items solo para un hijo específico</div>
+    </div>
+  </div>
+
+  <p>El contenedor define con <code>align-items</code> cómo se alinean <em>todos</em> sus hijos en el eje cruzado. Pero con <code>align-self</code> en un <strong>hijo específico</strong> puedes decir "tú te alineas diferente al resto". Es como una excepción individual.</p>
+
+  <div class="analogy">
+    <h4>🏋️ Analogía: el equipo de formación y el jugador estrella</h4>
+    <p>El entrenador (contenedor) le dice a todo el equipo: "todos se colocan en la línea del medio". Pero el portero (un hijo con align-self) dice "yo me quedo al fondo". align-self es ese jugador que tiene su propia posición independiente de la instrucción general del entrenador.</p>
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">.contenedor</span> {
+  <span class="ca">display</span>: flex;
+  <span class="ca">align-items</span>: flex-start;  <span class="cc">/* Regla general: todos arriba */</span>
+}
+
+<span class="cp">.hijo-especial</span> {
+  <span class="ca">align-self</span>: flex-end;   <span class="cc">/* Este va abajo, ignorando la regla general */</span>
+}
+<span class="cp">.hijo-centrado</span> {
+  <span class="ca">align-self</span>: center;     <span class="cc">/* Este va al centro */</span>
+}
+<span class="cp">.hijo-estirado</span> {
+  <span class="ca">align-self</span>: stretch;    <span class="cc">/* Este se estira al alto total */</span>
+}</div>
+
+  <div class="preview">
+    <div class="demo-label">align-items: flex-start en contenedor — cada hijo tiene su propio align-self:</div>
+    <div class="fx-scene fx-as-scene" style="gap:.5rem">
+      <div class="fx-box fx-as-auto">auto<br>(hereda<br>start)</div>
+      <div class="fx-box fx-as-end">align-self:<br>flex-end</div>
+      <div class="fx-box fx-as-center">align-self:<br>center</div>
+      <div class="fx-box fx-as-stretch">align-self:<br>stretch</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     ORDER
+══════════════════════════════════════════ -->
+<section class="module" id="order">
+  <div class="module-header">
+    <div class="module-icon">🔢</div>
+    <div>
+      <div class="module-title">order — Reordenar visualmente sin tocar el HTML</div>
+      <div class="module-sub">Cambiar el orden de aparición de los flex items solo con CSS</div>
+    </div>
+  </div>
+
+  <p>Por defecto, los flex items aparecen en el mismo orden que en el HTML. Con <code>order</code> puedes cambiar ese orden <strong>visualmente</strong> sin modificar el HTML. El valor por defecto es <code>0</code>; items con menor número aparecen primero.</p>
+
+  <div class="analogy">
+    <h4>🎬 Analogía: el orden de créditos en una película</h4>
+    <p>En una película, los actores están en el set en cierto orden, pero en los créditos finales puedes ordenarlos como quieras: "primero el protagonista, luego el director, luego el reparto". El HTML es el set de filmación; el CSS con <code>order</code> es el editor que decide en qué orden aparecen en pantalla.</p>
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* HTML original: A, B, C */</span>
+<span class="cc">/* Con order, aparecen: B (order:1), C (order:2), A (order:3) */</span>
+
+<span class="cp">.item-a</span> { <span class="ca">order</span>: <span class="cn">3</span>; } <span class="cc">/* Aparece de último */</span>
+<span class="cp">.item-b</span> { <span class="ca">order</span>: <span class="cn">1</span>; } <span class="cc">/* Aparece de primero */</span>
+<span class="cp">.item-c</span> { <span class="ca">order</span>: <span class="cn">2</span>; } <span class="cc">/* Aparece de segundo */</span></div>
+
+  <div class="preview">
+    <div class="demo-label">En el HTML están en orden A→B→C, pero order los reordena visualmente:</div>
+    <div class="fx-scene fx-order-scene" style="gap:.5rem">
+      <div class="fx-box fx-o1">A<br><small>order:3</small></div>
+      <div class="fx-box fx-o2">B<br><small>order:1</small></div>
+      <div class="fx-box fx-o3">C<br><small>order:2</small></div>
+    </div>
+    <p style="font-size:.8rem;color:var(--muted);margin-top:.5rem">Resultado visual: B · C · A — aunque en el HTML el orden sigue siendo A, B, C</p>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ order y la accesibilidad</h4>
+    <p><code>order</code> cambia el orden <em>visual</em> pero <strong>no el orden del DOM</strong>. Los lectores de pantalla y la navegación con Tab siguen el orden del HTML, no el visual. Úsalo para ajustes visuales menores (como en responsive), pero no para cambios de orden que afecten la comprensión del contenido.</p>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Uso real de order: responsive mobile-first</h4>
+    <p>En desktop, un artículo tiene: [imagen | texto]. En móvil quieres [texto | imagen] (el texto primero). Con <code>order</code> puedes hacerlo sin cambiar el HTML: la imagen tiene <code>order: 2</code> en móvil y vuelve a su orden natural en desktop. Perfecto combinado con media queries.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     GAP
+══════════════════════════════════════════ -->
+<section class="module" id="gap">
+  <div class="module-header">
+    <div class="module-icon">📦</div>
+    <div>
+      <div class="module-title">gap — El espacio entre flex items</div>
+      <div class="module-sub">La forma moderna y limpia de separar elementos</div>
+    </div>
+  </div>
+
+  <p><code>gap</code> define el espacio entre los flex items. Es mucho más limpio que usar <code>margin</code> en los hijos porque no agrega espacio extra en los bordes externos del contenedor.</p>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">.contenedor</span> {
+  <span class="ca">display</span>: flex;
+  <span class="ca">gap</span>: <span class="cn">1rem</span>;           <span class="cc">/* Mismo espacio horizontal y vertical */</span>
+  <span class="ca">gap</span>: <span class="cn">1rem 2rem</span>;      <span class="cc">/* vertical horizontal (filas columnas) */</span>
+  <span class="ca">row-gap</span>: <span class="cn">1rem</span>;       <span class="cc">/* Solo espacio entre filas */</span>
+  <span class="ca">column-gap</span>: <span class="cn">1.5rem</span>;  <span class="cc">/* Solo espacio entre columnas */</span>
+}
+
+<span class="cc">/* ❌ La forma antigua con margin — problemática */</span>
+<span class="cp">.item</span> { <span class="ca">margin-right</span>: <span class="cn">1rem</span>; }
+<span class="cp">.item:last-child</span> { <span class="ca">margin-right</span>: <span class="cn">0</span>; } <span class="cc">/* Tenías que quitar el margen del último */</span>
+
+<span class="cc">/* ✅ La forma moderna con gap — sin excepciones */</span>
+<span class="cp">.contenedor</span> { <span class="ca">gap</span>: <span class="cn">1rem</span>; }</div>
+
+  <div class="preview">
+    <div class="demo-label">gap: 1rem — espacio limpio entre todos los items</div>
+    <div class="fx-scene fx-gap-scene">
+      <div class="fx-box">⚽ Fútbol</div>
+      <div class="fx-box sec">🏀 Básket</div>
+      <div class="fx-box acc">🎾 Tenis</div>
+      <div class="fx-box muted">🏊 Natación</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     LAYOUTS REALES
+══════════════════════════════════════════ -->
+<section class="module" id="layouts">
+  <div class="module-header">
+    <div class="module-icon">🏗️</div>
+    <div>
+      <div class="module-title">Layouts reales — Flexbox aplicado en proyectos</div>
+      <div class="module-sub">Navbar, hero, cards, sidebar, centering y input group</div>
+    </div>
+  </div>
+
+  <p>Aquí es donde todo cobra sentido. Estos son los patrones de layout más usados en el mundo real, todos construidos con Flexbox.</p>
+
+  <h2>1 — Navbar con logo, links y botón</h2>
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">.navbar</span> {
+  <span class="ca">display</span>: flex;
+  <span class="ca">align-items</span>: center;
+  <span class="ca">justify-content</span>: space-between; <span class="cc">/* Logo a la izq, links centro, botón a la der */</span>
+  <span class="ca">padding</span>: <span class="cn">.75rem 1.5rem</span>;
+  <span class="ca">gap</span>: <span class="cn">1rem</span>;
+}
+<span class="cp">.navbar__links</span> {
+  <span class="ca">display</span>: flex;
+  <span class="ca">gap</span>: <span class="cn">1.5rem</span>;
+  <span class="ca">list-style</span>: none;
+}</div>
+  <div class="preview">
+    <div class="demo-navbar">
+      <div class="demo-navbar-logo">⚽ FútbolPro</div>
+      <ul class="demo-navbar-links">
+        <li><a href="#">Liga MX</a></li>
+        <li><a href="#">Champions</a></li>
+        <li><a href="#">Resultados</a></li>
+      </ul>
+      <button class="demo-navbar-btn">Suscribirse</button>
+    </div>
+  </div>
+
+  <h2>2 — Hero: texto + imagen lado a lado</h2>
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">.hero</span> {
+  <span class="ca">display</span>: flex;
+  <span class="ca">align-items</span>: center;
+  <span class="ca">gap</span>: <span class="cn">2rem</span>;
+}
+<span class="cp">.hero__texto</span> { <span class="ca">flex</span>: <span class="cn">1</span>; }       <span class="cc">/* Ocupa el espacio disponible */</span>
+<span class="cp">.hero__imagen</span> { <span class="ca">flex-shrink</span>: <span class="cn">0</span>; } <span class="cc">/* No se encoge */</span></div>
+  <div class="preview">
+    <div class="demo-hero">
+      <div class="demo-hero-text">
+        <p style="font-size:.78rem;color:var(--primary);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.3rem">Liga MX · Temporada 2025</p>
+        <p style="font-size:1.1rem;font-weight:800;margin-bottom:.4rem">América vs Guadalajara</p>
+        <p style="font-size:.88rem;color:var(--muted)">El clásico nacional del fútbol mexicano. Sábado 28 de junio, 20:00 hrs.</p>
+      </div>
+      <div class="demo-hero-img">⚽</div>
+    </div>
+  </div>
+
+  <h2>3 — Grid de tarjetas flexible (el patrón más usado)</h2>
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">.cards</span> {
+  <span class="ca">display</span>: flex;
+  <span class="ca">flex-wrap</span>: wrap;   <span class="cc">/* Se rompe en varias filas si no caben */</span>
+  <span class="ca">gap</span>: <span class="cn">1rem</span>;
+}
+<span class="cp">.card</span> {
+  <span class="ca">flex</span>: <span class="cn">1 1 200px</span>;    <span class="cc">/* Base 200px, puede crecer y encogerse */</span>
+  <span class="ca">display</span>: flex;
+  <span class="ca">flex-direction</span>: column; <span class="cc">/* Hijos en columna */</span>
+}
+<span class="cp">.card__btn</span> { <span class="ca">margin-top</span>: auto; } <span class="cc">/* Botón siempre al fondo de la tarjeta */</span></div>
+  <div class="preview">
+    <div class="demo-cards">
+      <div class="demo-card">
+        <div class="demo-card-icon">⚽</div>
+        <div class="demo-card-title">Fútbol</div>
+        <div class="demo-card-desc">Liga MX, Champions, Premier y más torneos internacionales.</div>
+        <div class="demo-card-btn">Ver partidos</div>
+      </div>
+      <div class="demo-card">
+        <div class="demo-card-icon">🏀</div>
+        <div class="demo-card-title">Básquetbol</div>
+        <div class="demo-card-desc">NBA en vivo.</div>
+        <div class="demo-card-btn">Ver partidos</div>
+      </div>
+      <div class="demo-card">
+        <div class="demo-card-icon">🎾</div>
+        <div class="demo-card-title">Tenis</div>
+        <div class="demo-card-desc">Grand Slams y torneos ATP y WTA con estadísticas en tiempo real.</div>
+        <div class="demo-card-btn">Ver partidos</div>
+      </div>
+      <div class="demo-card">
+        <div class="demo-card-icon">🏊</div>
+        <div class="demo-card-title">Natación</div>
+        <div class="demo-card-desc">Mundial.</div>
+        <div class="demo-card-btn">Ver eventos</div>
+      </div>
+    </div>
+    <p style="font-size:.8rem;color:var(--muted);margin-top:.5rem">Nota cómo el botón siempre está al fondo de cada tarjeta aunque el contenido sea diferente — gracias a <code>margin-top: auto</code> en el botón.</p>
+  </div>
+
+  <h2>4 — Layout sidebar + contenido principal</h2>
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">.layout</span> {
+  <span class="ca">display</span>: flex;
+  <span class="ca">gap</span>: <span class="cn">1.5rem</span>;
+}
+<span class="cp">.sidebar</span>  { <span class="ca">flex</span>: <span class="cn">0 0 200px</span>; } <span class="cc">/* Fijo en 200px */</span>
+<span class="cp">.contenido</span> { <span class="ca">flex</span>: <span class="cn">1</span>; }          <span class="cc">/* Ocupa el resto */</span></div>
+  <div class="preview">
+    <div class="demo-sidebar-layout">
+      <div class="demo-sidebar">
+        <div style="font-size:.7rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem">Menú</div>
+        <div class="demo-sidebar-item active">⚽ Fútbol</div>
+        <div class="demo-sidebar-item">🏀 Básket</div>
+        <div class="demo-sidebar-item">🎾 Tenis</div>
+        <div class="demo-sidebar-item">🏊 Natación</div>
+        <div class="demo-sidebar-item">🏋️ Atletismo</div>
+      </div>
+      <div class="demo-main-content">
+        <p style="font-weight:700;margin-bottom:.4rem">Liga MX — Jornada 17</p>
+        <p style="font-size:.88rem;color:var(--muted)">El sidebar tiene <code>flex: 0 0 140px</code> (ancho fijo). El contenido principal tiene <code>flex: 1</code> y ocupa todo el espacio restante automáticamente.</p>
+      </div>
+    </div>
+  </div>
+
+  <h2>5 — Centrar perfectamente (el truco más famoso de Flexbox)</h2>
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">.centrar-todo</span> {
+  <span class="ca">display</span>: flex;
+  <span class="ca">align-items</span>: center;     <span class="cc">/* Centro vertical */</span>
+  <span class="ca">justify-content</span>: center; <span class="cc">/* Centro horizontal */</span>
+  <span class="ca">height</span>: <span class="cn">100vh</span>;            <span class="cc">/* Alto de la ventana */</span>
+}
+<span class="cc">/* Estas 3 líneas centran cualquier cosa perfectamente */</span></div>
+  <div class="preview">
+    <div class="demo-centered">
+      ✨ Perfectamente centrado con 3 líneas de CSS
+    </div>
+  </div>
+
+  <h2>6 — Input group (campo de búsqueda + botón)</h2>
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">.input-group</span> { <span class="ca">display</span>: flex; }
+<span class="cp">.input-group input</span>  { <span class="ca">flex</span>: <span class="cn">1</span>; <span class="ca">border-radius</span>: <span class="cn">8px 0 0 8px</span>; }
+<span class="cp">.input-group button</span> { <span class="ca">flex-shrink</span>: <span class="cn">0</span>; <span class="ca">border-radius</span>: <span class="cn">0 8px 8px 0</span>; }</div>
+  <div class="preview">
+    <div class="demo-input-group">
+      <input type="text" placeholder="Buscar jugador, equipo o torneo...">
+      <button>🔍 Buscar</button>
+    </div>
+  </div>
+
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     TABLA RESUMEN DE PROPIEDADES
+══════════════════════════════════════════ -->
+<section class="module">
+  <div class="module-header">
+    <div class="module-icon">📋</div>
+    <div>
+      <div class="module-title">Tabla resumen — Todas las propiedades de Flexbox</div>
+      <div class="module-sub">Referencia rápida para consultar mientras practicas</div>
+    </div>
+  </div>
+
+  <h2>Propiedades del contenedor</h2>
+  <table class="tbl">
+    <thead><tr><th>Propiedad</th><th>Valores principales</th><th>Qué hace</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">display</span></td><td><code>flex</code> | <code>inline-flex</code></td><td>Activa Flexbox. inline-flex no ocupa todo el ancho.</td></tr>
+      <tr><td><span class="tag">flex-direction</span></td><td><code>row</code> | <code>row-reverse</code> | <code>column</code> | <code>column-reverse</code></td><td>Dirección del eje principal.</td></tr>
+      <tr><td><span class="tag">flex-wrap</span></td><td><code>nowrap</code> | <code>wrap</code> | <code>wrap-reverse</code></td><td>¿Los items se rompen en varias líneas?</td></tr>
+      <tr><td><span class="tag">flex-flow</span></td><td><code>row wrap</code> | etc.</td><td>Shorthand de direction + wrap.</td></tr>
+      <tr><td><span class="tag">justify-content</span></td><td><code>flex-start</code> | <code>flex-end</code> | <code>center</code> | <code>space-between</code> | <code>space-around</code> | <code>space-evenly</code></td><td>Distribución en el eje principal.</td></tr>
+      <tr><td><span class="tag">align-items</span></td><td><code>stretch</code> | <code>flex-start</code> | <code>flex-end</code> | <code>center</code> | <code>baseline</code></td><td>Alineación en el eje cruzado (todos los hijos).</td></tr>
+      <tr><td><span class="tag">align-content</span></td><td>Igual que justify-content</td><td>Distribución de líneas cuando hay wrap.</td></tr>
+      <tr><td><span class="tag">gap</span></td><td><code>1rem</code> | <code>1rem 2rem</code></td><td>Espacio entre flex items.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Propiedades de los flex items (hijos)</h2>
+  <table class="tbl">
+    <thead><tr><th>Propiedad</th><th>Valor por defecto</th><th>Qué hace</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">flex-grow</span></td><td><code>0</code></td><td>Proporción de espacio sobrante que el item recibe.</td></tr>
+      <tr><td><span class="tag">flex-shrink</span></td><td><code>1</code></td><td>Proporción de encogimiento si no hay espacio.</td></tr>
+      <tr><td><span class="tag">flex-basis</span></td><td><code>auto</code></td><td>Tamaño base antes de grow/shrink.</td></tr>
+      <tr><td><span class="tag">flex</span></td><td><code>0 1 auto</code></td><td>Shorthand de grow + shrink + basis.</td></tr>
+      <tr><td><span class="tag">align-self</span></td><td><code>auto</code></td><td>Sobreescribe align-items para este hijo.</td></tr>
+      <tr><td><span class="tag">order</span></td><td><code>0</code></td><td>Orden visual del item. Menor número = antes.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     EJERCICIO
+══════════════════════════════════════════ -->
+<section class="module" id="ejercicio">
+  <div class="module-header">
+    <div class="module-icon">✏️</div>
+    <div>
+      <div class="module-title">Ejercicio integrador — App de resultados deportivos</div>
+      <div class="module-sub">Construye una interfaz completa usando solo Flexbox</div>
+    </div>
+  </div>
+
+  <div class="ex">
+    <div class="ex-hd">✏️ Ejercicio — Pantalla de resultados deportivos <span class="ex-badge">Avanzado</span></div>
+
+    <p>Crea un archivo <code>resultados.html</code> con CSS en el mismo archivo. La pantalla debe estar construida <strong>exclusivamente con Flexbox</strong> (sin Grid por ahora).</p>
+
+    <ol>
+      <li>
+        <strong>Navbar</strong> con <code>justify-content: space-between</code>:
+        logo a la izquierda, links en el centro (<code>display:flex; gap:1.5rem</code>), botón a la derecha. Usa <code>flex-shrink: 0</code> en logo y botón.
+      </li>
+      <li>
+        <strong>Hero horizontal</strong>: Dos equipos enfrentados. Usa Flexbox con <code>align-items: center; justify-content: center; gap: 2rem</code>. En el centro el marcador, a los lados el logo y nombre de cada equipo.
+      </li>
+      <li>
+        <strong>Barra de stats</strong> (posesión, tiros, tarjetas): Tres columnas con <code>flex: 1</code> cada una. Cada stat tiene un número grande arriba, una barra de progreso y la etiqueta abajo. Haz la barra de progreso con dos divs flex.
+      </li>
+      <li>
+        <strong>Grid de partidos recientes</strong>: Mínimo 6 tarjetas de partidos usando <code>flex-wrap: wrap</code> y <code>flex: 1 1 240px</code> en cada tarjeta. Cada tarjeta debe tener el botón al fondo usando <code>flex-direction: column</code> y <code>margin-top: auto</code>.
+      </li>
+      <li>
+        <strong>Layout principal</strong>: Sidebar izquierdo (<code>flex: 0 0 200px</code>) con la lista de torneos, y el contenido principal a la derecha (<code>flex: 1</code>) que contiene el hero y las tarjetas.
+      </li>
+      <li>
+        <strong>Footer</strong>: Tres columnas con <code>flex: 1</code> cada una y <code>justify-content: space-between</code>.
+      </li>
+    </ol>
+
+    <p style="margin-top:1rem"><strong>Bonus:</strong> En el hero, usa <code>order</code> para que en móvil (con una media query) el marcador aparezca primero y los equipos debajo, usando <code>flex-direction: column</code>.</p>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Resumen de lo que aprendiste en la Parte E</h4>
+    <ul>
+      <li><strong>Conceptos base:</strong> contenedor vs items, eje principal vs eje cruzado</li>
+      <li><strong>flex-direction:</strong> row, row-reverse, column, column-reverse</li>
+      <li><strong>flex-wrap:</strong> nowrap, wrap, wrap-reverse · shorthand flex-flow</li>
+      <li><strong>justify-content:</strong> flex-start/end, center, space-between/around/evenly</li>
+      <li><strong>align-items:</strong> stretch, flex-start/end, center, baseline</li>
+      <li><strong>align-content:</strong> igual que justify pero para líneas con wrap</li>
+      <li><strong>flex-grow:</strong> proporción de espacio sobrante que recibe el item</li>
+      <li><strong>flex-shrink:</strong> proporción de encogimiento cuando falta espacio</li>
+      <li><strong>flex-basis:</strong> tamaño inicial antes de grow/shrink</li>
+      <li><strong>flex shorthand:</strong> flex: grow shrink basis · flex: 1 · flex: none</li>
+      <li><strong>align-self:</strong> sobreescribe align-items para un hijo específico</li>
+      <li><strong>order:</strong> reordena visualmente sin tocar el HTML</li>
+      <li><strong>gap:</strong> espacio limpio entre items sin márgenes extras</li>
+      <li><strong>Layouts:</strong> navbar, hero, cards con botón al fondo, sidebar+main, centrado perfecto, input group</li>
+    </ul>
+  </div>
+
+  <div class="concept">
+    <h4>💡 ¿Qué sigue? — Parte F</h4>
+    <p>La siguiente parte cubre <strong>Responsive Design completo</strong>: <code>srcset</code> y <code>&lt;picture&gt;</code> para imágenes responsive, <strong>Media Queries</strong> en profundidad (min-width, max-width, orientación, prefers-color-scheme), estrategia <strong>Mobile First</strong> vs Desktop First, <strong>Container Queries</strong> y <strong>Feature Queries</strong> — las técnicas modernas que están cambiando cómo se hace el diseño responsive. Pídela cuando estés listo.</p>
+  </div>
+
+</section>
+</main>
+
+<footer>
+  Guía HTML &amp; CSS · Parte E — Flexbox Completo · Basada en el curso de Soy Dalto · Hugo 2025
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1a1814">
+<title>Café </> · Tablero de Guías</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ── VARIABLES (igual que capitulos.html) ── */
+:root {
+  --font-title: 'Fraunces', serif;
+  --font-body:  'DM Sans', sans-serif;
+  --font-code:  'DM Mono', monospace;
+  --bg:     #f7f4ef;
+  --card:   #ffffff;
+  --ink:    #1a1814;
+  --ink2:   #4a4844;
+  --ink3:   #8a8480;
+  --border: #e8e4de;
+  --radius: 14px;
+  /* categorías */
+  --html:#b45309;--html-bg:#fef3c7;--html-border:#fde68a;
+  --css:#1d4ed8;--css-bg:#eff6ff;--css-border:#bfdbfe;
+  --js:#b07010;--js-bg:#fefce8;--js-border:#fef08a;
+  --gen:#5a5650;--gen-bg:#f0ece6;--gen-border:#e8e4de;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-body);background:var(--bg);color:var(--ink);line-height:1.6;min-height:100vh}
+
+/* ── HEADER ── */
+.site-header{
+  background:#1a1814;color:#f7f4ef;
+  padding:0 20px;height:64px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;
+  border-bottom:1px solid rgba(255,255,255,.07);
+}
+.header-left{display:flex;align-items:center;gap:14px}
+.btn-back{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);
+  color:#f7f4ef;border-radius:999px;padding:6px 14px;
+  font-family:var(--font-body);font-size:13px;font-weight:500;
+  text-decoration:none;cursor:pointer;
+  transition:background .15s;
+}
+.btn-back:hover{background:rgba(255,255,255,.18)}
+.header-logo{font-family:var(--font-title);font-size:18px;font-weight:700;letter-spacing:-.3px}
+.header-logo span{color:#c44a2a}
+.header-right{display:flex;align-items:center;gap:8px}
+.stat-pill{
+  font-family:var(--font-code);font-size:11px;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
+  border-radius:999px;padding:4px 12px;color:rgba(247,244,239,.7);
+  display:flex;align-items:center;gap:5px;
+}
+.stat-pill strong{color:#A6E3A1;font-size:13px}
+
+/* ── TOOLBAR ── */
+.toolbar{
+  background:var(--card);border-bottom:1px solid var(--border);
+  position:sticky;top:64px;z-index:90;
+  padding:12px 20px;
+  display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+}
+.toolbar-inner{max-width:1100px;margin:0 auto;width:100%;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.search-wrap{position:relative;flex:1;min-width:180px}
+.search-wrap input{
+  width:100%;padding:9px 14px 9px 36px;
+  border:1px solid var(--border);border-radius:999px;
+  background:var(--bg);font-family:var(--font-body);font-size:13px;
+  color:var(--ink);outline:none;transition:border-color .15s;
+}
+.search-wrap input:focus{border-color:#c44a2a}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--ink3);pointer-events:none}
+.filter-btns{display:flex;gap:6px;flex-wrap:wrap}
+.fb{
+  border:1px solid var(--border);background:var(--card);color:var(--ink3);
+  border-radius:999px;padding:7px 14px;font-size:12px;font-weight:500;
+  cursor:pointer;transition:all .15s;font-family:var(--font-body);white-space:nowrap;
+}
+.fb:hover{color:var(--ink)}
+.fb.active{background:#c44a2a;color:#fff;border-color:#c44a2a}
+.btn-add{
+  background:#c44a2a;color:white;border:none;border-radius:999px;
+  padding:9px 18px;font-size:13px;font-weight:600;cursor:pointer;
+  display:flex;align-items:center;gap:6px;
+  font-family:var(--font-body);transition:background .15s;flex-shrink:0;
+}
+.btn-add:hover{background:#a33b21}
+
+/* ── MAIN ── */
+.main-content{max-width:1100px;margin:0 auto;padding:28px 20px 80px}
+.section-label{
+  font-family:var(--font-code);font-size:11px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink3);margin-bottom:16px;
+  padding-bottom:10px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+
+/* ── GRID ── */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+
+/* ── CARD ── */
+.card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;
+  display:flex;flex-direction:column;
+  transition:transform .15s,box-shadow .15s,border-color .15s;
+  cursor:pointer;
+}
+.card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.08);border-color:#c44a2a}
+
+/* thumbnail YouTube */
+.card-thumb{
+  background:#1a1814;aspect-ratio:16/9;
+  position:relative;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+}
+.card-thumb img{width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0}
+.card-thumb-play{
+  width:44px;height:44px;background:rgba(196,74,42,.9);
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:16px;position:relative;z-index:1;color:#fff;
+}
+.card-thumb-icon{font-size:32px;position:relative;z-index:1;opacity:.5}
+.card-thumb-src{
+  position:absolute;top:8px;right:8px;z-index:2;
+  background:rgba(26,24,20,.75);border-radius:999px;
+  padding:3px 10px;font-family:var(--font-code);font-size:10px;
+  color:rgba(247,244,239,.8);font-weight:600;
+}
+
+/* body */
+.card-body{padding:16px 18px 18px;display:flex;flex-direction:column;gap:8px;flex:1}
+.card-cat{
+  display:inline-block;font-family:var(--font-code);font-size:10px;
+  font-weight:600;padding:2px 8px;border-radius:999px;width:fit-content;
+  border:1px solid var(--border);background:var(--bg);color:var(--ink2);
+}
+.cat-todocode{background:#fef3c7;color:#b45309;border-color:#fde68a}
+.cat-edteam  {background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}
+.cat-mdn     {background:#f0fdf4;color:#15803d;border-color:#bbf7d0}
+.cat-custom  {background:#faf5ff;color:#7c3aed;border-color:#e9d5ff}
+.cat-otro    {background:var(--gen-bg);color:var(--gen);border-color:var(--gen-border)}
+
+.card-title{font-family:var(--font-title);font-size:16px;font-weight:700;line-height:1.3}
+.card-desc{font-size:13px;color:var(--ink2);line-height:1.6;flex:1}
+.card-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+.ctag{
+  font-family:var(--font-code);font-size:10px;padding:2px 8px;
+  border-radius:999px;background:var(--bg);border:1px solid var(--border);color:var(--ink3);
+}
+.card-acciones{display:flex;gap:8px;margin-top:4px;align-items:center}
+.btn-ver{
+  flex:1;background:#c44a2a;color:white;border:none;border-radius:999px;
+  padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;
+  text-decoration:none;text-align:center;display:block;
+  font-family:var(--font-body);transition:background .15s;
+}
+.btn-ver:hover{background:#a33b21}
+.btn-edit,.btn-del{
+  background:none;border:1px solid var(--border);border-radius:999px;
+  padding:7px 10px;font-size:11px;cursor:pointer;color:var(--ink3);
+  transition:all .15s;font-family:var(--font-body);
+}
+.btn-edit:hover{border-color:#c44a2a;color:#c44a2a}
+.btn-del:hover{border-color:#c44a2a;color:#c44a2a}
+
+/* ── CARD AGREGAR ── */
+.card-add{
+  background:var(--card);border:2px dashed var(--border);
+  border-radius:var(--radius);padding:32px 22px;
+  display:flex;flex-direction:column;align-items:flex-start;gap:10px;
+  cursor:pointer;transition:border-color .15s,background .15s;
+}
+.card-add:hover{border-color:#c44a2a;background:#fdf0ec}
+.card-add-icon{font-size:28px;color:var(--ink3)}
+.card-add:hover .card-add-icon{color:#c44a2a}
+.card-add-titulo{font-family:var(--font-title);font-size:17px;font-weight:700;color:var(--ink2)}
+.card-add:hover .card-add-titulo{color:#c44a2a}
+.card-add-desc{font-size:13px;color:var(--ink3);line-height:1.6}
+
+/* ── EMPTY ── */
+.empty{
+  grid-column:1/-1;text-align:center;padding:48px 20px;
+  background:var(--card);border:2px dashed var(--border);border-radius:var(--radius);
+}
+.empty-icon{font-size:36px;margin-bottom:12px}
+.empty p{font-size:14px;color:var(--ink3);line-height:1.6}
+
+/* ── LOADING ── */
+.loading{
+  grid-column:1/-1;text-align:center;padding:48px 20px;color:var(--ink3);
+}
+.spinner{
+  width:32px;height:32px;border:3px solid var(--border);border-top-color:#c44a2a;
+  border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── MODAL ── */
+.overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(26,24,20,.55);z-index:500;
+  align-items:center;justify-content:center;padding:20px;
+}
+.overlay.visible{display:flex}
+.modal{
+  background:var(--card);border-radius:18px;
+  width:100%;max-width:540px;max-height:90vh;
+  overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.25);
+}
+.modal-header{
+  padding:24px 24px 0;display:flex;
+  align-items:flex-start;justify-content:space-between;gap:12px;
+}
+.modal-header h2{font-family:var(--font-title);font-size:20px;font-weight:700}
+.modal-close{
+  background:none;border:none;font-size:20px;cursor:pointer;
+  color:var(--ink3);line-height:1;padding:2px;
+}
+.modal-body{padding:20px 24px}
+.campo{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.campo label{
+  font-family:var(--font-code);font-size:11px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--ink3);
+}
+.campo input,.campo textarea,.campo select{
+  background:var(--bg);border:1px solid var(--border);border-radius:8px;
+  padding:10px 14px;font-family:var(--font-body);font-size:14px;
+  color:var(--ink);outline:none;transition:border-color .15s;width:100%;
+}
+.campo input:focus,.campo textarea:focus,.campo select:focus{border-color:#c44a2a}
+.campo textarea{min-height:80px;resize:vertical}
+.campo .hint{font-size:11px;color:var(--ink3);margin-top:2px}
+/* preview thumb en modal */
+.thumb-preview{
+  background:#1a1814;border-radius:8px;aspect-ratio:16/9;
+  display:none;align-items:center;justify-content:center;
+  overflow:hidden;margin-top:8px;position:relative;
+}
+.thumb-preview.visible{display:flex}
+.thumb-preview img{width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0}
+.thumb-preview-play{
+  width:36px;height:36px;background:rgba(196,74,42,.9);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;color:#fff;position:relative;z-index:1;
+}
+/* temas chips */
+.temas-wrap{
+  display:flex;flex-wrap:wrap;gap:6px;
+  border:1px solid var(--border);border-radius:8px;
+  padding:8px;min-height:44px;cursor:text;background:var(--bg);
+  transition:border-color .15s;
+}
+.temas-wrap:focus-within{border-color:#c44a2a}
+.tema-chip{
+  display:flex;align-items:center;gap:4px;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:999px;padding:2px 10px;
+  font-size:11px;font-family:var(--font-code);color:var(--ink2);
+}
+.tema-chip button{border:none;background:none;cursor:pointer;color:var(--ink3);font-size:12px;padding:0;line-height:1}
+.temas-wrap input{
+  border:none;outline:none;background:transparent;
+  font-family:var(--font-code);font-size:12px;
+  flex:1;min-width:100px;padding:2px 4px;color:var(--ink);
+}
+.modal-footer{
+  padding:0 24px 24px;display:flex;gap:10px;justify-content:flex-end;
+}
+.btn-cancel-modal{
+  background:none;border:1px solid var(--border);border-radius:999px;
+  padding:9px 18px;font-size:13px;cursor:pointer;
+  font-family:var(--font-body);color:var(--ink3);
+}
+.btn-save-modal{
+  background:#c44a2a;color:#fff;border:none;border-radius:999px;
+  padding:9px 22px;font-size:13px;font-weight:700;cursor:pointer;
+  font-family:var(--font-body);transition:background .15s;
+}
+.btn-save-modal:hover{background:#a33b21}
+.btn-save-modal:disabled{background:#ccc;cursor:not-allowed}
+
+/* ── DETAIL OVERLAY ── */
+.detail-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(26,24,20,.6);z-index:600;
+  align-items:center;justify-content:center;padding:20px;
+}
+.detail-overlay.visible{display:flex}
+.detail-modal{
+  background:var(--card);border-radius:18px;
+  width:100%;max-width:640px;max-height:92vh;
+  overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.3);
+}
+.detail-thumb{
+  background:#1a1814;aspect-ratio:16/9;
+  position:relative;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:18px 18px 0 0;
+}
+.detail-thumb img{width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0}
+.detail-thumb-play{
+  width:56px;height:56px;background:rgba(196,74,42,.92);
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:22px;color:#fff;position:relative;z-index:1;cursor:pointer;
+  transition:transform .15s;
+}
+.detail-thumb-play:hover{transform:scale(1.08)}
+.detail-thumb-icon{font-size:48px;opacity:.4;position:relative;z-index:1}
+.detail-thumb-close{
+  position:absolute;top:12px;right:12px;z-index:2;
+  background:rgba(26,24,20,.65);border:none;color:#f7f4ef;
+  border-radius:999px;padding:6px 12px;cursor:pointer;font-size:13px;
+  font-family:var(--font-body);
+}
+.detail-body{padding:24px}
+.detail-src{
+  font-family:var(--font-code);font-size:11px;
+  text-transform:uppercase;letter-spacing:.08em;color:var(--ink3);margin-bottom:6px;
+}
+.detail-title{font-family:var(--font-title);font-size:22px;font-weight:700;margin-bottom:10px;line-height:1.25}
+.detail-desc{font-size:14px;color:var(--ink2);line-height:1.7;margin-bottom:16px}
+.detail-section-label{
+  font-family:var(--font-code);font-size:10px;text-transform:uppercase;
+  letter-spacing:.1em;color:var(--ink3);margin-bottom:10px;
+  padding-bottom:8px;border-bottom:1px solid var(--border);
+}
+.detail-temas{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px}
+.detail-tema{
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:999px;padding:4px 12px;
+  font-size:12px;font-family:var(--font-code);color:var(--ink2);
+}
+.detail-footer{
+  padding:0 24px 24px;
+  display:flex;gap:10px;flex-wrap:wrap;align-items:center;
+}
+.btn-detail-ver{
+  flex:1;background:#c44a2a;color:#fff;text-decoration:none;
+  border-radius:999px;padding:10px 20px;font-size:13px;font-weight:600;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  font-family:var(--font-body);transition:background .15s;border:none;cursor:pointer;
+}
+.btn-detail-ver:hover{background:#a33b21}
+.btn-detail-edit{
+  background:none;border:1px solid var(--border);color:var(--ink3);
+  border-radius:999px;padding:10px 18px;font-size:13px;cursor:pointer;
+  font-family:var(--font-body);transition:all .15s;
+}
+.btn-detail-edit:hover{border-color:#c44a2a;color:#c44a2a}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:24px;right:24px;
+  background:#1a1814;color:#f7f4ef;
+  padding:10px 18px;border-radius:10px;font-size:13px;
+  z-index:999;opacity:0;transform:translateY(8px);
+  transition:all .25s;pointer-events:none;
+  box-shadow:0 4px 16px rgba(0,0,0,.3);
+}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast.ok{border-left:4px solid #A6E3A1}
+.toast.err{border-left:4px solid #F38BA8}
+
+/* ── SYNC INDICATOR ── */
+.sync-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:#A6E3A1;display:inline-block;margin-right:4px;
+  animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+@media(max-width:640px){
+  .main-content{padding:20px 12px 60px}
+  .grid{grid-template-columns:1fr}
+  .header-right .stat-pill:nth-child(2){display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header class="site-header">
+  <div class="header-left">
+    <a href="../capitulos.html?tab=misguias" class="btn-back">← Mis Guías</a>
+    <span class="header-logo">Café <span>&lt;/&gt;</span> · Guías</span>
+  </div>
+  <div class="header-right">
+    <span class="stat-pill"><span class="sync-dot"></span>Firebase</span>
+    <span class="stat-pill"><strong id="stat-total">–</strong> guías</span>
+    <span class="stat-pill"><strong id="stat-temas">–</strong> temas</span>
+  </div>
+</header>
+
+<!-- ── TOOLBAR ── -->
+<div class="toolbar">
+  <div class="toolbar-inner">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="search" placeholder="Buscar guías, temas, autores…" oninput="renderGrid()">
+    </div>
+    <div class="filter-btns" id="filter-btns">
+      <button class="fb active" onclick="setFilter('todos',this)">Todos</button>
+    </div>
+    <button class="btn-add" onclick="openModal()">＋ Nueva guía</button>
+  </div>
+</div>
+
+<!-- ── MAIN ── -->
+<div class="main-content">
+  <div class="section-label">
+    <span id="grid-label">Cargando…</span>
+  </div>
+  <div class="grid" id="grid">
+    <div class="loading"><div class="spinner"></div><p>Conectando con Firebase…</p></div>
+  </div>
+</div>
+
+<!-- ── MODAL AGREGAR/EDITAR ── -->
+<div class="overlay" id="overlay" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modal-title">Nueva guía</h2>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="campo">
+        <label>Título *</label>
+        <input id="f-title" placeholder="¿Qué es el Protocolo HTTP?" maxlength="90">
+      </div>
+      <div class="campo">
+        <label>Descripción *</label>
+        <textarea id="f-desc" placeholder="Qué temas cubre esta guía…"></textarea>
+      </div>
+      <div class="campo">
+        <label>URL del video de YouTube (para la portada)</label>
+        <input id="f-url" type="url" placeholder="https://youtube.com/watch?v=…" oninput="previewThumb()">
+        <span class="hint">Se genera la portada automáticamente con el ID del video</span>
+        <div class="thumb-preview" id="thumb-preview">
+          <img id="thumb-preview-img" src="" alt="preview">
+          <div class="thumb-preview-play">▶</div>
+        </div>
+      </div>
+      <div class="campo">
+        <label>Fuente / Canal</label>
+        <select id="f-source">
+          <option value="todocode">TodoCode</option>
+          <option value="edteam">EDteam</option>
+          <option value="mdn">MDN Web Docs</option>
+          <option value="custom">Personalizado</option>
+          <option value="otro">Otro</option>
+        </select>
+      </div>
+      <div class="campo">
+        <label>Autor / Instructor</label>
+        <input id="f-autor" placeholder="Ing. Luisina de Paula">
+      </div>
+      <div class="campo">
+        <label>Nombre del archivo HTML (opcional)</label>
+        <input id="f-file" placeholder="guia-http-todocode.html">
+      </div>
+      <div class="campo">
+        <label>Temas que cubre (Enter o coma para agregar)</label>
+        <div class="temas-wrap" id="temas-wrap" onclick="document.getElementById('temas-field').focus()">
+          <input id="temas-field" placeholder="Escribe un tema…" onkeydown="handleTemaKey(event)">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel-modal" onclick="closeModal()">Cancelar</button>
+      <button class="btn-save-modal" id="btn-save" onclick="saveCard()">💾 Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── DETAIL OVERLAY ── -->
+<div class="detail-overlay" id="detail-overlay" onclick="closeDetailOutside(event)">
+  <div class="detail-modal" id="detail-modal">
+    <div class="detail-thumb" id="d-thumb">
+      <button class="detail-thumb-close" onclick="closeDetail()">✕ Cerrar</button>
+      <div class="detail-thumb-icon" id="d-thumb-icon">📖</div>
+    </div>
+    <div class="detail-body">
+      <div class="detail-src" id="d-src"></div>
+      <div class="detail-title" id="d-title"></div>
+      <div class="detail-desc" id="d-desc"></div>
+      <div class="detail-section-label">Temas que cubre</div>
+      <div class="detail-temas" id="d-temas"></div>
+      <div class="detail-section-label" id="d-file-label" style="display:none">Archivo de la guía</div>
+      <p id="d-file-txt" style="font-size:13px;color:var(--ink3);margin-bottom:16px;display:none"></p>
+    </div>
+    <div class="detail-footer">
+      <a id="d-link" class="btn-detail-ver" href="#" target="_blank" rel="noopener" style="display:none">▶ Ver video original</a>
+      <button class="btn-detail-edit" id="d-edit-btn">✏️ Editar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ── FIREBASE ── -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"
+  import {
+    getFirestore, collection, addDoc, updateDoc, deleteDoc,
+    doc, query, orderBy, onSnapshot
+  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"
+
+  /* ── CONFIG (mismas credenciales que capitulos.html) ── */
+  const firebaseConfig = {
+    apiKey:            "AIzaSyAjNUAY81r5rUfwlslE_d9fHsJxZFptvf4",
+    authDomain:        "cafecodigo-276ba.firebaseapp.com",
+    projectId:         "cafecodigo-276ba",
+    storageBucket:     "cafecodigo-276ba.firebasestorage.app",
+    messagingSenderId: "924422990613",
+    appId:             "1:924422990613:web:a7beafb991146549f2571c"
+  }
+
+  const app = initializeApp(firebaseConfig)
+  const db  = getFirestore(app)
+  const col = collection(db, 'guias-terminos')
+
+  /* ── ESTADO GLOBAL (expuesto a window) ── */
+  let cards       = []
+  let editingId   = null
+  let currentFilter = 'todos'
+  let currentTemas  = []
+  let detailId    = null
+
+  const SOURCE_NAMES = {
+    todocode:'TodoCode', edteam:'EDteam',
+    mdn:'MDN Web Docs', custom:'Personalizado', otro:'Otro'
+  }
+  const SOURCE_CAT = {
+    todocode:'cat-todocode', edteam:'cat-edteam',
+    mdn:'cat-mdn', custom:'cat-custom', otro:'cat-otro'
+  }
+
+  /* ── YOUTUBE HELPERS ── */
+  function getYtId(url) {
+    if(!url) return null
+    const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([^&?\/\s]{11})/)
+    return m ? m[1] : null
+  }
+  function thumbUrl(url) {
+    const id = getYtId(url)
+    return id ? `https://img.youtube.com/vi/${id}/mqdefault.jpg` : null
+  }
+
+  /* ── PREVIEW EN MODAL ── */
+  window.previewThumb = function() {
+    const url   = document.getElementById('f-url').value.trim()
+    const thumb = thumbUrl(url)
+    const wrap  = document.getElementById('thumb-preview')
+    const img   = document.getElementById('thumb-preview-img')
+    if(thumb){ img.src = thumb; wrap.classList.add('visible') }
+    else { wrap.classList.remove('visible'); img.src='' }
+  }
+
+  /* ── RENDER GRID ── */
+  function renderGrid() {
+    const q = (document.getElementById('search').value||'').toLowerCase().trim()
+    const filtered = cards.filter(c => {
+      const mf = currentFilter==='todos' || c.source===currentFilter
+      const ms = !q ||
+        (c.title||'').toLowerCase().includes(q) ||
+        (c.desc||'').toLowerCase().includes(q)  ||
+        (c.autor||'').toLowerCase().includes(q) ||
+        (c.temas||[]).some(t=>t.toLowerCase().includes(q))
+      return mf && ms
+    })
+
+    // stats
+    document.getElementById('stat-total').textContent = cards.length
+    const allTemas = new Set(cards.flatMap(c=>c.temas||[]))
+    document.getElementById('stat-temas').textContent = allTemas.size
+    document.getElementById('grid-label').textContent =
+      filtered.length + ' guía' + (filtered.length!==1?'s':'') +
+      (q ? ` para "${q}"` : '') +
+      (currentFilter!=='todos' ? ` · ${SOURCE_NAMES[currentFilter]||currentFilter}` : '')
+
+    const grid = document.getElementById('grid')
+
+    if(!filtered.length) {
+      grid.innerHTML = `
+        <div class="empty">
+          <div class="empty-icon">📭</div>
+          <p>No hay guías que coincidan.<br>Prueba otro filtro o agrega una nueva.</p>
+        </div>
+        <div class="card-add" onclick="openModal()">
+          <div class="card-add-icon">＋</div>
+          <div class="card-add-titulo">Agregar guía</div>
+          <div class="card-add-desc">Guarda una nueva guía de estudio con su video y temas.</div>
+        </div>`
+      renderFilters(); return
+    }
+
+    const cardsHtml = filtered.map(c => {
+      const thumb = thumbUrl(c.url)
+      const sname = SOURCE_NAMES[c.source]||c.source||'—'
+      const scat  = SOURCE_CAT[c.source]||'cat-otro'
+      const temasShow = (c.temas||[]).slice(0,5)
+      const more  = (c.temas||[]).length - 5
+      return `
+      <div class="card" onclick="openDetail('${c.id}')">
+        <div class="card-thumb">
+          ${thumb ? `<img src="${thumb}" alt="${c.title}" loading="lazy">` : `<span class="card-thumb-icon">📖</span>`}
+          <div class="card-thumb-play">▶</div>
+          <span class="card-thumb-src">${sname}</span>
+        </div>
+        <div class="card-body">
+          <span class="card-cat ${scat}">${sname}${c.autor?' · '+c.autor:''}</span>
+          <div class="card-title">${c.title||'Sin título'}</div>
+          <div class="card-desc">${c.desc||''}</div>
+          <div class="card-tags">
+            ${temasShow.map(t=>`<span class="ctag">${t}</span>`).join('')}
+            ${more>0?`<span class="ctag">+${more} más</span>`:''}
+          </div>
+          <div class="card-acciones" onclick="event.stopPropagation()">
+            ${c.url ? `<a href="${c.url}" target="_blank" rel="noopener" class="btn-ver" onclick="event.stopPropagation()">▶ Ver video</a>` : ''}
+            <button class="btn-edit" onclick="openEdit('${c.id}')">✏️</button>
+            <button class="btn-del"  onclick="deleteCard('${c.id}')">🗑️</button>
+          </div>
+        </div>
+      </div>`
+    }).join('')
+
+    grid.innerHTML = cardsHtml + `
+      <div class="card-add" onclick="openModal()">
+        <div class="card-add-icon">＋</div>
+        <div class="card-add-titulo">Agregar guía</div>
+        <div class="card-add-desc">Guarda una nueva guía con su portada de YouTube.</div>
+      </div>`
+
+    renderFilters()
+  }
+
+  function renderFilters() {
+    const fuentes = [...new Set(cards.map(c=>c.source).filter(Boolean))]
+    const wrap = document.getElementById('filter-btns')
+    wrap.innerHTML = `<button class="fb ${currentFilter==='todos'?'active':''}" onclick="setFilter('todos',this)">Todos (${cards.length})</button>`
+    fuentes.forEach(f=>{
+      const cnt = cards.filter(c=>c.source===f).length
+      wrap.innerHTML += `<button class="fb ${currentFilter===f?'active':''}" onclick="setFilter('${f}',this)">${SOURCE_NAMES[f]||f} (${cnt})</button>`
+    })
+  }
+
+  /* ── FILTER ── */
+  window.setFilter = function(f, btn) {
+    currentFilter = f
+    document.querySelectorAll('.fb').forEach(b=>b.classList.remove('active'))
+    btn.classList.add('active')
+    renderGrid()
+  }
+
+  /* ── DETAIL ── */
+  window.openDetail = function(id) {
+    const c = cards.find(x=>x.id===id); if(!c) return
+    detailId = id
+    const thumb = thumbUrl(c.url)
+    const dThumb = document.getElementById('d-thumb')
+    const dIcon  = document.getElementById('d-thumb-icon')
+    // limpiar thumb previo
+    dThumb.querySelectorAll('img').forEach(i=>i.remove())
+    if(thumb){
+      const img = document.createElement('img')
+      img.src = thumb; img.alt = c.title
+      dThumb.insertBefore(img, dThumb.firstChild)
+      dIcon.style.display = 'none'
+    } else { dIcon.style.display = 'block'; dIcon.textContent = '📖' }
+
+    document.getElementById('d-src').textContent   = (SOURCE_NAMES[c.source]||c.source||'') + (c.autor?' · '+c.autor:'')
+    document.getElementById('d-title').textContent = c.title||''
+    document.getElementById('d-desc').textContent  = c.desc||''
+    document.getElementById('d-temas').innerHTML   = (c.temas||[]).map(t=>`<span class="detail-tema">${t}</span>`).join('')
+
+    const fileLbl = document.getElementById('d-file-label')
+    const fileTxt = document.getElementById('d-file-txt')
+    if(c.file){ fileLbl.style.display='block'; fileTxt.style.display='block'; fileTxt.textContent='📄 '+c.file }
+    else { fileLbl.style.display='none'; fileTxt.style.display='none' }
+
+    const dLink = document.getElementById('d-link')
+    if(c.url){ dLink.href=c.url; dLink.style.display='flex' }
+    else { dLink.style.display='none' }
+
+    document.getElementById('d-edit-btn').onclick = ()=>{ closeDetail(); openEdit(id) }
+    document.getElementById('detail-overlay').classList.add('visible')
+  }
+  window.closeDetail = function() { document.getElementById('detail-overlay').classList.remove('visible') }
+  window.closeDetailOutside = function(e) { if(e.target===document.getElementById('detail-overlay')) closeDetail() }
+
+  /* ── MODAL ── */
+  window.openModal = function() {
+    editingId = null; currentTemas = []
+    document.getElementById('modal-title').textContent = '➕ Nueva guía'
+    document.getElementById('f-title').value = ''
+    document.getElementById('f-desc').value  = ''
+    document.getElementById('f-url').value   = ''
+    document.getElementById('f-source').value= 'todocode'
+    document.getElementById('f-autor').value = ''
+    document.getElementById('f-file').value  = ''
+    document.getElementById('thumb-preview').classList.remove('visible')
+    renderTemas()
+    document.getElementById('overlay').classList.add('visible')
+    setTimeout(()=>document.getElementById('f-title').focus(),100)
+  }
+
+  window.openEdit = function(id) {
+    const c = cards.find(x=>x.id===id); if(!c) return
+    editingId = id; currentTemas = [...(c.temas||[])]
+    document.getElementById('modal-title').textContent = '✏️ Editar guía'
+    document.getElementById('f-title').value  = c.title||''
+    document.getElementById('f-desc').value   = c.desc||''
+    document.getElementById('f-url').value    = c.url||''
+    document.getElementById('f-source').value = c.source||'todocode'
+    document.getElementById('f-autor').value  = c.autor||''
+    document.getElementById('f-file').value   = c.file||''
+    previewThumb()
+    renderTemas()
+    document.getElementById('overlay').classList.add('visible')
+    setTimeout(()=>document.getElementById('f-title').focus(),100)
+  }
+
+  window.closeModal = function() { document.getElementById('overlay').classList.remove('visible') }
+  window.closeModalOutside = function(e) { if(e.target===document.getElementById('overlay')) closeModal() }
+
+  /* ── TEMAS CHIPS ── */
+  window.handleTemaKey = function(e) {
+    if(e.key==='Enter'||e.key===','){
+      e.preventDefault()
+      const v = e.target.value.trim().replace(/,$/,'')
+      if(v && !currentTemas.includes(v)){ currentTemas.push(v); renderTemas() }
+      e.target.value=''
+    }
+    if(e.key==='Backspace' && !e.target.value && currentTemas.length){ currentTemas.pop(); renderTemas() }
+  }
+  window.removeTema = function(i) { currentTemas.splice(i,1); renderTemas() }
+
+  function renderTemas() {
+    const wrap  = document.getElementById('temas-wrap')
+    const input = document.getElementById('temas-field')
+    wrap.innerHTML = ''
+    currentTemas.forEach((t,i)=>{
+      const span = document.createElement('span')
+      span.className = 'tema-chip'
+      span.innerHTML = t + `<button type="button" onclick="removeTema(${i})">×</button>`
+      wrap.appendChild(span)
+    })
+    wrap.appendChild(input)
+    input.placeholder = currentTemas.length ? 'Otro tema…' : 'Escribe y presiona Enter…'
+  }
+
+  /* ── SAVE (Firebase) ── */
+  window.saveCard = async function() {
+    const inp = document.getElementById('temas-field')
+    if(inp.value.trim()){ currentTemas.push(inp.value.trim()); inp.value='' }
+
+    const title = document.getElementById('f-title').value.trim()
+    const desc  = document.getElementById('f-desc').value.trim()
+    if(!title||!desc){ showToast('Completa el título y la descripción','err'); return }
+
+    const btn = document.getElementById('btn-save')
+    btn.disabled = true; btn.textContent = 'Guardando…'
+
+    const data = {
+      title, desc,
+      source: document.getElementById('f-source').value,
+      autor:  document.getElementById('f-autor').value.trim(),
+      url:    document.getElementById('f-url').value.trim(),
+      file:   document.getElementById('f-file').value.trim(),
+      temas:  currentTemas,
+      updatedAt: new Date().toISOString()
+    }
+
+    try {
+      if(editingId) {
+        await updateDoc(doc(db,'guias-terminos',editingId), data)
+        showToast('Guía actualizada ✅','ok')
+      } else {
+        data.createdAt = new Date().toISOString()
+        await addDoc(col, data)
+        showToast('Guía guardada en Firebase ✅','ok')
+      }
+      closeModal()
+    } catch(e) {
+      console.error(e)
+      showToast('Error al guardar. Revisa Firebase.','err')
+    }
+    btn.disabled = false; btn.textContent = '💾 Guardar'
+  }
+
+  /* ── DELETE (Firebase) ── */
+  window.deleteCard = async function(id) {
+    if(!confirm('¿Eliminar esta guía de Firebase?')) return
+    try {
+      await deleteDoc(doc(db,'guias-terminos',id))
+      showToast('Guía eliminada','err')
+    } catch(e) { showToast('Error al eliminar','err') }
+  }
+
+  /* ── TOAST ── */
+  window.showToast = function(msg, type='ok') {
+    const t = document.getElementById('toast')
+    t.textContent = msg; t.className = 'toast show '+type
+    setTimeout(()=>t.className='toast',2800)
+  }
+
+  /* ── DATOS INICIALES — se suben a Firebase la primera vez ── */
+  const SEED = [
+    {
+      title:'¿Qué es el Protocolo HTTP?',
+      desc:'Requests, responses y los 5 métodos: GET, POST, PUT, PATCH y DELETE. Ciclo cliente-servidor, anatomía de un mensaje, status codes y ejercicios con APIs reales.',
+      source:'todocode', autor:'Ing. Luisina de Paula',
+      url:'https://www.youtube.com/watch?v=l2MihYAj0Iw&list=PLoNE_hb5QJQUmTUBp1A8ynDCM295Qam7G&index=1',
+      file:'guia-http-todocode.html',
+      temas:['HTTP','HTTPS','Request','Response','GET','POST','PUT','PATCH','DELETE','Status Codes','API REST','Cliente','Servidor','Endpoint'],
+      createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()
+    },
+    {
+      title:'¿Qué es JSON?',
+      desc:'JavaScript Object Notation: el formato universal de datos. Clave-valor, tipos (string, number, boolean, null, object, array), anidamiento, JSON.stringify y JSON.parse.',
+      source:'todocode', autor:'Ing. Luisina de Paula',
+      url:'https://www.youtube.com/watch?v=RhxOTqFbI5Q&list=PLoNE_hb5QJQUmTUBp1A8ynDCM295Qam7G&index=2',
+      file:'guia-json-todocode.html',
+      temas:['JSON','Clave-valor','String','Number','Boolean','Null','Array','Object','JSON.stringify','JSON.parse','Anidamiento','APIs'],
+      createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()
+    },
+    {
+      title:'Lenguajes Tipados vs No Tipados',
+      desc:'Tipado estático vs dinámico, fuerte vs débil, inferencia de tipos. Cómo y cuándo se comprueban los tipos en Java, Python, JavaScript, TypeScript y más.',
+      source:'edteam', autor:'EDteam',
+      url:'https://www.youtube.com/watch?v=CliV92TLT3s&list=PLoNE_hb5QJQUmTUBp1A8ynDCM295Qam7G&index=3',
+      file:'guia-tipado-edteam.html',
+      temas:['Tipado','Estático','Dinámico','Fuerte','Débil','Inferencia','TypeScript','Python','Java','JavaScript','CRUD'],
+      createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()
+    }
+  ]
+
+  /* ── ONsnapshot (tiempo real) ── */
+  onSnapshot(query(col, orderBy('createdAt','desc')), async snapshot => {
+    cards = snapshot.docs.map(d=>({id:d.id,...d.data()}))
+
+    // Si la colección está vacía, sembrar los datos iniciales
+    if(cards.length === 0) {
+      for(const item of SEED) {
+        try { await addDoc(col, item) } catch(e) { console.error(e) }
+      }
+      return // el onSnapshot volverá a dispararse con los datos seedeados
+    }
+
+    renderGrid()
+  })
+</script>
+</body>
+</html>
