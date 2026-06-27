@@ -223,6 +223,14 @@
     }
     .com-msg-rating { font-size:.9rem; }
 
+    /* Badge "Tuyo" */
+    .com-msg-tuyo {
+      font-size:.68rem;font-weight:600;color:var(--accent,#c44a2a);
+      background:rgba(196,74,42,.1);border:1px solid rgba(196,74,42,.25);
+      border-radius:999px;padding:.15rem .55rem;white-space:nowrap;
+      display:inline-flex;align-items:center;
+    }
+
     /* Menú opciones (⋯) */
     .com-msg-opciones-wrap { position:relative;margin-left:auto;flex-shrink:0; }
     .btn-opciones {
@@ -541,7 +549,7 @@
           </div>
         </div>
 
-        <p class="com-form-nota">Los mensajes son públicos · Por favor sé respetuoso</p>
+        <p class="com-form-nota">Los mensajes son públicos · Por favor sé respetuoso · <span style="color:rgba(255,255,255,.5);">✏️ Tus mensajes quedan vinculados a tu cuenta</span></p>
       </div>
     </aside>
 
@@ -596,7 +604,6 @@
       query, orderBy, updateDoc, deleteDoc,
       doc, increment, serverTimestamp, arrayUnion, arrayRemove
     } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
-
     // ── PEGA TU CONFIG AQUÍ ──
     const firebaseConfig = {
       apiKey: "AIzaSyAjNUAY81r5rUfwlslE_d9fHsJxZFptvf4",
@@ -612,12 +619,35 @@
     const db  = getFirestore(app);
     const COL = 'mensajes_cafe';
 
-    // ID de sesión (para saber quién puede editar/eliminar sus propios mensajes)
-    const SESSION_ID = localStorage.getItem('cafe_session') || (() => {
-      const id = 'u_' + Math.random().toString(36).slice(2, 10);
-      localStorage.setItem('cafe_session', id);
-      return id;
-    })();
+    // ── Leer usuario desde tu sistema de acceso (cafe_user) ──
+    // auth-guard.js ya redirige a acceso.html si no hay sesión,
+    // así que aquí el usuario SIEMPRE existe.
+    const _raw          = localStorage.getItem('cafe_user');
+    const _cafeUser     = _raw ? JSON.parse(_raw) : null;
+    const usuarioActual = _cafeUser
+      ? {
+          email:  _cafeUser.email  || '',
+          nombre: _cafeUser.nombre || _cafeUser.email || 'Usuario',
+          foto:   _cafeUser.foto   || '',
+        }
+      : null;
+
+    // Autorellenar nombre en el formulario con el nombre del usuario logueado
+    window.addEventListener('DOMContentLoaded', () => {
+      const inputNombre = document.getElementById('com-nombre');
+      if (inputNombre && usuarioActual && !inputNombre.value) {
+        inputNombre.value = usuarioActual.nombre.split(' ')[0];
+      }
+    });
+
+    // Verifica si un mensaje/comentario puede ser editado/eliminado por el usuario actual.
+    // Usamos el email como identificador único (igual que tu sistema de acceso).
+    // También soporta el sessionId antiguo por compatibilidad con mensajes viejos.
+    function puedeModificar(item) {
+      if (!usuarioActual) return false;
+      if (item.email && item.email === usuarioActual.email) return true;
+      return false;
+    }
 
     // Likes guardados localmente
     const likeados = new Set(JSON.parse(localStorage.getItem('cafe_likes') || '[]'));
@@ -728,7 +758,8 @@
       const fecha    = parseFecha(msg.creadoEn);
       const likes    = msg.likes || 0;
       const yaLike   = likeados.has(msg.id);
-      const esMio    = msg.sessionId === SESSION_ID;
+
+      const esMio    = puedeModificar(msg);
       const coms     = msg.comentarios || [];
       const editado  = msg.editado ? '<span class="com-msg-editado">(editado)</span>' : '';
 
@@ -745,6 +776,7 @@
           </div>
           ${esMio ? `
           <div class="com-msg-opciones-wrap">
+            <span class="com-msg-tuyo">✏️ Tuyo</span>
             <button class="btn-opciones" title="Opciones">⋯</button>
             <div class="opciones-menu">
               <button class="op-editar">✏️ Editar</button>
@@ -874,17 +906,21 @@
 
       // — Enviar comentario —
       art.querySelector('.btn-enviar-com').addEventListener('click', async () => {
+        if (!usuarioActual) {
+          mostrarToast('⚠️ Necesitas iniciar sesión para comentar');
+          return;
+        }
         const input = art.querySelector('.com-comentario-form input');
         const texto = input.value.trim();
         if (!texto) return;
 
-        const nombreGuardado = document.getElementById('com-nombre').value.trim() || 'Anónimo';
+        const nombreGuardado = document.getElementById('com-nombre').value.trim() || usuarioActual.nombre.split(' ')[0] || 'Anónimo';
         const nuevo = {
-          id:        'c_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),
-          nombre:    nombreGuardado,
+          id:       'c_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),
+          nombre:   nombreGuardado,
           texto,
-          sessionId: SESSION_ID,
-          creadoEn:  Date.now(),
+          email:    usuarioActual.email,   // ← identificador del usuario
+          creadoEn: Date.now(),
         };
 
         input.value = '';
@@ -892,7 +928,6 @@
         try {
           await updateDoc(doc(db, COL, msg.id), { comentarios: arrayUnion(nuevo) });
         } catch {
-          // offline: agregar localmente
           const m = todosMensajes.find(x => x.id === msg.id);
           if (m) { m.comentarios = [...(m.comentarios || []), nuevo]; }
           lista.appendChild(crearComentario(nuevo, msg.id));
@@ -916,7 +951,7 @@
       div.dataset.comId = c.id;
 
       const inicial = (c.nombre || 'A').charAt(0).toUpperCase();
-      const esMio   = c.sessionId === SESSION_ID;
+      const esMio   = puedeModificar(c);
       const fecha   = c.creadoEn ? formatearFecha(new Date(c.creadoEn)) : 'ahora';
 
       const editado = c.editado ? '<span class="com-com-editado">(editado)</span>' : '';
@@ -1005,7 +1040,11 @@
 
     // ── Publicar mensaje ──
     btnPublicar.addEventListener('click', async () => {
-      const nombre  = document.getElementById('com-nombre').value.trim() || 'Anónimo';
+      if (!usuarioActual) {
+        mostrarToast('⚠️ Necesitas iniciar sesión para publicar');
+        return;
+      }
+      const nombre  = document.getElementById('com-nombre').value.trim() || usuarioActual.nombre.split(' ')[0] || 'Anónimo';
       const tipo    = document.getElementById('com-tipo').value;
       const seccion = document.getElementById('com-seccion').value;
       const rating  = document.querySelector('input[name="rating"]:checked')?.value || '😄';
@@ -1024,16 +1063,17 @@
       try {
         await addDoc(collection(db, COL), {
           nombre, tipo, seccion, rating, texto,
-          likes: 0, comentarios: [], sessionId: SESSION_ID,
-          editado: false, creadoEn: serverTimestamp()
+          likes: 0, comentarios: [],
+          email:   usuarioActual.email,   // ← identificador del usuario
+          editado: false,
+          creadoEn: serverTimestamp()
         });
         textarea.value = '';
         charCount.textContent = '0';
-        document.getElementById('com-nombre').value = '';
         mostrarToast('✅ ¡Mensaje publicado! Gracias 🙌');
       } catch (err) {
         console.error(err);
-        mostrarToast('⚠️ Revisa la configuración de Firebase.');
+        mostrarToast('⚠️ Error al publicar. Revisa Firebase.');
       }
 
       btnPublicar.disabled = false;
@@ -1098,6 +1138,9 @@
     }
 
   </script>
+
+  <!-- Protección de sesión (redirige a acceso.html si no hay login) -->
+  <script src="../js/auth-guard.js"></script>
 
 </body>
 </html>

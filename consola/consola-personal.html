@@ -69,6 +69,7 @@
     .modo-btn.activo-html { background: #c44a2a; border-color: #c44a2a; color: white; box-shadow: 0 3px 10px rgba(196,74,42,.4); }
     .modo-btn.activo-js   { background: #b07010; border-color: #b07010; color: white; box-shadow: 0 3px 10px rgba(176,112,16,.4); }
     .modo-btn.activo-py   { background: #1a5fa5; border-color: #1a5fa5; color: white; box-shadow: 0 3px 10px rgba(26,95,165,.4); }
+    .modo-btn.activo-java { background: #534ab7; border-color: #534ab7; color: white; box-shadow: 0 3px 10px rgba(83,74,183,.4); }
 
     /* Panels de modo */
     .modo-panel { display: none; }
@@ -147,6 +148,173 @@
     .toast { position: fixed; bottom: 28px; right: 24px; background: var(--green); color: white; padding: 10px 18px; border-radius: 10px; font-family: var(--font-code); font-size: 12px; font-weight: 600; opacity: 0; transform: translateY(10px); transition: opacity .2s, transform .2s; z-index: 999; pointer-events: none; }
     .toast.visible { opacity: 1; transform: translateY(0); }
 
+
+    /* ── BARRA DE METADATA (título + etiqueta + notas) ── */
+    .meta-barra {
+      background: #18160f;
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 14px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .meta-barra textarea { grid-column: 1 / -1; resize: vertical; min-height: 54px; }
+    @media(max-width:600px){ .meta-barra { grid-template-columns: 1fr; } }
+
+    .meta-input {
+      background: #0f0d0a;
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 8px;
+      padding: 9px 13px;
+      font-family: var(--font-body);
+      font-size: 13px;
+      color: var(--cream);
+      outline: none;
+      width: 100%;
+      transition: border-color .15s;
+    }
+    .meta-input::placeholder { color: rgba(247,244,239,.2); }
+    .meta-input:focus { border-color: rgba(196,74,42,.45); }
+
+    /* Indicador de autoguardado */
+    .autosave-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .autosave-ind {
+      margin-left: auto;
+      font-family: var(--font-code);
+      font-size: 11px;
+      color: rgba(247,244,239,.25);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: color .4s;
+    }
+    .autosave-ind.ok  { color: #7ed490; }
+    .autosave-ind::before { content:''; width:5px; height:5px; border-radius:50%; background:currentColor; }
+
+    /* ── HISTORIAL ── */
+    .hist-wrap {
+      margin-top: 32px;
+      background: #18160f;
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .hist-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 13px 18px;
+      background: #0f0d0a;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+    .hist-topbar-left { display: flex; align-items: center; gap: 8px; }
+    .hist-titulo { font-family: var(--font-code); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-dim); }
+    .hist-count {
+      background: rgba(196,74,42,.25);
+      color: #f4a68a;
+      font-family: var(--font-code);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 10px;
+    }
+    .hist-btn-grupo { display: flex; gap: 6px; }
+    .hist-lista {
+      padding: 12px 16px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 8px;
+      max-height: 360px;
+      overflow-y: auto;
+    }
+    .hist-lista::-webkit-scrollbar { width: 4px; }
+    .hist-lista::-webkit-scrollbar-thumb { background: rgba(255,255,255,.1); border-radius: 4px; }
+    .hist-vacio {
+      grid-column: 1 / -1;
+      font-family: var(--font-code);
+      font-size: 12px;
+      color: rgba(247,244,239,.2);
+      font-style: italic;
+      text-align: center;
+      padding: 24px;
+      line-height: 1.8;
+    }
+    .hist-card {
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: 10px;
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: border-color .15s, background .15s, transform .1s;
+      position: relative;
+    }
+    .hist-card:hover { border-color: rgba(196,74,42,.4); background: rgba(196,74,42,.05); transform: translateY(-1px); }
+    .hist-card-top { display: flex; align-items: center; gap: 7px; margin-bottom: 4px; }
+    .hist-card-titulo { font-size: 13px; font-weight: 600; color: var(--cream); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .hist-card-lang {
+      font-family: var(--font-code);
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+      flex-shrink: 0;
+      letter-spacing: .06em;
+    }
+    .lang-web    { background: rgba(196,74,42,.2);  color: #f4a68a; }
+    .lang-js     { background: rgba(176,112,16,.2); color: #f0c060; }
+    .lang-python { background: rgba(26,95,165,.2);  color: #86bef5; }
+    .lang-java   { background: rgba(83,74,183,.2);  color: #b4aef5; }
+    .hist-card-meta { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; flex-wrap: wrap; }
+    .hist-card-fecha { font-family: var(--font-code); font-size: 10px; color: rgba(247,244,239,.22); }
+    .hist-card-etiqueta {
+      font-family: var(--font-code);
+      font-size: 9px;
+      background: rgba(255,255,255,.07);
+      color: rgba(247,244,239,.35);
+      padding: 1px 6px;
+      border-radius: 4px;
+    }
+    .hist-card-preview {
+      font-family: var(--font-code);
+      font-size: 10.5px;
+      color: rgba(247,244,239,.35);
+      white-space: pre;
+      overflow: hidden;
+      max-height: 34px;
+      line-height: 1.55;
+    }
+    .hist-card-notas {
+      margin-top: 6px;
+      font-size: 11px;
+      color: rgba(247,244,239,.3);
+      font-style: italic;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .hist-card-del {
+      position: absolute;
+      top: 7px; right: 8px;
+      background: none;
+      border: none;
+      color: rgba(247,244,239,.12);
+      font-size: 13px;
+      cursor: pointer;
+      padding: 2px 5px;
+      border-radius: 4px;
+      transition: color .15s, background .15s;
+      line-height: 1;
+    }
+    .hist-card-del:hover { color: #f4847a; background: rgba(244,132,122,.1); }
+
     /* Footer */
     .site-footer { text-align: center; padding: 28px 24px; border-top: 1px solid var(--border); font-family: var(--font-code); font-size: 12px; color: var(--text-dim); }
 
@@ -173,6 +341,7 @@
         <span class="badge badge-html">HTML</span>
         <span class="badge badge-css">CSS</span>
         <span class="badge badge-js">JS</span>
+        <span class="badge" style="background:rgba(83,74,183,.2);color:#b4aef5;border:1px solid rgba(83,74,183,.3);">Java</span>
       </div>
     </div>
   </header>
@@ -186,12 +355,26 @@
       </div>
     </div>
 
+
+    <!-- META: título, etiqueta, notas + autoguardado -->
+    <div class="meta-barra">
+      <input  class="meta-input" id="p-titulo"   type="text"  placeholder="Título de esta práctica (ej: Flexbox con 3 columnas)" oninput="autosave()">
+      <input  class="meta-input" id="p-etiqueta" type="text"  placeholder="Etiqueta (ej: CSS, bucles, funciones…)"               oninput="autosave()">
+      <textarea class="meta-input" id="p-notas"  placeholder="Notas o comentarios sobre esta práctica..."                         oninput="autosave()"></textarea>
+    </div>
+    <div class="autosave-row">
+      <button class="btn-secondary" onclick="guardarPractica()">💾 Guardar práctica</button>
+      <button class="btn-secondary" onclick="nuevaPractica()">＋ Nueva</button>
+      <span class="autosave-ind" id="autosave-ind">sin cambios</span>
+    </div>
+
     <!-- SELECTOR DE MODO -->
     <div class="ejemplos-label">🔧 Elige el modo</div>
     <div class="modo-selector">
       <button class="modo-btn activo-html" id="btn-modo-web"    onclick="cambiarModo('web')">🌐 Web (HTML+CSS+JS)</button>
       <button class="modo-btn"             id="btn-modo-js"     onclick="cambiarModo('js')">⚡ JavaScript</button>
       <button class="modo-btn"             id="btn-modo-python" onclick="cambiarModo('python')">🐍 Python</button>
+      <button class="modo-btn"             id="btn-modo-java"   onclick="cambiarModo('java')">☕ Java</button>
     </div>
 
     <!-- ============ MODO WEB ============ -->
@@ -199,7 +382,7 @@
       <div class="modo-subheader" style="background:rgba(196,74,42,0.08);border-color:rgba(196,74,42,0.2);">
         <p>Modo Web activo — edita HTML, CSS y JS y ve el resultado en vivo.</p>
         <div class="btn-group">
-          <button class="btn-secondary" onclick="guardarSnippet('web')">💾 Guardar snippet</button>
+          <button class="btn-secondary" onclick="guardarPractica()">💾 Guardar snippet</button>
           <button class="btn-secondary" onclick="limpiarWeb()">🗑 Limpiar</button>
           <button class="btn-run" onclick="ejecutarWeb()">▶ Ejecutar</button>
         </div>
@@ -211,7 +394,7 @@
             <span class="editor-lang-label">index.html</span>
             <span class="editor-lang-badge badge-html-e">HTML</span>
           </div>
-          <textarea class="editor-textarea" id="p-web-html" spellcheck="false" placeholder="Escribe HTML aquí..."></textarea>
+          <textarea class="editor-textarea" id="p-web-html" spellcheck="false" placeholder="Escribe HTML aquí..." oninput="autosave()"></textarea>
         </div>
         <div class="editor-panel">
           <div class="editor-topbar">
@@ -219,7 +402,7 @@
             <span class="editor-lang-label">style.css</span>
             <span class="editor-lang-badge badge-css-e">CSS</span>
           </div>
-          <textarea class="editor-textarea" id="p-web-css" spellcheck="false" placeholder="Escribe CSS aquí..."></textarea>
+          <textarea class="editor-textarea" id="p-web-css" spellcheck="false" placeholder="Escribe CSS aquí..." oninput="autosave()"></textarea>
         </div>
         <div class="editor-panel">
           <div class="editor-topbar">
@@ -227,7 +410,7 @@
             <span class="editor-lang-label">script.js</span>
             <span class="editor-lang-badge badge-js-e">JS</span>
           </div>
-          <textarea class="editor-textarea" id="p-web-js" spellcheck="false" placeholder="Escribe JavaScript aquí..."></textarea>
+          <textarea class="editor-textarea" id="p-web-js" spellcheck="false" placeholder="Escribe JavaScript aquí..." oninput="autosave()"></textarea>
         </div>
         <div class="preview-panel editor-panel editor-panel-full">
           <div class="preview-topbar">
@@ -245,7 +428,7 @@
       <div class="modo-subheader" style="background:rgba(176,112,16,0.08);border-color:rgba(176,112,16,0.25);">
         <p>Modo JavaScript — <kbd>Ctrl+Enter</kbd> para ejecutar rápido.</p>
         <div class="btn-group">
-          <button class="btn-secondary" onclick="guardarSnippet('js')">💾 Guardar snippet</button>
+          <button class="btn-secondary" onclick="guardarPractica()">💾 Guardar snippet</button>
           <button class="btn-secondary" onclick="limpiarJS()">🗑 Limpiar</button>
           <button class="btn-run" style="background:#b07010;box-shadow:0 3px 10px rgba(176,112,16,.4);" onclick="ejecutarJS()">▶ Ejecutar JS</button>
         </div>
@@ -257,7 +440,7 @@
             <span class="editor-lang-label">mi-codigo.js</span>
             <span class="editor-lang-badge badge-js-e">JavaScript</span>
           </div>
-          <textarea class="editor-textarea" id="p-js-code" spellcheck="false" style="min-height:300px;" placeholder="// Escribe tu JavaScript aquí&#10;// Ctrl+Enter para ejecutar&#10;console.log('¡Hola desde mi consola!')"></textarea>
+          <textarea class="editor-textarea" id="p-js-code" spellcheck="false" style="min-height:300px;" placeholder="// Escribe tu JavaScript aquí&#10;// Ctrl+Enter para ejecutar&#10;console.log('¡Hola desde mi consola!')" oninput="autosave()"></textarea>
         </div>
         <div class="output-panel" style="min-height:340px;">
           <div class="output-topbar">
@@ -277,7 +460,7 @@
         <p>Modo Python — ejecutado en el navegador con Pyodide.</p>
         <div class="btn-group">
           <span class="py-status cargando" id="p-py-status">⏳ Cargando...</span>
-          <button class="btn-secondary" onclick="guardarSnippet('python')">💾 Guardar snippet</button>
+          <button class="btn-secondary" onclick="guardarPractica()">💾 Guardar snippet</button>
           <button class="btn-secondary" onclick="limpiarPython()">🗑 Limpiar</button>
           <button class="btn-run" id="p-py-run" style="background:#1a5fa5;box-shadow:0 3px 10px rgba(26,95,165,.4);" onclick="ejecutarPython()" disabled>▶ Ejecutar Python</button>
         </div>
@@ -289,7 +472,7 @@
             <span class="editor-lang-label">mi-codigo.py</span>
             <span class="editor-lang-badge badge-py-e">Python</span>
           </div>
-          <textarea class="editor-textarea" id="p-py-code" spellcheck="false" style="min-height:300px;" placeholder="# Escribe Python aquí&#10;print('¡Hola desde mi consola!')"></textarea>
+          <textarea class="editor-textarea" id="p-py-code" spellcheck="false" style="min-height:300px;" placeholder="# Escribe Python aquí&#10;print('¡Hola desde mi consola!')" oninput="autosave()"></textarea>
         </div>
         <div class="output-panel" style="min-height:340px;">
           <div class="output-topbar">
@@ -303,16 +486,40 @@
       </div>
     </div>
 
-    <!-- ============ SNIPPETS ============ -->
-    <div class="notas-wrap">
-      <div class="notas-topbar">
-        <span class="notas-titulo">💾 Mis snippets guardados</span>
-        <div class="notas-btn-grupo">
-          <button class="notas-btn" onclick="limpiarTodosSnippets()">🗑 Limpiar todos</button>
+
+    <!-- ============ MODO JAVA ============ -->
+    <div class="modo-panel" id="modo-java">
+      <div class="modo-subheader" style="background:rgba(83,74,183,0.08);border-color:rgba(83,74,183,0.25);">
+        <p>Modo Java — escribe tu clase, el botón copia el código y abre <strong>OneCompiler</strong> listo para ejecutar.</p>
+        <div class="btn-group">
+          <button class="btn-secondary" onclick="guardarPractica()">💾 Guardar práctica</button>
+          <button class="btn-secondary" onclick="limpiarJava()">🗑 Limpiar</button>
+          <button class="btn-run" style="background:#534ab7;box-shadow:0 3px 10px rgba(83,74,183,.4);" onclick="abrirJava()">↗ Copiar y abrir en OneCompiler</button>
         </div>
       </div>
-      <div class="notas-lista" id="snippets-lista">
-        <span class="notas-vacia">Aún no tienes snippets guardados. Escribe código y presiona "Guardar snippet".</span>
+      <div class="editor-panel" style="min-height:340px;">
+        <div class="editor-topbar">
+          <div class="editor-dot dot-red"></div><div class="editor-dot dot-yellow"></div><div class="editor-dot dot-green"></div>
+          <span class="editor-lang-label">Main.java</span>
+          <span class="editor-lang-badge" style="background:rgba(83,74,183,.2);color:#b4aef5;">Java</span>
+        </div>
+        <textarea class="editor-textarea" id="p-java-code" spellcheck="false" style="min-height:300px;" placeholder="public class Main {&#10;    public static void main(String[] args) {&#10;        System.out.println(&quot;¡Hola desde Mi Consola!&quot;);&#10;    }&#10;}" oninput="autosave()"></textarea>
+      </div>
+    </div>
+
+    <!-- ============ HISTORIAL ============ -->
+    <div class="hist-wrap">
+      <div class="hist-topbar">
+        <div class="hist-topbar-left">
+          <span class="hist-titulo">📚 Mis prácticas guardadas</span>
+          <span class="hist-count" id="hist-count">0</span>
+        </div>
+        <div class="hist-btn-grupo">
+          <button class="notas-btn" onclick="limpiarTodoHistorial()">🗑 Borrar todo</button>
+        </div>
+      </div>
+      <div class="hist-lista" id="hist-lista">
+        <div class="hist-vacio">Aún no tienes prácticas guardadas.<br>Escribe código y presiona <strong>Guardar práctica</strong> 💾</div>
       </div>
     </div>
 
@@ -322,57 +529,66 @@
   <footer class="site-footer"><p>☕ Café &lt;/&gt; · Mi Consola Personal</p></footer>
 
   <script>
-    // ============ MODO SELECTOR ============
-    let modoActual = 'web'
-    const modoLabels = { web: '🌐', js: '⚡', python: '🐍' }
-    const modoClases = { web: 'activo-html', js: 'activo-js', python: 'activo-py' }
-    const modoIds    = { web: 'btn-modo-web', js: 'btn-modo-js', python: 'btn-modo-python' }
+    // ═══════════════════════════════════════════════════
+    //  ESTADO Y CONSTANTES
+    // ═══════════════════════════════════════════════════
+    const DRAFT_KEY = 'cafe-personal-draft'
+    const HIST_KEY  = 'cafe-personal-hist'
 
+    let modoActual    = 'web'
+    let entradaActual = null   // id de la práctica cargada
+    let autoTimer     = null
+
+    const modoLabels = { web:'🌐', js:'⚡', python:'🐍', java:'☕' }
+    const modoClases = { web:'activo-html', js:'activo-js', python:'activo-py', java:'activo-java' }
+    const modoIds    = { web:'btn-modo-web', js:'btn-modo-js', python:'btn-modo-python', java:'btn-modo-java' }
+
+    // ═══════════════════════════════════════════════════
+    //  MODO SELECTOR
+    // ═══════════════════════════════════════════════════
     function cambiarModo(modo) {
       modoActual = modo
-      // Ocultar todos los panels
       document.querySelectorAll('.modo-panel').forEach(p => p.classList.remove('visible'))
-      // Quitar clases activas de todos los botones
-      document.querySelectorAll('.modo-btn').forEach(b => {
-        b.classList.remove('activo-html', 'activo-js', 'activo-py')
-      })
-      // Mostrar panel y activar botón
+      document.querySelectorAll('.modo-btn').forEach(b => b.classList.remove('activo-html','activo-js','activo-py','activo-java'))
       document.getElementById(`modo-${modo}`).classList.add('visible')
       document.getElementById(modoIds[modo]).classList.add(modoClases[modo])
-      // Iniciar Python si es necesario
       if (modo === 'python' && !pyodide && !pyodideCargando) cargarPyodide()
+      autosave()
     }
 
-    // ============ WEB ============
+    // ═══════════════════════════════════════════════════
+    //  WEB
+    // ═══════════════════════════════════════════════════
     function ejecutarWeb() {
       const html    = document.getElementById('p-web-html').value
       const css     = document.getElementById('p-web-css').value
       const js      = document.getElementById('p-web-js').value
       const preview = document.getElementById('p-web-preview')
-      preview.innerHTML = `<style>* { box-sizing: border-box; } ${css}</style>${html}`
+      preview.innerHTML = `<style>*{box-sizing:border-box;}${css}</style>${html}`
       if (js.trim()) {
         try {
           const fakeDoc = {
-            getElementById:   id  => preview.querySelector('#' + id),
+            getElementById:   id  => preview.querySelector('#'+id),
             querySelector:    sel => preview.querySelector(sel),
             querySelectorAll: sel => preview.querySelectorAll(sel),
             createElement:    tag => document.createElement(tag),
             body: preview,
           }
-          new Function('document', 'console', js)(fakeDoc, console)
+          new Function('document','console',js)(fakeDoc, console)
         } catch(e) {
           preview.innerHTML += `<pre style="color:red;background:#fff0f0;padding:12px;border-radius:6px;font-size:13px;margin-top:12px;">${e}</pre>`
         }
       }
     }
-
     function limpiarWeb() {
       ['p-web-html','p-web-css','p-web-js'].forEach(id => document.getElementById(id).value = '')
       document.getElementById('p-web-preview').innerHTML = ''
     }
 
-    // ============ JS ============
-    function agregarLineaJS(texto, tipo = 'log') {
+    // ═══════════════════════════════════════════════════
+    //  JAVASCRIPT
+    // ═══════════════════════════════════════════════════
+    function agregarLineaJS(texto, tipo='log') {
       const out = document.getElementById('p-js-output')
       const div = document.createElement('div')
       div.className = `output-line-${tipo}`
@@ -382,33 +598,28 @@
       out.appendChild(div)
       out.scrollTop = out.scrollHeight
     }
-
     function ejecutarJS() {
       const codigo = document.getElementById('p-js-code').value
       document.getElementById('p-js-output').innerHTML = ''
-      const consolaFalsa = {
-        log:   (...args) => agregarLineaJS('▸ ' + args.map(a => typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a)).join(' '), 'log'),
-        error: (...args) => agregarLineaJS('✖ ' + args.join(' '), 'error'),
-        warn:  (...args) => agregarLineaJS('⚠ ' + args.join(' '), 'warn'),
-        info:  (...args) => agregarLineaJS('ℹ ' + args.join(' '), 'info'),
+      const fakeConsole = {
+        log:   (...a) => agregarLineaJS('▸ ' + a.map(x => typeof x==='object'?JSON.stringify(x,null,2):String(x)).join(' '), 'log'),
+        error: (...a) => agregarLineaJS('✖ ' + a.join(' '), 'error'),
+        warn:  (...a) => agregarLineaJS('⚠ ' + a.join(' '), 'warn'),
+        info:  (...a) => agregarLineaJS('ℹ ' + a.join(' '), 'info'),
       }
       try {
-        new Function('console', codigo)(consolaFalsa)
+        new Function('console', codigo)(fakeConsole)
         agregarLineaJS('✓ Ejecución completada', 'ok')
       } catch(e) {
         agregarLineaJS('✖ Error: ' + e.message, 'error')
       }
     }
+    function limpiarOutputJS() { document.getElementById('p-js-output').innerHTML = '<span class="output-empty">// La salida aparecerá aquí...</span>' }
+    function limpiarJS() { document.getElementById('p-js-code').value = ''; limpiarOutputJS() }
 
-    function limpiarOutputJS() {
-      document.getElementById('p-js-output').innerHTML = '<span class="output-empty">// La salida aparecerá aquí...</span>'
-    }
-    function limpiarJS() {
-      document.getElementById('p-js-code').value = ''
-      limpiarOutputJS()
-    }
-
-    // ============ PYTHON ============
+    // ═══════════════════════════════════════════════════
+    //  PYTHON (Pyodide)
+    // ═══════════════════════════════════════════════════
     let pyodide = null, pyodideCargando = false
 
     async function cargarPyodide() {
@@ -417,29 +628,25 @@
       const statusEl = document.getElementById('p-py-status')
       const runBtn   = document.getElementById('p-py-run')
       try {
-        statusEl.className = 'py-status cargando'
-        statusEl.textContent = '⏳ Cargando Python...'
+        statusEl.className = 'py-status cargando'; statusEl.textContent = '⏳ Cargando Python...'
         const script = document.createElement('script')
         script.src = 'https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js'
         document.head.appendChild(script)
-        await new Promise((res, rej) => { script.onload = res; script.onerror = rej })
-        pyodide = await loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.25.1/full/' })
-        statusEl.className = 'py-status listo'
-        statusEl.textContent = '✓ Python listo'
+        await new Promise((res,rej) => { script.onload=res; script.onerror=rej })
+        pyodide = await loadPyodide({ indexURL:'https://cdn.jsdelivr.net/pyodide/v0.25.1/full/' })
+        statusEl.className = 'py-status listo'; statusEl.textContent = '✓ Python listo'
         runBtn.disabled = false
         document.getElementById('p-py-output').innerHTML = '<span class="output-empty">// Python listo. Escribe código y ejecuta...</span>'
       } catch(e) {
-        statusEl.className = 'py-status error-py'
-        statusEl.textContent = '✗ Error al cargar'
-        runBtn.disabled = false
-        runBtn.style.background = '#534ab7'
+        statusEl.className = 'py-status error-py'; statusEl.textContent = '✗ Error al cargar'
+        runBtn.disabled = false; runBtn.style.background = '#534ab7'
         runBtn.textContent = '↗ Abrir online'
         runBtn.onclick = () => window.open('https://www.online-python.com/', '_blank')
       }
       pyodideCargando = false
     }
 
-    function agregarLineaPy(texto, tipo = 'log') {
+    function agregarLineaPy(texto, tipo='log') {
       const out = document.getElementById('p-py-output')
       const div = document.createElement('div')
       div.className = `output-line-${tipo}`
@@ -449,139 +656,226 @@
       out.appendChild(div)
       out.scrollTop = out.scrollHeight
     }
-
     async function ejecutarPython() {
       if (!pyodide) { alert('Python aún no ha cargado. Espera un momento.'); return }
       const codigo = document.getElementById('p-py-code').value.trim()
       if (!codigo) { alert('El editor está vacío.'); return }
       document.getElementById('p-py-output').innerHTML = ''
       let salida = []
-      pyodide.setStdout({ batched: s => salida.push({ t: 'log', v: s }) })
-      pyodide.setStderr({ batched: s => salida.push({ t: 'error', v: s }) })
+      pyodide.setStdout({ batched: s => salida.push({t:'log',v:s}) })
+      pyodide.setStderr({ batched: s => salida.push({t:'error',v:s}) })
       try {
         await pyodide.runPythonAsync(codigo)
-        if (salida.length === 0) agregarLineaPy('(sin salida — usa print())', 'warn')
+        if (!salida.length) agregarLineaPy('(sin salida — usa print())', 'warn')
         else {
-          salida.forEach(({ t, v }) => agregarLineaPy((t === 'error' ? '✖ ' : '▸ ') + v, t))
+          salida.forEach(({t,v}) => agregarLineaPy((t==='error'?'✖ ':'▸ ')+v, t))
           agregarLineaPy('✓ Ejecución completada', 'ok')
         }
       } catch(e) {
-        e.message.split('\n').forEach(l => { if (l.trim()) agregarLineaPy('✖ ' + l, 'error') })
+        e.message.split('\n').forEach(l => { if(l.trim()) agregarLineaPy('✖ '+l,'error') })
       }
     }
+    function limpiarOutputPython() { document.getElementById('p-py-output').innerHTML = '<span class="output-empty">// La salida aparecerá aquí...</span>' }
+    function limpiarPython() { document.getElementById('p-py-code').value=''; limpiarOutputPython() }
 
-    function limpiarOutputPython() {
-      document.getElementById('p-py-output').innerHTML = '<span class="output-empty">// La salida aparecerá aquí...</span>'
+    // ═══════════════════════════════════════════════════
+    //  JAVA
+    // ═══════════════════════════════════════════════════
+    function abrirJava() {
+      const codigo = document.getElementById('p-java-code').value.trim()
+      if (!codigo) { alert('Escribe código Java primero.'); return }
+      navigator.clipboard.writeText(codigo).catch(()=>{})
+      window.open('https://onecompiler.com/java', '_blank')
+      mostrarToast('✓ Código copiado — pégalo en OneCompiler')
     }
-    function limpiarPython() {
-      document.getElementById('p-py-code').value = ''
-      limpiarOutputPython()
-    }
+    function limpiarJava() { document.getElementById('p-java-code').value = '' }
 
-    // ============ Ctrl+Enter ============
+    // ═══════════════════════════════════════════════════
+    //  Ctrl+Enter para ejecutar
+    // ═══════════════════════════════════════════════════
     document.addEventListener('keydown', e => {
-      if (!(e.ctrlKey || e.metaKey) || e.key !== 'Enter') return
-      if (modoActual === 'js')     ejecutarJS()
-      else if (modoActual === 'python') ejecutarPython()
-      else if (modoActual === 'web')    ejecutarWeb()
+      if (!(e.ctrlKey||e.metaKey) || e.key!=='Enter') return
+      if (modoActual==='js')     ejecutarJS()
+      else if (modoActual==='python') ejecutarPython()
+      else if (modoActual==='web')    ejecutarWeb()
     })
 
-    // ============ SNIPPETS ============
-    function getSnippets() {
-      try { return JSON.parse(localStorage.getItem('cafe-snippets') || '[]') } catch { return [] }
-    }
-    function saveSnippets(s) { localStorage.setItem('cafe-snippets', JSON.stringify(s)) }
-
-    function guardarSnippet(modo) {
-      let codigo = ''
-      if (modo === 'web') {
-        const h = document.getElementById('p-web-html').value
-        const c = document.getElementById('p-web-css').value
-        const j = document.getElementById('p-web-js').value
-        codigo = `/* HTML */\n${h}\n\n/* CSS */\n${c}\n\n/* JS */\n${j}`
-      } else if (modo === 'js') {
-        codigo = document.getElementById('p-js-code').value
-      } else if (modo === 'python') {
-        codigo = document.getElementById('p-py-code').value
+    // ═══════════════════════════════════════════════════
+    //  LEER / RELLENAR CAMPOS
+    // ═══════════════════════════════════════════════════
+    function leerCampos() {
+      return {
+        modo:     modoActual,
+        titulo:   document.getElementById('p-titulo').value,
+        etiqueta: document.getElementById('p-etiqueta').value,
+        notas:    document.getElementById('p-notas').value,
+        webHtml:  document.getElementById('p-web-html').value,
+        webCss:   document.getElementById('p-web-css').value,
+        webJs:    document.getElementById('p-web-js').value,
+        jsCode:   document.getElementById('p-js-code').value,
+        pyCode:   document.getElementById('p-py-code').value,
+        javaCode: document.getElementById('p-java-code').value,
       }
-      if (!codigo.trim()) { mostrarToast('⚠ El editor está vacío'); return }
-
-      const snippets = getSnippets()
-      const preview  = codigo.split('\n').find(l => l.trim()) || 'Sin nombre'
-      snippets.unshift({
-        id: Date.now(),
-        modo,
-        preview: preview.slice(0, 60),
-        codigo,
-        fecha: new Date().toLocaleDateString('es-MX', { day: '2-digit', month: 'short' })
-      })
-      saveSnippets(snippets.slice(0, 30))
-      renderSnippets()
-      mostrarToast('✓ Snippet guardado')
+    }
+    function rellenarCampos(d) {
+      document.getElementById('p-titulo').value    = d.titulo   || ''
+      document.getElementById('p-etiqueta').value  = d.etiqueta || ''
+      document.getElementById('p-notas').value     = d.notas    || ''
+      document.getElementById('p-web-html').value  = d.webHtml  || ''
+      document.getElementById('p-web-css').value   = d.webCss   || ''
+      document.getElementById('p-web-js').value    = d.webJs    || ''
+      document.getElementById('p-js-code').value   = d.jsCode   || ''
+      document.getElementById('p-py-code').value   = d.pyCode   || ''
+      document.getElementById('p-java-code').value = d.javaCode || ''
     }
 
-    function cargarSnippet(id) {
-      const s = getSnippets().find(x => x.id === id)
-      if (!s) return
-      cambiarModo(s.modo)
-      if (s.modo === 'js') {
-        document.getElementById('p-js-code').value = s.codigo
-      } else if (s.modo === 'python') {
-        document.getElementById('p-py-code').value = s.codigo
-      } else if (s.modo === 'web') {
-        const partes = s.codigo.split(/\/\* (HTML|CSS|JS) \*\/\n/)
-        if (partes.length >= 7) {
-          document.getElementById('p-web-html').value = partes[2] || ''
-          document.getElementById('p-web-css').value  = partes[4] || ''
-          document.getElementById('p-web-js').value   = partes[6] || ''
-        } else {
-          document.getElementById('p-web-html').value = s.codigo
-        }
+    // ═══════════════════════════════════════════════════
+    //  AUTOGUARDADO (borrador)
+    // ═══════════════════════════════════════════════════
+    function autosave() {
+      clearTimeout(autoTimer)
+      setInd('modificado…')
+      autoTimer = setTimeout(() => {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(leerCampos()))
+        setInd('autoguardado ✓', true)
+        setTimeout(() => setInd('sin cambios'), 2200)
+      }, 900)
+    }
+    function setInd(txt, ok) {
+      const el = document.getElementById('autosave-ind')
+      el.textContent = txt
+      el.className = 'autosave-ind' + (ok ? ' ok' : '')
+    }
+
+    // ═══════════════════════════════════════════════════
+    //  HISTORIAL
+    // ═══════════════════════════════════════════════════
+    function getHist() { try { return JSON.parse(localStorage.getItem(HIST_KEY)) || [] } catch { return [] } }
+    function setHist(h) { localStorage.setItem(HIST_KEY, JSON.stringify(h)) }
+
+    function guardarPractica() {
+      const d = leerCampos()
+      const codigoPpal = d.modo==='web' ? (d.webHtml||d.webCss||d.webJs)
+                       : d.modo==='js'  ? d.jsCode
+                       : d.modo==='python' ? d.pyCode : d.javaCode
+      if (!codigoPpal && !d.titulo) { mostrarToast('⚠ Escribe algo antes de guardar'); return }
+
+      const hist = getHist()
+      const entrada = {
+        id:       entradaActual || ('p-' + Date.now()),
+        modo:     d.modo,
+        titulo:   d.titulo || ('Práctica ' + new Date().toLocaleDateString('es-MX')),
+        etiqueta: d.etiqueta,
+        notas:    d.notas,
+        webHtml:  d.webHtml, webCss: d.webCss, webJs: d.webJs,
+        jsCode:   d.jsCode,
+        pyCode:   d.pyCode,
+        javaCode: d.javaCode,
+        fecha:    new Date().toLocaleString('es-MX', {dateStyle:'short', timeStyle:'short'}),
+        ts:       Date.now(),
       }
-      mostrarToast('✓ Snippet cargado')
+      const idx = hist.findIndex(e => e.id === entrada.id)
+      if (idx >= 0) hist[idx] = entrada
+      else hist.unshift(entrada)
+      setHist(hist)
+      entradaActual = entrada.id
+      renderHist()
+      mostrarToast('✓ Práctica guardada')
+      setInd('guardada ✓', true)
+      setTimeout(() => setInd('sin cambios'), 2500)
     }
 
-    function borrarSnippet(id, e) {
-      e.stopPropagation()
-      saveSnippets(getSnippets().filter(x => x.id !== id))
-      renderSnippets()
+    function cargarEntrada(id) {
+      const e = getHist().find(x => x.id === id)
+      if (!e) return
+      entradaActual = id
+      cambiarModo(e.modo)
+      rellenarCampos(e)
+      if (e.modo==='web') setTimeout(ejecutarWeb, 50)
+      mostrarToast('✓ Práctica cargada')
+      window.scrollTo({top:0, behavior:'smooth'})
     }
 
-    function limpiarTodosSnippets() {
-      if (!confirm('¿Borrar todos los snippets guardados?')) return
-      saveSnippets([])
-      renderSnippets()
-      mostrarToast('🗑 Snippets eliminados')
+    function eliminarEntrada(id, ev) {
+      ev.stopPropagation()
+      if (!confirm('¿Eliminar esta práctica?')) return
+      setHist(getHist().filter(e => e.id !== id))
+      if (entradaActual === id) entradaActual = null
+      renderHist()
+      mostrarToast('🗑 Práctica eliminada')
     }
 
-    function renderSnippets() {
-      const lista    = document.getElementById('snippets-lista')
-      const snippets = getSnippets()
-      if (!snippets.length) {
-        lista.innerHTML = '<span class="notas-vacia">Aún no tienes snippets guardados. Escribe código y presiona "Guardar snippet".</span>'
+    function limpiarTodoHistorial() {
+      if (!confirm('¿Borrar todo el historial? No se puede deshacer.')) return
+      setHist([]); entradaActual = null
+      renderHist(); mostrarToast('🗑 Historial borrado')
+    }
+
+    function nuevaPractica() {
+      entradaActual = null
+      rellenarCampos({})
+      cambiarModo('web')
+      document.getElementById('p-web-preview').innerHTML = ''
+      limpiarOutputJS(); limpiarOutputPython()
+      setInd('nueva práctica')
+      mostrarToast('＋ Nueva práctica lista')
+    }
+
+    function renderHist() {
+      const hist  = getHist()
+      const lista = document.getElementById('hist-lista')
+      const count = document.getElementById('hist-count')
+      count.textContent = hist.length
+
+      if (!hist.length) {
+        lista.innerHTML = '<div class="hist-vacio">Aún no tienes prácticas guardadas.<br>Escribe código y presiona <strong>Guardar práctica</strong> 💾</div>'
         return
       }
-      lista.innerHTML = snippets.map(s => `
-        <div class="nota-item" onclick="cargarSnippet(${s.id})">
-          <span class="nota-item-modo">${modoLabels[s.modo] || '📄'}</span>
-          <span class="nota-item-texto">${s.preview}</span>
-          <span class="nota-item-fecha">${s.fecha}</span>
-          <span class="nota-item-del" onclick="borrarSnippet(${s.id}, event)" title="Eliminar">✕</span>
-        </div>
-      `).join('')
+      lista.innerHTML = hist.map(e => {
+        const codigo = e.modo==='web'?(e.webHtml||e.webCss||''):e.modo==='js'?(e.jsCode||''):e.modo==='python'?(e.pyCode||''):(e.javaCode||'')
+        const prev   = codigo.trim().split('\n').slice(0,3).join('\n')
+        const etq    = e.etiqueta ? `<span class="hist-card-etiqueta">${e.etiqueta}</span>` : ''
+        const notas  = e.notas ? `<div class="hist-card-notas">📝 ${e.notas}</div>` : ''
+        return `<div class="hist-card" onclick="cargarEntrada('${e.id}')">
+          <button class="hist-card-del" onclick="eliminarEntrada('${e.id}',event)" title="Eliminar">✕</button>
+          <div class="hist-card-top">
+            <span class="hist-card-titulo">${e.titulo}</span>
+            <span class="hist-card-lang lang-${e.modo}">${e.modo.toUpperCase()}</span>
+          </div>
+          <div class="hist-card-meta">
+            <span class="hist-card-fecha">${e.fecha}</span>${etq}
+          </div>
+          ${prev ? `<div class="hist-card-preview">${prev.replace(/</g,'&lt;')}</div>` : ''}
+          ${notas}
+        </div>`
+      }).join('')
     }
 
-    // ============ TOAST ============
+    // ═══════════════════════════════════════════════════
+    //  MODO JAVA en activo-java CSS
+    // ═══════════════════════════════════════════════════
+
+    // ═══════════════════════════════════════════════════
+    //  TOAST
+    // ═══════════════════════════════════════════════════
     function mostrarToast(msg) {
       const t = document.getElementById('toast')
-      t.textContent = msg
-      t.classList.add('visible')
-      clearTimeout(t._timer)
-      t._timer = setTimeout(() => t.classList.remove('visible'), 2200)
+      t.textContent = msg; t.classList.add('visible')
+      clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('visible'), 2200)
     }
 
-    // ============ INIT ============
-    renderSnippets()
+    // ═══════════════════════════════════════════════════
+    //  INIT
+    // ═══════════════════════════════════════════════════
+    ;(function init() {
+      // Restaurar borrador
+      try {
+        const draft = JSON.parse(localStorage.getItem(DRAFT_KEY))
+        if (draft) { rellenarCampos(draft); if (draft.modo) cambiarModo(draft.modo) }
+      } catch {}
+      renderHist()
+    })()
+
   </script>
 
 </body>

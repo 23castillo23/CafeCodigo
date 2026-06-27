@@ -190,6 +190,14 @@ function construirBiblioteca() {
   const contenedor = document.getElementById('temasContainer')
   if (!contenedor) return
 
+  const THUMB = {
+    html: { bg: 'linear-gradient(135deg,#1a0f1a 60%,#2a1230)', badge: 'background:rgba(230,80,80,0.2);color:#f4a0a0;border:1px solid rgba(230,80,80,0.3)' },
+    css:  { bg: 'linear-gradient(135deg,#0a1820 60%,#0e2030)', badge: 'background:rgba(40,140,220,0.2);color:#80c8f0;border:1px solid rgba(40,140,220,0.3)' },
+    js:   { bg: 'linear-gradient(135deg,#1a1a08 60%,#282810)', badge: 'background:rgba(200,180,40,0.2);color:#e8d870;border:1px solid rgba(200,180,40,0.3)' },
+    gen:  { bg: 'linear-gradient(135deg,#0e180e 60%,#122012)', badge: 'background:rgba(40,180,80,0.2);color:#80e0a0;border:1px solid rgba(40,180,80,0.3)' },
+  }
+  const BADGE_LABEL = { html: 'HTML', css: 'CSS', js: 'JS', gen: 'INTRO' }
+
   TEMAS.forEach(tema => {
     const bloque = document.createElement('div')
     bloque.className = `tema-bloque ${tema.bloqueado ? 'tema-bloqueado' : ''}`
@@ -207,44 +215,48 @@ function construirBiblioteca() {
         </div>
         ${!tema.bloqueado ? `<p class="tema-progreso">${disponibles}/${total} disponibles</p>` : ''}
       </div>
-      <div class="caps-grid" id="grid-${tema.id}"></div>
+      <div class="misguias-grid" id="grid-${tema.id}"></div>
     `
     contenedor.appendChild(bloque)
 
-    // Llenar el grid de este tema
     const grid = document.getElementById(`grid-${tema.id}`)
+
     tema.capitulos.forEach(cap => {
-      const card = document.createElement('a')
+      const paleta = THUMB[cap.lang] || THUMB.gen
+      const label  = BADGE_LABEL[cap.lang] || cap.lang.toUpperCase()
+      const pills  = cap.lecciones.map(l => `<span class="misguias-stat">${l}</span>`).join('')
 
-      // El cap00 usa 'gen' como lang — asignamos clase css especial
-      const langClass = cap.lang === 'gen' ? 'gen' : cap.lang
-      card.className = `cap-card ${langClass} ${cap.bloqueado ? 'bloqueada' : ''}`
-      card.href = cap.bloqueado ? '#' : cap.archivo
-
-      // Estilo borde hover para cap gen
-      if (cap.lang === 'gen' && !cap.bloqueado) {
-        card.style.setProperty('--hover-border', 'var(--gen)')
-      }
-
-      const pills = cap.lecciones
-        .map(l => `<span class="leccion-pill">${l}</span>`)
-        .join('')
-
-      // Badge especial para cap gen
-      const badgeHtml = cap.lang === 'gen'
-        ? `<span class="badge" style="background:var(--gen-bg);color:var(--gen);border:1px solid var(--gen-border);">INTRO</span>`
-        : `<span class="badge badge-${cap.lang}">${cap.lang.toUpperCase()}</span>`
+      const card = document.createElement(cap.bloqueado ? 'div' : 'a')
+      card.className = 'misguias-card-main'
+      if (!cap.bloqueado) card.href = cap.archivo
+      if (cap.bloqueado) card.style.cssText = 'opacity:0.5;pointer-events:none;cursor:default;'
 
       card.innerHTML = `
-        <div class="cap-card-num">${cap.numero}</div>
-        ${badgeHtml}
-        <h4 class="cap-card-titulo">${cap.titulo}</h4>
-        <p class="cap-card-desc">${cap.desc}</p>
-        <div class="cap-card-lecciones">${pills}</div>
-        ${cap.bloqueado ? '<span class="cap-card-lock">🔒</span>' : ''}
+        <div class="misguias-card-thumb" style="background:${paleta.bg};">
+          <div style="font-family:var(--font-code);font-size:1.5rem;font-weight:700;color:rgba(255,255,255,0.4);line-height:1;">${cap.numero}</div>
+          <span class="misguias-card-badge" style="${paleta.badge};">${cap.bloqueado ? '🔒 BLOQUEADO' : label}</span>
+        </div>
+        <div class="misguias-card-body">
+          <h3 class="misguias-card-titulo">${cap.titulo}</h3>
+          <p class="misguias-card-desc">${cap.desc}</p>
+          <div class="misguias-card-stats">${pills}</div>
+        </div>
+        ${!cap.bloqueado ? `<div class="misguias-card-cta"><span>Ver capítulo</span><div class="arrow">→</div></div>` : ''}
       `
       grid.appendChild(card)
     })
+
+    // Card "próximo capítulo" al final del último tema
+    if (TEMAS.indexOf(tema) === TEMAS.length - 1 && !tema.bloqueado) {
+      const soon = document.createElement('div')
+      soon.className = 'misguias-card-soon'
+      soon.innerHTML = `
+        <div class="misguias-card-soon-icon">➕</div>
+        <h4>Próximo capítulo</h4>
+        <p>Agrega un nuevo objeto en <code>TEMAS</code> dentro de <code>script.js</code> y aparece aquí automáticamente.</p>
+      `
+      grid.appendChild(soon)
+    }
   })
 }
 

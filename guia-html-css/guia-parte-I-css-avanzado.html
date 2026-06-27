@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía HTML & CSS — Parte I: CSS Avanzado</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #c44a2a;
+    --primary-light:  #fdf0ec;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1a1814;
+    --code-text:      #e8e4de;
+    /* Variables del sistema de diseño — usadas a lo largo de la guía */
+    --radius-sm:      6px;
+    --radius-md:      10px;
+    --radius-lg:      16px;
+    --shadow-sm:      0 1px 3px rgba(0,0,0,.08);
+    --shadow-md:      0 4px 16px rgba(0,0,0,.10);
+    --shadow-lg:      0 12px 40px rgba(0,0,0,.15);
+  }
+
+  body { font-family: 'DM Sans', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  header { background: #1a1814; color: #f7f4ef; padding: 3rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: '</>'; position: absolute; font-size: 14rem; font-weight: 900; color: rgba(255,255,255,0.05); right: -2rem; top: -3rem; font-family: monospace; line-height: 1; }
+  header h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; }
+  header p  { font-size: 1.1rem; opacity: .85; margin-top: .5rem; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  .partes-nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 45px; z-index: 110; display: flex; align-items: center; height: 38px; padding: 0 1rem; }
+  .partes-nav-prev, .partes-nav-next { flex-shrink: 0; display: flex; align-items: center; padding: 0 .75rem; height: 100%; text-decoration: none; color: var(--muted); font-size: .78rem; font-weight: 500; border-right: 1px solid var(--border); transition: color .15s; white-space: nowrap; }
+  .partes-nav-next { border-right: none; border-left: 1px solid var(--border); }
+  .partes-nav-prev:hover, .partes-nav-next:hover { color: var(--primary); }
+  .partes-nav-list { flex: 1; display: flex; align-items: center; justify-content: center; gap: .15rem; overflow-x: auto; padding: 0 .5rem; }
+  .partes-nav-list::-webkit-scrollbar { display: none; }
+  .partes-nav-list a { flex-shrink: 0; padding: 2px 9px; border-radius: 20px; text-decoration: none; font-size: .73rem; font-weight: 600; color: var(--muted); transition: color .15s, background .15s; }
+  .partes-nav-list a:hover { color: var(--text); background: var(--bg); }
+  .partes-nav-list a.activa { background: var(--primary-light); color: var(--primary); }
+
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 83px; z-index: 100; display: flex; overflow-x: auto; }
+  nav a { flex-shrink: 0; padding: .75rem 1.1rem; text-decoration: none; color: var(--muted); font-size: .82rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2.5rem; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-size: 1.35rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  .analogy { background: #FFF7ED; border: 1px solid #FDE68A; border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: #92400E; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p  { font-size: .95rem; color: #78350F; }
+
+  .concept { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p  { font-size: .95rem; }
+
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p  { font-size: .95rem; }
+  .tip ul { font-size: .95rem; padding-left: 1.2rem; }
+
+  .warn { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p  { font-size: .95rem; }
+
+  .anatomy { background: #F0F4FF; border: 1px solid #C7D2FE; border-radius: 12px; padding: 1.5rem; font-family: monospace; font-size: .98rem; line-height: 2.6; margin: 1.25rem 0; }
+  .anatomy .br  { color: var(--primary); font-weight: 700; }
+  .anatomy .at  { color: #0891B2; }
+  .anatomy .vl  { color: #059669; }
+  .anatomy .lb  { display: inline-block; background: var(--primary);   color: #fff; font-size: .68rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 6px; }
+  .anatomy .lb2 { display: inline-block; background: var(--accent);    color: #fff; font-size: .68rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 6px; }
+  .anatomy .lb3 { display: inline-block; background: var(--secondary); color: #fff; font-size: .68rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 6px; }
+
+  .code-block { background: var(--code-bg); color: var(--code-text); border-radius: 10px; padding: 1.25rem 1.5rem; font-family: 'Courier New', monospace; font-size: .88rem; line-height: 1.85; overflow-x: auto; margin: 1rem 0; position: relative; white-space: pre; }
+  .code-block .ct { color: #89B4FA; }
+  .code-block .ca { color: #CBA6F7; }
+  .code-block .cv { color: #A6E3A1; }
+  .code-block .cs { color: #F9E2AF; }
+  .code-block .cp { color: #89DCEB; }
+  .code-block .cc { color: #585B70; font-style: italic; }
+  .code-block .cn { color: #FAB387; }
+  .lang { position: absolute; top: .6rem; right: .75rem; background: rgba(255,255,255,.1); color: rgba(255,255,255,.5); font-size: .68rem; padding: 2px 8px; border-radius: 4px; font-family: sans-serif; }
+
+  .preview { border: 2px dashed var(--border); border-radius: 10px; padding: 1.5rem; margin: 1rem 0; background: var(--surface); position: relative; }
+  .preview::before { content: '🖥 Vista en navegador'; position: absolute; top: -11px; left: 14px; background: var(--surface); font-size: .73rem; color: var(--muted); padding: 0 6px; font-family: sans-serif; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  .ex { background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 12px; padding: 1.5rem; margin: 1.5rem 0; }
+  .ex-hd { display: flex; align-items: center; gap: .75rem; margin-bottom: 1rem; font-weight: 700; font-size: 1rem; color: #78350F; flex-wrap: wrap; }
+  .ex-badge { background: var(--accent); color: #fff; font-size: .68rem; padding: 2px 9px; border-radius: 20px; font-weight: 700; text-transform: uppercase; }
+  .ex ol { padding-left: 1.4rem; }
+  .ex ol li { margin-bottom: .6rem; font-size: .95rem; }
+  .ex p { font-size: .95rem; margin-bottom: .6rem; }
+
+  h2 { font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; }
+  h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 .5rem; }
+  p  { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: #f0ece6; color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  strong { font-weight: 700; }
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: white; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+  .demo-label { font-size: .72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: .35rem; margin-top: .85rem; }
+
+  /* ══════════════════════════════════
+     DEMOS DE FILTER
+  ══════════════════════════════════ */
+  .filter-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: .75rem; margin: .75rem 0; }
+  .filter-box { border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+  .filter-img {
+    width: 100%; height: 90px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 50%, var(--secondary) 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2rem; transition: filter .3s;
+  }
+  .filter-label { font-size: .68rem; font-weight: 700; color: var(--muted); text-align: center; padding: .3rem .5rem; background: var(--bg); }
+
+  .f-none       { filter: none; }
+  .f-blur       { filter: blur(4px); }
+  .f-bright     { filter: brightness(1.6); }
+  .f-contrast   { filter: contrast(2); }
+  .f-grayscale  { filter: grayscale(1); }
+  .f-sepia      { filter: sepia(1); }
+  .f-hue        { filter: hue-rotate(120deg); }
+  .f-saturate   { filter: saturate(3); }
+  .f-invert     { filter: invert(1); }
+  .f-drop       { filter: drop-shadow(4px 4px 8px rgba(0,0,0,.4)); }
+
+  /* Hover filter */
+  .hover-filter-box {
+    width: 100%; height: 120px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border-radius: 10px; display: flex; align-items: center; justify-content: center;
+    font-size: 2.5rem; transition: filter .3s; cursor: pointer;
+    filter: grayscale(1) brightness(.8);
+  }
+  .hover-filter-box:hover { filter: grayscale(0) brightness(1.1); }
+
+  /* Backdrop filter */
+  .backdrop-scene {
+    position: relative; border-radius: 12px; overflow: hidden;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 40%, var(--secondary) 100%);
+    padding: 2rem; min-height: 140px; display: flex; align-items: center; justify-content: center;
+  }
+  .backdrop-card {
+    background: rgba(255,255,255,.15);
+    backdrop-filter: blur(12px) saturate(1.5);
+    -webkit-backdrop-filter: blur(12px) saturate(1.5);
+    border: 1px solid rgba(255,255,255,.3);
+    border-radius: 12px; padding: 1rem 1.5rem; color: white; text-align: center; position: relative; z-index: 1;
+  }
+  .backdrop-card h3 { font-size: 1rem; margin-bottom: .3rem; }
+  .backdrop-card p  { font-size: .85rem; opacity: .85; }
+
+  /* ══════════════════════════════════
+     DEMOS DE TRANSFORM
+  ══════════════════════════════════ */
+  .transform-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin: .75rem 0; }
+  .tr-box {
+    background: var(--primary-light); border: 1px solid var(--border); border-radius: 10px;
+    padding: 1rem; text-align: center; transition: transform .3s; cursor: pointer;
+  }
+  .tr-box .tr-icon { font-size: 1.8rem; margin-bottom: .3rem; display: block; }
+  .tr-box .tr-name { font-size: .72rem; font-weight: 700; color: var(--primary); font-family: monospace; }
+  .tr-box .tr-val  { font-size: .68rem; color: var(--muted); }
+
+  .tr-rotate:hover    { transform: rotate(30deg); }
+  .tr-scale:hover     { transform: scale(1.3); }
+  .tr-skew:hover      { transform: skewX(15deg); }
+  .tr-translate:hover { transform: translate(10px, -10px); }
+  .tr-multiple:hover  { transform: rotate(10deg) scale(1.1) translateY(-5px); }
+
+  /* 3D */
+  .scene-3d {
+    perspective: 600px;
+    display: flex; justify-content: center; padding: 2rem;
+    background: var(--bg); border-radius: 10px; border: 1px solid var(--border);
+    margin: .75rem 0;
+  }
+  .card-3d {
+    width: 120px; height: 80px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    border-radius: 10px; display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 700; font-size: .9rem;
+    transition: transform .6s ease; cursor: pointer;
+    transform-style: preserve-3d;
+  }
+  .card-3d:hover { transform: rotateY(35deg) rotateX(15deg); }
+
+  /* ══════════════════════════════════
+     DEMOS DE VARIABLES CSS
+  ══════════════════════════════════ */
+  .var-theme-demo { padding: 1.25rem; border-radius: 10px; border: 1px solid var(--border); margin: .75rem 0; }
+  .var-theme-demo.dark-theme {
+    --bg-card: #1a1814; --text-card: #f7f4ef; --border-card: #333;
+    --btn-bg: var(--primary); --btn-text: white;
+    background: #0f0f0f; color: #f0ece6;
+  }
+  .var-theme-demo.light-theme {
+    --bg-card: white; --text-card: #1a1814; --border-card: #e8e4de;
+    --btn-bg: var(--primary); --btn-text: white;
+    background: #f7f4ef; color: #1a1814;
+  }
+
+  /* ══════════════════════════════════
+     DEMOS DE CALC, CLAMP, MIN, MAX
+  ══════════════════════════════════ */
+  .clamp-title { font-size: clamp(1rem, 4vw, 2rem); font-weight: 800; color: var(--primary); }
+  .calc-demo { width: calc(100% - 40px); background: var(--primary); height: 8px; border-radius: 4px; margin: .5rem 0; }
+
+  /* ══════════════════════════════════
+     SCROLL SNAP DEMO
+  ══════════════════════════════════ */
+  .snap-container {
+    display: flex; overflow-x: scroll; gap: .75rem;
+    scroll-snap-type: x mandatory;
+    padding: .5rem; scroll-behavior: smooth;
+    border: 1px solid var(--border); border-radius: 10px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .snap-container::-webkit-scrollbar { height: 4px; }
+  .snap-container::-webkit-scrollbar-track { background: var(--bg); }
+  .snap-container::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 2px; }
+  .snap-item {
+    flex-shrink: 0; width: 220px; height: 110px;
+    scroll-snap-align: start;
+    border-radius: 10px; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: .3rem;
+    font-weight: 700; font-size: .88rem; color: white;
+  }
+  .si-1 { background: var(--primary); }
+  .si-2 { background: var(--secondary); }
+  .si-3 { background: var(--accent); }
+  .si-4 { background: #7C3AED; }
+  .si-5 { background: #0891B2; }
+
+  /* ══════════════════════════════════
+     ASPECT RATIO
+  ══════════════════════════════════ */
+  .ar-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: .75rem; margin: .75rem 0; }
+  .ar-box {
+    background: var(--primary-light); border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .78rem; font-weight: 700; color: var(--primary); border: 1px solid var(--border);
+  }
+  .ar-16-9   { aspect-ratio: 16/9; }
+  .ar-4-3    { aspect-ratio: 4/3; }
+  .ar-1-1    { aspect-ratio: 1/1; background: var(--secondary-light); color: var(--secondary); }
+  .ar-9-16   { aspect-ratio: 9/16; background: var(--accent-light); color: var(--accent); }
+
+  /* ══════════════════════════════════
+     CUSTOM PROPERTIES AVANZADAS
+  ══════════════════════════════════ */
+  .design-tokens {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: .5rem; margin: .75rem 0;
+  }
+  .dt-box { border-radius: 8px; padding: .75rem .5rem; text-align: center; }
+  .dt-box .dt-color { width: 32px; height: 32px; border-radius: 50%; margin: 0 auto .35rem; border: 2px solid rgba(0,0,0,.1); }
+  .dt-box .dt-name  { font-size: .65rem; color: var(--muted); font-family: monospace; }
+
+  /* ══════════════════════════════════
+     UNIDADES MODERNAS
+  ══════════════════════════════════ */
+  .units-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin: .75rem 0; }
+  .unit-card { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem; }
+  .unit-card .uc-name { font-family: 'DM Mono', monospace; font-size: .9rem; font-weight: 700; color: var(--primary); margin-bottom: .3rem; }
+  .unit-card .uc-desc { font-size: .85rem; color: var(--text); margin-bottom: .3rem; }
+  .unit-card .uc-note { font-size: .78rem; color: var(--muted); }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); }
+</style>
+</head>
+<body>
+
+<div style="background:#fff;border-bottom:1px solid #e8e4de;padding:0 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:200;height:45px;">
+  <a href="../index.html" style="display:inline-flex;align-items:center;gap:6px;font-family:'DM Sans',sans-serif;font-size:13px;color:#8a8480;text-decoration:none;padding:6px 14px;border:1px solid #e8e4de;border-radius:999px;" onmouseover="this.style.color='#1a1814';this.style.borderColor='#8a8480'" onmouseout="this.style.color='#8a8480';this.style.borderColor='#e8e4de'">← Volver a Café &lt;/&gt;</a>
+  <span style="font-family:'DM Sans',sans-serif;font-size:13px;color:#8a8480;">☕ Guía HTML &amp; CSS · Parte I</span>
+</div>
+
+<header>
+  <h1>HTML &amp; CSS — Parte I</h1>
+  <p>CSS Avanzado: filter, transform 3D, variables, calc, clamp, scroll-snap y más</p>
+  <span class="badge">✦ Curso de Soy Dalto · 20:09:00 – 21:49:00 ✦</span>
+</header>
+
+<div class="partes-nav">
+  <a class="partes-nav-prev" href="guia-parte-H-animaciones.html">← H</a>
+  <div class="partes-nav-list">
+    <a href="guia-html-css.html">Base</a>
+    <a href="guia-parte-A-html-avanzado.html">A</a>
+    <a href="guia-parte-B-html-avanzado.html">B</a>
+    <a href="guia-parte-C-css-avanzado.html">C</a>
+    <a href="guia-parte-D-posicionamiento.html">D</a>
+    <a href="guia-parte-E-flexbox.html">E</a>
+    <a href="guia-parte-F-responsive.html">F</a>
+    <a href="guia-parte-G-grid.html">G</a>
+    <a href="guia-parte-H-animaciones.html">H</a>
+    <a href="guia-parte-I-css-avanzado.html" class="activa">I</a>
+    <a href="#">J</a>
+  </div>
+  <a class="partes-nav-next" href="#">J →</a>
+</div>
+
+<nav>
+  <a href="#filter">🔍 filter</a>
+  <a href="#backdrop">🪟 backdrop-filter</a>
+  <a href="#transform">🔄 transform</a>
+  <a href="#3d">🎲 3D</a>
+  <a href="#variables">🎨 Variables CSS</a>
+  <a href="#calc">🧮 calc()</a>
+  <a href="#clamp">📐 clamp()</a>
+  <a href="#unidades">📏 Unidades</a>
+  <a href="#scroll">📜 Scroll</a>
+  <a href="#aspect">⬛ aspect-ratio</a>
+  <a href="#ejercicio">✏️ Ejercicio</a>
+</nav>
+
+<main>
+<div class="parte-badge">📦 Parte I — CSS Avanzado (20:09 – 21:49 del video)</div>
+
+
+<!-- ══════════════════════════════════════════
+     FILTER
+══════════════════════════════════════════ -->
+<section class="module" id="filter">
+  <div class="module-header">
+    <div class="module-icon">🔍</div>
+    <div>
+      <div class="module-title">filter — Efectos visuales sobre elementos</div>
+      <div class="module-sub">blur, brightness, contrast, grayscale, sepia, hue-rotate y más</div>
+    </div>
+  </div>
+
+  <p>La propiedad <code>filter</code> aplica efectos visuales a un elemento y <strong>todo su contenido</strong>: imágenes, texto, fondos — todo. Es como los filtros de Instagram pero directamente en CSS, sin necesitar Photoshop ni JavaScript.</p>
+
+  <div class="analogy">
+    <h4>📸 Analogía: los filtros de una cámara fotográfica</h4>
+    <p>En fotografía, un filtro es un cristal que se pone delante del objetivo y modifica la luz antes de que llegue al sensor. El filtro de polarización oscurece, el de densidad neutra reduce la luz, el de color añade tonos. CSS <code>filter</code> es exactamente eso: un "cristal" que se pone delante del elemento y modifica cómo se ve, sin cambiar el elemento en sí.</p>
+  </div>
+
+  <h2>Todos los filtros disponibles</h2>
+
+  <table class="tbl">
+    <thead><tr><th>Función</th><th>Qué hace</th><th>Valores típicos</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">blur(r)</span></td><td>Desenfoca el elemento</td><td><code>blur(4px)</code> — mayor = más borroso</td></tr>
+      <tr><td><span class="tag">brightness(n)</span></td><td>Controla el brillo</td><td><code>0</code>=negro, <code>1</code>=normal, <code>1.5</code>=más brillante</td></tr>
+      <tr><td><span class="tag">contrast(n)</span></td><td>Controla el contraste</td><td><code>0</code>=gris plano, <code>1</code>=normal, <code>2</code>=alto contraste</td></tr>
+      <tr><td><span class="tag">grayscale(n)</span></td><td>Convierte a escala de grises</td><td><code>0</code>=color, <code>1</code>=blanco y negro completo</td></tr>
+      <tr><td><span class="tag">sepia(n)</span></td><td>Efecto de foto antigua (tonos marrones)</td><td><code>0</code>=normal, <code>1</code>=sepia completo</td></tr>
+      <tr><td><span class="tag">hue-rotate(deg)</span></td><td>Rota los colores en el círculo cromático</td><td><code>hue-rotate(180deg)</code> = colores opuestos</td></tr>
+      <tr><td><span class="tag">saturate(n)</span></td><td>Controla la intensidad del color</td><td><code>0</code>=gris, <code>1</code>=normal, <code>3</code>=muy saturado</td></tr>
+      <tr><td><span class="tag">invert(n)</span></td><td>Invierte los colores (negativo fotográfico)</td><td><code>invert(1)</code> = completamente invertido</td></tr>
+      <tr><td><span class="tag">opacity(n)</span></td><td>Transparencia (como la propiedad opacity)</td><td><code>0</code>=invisible, <code>1</code>=opaco</td></tr>
+      <tr><td><span class="tag">drop-shadow()</span></td><td>Sombra que sigue la forma real del contenido (no el bounding box)</td><td><code>drop-shadow(4px 4px 8px black)</code></td></tr>
+    </tbody>
+  </table>
+
+  <div class="preview">
+    <strong>Los 10 filtros en acción:</strong>
+    <div class="filter-grid" style="margin-top:.75rem">
+      <div class="filter-box"><div class="filter-img f-none">⚽</div><div class="filter-label">none (original)</div></div>
+      <div class="filter-box"><div class="filter-img f-blur">⚽</div><div class="filter-label">blur(4px)</div></div>
+      <div class="filter-box"><div class="filter-img f-bright">⚽</div><div class="filter-label">brightness(1.6)</div></div>
+      <div class="filter-box"><div class="filter-img f-contrast">⚽</div><div class="filter-label">contrast(2)</div></div>
+      <div class="filter-box"><div class="filter-img f-grayscale">⚽</div><div class="filter-label">grayscale(1)</div></div>
+      <div class="filter-box"><div class="filter-img f-sepia">⚽</div><div class="filter-label">sepia(1)</div></div>
+      <div class="filter-box"><div class="filter-img f-hue">⚽</div><div class="filter-label">hue-rotate(120deg)</div></div>
+      <div class="filter-box"><div class="filter-img f-saturate">⚽</div><div class="filter-label">saturate(3)</div></div>
+      <div class="filter-box"><div class="filter-img f-invert">⚽</div><div class="filter-label">invert(1)</div></div>
+      <div class="filter-box"><div class="filter-img f-drop">⚽</div><div class="filter-label">drop-shadow</div></div>
+    </div>
+  </div>
+
+  <h2>Combinar filtros y animarlos</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* Combinar varios filtros en una sola declaración */</span>
+<span class="cp">.imagen</span> { <span class="ca">filter</span>: grayscale(<span class="cn">1</span>) brightness(<span class="cn">.8</span>); }
+<span class="cp">.imagen:hover</span> { <span class="ca">filter</span>: grayscale(<span class="cn">0</span>) brightness(<span class="cn">1.1</span>); }
+
+<span class="cc">/* Transición suave de filtros */</span>
+<span class="cp">.foto</span> { <span class="ca">transition</span>: filter <span class="cn">.4s</span> ease; }
+
+<span class="cc">/* Patrón clásico para galerías: fotos en gris, color al hover */</span>
+<span class="cp">.galeria img</span>       { <span class="ca">filter</span>: grayscale(<span class="cn">1</span>) opacity(<span class="cn">.85</span>); <span class="ca">transition</span>: filter <span class="cn">.3s</span>; }
+<span class="cp">.galeria img:hover</span> { <span class="ca">filter</span>: grayscale(<span class="cn">0</span>) opacity(<span class="cn">1</span>); }
+
+<span class="cc">/* drop-shadow vs box-shadow — la diferencia crucial */</span>
+<span class="cc">/* box-shadow: sombra del rectángulo del elemento */</span>
+<span class="cp">.con-box-shadow</span>  { <span class="ca">box-shadow</span>: <span class="cn">4px 4px 12px</span> rgba(<span class="cn">0,0,0,.3</span>); }
+<span class="cc">/* drop-shadow: sombra que sigue los píxeles visibles — ideal para PNGs y SVGs */</span>
+<span class="cp">.con-drop-shadow</span> { <span class="ca">filter</span>: drop-shadow(<span class="cn">4px 4px 12px</span> rgba(<span class="cn">0,0,0,.3</span>)); }</div>
+
+  <div class="preview">
+    <strong>Pasa el mouse — de blanco y negro a color:</strong>
+    <div class="hover-filter-box" style="margin-top:.75rem">
+      ⚽ Pasa el mouse aquí
+    </div>
+    <p style="font-size:.8rem;color:var(--muted);margin-top:.4rem"><code>filter: grayscale(1)</code> en reposo → <code>filter: grayscale(0)</code> en hover, con <code>transition: filter .3s</code></p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     BACKDROP-FILTER
+══════════════════════════════════════════ -->
+<section class="module" id="backdrop">
+  <div class="module-header">
+    <div class="module-icon">🪟</div>
+    <div>
+      <div class="module-title">backdrop-filter — El efecto vidrio esmerilado (glassmorphism)</div>
+      <div class="module-sub">Filtrar lo que está detrás del elemento, no el elemento mismo</div>
+    </div>
+  </div>
+
+  <p>Mientras que <code>filter</code> afecta al elemento y su contenido, <code>backdrop-filter</code> aplica el filtro <strong>al fondo que está detrás</strong> del elemento. Para que funcione, el elemento debe tener algo de transparencia (background con alpha o rgba).</p>
+
+  <div class="analogy">
+    <h4>🪟 Analogía: el vidrio esmerilado</h4>
+    <p>Una puerta de vidrio esmerilado no cambia lo que está del otro lado, pero sí cómo lo ves: todo se ve borroso y difuminado a través del vidrio. <code>backdrop-filter: blur()</code> hace exactamente eso: lo que hay detrás del elemento se ve borroso, creando el efecto "glassmorphism" que es muy popular en diseño moderno.</p>
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* El truco del glassmorphism */</span>
+<span class="cp">.glass-card</span> {
+  <span class="ca">background</span>: rgba(<span class="cn">255, 255, 255, 0.15</span>);  <span class="cc">/* Fondo semitransparente — obligatorio */</span>
+  <span class="ca">backdrop-filter</span>: blur(<span class="cn">12px</span>) saturate(<span class="cn">1.5</span>); <span class="cc">/* Desenfoca lo que hay detrás */</span>
+  <span class="ca">-webkit-backdrop-filter</span>: blur(<span class="cn">12px</span>) saturate(<span class="cn">1.5</span>); <span class="cc">/* Safari */</span>
+  <span class="ca">border</span>: <span class="cn">1px</span> solid rgba(<span class="cn">255, 255, 255, 0.3</span>); <span class="cc">/* Borde sutil de luz */</span>
+  <span class="ca">border-radius</span>: <span class="cn">16px</span>;
+}
+
+<span class="cc">/* Navbar con efecto vidrio al hacer scroll */</span>
+<span class="cp">.navbar</span> {
+  <span class="ca">background</span>: rgba(<span class="cn">255, 255, 255, 0.8</span>);
+  <span class="ca">backdrop-filter</span>: blur(<span class="cn">20px</span>);
+  <span class="ca">-webkit-backdrop-filter</span>: blur(<span class="cn">20px</span>);
+  <span class="ca">border-bottom</span>: <span class="cn">1px</span> solid rgba(<span class="cn">0, 0, 0, 0.1</span>);
+}
+
+<span class="cc">/* Fallback para navegadores sin soporte */</span>
+<span class="cp">@supports not (backdrop-filter: blur(1px))</span> {
+  <span class="cp">.glass-card</span> { <span class="ca">background</span>: rgba(<span class="cn">255, 255, 255, 0.9</span>); }
+}</div>
+
+  <div class="preview">
+    <strong>Glassmorphism — la tarjeta tiene backdrop-filter: blur(12px):</strong>
+    <div class="backdrop-scene" style="margin-top:.75rem">
+      <!-- Elementos de fondo visibles a través del glass -->
+      <div style="position:absolute;top:15px;left:20px;width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,.2)"></div>
+      <div style="position:absolute;bottom:10px;right:30px;width:80px;height:40px;border-radius:20px;background:rgba(255,255,255,.15)"></div>
+      <div class="backdrop-card">
+        <h3>⚽ América 3 – 1 Chivas</h3>
+        <p>Liga MX · Jornada 17 · Estadio Azteca</p>
+      </div>
+    </div>
+    <p style="font-size:.8rem;color:var(--muted);margin-top:.4rem">La tarjeta tiene <code>background: rgba(255,255,255,.15)</code> + <code>backdrop-filter: blur(12px)</code>. Los círculos de fondo se ven desenfocados a través del vidrio.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     TRANSFORM EN PROFUNDIDAD
+══════════════════════════════════════════ -->
+<section class="module" id="transform">
+  <div class="module-header">
+    <div class="module-icon">🔄</div>
+    <div>
+      <div class="module-title">transform — Mover, rotar, escalar y distorsionar</div>
+      <div class="module-sub">Todas las funciones de transform y cómo combinarlas</div>
+    </div>
+  </div>
+
+  <p><code>transform</code> modifica la apariencia visual de un elemento <strong>sin afectar el layout</strong>. Los demás elementos no "ven" el transform: el espacio del elemento sigue siendo el mismo aunque visualmente se mueva o crezca. Por eso es ideal para animaciones.</p>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* ── TRANSLATE — mover ── */</span>
+<span class="cp">.elemento</span> { <span class="ca">transform</span>: translate(<span class="cn">20px, -10px</span>); }  <span class="cc">/* x e y */</span>
+<span class="cp">.elemento</span> { <span class="ca">transform</span>: translateX(<span class="cn">20px</span>); }           <span class="cc">/* solo horizontal */</span>
+<span class="cp">.elemento</span> { <span class="ca">transform</span>: translateY(<span class="cn">-10px</span>); }          <span class="cc">/* solo vertical */</span>
+<span class="cp">.elemento</span> { <span class="ca">transform</span>: translateZ(<span class="cn">50px</span>); }           <span class="cc">/* hacia/lejos del espectador */</span>
+
+<span class="cc">/* ── ROTATE — rotar ── */</span>
+<span class="cp">.elemento</span> { <span class="ca">transform</span>: rotate(<span class="cn">45deg</span>); }             <span class="cc">/* 2D: en el plano */</span>
+<span class="cp">.elemento</span> { <span class="ca">transform</span>: rotateX(<span class="cn">30deg</span>); }            <span class="cc">/* 3D: eje X (arriba/abajo) */</span>
+<span class="cp">.elemento</span> { <span class="ca">transform</span>: rotateY(<span class="cn">45deg</span>); }            <span class="cc">/* 3D: eje Y (izquierda/derecha) */</span>
+<span class="cp">.elemento</span> { <span class="ca">transform</span>: rotateZ(<span class="cn">90deg</span>); }            <span class="cc">/* = rotate() */</span>
+
+<span class="cc">/* ── SCALE — escalar ── */</span>
+<span class="cp">.elemento</span> { <span class="ca">transform</span>: scale(<span class="cn">1.2</span>); }               <span class="cc">/* Uniforme: 20% más grande */</span>
+<span class="cp">.elemento</span> { <span class="ca">transform</span>: scaleX(<span class="cn">1.5</span>); }              <span class="cc">/* Solo ancho */</span>
+<span class="cp">.elemento</span> { <span class="ca">transform</span>: scaleY(<span class="cn">.8</span>); }               <span class="cc">/* Solo alto */</span>
+<span class="cp">.elemento</span> { <span class="ca">transform</span>: scale(<span class="cn">-1</span>); }                <span class="cc">/* Espejo (flip) */</span>
+
+<span class="cc">/* ── SKEW — inclinar ── */</span>
+<span class="cp">.elemento</span> { <span class="ca">transform</span>: skewX(<span class="cn">15deg</span>); }             <span class="cc">/* Inclina horizontalmente */</span>
+<span class="cp">.elemento</span> { <span class="ca">transform</span>: skewY(<span class="cn">5deg</span>); }              <span class="cc">/* Inclina verticalmente */</span>
+
+<span class="cc">/* ── COMBINAR — el orden importa ── */</span>
+<span class="cp">.elemento</span> { <span class="ca">transform</span>: translateY(<span class="cn">-4px</span>) scale(<span class="cn">1.05</span>) rotate(<span class="cn">2deg</span>); }
+<span class="cc">/* Las transformaciones se aplican de derecha a izquierda */</span>
+<span class="cc">/* Primero rota, luego escala, luego traslada */</span>
+
+<span class="cc">/* transform-origin — el punto desde donde se aplica la transformación */</span>
+<span class="cp">.elemento</span> { <span class="ca">transform-origin</span>: center; }        <span class="cc">/* Por defecto: el centro */</span>
+<span class="cp">.elemento</span> { <span class="ca">transform-origin</span>: top left; }      <span class="cc">/* Desde la esquina superior izquierda */</span>
+<span class="cp">.elemento</span> { <span class="ca">transform-origin</span>: 0% 100%; }       <span class="cc">/* Desde la esquina inferior izquierda */</span></div>
+
+  <div class="preview">
+    <strong>Pasa el mouse sobre cada caja para ver el transform:</strong>
+    <div class="transform-grid" style="margin-top:.75rem">
+      <div class="tr-box tr-rotate">
+        <span class="tr-icon">🔄</span>
+        <div class="tr-name">rotate</div>
+        <div class="tr-val">(30deg)</div>
+      </div>
+      <div class="tr-box tr-scale" style="background:var(--secondary-light)">
+        <span class="tr-icon">🔍</span>
+        <div class="tr-name" style="color:var(--secondary)">scale</div>
+        <div class="tr-val">(1.3)</div>
+      </div>
+      <div class="tr-box tr-skew" style="background:var(--accent-light)">
+        <span class="tr-icon">📐</span>
+        <div class="tr-name" style="color:var(--accent)">skewX</div>
+        <div class="tr-val">(15deg)</div>
+      </div>
+      <div class="tr-box tr-translate" style="background:#F3E8FF">
+        <span class="tr-icon">↗️</span>
+        <div class="tr-name" style="color:#7C3AED">translate</div>
+        <div class="tr-val">(10px,-10px)</div>
+      </div>
+      <div class="tr-box tr-multiple" style="background:#E0F2FE">
+        <span class="tr-icon">⭐</span>
+        <div class="tr-name" style="color:#0891B2">múltiple</div>
+        <div class="tr-val">rotate+scale</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     TRANSFORM 3D
+══════════════════════════════════════════ -->
+<section class="module" id="3d">
+  <div class="module-header">
+    <div class="module-icon">🎲</div>
+    <div>
+      <div class="module-title">Transform 3D — Añadir profundidad a los elementos</div>
+      <div class="module-sub">perspective, rotateX/Y, translateZ y preserve-3d</div>
+    </div>
+  </div>
+
+  <p>CSS puede renderizar elementos en un espacio tridimensional. La clave es la propiedad <code>perspective</code> en el contenedor padre, que define desde qué distancia "ve" el espectador el elemento 3D. Menor perspective = efecto más dramático.</p>
+
+  <div class="analogy">
+    <h4>📷 Analogía: la distancia al cuadro</h4>
+    <p>Si te acercas mucho a un cuadro en un museo, la perspectiva parece exagerada: los ángulos se distorsionan. Si te alejas, la perspectiva es más sutil. <code>perspective: 300px</code> es como estar muy cerca (efecto dramático), y <code>perspective: 1200px</code> es como estar lejos (efecto sutil).</p>
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* perspective va en el CONTENEDOR PADRE, no en el elemento */</span>
+<span class="cp">.escena</span> {
+  <span class="ca">perspective</span>: <span class="cn">600px</span>;       <span class="cc">/* La "distancia del espectador" */</span>
+  <span class="ca">perspective-origin</span>: <span class="cn">50% 50%</span>; <span class="cc">/* Desde dónde mira (centro por defecto) */</span>
+}
+
+<span class="cp">.carta</span> {
+  <span class="ca">transform-style</span>: preserve-<span class="cn">3d</span>; <span class="cc">/* Los hijos mantienen posición 3D */</span>
+  <span class="ca">transition</span>: transform <span class="cn">.6s</span> ease;
+}
+<span class="cp">.carta:hover</span> {
+  <span class="ca">transform</span>: rotateY(<span class="cn">180deg</span>); <span class="cc">/* Voltea como una tarjeta de presentación */</span>
+}
+
+<span class="cc">/* Tarjeta con flip completo (técnica card flip) */</span>
+<span class="cp">.carta-frente</span>, <span class="cp">.carta-reverso</span> {
+  <span class="ca">position</span>: absolute; <span class="ca">inset</span>: <span class="cn">0</span>;
+  <span class="ca">backface-visibility</span>: hidden; <span class="cc">/* Oculta el reverso cuando da la vuelta */</span>
+}
+<span class="cp">.carta-reverso</span> {
+  <span class="ca">transform</span>: rotateY(<span class="cn">180deg</span>); <span class="cc">/* Empieza volteada, se muestra al flipear */</span>
+}
+
+<span class="cc">/* translateZ: acercar/alejar del espectador */</span>
+<span class="cp">.boton-3d:hover</span> {
+  <span class="ca">transform</span>: translateZ(<span class="cn">20px</span>); <span class="cc">/* "Sale" hacia el espectador */</span>
+  <span class="ca">box-shadow</span>: <span class="cn">0 20px 40px</span> rgba(<span class="cn">0,0,0,.3</span>);
+}</div>
+
+  <div class="preview">
+    <strong>Pasa el mouse para ver la rotación 3D (requiere perspectiva en el padre):</strong>
+    <div class="scene-3d" style="margin-top:.75rem">
+      <div class="card-3d">⚽ Hover 3D</div>
+    </div>
+    <p style="font-size:.8rem;color:var(--muted);margin-top:.4rem">El contenedor tiene <code>perspective: 600px</code>. La tarjeta tiene <code>transition: transform .6s</code> y en hover aplica <code>rotateY(35deg) rotateX(15deg)</code>.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     VARIABLES CSS (CUSTOM PROPERTIES)
+══════════════════════════════════════════ -->
+<section class="module" id="variables">
+  <div class="module-header">
+    <div class="module-icon">🎨</div>
+    <div>
+      <div class="module-title">Variables CSS — Custom Properties en profundidad</div>
+      <div class="module-sub">El sistema de diseño que hace tu CSS escalable y mantenible</div>
+    </div>
+  </div>
+
+  <p>Las <strong>custom properties</strong> (variables CSS) son valores reutilizables que defines una vez y usas en todo el CSS. A diferencia de las variables de Sass/Less, son nativas, viven en el DOM, se heredan, y pueden cambiarse en tiempo real con JavaScript.</p>
+
+  <div class="analogy">
+    <h4>🎨 Analogía: la paleta del pintor</h4>
+    <p>Un pintor mezcla sus colores en una paleta antes de pintar. Si decide cambiar el azul por un azul más claro, cambia el color en la paleta y todos los trazos que hizo con ese color en el cuadro… bueno, en la vida real no cambian, pero en CSS sí: si cambias <code>--primary: #c44a2a</code> a <code>--primary: #2a6cc4</code>, todos los lugares donde usaste <code>var(--primary)</code> cambian automáticamente.</p>
+  </div>
+
+  <h2>Sintaxis completa</h2>
+
+  <div class="anatomy">
+    <span class="cc">/* Definir variables en :root (disponibles en todo el documento) */</span>
+    <br><span class="br">:root</span> {
+    <br>&nbsp;&nbsp;<span class="at">--nombre-variable</span>: <span class="vl">valor</span>;<span class="lb">siempre empieza con --</span>
+    <br>&nbsp;&nbsp;<span class="at">--primary</span>: <span class="vl">#c44a2a</span>;
+    <br>&nbsp;&nbsp;<span class="at">--font-size-base</span>: <span class="vl">16px</span>;
+    <br>&nbsp;&nbsp;<span class="at">--spacing-md</span>: <span class="vl">1rem</span>;
+    <br>}
+    <br><br>
+    <span class="cc">/* Usar variables con var() */</span>
+    <br><span class="br">.boton</span> {
+    <br>&nbsp;&nbsp;<span class="at">background</span>: var(<span class="vl">--primary</span>);<span class="lb2">usar la variable</span>
+    <br>&nbsp;&nbsp;<span class="at">padding</span>: var(<span class="vl">--spacing-md</span>);
+    <br>&nbsp;&nbsp;<span class="at">color</span>: var(<span class="vl">--text-on-primary, white</span>);<span class="lb3">valor de respaldo si no existe</span>
+    <br>}
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* ── SISTEMA DE DISEÑO COMPLETO CON VARIABLES ── */</span>
+<span class="cp">:root</span> {
+  <span class="cc">/* Colores */</span>
+  <span class="ca">--color-primary</span>:   <span class="cn">#c44a2a</span>;
+  <span class="ca">--color-secondary</span>: <span class="cn">#1a7a5a</span>;
+  <span class="ca">--color-accent</span>:    <span class="cn">#b07010</span>;
+  <span class="ca">--color-bg</span>:        <span class="cn">#f7f4ef</span>;
+  <span class="ca">--color-text</span>:      <span class="cn">#1a1814</span>;
+  <span class="ca">--color-muted</span>:     <span class="cn">#8a8480</span>;
+
+  <span class="cc">/* Tipografía */</span>
+  <span class="ca">--font-body</span>:   <span class="cv">'DM Sans', sans-serif</span>;
+  <span class="ca">--font-mono</span>:   <span class="cv">'DM Mono', monospace</span>;
+  <span class="ca">--text-sm</span>:     <span class="cn">.875rem</span>;
+  <span class="ca">--text-base</span>:   <span class="cn">1rem</span>;
+  <span class="ca">--text-lg</span>:     <span class="cn">1.125rem</span>;
+  <span class="ca">--text-xl</span>:     <span class="cn">1.25rem</span>;
+  <span class="ca">--text-2xl</span>:    <span class="cn">1.5rem</span>;
+
+  <span class="cc">/* Espaciado */</span>
+  <span class="ca">--space-1</span>:  <span class="cn">.25rem</span>;
+  <span class="ca">--space-2</span>:  <span class="cn">.5rem</span>;
+  <span class="ca">--space-4</span>:  <span class="cn">1rem</span>;
+  <span class="ca">--space-8</span>:  <span class="cn">2rem</span>;
+
+  <span class="cc">/* Bordes */</span>
+  <span class="ca">--radius-sm</span>: <span class="cn">6px</span>;
+  <span class="ca">--radius-md</span>: <span class="cn">10px</span>;
+  <span class="ca">--radius-lg</span>: <span class="cn">16px</span>;
+  <span class="ca">--radius-full</span>: <span class="cn">9999px</span>;
+
+  <span class="cc">/* Sombras */</span>
+  <span class="ca">--shadow-sm</span>: <span class="cn">0 1px 3px</span> rgba(<span class="cn">0,0,0,.08</span>);
+  <span class="ca">--shadow-md</span>: <span class="cn">0 4px 16px</span> rgba(<span class="cn">0,0,0,.12</span>);
+  <span class="ca">--shadow-lg</span>: <span class="cn">0 12px 40px</span> rgba(<span class="cn">0,0,0,.18</span>);
+
+  <span class="cc">/* Transiciones */</span>
+  <span class="ca">--transition-fast</span>: <span class="cn">.15s</span> ease;
+  <span class="ca">--transition-base</span>: <span class="cn">.25s</span> ease;
+  <span class="ca">--transition-slow</span>: <span class="cn">.4s</span> ease;
+}
+
+<span class="cc">/* Modo oscuro: solo sobreescribes las variables */</span>
+<span class="cp">@media (prefers-color-scheme: dark)</span> {
+  <span class="cp">:root</span> {
+    <span class="ca">--color-bg</span>:    <span class="cn">#0f0f0f</span>;
+    <span class="ca">--color-text</span>:  <span class="cn">#f0ece6</span>;
+    <span class="ca">--color-muted</span>: <span class="cn">#6b6b6b</span>;
+  }
+}
+
+<span class="cc">/* Variables locales — solo para un componente */</span>
+<span class="cp">.tarjeta</span> {
+  <span class="ca">--tarjeta-padding</span>: <span class="cn">1.5rem</span>;
+  <span class="ca">--tarjeta-radio</span>:   <span class="cn">12px</span>;
+  <span class="ca">padding</span>: var(<span class="cv">--tarjeta-padding</span>);
+  <span class="ca">border-radius</span>: var(<span class="cv">--tarjeta-radio</span>);
+}
+
+<span class="cc">/* Modificar variable con JavaScript */</span>
+<span class="cc">// document.documentElement.style.setProperty('--color-primary', '#2a6cc4');</span>
+<span class="cc">// const valor = getComputedStyle(root).getPropertyValue('--color-primary');</span></div>
+
+  <h2>Variables en cálculos — el verdadero poder</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* Variables + calc() = sistema de espaciado matemático */</span>
+<span class="cp">:root</span> { <span class="ca">--base</span>: <span class="cn">8px</span>; }
+
+<span class="cp">.elemento</span> {
+  <span class="ca">margin</span>:  calc(var(<span class="cv">--base</span>) * <span class="cn">2</span>);    <span class="cc">/* 16px */</span>
+  <span class="ca">padding</span>: calc(var(<span class="cv">--base</span>) * <span class="cn">3</span>);    <span class="cc">/* 24px */</span>
+  <span class="ca">gap</span>:     calc(var(<span class="cv">--base</span>) * <span class="cn">1.5</span>);  <span class="cc">/* 12px */</span>
+}
+
+<span class="cc">/* Variables para animaciones parametrizables */</span>
+<span class="cp">:root</span> { <span class="ca">--velocidad</span>: <span class="cn">1s</span>; }
+<span class="cp">.animado</span> { <span class="ca">animation-duration</span>: var(<span class="cv">--velocidad</span>); }
+<span class="cc">/* Con JS: element.style.setProperty('--velocidad', '0.3s'); */</span></div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     CALC, MIN, MAX, CLAMP
+══════════════════════════════════════════ -->
+<section class="module" id="calc">
+  <div class="module-header">
+    <div class="module-icon">🧮</div>
+    <div>
+      <div class="module-title">calc(), min(), max() y clamp() — Matemáticas en CSS</div>
+      <div class="module-sub">Cálculos dinámicos que mezclan unidades y resuelven problemas reales</div>
+    </div>
+  </div>
+
+  <p>CSS tiene funciones matemáticas que permiten mezclar unidades distintas (px + %, rem + vw) y crear valores dinámicos. Son una de las herramientas más poderosas del CSS moderno.</p>
+
+  <h2>calc() — Mezclar unidades en una sola expresión</h2>
+
+  <div class="analogy">
+    <h4>🔧 Analogía: el carpintero que mide sobre la marcha</h4>
+    <p>Un carpintero que quiere que una estantería ocupe todo el ancho de la pared menos 2cm de cada lado no usa un número fijo: mide el ancho de la pared (100%) y resta 4cm en total. <code>calc(100% - 40px)</code> hace exactamente eso: "todo el ancho del contenedor, menos 40px".</p>
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* calc() acepta +, -, *, / con espacios alrededor de + y - */</span>
+<span class="cp">.sidebar</span>  { <span class="ca">width</span>: <span class="cn">260px</span>; }
+<span class="cp">.contenido</span>{ <span class="ca">width</span>: calc(<span class="cn">100%</span> - <span class="cn">260px</span> - <span class="cn">2rem</span>); } <span class="cc">/* Ancho - sidebar - gap */</span>
+
+<span class="cc">/* Centrar un elemento con ancho conocido */</span>
+<span class="cp">.centrado</span> { <span class="ca">margin-left</span>: calc(<span class="cn">50%</span> - <span class="cn">150px</span>); } <span class="cc">/* Mitad menos la mitad del ancho */</span>
+
+<span class="cc">/* Espaciado dinámico */</span>
+<span class="cp">.seccion</span> { <span class="ca">padding</span>: calc(<span class="cn">2rem</span> + <span class="cn">5vw</span>); } <span class="cc">/* Base + extra según el ancho */</span>
+
+<span class="cc">/* Mezclar variables y calc */</span>
+<span class="cp">:root</span> { <span class="ca">--nav-height</span>: <span class="cn">60px</span>; }
+<span class="cp">.main</span> { <span class="ca">min-height</span>: calc(<span class="cn">100vh</span> - var(<span class="cv">--nav-height</span>)); }
+
+<span class="cc">/* Cuadrícula manual con calc */</span>
+<span class="cp">.col-3</span> { <span class="ca">width</span>: calc((<span class="cn">100%</span> - <span class="cn">2rem</span>) / <span class="cn">3</span>); } <span class="cc">/* 3 columnas con 1rem de gap entre ellas */</span></div>
+
+  <div class="preview">
+    <div class="demo-label">calc(100% - 40px) — barra que nunca toca los bordes</div>
+    <div class="calc-demo"></div>
+    <p style="font-size:.8rem;color:var(--muted)">La barra roja tiene <code>width: calc(100% - 40px)</code>. Se adapta al ancho del contenedor siempre dejando 20px de cada lado.</p>
+  </div>
+
+  <h2>min() y max() — El valor más pequeño o más grande</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* min(a, b): elige el valor MÁS PEQUEÑO de los dos */</span>
+<span class="cp">.caja</span> { <span class="ca">width</span>: min(<span class="cn">600px</span>, <span class="cn">90%</span>); }
+<span class="cc">/* En desktop (>666px): usa 600px */</span>
+<span class="cc">/* En móvil (<666px):  usa 90% del contenedor */</span>
+<span class="cc">/* Equivale a: max-width: 600px + width: 90% */</span>
+
+<span class="cc">/* max(a, b): elige el valor MÁS GRANDE de los dos */</span>
+<span class="cp">.texto</span> { <span class="ca">font-size</span>: max(<span class="cn">1rem</span>, <span class="cn">2vw</span>); }
+<span class="cc">/* Mínimo 1rem siempre, escala con la pantalla si 2vw > 1rem */</span>
+
+<span class="cc">/* Casos de uso reales */</span>
+<span class="cp">.padding-seguro</span> { <span class="ca">padding</span>: max(<span class="cn">1rem</span>, <span class="cn">4vw</span>); }  <span class="cc">/* Al menos 1rem */</span>
+<span class="cp">.ancho-util</span>     { <span class="ca">width</span>: min(<span class="cn">920px</span>, <span class="cn">100%</span> - <span class="cn">2rem</span>); } <span class="cc">/* Reemplaza max-width + padding */</span></div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     CLAMP
+══════════════════════════════════════════ -->
+<section class="module" id="clamp">
+  <div class="module-header">
+    <div class="module-icon">📐</div>
+    <div>
+      <div class="module-title">clamp() — El valor perfecto entre mínimo y máximo</div>
+      <div class="module-sub">Tipografía y espaciado que escala fluidamente sin media queries</div>
+    </div>
+  </div>
+
+  <p><code>clamp(mínimo, preferido, máximo)</code> elige el valor preferido, pero nunca sale del rango entre mínimo y máximo. Es como <code>min()</code> y <code>max()</code> combinados. Su uso más potente es en tipografía responsive: texto que crece fluidamente con la pantalla sin necesitar media queries.</p>
+
+  <div class="analogy">
+    <h4>🌡️ Analogía: el termostato con límites</h4>
+    <p>Un termostato inteligente tiene una temperatura deseada (21°C) pero con límites: nunca menos de 18°C (mínimo) y nunca más de 26°C (máximo). <code>clamp(18°, 21°, 26°)</code>. El CSS hace lo mismo: quiere cierto valor en base al viewport, pero tiene pisos y techos.</p>
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* clamp(mínimo, preferido, máximo) */</span>
+
+<span class="cc">/* Tipografía fluida — el uso más importante */</span>
+<span class="cp">h1</span>   { <span class="ca">font-size</span>: clamp(<span class="cn">1.5rem</span>, <span class="cn">5vw</span>, <span class="cn">3rem</span>); }
+<span class="cc">/* En móvil: 1.5rem como mínimo */</span>
+<span class="cc">/* En desktop: crece hasta 5vw del ancho de pantalla */</span>
+<span class="cc">/* En pantallas muy grandes: no supera 3rem */</span>
+
+<span class="cp">h2</span>   { <span class="ca">font-size</span>: clamp(<span class="cn">1.25rem</span>, <span class="cn">3.5vw</span>, <span class="cn">2rem</span>); }
+<span class="cp">h3</span>   { <span class="ca">font-size</span>: clamp(<span class="cn">1rem</span>, <span class="cn">2.5vw</span>, <span class="cn">1.5rem</span>); }
+<span class="cp">body</span> { <span class="ca">font-size</span>: clamp(<span class="cn">.9rem</span>, <span class="cn">1.2vw</span>, <span class="cn">1rem</span>); }
+
+<span class="cc">/* Espaciado fluido — secciones más espaciadas en desktop */</span>
+<span class="cp">.seccion</span> { <span class="ca">padding-block</span>: clamp(<span class="cn">2rem</span>, <span class="cn">8vw</span>, <span class="cn">6rem</span>); }
+
+<span class="cc">/* Ancho de contenedor con máximo */</span>
+<span class="cp">.contenedor</span> { <span class="ca">width</span>: clamp(<span class="cn">300px</span>, <span class="cn">90%</span>, <span class="cn">1200px</span>); <span class="ca">margin</span>: <span class="cn">0</span> auto; }
+
+<span class="cc">/* Gap que crece con la pantalla */</span>
+<span class="cp">.grid</span> { <span class="ca">gap</span>: clamp(<span class="cn">.5rem</span>, <span class="cn">2vw</span>, <span class="cn">2rem</span>); }</div>
+
+  <div class="preview">
+    <div class="demo-label">Título con clamp(1rem, 4vw, 2rem) — escala con el ancho de pantalla:</div>
+    <p class="clamp-title" style="margin-top:.5rem">América 3 – 1 Guadalajara · Clásico Nacional</p>
+    <p style="font-size:.8rem;color:var(--muted);margin-top:.4rem">Redimensiona la ventana del navegador para ver cómo el tamaño del título escala fluidamente entre 1rem y 2rem.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     UNIDADES MODERNAS
+══════════════════════════════════════════ -->
+<section class="module" id="unidades">
+  <div class="module-header">
+    <div class="module-icon">📏</div>
+    <div>
+      <div class="module-title">Unidades modernas de viewport y otras</div>
+      <div class="module-sub">svh, dvh, lvh, svw, cqi, ch, ex y cuándo usar cada una</div>
+    </div>
+  </div>
+
+  <p>Las unidades de viewport clásicas (<code>vw</code>, <code>vh</code>) tenían un problema en móviles: el 100vh no consideraba la barra de URL del navegador. CSS moderno introdujo nuevas unidades que resuelven esto y más.</p>
+
+  <div class="units-grid">
+
+    <div class="unit-card">
+      <div class="uc-name">svh / svw</div>
+      <div class="uc-desc"><strong>Small Viewport</strong>: el viewport más pequeño posible, asumiendo que todas las barras del navegador están visibles.</div>
+      <div class="uc-note">Ideal para elementos que deben caber incluso con la barra de URL visible. <code>height: 100svh</code> nunca se corta.</div>
+    </div>
+
+    <div class="unit-card">
+      <div class="uc-name">lvh / lvw</div>
+      <div class="uc-desc"><strong>Large Viewport</strong>: el viewport más grande posible, asumiendo que las barras están ocultas (al hacer scroll).</div>
+      <div class="uc-note">Equivale al antiguo 100vh en desktop. En móvil puede causar el problema de la barra URL.</div>
+    </div>
+
+    <div class="unit-card">
+      <div class="uc-name">dvh / dvw</div>
+      <div class="uc-desc"><strong>Dynamic Viewport</strong>: se actualiza dinámicamente cuando las barras del navegador aparecen o desaparecen al hacer scroll.</div>
+      <div class="uc-note">La más precisa pero puede causar reflows. Úsala cuando la precisión sea crítica.</div>
+    </div>
+
+    <div class="unit-card">
+      <div class="uc-name">cqi / cqb</div>
+      <div class="uc-desc"><strong>Container Query</strong> inline/block size. El % del tamaño del contenedor, para usar con container queries.</div>
+      <div class="uc-note"><code>font-size: 5cqi</code> = 5% del ancho del contenedor. Perfecto para tipografía dentro de containers.</div>
+    </div>
+
+    <div class="unit-card">
+      <div class="uc-name">ch</div>
+      <div class="uc-desc">El ancho del carácter "0" en la fuente actual. Ideal para definir el ancho máximo de columnas de texto.</div>
+      <div class="uc-note"><code>max-width: 65ch</code> es la longitud de línea óptima para lectura (entre 60–75 caracteres).</div>
+    </div>
+
+    <div class="unit-card">
+      <div class="uc-name">lh / rlh</div>
+      <div class="uc-desc">La altura de línea del elemento (<code>lh</code>) o del elemento raíz (<code>rlh</code>). Útil para espaciado vertical consistente con la tipografía.</div>
+      <div class="uc-note"><code>margin-top: 2lh</code> = dos alturas de línea. Mantiene el ritmo vertical tipográfico.</div>
+    </div>
+
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* La solución moderna para el hero que ocupa toda la pantalla en móvil */</span>
+<span class="cc">/* ❌ Antes — 100vh se cortaba con la barra de URL en iOS Safari */</span>
+<span class="cp">.hero</span> { <span class="ca">height</span>: <span class="cn">100vh</span>; }
+
+<span class="cc">/* ✅ Ahora — svh es más seguro */</span>
+<span class="cp">.hero</span> { <span class="ca">height</span>: <span class="cn">100svh</span>; }
+
+<span class="cc">/* Con fallback para navegadores viejos */</span>
+<span class="cp">.hero</span> {
+  <span class="ca">height</span>: <span class="cn">100vh</span>;        <span class="cc">/* Fallback */</span>
+  <span class="ca">height</span>: <span class="cn">100svh</span>;       <span class="cc">/* Sobreescribe en navegadores modernos */</span>
+}
+
+<span class="cc">/* Texto legible con ch */</span>
+<span class="cp">.articulo p</span> { <span class="ca">max-width</span>: <span class="cn">65ch</span>; } <span class="cc">/* Columna de texto de lectura óptima */</span>
+
+<span class="cc">/* Contenedor centrado moderno con min() */</span>
+<span class="cp">.wrapper</span> {
+  <span class="ca">width</span>: min(<span class="cn">920px</span>, <span class="cn">100%</span> - <span class="cn">2rem</span>);
+  <span class="ca">margin-inline</span>: auto; <span class="cc">/* margin-inline = margin-left + margin-right */</span>
+}</code></div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     SCROLL SNAP Y SCROLL BEHAVIOR
+══════════════════════════════════════════ -->
+<section class="module" id="scroll">
+  <div class="module-header">
+    <div class="module-icon">📜</div>
+    <div>
+      <div class="module-title">Scroll Snap y Scroll Behavior</div>
+      <div class="module-sub">Carruseles nativos, scroll suave y control del desplazamiento</div>
+    </div>
+  </div>
+
+  <p><strong>Scroll Snap</strong> hace que el scroll se "enganche" en posiciones específicas al terminar, como un carrusel. <strong>Scroll Behavior: smooth</strong> hace que los saltos de ancla (<code>#seccion</code>) sean suaves en vez de instantáneos.</p>
+
+  <div class="analogy">
+    <h4>📸 Analogía: el proyector de diapositivas</h4>
+    <p>Cuando avanzas diapositivas en un proyector, no te quedas a medias entre dos slides: siempre terminas en una diapositiva completa. Eso es <code>scroll-snap</code>: el scroll siempre "cae" en las posiciones definidas, nunca a medias entre dos elementos.</p>
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* ── SCROLL SNAP ── */</span>
+
+<span class="cc">/* En el contenedor: activa el snap */</span>
+<span class="cp">.carrusel</span> {
+  <span class="ca">display</span>: flex;
+  <span class="ca">overflow-x</span>: scroll;
+  <span class="ca">scroll-snap-type</span>: x mandatory;   <span class="cc">/* x=horizontal, mandatory=siempre snappea */</span>
+  <span class="ca">scroll-snap-type</span>: y proximity;   <span class="cc">/* y=vertical, proximity=snappea si está cerca */</span>
+  <span class="ca">scroll-behavior</span>: smooth;         <span class="cc">/* Animación de scroll */</span>
+  <span class="ca">-webkit-overflow-scrolling</span>: touch; <span class="cc">/* Inercia en iOS */</span>
+}
+
+<span class="cc">/* En cada item: define el punto de snap */</span>
+<span class="cp">.item</span> {
+  <span class="ca">scroll-snap-align</span>: start;  <span class="cc">/* El borde izquierdo/superior snappea al inicio */</span>
+  <span class="ca">scroll-snap-align</span>: center; <span class="cc">/* El centro del item snappea al centro del contenedor */</span>
+  <span class="ca">scroll-snap-align</span>: end;    <span class="cc">/* El borde derecho/inferior snappea al final */</span>
+  <span class="ca">flex-shrink</span>: <span class="cn">0</span>;             <span class="cc">/* Los items no se encogen */</span>
+}
+
+<span class="cc">/* ── SCROLL BEHAVIOR GLOBAL ── */</span>
+<span class="cp">html</span> { <span class="ca">scroll-behavior</span>: smooth; }
+<span class="cc">/* Ahora todos los links de ancla (#seccion) scrollean suavemente */</span>
+
+<span class="cc">/* ── SCROLL MARGIN — espacio entre el elemento y el top al hacer ancla ── */</span>
+<span class="cp">.seccion</span> { <span class="ca">scroll-margin-top</span>: <span class="cn">80px</span>; }
+<span class="cc">/* Evita que el header fijo tape el inicio de la sección */</span>
+
+<span class="cc">/* ── SCROLL PADDING — en el contenedor ── */</span>
+<span class="cp">html</span> { <span class="ca">scroll-padding-top</span>: <span class="cn">80px</span>; }
+<span class="cc">/* Alternativa global: reserva espacio superior para el header fijo en todos los anclas */</span></div>
+
+  <div class="preview">
+    <strong>Carrusel con Scroll Snap — desliza horizontalmente:</strong>
+    <div class="snap-container" style="margin-top:.75rem">
+      <div class="snap-item si-1"><span style="font-size:1.5rem">⚽</span><span>América 3–1 Chivas</span><span style="font-size:.72rem;opacity:.8">Liga MX · Jornada 17</span></div>
+      <div class="snap-item si-2"><span style="font-size:1.5rem">🏆</span><span>Real Madrid 2–0 Bayern</span><span style="font-size:.72rem;opacity:.8">Champions · Semis</span></div>
+      <div class="snap-item si-3"><span style="font-size:1.5rem">⭐</span><span>PSG 1–1 Arsenal</span><span style="font-size:.72rem;opacity:.8">Champions · Semis</span></div>
+      <div class="snap-item si-4"><span style="font-size:1.5rem">🎯</span><span>Barcelona 4–0 Atlético</span><span style="font-size:.72rem;opacity:.8">La Liga · J30</span></div>
+      <div class="snap-item si-5"><span style="font-size:1.5rem">🔥</span><span>Liverpool 3–2 City</span><span style="font-size:.72rem;opacity:.8">Premier · J35</span></div>
+    </div>
+    <p style="font-size:.8rem;color:var(--muted);margin-top:.4rem">El contenedor tiene <code>scroll-snap-type: x mandatory</code>. Cada card tiene <code>scroll-snap-align: start</code>. Al terminar de deslizar, siempre queda en una card completa.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     ASPECT-RATIO
+══════════════════════════════════════════ -->
+<section class="module" id="aspect">
+  <div class="module-header">
+    <div class="module-icon">⬛</div>
+    <div>
+      <div class="module-title">aspect-ratio — Proporciones perfectas siempre</div>
+      <div class="module-sub">Mantener la relación ancho/alto sin trucos de padding</div>
+    </div>
+  </div>
+
+  <p><code>aspect-ratio</code> mantiene automáticamente la proporción entre el ancho y el alto de un elemento. Si defines el ancho, el alto se calcula solo. Si defines el alto, el ancho se calcula solo. Acabó el truco del "padding-bottom hack" para mantener proporciones.</p>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* aspect-ratio: ancho / alto */</span>
+<span class="cp">.video-container</span> { <span class="ca">aspect-ratio</span>: <span class="cn">16 / 9</span>; }   <span class="cc">/* Proporciones de pantalla widescreen */</span>
+<span class="cp">.cuadrado</span>        { <span class="ca">aspect-ratio</span>: <span class="cn">1 / 1</span>; }   <span class="cc">/* Cuadrado perfecto */</span>
+<span class="cp">.foto-clasica</span>    { <span class="ca">aspect-ratio</span>: <span class="cn">4 / 3</span>; }   <span class="cc">/* Proporciones de foto clásica */</span>
+<span class="cp">.portrait</span>        { <span class="ca">aspect-ratio</span>: <span class="cn">9 / 16</span>; }  <span class="cc">/* Vertical (historias, reels) */</span>
+<span class="cp">.panoramica</span>      { <span class="ca">aspect-ratio</span>: <span class="cn">21 / 9</span>; }  <span class="cc">/* Ultrawide */</span>
+
+<span class="cc">/* Combinado con object-fit para imágenes */</span>
+<span class="cp">.tarjeta-img</span> {
+  <span class="ca">width</span>: <span class="cn">100%</span>;
+  <span class="ca">aspect-ratio</span>: <span class="cn">16 / 9</span>;
+  <span class="ca">object-fit</span>: cover;        <span class="cc">/* La imagen llena la proporción sin deformarse */</span>
+  <span class="ca">object-position</span>: center;
+}
+
+<span class="cc">/* Antes del aspect-ratio (el padding hack) — para referencia histórica */</span>
+<span class="cc">/* .video-container::before { content:''; padding-top:56.25%; display:block; } */</span>
+<span class="cc">/* Con aspect-ratio ya NO necesitas ese truco */</span></div>
+
+  <div class="preview">
+    <strong>Cuatro proporciones con el mismo ancho — el alto se calcula solo:</strong>
+    <div class="ar-grid" style="margin-top:.75rem">
+      <div class="ar-box ar-16-9">16:9<br><small>Video</small></div>
+      <div class="ar-box ar-4-3">4:3<br><small>Foto</small></div>
+      <div class="ar-box ar-1-1">1:1<br><small>Cuadrado</small></div>
+      <div class="ar-box ar-9-16">9:16<br><small>Story</small></div>
+    </div>
+    <p style="font-size:.8rem;color:var(--muted);margin-top:.4rem">Todas tienen el mismo ancho (determinado por el grid). El alto lo calcula el navegador automáticamente con <code>aspect-ratio</code>.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     EJERCICIO
+══════════════════════════════════════════ -->
+<section class="module" id="ejercicio">
+  <div class="module-header">
+    <div class="module-icon">✏️</div>
+    <div>
+      <div class="module-title">Ejercicio integrador — Perfil de jugador premium</div>
+      <div class="module-sub">filter, transform, variables, clamp, scroll-snap y glassmorphism</div>
+    </div>
+  </div>
+
+  <div class="ex">
+    <div class="ex-hd">✏️ Ejercicio — Página de perfil de jugador de fútbol premium <span class="ex-badge">Avanzado</span></div>
+
+    <p>Crea <code>perfil-jugador.html</code> que use todas las técnicas de esta parte para construir un perfil visual de tu jugador favorito.</p>
+
+    <ol>
+      <li>
+        <strong>Variables CSS del sistema de diseño</strong>: Define en <code>:root</code> al menos 12 variables: colores del equipo (primario, secundario), tipografía, espaciado (--space-1 al --space-8), bordes y sombras. Todo el CSS del proyecto usa solo variables, nunca valores hardcodeados.
+      </li>
+      <li>
+        <strong>Hero con glassmorphism</strong>: Un hero con fondo de imagen/gradiente de colores del equipo. Encima, una tarjeta con <code>backdrop-filter: blur(12px)</code> y <code>background: rgba(255,255,255,.15)</code> que muestra el nombre y posición del jugador.
+      </li>
+      <li>
+        <strong>Foto del jugador con filter</strong>: La foto de perfil en escala de grises en reposo (<code>filter: grayscale(1)</code>), y a todo color con <code>brightness(1.1)</code> al hacer hover. Con <code>transition: filter .4s</code> y <code>aspect-ratio: 1/1</code> para que sea siempre cuadrada.
+      </li>
+      <li>
+        <strong>Tarjetas 3D de estadísticas</strong>: Mínimo 4 tarjetas de stats (goles, asistencias, partidos, rating). Al hacer hover cada tarjeta aplica <code>transform: rotateY(15deg) translateY(-4px)</code> con el contenedor teniendo <code>perspective: 800px</code>.
+      </li>
+      <li>
+        <strong>Tipografía fluida con clamp</strong>: El nombre del jugador usa <code>font-size: clamp(2rem, 6vw, 4rem)</code>. Los subtítulos usan <code>clamp(1rem, 3vw, 1.5rem)</code>. El cuerpo de texto tiene <code>max-width: 65ch</code>.
+      </li>
+      <li>
+        <strong>Carrusel de partidos con Scroll Snap</strong>: Una sección horizontal de tarjetas de partidos recientes. Cada tarjeta tiene <code>aspect-ratio: 4/3</code> y usa <code>scroll-snap-align: start</code>.
+      </li>
+      <li>
+        <strong>Galería de acciones</strong>: Grid de fotos donde en reposo tienen <code>filter: grayscale(.7) brightness(.9)</code> y al hover <code>filter: none; transform: scale(1.03)</code>. Cada foto tiene <code>aspect-ratio: 16/9; object-fit: cover</code>.
+      </li>
+    </ol>
+
+    <p style="margin-top:1rem"><strong>Bonus:</strong> Agrega modo oscuro con <code>@media (prefers-color-scheme: dark)</code> que sobreescriba las variables de color. El glassmorphism cambia a <code>rgba(0,0,0,.2)</code> en modo oscuro y el fondo de las tarjetas a colores más oscuros.</p>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Resumen de lo que aprendiste en la Parte I</h4>
+    <ul>
+      <li><strong>filter:</strong> blur, brightness, contrast, grayscale, sepia, hue-rotate, saturate, invert, drop-shadow — combinables y animables</li>
+      <li><strong>backdrop-filter:</strong> blur + saturate para glassmorphism; requiere fondo semitransparente</li>
+      <li><strong>transform 2D:</strong> translate, rotate, scale, skew y sus variantes X/Y</li>
+      <li><strong>transform-origin:</strong> el punto desde donde se aplica la transformación</li>
+      <li><strong>Transform 3D:</strong> perspective en el padre, rotateX/Y, translateZ, transform-style: preserve-3d, backface-visibility</li>
+      <li><strong>Variables CSS:</strong> --nombre, var(--nombre, fallback), :root global, locales por componente, dinámicas con JS</li>
+      <li><strong>calc():</strong> mezcla unidades distintas, funciona con variables</li>
+      <li><strong>min() / max():</strong> el valor más pequeño / más grande de dos opciones</li>
+      <li><strong>clamp(min, preferido, max):</strong> tipografía y espaciado fluido sin media queries</li>
+      <li><strong>svh/dvh/lvh:</strong> viewport heights modernas sin el bug de iOS</li>
+      <li><strong>ch:</strong> ancho del "0" — ideal para max-width de columnas de texto (65ch)</li>
+      <li><strong>scroll-snap-type + scroll-snap-align:</strong> carruseles nativos sin JavaScript</li>
+      <li><strong>scroll-behavior: smooth:</strong> anclas con scroll suave</li>
+      <li><strong>scroll-margin-top / scroll-padding-top:</strong> espacio para headers fijos</li>
+      <li><strong>aspect-ratio:</strong> proporciones perfectas sin el padding hack</li>
+    </ul>
+  </div>
+
+  <div class="concept">
+    <h4>💡 ¿Qué sigue? — Parte J (la última)</h4>
+    <p>La <strong>Parte J</strong> cubre los <strong>5 proyectos finales del curso</strong> de Soy Dalto: una landing page completa, un e-commerce, un portafolio de desarrollador, una aplicación de clima y un clon de una app conocida. Para cada proyecto se explica la arquitectura CSS, el sistema de diseño, los componentes clave y los patrones avanzados utilizados. Esta es la parte donde todo lo aprendido en A–I se combina en proyectos reales completos. Pídela cuando estés listo.</p>
+  </div>
+
+</section>
+</main>
+
+<footer>
+  Guía HTML &amp; CSS · Parte I — CSS Avanzado · Basada en el curso de Soy Dalto · Hugo 2025
+</footer>
+
+</body>
+</html>
