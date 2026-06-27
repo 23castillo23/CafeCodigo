@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1a1814">
+  <title>Café </> · Mi Progreso</title>
+  <link rel="icon" href="../image/icons/icon-512.png" type="image/png">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+
+  <style>
+    /* ============================================
+       RESET Y BASE
+       ============================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-body, 'DM Sans', sans-serif);
+      background: var(--bg, #f7f4ef);
+      color: var(--ink, #1a1814);
+      min-height: 100vh;
+    }
+
+    /* ============================================
+       LAYOUT PRINCIPAL
+       ============================================ */
+    .progreso-wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 20px 80px;
+    }
+
+    /* ============================================
+       HERO BANNER
+       ============================================ */
+    .progreso-hero {
+      background: #1a1814;
+      border-radius: 14px;
+      padding: 36px 32px;
+      margin-bottom: 32px;
+      color: #f7f4ef;
+      position: relative;
+      overflow: hidden;
+    }
+    .progreso-hero::before {
+      content: '%';
+      position: absolute;
+      font-size: 14rem;
+      font-weight: 900;
+      color: rgba(255,255,255,0.03);
+      right: -10px;
+      top: -20px;
+      font-family: var(--font-code, 'DM Mono', monospace);
+      line-height: 1;
+      pointer-events: none;
+    }
+    .hero-badge {
+      display: inline-block;
+      background: #c44a2a;
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      padding: 3px 12px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+      font-family: var(--font-code, 'DM Mono', monospace);
+    }
+    .progreso-hero h1 {
+      font-family: var(--font-title, 'Fraunces', serif);
+      font-size: clamp(22px, 4vw, 30px);
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .progreso-hero p {
+      font-size: 14px;
+      color: rgba(247,244,239,0.65);
+      max-width: 520px;
+      line-height: 1.7;
+    }
+
+    /* ============================================
+       BARRA DE PROGRESO GLOBAL
+       ============================================ */
+    .progreso-global {
+      background: var(--card, #fff);
+      border: 1px solid var(--border, #e8e3db);
+      border-radius: 14px;
+      padding: 28px 32px;
+      margin-bottom: 32px;
+    }
+    .progreso-global-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .progreso-global-titulo {
+      font-family: var(--font-title, 'Fraunces', serif);
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .progreso-global-pct {
+      font-family: var(--font-code, 'DM Mono', monospace);
+      font-size: 28px;
+      font-weight: 700;
+      color: #c44a2a;
+    }
+    .barra-total-track {
+      height: 12px;
+      background: var(--border, #e8e3db);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+    .barra-total-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #c44a2a, #e06040);
+      border-radius: 999px;
+      transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+      width: 0%;
+    }
+    .progreso-global-sub {
+      font-size: 12px;
+      color: var(--ink3, #9e9388);
+      font-family: var(--font-code, 'DM Mono', monospace);
+    }
+
+    /* ============================================
+       TARJETAS DE ESTADÍSTICAS
+       ============================================ */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 14px;
+      margin-bottom: 32px;
+    }
+    .stat-card {
+      background: var(--card, #fff);
+      border: 1px solid var(--border, #e8e3db);
+      border-radius: 12px;
+      padding: 20px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.07);
+    }
+    .stat-icon { font-size: 26px; line-height: 1; margin-bottom: 4px; }
+    .stat-valor {
+      font-family: var(--font-code, 'DM Mono', monospace);
+      font-size: 30px;
+      font-weight: 700;
+      color: var(--ink, #1a1814);
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 12px;
+      color: var(--ink3, #9e9388);
+      font-weight: 500;
+    }
+    .stat-sub {
+      font-family: var(--font-code, 'DM Mono', monospace);
+      font-size: 11px;
+      color: var(--ink3, #9e9388);
+    }
+    .stat-barra {
+      height: 4px;
+      background: var(--border, #e8e3db);
+      border-radius: 999px;
+      margin-top: 6px;
+      overflow: hidden;
+    }
+    .stat-barra-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+      width: 0%;
+    }
+
+    /* colores por categoría */
+    .color-caps   { background: #c44a2a; }
+    .color-ejer   { background: #b07010; }
+    .color-prac   { background: #1a5fa0; }
+    .color-guias  { background: #3a8a3a; }
+    .color-racha  { background: #8a3ab0; }
+
+    /* ============================================
+       SECCIÓN: CAPÍTULOS
+       ============================================ */
+    .seccion-label {
+      font-family: var(--font-code, 'DM Mono', monospace);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink3, #9e9388);
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border, #e8e3db);
+    }
+
+    .caps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    .cap-item {
+      background: var(--card, #fff);
+      border: 1px solid var(--border, #e8e3db);
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      user-select: none;
+    }
+    .cap-item:hover { border-color: #c44a2a; }
+    .cap-item.completado {
+      border-color: #c44a2a;
+      background: #fff8f6;
+    }
+    .cap-check {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      border: 2px solid var(--border, #e8e3db);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      font-size: 12px;
+      transition: background 0.15s, border-color 0.15s;
+      color: transparent;
+    }
+    .cap-item.completado .cap-check {
+      background: #c44a2a;
+      border-color: #c44a2a;
+      color: white;
+    }
+    .cap-info { flex: 1; min-width: 0; }
+    .cap-num {
+      font-family: var(--font-code, 'DM Mono', monospace);
+      font-size: 10px;
+      color: var(--ink3, #9e9388);
+      margin-bottom: 2px;
+    }
+    .cap-nombre {
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ============================================
+       SECCIÓN: EJERCICIOS Y PRÁCTICA
+       ============================================ */
+    .check-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 10px;
+      margin-bottom: 32px;
+    }
+    .check-item {
+      background: var(--card, #fff);
+      border: 1px solid var(--border, #e8e3db);
+      border-radius: 10px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      user-select: none;
+    }
+    .check-item:hover { border-color: #c44a2a; }
+    .check-item.completado { border-color: #c44a2a; background: #fff8f6; }
+
+    .check-item.ejer-done    { border-color: #b07010; background: #fffaf0; }
+    .check-item.ejer-done .check-box { background: #b07010; border-color: #b07010; color: white; }
+
+    .check-item.prac-done    { border-color: #1a5fa0; background: #f0f6ff; }
+    .check-item.prac-done .check-box { background: #1a5fa0; border-color: #1a5fa0; color: white; }
+
+    .check-box {
+      width: 20px; height: 20px;
+      border-radius: 5px;
+      border: 2px solid var(--border, #e8e3db);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      font-size: 11px;
+      color: transparent;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .check-texto {
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    /* ============================================
+       RACHA DE DÍAS
+       ============================================ */
+    .racha-box {
+      background: var(--card, #fff);
+      border: 1px solid var(--border, #e8e3db);
+      border-radius: 14px;
+      padding: 24px 28px;
+      margin-bottom: 32px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .racha-numero {
+      font-family: var(--font-code, 'DM Mono', monospace);
+      font-size: 52px;
+      font-weight: 700;
+      color: #8a3ab0;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .racha-info h4 {
+      font-family: var(--font-title, 'Fraunces', serif);
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .racha-info p {
+      font-size: 13px;
+      color: var(--ink2, #6e6762);
+      line-height: 1.6;
+    }
+    .racha-btn {
+      margin-left: auto;
+      background: #8a3ab0;
+      color: white;
+      border: none;
+      border-radius: 999px;
+      padding: 10px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+      white-space: nowrap;
+      font-family: var(--font-body, 'DM Sans', sans-serif);
+    }
+    .racha-btn:hover { background: #6e2e8e; }
+    .racha-btn:disabled { background: var(--border, #e8e3db); color: var(--ink3, #9e9388); cursor: default; }
+
+    /* Calendario de racha */
+    .racha-calendario {
+      margin-top: 16px;
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+    .racha-dia {
+      width: 28px; height: 28px;
+      border-radius: 6px;
+      background: var(--border, #e8e3db);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px;
+      font-family: var(--font-code, 'DM Mono', monospace);
+      color: var(--ink3, #9e9388);
+      position: relative;
+    }
+    .racha-dia.estudiado {
+      background: #8a3ab0;
+      color: white;
+    }
+    .racha-dia.hoy {
+      outline: 2px solid #c44a2a;
+      outline-offset: 1px;
+    }
+
+    /* ============================================
+       BOTÓN RESET
+       ============================================ */
+    .reset-area {
+      text-align: center;
+      padding-top: 20px;
+    }
+    .btn-reset {
+      background: none;
+      border: 1px solid var(--border, #e8e3db);
+      border-radius: 999px;
+      padding: 8px 20px;
+      font-size: 12px;
+      color: var(--ink3, #9e9388);
+      cursor: pointer;
+      font-family: var(--font-body, 'DM Sans', sans-serif);
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .btn-reset:hover { border-color: #c44a2a; color: #c44a2a; }
+
+    /* ============================================
+       MENSAJE DE MOTIVACIÓN
+       ============================================ */
+    .motivacion {
+      background: linear-gradient(135deg, #1a1814, #2a2018);
+      border-radius: 14px;
+      padding: 24px 28px;
+      margin-bottom: 32px;
+      color: #f7f4ef;
+      font-family: var(--font-title, 'Fraunces', serif);
+      font-size: 16px;
+      font-style: italic;
+      line-height: 1.6;
+      position: relative;
+    }
+    .motivacion::before {
+      content: '"';
+      font-size: 4rem;
+      color: rgba(196,74,42,0.3);
+      position: absolute;
+      top: 8px; left: 16px;
+      font-family: Georgia, serif;
+      line-height: 1;
+    }
+    .motivacion-texto { padding-left: 28px; }
+
+    /* ============================================
+       HEADER DE PÁGINA
+       ============================================ */
+    .page-header {
+      background: var(--card, #fff);
+      border-bottom: 1px solid var(--border, #e8e3db);
+      position: sticky;
+      top: 0;
+      z-index: 90;
+    }
+    .page-header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 20px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .back-link {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      color: var(--ink2, #6e6762);
+      font-size: 13px;
+      font-weight: 500;
+      transition: color 0.15s;
+    }
+    .back-link:hover { color: var(--ink, #1a1814); }
+    .page-header-title {
+      font-family: var(--font-title, 'Fraunces', serif);
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    /* ============================================
+       RESPONSIVE
+       ============================================ */
+    @media (max-width: 640px) {
+      .progreso-wrap { padding: 24px 16px 60px; }
+      .progreso-hero { padding: 24px 20px; }
+      .progreso-global { padding: 20px; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .racha-numero { font-size: 40px; }
+      .racha-btn { margin-left: 0; width: 100%; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <div class="page-header">
+    <div class="page-header-inner">
+      <a href="../capitulos.html" class="back-link">← Volver a Café &lt;/&gt;</a>
+      <span class="page-header-title">📊 Mi Progreso</span>
+    </div>
+  </div>
+
+  <div class="progreso-wrap">
+
+    <!-- HERO -->
+    <div class="progreso-hero">
+      <span class="hero-badge">📊 MI PROGRESO</span>
+      <h1>Tu avance en Café &lt;/&gt;</h1>
+      <p>Marca lo que ya completaste y lleva el registro de tu racha de estudio. Todo se guarda en tu navegador automáticamente.</p>
+    </div>
+
+    <!-- MENSAJE MOTIVACIONAL -->
+    <div class="motivacion">
+      <div class="motivacion-texto" id="fraseMot">
+        El código que escribiste hoy es mejor que el que no escribiste ayer.
+      </div>
+    </div>
+
+    <!-- PROGRESO GLOBAL -->
+    <div class="progreso-global">
+      <div class="progreso-global-header">
+        <span class="progreso-global-titulo">Progreso total</span>
+        <span class="progreso-global-pct" id="pctTotal">0%</span>
+      </div>
+      <div class="barra-total-track">
+        <div class="barra-total-fill" id="barraTotal"></div>
+      </div>
+      <p class="progreso-global-sub" id="subTotal">0 de 25 elementos completados</p>
+    </div>
+
+    <!-- ESTADÍSTICAS -->
+    <p class="seccion-label">Resumen por categoría</p>
+    <div class="stats-grid">
+
+      <div class="stat-card">
+        <div class="stat-icon">📚</div>
+        <div class="stat-valor"><span id="numCaps">0</span><span style="font-size:16px;color:var(--ink3)">/14</span></div>
+        <div class="stat-label">Capítulos completados</div>
+        <div class="stat-sub" id="subCaps">0% del total</div>
+        <div class="stat-barra"><div class="stat-barra-fill color-caps" id="barraCaps"></div></div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">✏️</div>
+        <div class="stat-valor"><span id="numEjer">0</span><span style="font-size:16px;color:var(--ink3)">/6</span></div>
+        <div class="stat-label">Ejercicios realizados</div>
+        <div class="stat-sub" id="subEjer">0% del total</div>
+        <div class="stat-barra"><div class="stat-barra-fill color-ejer" id="barraEjer"></div></div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">🏋️</div>
+        <div class="stat-valor"><span id="numPrac">0</span><span style="font-size:16px;color:var(--ink3)">/6</span></div>
+        <div class="stat-label">Niveles de práctica</div>
+        <div class="stat-sub" id="subPrac">0% del total</div>
+        <div class="stat-barra"><div class="stat-barra-fill color-prac" id="barraPrac"></div></div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">🔥</div>
+        <div class="stat-valor"><span id="numRacha">0</span></div>
+        <div class="stat-label">Días de racha</div>
+        <div class="stat-sub" id="subRacha">Sin racha activa</div>
+        <div class="stat-barra"><div class="stat-barra-fill color-racha" id="barraRacha"></div></div>
+      </div>
+
+    </div>
+
+    <!-- RACHA DE DÍAS -->
+    <p class="seccion-label">🔥 Racha de estudio</p>
+    <div class="racha-box">
+      <div class="racha-numero" id="rachaNumGrande">0</div>
+      <div class="racha-info">
+        <h4 id="rachaTitulo">Sin racha activa</h4>
+        <p id="rachaDesc">Presiona el botón para registrar que estudiaste hoy y empezar tu racha.</p>
+      </div>
+      <button class="racha-btn" id="btnRacha" onclick="registrarEstudio()">☕ Estudié hoy</button>
+    </div>
+    <div class="racha-calendario" id="rachaCalendario"></div>
+
+    <br>
+
+    <!-- CAPÍTULOS -->
+    <p class="seccion-label">📚 Capítulos — marca los que completaste</p>
+    <div class="caps-grid" id="capsGrid"></div>
+
+    <!-- EJERCICIOS -->
+    <p class="seccion-label">✏️ Ejercicios — marca los que realizaste</p>
+    <div class="check-grid" id="ejercGrid"></div>
+
+    <!-- PRÁCTICA -->
+    <p class="seccion-label">🏋️ Práctica interactiva — marca los niveles superados</p>
+    <div class="check-grid" id="pracGrid"></div>
+
+    <!-- RESET -->
+    <div class="reset-area">
+      <button class="btn-reset" onclick="confirmarReset()">🗑️ Reiniciar todo mi progreso</button>
+    </div>
+
+  </div>
+
+
+  <!-- Carga script.js del proyecto para leer CAPITULOS, EJERCICIOS y PRACTICA automáticamente -->
+  <script src="../js/script.js"></script>
+
+  <script>
+    /* ============================================
+       DATOS — se leen de script.js automáticamente.
+       Si script.js no expone las variables, se usan
+       los arrays de respaldo definidos aquí abajo.
+       Para agregar contenido nuevo: solo actualiza
+       script.js y esta página se actualiza sola.
+       ============================================ */
+
+    // Respaldo en caso de que script.js no exporte estas variables
+    if (typeof CAPITULOS === 'undefined') {
+      window.CAPITULOS = [
+        { id: 'cap00-conceptos',    num: '00', nombre: 'Antes de empezar' },
+        { id: 'cap01-html',         num: '01', nombre: 'Los bloques de construcción' },
+        { id: 'cap02-javascript',   num: '02', nombre: 'El cerebro de la página' },
+        { id: 'cap03-css',          num: '03', nombre: 'El estilo de la página' },
+        { id: 'cap04-control',      num: '04', nombre: 'Estructuras de control' },
+        { id: 'cap05-datos',        num: '05', nombre: 'Arreglos y Objetos' },
+        { id: 'cap06-funciones',    num: '06', nombre: 'Funciones avanzadas' },
+        { id: 'cap07-dom',          num: '07', nombre: 'DOM en profundidad' },
+        { id: 'cap08-formularios',  num: '08', nombre: 'Formularios y validaciones' },
+        { id: 'cap09-async',        num: '09', nombre: 'Código asíncrono' },
+        { id: 'cap10-almacenamiento', num: '10', nombre: 'Almacenamiento local' },
+        { id: 'cap11-api',          num: '11', nombre: 'Conexión con APIs' },
+        { id: 'cap12-firebase',     num: '12', nombre: 'Base de datos en la nube' },
+        { id: 'cap13-herramientas', num: '13', nombre: 'Herramientas del Desarrollador' },
+      ]
+    }
+    if (typeof EJERCICIOS === 'undefined') {
+      window.EJERCICIOS = [
+        { id: 'ej01', nombre: 'Ejercicio 01 · Receta de Tacos' },
+        { id: 'ej02', nombre: 'Ejercicio 02 · Página de Negocio' },
+        { id: 'ej03', nombre: 'Ejercicio 03 · Perfil de Fútbol' },
+        { id: 'ej04', nombre: 'Ejercicio 04 · Página de Contacto' },
+        { id: 'ej05', nombre: 'Ejercicio 05 · Portfolio Responsive' },
+        { id: 'ej06', nombre: 'Ejercicio 06 · Dashboard de Métricas' },
+      ]
+    }
+    if (typeof PRACTICA === 'undefined') {
+      window.PRACTICA = [
+        { id: 'pr01', nombre: 'Nivel 01 · Variables' },
+        { id: 'pr02', nombre: 'Nivel 02 · Condicionales' },
+        { id: 'pr03', nombre: 'Nivel 03 · Funciones' },
+        { id: 'pr04', nombre: 'Nivel 04 · Bucles y Arreglos' },
+        { id: 'pr05', nombre: 'Nivel 05 · DOM — La página viva' },
+        { id: 'pr06', nombre: 'Nivel 06 · Lista de Tareas (Proyecto)' },
+      ]
+    }
+
+    const FRASES = [
+      'El código que escribiste hoy es mejor que el que no escribiste ayer.',
+      'Cada error que entiendes es una habilidad que construyes.',
+      'Los mejores programadores no son los que nunca se equivocan, son los que aprenden más rápido.',
+      'Consistencia > intensidad. Unos minutos cada día hacen más que horas una vez a la semana.',
+      'No tienes que ser bueno para empezar, pero tienes que empezar para ser bueno.',
+      'El único código malo es el que nunca se escribe.',
+      'Una línea de código al día y en un año tienes un proyecto.',
+      'Aprende a caminar antes de correr, pero nunca dejes de moverte hacia adelante.',
+    ]
+
+    /* ============================================
+       STORAGE
+       ============================================ */
+    const KEY = 'cafe_progreso_v1'
+    const KEY_RACHA = 'cafe_racha_v1'
+
+    function cargar() {
+      try { return JSON.parse(localStorage.getItem(KEY)) || {} }
+      catch { return {} }
+    }
+    function guardar(data) {
+      localStorage.setItem(KEY, JSON.stringify(data))
+    }
+    function cargarRacha() {
+      try { return JSON.parse(localStorage.getItem(KEY_RACHA)) || { dias: [], racha: 0 } }
+      catch { return { dias: [], racha: 0 } }
+    }
+    function guardarRacha(data) {
+      localStorage.setItem(KEY_RACHA, JSON.stringify(data))
+    }
+
+    /* ============================================
+       RENDER — CAPÍTULOS
+       ============================================ */
+    function renderCaps(data) {
+      const grid = document.getElementById('capsGrid')
+      grid.innerHTML = ''
+      CAPITULOS.forEach(cap => {
+        const done = !!data[cap.id]
+        const el = document.createElement('div')
+        el.className = 'cap-item' + (done ? ' completado' : '')
+        el.innerHTML = `
+          <div class="cap-check">${done ? '✓' : ''}</div>
+          <div class="cap-info">
+            <div class="cap-num">CAPÍTULO ${cap.num}</div>
+            <div class="cap-nombre">${cap.nombre}</div>
+          </div>
+        `
+        el.addEventListener('click', () => toggleItem(cap.id))
+        grid.appendChild(el)
+      })
+    }
+
+    /* ============================================
+       RENDER — EJERCICIOS
+       ============================================ */
+    function renderEjer(data) {
+      const grid = document.getElementById('ejercGrid')
+      grid.innerHTML = ''
+      EJERCICIOS.forEach(ej => {
+        const done = !!data[ej.id]
+        const el = document.createElement('div')
+        el.className = 'check-item' + (done ? ' ejer-done' : '')
+        el.innerHTML = `
+          <div class="check-box">${done ? '✓' : ''}</div>
+          <div class="check-texto">${ej.nombre}</div>
+        `
+        el.addEventListener('click', () => toggleItem(ej.id))
+        grid.appendChild(el)
+      })
+    }
+
+    /* ============================================
+       RENDER — PRÁCTICA
+       ============================================ */
+    function renderPrac(data) {
+      const grid = document.getElementById('pracGrid')
+      grid.innerHTML = ''
+      PRACTICA.forEach(pr => {
+        const done = !!data[pr.id]
+        const el = document.createElement('div')
+        el.className = 'check-item' + (done ? ' prac-done' : '')
+        el.innerHTML = `
+          <div class="check-box">${done ? '✓' : ''}</div>
+          <div class="check-texto">${pr.nombre}</div>
+        `
+        el.addEventListener('click', () => toggleItem(pr.id))
+        grid.appendChild(el)
+      })
+    }
+
+    /* ============================================
+       RENDER — ESTADÍSTICAS
+       ============================================ */
+    function renderStats(data) {
+      const caps  = CAPITULOS.filter(c => data[c.id]).length
+      const ejer  = EJERCICIOS.filter(e => data[e.id]).length
+      const prac  = PRACTICA.filter(p => data[p.id]).length
+      const total = caps + ejer + prac
+      const max   = CAPITULOS.length + EJERCICIOS.length + PRACTICA.length // 26
+      const pct   = Math.round(total / max * 100)
+
+      // Global
+      document.getElementById('pctTotal').textContent   = pct + '%'
+      document.getElementById('barraTotal').style.width = pct + '%'
+      document.getElementById('subTotal').textContent   = `${total} de ${max} elementos completados`
+
+      // Capítulos
+      document.getElementById('numCaps').textContent   = caps
+      document.getElementById('subCaps').textContent   = Math.round(caps/14*100) + '% del total'
+      animBarra('barraCaps', caps / 14 * 100)
+
+      // Ejercicios
+      document.getElementById('numEjer').textContent   = ejer
+      document.getElementById('subEjer').textContent   = Math.round(ejer/6*100) + '% del total'
+      animBarra('barraEjer', ejer / 6 * 100)
+
+      // Práctica
+      document.getElementById('numPrac').textContent   = prac
+      document.getElementById('subPrac').textContent   = Math.round(prac/6*100) + '% del total'
+      animBarra('barraPrac', prac / 6 * 100)
+    }
+
+    function animBarra(id, pct) {
+      setTimeout(() => {
+        document.getElementById(id).style.width = pct + '%'
+      }, 100)
+    }
+
+    /* ============================================
+       RENDER — RACHA
+       ============================================ */
+    function renderRacha() {
+      const r = cargarRacha()
+      const racha = calcularRacha(r.dias)
+
+      document.getElementById('numRacha').textContent      = racha
+      document.getElementById('rachaNumGrande').textContent = racha
+      animBarra('barraRacha', Math.min(racha / 30 * 100, 100))
+
+      if (racha === 0) {
+        document.getElementById('rachaTitulo').textContent = 'Sin racha activa'
+        document.getElementById('rachaDesc').textContent   = 'Presiona el botón para registrar que estudiaste hoy y empezar tu racha.'
+        document.getElementById('subRacha').textContent    = 'Sin racha activa'
+      } else if (racha === 1) {
+        document.getElementById('rachaTitulo').textContent = '¡Primer día! 🌱'
+        document.getElementById('rachaDesc').textContent   = 'Vuelve mañana para seguir construyendo tu racha. ¡El primero siempre es el más difícil!'
+        document.getElementById('subRacha').textContent    = '1 día consecutivo'
+      } else if (racha < 7) {
+        document.getElementById('rachaTitulo').textContent = `${racha} días seguidos 🔥`
+        document.getElementById('rachaDesc').textContent   = 'Vas muy bien. La consistencia es lo que diferencia a quienes aprenden de los que solo intentan.'
+        document.getElementById('subRacha').textContent    = `${racha} días consecutivos`
+      } else if (racha < 30) {
+        document.getElementById('rachaTitulo').textContent = `¡${racha} días! ⚡`
+        document.getElementById('rachaDesc').textContent   = '¡Increíble constancia! Estás construyendo un hábito real de programación.'
+        document.getElementById('subRacha').textContent    = `${racha} días consecutivos`
+      } else {
+        document.getElementById('rachaTitulo').textContent = `¡${racha} días! 🏆`
+        document.getElementById('rachaDesc').textContent   = 'Nivel élite. Eso ya no es práctica casual, eso es disciplina de desarrollador.'
+        document.getElementById('subRacha').textContent    = `${racha} días consecutivos`
+      }
+
+      // Botón — deshabilitar si ya registró hoy
+      const hoy = fechaHoy()
+      const yaRegistro = r.dias.includes(hoy)
+      const btn = document.getElementById('btnRacha')
+      btn.disabled = yaRegistro
+      btn.textContent = yaRegistro ? '✓ Ya estudiaste hoy' : '☕ Estudié hoy'
+
+      // Calendario últimos 28 días
+      renderCalendario(r.dias)
+    }
+
+    function renderCalendario(dias) {
+      const cal = document.getElementById('rachaCalendario')
+      cal.innerHTML = ''
+      const hoy = new Date()
+      for (let i = 27; i >= 0; i--) {
+        const d = new Date(hoy)
+        d.setDate(d.getDate() - i)
+        const key = d.toISOString().split('T')[0]
+        const div = document.createElement('div')
+        div.className = 'racha-dia' + (dias.includes(key) ? ' estudiado' : '') + (i === 0 ? ' hoy' : '')
+        div.title = key
+        div.textContent = d.getDate()
+        cal.appendChild(div)
+      }
+    }
+
+    function calcularRacha(dias) {
+      if (!dias.length) return 0
+      const sorted = [...dias].sort().reverse()
+      const hoy    = fechaHoy()
+      const ayer   = fechaOffset(-1)
+      // Si el último día no es hoy ni ayer, racha rota
+      if (sorted[0] !== hoy && sorted[0] !== ayer) return 0
+      let racha = 0
+      let ref   = sorted[0] === hoy ? new Date() : new Date(new Date().setDate(new Date().getDate() - 1))
+      for (let i = 0; i < sorted.length; i++) {
+        const esperado = ref.toISOString().split('T')[0]
+        if (sorted[i] === esperado) {
+          racha++
+          ref.setDate(ref.getDate() - 1)
+        } else break
+      }
+      return racha
+    }
+
+    function fechaHoy()         { return new Date().toISOString().split('T')[0] }
+    function fechaOffset(days)  {
+      const d = new Date(); d.setDate(d.getDate() + days)
+      return d.toISOString().split('T')[0]
+    }
+
+    /* ============================================
+       ACCIONES
+       ============================================ */
+    function toggleItem(id) {
+      const data   = cargar()
+      data[id]     = !data[id]
+      if (!data[id]) delete data[id]
+      guardar(data)
+      renderTodo()
+    }
+
+    function registrarEstudio() {
+      const r   = cargarRacha()
+      const hoy = fechaHoy()
+      if (!r.dias.includes(hoy)) r.dias.push(hoy)
+      guardarRacha(r)
+      renderRacha()
+      // confetti mini
+      confettiMini()
+    }
+
+    function confirmarReset() {
+      if (confirm('¿Seguro que quieres reiniciar TODO tu progreso? Esta acción no se puede deshacer.')) {
+        localStorage.removeItem(KEY)
+        localStorage.removeItem(KEY_RACHA)
+        renderTodo()
+      }
+    }
+
+    /* ============================================
+       CONFETTI MINI (puro CSS/JS, sin librerías)
+       ============================================ */
+    function confettiMini() {
+      const colores = ['#c44a2a', '#e06040', '#f0c060', '#8a3ab0', '#1a5fa0']
+      for (let i = 0; i < 30; i++) {
+        const el = document.createElement('div')
+        const size = Math.random() * 8 + 4
+        el.style.cssText = `
+          position:fixed;
+          width:${size}px; height:${size}px;
+          background:${colores[Math.floor(Math.random()*colores.length)]};
+          border-radius:${Math.random() > 0.5 ? '50%' : '2px'};
+          left:${Math.random()*100}vw;
+          top:-10px;
+          pointer-events:none;
+          z-index:9999;
+          opacity:1;
+          transform:rotate(${Math.random()*360}deg);
+          transition: top 1.5s ease-in, opacity 1.5s ease-in;
+        `
+        document.body.appendChild(el)
+        requestAnimationFrame(() => {
+          el.style.top     = (60 + Math.random() * 40) + 'vh'
+          el.style.opacity = '0'
+        })
+        setTimeout(() => el.remove(), 1600)
+      }
+    }
+
+    /* ============================================
+       FRASE MOTIVACIONAL
+       ============================================ */
+    function renderFrase() {
+      const idx = Math.floor(Math.random() * FRASES.length)
+      document.getElementById('fraseMot').textContent = FRASES[idx]
+    }
+
+    /* ============================================
+       RENDER TOTAL
+       ============================================ */
+    function renderTodo() {
+      const data = cargar()
+      renderCaps(data)
+      renderEjer(data)
+      renderPrac(data)
+      renderStats(data)
+      renderRacha()
+    }
+
+    /* INIT */
+    renderFrase()
+    renderTodo()
+  </script>
+
+</body>
+</html>

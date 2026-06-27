@@ -415,3 +415,38 @@ document.addEventListener('DOMContentLoaded', () => {
   iniciarBannerInstalacion()
   registrarSW()
 })
+
+// ============================================
+// EXPORTAR DATOS PARA MI PROGRESO
+// Mi Progreso lee estas variables automáticamente.
+// Si agregas capítulos o ejercicios aquí arriba,
+// aparecen solos en Mi Progreso sin tocar nada más.
+// ============================================
+
+window.CAPITULOS = TEMAS.flatMap(tema =>
+  tema.capitulos.map(cap => ({
+    id:     cap.id,           // ej. 'cap00-conceptos'
+    num:    cap.numero,       // ej. '00'
+    nombre: cap.titulo        // ej. 'Antes de empezar'
+  }))
+)
+
+window.EJERCICIOS = [
+  { id: 'ej01', nombre: 'Ejercicio 01 · Receta de Tacos' },
+  { id: 'ej02', nombre: 'Ejercicio 02 · Página de Negocio' },
+  { id: 'ej03', nombre: 'Ejercicio 03 · Perfil de Fútbol' },
+  { id: 'ej04', nombre: 'Ejercicio 04 · Página de Contacto' },
+  { id: 'ej05', nombre: 'Ejercicio 05 · Portfolio Responsive' },
+  { id: 'ej06', nombre: 'Ejercicio 06 · Dashboard de Métricas' },
+  // ➕ Agrega aquí los nuevos ejercicios cuando los tengas
+]
+
+window.PRACTICA = [
+  { id: 'pr01', nombre: 'Nivel 01 · Variables' },
+  { id: 'pr02', nombre: 'Nivel 02 · Condicionales' },
+  { id: 'pr03', nombre: 'Nivel 03 · Funciones' },
+  { id: 'pr04', nombre: 'Nivel 04 · Bucles y Arreglos' },
+  { id: 'pr05', nombre: 'Nivel 05 · DOM — La página viva' },
+  { id: 'pr06', nombre: 'Nivel 06 · Lista de Tareas (Proyecto)' },
+  // ➕ Agrega aquí los nuevos niveles de práctica cuando los tengas
+]
