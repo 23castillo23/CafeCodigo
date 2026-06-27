@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1a1814">
+  <title>Café </> · Mi Consola</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --font-title: 'Fraunces', Georgia, serif;
+      --font-body:  'DM Sans', system-ui, sans-serif;
+      --font-code:  'DM Mono', 'Fira Code', monospace;
+      --bg:         #1a1814;
+      --surface:    #201e17;
+      --border:     rgba(255,255,255,0.08);
+      --cream:      #f7f4ef;
+      --coral:      #c44a2a;
+      --amber:      #b07010;
+      --green:      #1a7a5a;
+      --blue:       #1a5fa5;
+      --java:       #534ab7;
+      --text-dim:   rgba(247,244,239,0.4);
+      --text-mid:   rgba(247,244,239,0.65);
+    }
+    body { font-family: var(--font-body); background: var(--bg); color: var(--cream); min-height: 100vh; line-height: 1.6; }
+
+    /* Header */
+    .site-header { position: sticky; top: 0; z-index: 100; background: #0f0d0a; border-bottom: 1px solid rgba(255,255,255,.07); }
+    .header-inner { max-width: 1240px; margin: 0 auto; padding: 0 24px; height: 62px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .logo-group { display: flex; align-items: center; gap: 10px; }
+    .logo-back { font-size: 13px; color: var(--text-dim); text-decoration: none; padding: 5px 10px; border-radius: 6px; transition: color .15s, background .15s; }
+    .logo-back:hover { color: var(--cream); background: rgba(255,255,255,.06); }
+    .logo-icon { font-size: 20px; }
+    .logo-title { font-family: var(--font-title); font-size: 17px; font-weight: 700; line-height: 1.2; }
+    .logo-code { color: var(--coral); }
+    .logo-sub { font-size: 11px; color: rgba(247,244,239,.35); }
+    .header-badges { display: flex; gap: 6px; }
+    .badge { font-family: var(--font-code); font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 6px; letter-spacing: .05em; }
+    .badge-html { background: rgba(196,74,42,.2);  color: #f4a68a; border: 1px solid rgba(196,74,42,.3); }
+    .badge-css  { background: rgba(26,122,90,.2);  color: #7ed4b4; border: 1px solid rgba(26,122,90,.3); }
+    .badge-js   { background: rgba(176,112,16,.2); color: #f0c060; border: 1px solid rgba(176,112,16,.3); }
+
+    /* Wrap */
+    .consola-wrap { max-width: 1240px; margin: 0 auto; padding: 28px 24px 60px; }
+
+    /* Cabecera sección */
+    .consola-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; padding: 18px 22px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; }
+    .consola-titulo { font-family: var(--font-title); font-size: clamp(16px,2.2vw,22px); font-weight: 700; margin-bottom: 4px; }
+    .consola-desc { font-size: 13px; color: var(--text-mid); max-width: 560px; line-height: 1.65; }
+
+    /* Botones */
+    .btn-group { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .btn-run { display: inline-flex; align-items: center; gap: 8px; background: var(--coral); color: white; border: none; padding: 10px 22px; border-radius: 10px; font-family: var(--font-body); font-size: 13.5px; font-weight: 700; cursor: pointer; letter-spacing: .02em; white-space: nowrap; box-shadow: 0 3px 10px rgba(196,74,42,.4); transition: background .15s, transform .1s; }
+    .btn-run:hover:not(:disabled) { background: #a33b21; }
+    .btn-run:active { transform: scale(.97); }
+    .btn-run:disabled { opacity: .5; cursor: not-allowed; }
+    .btn-secondary { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.06); color: var(--text-mid); border: 1px solid rgba(255,255,255,.1); padding: 9px 16px; border-radius: 10px; font-family: var(--font-body); font-size: 13px; font-weight: 500; cursor: pointer; transition: border-color .15s, color .15s, background .15s; }
+    .btn-secondary:hover { border-color: rgba(255,255,255,.25); color: var(--cream); background: rgba(255,255,255,.1); }
+
+    /* Label */
+    .ejemplos-label { font-family: var(--font-code); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--text-dim); margin: 18px 0 10px; }
+
+    /* Modo selector */
+    .modo-selector { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+    .modo-btn { padding: 9px 18px; border-radius: 10px; border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.05); color: rgba(247,244,239,.6); font-family: var(--font-code); font-size: 12px; font-weight: 600; cursor: pointer; transition: all .15s; letter-spacing: .04em; }
+    .modo-btn:hover { border-color: rgba(196,74,42,.5); color: #f4a68a; background: rgba(196,74,42,.1); }
+    .modo-btn.activo-html { background: #c44a2a; border-color: #c44a2a; color: white; box-shadow: 0 3px 10px rgba(196,74,42,.4); }
+    .modo-btn.activo-js   { background: #b07010; border-color: #b07010; color: white; box-shadow: 0 3px 10px rgba(176,112,16,.4); }
+    .modo-btn.activo-py   { background: #1a5fa5; border-color: #1a5fa5; color: white; box-shadow: 0 3px 10px rgba(26,95,165,.4); }
+
+    /* Panels de modo */
+    .modo-panel { display: none; }
+    .modo-panel.visible { display: block; }
+
+    /* Sub-header de modo */
+    .modo-subheader { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 14px 18px; border-radius: 12px; border: 1px solid; margin-bottom: 12px; }
+    .modo-subheader p { font-size: 13px; color: var(--text-mid); }
+    .modo-subheader kbd { font-family: var(--font-code); background: rgba(255,255,255,.08); padding: 2px 6px; border-radius: 4px; font-size: 11px; }
+
+    /* Layouts */
+    .js-ide-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .editor-layout-web { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+    .editor-panel-full { grid-column: 1 / -1; }
+
+    .editor-panel { background: #141210; border: 1px solid rgba(255,255,255,.07); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
+    .editor-topbar { display: flex; align-items: center; gap: 7px; padding: 10px 14px; background: rgba(0,0,0,.3); border-bottom: 1px solid rgba(255,255,255,.05); flex-shrink: 0; }
+    .editor-dot { width: 11px; height: 11px; border-radius: 50%; }
+    .dot-red { background: #ff5f57; } .dot-yellow { background: #febc2e; } .dot-green { background: #28c840; }
+    .editor-lang-label { font-family: var(--font-code); font-size: 12px; color: var(--text-dim); margin-left: 4px; flex: 1; }
+    .editor-lang-badge { font-family: var(--font-code); font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 5px; letter-spacing: .04em; }
+    .badge-html-e { background: rgba(196,74,42,.2); color: #f4a68a; }
+    .badge-css-e  { background: rgba(26,122,90,.2);  color: #7ed4b4; }
+    .badge-js-e   { background: rgba(176,112,16,.2); color: #f0c060; }
+    .badge-py-e   { background: rgba(26,95,165,.2);  color: #86bef5; }
+    .editor-textarea { width: 100%; flex: 1; min-height: 280px; background: transparent; color: var(--cream); border: none; outline: none; resize: none; padding: 14px 16px; font-family: var(--font-code); font-size: 13px; line-height: 1.7; tab-size: 2; }
+    .editor-textarea::placeholder { color: rgba(247,244,239,.18); }
+
+    /* Preview */
+    .preview-panel { background: white; }
+    .preview-topbar { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: #f0ece5; border-bottom: 1px solid rgba(0,0,0,.08); flex-shrink: 0; }
+    .preview-label { font-family: var(--font-code); font-size: 11px; font-weight: 700; color: rgba(0,0,0,.4); letter-spacing: .06em; flex: 1; }
+    .preview-url-bar { font-family: var(--font-code); font-size: 11px; color: rgba(0,0,0,.35); background: rgba(0,0,0,.06); padding: 4px 12px; border-radius: 6px; }
+    .preview-frame { width: 100%; min-height: 260px; border: none; display: block; background: white; overflow: auto; padding: 20px; font-family: 'Segoe UI', system-ui, sans-serif; box-sizing: border-box; }
+
+    /* Output */
+    .output-panel { background: #141210; border: 1px solid rgba(255,255,255,.07); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
+    .output-topbar { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(0,0,0,.3); border-bottom: 1px solid rgba(255,255,255,.05); flex-shrink: 0; }
+    .output-label { font-family: var(--font-code); font-size: 11.5px; font-weight: 700; letter-spacing: .04em; flex: 1; }
+    .btn-clear { font-family: var(--font-code); font-size: 10.5px; background: none; border: 1px solid rgba(255,255,255,.1); color: var(--text-dim); padding: 3px 10px; border-radius: 5px; cursor: pointer; transition: all .15s; }
+    .btn-clear:hover { color: var(--cream); border-color: rgba(255,255,255,.25); }
+    .output-content { flex: 1; padding: 14px 16px; min-height: 280px; overflow-y: auto; font-family: var(--font-code); font-size: 12.5px; line-height: 1.8; display: flex; flex-direction: column; gap: 2px; }
+    .output-empty { color: rgba(247,244,239,.18); font-style: italic; }
+    .output-line-log   { color: var(--cream); }
+    .output-line-error { color: #f4847a; }
+    .output-line-warn  { color: #f0c060; }
+    .output-line-info  { color: #86bef5; }
+    .output-line-ok    { color: #7ed490; margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,.06); }
+
+    /* Python status */
+    .py-status { font-family: var(--font-code); font-size: 11px; padding: 5px 12px; border-radius: 7px; background: rgba(255,255,255,.06); color: var(--text-dim); white-space: nowrap; }
+    .py-status.cargando { color: #f0c060; background: rgba(176,112,16,.12); }
+    .py-status.listo    { color: #7ed490; background: rgba(26,122,90,.12); }
+    .py-status.error-py { color: #f4847a; background: rgba(244,132,122,.1); }
+
+    /* Snippets */
+    .notas-wrap { margin-top: 32px; background: #18160f; border: 1px solid rgba(255,255,255,.07); border-radius: 14px; overflow: hidden; }
+    .notas-topbar { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: #0f0d0a; border-bottom: 1px solid rgba(255,255,255,.06); }
+    .notas-titulo { font-family: var(--font-code); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--text-dim); }
+    .notas-btn-grupo { display: flex; gap: 6px; }
+    .notas-btn { font-family: var(--font-code); font-size: 11px; background: rgba(255,255,255,.06); color: rgba(247,244,239,.5); border: 1px solid rgba(255,255,255,.1); padding: 4px 10px; border-radius: 6px; cursor: pointer; transition: all .15s; }
+    .notas-btn:hover { color: var(--cream); background: rgba(255,255,255,.1); }
+    .notas-btn.guardar { background: rgba(26,122,90,.2); color: #7ed4b4; border-color: rgba(26,122,90,.3); }
+    .notas-btn.guardar:hover { background: rgba(26,122,90,.35); }
+    .notas-lista { padding: 12px 16px; max-height: 240px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+    .notas-vacia { font-family: var(--font-code); font-size: 12px; color: rgba(247,244,239,.2); font-style: italic; }
+    .nota-item { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.06); border-radius: 8px; padding: 8px 12px; cursor: pointer; transition: border-color .15s, background .15s; }
+    .nota-item:hover { border-color: rgba(196,74,42,.4); background: rgba(196,74,42,.07); }
+    .nota-item-modo { font-size: 14px; flex-shrink: 0; }
+    .nota-item-texto { font-family: var(--font-code); font-size: 11px; color: rgba(247,244,239,.6); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .nota-item-fecha { font-family: var(--font-code); font-size: 10px; color: rgba(247,244,239,.25); flex-shrink: 0; }
+    .nota-item-del { font-size: 13px; opacity: .3; flex-shrink: 0; cursor: pointer; transition: opacity .15s; }
+    .nota-item-del:hover { opacity: .8; }
+
+    /* Toast */
+    .toast { position: fixed; bottom: 28px; right: 24px; background: var(--green); color: white; padding: 10px 18px; border-radius: 10px; font-family: var(--font-code); font-size: 12px; font-weight: 600; opacity: 0; transform: translateY(10px); transition: opacity .2s, transform .2s; z-index: 999; pointer-events: none; }
+    .toast.visible { opacity: 1; transform: translateY(0); }
+
+    /* Footer */
+    .site-footer { text-align: center; padding: 28px 24px; border-top: 1px solid var(--border); font-family: var(--font-code); font-size: 12px; color: var(--text-dim); }
+
+    @media (max-width: 900px) {
+      .editor-layout-web { grid-template-columns: 1fr; }
+      .js-ide-layout { grid-template-columns: 1fr; }
+      .consola-header { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="logo-group">
+        <a href="../capitulos.html?tab=consola" class="logo-back">← Consolas</a>
+        <span class="logo-icon">☕</span>
+        <div>
+          <h1 class="logo-title">Café <span class="logo-code">&lt;/&gt;</span></h1>
+          <p class="logo-sub">Mi Consola Personal</p>
+        </div>
+      </div>
+      <div class="header-badges">
+        <span class="badge badge-html">HTML</span>
+        <span class="badge badge-css">CSS</span>
+        <span class="badge badge-js">JS</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="consola-wrap">
+
+    <div class="consola-header">
+      <div>
+        <h2 class="consola-titulo">🧪 Mi Consola Personal</h2>
+        <p class="consola-desc">Tu sandbox privado. Escribe libremente en el lenguaje que quieras, guarda tus snippets favoritos en el navegador y recupéralos cuando los necesites.</p>
+      </div>
+    </div>
+
+    <!-- SELECTOR DE MODO -->
+    <div class="ejemplos-label">🔧 Elige el modo</div>
+    <div class="modo-selector">
+      <button class="modo-btn activo-html" id="btn-modo-web"    onclick="cambiarModo('web')">🌐 Web (HTML+CSS+JS)</button>
+      <button class="modo-btn"             id="btn-modo-js"     onclick="cambiarModo('js')">⚡ JavaScript</button>
+      <button class="modo-btn"             id="btn-modo-python" onclick="cambiarModo('python')">🐍 Python</button>
+    </div>
+
+    <!-- ============ MODO WEB ============ -->
+    <div class="modo-panel visible" id="modo-web">
+      <div class="modo-subheader" style="background:rgba(196,74,42,0.08);border-color:rgba(196,74,42,0.2);">
+        <p>Modo Web activo — edita HTML, CSS y JS y ve el resultado en vivo.</p>
+        <div class="btn-group">
+          <button class="btn-secondary" onclick="guardarSnippet('web')">💾 Guardar snippet</button>
+          <button class="btn-secondary" onclick="limpiarWeb()">🗑 Limpiar</button>
+          <button class="btn-run" onclick="ejecutarWeb()">▶ Ejecutar</button>
+        </div>
+      </div>
+      <div class="editor-layout-web">
+        <div class="editor-panel">
+          <div class="editor-topbar">
+            <div class="editor-dot dot-red"></div><div class="editor-dot dot-yellow"></div><div class="editor-dot dot-green"></div>
+            <span class="editor-lang-label">index.html</span>
+            <span class="editor-lang-badge badge-html-e">HTML</span>
+          </div>
+          <textarea class="editor-textarea" id="p-web-html" spellcheck="false" placeholder="Escribe HTML aquí..."></textarea>
+        </div>
+        <div class="editor-panel">
+          <div class="editor-topbar">
+            <div class="editor-dot dot-red"></div><div class="editor-dot dot-yellow"></div><div class="editor-dot dot-green"></div>
+            <span class="editor-lang-label">style.css</span>
+            <span class="editor-lang-badge badge-css-e">CSS</span>
+          </div>
+          <textarea class="editor-textarea" id="p-web-css" spellcheck="false" placeholder="Escribe CSS aquí..."></textarea>
+        </div>
+        <div class="editor-panel">
+          <div class="editor-topbar">
+            <div class="editor-dot dot-red"></div><div class="editor-dot dot-yellow"></div><div class="editor-dot dot-green"></div>
+            <span class="editor-lang-label">script.js</span>
+            <span class="editor-lang-badge badge-js-e">JS</span>
+          </div>
+          <textarea class="editor-textarea" id="p-web-js" spellcheck="false" placeholder="Escribe JavaScript aquí..."></textarea>
+        </div>
+        <div class="preview-panel editor-panel editor-panel-full">
+          <div class="preview-topbar">
+            <span class="preview-label">PREVIEW</span>
+            <div class="preview-url-bar">🔒 preview · mi consola</div>
+            <button class="btn-secondary" style="font-size:12px;padding:5px 12px;background:rgba(0,0,0,.06);color:rgba(0,0,0,.5);border-color:rgba(0,0,0,.12);" onclick="ejecutarWeb()">↻ Refrescar</button>
+          </div>
+          <div id="p-web-preview" class="preview-frame"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ MODO JS ============ -->
+    <div class="modo-panel" id="modo-js">
+      <div class="modo-subheader" style="background:rgba(176,112,16,0.08);border-color:rgba(176,112,16,0.25);">
+        <p>Modo JavaScript — <kbd>Ctrl+Enter</kbd> para ejecutar rápido.</p>
+        <div class="btn-group">
+          <button class="btn-secondary" onclick="guardarSnippet('js')">💾 Guardar snippet</button>
+          <button class="btn-secondary" onclick="limpiarJS()">🗑 Limpiar</button>
+          <button class="btn-run" style="background:#b07010;box-shadow:0 3px 10px rgba(176,112,16,.4);" onclick="ejecutarJS()">▶ Ejecutar JS</button>
+        </div>
+      </div>
+      <div class="js-ide-layout" style="margin-top:2px;">
+        <div class="editor-panel" style="min-height:340px;">
+          <div class="editor-topbar">
+            <div class="editor-dot dot-red"></div><div class="editor-dot dot-yellow"></div><div class="editor-dot dot-green"></div>
+            <span class="editor-lang-label">mi-codigo.js</span>
+            <span class="editor-lang-badge badge-js-e">JavaScript</span>
+          </div>
+          <textarea class="editor-textarea" id="p-js-code" spellcheck="false" style="min-height:300px;" placeholder="// Escribe tu JavaScript aquí&#10;// Ctrl+Enter para ejecutar&#10;console.log('¡Hola desde mi consola!')"></textarea>
+        </div>
+        <div class="output-panel" style="min-height:340px;">
+          <div class="output-topbar">
+            <span class="output-label" style="color:#f0c060;">▸ CONSOLA</span>
+            <button class="btn-clear" onclick="limpiarOutputJS()">limpiar</button>
+          </div>
+          <div class="output-content" id="p-js-output">
+            <span class="output-empty">// La salida aparecerá aquí...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ MODO PYTHON ============ -->
+    <div class="modo-panel" id="modo-python">
+      <div class="modo-subheader" style="background:rgba(26,95,165,0.08);border-color:rgba(26,95,165,0.25);">
+        <p>Modo Python — ejecutado en el navegador con Pyodide.</p>
+        <div class="btn-group">
+          <span class="py-status cargando" id="p-py-status">⏳ Cargando...</span>
+          <button class="btn-secondary" onclick="guardarSnippet('python')">💾 Guardar snippet</button>
+          <button class="btn-secondary" onclick="limpiarPython()">🗑 Limpiar</button>
+          <button class="btn-run" id="p-py-run" style="background:#1a5fa5;box-shadow:0 3px 10px rgba(26,95,165,.4);" onclick="ejecutarPython()" disabled>▶ Ejecutar Python</button>
+        </div>
+      </div>
+      <div class="js-ide-layout" style="margin-top:2px;">
+        <div class="editor-panel" style="min-height:340px;">
+          <div class="editor-topbar">
+            <div class="editor-dot dot-red"></div><div class="editor-dot dot-yellow"></div><div class="editor-dot dot-green"></div>
+            <span class="editor-lang-label">mi-codigo.py</span>
+            <span class="editor-lang-badge badge-py-e">Python</span>
+          </div>
+          <textarea class="editor-textarea" id="p-py-code" spellcheck="false" style="min-height:300px;" placeholder="# Escribe Python aquí&#10;print('¡Hola desde mi consola!')"></textarea>
+        </div>
+        <div class="output-panel" style="min-height:340px;">
+          <div class="output-topbar">
+            <span class="output-label" style="color:#86bef5;">▸ CONSOLA PYTHON</span>
+            <button class="btn-clear" onclick="limpiarOutputPython()">limpiar</button>
+          </div>
+          <div class="output-content" id="p-py-output">
+            <span class="output-empty">// Esperando a que Python cargue...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ SNIPPETS ============ -->
+    <div class="notas-wrap">
+      <div class="notas-topbar">
+        <span class="notas-titulo">💾 Mis snippets guardados</span>
+        <div class="notas-btn-grupo">
+          <button class="notas-btn" onclick="limpiarTodosSnippets()">🗑 Limpiar todos</button>
+        </div>
+      </div>
+      <div class="notas-lista" id="snippets-lista">
+        <span class="notas-vacia">Aún no tienes snippets guardados. Escribe código y presiona "Guardar snippet".</span>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <footer class="site-footer"><p>☕ Café &lt;/&gt; · Mi Consola Personal</p></footer>
+
+  <script>
+    // ============ MODO SELECTOR ============
+    let modoActual = 'web'
+    const modoLabels = { web: '🌐', js: '⚡', python: '🐍' }
+    const modoClases = { web: 'activo-html', js: 'activo-js', python: 'activo-py' }
+    const modoIds    = { web: 'btn-modo-web', js: 'btn-modo-js', python: 'btn-modo-python' }
+
+    function cambiarModo(modo) {
+      modoActual = modo
+      // Ocultar todos los panels
+      document.querySelectorAll('.modo-panel').forEach(p => p.classList.remove('visible'))
+      // Quitar clases activas de todos los botones
+      document.querySelectorAll('.modo-btn').forEach(b => {
+        b.classList.remove('activo-html', 'activo-js', 'activo-py')
+      })
+      // Mostrar panel y activar botón
+      document.getElementById(`modo-${modo}`).classList.add('visible')
+      document.getElementById(modoIds[modo]).classList.add(modoClases[modo])
+      // Iniciar Python si es necesario
+      if (modo === 'python' && !pyodide && !pyodideCargando) cargarPyodide()
+    }
+
+    // ============ WEB ============
+    function ejecutarWeb() {
+      const html    = document.getElementById('p-web-html').value
+      const css     = document.getElementById('p-web-css').value
+      const js      = document.getElementById('p-web-js').value
+      const preview = document.getElementById('p-web-preview')
+      preview.innerHTML = `<style>* { box-sizing: border-box; } ${css}</style>${html}`
+      if (js.trim()) {
+        try {
+          const fakeDoc = {
+            getElementById:   id  => preview.querySelector('#' + id),
+            querySelector:    sel => preview.querySelector(sel),
+            querySelectorAll: sel => preview.querySelectorAll(sel),
+            createElement:    tag => document.createElement(tag),
+            body: preview,
+          }
+          new Function('document', 'console', js)(fakeDoc, console)
+        } catch(e) {
+          preview.innerHTML += `<pre style="color:red;background:#fff0f0;padding:12px;border-radius:6px;font-size:13px;margin-top:12px;">${e}</pre>`
+        }
+      }
+    }
+
+    function limpiarWeb() {
+      ['p-web-html','p-web-css','p-web-js'].forEach(id => document.getElementById(id).value = '')
+      document.getElementById('p-web-preview').innerHTML = ''
+    }
+
+    // ============ JS ============
+    function agregarLineaJS(texto, tipo = 'log') {
+      const out = document.getElementById('p-js-output')
+      const div = document.createElement('div')
+      div.className = `output-line-${tipo}`
+      div.textContent = texto
+      const empty = out.querySelector('.output-empty')
+      if (empty) empty.remove()
+      out.appendChild(div)
+      out.scrollTop = out.scrollHeight
+    }
+
+    function ejecutarJS() {
+      const codigo = document.getElementById('p-js-code').value
+      document.getElementById('p-js-output').innerHTML = ''
+      const consolaFalsa = {
+        log:   (...args) => agregarLineaJS('▸ ' + args.map(a => typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a)).join(' '), 'log'),
+        error: (...args) => agregarLineaJS('✖ ' + args.join(' '), 'error'),
+        warn:  (...args) => agregarLineaJS('⚠ ' + args.join(' '), 'warn'),
+        info:  (...args) => agregarLineaJS('ℹ ' + args.join(' '), 'info'),
+      }
+      try {
+        new Function('console', codigo)(consolaFalsa)
+        agregarLineaJS('✓ Ejecución completada', 'ok')
+      } catch(e) {
+        agregarLineaJS('✖ Error: ' + e.message, 'error')
+      }
+    }
+
+    function limpiarOutputJS() {
+      document.getElementById('p-js-output').innerHTML = '<span class="output-empty">// La salida aparecerá aquí...</span>'
+    }
+    function limpiarJS() {
+      document.getElementById('p-js-code').value = ''
+      limpiarOutputJS()
+    }
+
+    // ============ PYTHON ============
+    let pyodide = null, pyodideCargando = false
+
+    async function cargarPyodide() {
+      if (pyodideCargando || pyodide) return
+      pyodideCargando = true
+      const statusEl = document.getElementById('p-py-status')
+      const runBtn   = document.getElementById('p-py-run')
+      try {
+        statusEl.className = 'py-status cargando'
+        statusEl.textContent = '⏳ Cargando Python...'
+        const script = document.createElement('script')
+        script.src = 'https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js'
+        document.head.appendChild(script)
+        await new Promise((res, rej) => { script.onload = res; script.onerror = rej })
+        pyodide = await loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.25.1/full/' })
+        statusEl.className = 'py-status listo'
+        statusEl.textContent = '✓ Python listo'
+        runBtn.disabled = false
+        document.getElementById('p-py-output').innerHTML = '<span class="output-empty">// Python listo. Escribe código y ejecuta...</span>'
+      } catch(e) {
+        statusEl.className = 'py-status error-py'
+        statusEl.textContent = '✗ Error al cargar'
+        runBtn.disabled = false
+        runBtn.style.background = '#534ab7'
+        runBtn.textContent = '↗ Abrir online'
+        runBtn.onclick = () => window.open('https://www.online-python.com/', '_blank')
+      }
+      pyodideCargando = false
+    }
+
+    function agregarLineaPy(texto, tipo = 'log') {
+      const out = document.getElementById('p-py-output')
+      const div = document.createElement('div')
+      div.className = `output-line-${tipo}`
+      div.textContent = texto
+      const empty = out.querySelector('.output-empty')
+      if (empty) empty.remove()
+      out.appendChild(div)
+      out.scrollTop = out.scrollHeight
+    }
+
+    async function ejecutarPython() {
+      if (!pyodide) { alert('Python aún no ha cargado. Espera un momento.'); return }
+      const codigo = document.getElementById('p-py-code').value.trim()
+      if (!codigo) { alert('El editor está vacío.'); return }
+      document.getElementById('p-py-output').innerHTML = ''
+      let salida = []
+      pyodide.setStdout({ batched: s => salida.push({ t: 'log', v: s }) })
+      pyodide.setStderr({ batched: s => salida.push({ t: 'error', v: s }) })
+      try {
+        await pyodide.runPythonAsync(codigo)
+        if (salida.length === 0) agregarLineaPy('(sin salida — usa print())', 'warn')
+        else {
+          salida.forEach(({ t, v }) => agregarLineaPy((t === 'error' ? '✖ ' : '▸ ') + v, t))
+          agregarLineaPy('✓ Ejecución completada', 'ok')
+        }
+      } catch(e) {
+        e.message.split('\n').forEach(l => { if (l.trim()) agregarLineaPy('✖ ' + l, 'error') })
+      }
+    }
+
+    function limpiarOutputPython() {
+      document.getElementById('p-py-output').innerHTML = '<span class="output-empty">// La salida aparecerá aquí...</span>'
+    }
+    function limpiarPython() {
+      document.getElementById('p-py-code').value = ''
+      limpiarOutputPython()
+    }
+
+    // ============ Ctrl+Enter ============
+    document.addEventListener('keydown', e => {
+      if (!(e.ctrlKey || e.metaKey) || e.key !== 'Enter') return
+      if (modoActual === 'js')     ejecutarJS()
+      else if (modoActual === 'python') ejecutarPython()
+      else if (modoActual === 'web')    ejecutarWeb()
+    })
+
+    // ============ SNIPPETS ============
+    function getSnippets() {
+      try { return JSON.parse(localStorage.getItem('cafe-snippets') || '[]') } catch { return [] }
+    }
+    function saveSnippets(s) { localStorage.setItem('cafe-snippets', JSON.stringify(s)) }
+
+    function guardarSnippet(modo) {
+      let codigo = ''
+      if (modo === 'web') {
+        const h = document.getElementById('p-web-html').value
+        const c = document.getElementById('p-web-css').value
+        const j = document.getElementById('p-web-js').value
+        codigo = `/* HTML */\n${h}\n\n/* CSS */\n${c}\n\n/* JS */\n${j}`
+      } else if (modo === 'js') {
+        codigo = document.getElementById('p-js-code').value
+      } else if (modo === 'python') {
+        codigo = document.getElementById('p-py-code').value
+      }
+      if (!codigo.trim()) { mostrarToast('⚠ El editor está vacío'); return }
+
+      const snippets = getSnippets()
+      const preview  = codigo.split('\n').find(l => l.trim()) || 'Sin nombre'
+      snippets.unshift({
+        id: Date.now(),
+        modo,
+        preview: preview.slice(0, 60),
+        codigo,
+        fecha: new Date().toLocaleDateString('es-MX', { day: '2-digit', month: 'short' })
+      })
+      saveSnippets(snippets.slice(0, 30))
+      renderSnippets()
+      mostrarToast('✓ Snippet guardado')
+    }
+
+    function cargarSnippet(id) {
+      const s = getSnippets().find(x => x.id === id)
+      if (!s) return
+      cambiarModo(s.modo)
+      if (s.modo === 'js') {
+        document.getElementById('p-js-code').value = s.codigo
+      } else if (s.modo === 'python') {
+        document.getElementById('p-py-code').value = s.codigo
+      } else if (s.modo === 'web') {
+        const partes = s.codigo.split(/\/\* (HTML|CSS|JS) \*\/\n/)
+        if (partes.length >= 7) {
+          document.getElementById('p-web-html').value = partes[2] || ''
+          document.getElementById('p-web-css').value  = partes[4] || ''
+          document.getElementById('p-web-js').value   = partes[6] || ''
+        } else {
+          document.getElementById('p-web-html').value = s.codigo
+        }
+      }
+      mostrarToast('✓ Snippet cargado')
+    }
+
+    function borrarSnippet(id, e) {
+      e.stopPropagation()
+      saveSnippets(getSnippets().filter(x => x.id !== id))
+      renderSnippets()
+    }
+
+    function limpiarTodosSnippets() {
+      if (!confirm('¿Borrar todos los snippets guardados?')) return
+      saveSnippets([])
+      renderSnippets()
+      mostrarToast('🗑 Snippets eliminados')
+    }
+
+    function renderSnippets() {
+      const lista    = document.getElementById('snippets-lista')
+      const snippets = getSnippets()
+      if (!snippets.length) {
+        lista.innerHTML = '<span class="notas-vacia">Aún no tienes snippets guardados. Escribe código y presiona "Guardar snippet".</span>'
+        return
+      }
+      lista.innerHTML = snippets.map(s => `
+        <div class="nota-item" onclick="cargarSnippet(${s.id})">
+          <span class="nota-item-modo">${modoLabels[s.modo] || '📄'}</span>
+          <span class="nota-item-texto">${s.preview}</span>
+          <span class="nota-item-fecha">${s.fecha}</span>
+          <span class="nota-item-del" onclick="borrarSnippet(${s.id}, event)" title="Eliminar">✕</span>
+        </div>
+      `).join('')
+    }
+
+    // ============ TOAST ============
+    function mostrarToast(msg) {
+      const t = document.getElementById('toast')
+      t.textContent = msg
+      t.classList.add('visible')
+      clearTimeout(t._timer)
+      t._timer = setTimeout(() => t.classList.remove('visible'), 2200)
+    }
+
+    // ============ INIT ============
+    renderSnippets()
+  </script>
+
+</body>
+</html>

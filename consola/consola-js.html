@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1a1814">
+  <title>Café </> · Consola JS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --font-title: 'Fraunces', Georgia, serif;
+      --font-body:  'DM Sans', system-ui, sans-serif;
+      --font-code:  'DM Mono', 'Fira Code', monospace;
+      --bg:         #1a1814;
+      --surface:    #201e17;
+      --border:     rgba(255,255,255,0.08);
+      --cream:      #f7f4ef;
+      --coral:      #c44a2a;
+      --amber:      #b07010;
+      --green:      #1a7a5a;
+      --text-dim:   rgba(247,244,239,0.4);
+      --text-mid:   rgba(247,244,239,0.65);
+    }
+    body { font-family: var(--font-body); background: var(--bg); color: var(--cream); min-height: 100vh; line-height: 1.6; }
+
+    /* Header */
+    .site-header { position: sticky; top: 0; z-index: 100; background: #0f0d0a; border-bottom: 1px solid rgba(255,255,255,.07); }
+    .header-inner { max-width: 1240px; margin: 0 auto; padding: 0 24px; height: 62px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .logo-group { display: flex; align-items: center; gap: 10px; }
+    .logo-back { font-size: 13px; color: var(--text-dim); text-decoration: none; padding: 5px 10px; border-radius: 6px; transition: color .15s, background .15s; }
+    .logo-back:hover { color: var(--cream); background: rgba(255,255,255,.06); }
+    .logo-icon { font-size: 20px; }
+    .logo-title { font-family: var(--font-title); font-size: 17px; font-weight: 700; line-height: 1.2; }
+    .logo-code { color: var(--coral); }
+    .logo-sub { font-size: 11px; color: rgba(247,244,239,.35); }
+    .header-badges { display: flex; gap: 6px; }
+    .badge { font-family: var(--font-code); font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 6px; letter-spacing: .05em; }
+    .badge-js { background: rgba(176,112,16,.2); color: #f0c060; border: 1px solid rgba(176,112,16,.3); }
+
+    /* Wrap */
+    .consola-wrap { max-width: 1240px; margin: 0 auto; padding: 28px 24px 60px; }
+
+    /* Cabecera de sección */
+    .consola-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; padding: 18px 22px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; }
+    .consola-titulo { font-family: var(--font-title); font-size: clamp(16px,2.2vw,22px); font-weight: 700; margin-bottom: 4px; }
+    .consola-desc { font-size: 13px; color: var(--text-mid); max-width: 560px; line-height: 1.65; }
+    .consola-desc code { font-family: var(--font-code); font-size: 12px; background: rgba(255,255,255,.08); padding: 1px 6px; border-radius: 4px; color: #f0c060; }
+
+    /* Botones */
+    .btn-group { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .btn-run { display: inline-flex; align-items: center; gap: 8px; background: var(--amber); color: white; border: none; padding: 10px 22px; border-radius: 10px; font-family: var(--font-body); font-size: 13.5px; font-weight: 700; cursor: pointer; letter-spacing: .02em; white-space: nowrap; box-shadow: 0 3px 10px rgba(176,112,16,.4); transition: background .15s, transform .1s; }
+    .btn-run:hover { background: #8a5a08; }
+    .btn-run:active { transform: scale(.97); }
+    .btn-secondary { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.06); color: var(--text-mid); border: 1px solid rgba(255,255,255,.1); padding: 9px 16px; border-radius: 10px; font-family: var(--font-body); font-size: 13px; font-weight: 500; cursor: pointer; transition: border-color .15s, color .15s, background .15s; }
+    .btn-secondary:hover { border-color: rgba(255,255,255,.25); color: var(--cream); background: rgba(255,255,255,.1); }
+    .info-toggle-btn { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.05); color: var(--text-dim); border: 1px solid rgba(255,255,255,.1); padding: 9px 14px; border-radius: 10px; font-family: var(--font-body); font-size: 12.5px; font-weight: 500; cursor: pointer; transition: all .15s; }
+    .info-toggle-btn:hover, .info-toggle-btn.abierto { color: var(--cream); border-color: rgba(255,255,255,.25); background: rgba(255,255,255,.08); }
+
+    /* Panel info */
+    .info-panel { display: none; background: rgba(255,255,255,.03); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; margin-bottom: 18px; }
+    .info-panel.visible { display: block; }
+    .info-panel-titulo { font-family: var(--font-title); font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+    .info-panel-sub { font-size: 13px; color: var(--text-mid); margin-bottom: 14px; line-height: 1.65; }
+    .info-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(190px,1fr)); gap: 10px; }
+    .info-card { background: rgba(255,255,255,.03); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+    .info-card-titulo { font-family: var(--font-code); font-size: 11.5px; font-weight: 700; margin-bottom: 6px; color: var(--cream); letter-spacing: .03em; }
+    .info-card-texto { font-size: 12.5px; color: var(--text-mid); line-height: 1.6; }
+    .info-card-texto strong { color: var(--cream); }
+    .info-card-texto code { font-family: var(--font-code); background: rgba(255,255,255,.07); padding: 1px 5px; border-radius: 3px; color: #f0c060; font-size: 11px; }
+
+    /* Chips */
+    .ejemplos-label { font-family: var(--font-code); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--text-dim); margin: 18px 0 10px; }
+    .ejemplos-chips { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 16px; }
+    .chip-ejemplo { font-family: var(--font-code); font-size: 12px; padding: 6px 14px; border-radius: 999px; background: rgba(255,255,255,.05); color: var(--text-mid); border: 1px solid rgba(255,255,255,.1); cursor: pointer; transition: all .15s; }
+    .chip-ejemplo:hover { background: rgba(176,112,16,.15); color: #f0c060; border-color: rgba(176,112,16,.4); }
+    .chip-ejemplo.activo { background: rgba(176,112,16,.2); color: #f0c060; border-color: rgba(176,112,16,.5); }
+
+    /* Layout IDE */
+    .js-ide-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .editor-panel { background: #141210; border: 1px solid rgba(255,255,255,.07); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
+    .editor-topbar { display: flex; align-items: center; gap: 7px; padding: 10px 14px; background: rgba(0,0,0,.3); border-bottom: 1px solid rgba(255,255,255,.05); flex-shrink: 0; }
+    .editor-dot { width: 11px; height: 11px; border-radius: 50%; }
+    .dot-red { background: #ff5f57; } .dot-yellow { background: #febc2e; } .dot-green { background: #28c840; }
+    .editor-lang-label { font-family: var(--font-code); font-size: 12px; color: var(--text-dim); margin-left: 4px; flex: 1; }
+    .editor-lang-badge { font-family: var(--font-code); font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 5px; letter-spacing: .04em; }
+    .badge-js-e { background: rgba(176,112,16,.2); color: #f0c060; }
+    .editor-textarea { width: 100%; flex: 1; min-height: 320px; background: transparent; color: var(--cream); border: none; outline: none; resize: none; padding: 14px 16px; font-family: var(--font-code); font-size: 13px; line-height: 1.7; tab-size: 2; }
+    .editor-textarea::placeholder { color: rgba(247,244,239,.18); }
+
+    /* Output */
+    .output-panel { background: #141210; border: 1px solid rgba(255,255,255,.07); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
+    .output-topbar { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: rgba(0,0,0,.3); border-bottom: 1px solid rgba(255,255,255,.05); flex-shrink: 0; }
+    .output-label { font-family: var(--font-code); font-size: 11.5px; font-weight: 700; color: #f0c060; letter-spacing: .04em; flex: 1; }
+    .btn-clear { font-family: var(--font-code); font-size: 10.5px; background: none; border: 1px solid rgba(255,255,255,.1); color: var(--text-dim); padding: 3px 10px; border-radius: 5px; cursor: pointer; transition: all .15s; }
+    .btn-clear:hover { color: var(--cream); border-color: rgba(255,255,255,.25); }
+    .output-content { flex: 1; padding: 14px 16px; min-height: 320px; overflow-y: auto; font-family: var(--font-code); font-size: 12.5px; line-height: 1.8; display: flex; flex-direction: column; gap: 2px; }
+    .output-empty { color: rgba(247,244,239,.18); font-style: italic; }
+    .output-line-log   { color: var(--cream); }
+    .output-line-error { color: #f4847a; }
+    .output-line-warn  { color: #f0c060; }
+    .output-line-info  { color: #86bef5; }
+    .output-line-ok    { color: #7ed490; margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,.06); }
+
+    /* Footer */
+    .site-footer { text-align: center; padding: 28px 24px; font-size: 13px; color: rgba(247,244,239,.2); border-top: 1px solid rgba(255,255,255,.05); }
+
+    @media (max-width: 720px) {
+      .js-ide-layout { grid-template-columns: 1fr; }
+      .consola-header { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="logo-group">
+        <a href="../capitulos.html?tab=consola" class="logo-back">← Consolas</a>
+        <span class="logo-icon">☕</span>
+        <div>
+          <h1 class="logo-title">Café <span class="logo-code">&lt;/&gt;</span></h1>
+          <p class="logo-sub">Consola JavaScript</p>
+        </div>
+      </div>
+      <div class="header-badges">
+        <span class="badge badge-js">JS</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="consola-wrap">
+
+    <div class="consola-header">
+      <div>
+        <h2 class="consola-titulo">⚡ Consola JavaScript</h2>
+        <p class="consola-desc">Escribe JS y ve los resultados al instante. Usa <code>console.log()</code>, <code>console.error()</code>, <code>console.warn()</code> y más. Atajo: <code>Ctrl+Enter</code> para ejecutar.</p>
+      </div>
+      <div class="btn-group">
+        <button class="info-toggle-btn" onclick="toggleInfo('info-js', this)">ℹ ¿Cómo funciona?</button>
+        <button class="btn-secondary" onclick="limpiarJS()">🗑 Limpiar</button>
+        <button class="btn-run" onclick="ejecutarJS()">▶ Ejecutar</button>
+      </div>
+    </div>
+
+    <div class="info-panel" id="info-js">
+      <p class="info-panel-titulo">⚡ JavaScript puro — la lógica del navegador</p>
+      <p class="info-panel-sub">Ejecuta JavaScript sin HTML ni CSS, igual que en la consola del navegador. Perfecto para practicar lógica, funciones, arrays y objetos.</p>
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="info-card-titulo">🖥 Consola del navegador (F12)</div>
+          <div class="info-card-texto">Presiona <strong>F12</strong> en Chrome o Firefox → pestaña <strong>Console</strong>. Puedes escribir JS directamente ahí.</div>
+        </div>
+        <div class="info-card">
+          <div class="info-card-titulo">📋 console.log() — tu mejor amigo</div>
+          <div class="info-card-texto">Variantes: <code>console.error()</code> (rojo), <code>console.warn()</code> (amarillo), <code>console.info()</code> (azul).</div>
+        </div>
+        <div class="info-card">
+          <div class="info-card-titulo">⚡ Motor JS</div>
+          <div class="info-card-texto">El navegador tiene un motor JS integrado (V8 en Chrome). <strong>Node.js</strong> permite correr JS fuera del navegador.</div>
+        </div>
+        <div class="info-card">
+          <div class="info-card-titulo">🛠 Herramientas recomendadas</div>
+          <div class="info-card-texto"><strong>VS Code</strong> + Quokka.js · <strong>Chrome DevTools</strong> · <strong>Node.js</strong> en terminal</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ejemplos-label">⚡ Ejemplos rápidos</div>
+    <div class="ejemplos-chips">
+      <span class="chip-ejemplo activo" onclick="cargarEjemplo('variables', this)">Variables</span>
+      <span class="chip-ejemplo" onclick="cargarEjemplo('array', this)">Arrays</span>
+      <span class="chip-ejemplo" onclick="cargarEjemplo('funcion', this)">Funciones</span>
+      <span class="chip-ejemplo" onclick="cargarEjemplo('loop', this)">Bucles</span>
+      <span class="chip-ejemplo" onclick="cargarEjemplo('objeto', this)">Objetos</span>
+      <span class="chip-ejemplo" onclick="cargarEjemplo('condicional', this)">if / else</span>
+      <span class="chip-ejemplo" onclick="cargarEjemplo('arrow', this)">Arrow fn</span>
+      <span class="chip-ejemplo" onclick="cargarEjemplo('promise', this)">Promesas</span>
+    </div>
+
+    <div class="js-ide-layout">
+      <div class="editor-panel">
+        <div class="editor-topbar">
+          <div class="editor-dot dot-red"></div><div class="editor-dot dot-yellow"></div><div class="editor-dot dot-green"></div>
+          <span class="editor-lang-label">script.js</span>
+          <span class="editor-lang-badge badge-js-e">JavaScript</span>
+        </div>
+        <textarea class="editor-textarea" id="js-code" spellcheck="false" placeholder="// Escribe JavaScript aquí&#10;console.log('Hola mundo')"></textarea>
+      </div>
+      <div class="output-panel">
+        <div class="output-topbar">
+          <span class="output-label">▸ CONSOLA</span>
+          <button class="btn-clear" onclick="limpiarOutput()">limpiar</button>
+        </div>
+        <div class="output-content" id="js-output">
+          <span class="output-empty">// La salida aparecerá aquí cuando ejecutes el código...</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="site-footer"><p>☕ Café &lt;/&gt; · Consola JavaScript</p></footer>
+
+  <script>
+    function toggleInfo(id, btn) {
+      const panel = document.getElementById(id)
+      const visible = panel.classList.toggle('visible')
+      btn.classList.toggle('abierto', visible)
+      btn.textContent = visible ? '✕ Cerrar info' : 'ℹ ¿Cómo funciona?'
+    }
+
+    function agregarLinea(texto, tipo = 'log') {
+      const out = document.getElementById('js-output')
+      const div = document.createElement('div')
+      div.className = `output-line-${tipo}`
+      div.textContent = texto
+      const empty = out.querySelector('.output-empty')
+      if (empty) empty.remove()
+      out.appendChild(div)
+      out.scrollTop = out.scrollHeight
+    }
+
+    function ejecutarJS() {
+      const codigo = document.getElementById('js-code').value
+      const out = document.getElementById('js-output')
+      out.innerHTML = ''
+      const consolaFalsa = {
+        log:   (...args) => agregarLinea('▸ ' + args.map(a => typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a)).join(' '), 'log'),
+        error: (...args) => agregarLinea('✖ ' + args.join(' '), 'error'),
+        warn:  (...args) => agregarLinea('⚠ ' + args.join(' '), 'warn'),
+        info:  (...args) => agregarLinea('ℹ ' + args.join(' '), 'info'),
+      }
+      try {
+        new Function('console', codigo)(consolaFalsa)
+        agregarLinea('✓ Ejecución completada', 'ok')
+      } catch(e) {
+        agregarLinea('✖ Error: ' + e.message, 'error')
+      }
+    }
+
+    function limpiarOutput() {
+      document.getElementById('js-output').innerHTML = '<span class="output-empty">// La salida aparecerá aquí cuando ejecutes el código...</span>'
+    }
+
+    function limpiarJS() {
+      document.getElementById('js-code').value = ''
+      limpiarOutput()
+      document.querySelectorAll('.chip-ejemplo').forEach(c => c.classList.remove('activo'))
+    }
+
+    document.addEventListener('keydown', e => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') ejecutarJS()
+    })
+
+    const ejemplos = {
+      variables: `// Variables en JavaScript\nconst nombre = 'Castillo'       // const: no cambia\nlet edad     = 25               // let: puede cambiar\nlet activo   = true\n\nconsole.log('Nombre:', nombre)\nconsole.log('Edad:', edad)\nconsole.log('Activo:', activo)\nconsole.log('Tipo nombre:', typeof nombre)\nconsole.log('Tipo edad:', typeof edad)`,
+      array: `// Arrays (listas)\nconst frutas = ['manzana', 'naranja', 'plátano']\n\nconsole.log('Total:', frutas.length)\nconsole.log('Primera:', frutas[0])\nconsole.log('Última:', frutas[frutas.length - 1])\n\nfrutas.push('mango')\nconsole.log('Con mango:', frutas)\n\nfrutas.forEach((fruta, i) => {\n  console.log(i + ': ' + fruta)\n})`,
+      funcion: `// Funciones\nfunction saludar(nombre) {\n  return 'Hola, ' + nombre + '!'\n}\n\nconsole.log(saludar('Castillo'))\nconsole.log(saludar('Mundo'))\n\nfunction sumar(a, b = 0) {\n  return a + b\n}\n\nconsole.log('3 + 5 =', sumar(3, 5))\nconsole.log('Solo 7 =', sumar(7))`,
+      loop: `// Bucles\nconsole.log('--- for clásico ---')\nfor (let i = 1; i <= 5; i++) {\n  console.log('Número:', i)\n}\n\nconsole.log('--- while ---')\nlet contador = 10\nwhile (contador > 7) {\n  console.log('Contador:', contador)\n  contador--\n}\n\nconsole.log('--- for...of ---')\nconst colores = ['rojo', 'verde', 'azul']\nfor (const color of colores) {\n  console.log('Color:', color)\n}`,
+      objeto: `// Objetos\nconst persona = {\n  nombre: 'Castillo',\n  edad: 25,\n  ciudad: 'Veracruz',\n  saludar() {\n    return 'Hola, soy ' + this.nombre\n  }\n}\n\nconsole.log(persona.nombre)\nconsole.log(persona.edad)\nconsole.log(persona.saludar())\n\npersona.lenguaje = 'JavaScript'\nconsole.log('Lenguaje:', persona.lenguaje)\n\nconst { nombre, ciudad } = persona\nconsole.log(nombre, 'vive en', ciudad)`,
+      condicional: `// Condicionales\nconst hora = 14\n\nif (hora < 12) {\n  console.log('Buenos días ☀️')\n} else if (hora < 18) {\n  console.log('Buenas tardes 🌤️')\n} else {\n  console.log('Buenas noches 🌙')\n}\n\nconst edad = 20\nconst acceso = edad >= 18 ? 'Permitido' : 'Denegado'\nconsole.log('Acceso:', acceso)\n\nconst dia = 'lunes'\nswitch (dia) {\n  case 'lunes':   console.log('Inicio de semana 💪'); break\n  case 'viernes': console.log('¡Por fin viernes! 🎉'); break\n  default:        console.log('Día normal')\n}`,
+      arrow: `// Arrow functions\nconst cuadrado = n => n * n\nconst sumar    = (a, b) => a + b\n\nconsole.log(cuadrado(4))   // 16\nconsole.log(sumar(3, 5))   // 8\n\n// map, filter, reduce\nconst nums = [1, 2, 3, 4, 5]\nconsole.log('x2:',    nums.map(n => n * 2))\nconsole.log('pares:', nums.filter(n => n % 2 === 0))\nconsole.log('suma:',  nums.reduce((acc, n) => acc + n, 0))`,
+      promise: `// Promesas y async/await\nconst esperar = ms => new Promise(res => setTimeout(res, ms))\n\nasync function saludarDespues() {\n  console.log('Iniciando...')\n  await esperar(500)\n  console.log('✓ Listo después de 500ms')\n  return '¡Hola async!'\n}\n\nsaludarDespues().then(msg => console.log(msg))\n\n// Promise encadenada\nPromise.resolve({ nombre: 'Castillo', edad: 25 })\n  .then(data => console.log('Datos:', JSON.stringify(data)))\n  .catch(err => console.error('Error:', err))`
+    }
+
+    function cargarEjemplo(key, el) {
+      if (ejemplos[key]) document.getElementById('js-code').value = ejemplos[key]
+      document.querySelectorAll('.chip-ejemplo').forEach(c => c.classList.remove('activo'))
+      if (el) el.classList.add('activo')
+    }
+
+    window.addEventListener('load', () => {
+      cargarEjemplo('variables', document.querySelector('.chip-ejemplo.activo'))
+    })
+  </script>
+
+</body>
+</html>

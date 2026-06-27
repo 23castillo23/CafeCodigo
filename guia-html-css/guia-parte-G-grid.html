@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía HTML & CSS — Parte G: CSS Grid Completo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #c44a2a;
+    --primary-light:  #fdf0ec;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1a1814;
+    --code-text:      #e8e4de;
+  }
+
+  body { font-family: 'DM Sans', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  header { background: #1a1814; color: #f7f4ef; padding: 3rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: '</>'; position: absolute; font-size: 14rem; font-weight: 900; color: rgba(255,255,255,0.05); right: -2rem; top: -3rem; font-family: monospace; line-height: 1; }
+  header h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; }
+  header p  { font-size: 1.1rem; opacity: .85; margin-top: .5rem; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  .partes-nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 45px; z-index: 110; display: flex; align-items: center; height: 38px; padding: 0 1rem; }
+  .partes-nav-prev, .partes-nav-next { flex-shrink: 0; display: flex; align-items: center; padding: 0 .75rem; height: 100%; text-decoration: none; color: var(--muted); font-size: .78rem; font-weight: 500; border-right: 1px solid var(--border); transition: color .15s; white-space: nowrap; }
+  .partes-nav-next { border-right: none; border-left: 1px solid var(--border); }
+  .partes-nav-prev:hover, .partes-nav-next:hover { color: var(--primary); }
+  .partes-nav-list { flex: 1; display: flex; align-items: center; justify-content: center; gap: .15rem; overflow-x: auto; padding: 0 .5rem; }
+  .partes-nav-list::-webkit-scrollbar { display: none; }
+  .partes-nav-list a { flex-shrink: 0; padding: 2px 9px; border-radius: 20px; text-decoration: none; font-size: .73rem; font-weight: 600; color: var(--muted); transition: color .15s, background .15s; }
+  .partes-nav-list a:hover { color: var(--text); background: var(--bg); }
+  .partes-nav-list a.activa { background: var(--primary-light); color: var(--primary); }
+
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 83px; z-index: 100; display: flex; overflow-x: auto; }
+  nav a { flex-shrink: 0; padding: .75rem 1.1rem; text-decoration: none; color: var(--muted); font-size: .82rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2.5rem; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-size: 1.35rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  .analogy { background: #FFF7ED; border: 1px solid #FDE68A; border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: #92400E; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p  { font-size: .95rem; color: #78350F; }
+
+  .concept { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p  { font-size: .95rem; }
+
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p  { font-size: .95rem; }
+  .tip ul { font-size: .95rem; padding-left: 1.2rem; }
+
+  .warn { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p  { font-size: .95rem; }
+
+  .anatomy { background: #F0F4FF; border: 1px solid #C7D2FE; border-radius: 12px; padding: 1.5rem; font-family: monospace; font-size: .98rem; line-height: 2.6; margin: 1.25rem 0; }
+  .anatomy .br  { color: var(--primary); font-weight: 700; }
+  .anatomy .at  { color: #0891B2; }
+  .anatomy .vl  { color: #059669; }
+  .anatomy .lb  { display: inline-block; background: var(--primary);   color: #fff; font-size: .68rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 6px; }
+  .anatomy .lb2 { display: inline-block; background: var(--accent);    color: #fff; font-size: .68rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 6px; }
+  .anatomy .lb3 { display: inline-block; background: var(--secondary); color: #fff; font-size: .68rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 6px; }
+
+  .code-block { background: var(--code-bg); color: var(--code-text); border-radius: 10px; padding: 1.25rem 1.5rem; font-family: 'Courier New', monospace; font-size: .88rem; line-height: 1.85; overflow-x: auto; margin: 1rem 0; position: relative; white-space: pre; }
+  .code-block .ct { color: #89B4FA; }
+  .code-block .ca { color: #CBA6F7; }
+  .code-block .cv { color: #A6E3A1; }
+  .code-block .cs { color: #F9E2AF; }
+  .code-block .cp { color: #89DCEB; }
+  .code-block .cc { color: #585B70; font-style: italic; }
+  .code-block .cn { color: #FAB387; }
+  .lang { position: absolute; top: .6rem; right: .75rem; background: rgba(255,255,255,.1); color: rgba(255,255,255,.5); font-size: .68rem; padding: 2px 8px; border-radius: 4px; font-family: sans-serif; }
+
+  .preview { border: 2px dashed var(--border); border-radius: 10px; padding: 1.5rem; margin: 1rem 0; background: var(--surface); position: relative; }
+  .preview::before { content: '🖥 Vista en navegador'; position: absolute; top: -11px; left: 14px; background: var(--surface); font-size: .73rem; color: var(--muted); padding: 0 6px; font-family: sans-serif; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  .ex { background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 12px; padding: 1.5rem; margin: 1.5rem 0; }
+  .ex-hd { display: flex; align-items: center; gap: .75rem; margin-bottom: 1rem; font-weight: 700; font-size: 1rem; color: #78350F; flex-wrap: wrap; }
+  .ex-badge { background: var(--accent); color: #fff; font-size: .68rem; padding: 2px 9px; border-radius: 20px; font-weight: 700; text-transform: uppercase; }
+  .ex ol { padding-left: 1.4rem; }
+  .ex ol li { margin-bottom: .6rem; font-size: .95rem; }
+  .ex p { font-size: .95rem; margin-bottom: .6rem; }
+
+  h2 { font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; }
+  h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 .5rem; }
+  p  { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: #f0ece6; color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  strong { font-weight: 700; }
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: white; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  /* ══════════════════════════
+     ESTILOS COMUNES DE DEMO
+  ══════════════════════════ */
+  .g-cell {
+    background: var(--primary); color: white;
+    border-radius: 7px; padding: .6rem .75rem;
+    font-size: .78rem; font-weight: 700; text-align: center;
+    display: flex; align-items: center; justify-content: center;
+    min-height: 50px;
+  }
+  .g-cell.b { background: var(--secondary); }
+  .g-cell.c { background: var(--accent); }
+  .g-cell.d { background: #7C3AED; }
+  .g-cell.e { background: var(--muted); }
+  .g-cell.f { background: #0891B2; }
+
+  .demo-label { font-size: .72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: .3rem; margin-top: .85rem; }
+
+  /* ══════════════════════════
+     GRID DEMOS
+  ══════════════════════════ */
+
+  /* Básico */
+  .gd-basic { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: .5rem; background: var(--bg); border-radius: 10px; padding: .75rem; border: 1px solid var(--border); }
+
+  /* FR demo */
+  .gd-fr1 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: .5rem; background: var(--bg); border-radius: 10px; padding: .75rem; border: 1px solid var(--border); }
+  .gd-fr2 { display: grid; grid-template-columns: 1fr 2fr 1fr; gap: .5rem; background: var(--bg); border-radius: 10px; padding: .75rem; border: 1px solid var(--border); }
+  .gd-fr3 { display: grid; grid-template-columns: 200px 1fr; gap: .5rem; background: var(--bg); border-radius: 10px; padding: .75rem; border: 1px solid var(--border); }
+
+  /* repeat */
+  .gd-repeat { display: grid; grid-template-columns: repeat(4, 1fr); gap: .5rem; background: var(--bg); border-radius: 10px; padding: .75rem; border: 1px solid var(--border); }
+
+  /* minmax */
+  .gd-minmax { display: grid; grid-template-columns: repeat(3, minmax(100px, 1fr)); gap: .5rem; background: var(--bg); border-radius: 10px; padding: .75rem; border: 1px solid var(--border); }
+
+  /* auto-fill */
+  .gd-autofill { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: .5rem; background: var(--bg); border-radius: 10px; padding: .75rem; border: 1px solid var(--border); }
+
+  /* auto-fit */
+  .gd-autofit { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: .5rem; background: var(--bg); border-radius: 10px; padding: .75rem; border: 1px solid var(--border); }
+
+  /* rows */
+  .gd-rows { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 80px 50px 80px; gap: .5rem; background: var(--bg); border-radius: 10px; padding: .75rem; border: 1px solid var(--border); }
+
+  /* span columns */
+  .gd-span { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; background: var(--bg); border-radius: 10px; padding: .75rem; border: 1px solid var(--border); }
+  .span-2 { grid-column: span 2; }
+  .span-3 { grid-column: span 3; }
+  .span-r2 { grid-row: span 2; }
+
+  /* explicit placement */
+  .gd-place { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(3, 60px); gap: .5rem; background: var(--bg); border-radius: 10px; padding: .75rem; border: 1px solid var(--border); }
+  .p1 { grid-column: 1 / 3; grid-row: 1 / 2; }
+  .p2 { grid-column: 3 / 5; grid-row: 1 / 3; }
+  .p3 { grid-column: 1 / 2; grid-row: 2 / 4; }
+  .p4 { grid-column: 2 / 3; grid-row: 2 / 3; }
+  .p5 { grid-column: 2 / 4; grid-row: 3 / 4; }
+  .p6 { grid-column: 4 / 5; grid-row: 3 / 4; }
+
+  /* align/justify en grid */
+  .gd-align { display: grid; grid-template-columns: repeat(3,1fr); gap: .5rem; background: var(--bg); border-radius: 10px; padding: .75rem; border: 1px solid var(--border); height: 160px; align-items: center; justify-items: center; }
+
+  /* ══════════════════════════
+     DEMO GRID-TEMPLATE-AREAS
+  ══════════════════════════ */
+  .gd-areas {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    grid-template-rows: 52px 1fr 40px;
+    grid-template-areas:
+      "header  header"
+      "sidebar main"
+      "footer  footer";
+    gap: .5rem;
+    min-height: 260px;
+    background: var(--bg); border-radius: 10px; padding: .75rem; border: 1px solid var(--border);
+  }
+  .ga-header  { grid-area: header;  background: #1a1814; color: white; border-radius: 7px; display: flex; align-items: center; padding: 0 1rem; font-weight: 700; font-size: .85rem; gap: .75rem; }
+  .ga-sidebar { grid-area: sidebar; background: var(--primary-light); border-radius: 7px; padding: .75rem; font-size: .78rem; }
+  .ga-main    { grid-area: main;    background: var(--secondary-light); border-radius: 7px; padding: .75rem; font-size: .78rem; }
+  .ga-footer  { grid-area: footer;  background: var(--bg); border: 1px solid var(--border); border-radius: 7px; display: flex; align-items: center; padding: 0 .75rem; font-size: .75rem; color: var(--muted); }
+
+  /* sidebar items */
+  .ga-sidebar-item { padding: .3rem .5rem; border-radius: 5px; cursor: pointer; margin-bottom: .2rem; font-size: .78rem; }
+  .ga-sidebar-item.active { background: var(--primary); color: white; font-weight: 700; }
+  .ga-sidebar-item:hover:not(.active) { background: var(--primary-light); }
+
+  /* ══════════════════════════
+     LAYOUTS REALES DEMOS
+  ══════════════════════════ */
+
+  /* Galería masonry-like */
+  .demo-gallery {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: .5rem;
+    background: var(--bg); border-radius: 10px; padding: .75rem; border: 1px solid var(--border);
+  }
+  .demo-gallery .g-cell { min-height: 60px; }
+  .demo-gallery .tall  { grid-row: span 2; min-height: 130px; }
+  .demo-gallery .wide  { grid-column: span 2; }
+
+  /* Holy grail layout */
+  .demo-holy-grail {
+    display: grid;
+    grid-template-columns: 120px 1fr 100px;
+    grid-template-rows: auto 1fr auto;
+    grid-template-areas:
+      "h h h"
+      "s c a"
+      "f f f";
+    gap: .4rem; min-height: 200px;
+    background: var(--bg); border-radius: 10px; padding: .6rem; border: 1px solid var(--border);
+  }
+  .hg-h { grid-area: h; background: #1a1814; color: white; border-radius: 6px; padding: .4rem .75rem; font-size: .75rem; font-weight: 700; display: flex; align-items: center; }
+  .hg-s { grid-area: s; background: var(--primary-light); border-radius: 6px; padding: .5rem; font-size: .7rem; }
+  .hg-c { grid-area: c; background: var(--secondary-light); border-radius: 6px; padding: .5rem; font-size: .7rem; }
+  .hg-a { grid-area: a; background: var(--accent-light); border-radius: 6px; padding: .5rem; font-size: .7rem; }
+  .hg-f { grid-area: f; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: .35rem .75rem; font-size: .7rem; color: var(--muted); display: flex; align-items: center; }
+
+  /* Dashboard grid */
+  .demo-dashboard {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: 70px;
+    gap: .5rem;
+    background: var(--bg); border-radius: 10px; padding: .75rem; border: 1px solid var(--border);
+  }
+  .db-stat   { background: var(--primary-light); border-radius: 8px; padding: .5rem .7rem; display: flex; flex-direction: column; justify-content: center; }
+  .db-stat .db-num  { font-size: 1.2rem; font-weight: 800; color: var(--primary); line-height: 1; }
+  .db-stat .db-label{ font-size: .65rem; color: var(--muted); margin-top: .15rem; }
+  .db-chart  { grid-column: span 2; grid-row: span 2; background: var(--secondary-light); border-radius: 8px; padding: .75rem; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+  .db-chart .db-big { font-size: 2.2rem; }
+  .db-chart .db-sub { font-size: .72rem; color: var(--muted); }
+  .db-wide   { grid-column: span 4; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: .5rem .75rem; display: flex; align-items: center; gap: .75rem; font-size: .75rem; color: var(--muted); }
+  .db-med    { grid-column: span 2; background: var(--accent-light); border-radius: 8px; padding: .5rem .7rem; font-size: .72rem; display: flex; align-items: center; gap: .4rem; }
+
+  /* Responsive auto-fit cards */
+  .demo-cards-autofit {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: .75rem;
+    background: var(--bg); border-radius: 10px; padding: .75rem; border: 1px solid var(--border);
+  }
+  .demo-news-card { background: var(--surface); border-radius: 9px; border: 1px solid var(--border); overflow: hidden; }
+  .demo-news-card .nc-img { height: 60px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; }
+  .demo-news-card .nc-body { padding: .5rem .6rem; }
+  .demo-news-card .nc-title { font-weight: 700; font-size: .78rem; margin-bottom: .2rem; }
+  .demo-news-card .nc-meta  { font-size: .68rem; color: var(--muted); }
+  .nc-red  { background: var(--primary-light); }
+  .nc-grn  { background: var(--secondary-light); }
+  .nc-yel  { background: var(--accent-light); }
+  .nc-pur  { background: #F3E8FF; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); }
+</style>
+</head>
+<body>
+
+<div style="background:#fff;border-bottom:1px solid #e8e4de;padding:0 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:200;height:45px;">
+  <a href="../index.html" style="display:inline-flex;align-items:center;gap:6px;font-family:'DM Sans',sans-serif;font-size:13px;color:#8a8480;text-decoration:none;padding:6px 14px;border:1px solid #e8e4de;border-radius:999px;" onmouseover="this.style.color='#1a1814';this.style.borderColor='#8a8480'" onmouseout="this.style.color='#8a8480';this.style.borderColor='#e8e4de'">← Volver a Café &lt;/&gt;</a>
+  <span style="font-family:'DM Sans',sans-serif;font-size:13px;color:#8a8480;">☕ Guía HTML &amp; CSS · Parte G</span>
+</div>
+
+<header>
+  <h1>HTML &amp; CSS — Parte G</h1>
+  <p>CSS Grid completo: fr, repeat, minmax, auto-fill/fit, áreas y layouts reales</p>
+  <span class="badge">✦ Curso de Soy Dalto · 15:05:00 – 18:02:00 ✦</span>
+</header>
+
+<div class="partes-nav">
+  <a class="partes-nav-prev" href="guia-parte-F-responsive.html">← F</a>
+  <div class="partes-nav-list">
+    <a href="guia-html-css.html">Base</a>
+    <a href="guia-parte-A-html-avanzado.html">A</a>
+    <a href="guia-parte-B-html-avanzado.html">B</a>
+    <a href="guia-parte-C-css-avanzado.html">C</a>
+    <a href="guia-parte-D-posicionamiento.html">D</a>
+    <a href="guia-parte-E-flexbox.html">E</a>
+    <a href="guia-parte-F-responsive.html">F</a>
+    <a href="guia-parte-G-grid.html" class="activa">G</a>
+    <a href="#">H</a>
+    <a href="#">I</a>
+    <a href="#">J</a>
+  </div>
+  <a class="partes-nav-next" href="#">H →</a>
+</div>
+
+<nav>
+  <a href="#concepto">🧠 Concepto</a>
+  <a href="#columnas">📐 Columnas</a>
+  <a href="#fr">📏 fr</a>
+  <a href="#repeat">🔁 repeat()</a>
+  <a href="#minmax">↔ minmax()</a>
+  <a href="#autofill">🤖 auto-fill/fit</a>
+  <a href="#filas">↕ Filas</a>
+  <a href="#span">🔗 span</a>
+  <a href="#placement">📌 Colocación</a>
+  <a href="#areas">🗺 Areas</a>
+  <a href="#align">🎯 Align</a>
+  <a href="#layouts">🏗 Layouts</a>
+  <a href="#ejercicio">✏️ Ejercicio</a>
+</nav>
+
+<main>
+<div class="parte-badge">📦 Parte G — CSS Grid Completo (15:05 – 18:02 del video)</div>
+
+
+<!-- ══════════════════════════════════════════
+     CONCEPTO DE GRID
+══════════════════════════════════════════ -->
+<section class="module" id="concepto">
+  <div class="module-header">
+    <div class="module-icon">🧠</div>
+    <div>
+      <div class="module-title">CSS Grid — El sistema de layout bidimensional</div>
+      <div class="module-sub">Filas Y columnas al mismo tiempo: el poder que Flexbox no tiene</div>
+    </div>
+  </div>
+
+  <p>CSS Grid es el sistema de layout más poderoso de CSS. A diferencia de Flexbox (que trabaja en <strong>una dimensión</strong>: fila o columna), Grid trabaja en <strong>dos dimensiones simultáneamente</strong>: filas y columnas al mismo tiempo. Es ideal para layouts de página completa, galerías, dashboards y cualquier diseño con estructura bidimensional.</p>
+
+  <div class="analogy">
+    <h4>📰 Analogía: el tablero de ajedrez vs el tren</h4>
+    <p>Flexbox es como un tren: los vagones van en una fila (o una columna). Grid es como un tablero de ajedrez: tienes filas Y columnas, y puedes colocar cada pieza en la intersección exacta que quieras, e incluso hacer que una pieza ocupe varias casillas a la vez. Cada cuadrícula del tablero tiene una dirección tanto horizontal como vertical.</p>
+  </div>
+
+  <h2>Grid vs Flexbox — ¿cuándo usar cuál?</h2>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1rem 0">
+    <div style="background:var(--secondary-light);border:1px solid var(--border);border-radius:10px;padding:1.1rem">
+      <p style="font-weight:700;color:var(--secondary);margin-bottom:.5rem">Usa Flexbox cuando…</p>
+      <ul style="font-size:.88rem;padding-left:1.2rem">
+        <li>El layout es en una dirección (fila o columna)</li>
+        <li>Necesitas distribuir espacio entre elementos</li>
+        <li>El tamaño del contenido determina el layout</li>
+        <li>Ejemplos: navbar, grupo de botones, lista de tags, input group</li>
+      </ul>
+    </div>
+    <div style="background:var(--primary-light);border:1px solid var(--border);border-radius:10px;padding:1.1rem">
+      <p style="font-weight:700;color:var(--primary);margin-bottom:.5rem">Usa Grid cuando…</p>
+      <ul style="font-size:.88rem;padding-left:1.2rem">
+        <li>El layout es en dos dimensiones (filas Y columnas)</li>
+        <li>El layout determina el tamaño del contenido</li>
+        <li>Necesitas alinear elementos en ambos ejes</li>
+        <li>Ejemplos: layouts de página, galerías, dashboards, formularios complejos</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>Activar Grid y los dos mundos</h2>
+
+  <div class="anatomy">
+    <span class="cc">/* Propiedades del CONTENEDOR GRID */</span>
+    <br><span class="br">.padre</span> {
+    <br>&nbsp;&nbsp;<span class="at">display</span>:                  <span class="vl">grid</span>;<span class="lb">Activa Grid</span>
+    <br>&nbsp;&nbsp;<span class="at">grid-template-columns</span>:    <span class="vl">1fr 1fr 1fr</span>;<span class="lb2">Define las columnas</span>
+    <br>&nbsp;&nbsp;<span class="at">grid-template-rows</span>:       <span class="vl">auto 200px auto</span>;<span class="lb3">Define las filas</span>
+    <br>&nbsp;&nbsp;<span class="at">grid-template-areas</span>:      <span class="vl">"header header"</span>;<span class="lb">Nombra las áreas</span>
+    <br>&nbsp;&nbsp;<span class="at">gap</span>:                     <span class="vl">1rem</span>;<span class="lb2">Espacio entre celdas</span>
+    <br>&nbsp;&nbsp;<span class="at">justify-items</span>:           <span class="vl">stretch</span>;<span class="lb3">Alineación horizontal de celdas</span>
+    <br>&nbsp;&nbsp;<span class="at">align-items</span>:             <span class="vl">stretch</span>;<span class="lb">Alineación vertical de celdas</span>
+    <br>}
+    <br><br>
+    <span class="cc">/* Propiedades de los HIJOS (grid items) */</span>
+    <br><span class="br">.hijo</span> {
+    <br>&nbsp;&nbsp;<span class="at">grid-column</span>: <span class="vl">1 / 3</span>;<span class="lb">De línea 1 a línea 3</span>
+    <br>&nbsp;&nbsp;<span class="at">grid-row</span>:    <span class="vl">2 / 4</span>;<span class="lb2">De línea 2 a línea 4</span>
+    <br>&nbsp;&nbsp;<span class="at">grid-area</span>:   <span class="vl">header</span>;<span class="lb3">Ocupa el área nombrada</span>
+    <br>&nbsp;&nbsp;<span class="at">justify-self</span>: <span class="vl">center</span>;<span class="lb">Alineación horizontal de esta celda</span>
+    <br>&nbsp;&nbsp;<span class="at">align-self</span>:   <span class="vl">end</span>;<span class="lb2">Alineación vertical de esta celda</span>
+    <br>}
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     GRID-TEMPLATE-COLUMNS
+══════════════════════════════════════════ -->
+<section class="module" id="columnas">
+  <div class="module-header">
+    <div class="module-icon">📐</div>
+    <div>
+      <div class="module-title">grid-template-columns — Definir las columnas</div>
+      <div class="module-sub">La propiedad más importante de Grid: cuántas columnas y cuánto miden</div>
+    </div>
+  </div>
+
+  <p><code>grid-template-columns</code> define cuántas columnas tiene el grid y cuánto mide cada una. Cada valor que escribas crea una columna. Puedes mezclar cualquier unidad: píxeles, porcentajes, fr, auto, minmax…</p>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">.grid</span> { <span class="ca">display</span>: grid; }
+
+<span class="cc">/* 3 columnas iguales de 200px cada una */</span>
+<span class="cp">.grid</span> { <span class="ca">grid-template-columns</span>: <span class="cn">200px 200px 200px</span>; }
+
+<span class="cc">/* 3 columnas de ancho flexible igual */</span>
+<span class="cp">.grid</span> { <span class="ca">grid-template-columns</span>: <span class="cn">1fr 1fr 1fr</span>; }
+
+<span class="cc">/* Sidebar fijo + contenido flexible */</span>
+<span class="cp">.grid</span> { <span class="ca">grid-template-columns</span>: <span class="cn">260px 1fr</span>; }
+
+<span class="cc">/* 3 columnas mixtas */</span>
+<span class="cp">.grid</span> { <span class="ca">grid-template-columns</span>: <span class="cn">200px 1fr 2fr</span>; }
+
+<span class="cc">/* auto: tan ancho como su contenido */</span>
+<span class="cp">.grid</span> { <span class="ca">grid-template-columns</span>: auto <span class="cn">1fr</span> auto; }</div>
+
+  <div class="preview">
+    <div class="demo-label">3 columnas iguales: 1fr 1fr 1fr</div>
+    <div class="gd-fr1">
+      <div class="g-cell">1</div><div class="g-cell b">2</div><div class="g-cell c">3</div>
+      <div class="g-cell c">4</div><div class="g-cell">5</div><div class="g-cell b">6</div>
+    </div>
+
+    <div class="demo-label">Proporcional: 1fr 2fr 1fr — la del medio es el doble</div>
+    <div class="gd-fr2">
+      <div class="g-cell">1fr</div><div class="g-cell b">2fr</div><div class="g-cell c">1fr</div>
+    </div>
+
+    <div class="demo-label">Mixta: 200px 1fr — sidebar fijo + contenido flexible</div>
+    <div class="gd-fr3">
+      <div class="g-cell">200px (fijo)</div><div class="g-cell b">1fr (flexible)</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     UNIDAD FR
+══════════════════════════════════════════ -->
+<section class="module" id="fr">
+  <div class="module-header">
+    <div class="module-icon">📏</div>
+    <div>
+      <div class="module-title">La unidad fr — Fracción del espacio disponible</div>
+      <div class="module-sub">La unidad estrella de CSS Grid que no existe en ningún otro contexto</div>
+    </div>
+  </div>
+
+  <p>La unidad <strong>fr</strong> (fracción) es exclusiva de CSS Grid. Representa una fracción del espacio disponible en el contenedor, <strong>después de restar</strong> los elementos con tamaño fijo (px, %) y los gaps. Es como el <code>flex-grow</code> de Flexbox pero aplicado a columnas y filas.</p>
+
+  <div class="analogy">
+    <h4>🍰 Analogía: repartir un pastel</h4>
+    <p>Tienes un pastel (el espacio del grid). Si dices <code>1fr 1fr</code>, cortas el pastel en 2 partes iguales. Si dices <code>1fr 2fr</code>, una persona recibe 1/3 y la otra 2/3. Si dices <code>200px 1fr</code>, primero apartas 200px del pastel (para el sidebar), y lo que sobra se lo llevas completo a la columna de 1fr. Los fr se reparten lo que queda.</p>
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* Contenedor de 900px con gap de 30px total */</span>
+<span class="cc">/* grid-template-columns: 1fr 2fr 1fr */</span>
+<span class="cc">/* Espacio disponible: 900 - 30(gaps) = 870px */</span>
+<span class="cc">/* Total fr: 1+2+1 = 4 */</span>
+<span class="cc">/* 1fr = 870/4 = 217.5px */</span>
+<span class="cc">/* 2fr = 435px, 1fr = 217.5px */</span>
+
+<span class="cc">/* Con elemento fijo: 200px 1fr 1fr */</span>
+<span class="cc">/* Espacio disponible: 900 - 200 - gaps = 670px */</span>
+<span class="cc">/* Cada 1fr = 670/2 = 335px */</span>
+
+<span class="cc">/* El fr NUNCA puede ser menor que min-content */</span>
+<span class="cc">/* Si el contenido es más ancho que el fr calculado, */</span>
+<span class="cc">/* el fr crece para acomodarlo */</span>
+<span class="cp">.grid</span> { <span class="ca">grid-template-columns</span>: <span class="cn">1fr 1fr 1fr</span>; } <span class="cc">/* Igual a minmax(0, 1fr) */</span></div>
+
+  <div class="tip">
+    <h4>🟢 fr vs porcentaje — ¿cuál usar?</h4>
+    <p>Los porcentajes no descuentan el gap: si tienes 3 columnas de 33.33% con gap de 1rem, el total supera el 100% y se desborda. Los <strong>fr sí descuentan el gap</strong> automáticamente, por eso son superiores. Siempre prefiere fr sobre porcentajes en Grid.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     REPEAT()
+══════════════════════════════════════════ -->
+<section class="module" id="repeat">
+  <div class="module-header">
+    <div class="module-icon">🔁</div>
+    <div>
+      <div class="module-title">repeat() — No repitas código</div>
+      <div class="module-sub">La función que genera columnas o filas automáticamente</div>
+    </div>
+  </div>
+
+  <p>Escribir <code>1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr</code> para doce columnas iguales es horrible. <code>repeat()</code> lo hace por ti en una sola expresión limpia.</p>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* Sin repeat — repetitivo y difícil de mantener */</span>
+<span class="cp">.grid</span> { <span class="ca">grid-template-columns</span>: <span class="cn">1fr 1fr 1fr 1fr</span>; }
+
+<span class="cc">/* Con repeat — limpio y fácil de cambiar */</span>
+<span class="cp">.grid</span> { <span class="ca">grid-template-columns</span>: repeat(<span class="cn">4</span>, <span class="cn">1fr</span>); }
+
+<span class="cc">/* repeat(cantidad, patrón) */</span>
+<span class="cp">.grid</span> { <span class="ca">grid-template-columns</span>: repeat(<span class="cn">3</span>, <span class="cn">200px</span>); }
+<span class="cp">.grid</span> { <span class="ca">grid-template-columns</span>: repeat(<span class="cn">4</span>, <span class="cn">1fr</span>); }
+<span class="cp">.grid</span> { <span class="ca">grid-template-columns</span>: repeat(<span class="cn">2</span>, <span class="cn">1fr 2fr</span>); } <span class="cc">/* = 1fr 2fr 1fr 2fr */</span>
+
+<span class="cc">/* Mezclar repeat con otros valores */</span>
+<span class="cp">.grid</span> { <span class="ca">grid-template-columns</span>: <span class="cn">200px</span> repeat(<span class="cn">3</span>, <span class="cn">1fr</span>); } <span class="cc">/* sidebar + 3 columnas */</span>
+<span class="cp">.grid</span> { <span class="ca">grid-template-columns</span>: repeat(<span class="cn">3</span>, <span class="cn">1fr</span>) <span class="cn">100px</span>; } <span class="cc">/* 3 columnas + aside */</span></div>
+
+  <div class="preview">
+    <div class="demo-label">repeat(4, 1fr) — cuatro columnas iguales</div>
+    <div class="gd-repeat">
+      <div class="g-cell">A</div><div class="g-cell b">B</div>
+      <div class="g-cell c">C</div><div class="g-cell d">D</div>
+      <div class="g-cell b">E</div><div class="g-cell">F</div>
+      <div class="g-cell d">G</div><div class="g-cell c">H</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     MINMAX()
+══════════════════════════════════════════ -->
+<section class="module" id="minmax">
+  <div class="module-header">
+    <div class="module-icon">↔️</div>
+    <div>
+      <div class="module-title">minmax() — Columnas con límites flexible</div>
+      <div class="module-sub">Define un rango: "no menos de X, no más de Y"</div>
+    </div>
+  </div>
+
+  <p><code>minmax(mínimo, máximo)</code> define un rango de tamaño para una columna o fila. La columna puede crecer hasta el máximo y encogerse hasta el mínimo, pero nunca salir de ese rango. Es la clave para grids verdaderamente responsive.</p>
+
+  <div class="analogy">
+    <h4>👚 Analogía: la talla S-M de una camiseta</h4>
+    <p>Una camiseta de talla S-M sirve a personas entre 60kg y 80kg. No es rígida para un tamaño exacto, sino que tiene un rango flexible. <code>minmax(150px, 1fr)</code> hace lo mismo: la columna no puede ser menor de 150px (se rompe el texto si es más chica) ni mayor de 1fr del espacio disponible (no necesita crecer más).</p>
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* Columna que mide mínimo 100px, máximo 300px */</span>
+<span class="cp">.grid</span> { <span class="ca">grid-template-columns</span>: minmax(<span class="cn">100px</span>, <span class="cn">300px</span>); }
+
+<span class="cc">/* El uso más importante: mínimo fijo + máximo flexible */</span>
+<span class="cp">.grid</span> { <span class="ca">grid-template-columns</span>: repeat(<span class="cn">3</span>, minmax(<span class="cn">150px</span>, <span class="cn">1fr</span>)); }
+
+<span class="cc">/* Con auto como mínimo: mínimo = ancho del contenido */</span>
+<span class="cp">.grid</span> { <span class="ca">grid-template-columns</span>: minmax(auto, <span class="cn">1fr</span>); }
+
+<span class="cc">/* Con auto como máximo: crece pero no más de su contenido */</span>
+<span class="cp">.grid</span> { <span class="ca">grid-template-columns</span>: minmax(<span class="cn">200px</span>, auto); }
+
+<span class="cc">/* fit-content(valor): como max-content pero limitado al valor */</span>
+<span class="cp">.grid</span> { <span class="ca">grid-template-columns</span>: fit-content(<span class="cn">300px</span>) <span class="cn">1fr</span>; }</div>
+
+  <div class="preview">
+    <div class="demo-label">repeat(3, minmax(80px, 1fr)) — flexible pero nunca menor a 80px</div>
+    <div class="gd-minmax">
+      <div class="g-cell">minmax<br>80px,1fr</div>
+      <div class="g-cell b">minmax<br>80px,1fr</div>
+      <div class="g-cell c">minmax<br>80px,1fr</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     AUTO-FILL Y AUTO-FIT
+══════════════════════════════════════════ -->
+<section class="module" id="autofill">
+  <div class="module-header">
+    <div class="module-icon">🤖</div>
+    <div>
+      <div class="module-title">auto-fill y auto-fit — El grid responsive sin media queries</div>
+      <div class="module-sub">El patrón más poderoso de Grid: columnas que se adaptan solas</div>
+    </div>
+  </div>
+
+  <p>Combinando <code>repeat()</code>, <code>auto-fill</code> o <code>auto-fit</code> con <code>minmax()</code>, obtienes un grid que <strong>automáticamente</strong> decide cuántas columnas caben según el ancho disponible. En pantalla grande caben 4 columnas; en móvil, 1. Sin escribir una sola media query.</p>
+
+  <div class="analogy">
+    <h4>🚗 Analogía: el estacionamiento inteligente</h4>
+    <p>Un estacionamiento inteligente calcula automáticamente cuántos autos caben según el ancho disponible: en un terreno grande caben 6 autos en fila; en uno pequeño, 2. No necesita que alguien le diga cuántos caben: lo calcula solo. Así funciona <code>auto-fill</code> y <code>auto-fit</code> con <code>minmax()</code>.</p>
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* La receta mágica — responsive sin media queries */</span>
+<span class="cp">.grid</span> {
+  <span class="ca">display</span>: grid;
+  <span class="ca">grid-template-columns</span>: repeat(auto-fit, minmax(<span class="cn">200px</span>, <span class="cn">1fr</span>));
+  <span class="ca">gap</span>: <span class="cn">1rem</span>;
+}
+<span class="cc">/* En 900px: caben 4 columnas de ~200px */</span>
+<span class="cc">/* En 600px: caben 2 columnas de ~280px */</span>
+<span class="cc">/* En 300px: cabe 1 columna de 300px */</span></div>
+
+  <h2>auto-fill vs auto-fit — la diferencia sutil</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* auto-fill: llena el grid con columnas aunque estén vacías */</span>
+<span class="cp">.grid-fill</span> { <span class="ca">grid-template-columns</span>: repeat(auto-fill, minmax(<span class="cn">100px</span>, <span class="cn">1fr</span>)); }
+<span class="cc">/* Con 3 items en un espacio para 5: los 2 últimos slots quedan vacíos pero existen */</span>
+<span class="cc">/* Resultado: los 3 items NO se estiran para llenar el espacio */</span>
+
+<span class="cc">/* auto-fit: solo crea columnas para los items que existen */</span>
+<span class="cp">.grid-fit</span>  { <span class="ca">grid-template-columns</span>: repeat(auto-fit, minmax(<span class="cn">100px</span>, <span class="cn">1fr</span>)); }
+<span class="cc">/* Con 3 items: los 3 items SE ESTIRAN para llenar todo el ancho */</span>
+<span class="cc">/* Resultado: 3 columnas que juntas llenan el 100% del contenedor */</span></div>
+
+  <div class="preview">
+    <div class="demo-label">auto-fill — los 3 items no llenan el espacio completo</div>
+    <div class="gd-autofill">
+      <div class="g-cell">A</div><div class="g-cell b">B</div><div class="g-cell c">C</div>
+    </div>
+
+    <div class="demo-label">auto-fit — los 3 items se estiran para llenar todo el ancho</div>
+    <div class="gd-autofit">
+      <div class="g-cell">A</div><div class="g-cell b">B</div><div class="g-cell c">C</div>
+    </div>
+    <p style="font-size:.8rem;color:var(--muted);margin-top:.5rem">En una pantalla más grande verías la diferencia más claramente. <strong>auto-fit</strong> es el más usado porque los items siempre llenan el espacio.</p>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 El one-liner más útil de CSS Grid</h4>
+    <p>Esta sola línea crea un grid completamente responsive sin media queries. Copia y pega en todos tus proyectos:</p>
+  </div>
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* Cambia 250px por el ancho mínimo que necesites para tus cards */</span>
+<span class="cp">.cards</span> {
+  <span class="ca">display</span>: grid;
+  <span class="ca">grid-template-columns</span>: repeat(auto-fit, minmax(<span class="cn">250px</span>, <span class="cn">1fr</span>));
+  <span class="ca">gap</span>: <span class="cn">1.5rem</span>;
+}</div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     FILAS
+══════════════════════════════════════════ -->
+<section class="module" id="filas">
+  <div class="module-header">
+    <div class="module-icon">↕️</div>
+    <div>
+      <div class="module-title">grid-template-rows y grid-auto-rows</div>
+      <div class="module-sub">Controlar el alto de las filas del grid</div>
+    </div>
+  </div>
+
+  <p>Igual que defines columnas con <code>grid-template-columns</code>, puedes definir filas con <code>grid-template-rows</code>. Pero en la mayoría de casos las filas se crean automáticamente y solo necesitas controlar su alto con <code>grid-auto-rows</code>.</p>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* Filas explícitas con alturas específicas */</span>
+<span class="cp">.grid</span> {
+  <span class="ca">grid-template-rows</span>: <span class="cn">80px 1fr 60px</span>; <span class="cc">/* header + main + footer */</span>
+}
+
+<span class="cc">/* grid-auto-rows: alto por defecto para filas creadas automáticamente */</span>
+<span class="cp">.grid</span> {
+  <span class="ca">grid-auto-rows</span>: <span class="cn">200px</span>;       <span class="cc">/* Cada fila generada mide 200px */</span>
+  <span class="ca">grid-auto-rows</span>: minmax(<span class="cn">100px</span>, auto); <span class="cc">/* Mínimo 100px, crece con el contenido */</span>
+}
+
+<span class="cc">/* grid-auto-columns: para columnas implícitas (generadas automáticamente) */</span>
+<span class="cp">.grid</span> { <span class="ca">grid-auto-columns</span>: <span class="cn">1fr</span>; }
+
+<span class="cc">/* grid-auto-flow: dirección en que fluyen los items no colocados */</span>
+<span class="cp">.grid</span> { <span class="ca">grid-auto-flow</span>: row; }     <span class="cc">/* Por defecto: llena filas primero */</span>
+<span class="cp">.grid</span> { <span class="ca">grid-auto-flow</span>: column; }  <span class="cc">/* Llena columnas primero */</span>
+<span class="cp">.grid</span> { <span class="ca">grid-auto-flow</span>: dense; }   <span class="cc">/* Llena huecos automáticamente (galería masonry-like) */</span></div>
+
+  <div class="preview">
+    <div class="demo-label">grid-template-rows: 80px 50px 80px (alturas fijas por fila)</div>
+    <div class="gd-rows">
+      <div class="g-cell">Fila 1 · 80px</div><div class="g-cell b">Fila 1 · 80px</div>
+      <div class="g-cell c">Fila 2 · 50px</div><div class="g-cell d">Fila 2 · 50px</div>
+      <div class="g-cell b">Fila 3 · 80px</div><div class="g-cell">Fila 3 · 80px</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     SPAN
+══════════════════════════════════════════ -->
+<section class="module" id="span">
+  <div class="module-header">
+    <div class="module-icon">🔗</div>
+    <div>
+      <div class="module-title">span — Hacer que un elemento ocupe varias celdas</div>
+      <div class="module-sub">El equivalente de colspan/rowspan de las tablas, pero más poderoso</div>
+    </div>
+  </div>
+
+  <p>Con <code>grid-column: span N</code> o <code>grid-row: span N</code> haces que un grid item ocupe N columnas o filas. Es como el <code>colspan</code> y <code>rowspan</code> de las tablas HTML, pero aplicado a cualquier elemento con mucho más control.</p>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* span en columnas */</span>
+<span class="cp">.elemento</span> { <span class="ca">grid-column</span>: span <span class="cn">2</span>; } <span class="cc">/* Ocupa 2 columnas */</span>
+<span class="cp">.elemento</span> { <span class="ca">grid-column</span>: span <span class="cn">3</span>; } <span class="cc">/* Ocupa 3 columnas (el ancho total si hay 3) */</span>
+
+<span class="cc">/* span en filas */</span>
+<span class="cp">.elemento</span> { <span class="ca">grid-row</span>: span <span class="cn">2</span>; }    <span class="cc">/* Ocupa 2 filas de alto */</span>
+
+<span class="cc">/* span en ambas direcciones — elemento cuadrado grande */</span>
+<span class="cp">.featured</span> {
+  <span class="ca">grid-column</span>: span <span class="cn">2</span>;
+  <span class="ca">grid-row</span>: span <span class="cn">2</span>;
+}</div>
+
+  <div class="preview">
+    <div class="demo-label">Grid de 3 columnas con span — noticias destacadas</div>
+    <div class="gd-span">
+      <div class="g-cell span-2" style="min-height:55px">⭐ Noticia principal (span 2)</div>
+      <div class="g-cell b span-r2" style="min-height:110px">📸 Foto lateral (row span 2)</div>
+      <div class="g-cell c">Nota 3</div>
+      <div class="g-cell d">Nota 4</div>
+      <div class="g-cell span-3" style="min-height:42px">🏆 Banner ancho completo (span 3)</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     COLOCACIÓN EXPLÍCITA
+══════════════════════════════════════════ -->
+<section class="module" id="placement">
+  <div class="module-header">
+    <div class="module-icon">📌</div>
+    <div>
+      <div class="module-title">Colocación explícita — grid-column y grid-row con líneas</div>
+      <div class="module-sub">Colocar cada elemento exactamente en la celda que quieres</div>
+    </div>
+  </div>
+
+  <p>Además de <code>span</code>, puedes colocar elementos usando los números de <strong>línea de grid</strong>. CSS Grid numera automáticamente todas las líneas de columnas y filas empezando desde 1. Con <code>grid-column: inicio / fin</code> dices "empieza en la línea X y termina en la línea Y".</p>
+
+  <div class="analogy">
+    <h4>🗺️ Analogía: las coordenadas de un mapa</h4>
+    <p>En un mapa de ciudad, cada intersección tiene coordenadas. Si dices "empieza en la Calle 1 y termina en la Calle 3, entre la Avenida 2 y la Avenida 4", describes perfectamente un terreno. Eso hace <code>grid-column: 1 / 3; grid-row: 2 / 4</code>: describe exactamente qué espacio del grid ocupa ese elemento.</p>
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* Grid de 4 columnas — las líneas van de 1 a 5 */</span>
+<span class="cc">/*  1    2    3    4    5  (líneas de columna) */</span>
+<span class="cc">/*  |    |    |    |    |  */</span>
+<span class="cc">/*  [col1][col2][col3][col4] */</span>
+
+<span class="cc">/* Ocupa de la línea 1 a la 3 (columnas 1 y 2) */</span>
+<span class="cp">.elemento</span> { <span class="ca">grid-column</span>: <span class="cn">1</span> / <span class="cn">3</span>; }
+
+<span class="cc">/* Shorthand: start / end */</span>
+<span class="cp">.elemento</span> { <span class="ca">grid-column-start</span>: <span class="cn">1</span>; <span class="ca">grid-column-end</span>: <span class="cn">3</span>; } <span class="cc">/* = 1/3 */</span>
+
+<span class="cc">/* -1 es la última línea (útil para "hasta el final") */</span>
+<span class="cp">.full-width</span> { <span class="ca">grid-column</span>: <span class="cn">1</span> / -<span class="cn">1</span>; } <span class="cc">/* Ocupa todas las columnas */</span>
+
+<span class="cc">/* Combinar filas y columnas */</span>
+<span class="cp">.hero-img</span> {
+  <span class="ca">grid-column</span>: <span class="cn">1</span> / <span class="cn">3</span>;   <span class="cc">/* Columnas 1 y 2 */</span>
+  <span class="ca">grid-row</span>:    <span class="cn">1</span> / <span class="cn">3</span>;   <span class="cc">/* Filas 1 y 2 */</span>
+}</div>
+
+  <div class="preview">
+    <div class="demo-label">Grid de 4 columnas y 3 filas con colocación explícita:</div>
+    <div class="gd-place">
+      <div class="g-cell p1">col 1/3 · row 1/2</div>
+      <div class="g-cell b p2">col 3/5 · row 1/3</div>
+      <div class="g-cell c p3">col 1/2 · row 2/4</div>
+      <div class="g-cell d p4">col 2/3 · row 2/3</div>
+      <div class="g-cell e p5">col 2/4 · row 3/4</div>
+      <div class="g-cell f p6">col 4/5 · row 3/4</div>
+    </div>
+    <p style="font-size:.8rem;color:var(--muted);margin-top:.5rem">Cada elemento fue colocado con líneas exactas de grid. El diseño es completamente intencional, no fluido.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     GRID-TEMPLATE-AREAS
+══════════════════════════════════════════ -->
+<section class="module" id="areas">
+  <div class="module-header">
+    <div class="module-icon">🗺️</div>
+    <div>
+      <div class="module-title">grid-template-areas — El layout visual más legible de CSS</div>
+      <div class="module-sub">Dibuja el layout con texto, como si fuera un mapa</div>
+    </div>
+  </div>
+
+  <p><code>grid-template-areas</code> te permite definir el layout de tu página dibujándolo textualmente. En vez de coordenadas numéricas, describes visualmente cómo se distribuyen las áreas. Es el sistema más legible y mantenible para layouts de página completa.</p>
+
+  <div class="analogy">
+    <h4>🏠 Analogía: el plano de un arquitecto</h4>
+    <p>Un arquitecto dibuja el plano de una casa: "aquí va la cocina, aquí el salón, aquí dos habitaciones". <code>grid-template-areas</code> hace exactamente eso con CSS: dibujas el plano del layout con texto y luego cada elemento HTML dice "yo soy la cocina" (<code>grid-area: cocina</code>). El resultado es un CSS que cualquiera puede leer y entender en segundos.</p>
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">.layout</span> {
+  <span class="ca">display</span>: grid;
+  <span class="ca">grid-template-columns</span>: <span class="cn">200px 1fr</span>;
+  <span class="ca">grid-template-rows</span>: <span class="cn">60px 1fr 50px</span>;
+  <span class="ca">grid-template-areas</span>:
+    <span class="cv">"header  header"</span>    <span class="cc">/* Fila 1: header ocupa las 2 columnas */</span>
+    <span class="cv">"sidebar main"</span>     <span class="cc">/* Fila 2: sidebar izq + main der */</span>
+    <span class="cv">"footer  footer"</span>;   <span class="cc">/* Fila 3: footer ocupa las 2 columnas */</span>
+  <span class="ca">gap</span>: <span class="cn">.5rem</span>;
+  <span class="ca">min-height</span>: <span class="cn">400px</span>;
+}
+
+<span class="cc">/* Cada elemento HTML usa grid-area para "ocupar" su área */</span>
+<span class="cp">header</span>  { <span class="ca">grid-area</span>: header; }
+<span class="cp">aside</span>   { <span class="ca">grid-area</span>: sidebar; }
+<span class="cp">main</span>    { <span class="ca">grid-area</span>: main; }
+<span class="cp">footer</span>  { <span class="ca">grid-area</span>: footer; }
+
+<span class="cc">/* Para dejar una celda vacía, usa un punto */</span>
+<span class="cp">.layout2</span> {
+  <span class="ca">grid-template-areas</span>:
+    <span class="cv">"header header header"</span>
+    <span class="cv">"sidebar main   ."</span>     <span class="cc">/* El punto = celda vacía */</span>
+    <span class="cv">"footer footer  footer"</span>;
+}
+
+<span class="cc">/* Responsive: cambiar áreas con media query */</span>
+<span class="cp">@media (max-width: 768px)</span> {
+  <span class="cp">.layout</span> {
+    <span class="ca">grid-template-columns</span>: <span class="cn">1fr</span>;
+    <span class="ca">grid-template-areas</span>:
+      <span class="cv">"header"</span>
+      <span class="cv">"main"</span>
+      <span class="cv">"sidebar"</span>
+      <span class="cv">"footer"</span>;
+  }
+}</div>
+
+  <div class="preview">
+    <div class="demo-label">Layout completo con grid-template-areas:</div>
+    <div class="gd-areas">
+      <div class="ga-header">
+        <span>⚽</span>
+        <span>FútbolPro</span>
+        <span style="margin-left:auto;font-size:.75rem;opacity:.7">Liga MX · Champions · Resultados</span>
+      </div>
+      <div class="ga-sidebar">
+        <p style="font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.4rem">Menú</p>
+        <div class="ga-sidebar-item active">⚽ Liga MX</div>
+        <div class="ga-sidebar-item">🏆 Champions</div>
+        <div class="ga-sidebar-item">📊 Estadísticas</div>
+        <div class="ga-sidebar-item">🎯 Resultados</div>
+      </div>
+      <div class="ga-main">
+        <p style="font-weight:700;font-size:.88rem;margin-bottom:.3rem">América 3 – 1 Guadalajara</p>
+        <p style="font-size:.78rem;color:var(--muted)">Esta área es <code>grid-area: main</code>. Ocupa la columna derecha de las filas centrales, exactamente como lo describe el grid-template-areas del contenedor.</p>
+      </div>
+      <div class="ga-footer">
+        <span>Área footer — ocupa las 2 columnas · grid-area: footer</span>
+      </div>
+    </div>
+    <p style="font-size:.8rem;color:var(--muted);margin-top:.5rem">El header y footer ocupan las 2 columnas porque el área "header" y "footer" aparecen en ambas columnas del template-areas.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     ALIGN Y JUSTIFY EN GRID
+══════════════════════════════════════════ -->
+<section class="module" id="align">
+  <div class="module-header">
+    <div class="module-icon">🎯</div>
+    <div>
+      <div class="module-title">Alineación en Grid — justify e align</div>
+      <div class="module-sub">Controlar la posición del contenido dentro de las celdas</div>
+    </div>
+  </div>
+
+  <p>Grid tiene dos niveles de alineación: el contenido <em>dentro de las celdas</em> (justify-items/align-items) y las celdas <em>dentro del contenedor</em> (justify-content/align-content). Funcionan igual que en Flexbox pero con un nivel más de control.</p>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* ── En el CONTENEDOR ── */</span>
+
+<span class="cc">/* Alinea el contenido DENTRO de cada celda */</span>
+<span class="cp">.grid</span> { <span class="ca">justify-items</span>: start | end | center | stretch; } <span class="cc">/* horizontal */</span>
+<span class="cp">.grid</span> { <span class="ca">align-items</span>:   start | end | center | stretch; } <span class="cc">/* vertical */</span>
+<span class="cc">/* Shorthand: place-items: align justify */</span>
+<span class="cp">.grid</span> { <span class="ca">place-items</span>: center; } <span class="cc">/* = align-items:center + justify-items:center */</span>
+
+<span class="cc">/* Distribuye las COLUMNAS/FILAS dentro del contenedor (si hay espacio sobrante) */</span>
+<span class="cp">.grid</span> { <span class="ca">justify-content</span>: start | end | center | space-between | space-around; }
+<span class="cp">.grid</span> { <span class="ca">align-content</span>:   start | end | center | space-between; }
+<span class="cc">/* Shorthand: place-content: align justify */</span>
+<span class="cp">.grid</span> { <span class="ca">place-content</span>: center; }
+
+<span class="cc">/* ── En cada HIJO individualmente ── */</span>
+<span class="cp">.item</span> { <span class="ca">justify-self</span>: start | end | center | stretch; } <span class="cc">/* horizontal */</span>
+<span class="cp">.item</span> { <span class="ca">align-self</span>:   start | end | center | stretch; } <span class="cc">/* vertical */</span>
+<span class="cc">/* Shorthand: place-self: align justify */</span>
+<span class="cp">.item</span> { <span class="ca">place-self</span>: center end; }</div>
+
+  <div class="preview">
+    <div class="demo-label">justify-items: center + align-items: center — contenido centrado en cada celda</div>
+    <div class="gd-align">
+      <div class="g-cell" style="width:55px;height:35px">A</div>
+      <div class="g-cell b" style="width:70px;height:45px">B</div>
+      <div class="g-cell c" style="width:50px;height:30px">C</div>
+      <div class="g-cell d" style="width:60px;height:40px">D</div>
+      <div class="g-cell e" style="width:45px;height:35px">E</div>
+      <div class="g-cell f" style="width:65px;height:42px">F</div>
+    </div>
+    <p style="font-size:.8rem;color:var(--muted);margin-top:.5rem">Cada elemento tiene un tamaño diferente pero todos están centrados dentro de su celda.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     LAYOUTS REALES
+══════════════════════════════════════════ -->
+<section class="module" id="layouts">
+  <div class="module-header">
+    <div class="module-icon">🏗️</div>
+    <div>
+      <div class="module-title">Layouts reales — Grid en proyectos</div>
+      <div class="module-sub">Holy Grail, galería, dashboard y cards responsive</div>
+    </div>
+  </div>
+
+  <h2>1 — Holy Grail Layout (el layout clásico de la web)</h2>
+  <p>Header + sidebar + contenido principal + aside + footer. El layout que durante años fue difícil de hacer en CSS, ahora son 5 líneas con Grid.</p>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">.pagina</span> {
+  <span class="ca">display</span>: grid;
+  <span class="ca">grid-template-columns</span>: <span class="cn">180px 1fr 120px</span>;
+  <span class="ca">grid-template-rows</span>: auto <span class="cn">1fr</span> auto;
+  <span class="ca">grid-template-areas</span>:
+    <span class="cv">"h h h"</span>
+    <span class="cv">"s c a"</span>
+    <span class="cv">"f f f"</span>;
+  <span class="ca">min-height</span>: <span class="cn">100vh</span>;
+  <span class="ca">gap</span>: <span class="cn">.5rem</span>;
+}</span></div>
+
+  <div class="preview">
+    <div class="demo-holy-grail">
+      <div class="hg-h">⚽ FútbolPro — Header</div>
+      <div class="hg-s"><strong style="font-size:.7rem">Sidebar</strong><br>Nav links</div>
+      <div class="hg-c"><strong style="font-size:.7rem">Contenido principal</strong><br>Artículos y resultados</div>
+      <div class="hg-a"><strong style="font-size:.7rem">Aside</strong><br>Publicidad</div>
+      <div class="hg-f">Footer — Copyright 2025</div>
+    </div>
+  </div>
+
+  <h2>2 — Galería con grid-auto-flow: dense</h2>
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">.galeria</span> {
+  <span class="ca">display</span>: grid;
+  <span class="ca">grid-template-columns</span>: repeat(<span class="cn">3</span>, <span class="cn">1fr</span>);
+  <span class="ca">grid-auto-rows</span>: <span class="cn">60px</span>;
+  <span class="ca">grid-auto-flow</span>: dense; <span class="cc">/* Rellena huecos automáticamente */</span>
+  <span class="ca">gap</span>: <span class="cn">.5rem</span>;
+}
+<span class="cp">.tall</span>  { <span class="ca">grid-row</span>: span <span class="cn">2</span>; }
+<span class="cp">.wide</span>  { <span class="ca">grid-column</span>: span <span class="cn">2</span>; }</div>
+
+  <div class="preview">
+    <div class="demo-gallery">
+      <div class="g-cell tall">📸 Tall</div>
+      <div class="g-cell b wide">🏟 Wide</div>
+      <div class="g-cell c">3</div>
+      <div class="g-cell d">4</div>
+      <div class="g-cell e wide">⚽ Wide</div>
+      <div class="g-cell f">6</div>
+    </div>
+  </div>
+
+  <h2>3 — Dashboard con posicionamiento mixto</h2>
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">.dashboard</span> {
+  <span class="ca">display</span>: grid;
+  <span class="ca">grid-template-columns</span>: repeat(<span class="cn">4</span>, <span class="cn">1fr</span>);
+  <span class="ca">grid-auto-rows</span>: <span class="cn">70px</span>;
+  <span class="ca">gap</span>: <span class="cn">.5rem</span>;
+}
+<span class="cp">.chart</span> { <span class="ca">grid-column</span>: span <span class="cn">2</span>; <span class="ca">grid-row</span>: span <span class="cn">2</span>; }
+<span class="cp">.banner</span>{ <span class="ca">grid-column</span>: span <span class="cn">4</span>; }</div>
+
+  <div class="preview">
+    <div class="demo-dashboard">
+      <div class="db-stat"><div class="db-num">47</div><div class="db-label">Partidos</div></div>
+      <div class="db-stat"><div class="db-num">128</div><div class="db-label">Goles</div></div>
+      <div class="db-chart"><div class="db-big">🏆</div><div class="db-sub">Estadísticas del torneo (col span 2 · row span 2)</div></div>
+      <div class="db-stat"><div class="db-num">23</div><div class="db-label">Equipos</div></div>
+      <div class="db-stat"><div class="db-num">4.2</div><div class="db-label">Goles/partido</div></div>
+      <div class="db-med">⭐ América lidera con 36 pts</div>
+      <div class="db-med">🔴 Chivas: 3 derrotas seguidas</div>
+      <div class="db-wide">📊 Reporte semanal de estadísticas — banner ancho completo (grid-column: span 4)</div>
+    </div>
+  </div>
+
+  <h2>4 — Cards responsive sin media queries (el one-liner)</h2>
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">.cards</span> {
+  <span class="ca">display</span>: grid;
+  <span class="ca">grid-template-columns</span>: repeat(auto-fit, minmax(<span class="cn">160px</span>, <span class="cn">1fr</span>));
+  <span class="ca">gap</span>: <span class="cn">.75rem</span>;
+}
+<span class="cc">/* Se adapta sola: 4 columnas en desktop, 2 en tablet, 1 en móvil */</span></div>
+
+  <div class="preview">
+    <div class="demo-cards-autofit">
+      <div class="demo-news-card">
+        <div class="nc-img nc-red">⚽</div>
+        <div class="nc-body"><div class="nc-title">América gana el Clásico</div><div class="nc-meta">Liga MX · hace 2h</div></div>
+      </div>
+      <div class="demo-news-card">
+        <div class="nc-img nc-grn">🏆</div>
+        <div class="nc-body"><div class="nc-title">Champions: semifinales definidas</div><div class="nc-meta">UEFA · hace 4h</div></div>
+      </div>
+      <div class="demo-news-card">
+        <div class="nc-img nc-yel">⭐</div>
+        <div class="nc-body"><div class="nc-title">Messi, Balón de Oro 2025</div><div class="nc-meta">FIFA · hace 6h</div></div>
+      </div>
+      <div class="demo-news-card">
+        <div class="nc-img nc-pur">📊</div>
+        <div class="nc-body"><div class="nc-title">Haaland: 40 goles en la temporada</div><div class="nc-meta">Premier · ayer</div></div>
+      </div>
+    </div>
+    <p style="font-size:.8rem;color:var(--muted);margin-top:.5rem">Redimensiona la ventana del navegador para ver cómo el grid decide automáticamente cuántas columnas mostrar.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     RESUMEN Y EJERCICIO
+══════════════════════════════════════════ -->
+<section class="module" id="ejercicio">
+  <div class="module-header">
+    <div class="module-icon">✏️</div>
+    <div>
+      <div class="module-title">Ejercicio integrador — Portal deportivo con Grid</div>
+      <div class="module-sub">Construye un layout de portal completo usando CSS Grid</div>
+    </div>
+  </div>
+
+  <div class="ex">
+    <div class="ex-hd">✏️ Ejercicio — Portal de noticias deportivas con Grid completo <span class="ex-badge">Avanzado</span></div>
+
+    <p>Crea <code>portal-deportivo.html</code> usando CSS Grid para todo el layout. No uses Flexbox para el layout de página (solo para componentes internos pequeños como botones y navbars).</p>
+
+    <ol>
+      <li>
+        <strong>Layout de página con grid-template-areas</strong>: Define las áreas <code>header</code>, <code>nav</code>, <code>featured</code>, <code>sidebar</code>, <code>articles</code> y <code>footer</code>. En desktop: featured y articles forman el contenido central con sidebar a la derecha. En móvil (media query): todo en una columna.
+      </li>
+      <li>
+        <strong>Sección "Noticias destacadas"</strong> con colocación explícita: Un grid de 3 columnas y 2 filas donde la noticia principal ocupa <code>grid-column: 1 / 3; grid-row: 1 / 3</code>, y las noticias secundarias ocupan el resto con <code>span</code>.
+      </li>
+      <li>
+        <strong>Galería de goles con grid-auto-flow: dense</strong>: Mínimo 8 fotos donde algunas son <code>tall</code> (span 2 filas) y otras <code>wide</code> (span 2 columnas). El dense rellena los huecos automáticamente.
+      </li>
+      <li>
+        <strong>Dashboard de estadísticas</strong>: Un grid de 4 columnas con tarjetas de stats, un gráfico grande (span 2x2), un banner ancho (span 4) y tarjetas medianas (span 2).
+      </li>
+      <li>
+        <strong>Grid de partidos responsive sin media queries</strong>: Usa <code>repeat(auto-fit, minmax(220px, 1fr))</code> para una grilla de tarjetas de partidos que se adapta sola.
+      </li>
+      <li>
+        <strong>Alineación con place-items</strong>: En el header usa <code>place-items: center</code> para centrar el contenido. En las tarjetas de stats usa <code>align-items: end</code> para que el texto quede abajo.
+      </li>
+    </ol>
+
+    <p style="margin-top:1rem"><strong>Bonus:</strong> Agrega una transición responsive usando <code>@media (max-width: 768px)</code> que cambie el <code>grid-template-areas</code> para que en móvil el sidebar quede debajo del contenido, y el orden cambie a: header → nav → featured → articles → sidebar → footer.</p>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Resumen de lo que aprendiste en la Parte G</h4>
+    <ul>
+      <li><strong>display: grid</strong> — activa Grid, los hijos son grid items</li>
+      <li><strong>grid-template-columns/rows</strong> — define columnas y filas con cualquier unidad</li>
+      <li><strong>fr</strong> — fracción del espacio disponible, descuenta gaps automáticamente</li>
+      <li><strong>repeat(n, valor)</strong> — crea n columnas/filas iguales sin repetir código</li>
+      <li><strong>minmax(min, max)</strong> — rango flexible para columnas y filas</li>
+      <li><strong>auto-fill</strong> — llena el grid con columnas aunque queden vacías</li>
+      <li><strong>auto-fit</strong> — solo crea columnas para los items existentes (los estira)</li>
+      <li><strong>repeat(auto-fit, minmax(250px, 1fr))</strong> — el one-liner responsive sin media queries</li>
+      <li><strong>grid-auto-rows/columns</strong> — alto/ancho de filas/columnas implícitas</li>
+      <li><strong>grid-auto-flow: dense</strong> — rellena huecos en galerías</li>
+      <li><strong>grid-column/row: span N</strong> — el elemento ocupa N columnas/filas</li>
+      <li><strong>grid-column: 1 / 3</strong> — colocación explícita con líneas de grid</li>
+      <li><strong>grid-column: 1 / -1</strong> — hasta la última línea (ancho total)</li>
+      <li><strong>grid-template-areas</strong> — dibuja el layout con texto, asigna con grid-area</li>
+      <li><strong>justify/align-items</strong> — alineación dentro de las celdas</li>
+      <li><strong>justify/align-content</strong> — distribución de las celdas en el contenedor</li>
+      <li><strong>place-items / place-self / place-content</strong> — shorthands de alineación</li>
+    </ul>
+  </div>
+
+  <div class="concept">
+    <h4>💡 ¿Qué sigue? — Parte H</h4>
+    <p>La siguiente parte cubre <strong>Animaciones CSS</strong>: <code>@keyframes</code>, la propiedad <code>animation</code> con todos sus parámetros (duration, timing-function, delay, iteration-count, direction, fill-mode, play-state), animaciones de entrada y salida, el principio de animación en la GPU (<code>transform</code> y <code>opacity</code>), y ejemplos de animaciones reales: loaders, skeleton screens, efectos de entrada de contenido. Pídela cuando estés listo.</p>
+  </div>
+
+</section>
+</main>
+
+<footer>
+  Guía HTML &amp; CSS · Parte G — CSS Grid Completo · Basada en el curso de Soy Dalto · Hugo 2025
+</footer>
+
+</body>
+</html>

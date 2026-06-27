@@ -17,11 +17,272 @@
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/estilos-portafolio.css">
+
+  <style>
+    /* =========================================
+       MEJORAS VISUALES — Café </>
+       ========================================= */
+
+    /* — Tarjetas de Categorías (reemplaza Proyectos) — */
+    .pf-categorias-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.25rem;
+      margin-top: 2.5rem;
+    }
+
+    .pf-cat-card {
+      background: var(--surface, #fff);
+      border: 1.5px solid var(--border, #e5e0d8);
+      border-radius: 18px;
+      padding: 1.6rem 1.4rem 1.4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+      text-decoration: none;
+      color: inherit;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pf-cat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.09);
+      border-color: var(--accent, #c44a2a);
+    }
+
+    .pf-cat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--cat-color, var(--accent, #c44a2a));
+      border-radius: 18px 18px 0 0;
+      opacity: 0;
+      transition: opacity 0.18s ease;
+    }
+
+    .pf-cat-card:hover::before { opacity: 1; }
+
+    .pf-cat-emoji {
+      font-size: 2rem;
+      line-height: 1;
+      margin-bottom: 0.3rem;
+    }
+
+    .pf-cat-nombre {
+      font-family: 'Fraunces', serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--ink, #1a1814);
+      margin: 0;
+    }
+
+    .pf-cat-desc {
+      font-size: 0.82rem;
+      color: var(--ink-muted, #6b6560);
+      margin: 0;
+      line-height: 1.5;
+    }
+
+    .pf-cat-count {
+      margin-top: auto;
+      padding-top: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .pf-cat-badge {
+      background: var(--cat-color, var(--accent, #c44a2a));
+      color: #fff;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.78rem;
+      font-weight: 500;
+      padding: 0.2rem 0.65rem;
+      border-radius: 999px;
+    }
+
+    .pf-cat-link {
+      font-size: 0.8rem;
+      color: var(--accent, #c44a2a);
+      font-weight: 500;
+      margin-left: auto;
+      opacity: 0;
+      transition: opacity 0.18s ease;
+    }
+
+    .pf-cat-card:hover .pf-cat-link { opacity: 1; }
+
+    /* Colores por categoría */
+    .cat-capitulos   { --cat-color: #c44a2a; }
+    .cat-guias       { --cat-color: #2563eb; }
+    .cat-ejercicios  { --cat-color: #16a34a; }
+    .cat-practica    { --cat-color: #7c3aed; }
+    .cat-misguias    { --cat-color: #d97706; }
+    .cat-glosario    { --cat-color: #0e7490; }
+
+    /* Tarjeta Próximamente */
+    .cat-proximamente {
+      border-style: dashed;
+      border-color: var(--border, #e5e0d8);
+      background: transparent;
+      cursor: default;
+    }
+
+    .cat-proximamente:hover {
+      transform: none;
+      box-shadow: none;
+      border-color: var(--accent, #c44a2a);
+    }
+
+    .pf-cat-plus {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--bg, #f4f1ea);
+      border: 2px dashed var(--border, #ccc);
+      font-size: 1.5rem;
+      color: var(--ink-muted, #6b6560);
+      font-style: normal;
+    }
+
+    /* — Sección Comunidad (nueva) — */
+    .pf-comunidad-banner {
+      background: linear-gradient(135deg, #1a1814 0%, #2d2621 60%, #3a1f10 100%);
+      border-radius: 20px;
+      padding: 2.5rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2rem;
+      flex-wrap: wrap;
+      margin-top: 2.5rem;
+      border: 1px solid rgba(196,74,42,0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .pf-comunidad-banner::after {
+      content: '💬';
+      position: absolute;
+      right: 2rem;
+      bottom: -0.5rem;
+      font-size: 6rem;
+      opacity: 0.07;
+      pointer-events: none;
+    }
+
+    .pf-comunidad-texto h3 {
+      font-family: 'Fraunces', serif;
+      font-size: 1.5rem;
+      color: #fff;
+      margin: 0 0 0.4rem;
+    }
+
+    .pf-comunidad-texto p {
+      color: rgba(255,255,255,0.65);
+      font-size: 0.9rem;
+      margin: 0;
+      max-width: 380px;
+    }
+
+    .pf-comunidad-stats {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .pf-com-stat {
+      text-align: center;
+    }
+
+    .pf-com-stat strong {
+      display: block;
+      font-family: 'Fraunces', serif;
+      font-size: 1.6rem;
+      color: #fff;
+    }
+
+    .pf-com-stat span {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.5);
+    }
+
+    .btn-comunidad {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--accent, #c44a2a);
+      color: #fff;
+      padding: 0.75rem 1.5rem;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-decoration: none;
+      transition: background 0.18s ease, transform 0.15s ease;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .btn-comunidad:hover {
+      background: #a83820;
+      transform: translateY(-2px);
+    }
+
+    /* — Contacto: botón comunidad adicional — */
+    .pf-contacto-comunidad {
+      margin-top: 1.2rem;
+      padding: 1rem 1.2rem;
+      background: rgba(196,74,42,0.08);
+      border: 1px dashed rgba(196,74,42,0.3);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .pf-contacto-comunidad p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: var(--ink-muted, #6b6560);
+      line-height: 1.4;
+    }
+
+    .pf-contacto-comunidad a {
+      flex-shrink: 0;
+      background: var(--accent, #c44a2a);
+      color: #fff;
+      padding: 0.5rem 1rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+
+    .pf-contacto-comunidad a:hover { background: #a83820; }
+
+    /* — Responsive — */
+    @media (max-width: 640px) {
+      .pf-categorias-grid { grid-template-columns: 1fr 1fr; }
+      .pf-comunidad-banner { flex-direction: column; }
+      .pf-comunidad-banner::after { display: none; }
+    }
+
+    @media (max-width: 400px) {
+      .pf-categorias-grid { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body class="pagina-portada">
 
   <!-- =============================================
-       HEADER — original de Café
+       HEADER
        ============================================= -->
   <header class="site-header">
     <div class="header-inner">
@@ -32,17 +293,114 @@
           <p class="logo-sub">Mi guía de aprendizaje</p>
         </div>
       </div>
-      <nav style="display:flex;align-items:center;gap:10px;">
-        <a href="#sobre-mi"  class="btn-header" style="background:transparent;color:var(--ink);border:1px solid var(--border);">Sobre mí</a>
-        <a href="#proyectos" class="btn-header" style="background:transparent;color:var(--ink);border:1px solid var(--border);">Proyectos</a>
-        <a href="#contacto"  class="btn-header" style="background:transparent;color:var(--ink);border:1px solid var(--border);">Contacto</a>
+      <!-- Botón hamburguesa (solo móvil) -->
+      <button class="nav-hamburger" id="navHamburger" aria-label="Menú">
+        <span></span><span></span><span></span>
+      </button>
+
+      <nav class="site-nav" id="siteNav">
+        <a href="#sobre-mi"  class="btn-header btn-header-ghost">Sobre mí</a>
+        <a href="#proyectos" class="btn-header btn-header-ghost">Biblioteca</a>
+        <a href="#contacto"  class="btn-header btn-header-ghost">Contacto</a>
         <a href="capitulos.html" class="btn-header">Ver capítulos</a>
       </nav>
     </div>
   </header>
 
+  <style>
+    /* ── Nav responsive ── */
+    .site-nav {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-header-ghost {
+      background: transparent !important;
+      color: var(--ink, #1a1814) !important;
+      border: 1px solid var(--border, #e5e0d8) !important;
+    }
+
+    /* Hamburguesa — oculto en desktop */
+    .nav-hamburger {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      background: none;
+      border: 1.5px solid var(--border, #e5e0d8);
+      border-radius: 8px;
+      padding: 7px 9px;
+      cursor: pointer;
+      z-index: 201;
+    }
+
+    .nav-hamburger span {
+      display: block;
+      width: 20px;
+      height: 2px;
+      background: var(--ink, #1a1814);
+      border-radius: 2px;
+      transition: all 0.25s ease;
+    }
+
+    /* Estado abierto: X */
+    .nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .nav-hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    @media (max-width: 640px) {
+      .nav-hamburger { display: flex; }
+
+      .site-nav {
+        display: none;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 6px;
+        position: absolute;
+        top: 100%;
+        left: 0; right: 0;
+        background: var(--surface, #fff);
+        border-bottom: 1px solid var(--border, #e5e0d8);
+        padding: 1rem 1.2rem 1.2rem;
+        box-shadow: 0 8px 24px rgba(0,0,0,.08);
+        z-index: 199;
+      }
+
+      .site-nav.open { display: flex; animation: slideDown .2s ease; }
+
+      @keyframes slideDown { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:none} }
+
+      .site-nav .btn-header {
+        text-align: center;
+        padding: 0.65rem 1rem;
+        font-size: 0.95rem;
+        border-radius: 10px;
+      }
+    }
+  </style>
+
+  <script>
+    // Hamburguesa toggle
+    const hamburger = document.getElementById('navHamburger');
+    const nav       = document.getElementById('siteNav');
+
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('open');
+      nav.classList.toggle('open');
+    });
+
+    // Cerrar al hacer click en un enlace
+    nav.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => {
+        hamburger.classList.remove('open');
+        nav.classList.remove('open');
+      });
+    });
+  </script>
+
   <!-- =============================================
-       HERO — original de Café
+       HERO
        ============================================= -->
   <section class="hero">
     <div class="hero-inner">
@@ -102,9 +460,7 @@
     </div>
   </section>
 
-  <!-- =============================================
-       BANNER INSTALAR PWA — original de Café
-       ============================================= -->
+  <!-- BANNER PWA -->
   <div class="install-banner" id="installBanner" style="display:none">
     <div class="install-banner-inner">
       <span class="install-icon">📲</span>
@@ -115,7 +471,7 @@
   </div>
 
   <!-- =============================================
-       PORTAFOLIO — secciones independientes
+       PORTAFOLIO
        ============================================= -->
   <div class="seccion-portafolio">
 
@@ -124,98 +480,464 @@
       <div class="pf-seccion-inner">
         <div class="pf-sobre-grid">
 
+          <!-- Texto izquierdo -->
           <div>
             <span class="pf-seccion-eyebrow">Sobre mí</span>
-            <h2 class="pf-seccion-titulo">[Tu Nombre]</h2>
+            <h2 class="pf-seccion-titulo">Café <span style="color:var(--accent,#c44a2a);font-style:italic;">Código</span></h2>
             <p class="pf-sobre-desc">
               Soy de [ciudad], México. Actualmente aprendiendo desarrollo web
               con HTML, CSS y JavaScript. Me apasiona el fútbol y la tecnología.
             </p>
-            <div class="pf-chips">
-              <span class="pf-chip">HTML5</span>
-              <span class="pf-chip">CSS3</span>
-              <span class="pf-chip">Flexbox</span>
-              <span class="pf-chip">CSS Grid</span>
-              <span class="pf-chip">JavaScript</span>
-              <span class="pf-chip">Git</span>
+
+            <!-- Descripción de Café Código -->
+            <div class="cafe-desc-box">
+              <div class="cafe-desc-header">
+                <span class="cafe-desc-logo">☕ <span class="cafe-desc-code">&lt;/&gt;</span></span>
+                <span class="cafe-desc-badge">¿Qué es esto?</span>
+              </div>
+              <p class="cafe-desc-texto">
+                <strong>Café Código</strong> es mi biblioteca personal de aprendizaje web.
+                Aquí guardo todo lo que voy aprendiendo — capítulos, ejercicios, guías y proyectos —
+                organizados como si fueran los apuntes de un café donde estudias sin prisa.
+                Crece contigo, un concepto a la vez.
+              </p>
+              <div class="cafe-desc-chips">
+                <span class="cafe-chip cafe-chip-html">HTML</span>
+                <span class="cafe-chip cafe-chip-css">CSS</span>
+                <span class="cafe-chip cafe-chip-js">JS</span>
+                <span class="cafe-chip">Aprendizaje real</span>
+              </div>
             </div>
           </div>
 
-          <!-- Panel de código decorativo -->
-          <div class="pf-code-panel">
+          <!-- Consola interactiva Hola Mundo -->
+          <div class="pf-code-panel hm-panel">
+            <!-- Barra de la "ventana" -->
             <div class="pf-code-panel-header">
               <span class="pf-dot pf-dot-r"></span>
               <span class="pf-dot pf-dot-y"></span>
               <span class="pf-dot pf-dot-g"></span>
+              <span class="hm-filename">hola-mundo.js</span>
             </div>
-            <pre><span class="pf-c-key">const</span> yo = {
-  nombre:   <span class="pf-c-str">"[Tu Nombre]"</span>,
-  ciudad:   <span class="pf-c-str">"[ciudad], México"</span>,
-  aprendiendo: [
-    <span class="pf-c-str">"HTML"</span>, <span class="pf-c-str">"CSS"</span>, <span class="pf-c-str">"JS"</span>
-  ],
-  pasiones: [
-    <span class="pf-c-str">"fútbol"</span>,
-    <span class="pf-c-str">"tecnología"</span>
-  ],
-  disponible: <span class="pf-c-val">true</span>  <span class="pf-c-com">// ← siempre</span>
-}</pre>
+
+            <!-- Editor -->
+            <div class="hm-editor-area">
+              <div class="hm-lineas" aria-hidden="true">
+                <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+              </div>
+              <textarea class="hm-editor" id="hmEditor" spellcheck="false">// Tu primer programa 🎉
+// Edítame y presiona Ejecutar
+
+console.log("¡Hola Mundo!");</textarea>
+            </div>
+
+            <!-- Botón ejecutar -->
+            <div class="hm-toolbar">
+              <span class="hm-hint">✏️ Puedes editar el código</span>
+              <button class="hm-btn-run" id="hmRun">▶ Ejecutar</button>
+            </div>
+
+            <!-- Salida -->
+            <div class="hm-output-area">
+              <div class="hm-output-header">
+                <span class="hm-output-dot"></span> Consola
+              </div>
+              <div class="hm-output" id="hmOutput">
+                <span class="hm-output-placeholder">El resultado aparecerá aquí…</span>
+              </div>
+            </div>
           </div>
 
         </div>
       </div>
     </section>
 
-    <!-- ---- PROYECTOS ---- -->
+    <style>
+      /* ── Descripción Café Código ── */
+      .cafe-desc-box {
+        margin-top: 1.4rem;
+        background: rgba(255,255,255,0.07);
+        border: 1.5px solid rgba(196,74,42,0.35);
+        border-radius: 14px;
+        padding: 1rem 1.1rem 1rem;
+      }
+
+      .cafe-desc-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.55rem;
+      }
+
+      .cafe-desc-logo {
+        font-family: 'Fraunces', serif;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #fff;
+      }
+
+      .cafe-desc-code { color: var(--accent, #c44a2a); }
+
+      .cafe-desc-badge {
+        font-size: 0.68rem;
+        font-weight: 600;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        color: var(--accent, #c44a2a);
+        background: rgba(196,74,42,0.18);
+        padding: 0.15rem 0.55rem;
+        border-radius: 999px;
+      }
+
+      .cafe-desc-texto {
+        font-size: 0.83rem;
+        line-height: 1.65;
+        color: rgba(255,255,255,0.82);
+        margin: 0 0 0.7rem;
+      }
+
+      .cafe-desc-texto strong {
+        color: #fff;
+      }
+
+      .cafe-desc-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+      }
+
+      .cafe-chip {
+        font-size: 0.72rem;
+        font-weight: 600;
+        padding: 0.2rem 0.6rem;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.15);
+        color: rgba(255,255,255,0.75);
+      }
+
+      .cafe-chip-html { background: rgba(196,74,42,0.25); border-color: rgba(196,74,42,0.5); color: #fca99a; }
+      .cafe-chip-css  { background: rgba(37,99,235,0.25); border-color: rgba(37,99,235,0.5); color: #93c5fd; }
+      .cafe-chip-js   { background: rgba(253,224,71,0.15); border-color: rgba(253,224,71,0.4); color: #fde047; }
+
+      /* ── Panel consola Hola Mundo ── */
+      .hm-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        padding: 0 !important;
+        overflow: hidden;
+      }
+
+      .hm-filename {
+        margin-left: 0.6rem;
+        font-family: 'DM Mono', monospace;
+        font-size: 0.72rem;
+        color: rgba(255,255,255,0.4);
+      }
+
+      /* Área del editor */
+      .hm-editor-area {
+        display: flex;
+        background: #0d1117;
+        flex: 1;
+      }
+
+      .hm-lineas {
+        display: flex;
+        flex-direction: column;
+        padding: 0.9rem 0.6rem 0.9rem 0.8rem;
+        font-family: 'DM Mono', monospace;
+        font-size: 0.78rem;
+        line-height: 1.65;
+        color: rgba(255,255,255,0.2);
+        user-select: none;
+        text-align: right;
+        min-width: 28px;
+        border-right: 1px solid rgba(255,255,255,0.07);
+      }
+
+      .hm-editor {
+        flex: 1;
+        background: transparent;
+        border: none;
+        outline: none;
+        resize: none;
+        font-family: 'DM Mono', monospace;
+        font-size: 0.82rem;
+        line-height: 1.65;
+        color: #e6edf3;
+        padding: 0.9rem 1rem;
+        min-height: 110px;
+        caret-color: var(--accent, #c44a2a);
+      }
+
+      .hm-editor::selection { background: rgba(196,74,42,0.25); }
+
+      /* Toolbar */
+      .hm-toolbar {
+        background: #161b22;
+        border-top: 1px solid rgba(255,255,255,0.06);
+        padding: 0.45rem 0.9rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+      }
+
+      .hm-hint {
+        font-size: 0.72rem;
+        color: rgba(255,255,255,0.35);
+        font-family: 'DM Mono', monospace;
+      }
+
+      .hm-btn-run {
+        background: var(--accent, #c44a2a);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 0.35rem 0.9rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        font-family: 'DM Sans', sans-serif;
+        transition: background 0.15s, transform 0.12s;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+      }
+
+      .hm-btn-run:hover { background: #a83820; transform: scale(1.04); }
+      .hm-btn-run:active { transform: scale(0.97); }
+
+      /* Área de salida */
+      .hm-output-area {
+        background: #0a0e14;
+        border-top: 1px solid rgba(255,255,255,0.06);
+      }
+
+      .hm-output-header {
+        padding: 0.35rem 0.9rem;
+        font-size: 0.68rem;
+        color: rgba(255,255,255,0.3);
+        font-family: 'DM Mono', monospace;
+        letter-spacing: 0.05em;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+      }
+
+      .hm-output-dot {
+        width: 6px; height: 6px;
+        border-radius: 50%;
+        background: #3fb950;
+        display: inline-block;
+      }
+
+      .hm-output {
+        padding: 0.6rem 1rem 0.8rem;
+        font-family: 'DM Mono', monospace;
+        font-size: 0.82rem;
+        min-height: 48px;
+        color: #3fb950;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+
+      .hm-output-placeholder { color: rgba(255,255,255,0.2); font-style: italic; }
+      .hm-output-error { color: #f85149; }
+      .hm-output-success { color: #3fb950; }
+
+      /* Animación de "tipeo" en la salida */
+      @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+      .hm-cursor {
+        display: inline-block;
+        width: 8px; height: 1em;
+        background: #3fb950;
+        vertical-align: text-bottom;
+        animation: blink 1s step-end infinite;
+        margin-left: 2px;
+      }
+    </style>
+
+    <script>
+      (function() {
+        const editor = document.getElementById('hmEditor');
+        const output = document.getElementById('hmOutput');
+        const btn    = document.getElementById('hmRun');
+
+        // Sincronizar número de líneas
+        function syncLines() {
+          const lineas = document.querySelector('.hm-lineas');
+          const n = editor.value.split('\n').length;
+          lineas.innerHTML = Array.from({length: Math.max(n, 5)}, (_,i) => `<span>${i+1}</span>`).join('');
+        }
+        editor.addEventListener('input', syncLines);
+        syncLines();
+
+        // Ejecutar código de forma segura
+        btn.addEventListener('click', function() {
+          output.innerHTML = '';
+          btn.textContent  = '▶ Ejecutar';
+
+          const logs = [];
+          const safeConsole = {
+            log: (...args) => logs.push(args.map(a => typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a)).join(' ')),
+            error: (...args) => logs.push('⛔ ' + args.join(' ')),
+            warn:  (...args) => logs.push('⚠️ ' + args.join(' ')),
+          };
+
+          try {
+            const fn = new Function('console', editor.value);
+            fn(safeConsole);
+
+            if (!logs.length) {
+              output.innerHTML = '<span class="hm-output-placeholder">El código corrió pero no imprimió nada.<br>Prueba con console.log("algo")</span>';
+            } else {
+              // Efecto de tipeo letra por letra
+              const texto = logs.join('\n');
+              typeOut(output, texto, 'hm-output-success');
+            }
+          } catch(e) {
+            output.innerHTML = `<span class="hm-output-error">⛔ Error: ${e.message}</span>`;
+          }
+        });
+
+        function typeOut(el, text, cls) {
+          el.innerHTML = '';
+          const span = document.createElement('span');
+          span.className = cls;
+          el.appendChild(span);
+          const cursor = document.createElement('span');
+          cursor.className = 'hm-cursor';
+          el.appendChild(cursor);
+
+          let i = 0;
+          const speed = Math.max(12, Math.min(40, 800 / text.length));
+          const t = setInterval(() => {
+            if (i < text.length) {
+              span.textContent += text[i++];
+            } else {
+              clearInterval(t);
+              setTimeout(() => cursor.remove(), 1200);
+            }
+          }, speed);
+        }
+
+        // Ejecutar automáticamente al cargar para mostrar el efecto
+        setTimeout(() => btn.click(), 800);
+      })();
+    </script>
+
+    <!-- ---- PROYECTOS / CATEGORÍAS ---- -->
     <section class="pf-seccion" id="proyectos">
       <div class="pf-seccion-inner">
         <span class="pf-seccion-eyebrow">Proyectos</span>
-        <h2 class="pf-seccion-titulo">Mis Proyectos</h2>
+        <h2 class="pf-seccion-titulo">Mi Biblioteca de Estudio</h2>
 
-        <div class="pf-proyectos-grid">
+        <!-- Tarjetas de categorías -->
+        <div class="pf-categorias-grid">
 
-          <!-- Tarjeta 1 — clickeable, abre la guía HTML & CSS -->
-          <a href="guia-html-css/guia-html-css.html" class="pf-proyecto-card pf-proyecto-card--link">
-            <div class="pf-proyecto-icono">🌐</div>
-            <h3 class="pf-proyecto-titulo">Página Personal</h3>
-            <p class="pf-proyecto-desc">
-              Mi primera página web creada con HTML semántico y CSS moderno.
-            </p>
-            <div class="pf-proyecto-chips">
-              <span class="pf-proyecto-chip">HTML</span>
-              <span class="pf-proyecto-chip">CSS</span>
+          <!-- Capítulos -->
+          <a href="capitulos.html?tab=capitulos" class="pf-cat-card cat-capitulos">
+            <div class="pf-cat-emoji">📚</div>
+            <h3 class="pf-cat-nombre">Capítulos</h3>
+            <p class="pf-cat-desc">El contenido principal organizado por temas, con ejemplos y analogías.</p>
+            <div class="pf-cat-count">
+              <span class="pf-cat-badge">14</span>
+              <span class="pf-cat-link">Explorar →</span>
             </div>
-            <span class="pf-proyecto-ver">Ver proyecto →</span>
           </a>
 
-          <!-- Tarjeta 2 — placeholder para tu próximo proyecto -->
-          <div class="pf-proyecto-card">
-            <div class="pf-proyecto-icono">⚙️</div>
-            <h3 class="pf-proyecto-titulo">Próximo proyecto</h3>
-            <p class="pf-proyecto-desc">
-              Aquí irá tu segundo proyecto cuando lo termines.
-            </p>
-            <div class="pf-proyecto-chips">
-              <span class="pf-proyecto-chip">JavaScript</span>
-              <span class="pf-proyecto-chip">DOM</span>
+          <!-- Guías -->
+          <a href="capitulos.html?tab=guias" class="pf-cat-card cat-guias">
+            <div class="pf-cat-emoji">📖</div>
+            <h3 class="pf-cat-nombre">Guías</h3>
+            <p class="pf-cat-desc">Referencias rápidas y hojas de trucos para consultar cuando lo necesites.</p>
+            <div class="pf-cat-count">
+              <span class="pf-cat-badge" style="background:#2563eb;">12</span>
+              <span class="pf-cat-link">Explorar →</span>
             </div>
-          </div>
+          </a>
 
-          <!-- Tarjeta 3 — placeholder -->
-          <div class="pf-proyecto-card">
-            <div class="pf-proyecto-icono">🚀</div>
-            <h3 class="pf-proyecto-titulo">En construcción</h3>
-            <p class="pf-proyecto-desc">
-              Más proyectos llegarán conforme avances en los capítulos.
-            </p>
-            <div class="pf-proyecto-chips">
-              <span class="pf-proyecto-chip">HTML</span>
-              <span class="pf-proyecto-chip">CSS</span>
-              <span class="pf-proyecto-chip">JS</span>
+          <!-- Ejercicios -->
+          <a href="capitulos.html?tab=ejercicios" class="pf-cat-card cat-ejercicios">
+            <div class="pf-cat-emoji">✏️</div>
+            <h3 class="pf-cat-nombre">Ejercicios</h3>
+            <p class="pf-cat-desc">Retos completados donde pusiste en práctica lo aprendido.</p>
+            <div class="pf-cat-count">
+              <span class="pf-cat-badge" style="background:#16a34a;">5</span>
+              <span class="pf-cat-link">Ver galería →</span>
+            </div>
+          </a>
+
+          <!-- Práctica -->
+          <a href="capitulos.html?tab=practica" class="pf-cat-card cat-practica">
+            <div class="pf-cat-emoji">🏋️</div>
+            <h3 class="pf-cat-nombre">Práctica</h3>
+            <p class="pf-cat-desc">Proyectos libres y experimentos para fortalecer habilidades.</p>
+            <div class="pf-cat-count">
+              <span class="pf-cat-badge" style="background:#7c3aed;">6</span>
+              <span class="pf-cat-link">Ver práctica →</span>
+            </div>
+          </a>
+
+          <!-- Mis Guías -->
+          <a href="capitulos.html?tab=misguias" class="pf-cat-card cat-misguias">
+            <div class="pf-cat-emoji">🎬</div>
+            <h3 class="pf-cat-nombre">Mis Guías</h3>
+            <p class="pf-cat-desc">Guías propias creadas a partir de lo que has aprendido en el camino.</p>
+            <div class="pf-cat-count">
+              <span class="pf-cat-badge" style="background:#d97706;">En proceso</span>
+              <span class="pf-cat-link">Ver guías →</span>
+            </div>
+          </a>
+
+          <!-- Glosario -->
+          <a href="capitulos.html?tab=glosario" class="pf-cat-card cat-glosario">
+            <div class="pf-cat-emoji">📘</div>
+            <h3 class="pf-cat-nombre">Mi Glosario</h3>
+            <p class="pf-cat-desc">Tu diccionario personal de términos y conceptos de desarrollo web.</p>
+            <div class="pf-cat-count">
+              <span class="pf-cat-badge" style="background:#0e7490;">Firebase</span>
+              <span class="pf-cat-link">Abrir →</span>
+            </div>
+          </a>
+
+          <!-- Próximamente -->
+          <div class="pf-cat-card cat-proximamente">
+            <div class="pf-cat-emoji pf-cat-plus">＋</div>
+            <h3 class="pf-cat-nombre" style="color:var(--ink-muted,#6b6560);">Próximamente</h3>
+            <p class="pf-cat-desc">Aquí puedes agregar más secciones cuando las tengas: flashcards, cheat sheets, resúmenes por tema, etc.</p>
+            <div class="pf-cat-count" style="margin-top:auto;">
+              <span style="font-size:0.75rem;color:var(--ink-muted,#6b6560);font-style:italic;">Tu siguiente sección →</span>
             </div>
           </div>
 
         </div>
+
+        <!-- Banner Comunidad -->
+        <div class="pf-comunidad-banner">
+          <div class="pf-comunidad-texto">
+            <h3>¿Te ha servido este material?</h3>
+            <p>Deja un mensaje, una duda o cuéntame qué parte te gustó más. Tu feedback ayuda a mejorar la guía.</p>
+          </div>
+          <div class="pf-comunidad-stats">
+            <div class="pf-com-stat">
+              <strong id="totalMensajes">—</strong>
+              <span>mensajes</span>
+            </div>
+            <div class="pf-com-stat">
+              <strong id="totalLikes">—</strong>
+              <span>👍 útil</span>
+            </div>
+          </div>
+          <a href="comunidad/comunidad.html" class="btn-comunidad">
+            💬 Ir a la comunidad →
+          </a>
+        </div>
+
       </div>
     </section>
 
@@ -240,9 +962,15 @@
               <span>✉️</span>
               <span>tu@email.com</span>
             </p>
+
+            <!-- Botón hacia comunidad -->
+            <div class="pf-contacto-comunidad">
+              <span style="font-size:1.4rem;">💬</span>
+              <p>¿Prefieres dejar un comentario público o una duda sobre la guía?</p>
+              <a href="comunidad.html">Ir a comunidad</a>
+            </div>
           </div>
 
-          <!-- Formulario -->
           <div class="pf-form">
             <div class="pf-form-grupo">
               <label for="pf-nombre">Nombre</label>
@@ -265,13 +993,49 @@
 
   </div><!-- /seccion-portafolio -->
 
-  <!-- =============================================
-       FOOTER — original de Café
-       ============================================= -->
+  <!-- FOOTER -->
   <footer class="site-footer">
     <p>☕ Café &lt;/&gt; · Hecho con paciencia y analogías</p>
   </footer>
 
   <script src="js/script.js"></script>
+
+  <!-- ── Contadores en tiempo real desde Firebase ── -->
+  <script type="module">
+    import { initializeApp }  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+    import { getFirestore, collection, onSnapshot, query }
+                              from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+    // ══ PEGA AQUÍ LA MISMA CONFIG DE TU comunidad.html ══
+    const firebaseConfig = {
+      apiKey: "AIzaSyAjNUAY81r5rUfwlslE_d9fHsJxZFptvf4",
+      authDomain: "cafecodigo-276ba.firebaseapp.com",
+      projectId: "cafecodigo-276ba",
+      storageBucket: "cafecodigo-276ba.firebasestorage.app",
+      messagingSenderId: "924422990613",
+      appId: "1:924422990613:web:a7beafb991146549f2571c"
+    };
+    // ═════════════════════════════════════════════════════
+
+    try {
+      const app = initializeApp(firebaseConfig, 'index-counters');
+      const db  = getFirestore(app);
+
+      // Escucha en tiempo real — se actualiza automáticamente
+      onSnapshot(query(collection(db, 'mensajes_cafe')), snap => {
+        let totalLikes = 0;
+        snap.forEach(d => { totalLikes += d.data().likes || 0; });
+
+        document.getElementById('totalMensajes').textContent = snap.size;
+        document.getElementById('totalLikes').textContent    = totalLikes;
+      });
+
+    } catch(e) {
+      // Si Firebase no está configurado todavía, muestra guión
+      console.warn('Firebase index: no configurado aún.');
+      document.getElementById('totalMensajes').textContent = '—';
+      document.getElementById('totalLikes').textContent    = '—';
+    }
+  </script>
 </body>
 </html>

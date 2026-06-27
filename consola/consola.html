@@ -1,0 +1,2366 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1a1814">
+  <title>Café </> · Consola</title>
+  <link rel="icon" href="image/icons/icon-512.png" type="image/png">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    /* ============================================
+       VARIABLES GLOBALES (antes en style.css)
+       ============================================ */
+    :root {
+      --font-title: 'Fraunces', Georgia, serif;
+      --font-body:  'DM Sans', system-ui, sans-serif;
+      --font-code:  'DM Mono', 'Fira Code', monospace;
+      --color-bg:        #1a1814;
+      --color-surface:   #201e17;
+      --color-border:    rgba(255,255,255,0.08);
+      --color-coral:     #c44a2a;
+      --color-green:     #1a7a5a;
+      --color-amber:     #b07010;
+      --color-cream:     #f7f4ef;
+    }
+
+    /* ============================================
+       BODY Y BASE
+       ============================================ */
+    body {
+      font-family: var(--font-body);
+      background: #1a1814;
+      color: #f7f4ef;
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* ============================================
+       HEADER (site-header)
+       ============================================ */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: #0f0d0a;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .logo-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo-back {
+      font-family: var(--font-body);
+      font-size: 13px;
+      color: rgba(247,244,239,0.4);
+      text-decoration: none;
+      padding: 5px 10px;
+      border-radius: 6px;
+      transition: color 0.15s, background 0.15s;
+    }
+    .logo-back:hover { color: #f7f4ef; background: rgba(255,255,255,0.06); }
+    .logo-icon { font-size: 20px; }
+    .logo-title {
+      font-family: var(--font-title);
+      font-size: 17px;
+      font-weight: 700;
+      color: #f7f4ef;
+      line-height: 1.2;
+    }
+    .logo-code { color: #c44a2a; }
+    .logo-sub {
+      font-size: 11px;
+      color: rgba(247,244,239,0.35);
+      font-family: var(--font-body);
+    }
+    .header-badges { display: flex; gap: 6px; }
+    .badge {
+      font-family: var(--font-code);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 6px;
+      letter-spacing: 0.05em;
+    }
+    .badge-html { background: rgba(196,74,42,0.2);  color: #f4a68a; border: 1px solid rgba(196,74,42,0.3); }
+    .badge-css  { background: rgba(26,122,90,0.2);  color: #7ed4b4; border: 1px solid rgba(26,122,90,0.3); }
+    .badge-js   { background: rgba(176,112,16,0.2); color: #f0c060; border: 1px solid rgba(176,112,16,0.3); }
+
+    /* ============================================
+       FOOTER (site-footer)
+       ============================================ */
+    .site-footer {
+      text-align: center;
+      padding: 28px 24px;
+      font-size: 13px;
+      color: rgba(247,244,239,0.25);
+      border-top: 1px solid rgba(255,255,255,0.05);
+      font-family: var(--font-body);
+    }
+
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-padding-top: 130px; }
+
+    /* ============================================
+       TABS — barra de lenguajes (rediseñada)
+       ============================================ */
+    .tabs-bar {
+      position: sticky;
+      top: 64px;
+      z-index: 90;
+      background: #141210;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .tabs-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      gap: 0;
+      overflow-x: auto;
+    }
+    .tabs-inner::-webkit-scrollbar { display: none; }
+
+    .tab-btn {
+      flex-shrink: 0;
+      padding: 13px 20px;
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 500;
+      color: rgba(247,244,239,0.38);
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
+      white-space: nowrap;
+    }
+    .tab-btn:hover { color: rgba(247,244,239,0.75); background: rgba(255,255,255,0.04); }
+    .tab-btn.activa {
+      color: #f7f4ef;
+      border-bottom-color: #c44a2a;
+      font-weight: 600;
+    }
+    .tab-badge {
+      font-family: var(--font-code);
+      font-size: 9.5px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      color: rgba(247,244,239,0.4);
+      letter-spacing: 0.04em;
+    }
+    .tab-btn.activa .tab-badge {
+      background: rgba(196,74,42,0.25);
+      color: #f4a68a;
+    }
+    .tab-panel { display: none; }
+    .tab-panel.visible { display: block; }
+
+    /* ============================================
+       LAYOUT CONSOLA
+       ============================================ */
+    .consola-wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 28px 24px 60px;
+    }
+
+    /* Cabecera de sección — banda oscura superior */
+    .consola-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+      padding: 18px 22px;
+      background: #1a1814;
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 14px;
+    }
+    .consola-titulo {
+      font-family: var(--font-title);
+      font-size: clamp(16px, 2.2vw, 22px);
+      font-weight: 700;
+      color: #f7f4ef;
+      margin-bottom: 3px;
+    }
+    .consola-desc {
+      font-size: 13px;
+      color: rgba(247,244,239,0.45);
+      line-height: 1.6;
+      max-width: 520px;
+    }
+    .consola-desc code {
+      font-family: var(--font-code);
+      font-size: 12px;
+      background: rgba(255,255,255,0.08);
+      padding: 1px 6px;
+      border-radius: 4px;
+      color: #f0c060;
+    }
+
+    /* ── Botones ── */
+    .btn-run {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #c44a2a;
+      color: white;
+      border: none;
+      padding: 10px 22px;
+      border-radius: 10px;
+      font-family: var(--font-body);
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+      white-space: nowrap;
+      flex-shrink: 0;
+      letter-spacing: 0.02em;
+      box-shadow: 0 3px 10px rgba(196,74,42,0.4);
+    }
+    .btn-run:hover { background: #a33b21; box-shadow: 0 4px 14px rgba(196,74,42,0.5); }
+    .btn-run:active { transform: scale(0.97); }
+
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.06);
+      color: rgba(247,244,239,0.55);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 9px 16px;
+      border-radius: 10px;
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+    }
+    .btn-secondary:hover {
+      border-color: rgba(255,255,255,0.25);
+      color: #f7f4ef;
+      background: rgba(255,255,255,0.1);
+    }
+
+    .btn-group { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+    /* ============================================
+       EDITOR — paneles de código
+       ============================================ */
+    .editor-layout { display: grid; gap: 10px; }
+
+    .editor-layout.tres-columnas {
+      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-rows: auto auto;
+    }
+    .editor-layout.una-columna { grid-template-columns: 1fr; }
+    .editor-layout.dos-columnas { grid-template-columns: 1fr 1fr; }
+
+    /* Panel editor con borde sutil */
+    .editor-panel {
+      background: #18160f;
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 240px;
+      border: 1px solid rgba(255,255,255,0.07);
+      transition: border-color 0.2s;
+    }
+    .editor-panel:focus-within {
+      border-color: rgba(196,74,42,0.4);
+    }
+    .editor-panel-full { grid-column: 1 / -1; }
+
+    /* Topbar macOS style mejorado */
+    .editor-topbar {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 10px 14px;
+      background: #0f0d0a;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      user-select: none;
+    }
+    .editor-dot {
+      width: 11px; height: 11px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .dot-red    { background: #ff5f57; box-shadow: 0 0 0 0.5px rgba(255,95,87,0.5); }
+    .dot-yellow { background: #febc2e; box-shadow: 0 0 0 0.5px rgba(254,188,46,0.5); }
+    .dot-green  { background: #28c840; box-shadow: 0 0 0 0.5px rgba(40,200,64,0.5); }
+    .editor-lang-label {
+      font-family: var(--font-code);
+      font-size: 11.5px;
+      color: rgba(247,244,239,0.3);
+      margin-left: 6px;
+      flex: 1;
+      letter-spacing: 0.02em;
+    }
+    .editor-lang-badge {
+      font-family: var(--font-code);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 9px;
+      border-radius: 6px;
+      letter-spacing: 0.06em;
+    }
+    .badge-html-e { background: rgba(196,74,42,0.2); color: #f4a68a; border: 1px solid rgba(196,74,42,0.3); }
+    .badge-css-e  { background: rgba(26,122,90,0.2);  color: #7ed4b4; border: 1px solid rgba(26,122,90,0.3); }
+    .badge-js-e   { background: rgba(176,112,16,0.2); color: #f0c060; border: 1px solid rgba(176,112,16,0.3); }
+    .badge-java-e { background: rgba(83,74,183,0.2);  color: #b4aef5; border: 1px solid rgba(83,74,183,0.3); }
+    .badge-py-e   { background: rgba(26,95,165,0.2);  color: #86bef5; border: 1px solid rgba(26,95,165,0.3); }
+
+    /* Textarea del editor */
+    .editor-textarea {
+      flex: 1;
+      background: transparent;
+      color: #e8e4dc;
+      font-family: var(--font-code);
+      font-size: 13.5px;
+      line-height: 1.75;
+      padding: 16px 18px;
+      border: none;
+      resize: none;
+      outline: none;
+      tab-size: 2;
+      width: 100%;
+      caret-color: #c44a2a;
+    }
+    .editor-textarea::placeholder { color: rgba(247,244,239,0.15); }
+
+    /* ============================================
+       PREVIEW
+       ============================================ */
+    .preview-panel {
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 300px;
+      border: 1px solid rgba(255,255,255,0.07);
+      box-shadow: 0 2px 20px rgba(0,0,0,0.25);
+    }
+    .preview-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 14px;
+      border-bottom: 1px solid #e8e4dc;
+      background: #f4f1ea;
+      gap: 10px;
+    }
+    .preview-label {
+      font-family: var(--font-code);
+      font-size: 10.5px;
+      color: #8a8075;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .preview-url-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex: 1;
+      background: #fff;
+      border: 1px solid #e0dcd4;
+      border-radius: 6px;
+      padding: 4px 12px;
+      font-family: var(--font-code);
+      font-size: 11px;
+      color: #9a9590;
+      max-width: 260px;
+    }
+    .preview-frame {
+      flex: 1;
+      border: none;
+      width: 100%;
+      min-height: 260px;
+      background: white;
+    }
+
+    /* ============================================
+       OUTPUT / CONSOLA
+       ============================================ */
+    .output-panel {
+      background: #0f0d0a;
+      border-radius: 12px;
+      overflow: hidden;
+      min-height: 160px;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .output-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 14px;
+      background: #0a0805;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .output-label {
+      font-family: var(--font-code);
+      font-size: 10.5px;
+      color: rgba(247,244,239,0.3);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .output-label::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #28c840;
+      box-shadow: 0 0 6px rgba(40,200,64,0.6);
+    }
+    .btn-clear {
+      font-family: var(--font-code);
+      font-size: 11px;
+      color: rgba(247,244,239,0.25);
+      background: none;
+      border: none;
+      cursor: pointer;
+      transition: color 0.15s;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .btn-clear:hover { color: rgba(247,244,239,0.65); background: rgba(255,255,255,0.05); }
+
+    .output-content {
+      flex: 1;
+      padding: 14px 18px;
+      font-family: var(--font-code);
+      font-size: 13px;
+      line-height: 1.8;
+      overflow-y: auto;
+      min-height: 130px;
+    }
+    .output-line-log   { color: #d4d0c8; }
+    .output-line-error { color: #f4847a; }
+    .output-line-warn  { color: #f0c060; }
+    .output-line-info  { color: #7ac0f0; }
+    .output-line-ok    { color: #7ed490; border-top: 1px solid rgba(126,212,144,0.12); padding-top: 6px; margin-top: 4px; }
+    .output-empty      { color: rgba(247,244,239,0.18); font-style: italic; }
+
+    /* ============================================
+       AVISO BACKEND
+       ============================================ */
+    .aviso-backend {
+      background: #1a1814;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-left: 3px solid #c44a2a;
+      border-radius: 12px;
+      padding: 18px 22px;
+      margin-bottom: 16px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+    .aviso-icon { font-size: 22px; flex-shrink: 0; margin-top: 1px; }
+    .aviso-titulo {
+      font-family: var(--font-title);
+      font-size: 14.5px;
+      font-weight: 700;
+      color: #f7f4ef;
+      margin-bottom: 5px;
+    }
+    .aviso-desc {
+      font-size: 13px;
+      color: rgba(247,244,239,0.5);
+      line-height: 1.65;
+    }
+    .aviso-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #f4a68a;
+      text-decoration: none;
+    }
+    .aviso-link:hover { color: #c44a2a; text-decoration: underline; }
+
+    /* ============================================
+       REFERENCIA RÁPIDA
+       ============================================ */
+    .referencia-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .ref-card {
+      background: #1a1814;
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 10px;
+      padding: 14px 16px;
+      cursor: pointer;
+      transition: border-color 0.15s, transform 0.12s, background 0.15s;
+    }
+    .ref-card:hover {
+      border-color: rgba(196,74,42,0.5);
+      transform: translateY(-2px);
+      background: #201e17;
+    }
+    .ref-card-titulo {
+      font-family: var(--font-code);
+      font-size: 10.5px;
+      font-weight: 700;
+      color: rgba(247,244,239,0.4);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .ref-card:hover .ref-card-titulo { color: rgba(247,244,239,0.65); }
+    .ref-card-preview {
+      font-family: var(--font-code);
+      font-size: 12px;
+      color: #f0c060;
+      white-space: pre;
+      line-height: 1.65;
+    }
+
+    /* ============================================
+       CHIPS DE EJEMPLOS
+       ============================================ */
+    .ejemplos-label {
+      font-family: var(--font-code);
+      font-size: 10.5px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(247,244,239,0.55);
+      margin: 22px 0 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .ejemplos-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 18px;
+    }
+    .chip-ejemplo {
+      font-family: var(--font-code);
+      font-size: 12px;
+      padding: 5px 13px;
+      border-radius: 7px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.13);
+      color: rgba(247,244,239,0.75);
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+    }
+    .chip-ejemplo:hover {
+      border-color: rgba(196,74,42,0.6);
+      color: #f4a68a;
+      background: rgba(196,74,42,0.12);
+    }
+
+    /* ============================================
+       JS PANEL — layout editor + consola side by side
+       ============================================ */
+    .js-ide-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      align-items: stretch;
+    }
+    @media(max-width: 680px) {
+      .js-ide-layout { grid-template-columns: 1fr; }
+    }
+
+    /* ============================================
+       PANEL INFO EXPANDIBLE
+       ============================================ */
+    .info-toggle-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.06);
+      color: rgba(247,244,239,0.6);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-family: var(--font-code);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      letter-spacing: 0.02em;
+    }
+    .info-toggle-btn:hover { border-color: rgba(196,74,42,0.5); color: #f4a68a; background: rgba(196,74,42,0.08); }
+    .info-toggle-btn.abierto { border-color: rgba(196,74,42,0.4); color: #f4a68a; background: rgba(196,74,42,0.1); }
+
+    .info-panel {
+      display: none;
+      background: #161310;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 22px 24px;
+      margin-bottom: 20px;
+      animation: fadeIn 0.2s ease;
+    }
+    .info-panel.visible { display: block; }
+
+    @keyframes fadeIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px;
+      margin-top: 14px;
+    }
+    .info-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+    .info-card-titulo {
+      font-family: var(--font-code);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(247,244,239,0.3);
+      margin-bottom: 7px;
+    }
+    .info-card-texto {
+      font-size: 13px;
+      color: rgba(247,244,239,0.7);
+      line-height: 1.65;
+    }
+    .info-card-texto strong { color: #f4a68a; font-weight: 600; }
+    .info-card-texto code {
+      font-family: var(--font-code);
+      font-size: 11.5px;
+      background: rgba(255,255,255,0.07);
+      padding: 1px 6px;
+      border-radius: 4px;
+      color: #f0c060;
+    }
+    .info-panel-titulo {
+      font-family: var(--font-title);
+      font-size: 15px;
+      font-weight: 700;
+      color: #f7f4ef;
+      margin-bottom: 4px;
+    }
+    .info-panel-sub {
+      font-size: 13px;
+      color: rgba(247,244,239,0.45);
+      line-height: 1.6;
+    }
+
+    /* ============================================
+       TOOLTIP EN CHIPS
+       ============================================ */
+    .chip-ejemplo {
+      position: relative;
+    }
+    .chip-ejemplo[data-tip]:hover::after {
+      content: attr(data-tip);
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1a1814;
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(247,244,239,0.8);
+      font-family: var(--font-body);
+      font-size: 11.5px;
+      padding: 5px 10px;
+      border-radius: 6px;
+      white-space: nowrap;
+      z-index: 200;
+      pointer-events: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    }
+
+    /* ============================================
+       PYTHON EJECUTABLE
+       ============================================ */
+    .py-status {
+      font-family: var(--font-code);
+      font-size: 11.5px;
+      color: rgba(247,244,239,0.35);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .py-status.cargando { color: #f0c060; }
+    .py-status.listo    { color: #7ed490; }
+    .py-status.error-py { color: #f4847a; }
+
+    .py-run-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #1a5fa5;
+      color: white;
+      border: none;
+      padding: 10px 22px;
+      border-radius: 10px;
+      font-family: var(--font-body);
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      box-shadow: 0 3px 10px rgba(26,95,165,0.4);
+    }
+    .py-run-btn:hover { background: #1450a0; }
+    .py-run-btn:active { transform: scale(0.97); }
+    .py-run-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ============================================
+       HERRAMIENTAS — nueva tab
+       ============================================ */
+    .herr-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 14px;
+      margin-top: 16px;
+    }
+    .herr-card {
+      background: #1a1814;
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 14px;
+      padding: 20px 22px;
+      transition: border-color 0.15s, transform 0.12s;
+    }
+    .herr-card:hover { border-color: rgba(196,74,42,0.35); transform: translateY(-2px); }
+    .herr-lang {
+      font-family: var(--font-title);
+      font-size: 17px;
+      font-weight: 700;
+      color: #f7f4ef;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .herr-desc {
+      font-size: 13px;
+      color: rgba(247,244,239,0.45);
+      line-height: 1.6;
+      margin-bottom: 14px;
+    }
+    .herr-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 9px 0;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    .herr-tipo {
+      font-family: var(--font-code);
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 6px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .tipo-local   { background: rgba(26,122,90,0.2);  color: #7ed4b4; border: 1px solid rgba(26,122,90,0.3); }
+    .tipo-online  { background: rgba(176,112,16,0.2); color: #f0c060; border: 1px solid rgba(176,112,16,0.3); }
+    .tipo-ide     { background: rgba(83,74,183,0.2);  color: #b4aef5; border: 1px solid rgba(83,74,183,0.3); }
+    .tipo-cmd     { background: rgba(196,74,42,0.2);  color: #f4a68a; border: 1px solid rgba(196,74,42,0.3); }
+    .herr-nombre {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #f7f4ef;
+      margin-bottom: 2px;
+    }
+    .herr-como {
+      font-size: 12px;
+      color: rgba(247,244,239,0.4);
+      line-height: 1.5;
+    }
+    .herr-como code {
+      font-family: var(--font-code);
+      font-size: 11px;
+      background: rgba(255,255,255,0.07);
+      padding: 1px 5px;
+      border-radius: 4px;
+      color: #f0c060;
+    }
+    .herr-link {
+      color: #f4a68a;
+      font-size: 12px;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .herr-link:hover { text-decoration: underline; }
+
+    /* Comparativa rápida */
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-top: 16px;
+    }
+    .compare-table th {
+      font-family: var(--font-code);
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(247,244,239,0.35);
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .compare-table td {
+      padding: 11px 14px;
+      color: rgba(247,244,239,0.7);
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      vertical-align: middle;
+    }
+    .compare-table tr:hover td { background: rgba(255,255,255,0.02); }
+    .compare-table td:first-child { font-weight: 600; color: #f7f4ef; }
+    .check { color: #7ed490; }
+    .cross { color: rgba(247,244,239,0.2); }
+
+
+    @media (max-width: 820px) {
+      .editor-layout.tres-columnas { grid-template-columns: 1fr; }
+      .consola-header { flex-direction: column; align-items: flex-start; }
+    }
+    @media (max-width: 580px) {
+      .consola-wrap { padding: 16px 14px 40px; }
+      .editor-layout.dos-columnas { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER — idéntico al proyecto -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="logo-group">
+        <a href="../capitulos.html?tab=consola" class="logo-back">← Inicio</a>
+        <span class="logo-icon">☕</span>
+        <div>
+          <h1 class="logo-title">Café <span class="logo-code">&lt;/&gt;</span></h1>
+          <p class="logo-sub">Biblioteca de aprendizaje</p>
+        </div>
+      </div>
+      <div class="header-badges">
+        <span class="badge badge-html">HTML</span>
+        <span class="badge badge-css">CSS</span>
+        <span class="badge badge-js">JS</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- BARRA DE LENGUAJES -->
+  <div class="tabs-bar">
+    <div class="tabs-inner">
+      <button class="tab-btn activa" data-tab="web">
+        🌐 HTML · CSS · JS <span class="tab-badge">Web</span>
+      </button>
+      <button class="tab-btn" data-tab="javascript">
+        ⚡ JavaScript <span class="tab-badge">JS puro</span>
+      </button>
+      <button class="tab-btn" data-tab="java">
+        ☕ Java <span class="tab-badge">Backend</span>
+      </button>
+      <button class="tab-btn" data-tab="python">
+        🐍 Python <span class="tab-badge">Backend</span>
+      </button>
+      <button class="tab-btn" data-tab="referencia">
+        📋 Referencia rápida
+      </button>
+      <button class="tab-btn" data-tab="herramientas">
+        🛠 ¿Qué consola uso? <span class="tab-badge">Guía</span>
+      </button>
+    </div>
+  </div>
+
+
+  <!-- ============================================
+       PANEL 1: HTML + CSS + JS (Vista web completa)
+       ============================================ -->
+  <div class="tab-panel visible" id="panel-web">
+    <div class="consola-wrap">
+
+      <div class="consola-header">
+        <div>
+          <h2 class="consola-titulo">🌐 Consola Web</h2>
+          <p class="consola-desc">Escribe HTML, CSS y JavaScript. Presiona <strong>Ejecutar</strong> y ve el resultado al instante en el preview.</p>
+        </div>
+        <div class="btn-group">
+          <button class="info-toggle-btn" onclick="toggleInfo('info-web', this)">ℹ ¿Cómo funciona?</button>
+          <button class="btn-secondary" onclick="limpiarWeb()">🗑 Limpiar</button>
+          <button class="btn-run" onclick="ejecutarWeb()">▶ Ejecutar</button>
+        </div>
+      </div>
+
+      <!-- Panel de info Web -->
+      <div class="info-panel" id="info-web">
+        <p class="info-panel-titulo">🌐 HTML + CSS + JavaScript — el trío de la web</p>
+        <p class="info-panel-sub">Todo lo que ves en un navegador está construido con estos tres lenguajes. Cada uno tiene un rol distinto y trabajan juntos.</p>
+        <div class="info-grid">
+          <div class="info-card">
+            <div class="info-card-titulo">🏗 HTML — estructura</div>
+            <div class="info-card-texto">Define el <strong>contenido y la estructura</strong> de la página: párrafos, títulos, imágenes, listas. Es el esqueleto.<br><br>Herramienta: cualquier editor de texto. El <strong>navegador</strong> lo interpreta directamente.</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-titulo">🎨 CSS — estilo</div>
+            <div class="info-card-texto">Controla <strong>colores, tamaños, fuentes, espaciados y animaciones</strong>. Le da apariencia visual al HTML.<br><br>Herramienta: <strong>VS Code</strong> + extensión Live Preview, o directamente aquí.</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-titulo">⚡ JavaScript — comportamiento</div>
+            <div class="info-card-texto">Añade <strong>interactividad</strong>: responder a clics, mostrar/ocultar elementos, validar formularios, hacer peticiones a APIs.<br><br>Herramienta: <strong>Consola del navegador</strong> (F12 → Consola) o VS Code.</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-titulo">🖥 ¿Dónde se ejecuta?</div>
+            <div class="info-card-texto">Directamente en el <strong>navegador</strong> (Chrome, Firefox, Safari). No necesita instalación ni compilación. El navegador es el motor que corre los tres a la vez.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ejemplos rápidos -->
+      <div class="ejemplos-label">⚡ Ejemplos rápidos — clic para cargar</div>
+      <div class="ejemplos-chips">
+        <span class="chip-ejemplo" data-tip="Título con color coral + párrafo" onclick="cargarEjemploWeb('h1')">h1 con color</span>
+        <span class="chip-ejemplo" data-tip="Lista sin orden (ul) y con orden (ol)" onclick="cargarEjemploWeb('lista')">ul y ol</span>
+        <span class="chip-ejemplo" data-tip="div con padding, borde y fondo" onclick="cargarEjemploWeb('caja')">div con CSS</span>
+        <span class="chip-ejemplo" data-tip="3 cajas centradas con display:flex" onclick="cargarEjemploWeb('flexbox')">Flexbox</span>
+        <span class="chip-ejemplo" data-tip="Botón que cuenta cuántas veces lo presionas" onclick="cargarEjemploWeb('boton')">Botón con JS</span>
+        <span class="chip-ejemplo" data-tip="Formulario con validación en JS" onclick="cargarEjemploWeb('formulario')">Formulario</span>
+        <span class="chip-ejemplo" data-tip="Tarjeta con hover effect y sombra" onclick="cargarEjemploWeb('card')">Card CSS</span>
+        <span class="chip-ejemplo" data-tip="Caja que rota y cambia de color en loop" onclick="cargarEjemploWeb('animacion')">Animación</span>
+        <span class="chip-ejemplo" data-tip="Variables CSS con :root y var()" onclick="cargarEjemploWeb('variables')">Variables CSS</span>
+        <span class="chip-ejemplo" data-tip="Grid de 3 columnas con elemento que abarca 2" onclick="cargarEjemploWeb('grid')">CSS Grid</span>
+      </div>
+
+      <!-- Editores 3 columnas -->
+      <div class="editor-layout tres-columnas" id="web-editores">
+
+        <!-- HTML -->
+        <div class="editor-panel">
+          <div class="editor-topbar">
+            <div class="editor-dot dot-red"></div>
+            <div class="editor-dot dot-yellow"></div>
+            <div class="editor-dot dot-green"></div>
+            <span class="editor-lang-label">index.html</span>
+            <span class="editor-lang-badge badge-html-e">HTML</span>
+          </div>
+          <textarea class="editor-textarea" id="web-html" spellcheck="false" placeholder="Escribe HTML aquí..."></textarea>
+        </div>
+
+        <!-- CSS -->
+        <div class="editor-panel">
+          <div class="editor-topbar">
+            <div class="editor-dot dot-red"></div>
+            <div class="editor-dot dot-yellow"></div>
+            <div class="editor-dot dot-green"></div>
+            <span class="editor-lang-label">style.css</span>
+            <span class="editor-lang-badge badge-css-e">CSS</span>
+          </div>
+          <textarea class="editor-textarea" id="web-css" spellcheck="false" placeholder="Escribe CSS aquí..."></textarea>
+        </div>
+
+        <!-- JS -->
+        <div class="editor-panel">
+          <div class="editor-topbar">
+            <div class="editor-dot dot-red"></div>
+            <div class="editor-dot dot-yellow"></div>
+            <div class="editor-dot dot-green"></div>
+            <span class="editor-lang-label">script.js</span>
+            <span class="editor-lang-badge badge-js-e">JS</span>
+          </div>
+          <textarea class="editor-textarea" id="web-js" spellcheck="false" placeholder="Escribe JavaScript aquí..."></textarea>
+        </div>
+
+        <!-- PREVIEW — fila completa -->
+        <div class="preview-panel editor-panel-full">
+          <div class="preview-topbar">
+            <span class="preview-label">Vista previa</span>
+            <div class="preview-url-bar">
+              🔒 preview · localhost
+            </div>
+            <button class="btn-secondary" style="font-size:12px;padding:5px 12px;" onclick="ejecutarWeb()">↻ Refrescar</button>
+          </div>
+          <iframe id="web-preview" class="preview-frame" sandbox="allow-scripts allow-same-origin"></iframe>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ============================================
+       PANEL 2: JAVASCRIPT PURO (con consola real)
+       ============================================ -->
+  <div class="tab-panel" id="panel-javascript">
+    <div class="consola-wrap">
+
+      <div class="consola-header">
+        <div>
+          <h2 class="consola-titulo">⚡ Consola JavaScript</h2>
+          <p class="consola-desc">Escribe JS y ve los resultados en la consola inferior. Usa <code>console.log()</code>, <code>console.error()</code> y más.</p>
+        </div>
+        <div class="btn-group">
+          <button class="info-toggle-btn" onclick="toggleInfo('info-js', this)">ℹ ¿Cómo funciona?</button>
+          <button class="btn-secondary" onclick="limpiarJS()">🗑 Limpiar</button>
+          <button class="btn-run" onclick="ejecutarJS()">▶ Ejecutar</button>
+        </div>
+      </div>
+
+      <!-- Panel de info JS -->
+      <div class="info-panel" id="info-js">
+        <p class="info-panel-titulo">⚡ JavaScript puro — la lógica del navegador</p>
+        <p class="info-panel-sub">En esta pestaña puedes ejecutar JavaScript sin HTML ni CSS, igual que lo harías en la consola del navegador. Perfecto para practicar lógica, funciones, arrays y objetos.</p>
+        <div class="info-grid">
+          <div class="info-card">
+            <div class="info-card-titulo">🖥 Consola del navegador (F12)</div>
+            <div class="info-card-texto">Presiona <strong>F12</strong> en Chrome o Firefox → pestaña <strong>Console</strong>. Puedes escribir JS directamente ahí. Es la herramienta que usan los devs todos los días.</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-titulo">📋 console.log() — tu mejor amigo</div>
+            <div class="info-card-texto">Muestra valores en la consola. Hay variantes: <code>console.error()</code> (rojo), <code>console.warn()</code> (amarillo), <code>console.info()</code> (azul). Úsalos para depurar.</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-titulo">⚡ ¿Cómo se ejecuta JS?</div>
+            <div class="info-card-texto">El navegador tiene un <strong>motor JS</strong> integrado (V8 en Chrome, SpiderMonkey en Firefox). También Node.js te permite correr JS fuera del navegador, en tu computadora.</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-titulo">🛠 Herramientas recomendadas</div>
+            <div class="info-card-texto"><strong>VS Code</strong> + extensión Quokka.js (muestra resultados en línea) · <strong>Chrome DevTools</strong> · <strong>Node.js</strong> en terminal · <strong>CodePen</strong> online</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ejemplos rápidos JS -->
+      <div class="ejemplos-label">⚡ Ejemplos rápidos</div>
+      <div class="ejemplos-chips">
+        <span class="chip-ejemplo" data-tip="const vs let, typeof, valores primitivos" onclick="cargarEjemploJS('variables')">Variables</span>
+        <span class="chip-ejemplo" data-tip="push, length, forEach, índices" onclick="cargarEjemploJS('array')">Arrays</span>
+        <span class="chip-ejemplo" data-tip="declarar, llamar, parámetros con valor por defecto" onclick="cargarEjemploJS('funcion')">Funciones</span>
+        <span class="chip-ejemplo" data-tip="for, while, for...of con arrays" onclick="cargarEjemploJS('loop')">Bucles</span>
+        <span class="chip-ejemplo" data-tip="propiedades, métodos, desestructuración" onclick="cargarEjemploJS('objeto')">Objetos</span>
+        <span class="chip-ejemplo" data-tip="if/else if/else, ternario, switch" onclick="cargarEjemploJS('condicional')">if / else</span>
+        <span class="chip-ejemplo" data-tip="sintaxis corta, map, filter, reduce" onclick="cargarEjemploJS('arrow')">Arrow functions</span>
+        <span class="chip-ejemplo" data-tip="Promise, .then/.catch, async/await" onclick="cargarEjemploJS('promise')">Promesas</span>
+      </div>
+
+      <div class="js-ide-layout">
+
+        <!-- Editor JS -->
+        <div class="editor-panel" style="min-height:320px;">
+          <div class="editor-topbar">
+            <div class="editor-dot dot-red"></div>
+            <div class="editor-dot dot-yellow"></div>
+            <div class="editor-dot dot-green"></div>
+            <span class="editor-lang-label">script.js</span>
+            <span class="editor-lang-badge badge-js-e">JavaScript</span>
+          </div>
+          <textarea class="editor-textarea" id="js-code" spellcheck="false" style="min-height:280px;" placeholder="// Escribe JavaScript aquí&#10;console.log('Hola mundo')"></textarea>
+        </div>
+
+        <!-- Output / Consola -->
+        <div class="output-panel" style="min-height:320px;">
+          <div class="output-topbar">
+            <span class="output-label">Consola</span>
+            <button class="btn-clear" onclick="limpiarOutputJS()">limpiar</button>
+          </div>
+          <div class="output-content" id="js-output">
+            <span class="output-empty">// La salida aparecerá aquí cuando ejecutes el código...</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ============================================
+       PANEL 3: JAVA
+       ============================================ -->
+  <div class="tab-panel" id="panel-java">
+    <div class="consola-wrap">
+
+      <div class="consola-header">
+        <div>
+          <h2 class="consola-titulo">☕ Consola Java</h2>
+          <p class="consola-desc">Java es un lenguaje de backend que necesita compilarse. Puedes practicar online con los editores recomendados abajo.</p>
+        </div>
+        <div class="btn-group">
+          <button class="info-toggle-btn" onclick="toggleInfo('info-java', this)">ℹ ¿Cómo funciona?</button>
+          <button class="btn-run" style="background:#534ab7;box-shadow:0 3px 10px rgba(83,74,183,0.4);" onclick="abrirJavaEnCompiler()">↗ Copiar y abrir en OneCompiler</button>
+        </div>
+      </div>
+
+      <!-- Panel de info Java -->
+      <div class="info-panel" id="info-java">
+        <p class="info-panel-titulo">☕ Java — lenguaje compilado de propósito general</p>
+        <p class="info-panel-sub">Java no corre directamente en el navegador. Necesita un compilador que convierte tu código a bytecode, que luego ejecuta la JVM (Java Virtual Machine).</p>
+        <div class="info-grid">
+          <div class="info-card">
+            <div class="info-card-titulo">⚙ El ciclo de Java</div>
+            <div class="info-card-texto">Escribes código en <code>.java</code> → el compilador (<code>javac</code>) lo convierte a <code>.class</code> (bytecode) → la JVM lo ejecuta. Por eso funciona en cualquier sistema operativo.</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-titulo">🖥 IDE más usados</div>
+            <div class="info-card-texto"><strong>IntelliJ IDEA</strong> — el más popular entre profesionales · <strong>Eclipse</strong> — gratis y muy completo · <strong>VS Code</strong> + Extension Pack for Java · <strong>NetBeans</strong></div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-titulo">💻 En terminal (local)</div>
+            <div class="info-card-texto">Con Java instalado: <code>javac Main.java</code> compila y <code>java Main</code> ejecuta. La terminal es la "consola" donde ves el output de <code>System.out.println()</code>.</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-titulo">🌐 Online (sin instalar)</div>
+            <div class="info-card-texto">Para practicar rápido: <strong>OneCompiler</strong>, <strong>Replit</strong>, <strong>JDoodle</strong>. Presiona el botón arriba para abrir tu código directo en OneCompiler.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Aviso: Java necesita compilador -->
+      <div class="aviso-backend">
+        <div class="aviso-icon">⚠️</div>
+        <div>
+          <p class="aviso-titulo">Java requiere un compilador</p>
+          <p class="aviso-desc">A diferencia de HTML, CSS y JavaScript que el navegador ejecuta directamente, Java necesita compilarse antes de correr. Por eso lo practicamos en editores online especializados.</p>
+        </div>
+      </div>
+
+      <!-- Ejemplos rápidos Java -->
+      <div class="ejemplos-label">⚡ Ejemplos — clic para ver el código</div>
+      <div class="ejemplos-chips">
+        <span class="chip-ejemplo" data-tip="El clásico primer programa en Java" onclick="cargarEjemploJava('hola')">Hola Mundo</span>
+        <span class="chip-ejemplo" data-tip="String, int, double, boolean con tipos declarados" onclick="cargarEjemploJava('variables')">Variables</span>
+        <span class="chip-ejemplo" data-tip="if, else if, else con hora del día" onclick="cargarEjemploJava('condicional')">if / else</span>
+        <span class="chip-ejemplo" data-tip="for clásico con i++ y while con decremento" onclick="cargarEjemploJava('loop')">for loop</span>
+        <span class="chip-ejemplo" data-tip="Array de Strings, .length, for-each" onclick="cargarEjemploJava('array')">Arrays</span>
+        <span class="chip-ejemplo" data-tip="Clase con constructor, atributos y método" onclick="cargarEjemploJava('clase')">Clase y objeto</span>
+      </div>
+
+      <div class="editor-layout una-columna">
+
+        <!-- Editor solo lectura / referencia -->
+        <div class="editor-panel" style="min-height:280px;">
+          <div class="editor-topbar">
+            <div class="editor-dot dot-red"></div>
+            <div class="editor-dot dot-yellow"></div>
+            <div class="editor-dot dot-green"></div>
+            <span class="editor-lang-label">Main.java</span>
+            <span class="editor-lang-badge badge-java-e">Java</span>
+          </div>
+          <textarea class="editor-textarea" id="java-code" spellcheck="false" style="min-height:240px;" placeholder="// Selecciona un ejemplo arriba o escribe Java aquí&#10;// Luego cópialo al editor online para ejecutarlo"></textarea>
+        </div>
+
+      </div>
+
+      <!-- Editores online recomendados -->
+      <div class="ejemplos-label">🔗 Editores online para ejecutar Java</div>
+      <div class="referencia-grid">
+        <a href="https://onecompiler.com/java" target="_blank" class="ref-card" style="text-decoration:none;color:inherit;">
+          <div class="ref-card-titulo">OneCompiler</div>
+          <div class="ref-card-preview">onecompiler.com/java
+─────────────────
+✓ Rápido y gratis
+✓ Sin registro</div>
+        </a>
+        <a href="https://www.online-java.com/" target="_blank" class="ref-card" style="text-decoration:none;color:inherit;">
+          <div class="ref-card-titulo">Online Java</div>
+          <div class="ref-card-preview">online-java.com
+─────────────────
+✓ Compilador real
+✓ Muy sencillo</div>
+        </a>
+        <a href="https://replit.com/languages/java" target="_blank" class="ref-card" style="text-decoration:none;color:inherit;">
+          <div class="ref-card-titulo">Replit</div>
+          <div class="ref-card-preview">replit.com
+─────────────────
+✓ IDE completo
+✓ Guarda proyectos</div>
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ============================================
+       PANEL 4: PYTHON (ejecutable con Pyodide)
+       ============================================ -->
+  <div class="tab-panel" id="panel-python">
+    <div class="consola-wrap">
+
+      <div class="consola-header">
+        <div>
+          <h2 class="consola-titulo">🐍 Consola Python</h2>
+          <p class="consola-desc">Python ejecutable directamente en el navegador. Escribe código real y ve el resultado al instante.</p>
+        </div>
+        <div class="btn-group">
+          <button class="info-toggle-btn" onclick="toggleInfo('info-python', this)">ℹ ¿Cómo funciona?</button>
+          <span class="py-status" id="py-status">⏳ Cargando Python...</span>
+          <button class="btn-secondary" onclick="limpiarPython()">🗑 Limpiar</button>
+          <button class="py-run-btn" id="py-run-btn" onclick="ejecutarPython()" disabled>▶ Ejecutar Python</button>
+        </div>
+      </div>
+
+      <!-- Panel de info Python -->
+      <div class="info-panel" id="info-python">
+        <p class="info-panel-titulo">🐍 Python — sintaxis limpia, ideal para aprender lógica</p>
+        <p class="info-panel-sub">Python es uno de los lenguajes más usados del mundo: ciencia de datos, IA, automatización, backend. Su sintaxis es muy legible, sin llaves ni punto y coma obligatorio.</p>
+        <div class="info-grid">
+          <div class="info-card">
+            <div class="info-card-titulo">⚙ ¿Cómo se ejecuta?</div>
+            <div class="info-card-texto">Python es <strong>interpretado</strong>: el intérprete lee y ejecuta línea por línea, sin compilar primero. Aquí usamos <strong>Pyodide</strong>, que corre Python real dentro del navegador vía WebAssembly.</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-titulo">🖥 Localmente (tu computadora)</div>
+            <div class="info-card-texto">Instala Python desde <strong>python.org</strong>. Luego en terminal: <code>python archivo.py</code> o <code>python3 archivo.py</code>. La terminal es tu consola de salida.</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-titulo">🛠 IDEs y editores</div>
+            <div class="info-card-texto"><strong>VS Code</strong> + extensión Python (Microsoft) · <strong>PyCharm</strong> (muy completo) · <strong>Thonny</strong> (ideal para principiantes) · <strong>Jupyter Notebook</strong> (para datos)</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-titulo">🌐 Online</div>
+            <div class="info-card-texto"><strong>Esta misma consola</strong> (Pyodide) · <strong>Google Colab</strong> (Jupyter gratis) · <strong>Replit</strong> · <strong>Python Tutor</strong> (visualiza el código paso a paso)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ejemplos Python -->
+      <div class="ejemplos-label">⚡ Ejemplos rápidos</div>
+      <div class="ejemplos-chips">
+        <span class="chip-ejemplo" data-tip="print() y primeras líneas de código" onclick="cargarEjemploPython('hola')">Hola Mundo</span>
+        <span class="chip-ejemplo" data-tip="Variables sin tipo declarado, type()" onclick="cargarEjemploPython('variables')">Variables</span>
+        <span class="chip-ejemplo" data-tip="Lista, len(), append(), for, índice negativo" onclick="cargarEjemploPython('lista')">Listas</span>
+        <span class="chip-ejemplo" data-tip="def, return, f-strings, parámetro por defecto" onclick="cargarEjemploPython('funcion')">Funciones</span>
+        <span class="chip-ejemplo" data-tip="range(), for clásico, while con decremento" onclick="cargarEjemploPython('loop')">for loop</span>
+        <span class="chip-ejemplo" data-tip="Diccionario, .get(), .items(), recorrer claves" onclick="cargarEjemploPython('diccionario')">Diccionarios</span>
+      </div>
+
+      <div class="js-ide-layout">
+
+        <!-- Editor Python -->
+        <div class="editor-panel" style="min-height:320px;">
+          <div class="editor-topbar">
+            <div class="editor-dot dot-red"></div>
+            <div class="editor-dot dot-yellow"></div>
+            <div class="editor-dot dot-green"></div>
+            <span class="editor-lang-label">main.py</span>
+            <span class="editor-lang-badge badge-py-e">Python</span>
+          </div>
+          <textarea class="editor-textarea" id="python-code" spellcheck="false" style="min-height:280px;" placeholder="# Selecciona un ejemplo o escribe Python aquí&#10;print('Hola mundo')"></textarea>
+        </div>
+
+        <!-- Output Python -->
+        <div class="output-panel" style="min-height:320px;">
+          <div class="output-topbar">
+            <span class="output-label">Consola Python</span>
+            <button class="btn-clear" onclick="limpiarOutputPython()">limpiar</button>
+          </div>
+          <div class="output-content" id="python-output">
+            <span class="output-empty">// Esperando a que Python cargue...</span>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="ejemplos-label" style="margin-top:24px;">🔗 Editores online para más opciones</div>
+      <div class="referencia-grid">
+        <a href="https://www.online-python.com/" target="_blank" class="ref-card" style="text-decoration:none;color:inherit;">
+          <div class="ref-card-titulo">Online Python</div>
+          <div class="ref-card-preview">online-python.com
+─────────────────
+✓ Rápido y gratis
+✓ Sin registro</div>
+        </a>
+        <a href="https://pythontutor.com/python-compiler.html" target="_blank" class="ref-card" style="text-decoration:none;color:inherit;">
+          <div class="ref-card-titulo">Python Tutor</div>
+          <div class="ref-card-preview">pythontutor.com
+─────────────────
+✓ Visualiza el código
+✓ Ideal para aprender</div>
+        </a>
+        <a href="https://replit.com/languages/python3" target="_blank" class="ref-card" style="text-decoration:none;color:inherit;">
+          <div class="ref-card-titulo">Replit</div>
+          <div class="ref-card-preview">replit.com
+─────────────────
+✓ IDE completo
+✓ Guarda proyectos</div>
+        </a>
+        <a href="https://colab.research.google.com/" target="_blank" class="ref-card" style="text-decoration:none;color:inherit;">
+          <div class="ref-card-titulo">Google Colab</div>
+          <div class="ref-card-preview">colab.google.com
+─────────────────
+✓ Jupyter gratis
+✓ Ideal para datos/IA</div>
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ============================================
+       PANEL 5: REFERENCIA RÁPIDA
+       ============================================ -->
+  <div class="tab-panel" id="panel-referencia">
+    <div class="consola-wrap">
+
+      <div class="consola-header">
+        <div>
+          <h2 class="consola-titulo">📋 Referencia rápida</h2>
+          <p class="consola-desc">Las etiquetas, propiedades y métodos que más usarás. Clic para copiar al portapapeles.</p>
+        </div>
+      </div>
+
+      <!-- HTML -->
+      <div class="ejemplos-label">🏷️ Etiquetas HTML esenciales</div>
+      <div class="referencia-grid">
+        <div class="ref-card" onclick="copiar('<h1>Título</h1>', this)">
+          <div class="ref-card-titulo">Encabezados</div>
+          <div class="ref-card-preview">&lt;h1&gt;Título&lt;/h1&gt;
+&lt;h2&gt;Subtítulo&lt;/h2&gt;
+&lt;h3&gt;Sección&lt;/h3&gt;</div>
+        </div>
+        <div class="ref-card" onclick="copiar('<p>Párrafo de texto aquí.</p>', this)">
+          <div class="ref-card-titulo">Párrafo</div>
+          <div class="ref-card-preview">&lt;p&gt;Texto aquí.&lt;/p&gt;
+&lt;strong&gt;Negrita&lt;/strong&gt;
+&lt;em&gt;Cursiva&lt;/em&gt;</div>
+        </div>
+        <div class="ref-card" onclick="copiar('<a href=\'#\'>Enlace</a>', this)">
+          <div class="ref-card-titulo">Enlace</div>
+          <div class="ref-card-preview">&lt;a href="url"&gt;
+  Texto del enlace
+&lt;/a&gt;</div>
+        </div>
+        <div class="ref-card" onclick="copiar('<img src=\'imagen.jpg\' alt=\'descripción\'>', this)">
+          <div class="ref-card-titulo">Imagen</div>
+          <div class="ref-card-preview">&lt;img
+  src="imagen.jpg"
+  alt="descripción"&gt;</div>
+        </div>
+        <div class="ref-card" onclick="copiar('<ul>\n  <li>Elemento</li>\n</ul>', this)">
+          <div class="ref-card-titulo">Lista ul / ol</div>
+          <div class="ref-card-preview">&lt;ul&gt;
+  &lt;li&gt;Elemento&lt;/li&gt;
+&lt;/ul&gt;</div>
+        </div>
+        <div class="ref-card" onclick="copiar('<div class=\'contenedor\'>\n  Contenido\n</div>', this)">
+          <div class="ref-card-titulo">div y section</div>
+          <div class="ref-card-preview">&lt;div class="caja"&gt;
+  Contenido
+&lt;/div&gt;</div>
+        </div>
+        <div class="ref-card" onclick="copiar('<input type=\'text\' placeholder=\'Escribe...\'>', this)">
+          <div class="ref-card-titulo">Input / Form</div>
+          <div class="ref-card-preview">&lt;form&gt;
+  &lt;input type="text"&gt;
+  &lt;button&gt;Enviar&lt;/button&gt;
+&lt;/form&gt;</div>
+        </div>
+        <div class="ref-card" onclick="copiar('<span id=\'miId\' class=\'miClase\'>&lt;/span&gt;', this)">
+          <div class="ref-card-titulo">id y class</div>
+          <div class="ref-card-preview">&lt;div id="unico"&gt;
+&lt;span class="grupo"&gt;
+id = único en la página
+class = repetible</div>
+        </div>
+      </div>
+
+      <!-- CSS -->
+      <div class="ejemplos-label">🎨 Propiedades CSS esenciales</div>
+      <div class="referencia-grid">
+        <div class="ref-card" onclick="copiar('color: #c44a2a;\nbackground-color: #f7f4ef;', this)">
+          <div class="ref-card-titulo">Colores</div>
+          <div class="ref-card-preview">color: #c44a2a;
+background: #f7f4ef;
+opacity: 0.8;</div>
+        </div>
+        <div class="ref-card" onclick="copiar('font-size: 16px;\nfont-weight: 700;\nfont-family: sans-serif;', this)">
+          <div class="ref-card-titulo">Tipografía</div>
+          <div class="ref-card-preview">font-size: 16px;
+font-weight: 700;
+font-family: sans;</div>
+        </div>
+        <div class="ref-card" onclick="copiar('margin: 16px;\npadding: 16px;\nborder: 1px solid #ccc;', this)">
+          <div class="ref-card-titulo">Box model</div>
+          <div class="ref-card-preview">margin: 16px;
+padding: 16px;
+border: 1px solid;</div>
+        </div>
+        <div class="ref-card" onclick="copiar('display: flex;\njustify-content: center;\nalign-items: center;\ngap: 16px;', this)">
+          <div class="ref-card-titulo">Flexbox</div>
+          <div class="ref-card-preview">display: flex;
+justify-content: center;
+align-items: center;</div>
+        </div>
+        <div class="ref-card" onclick="copiar('display: grid;\ngrid-template-columns: 1fr 1fr;\ngap: 16px;', this)">
+          <div class="ref-card-titulo">CSS Grid</div>
+          <div class="ref-card-preview">display: grid;
+grid-template-columns:
+  1fr 1fr;
+gap: 16px;</div>
+        </div>
+        <div class="ref-card" onclick="copiar('border-radius: 8px;\nbox-shadow: 0 4px 12px rgba(0,0,0,0.1);\ntransition: all 0.2s;', this)">
+          <div class="ref-card-titulo">Detalles visuales</div>
+          <div class="ref-card-preview">border-radius: 8px;
+box-shadow: 0 4px 12px;
+transition: all 0.2s;</div>
+        </div>
+        <div class="ref-card" onclick="copiar('#miId { color: red; }\n.miClase { font-size: 14px; }', this)">
+          <div class="ref-card-titulo">Selectores</div>
+          <div class="ref-card-preview">#id { ... }
+.clase { ... }
+etiqueta { ... }
+padre > hijo { ... }</div>
+        </div>
+        <div class="ref-card" onclick="copiar(':hover { background: #eee; }\n:focus { outline: 2px solid blue; }', this)">
+          <div class="ref-card-titulo">Pseudoclases</div>
+          <div class="ref-card-preview">:hover { ... }
+:focus { ... }
+:first-child { ... }
+:nth-child(2) { ... }</div>
+        </div>
+      </div>
+
+      <!-- JS -->
+      <div class="ejemplos-label">⚡ JavaScript esencial</div>
+      <div class="referencia-grid">
+        <div class="ref-card" onclick="copiar('const nombre = \'valor\';\nlet contador = 0;\n// const = no cambia\n// let = puede cambiar', this)">
+          <div class="ref-card-titulo">Variables</div>
+          <div class="ref-card-preview">const nombre = 'valor';
+let contador = 0;
+// const no cambia
+// let sí cambia</div>
+        </div>
+        <div class="ref-card" onclick="copiar('document.querySelector(\'.clase\');\ndocument.getElementById(\'id\');', this)">
+          <div class="ref-card-titulo">Seleccionar elemento</div>
+          <div class="ref-card-preview">document.querySelector
+  ('.clase');
+document.getElementById
+  ('id');</div>
+        </div>
+        <div class="ref-card" onclick="copiar('elemento.addEventListener(\'click\', function() {\n  console.log(\'clic!\');\n});', this)">
+          <div class="ref-card-titulo">Eventos</div>
+          <div class="ref-card-preview">el.addEventListener(
+  'click',
+  function() { ... }
+);</div>
+        </div>
+        <div class="ref-card" onclick="copiar('elemento.textContent = \'nuevo texto\';\nelemento.style.color = \'red\';\nelemento.classList.add(\'activo\');', this)">
+          <div class="ref-card-titulo">Modificar DOM</div>
+          <div class="ref-card-preview">el.textContent = 'texto';
+el.style.color = 'red';
+el.classList.add('cls');</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ============================================
+       PANEL 6: ¿QUÉ CONSOLA USO?
+       ============================================ -->
+  <div class="tab-panel" id="panel-herramientas">
+    <div class="consola-wrap">
+
+      <div class="consola-header">
+        <div>
+          <h2 class="consola-titulo">🛠 ¿Qué consola o programa uso para cada lenguaje?</h2>
+          <p class="consola-desc">Una guía práctica de herramientas reales: dónde escribes, cómo ejecutas y dónde ves el resultado según el lenguaje.</p>
+        </div>
+      </div>
+
+      <!-- Tabla comparativa -->
+      <div class="ejemplos-label">📊 Comparativa rápida</div>
+      <div style="overflow-x:auto; margin-bottom:24px;">
+        <table class="compare-table">
+          <thead>
+            <tr>
+              <th>Lenguaje</th>
+              <th>¿Dónde se ejecuta?</th>
+              <th>¿Necesita instalar?</th>
+              <th>Consola de salida</th>
+              <th>IDE recomendado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>HTML + CSS</td>
+              <td>Navegador (Chrome, Firefox…)</td>
+              <td><span class="cross">✗ No</span></td>
+              <td>La propia página web</td>
+              <td>VS Code + Live Preview</td>
+            </tr>
+            <tr>
+              <td>JavaScript</td>
+              <td>Navegador ó Node.js</td>
+              <td><span class="cross">✗ No (navegador)</span></td>
+              <td>DevTools → Console (F12)</td>
+              <td>VS Code + Quokka.js</td>
+            </tr>
+            <tr>
+              <td>Python</td>
+              <td>Intérprete Python / Pyodide</td>
+              <td><span class="check">✓ Sí (opcional)</span></td>
+              <td>Terminal / IDLE / Jupyter</td>
+              <td>VS Code + ext. Python</td>
+            </tr>
+            <tr>
+              <td>Java</td>
+              <td>JVM (Java Virtual Machine)</td>
+              <td><span class="check">✓ Sí (JDK)</span></td>
+              <td>Terminal (javac + java)</td>
+              <td>IntelliJ IDEA / Eclipse</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Tarjetas por lenguaje -->
+      <div class="ejemplos-label">🔍 Detalle por lenguaje</div>
+      <div class="herr-grid">
+
+        <!-- HTML + CSS -->
+        <div class="herr-card">
+          <div class="herr-lang">🌐 HTML + CSS</div>
+          <p class="herr-desc">Se ejecutan directamente en el navegador. No hay consola de salida visible; el resultado es la página que ves.</p>
+          <div class="herr-item">
+            <span class="herr-tipo tipo-local">Local</span>
+            <div>
+              <div class="herr-nombre">VS Code + Live Preview</div>
+              <div class="herr-como">Instala la extensión "Live Preview" de Microsoft. Guarda el archivo .html y ves cambios en tiempo real en el editor.</div>
+            </div>
+          </div>
+          <div class="herr-item">
+            <span class="herr-tipo tipo-local">Local</span>
+            <div>
+              <div class="herr-nombre">Abrir con el navegador</div>
+              <div class="herr-como">Doble clic al archivo .html → se abre en Chrome/Firefox. Sin instalación extra.</div>
+            </div>
+          </div>
+          <div class="herr-item">
+            <span class="herr-tipo tipo-online">Online</span>
+            <div>
+              <div class="herr-nombre">CodePen / JSFiddle</div>
+              <div class="herr-como">Editores HTML+CSS+JS en el navegador. Perfectos para practicar sin instalar nada. <a href="https://codepen.io" target="_blank" class="herr-link">codepen.io ↗</a></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- JavaScript -->
+        <div class="herr-card">
+          <div class="herr-lang">⚡ JavaScript</div>
+          <p class="herr-desc">Corre en el navegador (cliente) o en Node.js (servidor/terminal). La consola es donde ves el output.</p>
+          <div class="herr-item">
+            <span class="herr-tipo tipo-cmd">F12</span>
+            <div>
+              <div class="herr-nombre">DevTools del navegador</div>
+              <div class="herr-como">Presiona <code>F12</code> → pestaña <strong>Console</strong>. Escribe JS directo y ves el resultado. Es la herramienta #1 del desarrollador web.</div>
+            </div>
+          </div>
+          <div class="herr-item">
+            <span class="herr-tipo tipo-local">Local</span>
+            <div>
+              <div class="herr-nombre">Node.js en terminal</div>
+              <div class="herr-como">Instala Node.js → en terminal escribe <code>node archivo.js</code>. Los <code>console.log()</code> aparecen en la terminal.</div>
+            </div>
+          </div>
+          <div class="herr-item">
+            <span class="herr-tipo tipo-ide">IDE</span>
+            <div>
+              <div class="herr-nombre">VS Code + Quokka.js</div>
+              <div class="herr-como">Extensión que muestra los resultados de console.log directamente en el editor, línea por línea en tiempo real.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Python -->
+        <div class="herr-card">
+          <div class="herr-lang">🐍 Python</div>
+          <p class="herr-desc">Lenguaje interpretado. No necesita compilar: el intérprete lee y ejecuta el código línea a línea.</p>
+          <div class="herr-item">
+            <span class="herr-tipo tipo-cmd">Terminal</span>
+            <div>
+              <div class="herr-nombre">Intérprete Python (REPL)</div>
+              <div class="herr-como">Escribe <code>python</code> en la terminal → entras al modo interactivo. <code>python archivo.py</code> ejecuta un archivo completo.</div>
+            </div>
+          </div>
+          <div class="herr-item">
+            <span class="herr-tipo tipo-ide">IDE</span>
+            <div>
+              <div class="herr-nombre">PyCharm / VS Code</div>
+              <div class="herr-como"><strong>PyCharm</strong> (JetBrains) es el IDE más completo para Python. <strong>VS Code</strong> + extensión Python también es excelente y más ligero.</div>
+            </div>
+          </div>
+          <div class="herr-item">
+            <span class="herr-tipo tipo-online">Online</span>
+            <div>
+              <div class="herr-nombre">Google Colab / Jupyter</div>
+              <div class="herr-como">Para ciencia de datos e IA. Celdas de código interactivas en el navegador. <a href="https://colab.research.google.com" target="_blank" class="herr-link">colab.google.com ↗</a></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Java -->
+        <div class="herr-card">
+          <div class="herr-lang">☕ Java</div>
+          <p class="herr-desc">Lenguaje compilado. El código .java se convierte a bytecode que ejecuta la JVM. Necesitas instalar el JDK.</p>
+          <div class="herr-item">
+            <span class="herr-tipo tipo-cmd">Terminal</span>
+            <div>
+              <div class="herr-nombre">javac + java (terminal)</div>
+              <div class="herr-como">Instala JDK → <code>javac Main.java</code> compila → <code>java Main</code> ejecuta. El <code>System.out.println()</code> aparece en la terminal.</div>
+            </div>
+          </div>
+          <div class="herr-item">
+            <span class="herr-tipo tipo-ide">IDE</span>
+            <div>
+              <div class="herr-nombre">IntelliJ IDEA</div>
+              <div class="herr-como">El IDE más usado por profesionales de Java. Tiene versión Community gratuita. Incluye compilador integrado, depurador y autocompletado inteligente.</div>
+            </div>
+          </div>
+          <div class="herr-item">
+            <span class="herr-tipo tipo-online">Online</span>
+            <div>
+              <div class="herr-nombre">OneCompiler / Replit</div>
+              <div class="herr-como">Sin instalar nada. Escribe y ejecuta Java en el navegador. <a href="https://onecompiler.com/java" target="_blank" class="herr-link">onecompiler.com/java ↗</a></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Consola del navegador -->
+      <div class="ejemplos-label" style="margin-top:28px;">💡 El truco que todo dev conoce — la consola F12</div>
+      <div class="aviso-backend" style="border-left-color:#1a7a5a;">
+        <div class="aviso-icon">🔍</div>
+        <div>
+          <p class="aviso-titulo">Presiona F12 en cualquier página web</p>
+          <p class="aviso-desc">En Chrome o Firefox, <strong>F12</strong> abre las Herramientas de Desarrollador. En la pestaña <strong>Console</strong> puedes escribir JavaScript directamente. También puedes inspeccionar cualquier elemento de la página, ver el HTML, CSS, solicitudes de red y errores. Es tu laboratorio secreto para aprender cómo funciona cualquier web.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <footer class="site-footer">
+    <p>☕ Café &lt;/&gt; · Consola de práctica</p>
+  </footer>
+
+  <!-- ============================================
+       LÓGICA DE TABS
+       ============================================ -->
+  <script>
+    const tabBtns   = document.querySelectorAll('.tab-btn')
+    const tabPanels = document.querySelectorAll('.tab-panel')
+
+    function activarTab(target) {
+      const panel = document.getElementById(`panel-${target}`)
+      if (!panel) return
+      tabBtns.forEach(b => b.classList.remove('activa'))
+      tabPanels.forEach(p => p.classList.remove('visible'))
+      const btn = document.querySelector(`.tab-btn[data-tab="${target}"]`)
+      if (btn) btn.classList.add('activa')
+      panel.classList.add('visible')
+    }
+
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        activarTab(btn.dataset.tab)
+        history.replaceState(null, '', `?tab=${btn.dataset.tab}`)
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      })
+    })
+
+    const params = new URLSearchParams(window.location.search)
+    activarTab(params.get('tab') || 'web')
+  </script>
+
+
+  <!-- ============================================
+       LÓGICA WEB (HTML + CSS + JS preview)
+       ============================================ -->
+  <script>
+    function ejecutarWeb() {
+      const html = document.getElementById('web-html').value
+      const css  = document.getElementById('web-css').value
+      const js   = document.getElementById('web-js').value
+      const frame = document.getElementById('web-preview')
+      const doc = frame.contentDocument || frame.contentWindow.document
+      doc.open()
+      doc.write(`<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: 'Segoe UI', sans-serif; padding: 20px; }
+    ${css}
+  </style>
+</head>
+<body>
+${html}
+<script>
+  try { ${js} } catch(e) { document.body.innerHTML += '<pre style="color:red;background:#fff0f0;padding:12px;border-radius:6px;">' + e + '</pre>' }
+<\/script>
+</body>
+</html>`)
+      doc.close()
+    }
+
+    function limpiarWeb() {
+      document.getElementById('web-html').value = ''
+      document.getElementById('web-css').value  = ''
+      document.getElementById('web-js').value   = ''
+      const frame = document.getElementById('web-preview')
+      const doc = frame.contentDocument || frame.contentWindow.document
+      doc.open(); doc.write(''); doc.close()
+    }
+
+    // ---- Ejemplos Web ----
+    const ejemplosWeb = {
+      h1: {
+        html: `<h1>Mi primer título</h1>\n<p>Este párrafo acompaña al h1.</p>`,
+        css:  `h1 {\n  color: #c44a2a;\n  font-size: 2rem;\n  margin-bottom: 8px;\n}\np {\n  color: #555;\n  font-size: 1rem;\n}`,
+        js:   ``
+      },
+      lista: {
+        html: `<h2>Lista sin orden (ul)</h2>\n<ul>\n  <li>Manzana</li>\n  <li>Naranja</li>\n  <li>Plátano</li>\n</ul>\n\n<h2>Lista con orden (ol)</h2>\n<ol>\n  <li>Primero</li>\n  <li>Segundo</li>\n  <li>Tercero</li>\n</ol>`,
+        css:  `h2 { color: #1a7a5a; margin: 16px 0 8px; }\nli { margin-bottom: 4px; font-size: 15px; }`,
+        js:   ``
+      },
+      caja: {
+        html: `<div class="caja">\n  <h2>Soy una caja</h2>\n  <p>Tengo padding, borde y color de fondo.</p>\n</div>`,
+        css:  `.caja {\n  background: #f7f4ef;\n  border: 2px solid #c44a2a;\n  border-radius: 12px;\n  padding: 24px;\n  max-width: 360px;\n}\nh2 { color: #c44a2a; }\np  { color: #555; margin-top: 8px; }`,
+        js:   ``
+      },
+      flexbox: {
+        html: `<div class="fila">\n  <div class="item">1</div>\n  <div class="item">2</div>\n  <div class="item">3</div>\n</div>`,
+        css:  `.fila {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  gap: 16px;\n  padding: 24px;\n  background: #f0ece5;\n  border-radius: 12px;\n}\n.item {\n  width: 60px;\n  height: 60px;\n  background: #c44a2a;\n  color: white;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  border-radius: 8px;\n  font-weight: bold;\n  font-size: 20px;\n}`,
+        js:   ``
+      },
+      boton: {
+        html: `<button id="btn">Haz clic aquí</button>\n<p id="mensaje"></p>`,
+        css:  `button {\n  background: #c44a2a;\n  color: white;\n  border: none;\n  padding: 12px 28px;\n  border-radius: 999px;\n  font-size: 15px;\n  cursor: pointer;\n}\nbutton:hover { background: #a33b21; }\n#mensaje {\n  margin-top: 14px;\n  font-size: 16px;\n  color: #1a7a5a;\n  font-weight: 600;\n}`,
+        js:   `const btn = document.getElementById('btn')\nconst msg = document.getElementById('mensaje')\nlet contador = 0\nbtn.addEventListener('click', () => {\n  contador++\n  msg.textContent = 'Le diste clic ' + contador + ' veces 🎉'\n})`
+      },
+      formulario: {
+        html: `<form id="miForm">\n  <label for="nombre">Tu nombre</label>\n  <input type="text" id="nombre" placeholder="Ej: Castillo">\n  <button type="submit">Enviar</button>\n</form>\n<p id="resultado"></p>`,
+        css:  `form {\n  display: flex;\n  flex-direction: column;\n  gap: 10px;\n  max-width: 300px;\n}\nlabel { font-weight: 600; color: #333; }\ninput {\n  padding: 10px 14px;\n  border: 2px solid #ddd;\n  border-radius: 8px;\n  font-size: 14px;\n}\ninput:focus {\n  border-color: #c44a2a;\n  outline: none;\n}\nbutton {\n  background: #c44a2a;\n  color: white;\n  border: none;\n  padding: 10px;\n  border-radius: 8px;\n  font-size: 14px;\n  cursor: pointer;\n}\n#resultado { margin-top: 12px; font-weight: 600; color: #1a7a5a; }`,
+        js:   `document.getElementById('miForm').addEventListener('submit', e => {\n  e.preventDefault()\n  const nombre = document.getElementById('nombre').value\n  document.getElementById('resultado').textContent =\n    nombre ? '¡Hola, ' + nombre + '! 👋' : 'Escribe tu nombre primero.'\n})`
+      },
+      card: {
+        html: `<div class="card">\n  <div class="card-imagen">🚀</div>\n  <div class="card-body">\n    <span class="badge">CSS</span>\n    <h3>Mi primera card</h3>\n    <p>Una tarjeta con sombra, bordes redondeados y hover effect.</p>\n    <a href="#" class="btn">Ver más →</a>\n  </div>\n</div>`,
+        css:  `.card {\n  max-width: 280px;\n  border-radius: 14px;\n  overflow: hidden;\n  border: 1px solid #e0ddd8;\n  transition: transform 0.2s, box-shadow 0.2s;\n}\n.card:hover {\n  transform: translateY(-4px);\n  box-shadow: 0 12px 32px rgba(0,0,0,0.1);\n}\n.card-imagen {\n  background: #f7f4ef;\n  padding: 32px;\n  text-align: center;\n  font-size: 48px;\n}\n.card-body { padding: 20px; }\n.badge {\n  background: #fdf0ec;\n  color: #c44a2a;\n  font-size: 11px;\n  font-weight: 700;\n  padding: 3px 10px;\n  border-radius: 999px;\n}\nh3 { margin: 10px 0 6px; font-size: 17px; }\np  { color: #666; font-size: 13px; line-height: 1.6; }\n.btn {\n  display: inline-block;\n  margin-top: 14px;\n  color: #c44a2a;\n  font-weight: 600;\n  font-size: 13px;\n  text-decoration: none;\n}`,
+        js:   ``
+      },
+      animacion: {
+        html: `<div class="caja-animada"></div>\n<p>La caja rota y cambia de color.</p>`,
+        css:  `@keyframes girar {\n  0%   { transform: rotate(0deg); background: #c44a2a; }\n  50%  { transform: rotate(180deg); background: #1a7a5a; }\n  100% { transform: rotate(360deg); background: #c44a2a; }\n}\n.caja-animada {\n  width: 80px;\n  height: 80px;\n  border-radius: 12px;\n  animation: girar 2s infinite linear;\n  margin-bottom: 16px;\n}\np { color: #555; }`,
+        js:   ``
+      },
+      variables: {
+        html: `<div class="tarjeta">\n  <h2>Variables CSS</h2>\n  <p>Los colores y tamaños vienen de variables.</p>\n  <button>Botón</button>\n</div>`,
+        css:  `:root {\n  --color-principal: #c44a2a;\n  --color-fondo: #f7f4ef;\n  --radio: 12px;\n  --tamanio-texto: 15px;\n}\n.tarjeta {\n  background: var(--color-fondo);\n  border: 2px solid var(--color-principal);\n  border-radius: var(--radio);\n  padding: 24px;\n  max-width: 300px;\n}\nh2  { color: var(--color-principal); }\np   { font-size: var(--tamanio-texto); color: #555; margin: 10px 0; }\nbutton {\n  background: var(--color-principal);\n  color: white;\n  border: none;\n  padding: 10px 20px;\n  border-radius: var(--radio);\n  cursor: pointer;\n}`,
+        js:   ``
+      },
+      grid: {
+        html: `<div class="contenedor">\n  <div class="item">1</div>\n  <div class="item">2</div>\n  <div class="item">3</div>\n  <div class="item item-grande">4 (grande)</div>\n  <div class="item">5</div>\n  <div class="item">6</div>\n</div>`,
+        css:  `.contenedor {\n  display: grid;\n  grid-template-columns: repeat(3, 1fr);\n  gap: 12px;\n  padding: 16px;\n  background: #f0ece5;\n  border-radius: 12px;\n}\n.item {\n  background: #c44a2a;\n  color: white;\n  padding: 20px;\n  border-radius: 8px;\n  text-align: center;\n  font-weight: bold;\n}\n.item-grande {\n  grid-column: span 2;\n  background: #1a7a5a;\n}`,
+        js:   ``
+      }
+    }
+
+    function cargarEjemploWeb(key) {
+      const ej = ejemplosWeb[key]
+      if (!ej) return
+      document.getElementById('web-html').value = ej.html
+      document.getElementById('web-css').value  = ej.css
+      document.getElementById('web-js').value   = ej.js
+      ejecutarWeb()
+    }
+
+    // Ejecutar al cargar un ejemplo inicial
+    window.addEventListener('load', () => {
+      cargarEjemploWeb('h1')
+    })
+  </script>
+
+
+  <!-- ============================================
+       LÓGICA JAVASCRIPT PURO (consola simulada)
+       ============================================ -->
+  <script>
+    function agregarLineaOutput(texto, tipo = 'log') {
+      const out = document.getElementById('js-output')
+      const span = document.createElement('div')
+      span.className = `output-line-${tipo}`
+      span.textContent = texto
+      // Quitar placeholder si existe
+      const empty = out.querySelector('.output-empty')
+      if (empty) empty.remove()
+      out.appendChild(span)
+      out.scrollTop = out.scrollHeight
+    }
+
+    function ejecutarJS() {
+      const codigo = document.getElementById('js-code').value
+      const out    = document.getElementById('js-output')
+      out.innerHTML = ''
+
+      // Interceptar console.*
+      const consolaFalsa = {
+        log:   (...args) => agregarLineaOutput('▸ ' + args.map(a => JSON.stringify(a)).join(' '), 'log'),
+        error: (...args) => agregarLineaOutput('✖ ' + args.join(' '), 'error'),
+        warn:  (...args) => agregarLineaOutput('⚠ ' + args.join(' '), 'warn'),
+        info:  (...args) => agregarLineaOutput('ℹ ' + args.join(' '), 'info'),
+      }
+
+      try {
+        const fn = new Function('console', codigo)
+        fn(consolaFalsa)
+        agregarLineaOutput('✓ Ejecución completada', 'ok')
+      } catch(e) {
+        agregarLineaOutput('✖ Error: ' + e.message, 'error')
+      }
+    }
+
+    function limpiarJS() {
+      document.getElementById('js-code').value = ''
+      limpiarOutputJS()
+    }
+
+    function limpiarOutputJS() {
+      document.getElementById('js-output').innerHTML =
+        '<span class="output-empty">// La salida aparecerá aquí cuando ejecutes el código...</span>'
+    }
+
+    // ---- Ejemplos JS ----
+    const ejemplosJS = {
+      variables: `// Variables en JavaScript
+const nombre = 'Castillo'       // const: no cambia
+let edad     = 25               // let: puede cambiar
+let activo   = true
+
+console.log('Nombre:', nombre)
+console.log('Edad:', edad)
+console.log('Activo:', activo)
+
+// Tipo de dato
+console.log('Tipo nombre:', typeof nombre)
+console.log('Tipo edad:', typeof edad)`,
+
+      array: `// Arrays (listas)
+const frutas = ['manzana', 'naranja', 'plátano']
+
+console.log('Total:', frutas.length)
+console.log('Primera:', frutas[0])
+console.log('Última:', frutas[frutas.length - 1])
+
+// Agregar elemento
+frutas.push('mango')
+console.log('Con mango:', frutas)
+
+// Recorrer con forEach
+frutas.forEach((fruta, i) => {
+  console.log(i + ': ' + fruta)
+})`,
+
+      funcion: `// Funciones
+function saludar(nombre) {
+  return 'Hola, ' + nombre + '!'
+}
+
+console.log(saludar('Castillo'))
+console.log(saludar('Mundo'))
+
+// Con valor por defecto
+function sumar(a, b = 0) {
+  return a + b
+}
+
+console.log('3 + 5 =', sumar(3, 5))
+console.log('Solo 7 =', sumar(7))`,
+
+      loop: `// Bucles
+console.log('--- for clásico ---')
+for (let i = 1; i <= 5; i++) {
+  console.log('Número:', i)
+}
+
+console.log('--- while ---')
+let contador = 10
+while (contador > 7) {
+  console.log('Contador:', contador)
+  contador--
+}
+
+console.log('--- for...of con array ---')
+const colores = ['rojo', 'verde', 'azul']
+for (const color of colores) {
+  console.log('Color:', color)
+}`,
+
+      objeto: `// Objetos
+const persona = {
+  nombre: 'Castillo',
+  edad: 25,
+  ciudad: 'Veracruz',
+  saludar() {
+    return 'Hola, soy ' + this.nombre
+  }
+}
+
+console.log(persona.nombre)
+console.log(persona.edad)
+console.log(persona.saludar())
+
+// Agregar propiedad
+persona.lenguaje = 'JavaScript'
+console.log('Lenguaje:', persona.lenguaje)
+
+// Desestructuración
+const { nombre, ciudad } = persona
+console.log(nombre, 'vive en', ciudad)`,
+
+      condicional: `// Condicionales
+const hora = 14
+
+if (hora < 12) {
+  console.log('Buenos días ☀️')
+} else if (hora < 18) {
+  console.log('Buenas tardes 🌤️')
+} else {
+  console.log('Buenas noches 🌙')
+}
+
+// Operador ternario
+const edad = 20
+const acceso = edad >= 18 ? 'Permitido' : 'Denegado'
+console.log('Acceso:', acceso)
+
+// switch
+const dia = 'lunes'
+switch (dia) {
+  case 'lunes':
+    console.log('Inicio de semana 💪')
+    break
+  case 'viernes':
+    console.log('¡Por fin viernes! 🎉')
+    break
+  default:
+    console.log('Día normal')
+}`,
+
+      arrow: `// Arrow functions
+// Función normal
+function cuadrado(n) { return n * n }
+
+// Arrow function equivalente
+const cuadradoArrow = n => n * n
+
+console.log(cuadrado(4))       // 16
+console.log(cuadradoArrow(4))  // 16
+
+// Con varios parámetros
+const sumar = (a, b) => a + b
+console.log(sumar(3, 7))  // 10
+
+// Usadas con arrays
+const numeros = [1, 2, 3, 4, 5]
+
+const dobles  = numeros.map(n => n * 2)
+const pares   = numeros.filter(n => n % 2 === 0)
+const total   = numeros.reduce((acc, n) => acc + n, 0)
+
+console.log('Dobles:', dobles)
+console.log('Pares:', pares)
+console.log('Total:', total)`,
+
+      promise: `// Promesas (asincronismo)
+// Simular una llamada a una API
+function obtenerDato(id) {
+  return new Promise((resolve, reject) => {
+    if (id > 0) {
+      resolve({ id: id, nombre: 'Usuario ' + id })
+    } else {
+      reject('ID inválido')
+    }
+  })
+}
+
+// Con .then() y .catch()
+obtenerDato(1)
+  .then(dato => console.log('Dato:', JSON.stringify(dato)))
+  .catch(err => console.error('Error:', err))
+
+obtenerDato(-1)
+  .then(dato => console.log(dato))
+  .catch(err => console.error('Error:', err))
+
+// Con async / await
+async function cargarUsuario() {
+  try {
+    const usuario = await obtenerDato(3)
+    console.log('Async/await:', JSON.stringify(usuario))
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+cargarUsuario()`
+    }
+
+    function cargarEjemploJS(key) {
+      const codigo = ejemplosJS[key]
+      if (!codigo) return
+      document.getElementById('js-code').value = codigo
+      limpiarOutputJS()
+    }
+  </script>
+
+
+  <!-- ============================================
+       LÓGICA JAVA Y PYTHON (solo texto)
+       ============================================ -->
+  <script>
+    const ejemplosJava = {
+      hola: `public class Main {
+    public static void main(String[] args) {
+        System.out.println("¡Hola, Mundo!");
+    }
+}`,
+      variables: `public class Main {
+    public static void main(String[] args) {
+        // Tipos de variables en Java
+        String nombre = "Castillo";
+        int edad      = 25;
+        double precio = 9.99;
+        boolean activo = true;
+
+        System.out.println("Nombre: " + nombre);
+        System.out.println("Edad:   " + edad);
+        System.out.println("Precio: " + precio);
+        System.out.println("Activo: " + activo);
+    }
+}`,
+      condicional: `public class Main {
+    public static void main(String[] args) {
+        int hora = 14;
+
+        if (hora < 12) {
+            System.out.println("Buenos días ☀️");
+        } else if (hora < 18) {
+            System.out.println("Buenas tardes 🌤️");
+        } else {
+            System.out.println("Buenas noches 🌙");
+        }
+    }
+}`,
+      loop: `public class Main {
+    public static void main(String[] args) {
+        // for clásico
+        for (int i = 1; i <= 5; i++) {
+            System.out.println("Número: " + i);
+        }
+
+        // while
+        int n = 3;
+        while (n > 0) {
+            System.out.println("Cuenta: " + n);
+            n--;
+        }
+    }
+}`,
+      array: `public class Main {
+    public static void main(String[] args) {
+        String[] frutas = {"manzana", "naranja", "plátano"};
+
+        System.out.println("Total: " + frutas.length);
+        System.out.println("Primera: " + frutas[0]);
+
+        // Recorrer
+        for (String fruta : frutas) {
+            System.out.println("- " + fruta);
+        }
+    }
+}`,
+      clase: `// Definir la clase
+class Persona {
+    String nombre;
+    int edad;
+
+    Persona(String nombre, int edad) {
+        this.nombre = nombre;
+        this.edad   = edad;
+    }
+
+    void saludar() {
+        System.out.println("Hola, soy " + nombre);
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Persona p = new Persona("Castillo", 25);
+        p.saludar();
+        System.out.println("Edad: " + p.edad);
+    }
+}`
+    }
+
+    const ejemplosPython = {
+      hola: `# Hola Mundo en Python
+print("¡Hola, Mundo!")
+print("Python es fácil de leer 🐍")`,
+
+      variables: `# Variables en Python (sin declarar tipo)
+nombre = "Castillo"
+edad   = 25
+precio = 9.99
+activo = True
+
+print("Nombre:", nombre)
+print("Edad:", edad)
+print("Tipo:", type(edad))`,
+
+      lista: `# Listas en Python
+frutas = ["manzana", "naranja", "plátano"]
+
+print("Total:", len(frutas))
+print("Primera:", frutas[0])
+print("Última:", frutas[-1])
+
+# Agregar elemento
+frutas.append("mango")
+print("Con mango:", frutas)
+
+# Recorrer
+for fruta in frutas:
+    print("-", fruta)`,
+
+      funcion: `# Funciones en Python
+def saludar(nombre):
+    return f"¡Hola, {nombre}!"
+
+def sumar(a, b=0):
+    return a + b
+
+print(saludar("Castillo"))
+print("3 + 5 =", sumar(3, 5))
+print("Solo 7 =", sumar(7))`,
+
+      loop: `# Bucles en Python
+print("--- for con range ---")
+for i in range(1, 6):
+    print("Número:", i)
+
+print("--- while ---")
+n = 3
+while n > 0:
+    print("Cuenta:", n)
+    n -= 1`,
+
+      diccionario: `# Diccionarios (como objetos en JS)
+persona = {
+    "nombre": "Castillo",
+    "edad": 25,
+    "ciudad": "Veracruz"
+}
+
+print(persona["nombre"])
+print(persona.get("ciudad"))
+
+# Agregar clave
+persona["lenguaje"] = "Python"
+
+# Recorrer
+for clave, valor in persona.items():
+    print(clave, ":", valor)`
+    }
+
+    function cargarEjemploJava(key) {
+      const codigo = ejemplosJava[key]
+      if (!codigo) return
+      document.getElementById('java-code').value = codigo
+    }
+
+    function cargarEjemploPython(key) {
+      const codigo = ejemplosPython[key]
+      if (!codigo) return
+      document.getElementById('python-code').value = codigo
+    }
+  </script>
+
+
+  <!-- ============================================
+       COPIAR AL PORTAPAPELES (Referencia rápida)
+       ============================================ -->
+  <script>
+    function copiar(texto, tarjeta) {
+      navigator.clipboard.writeText(texto).then(() => {
+        const original = tarjeta.querySelector('.ref-card-titulo').textContent
+        tarjeta.querySelector('.ref-card-titulo').textContent = '✓ Copiado!'
+        tarjeta.style.borderColor = '#1a7a5a'
+        setTimeout(() => {
+          tarjeta.querySelector('.ref-card-titulo').textContent = original
+          tarjeta.style.borderColor = ''
+        }, 1500)
+      })
+    }
+  </script>
+
+  <!-- ============================================
+       LÓGICA NUEVA: toggleInfo, Pyodide, Java Compiler
+       ============================================ -->
+  <script>
+    // ---- Toggle info panels ----
+    function toggleInfo(id, btn) {
+      const panel = document.getElementById(id)
+      const visible = panel.classList.toggle('visible')
+      btn.classList.toggle('abierto', visible)
+      btn.textContent = visible ? '✕ Cerrar info' : 'ℹ ¿Cómo funciona?'
+    }
+
+    // ---- Java: Copiar y abrir en OneCompiler ----
+    function abrirJavaEnCompiler() {
+      const codigo = document.getElementById('java-code').value.trim()
+      if (!codigo) {
+        alert('Selecciona un ejemplo primero (o escribe código Java arriba).')
+        return
+      }
+      navigator.clipboard.writeText(codigo).catch(() => {})
+      window.open('https://onecompiler.com/java', '_blank')
+    }
+
+    // ---- Python: output helpers ----
+    function limpiarOutputPython() {
+      document.getElementById('python-output').innerHTML =
+        '<span class="output-empty">// La salida aparecerá aquí cuando ejecutes...</span>'
+    }
+    function limpiarPython() {
+      document.getElementById('python-code').value = ''
+      limpiarOutputPython()
+    }
+
+    function agregarLineaPython(texto, tipo = 'log') {
+      const out = document.getElementById('python-output')
+      const div = document.createElement('div')
+      div.className = `output-line-${tipo}`
+      div.textContent = texto
+      const empty = out.querySelector('.output-empty')
+      if (empty) empty.remove()
+      out.appendChild(div)
+      out.scrollTop = out.scrollHeight
+    }
+
+    // ---- Pyodide: cargar Python en el navegador ----
+    let pyodide = null
+    let pyodideCargando = false
+
+    async function cargarPyodide() {
+      if (pyodideCargando || pyodide) return
+      pyodideCargando = true
+      const statusEl = document.getElementById('py-status')
+      const runBtn   = document.getElementById('py-run-btn')
+      try {
+        statusEl.className = 'py-status cargando'
+        statusEl.textContent = '⏳ Cargando Python... (puede tardar unos segundos)'
+        const script = document.createElement('script')
+        script.src = 'https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js'
+        document.head.appendChild(script)
+        await new Promise((res, rej) => { script.onload = res; script.onerror = rej })
+        pyodide = await loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.25.1/full/' })
+        statusEl.className = 'py-status listo'
+        statusEl.textContent = '✓ Python listo'
+        runBtn.disabled = false
+        limpiarOutputPython()
+      } catch(e) {
+        statusEl.className = 'py-status error-py'
+        statusEl.textContent = '✗ Error al cargar — usa el editor online'
+        runBtn.textContent = '↗ Abrir en Python Tutor'
+        runBtn.disabled = false
+        runBtn.style.background = '#1a5fa5'
+        runBtn.onclick = () => {
+          const codigo = document.getElementById('python-code').value
+          navigator.clipboard.writeText(codigo).catch(()=>{})
+          window.open('https://www.online-python.com/', '_blank')
+        }
+      }
+      pyodideCargando = false
+    }
+
+    async function ejecutarPython() {
+      if (!pyodide) { alert('Python aún no ha cargado. Espera un momento.'); return }
+      const codigo = document.getElementById('python-code').value
+      const out = document.getElementById('python-output')
+      out.innerHTML = ''
+
+      let salida = []
+      pyodide.setStdout({ batched: (s) => salida.push({ t: 'log', v: s }) })
+      pyodide.setStderr({ batched: (s) => salida.push({ t: 'error', v: s }) })
+
+      try {
+        await pyodide.runPythonAsync(codigo)
+        if (salida.length === 0) {
+          agregarLineaPython('(sin salida — usa print() para mostrar valores)', 'warn')
+        } else {
+          salida.forEach(({ t, v }) => {
+            agregarLineaPython((t === 'error' ? '✖ ' : '▸ ') + v, t)
+          })
+          agregarLineaPython('✓ Ejecución completada', 'ok')
+        }
+      } catch(e) {
+        const msg = e.message || String(e)
+        // Extraer solo la parte relevante del error de Python
+        const lineas = msg.split('\n')
+        lineas.forEach(l => { if (l.trim()) agregarLineaPython('✖ ' + l, 'error') })
+      }
+    }
+
+    // Cargar Pyodide cuando el usuario cambia a la pestaña Python
+    document.querySelector('[data-tab="python"]').addEventListener('click', () => {
+      if (!pyodide && !pyodideCargando) cargarPyodide()
+    })
+    // Si ya estamos en python al cargar
+    if (new URLSearchParams(window.location.search).get('tab') === 'python') {
+      setTimeout(cargarPyodide, 500)
+    }
+  </script>
+
+</body>
+</html>
