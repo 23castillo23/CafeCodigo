@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1a1814">
+  <title>Solicitar Acceso · Café &lt;/&gt;</title>
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f4f1ea;
+      --surface: #fff;
+      --ink: #1a1814;
+      --ink-muted: #6b6560;
+      --border: #e5e0d8;
+      --accent: #c44a2a;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ── */
+    .ac-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0.9rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .ac-logo {
+      display: flex; align-items: center; gap: 0.6rem;
+      text-decoration: none; color: inherit;
+    }
+    .ac-logo-icon { font-size: 1.4rem; }
+    .ac-logo strong { font-family: 'Fraunces', serif; font-size: 1rem; }
+    .ac-logo small { display: block; font-size: 0.7rem; color: var(--ink-muted); }
+
+    /* ── Main layout ── */
+    .ac-main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem;
+      gap: 3rem;
+      align-items: center;
+      width: 100%;
+    }
+
+    @media (max-width: 660px) {
+      .ac-main { grid-template-columns: 1fr; padding: 2rem 1.2rem; gap: 2rem; }
+      .ac-left { text-align: center; }
+    }
+
+    /* ── Lado izquierdo: info ── */
+    .ac-eyebrow {
+      font-size: 0.7rem; font-weight: 600; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--accent); margin-bottom: 0.7rem;
+    }
+    .ac-titulo {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      line-height: 1.15; margin-bottom: 1rem;
+    }
+    .ac-titulo em { color: var(--accent); font-style: italic; }
+    .ac-desc {
+      font-size: 0.9rem; line-height: 1.7;
+      color: var(--ink-muted); margin-bottom: 1.8rem;
+    }
+
+    /* Beneficios */
+    .ac-beneficios { display: flex; flex-direction: column; gap: 0.75rem; }
+    .ac-beneficio {
+      display: flex; align-items: flex-start; gap: 0.7rem;
+    }
+    .ac-ben-icono {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: rgba(196,74,42,0.1);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.9rem; flex-shrink: 0;
+    }
+    .ac-ben-texto strong { display: block; font-size: 0.85rem; font-weight: 600; }
+    .ac-ben-texto span { font-size: 0.78rem; color: var(--ink-muted); }
+
+    /* ── Panel de acciones ── */
+    .ac-panel {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 20px;
+      padding: 2rem;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+    }
+
+    /* Tabs: Solicitar / Ingresar */
+    .ac-tabs {
+      display: flex;
+      background: var(--bg);
+      border-radius: 10px;
+      padding: 4px;
+      margin-bottom: 1.6rem;
+      gap: 4px;
+    }
+    .ac-tab {
+      flex: 1; padding: 0.5rem; border: none; border-radius: 7px;
+      font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 500;
+      cursor: pointer; background: transparent; color: var(--ink-muted);
+      transition: all 0.18s ease;
+    }
+    .ac-tab.active {
+      background: var(--surface);
+      color: var(--ink);
+      font-weight: 600;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+
+    /* Paneles */
+    .ac-pane { display: none; }
+    .ac-pane.active { display: block; animation: fadeIn 0.2s ease; }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:none} }
+
+    /* Formulario solicitud */
+    .ac-form-grupo { margin-bottom: 1rem; }
+    .ac-form-grupo label {
+      display: block; font-size: 0.73rem; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--ink-muted); margin-bottom: 0.4rem;
+    }
+    .ac-form-grupo input,
+    .ac-form-grupo textarea {
+      width: 100%; background: var(--bg); border: 1.5px solid var(--border);
+      border-radius: 10px; padding: 0.65rem 0.9rem;
+      font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
+      color: var(--ink); outline: none; transition: border-color 0.15s; resize: none;
+    }
+    .ac-form-grupo input:focus,
+    .ac-form-grupo textarea:focus { border-color: var(--accent); }
+
+    .btn-solicitar {
+      width: 100%; background: var(--accent); color: #fff; border: none;
+      border-radius: 12px; padding: 0.85rem; font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem; font-weight: 600; cursor: pointer;
+      transition: background 0.15s, transform 0.12s; margin-top: 0.3rem;
+    }
+    .btn-solicitar:hover { background: #a83820; transform: translateY(-1px); }
+    .btn-solicitar:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+
+    /* Separador */
+    .ac-sep {
+      display: flex; align-items: center; gap: 0.8rem;
+      margin: 1.2rem 0; color: var(--ink-muted); font-size: 0.78rem;
+    }
+    .ac-sep::before, .ac-sep::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+
+    /* Botón Google */
+    .btn-google {
+      width: 100%; background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: 12px; padding: 0.75rem; font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem; font-weight: 500; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 0.7rem;
+      transition: all 0.15s; color: var(--ink);
+    }
+    .btn-google:hover { border-color: #4285f4; box-shadow: 0 2px 8px rgba(66,133,244,0.15); }
+    .btn-google svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+    /* Estado: pendiente / denegado / éxito */
+    .ac-estado {
+      display: none; text-align: center; padding: 1.5rem 1rem;
+    }
+    .ac-estado.visible { display: block; animation: fadeIn 0.3s ease; }
+    .ac-estado-emoji { font-size: 2.8rem; margin-bottom: 0.6rem; }
+    .ac-estado h3 { font-family: 'Fraunces', serif; font-size: 1.2rem; margin-bottom: 0.4rem; }
+    .ac-estado p { font-size: 0.85rem; color: var(--ink-muted); line-height: 1.6; }
+
+    .estado-pendiente { color: #d97706; }
+    .estado-ok        { color: #16a34a; }
+    .estado-error     { color: #dc2626; }
+
+    /* Nota privacidad */
+    .ac-nota {
+      font-size: 0.72rem; color: var(--ink-muted); text-align: center;
+      margin-top: 1rem; line-height: 1.5;
+    }
+
+    footer {
+      text-align: center; padding: 1.2rem;
+      font-size: 0.78rem; color: var(--ink-muted);
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+    }
+  </style>
+</head>
+<body>
+
+  <header class="ac-header">
+    <a href="index.html" class="ac-logo">
+      <span class="ac-logo-icon">☕</span>
+      <div>
+        <strong>Café &lt;/&gt;</strong>
+        <small>Mi guía de aprendizaje</small>
+      </div>
+    </a>
+  </header>
+
+  <main class="ac-main">
+
+    <!-- Lado izquierdo -->
+    <div class="ac-left">
+      <p class="ac-eyebrow">Acceso exclusivo</p>
+      <h1 class="ac-titulo">
+        Únete a<br><em>Café Código</em>
+      </h1>
+      <p class="ac-desc">
+        Solicita acceso para explorar todos los capítulos, ejercicios,
+        guías y la comunidad. Una vez aprobado, entras con un clic usando tu cuenta Google.
+      </p>
+
+      <div class="ac-beneficios">
+        <div class="ac-beneficio">
+          <div class="ac-ben-icono">📚</div>
+          <div class="ac-ben-texto">
+            <strong>Todos los capítulos</strong>
+            <span>HTML, CSS, JavaScript y más</span>
+          </div>
+        </div>
+        <div class="ac-beneficio">
+          <div class="ac-ben-icono">✏️</div>
+          <div class="ac-ben-texto">
+            <strong>Ejercicios y práctica</strong>
+            <span>Proyectos reales para practicar</span>
+          </div>
+        </div>
+        <div class="ac-beneficio">
+          <div class="ac-ben-icono">💬</div>
+          <div class="ac-ben-texto">
+            <strong>Comunidad</strong>
+            <span>Comparte dudas y avances</span>
+          </div>
+        </div>
+        <div class="ac-beneficio">
+          <div class="ac-ben-icono">🔥</div>
+          <div class="ac-ben-texto">
+            <strong>Actualizaciones constantes</strong>
+            <span>La guía crece contigo</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel acciones -->
+    <div class="ac-panel">
+
+      <!-- Tabs -->
+      <div class="ac-tabs">
+        <button class="ac-tab active" data-tab="solicitar">Solicitar acceso</button>
+        <button class="ac-tab" data-tab="ingresar">Ya tengo acceso</button>
+      </div>
+
+      <!-- PANE: Solicitar -->
+      <div class="ac-pane active" id="pane-solicitar">
+
+        <!-- Formulario -->
+        <div id="formSolicitud">
+          <div class="ac-form-grupo">
+            <label for="sol-nombre">Tu nombre</label>
+            <input type="text" id="sol-nombre" placeholder="Ej: José Martínez" maxlength="60" required>
+          </div>
+          <div class="ac-form-grupo">
+            <label for="sol-email">Tu correo electrónico</label>
+            <input type="email" id="sol-email" placeholder="tu@correo.com" required>
+          </div>
+          <div class="ac-form-grupo">
+            <label for="sol-motivo">¿Por qué quieres acceso?</label>
+            <textarea id="sol-motivo" rows="3" placeholder="Cuéntame brevemente…" maxlength="300"></textarea>
+          </div>
+          <button class="btn-solicitar" id="btnSolicitar">Enviar solicitud →</button>
+          <p class="ac-nota">
+            Tu solicitud será revisada. Una vez aprobada, podrás entrar con Google.
+          </p>
+        </div>
+
+        <!-- Estado tras enviar -->
+        <div class="ac-estado" id="estadoSolicitud">
+          <div class="ac-estado-emoji">⏳</div>
+          <h3>¡Solicitud enviada!</h3>
+          <p>Revisaré tu solicitud y te avisaré. Una vez aprobado, regresa aquí y entra con tu cuenta Google.</p>
+        </div>
+
+      </div>
+
+      <!-- PANE: Ingresar -->
+      <div class="ac-pane" id="pane-ingresar">
+        <p style="font-size:0.85rem;color:var(--ink-muted);margin-bottom:1.2rem;line-height:1.6;">
+          Si tu solicitud ya fue aprobada, entra con la misma cuenta Google que registraste.
+        </p>
+
+        <button class="btn-google" id="btnGoogle">
+          <!-- SVG logo Google -->
+          <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+            <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+            <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+          </svg>
+          Continuar con Google
+        </button>
+
+        <!-- Estado: verificando -->
+        <div class="ac-estado" id="estadoLogin">
+          <div class="ac-estado-emoji">🔍</div>
+          <h3>Verificando acceso…</h3>
+          <p>Revisando si tu cuenta está aprobada.</p>
+        </div>
+
+        <!-- Estado: denegado -->
+        <div class="ac-estado" id="estadoDenegado">
+          <div class="ac-estado-emoji">⏳</div>
+          <h3 class="estado-pendiente">Pendiente de aprobación</h3>
+          <p>Tu cuenta aún no ha sido aprobada. Si ya enviaste la solicitud, espera la confirmación.</p>
+          <button onclick="document.querySelector('[data-tab=solicitar]').click()"
+            style="margin-top:1rem;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:.5rem 1.2rem;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;">
+            Enviar solicitud →
+          </button>
+        </div>
+
+        <p class="ac-nota" style="margin-top:1.2rem;">
+          Solo usuarios aprobados pueden acceder. Si aún no solicitaste acceso, hazlo en la pestaña anterior.
+        </p>
+      </div>
+
+    </div>
+  </main>
+
+  <footer>☕ Café &lt;/&gt; · Acceso exclusivo</footer>
+
+  <!-- ── FIREBASE AUTH + FIRESTORE ── -->
+  <script type="module">
+    import { initializeApp }   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+    import { getFirestore, doc, setDoc, getDoc, serverTimestamp }
+                               from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+    import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged }
+                               from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+
+    // ══ PEGA TU CONFIG FIREBASE AQUÍ ══
+    const firebaseConfig = {
+      apiKey:            "TU_API_KEY",
+      authDomain:        "TU_PROYECTO.firebaseapp.com",
+      projectId:         "TU_PROYECTO",
+      storageBucket:     "TU_PROYECTO.appspot.com",
+      messagingSenderId: "TU_SENDER_ID",
+      appId:             "TU_APP_ID"
+    };
+    // ══════════════════════════════════
+
+    const app      = initializeApp(firebaseConfig);
+    const db       = getFirestore(app);
+    const auth     = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    // ── Tabs ──
+    document.querySelectorAll('.ac-tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.ac-tab').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.ac-pane').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('pane-' + btn.dataset.tab).classList.add('active');
+      });
+    });
+
+    // ── Enviar solicitud ──
+    document.getElementById('btnSolicitar').addEventListener('click', async () => {
+      const nombre = document.getElementById('sol-nombre').value.trim();
+      const email  = document.getElementById('sol-email').value.trim().toLowerCase();
+      const motivo = document.getElementById('sol-motivo').value.trim();
+
+      if (!nombre || !email) {
+        alert('Por favor llena tu nombre y correo.');
+        return;
+      }
+
+      const btn = document.getElementById('btnSolicitar');
+      btn.disabled = true;
+      btn.textContent = 'Enviando…';
+
+      try {
+        // Guardar solicitud en Firestore — colección "solicitudes_acceso"
+        await setDoc(doc(db, 'solicitudes_acceso', email), {
+          nombre, email, motivo: motivo || '(sin motivo)',
+          estado: 'pendiente',   // tú lo cambias a "aprobado" en Firebase Console
+          creadoEn: serverTimestamp()
+        });
+
+        // También guardar en "usuarios" con estado pendiente (para el guard)
+        const yaExiste = await getDoc(doc(db, 'usuarios', email));
+        if (!yaExiste.exists()) {
+          await setDoc(doc(db, 'usuarios', email), {
+            nombre, email,
+            aprobado: false,
+            creadoEn: serverTimestamp()
+          });
+        }
+
+        // Mostrar estado de éxito
+        document.getElementById('formSolicitud').style.display = 'none';
+        document.getElementById('estadoSolicitud').classList.add('visible');
+
+        // Enviar email de notificación vía EmailJS (si está configurado)
+        await notificarPorEmail({ nombre, email, motivo });
+
+      } catch (err) {
+        console.error(err);
+        alert('Error al enviar. Intenta de nuevo.');
+        btn.disabled = false;
+        btn.textContent = 'Enviar solicitud →';
+      }
+    });
+
+    // ── Login con Google ──
+    document.getElementById('btnGoogle').addEventListener('click', async () => {
+      document.getElementById('btnGoogle').style.display = 'none';
+      document.getElementById('estadoLogin').classList.add('visible');
+
+      try {
+        const result = await signInWithPopup(auth, provider);
+        const user   = result.user;
+        await verificarAcceso(user);
+      } catch (err) {
+        console.error(err);
+        document.getElementById('estadoLogin').classList.remove('visible');
+        document.getElementById('btnGoogle').style.display = 'flex';
+        alert('Error al iniciar sesión. Intenta de nuevo.');
+      }
+    });
+
+    // ── Verificar si el usuario tiene acceso aprobado ──
+    async function verificarAcceso(user) {
+      const email = user.email.toLowerCase();
+
+      try {
+        const snap = await getDoc(doc(db, 'usuarios', email));
+
+        if (snap.exists() && snap.data().aprobado === true) {
+          // ✅ APROBADO — guardar sesión y redirigir
+          localStorage.setItem('cafe_user', JSON.stringify({
+            nombre: user.displayName || snap.data().nombre,
+            email:  email,
+            foto:   user.photoURL || ''
+          }));
+          window.location.href = 'index.html';
+        } else {
+          // ⏳ Pendiente o no registrado
+          document.getElementById('estadoLogin').classList.remove('visible');
+          document.getElementById('estadoDenegado').classList.add('visible');
+          await auth.signOut();
+        }
+      } catch (err) {
+        console.error(err);
+        document.getElementById('estadoLogin').classList.remove('visible');
+        document.getElementById('btnGoogle').style.display = 'flex';
+      }
+    }
+
+    // ── Si ya hay sesión activa, redirigir ──
+    const userGuardado = localStorage.getItem('cafe_user');
+    if (userGuardado) {
+      window.location.href = 'index.html';
+    }
+
+    // ── Notificación por email via EmailJS ──
+    // Para activar: regístrate gratis en https://emailjs.com
+    // Crea un servicio, una plantilla y pega tus IDs abajo
+    async function notificarPorEmail({ nombre, email, motivo }) {
+      const EMAILJS_SERVICE  = 'TU_SERVICE_ID';   // ← de EmailJS
+      const EMAILJS_TEMPLATE = 'TU_TEMPLATE_ID';  // ← de EmailJS
+      const EMAILJS_KEY      = 'TU_PUBLIC_KEY';   // ← de EmailJS
+
+      if (EMAILJS_SERVICE === 'TU_SERVICE_ID') return; // no configurado aún
+
+      try {
+        await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            service_id:  EMAILJS_SERVICE,
+            template_id: EMAILJS_TEMPLATE,
+            user_id:     EMAILJS_KEY,
+            template_params: {
+              from_nombre: nombre,
+              from_email:  email,
+              motivo:      motivo,
+              // tu email de destino se configura en la plantilla de EmailJS
+            }
+          })
+        });
+      } catch (e) {
+        console.warn('EmailJS no configurado:', e.message);
+      }
+    }
+  </script>
+
+</body>
+</html>

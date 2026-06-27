@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía HTML & CSS — Parte H: Animaciones CSS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #c44a2a;
+    --primary-light:  #fdf0ec;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1a1814;
+    --code-text:      #e8e4de;
+  }
+
+  body { font-family: 'DM Sans', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  header { background: #1a1814; color: #f7f4ef; padding: 3rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: '</>'; position: absolute; font-size: 14rem; font-weight: 900; color: rgba(255,255,255,0.05); right: -2rem; top: -3rem; font-family: monospace; line-height: 1; }
+  header h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; }
+  header p  { font-size: 1.1rem; opacity: .85; margin-top: .5rem; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  .partes-nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 45px; z-index: 110; display: flex; align-items: center; height: 38px; padding: 0 1rem; }
+  .partes-nav-prev, .partes-nav-next { flex-shrink: 0; display: flex; align-items: center; padding: 0 .75rem; height: 100%; text-decoration: none; color: var(--muted); font-size: .78rem; font-weight: 500; border-right: 1px solid var(--border); transition: color .15s; white-space: nowrap; }
+  .partes-nav-next { border-right: none; border-left: 1px solid var(--border); }
+  .partes-nav-prev:hover, .partes-nav-next:hover { color: var(--primary); }
+  .partes-nav-list { flex: 1; display: flex; align-items: center; justify-content: center; gap: .15rem; overflow-x: auto; padding: 0 .5rem; }
+  .partes-nav-list::-webkit-scrollbar { display: none; }
+  .partes-nav-list a { flex-shrink: 0; padding: 2px 9px; border-radius: 20px; text-decoration: none; font-size: .73rem; font-weight: 600; color: var(--muted); transition: color .15s, background .15s; }
+  .partes-nav-list a:hover { color: var(--text); background: var(--bg); }
+  .partes-nav-list a.activa { background: var(--primary-light); color: var(--primary); }
+
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 83px; z-index: 100; display: flex; overflow-x: auto; }
+  nav a { flex-shrink: 0; padding: .75rem 1.1rem; text-decoration: none; color: var(--muted); font-size: .82rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2.5rem; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-size: 1.35rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  .analogy { background: #FFF7ED; border: 1px solid #FDE68A; border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: #92400E; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p  { font-size: .95rem; color: #78350F; }
+
+  .concept { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p  { font-size: .95rem; }
+
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p  { font-size: .95rem; }
+  .tip ul { font-size: .95rem; padding-left: 1.2rem; }
+
+  .warn { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p  { font-size: .95rem; }
+
+  .anatomy { background: #F0F4FF; border: 1px solid #C7D2FE; border-radius: 12px; padding: 1.5rem; font-family: monospace; font-size: .98rem; line-height: 2.6; margin: 1.25rem 0; }
+  .anatomy .br  { color: var(--primary); font-weight: 700; }
+  .anatomy .at  { color: #0891B2; }
+  .anatomy .vl  { color: #059669; }
+  .anatomy .lb  { display: inline-block; background: var(--primary);   color: #fff; font-size: .68rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 6px; }
+  .anatomy .lb2 { display: inline-block; background: var(--accent);    color: #fff; font-size: .68rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 6px; }
+  .anatomy .lb3 { display: inline-block; background: var(--secondary); color: #fff; font-size: .68rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 6px; }
+
+  .code-block { background: var(--code-bg); color: var(--code-text); border-radius: 10px; padding: 1.25rem 1.5rem; font-family: 'Courier New', monospace; font-size: .88rem; line-height: 1.85; overflow-x: auto; margin: 1rem 0; position: relative; white-space: pre; }
+  .code-block .ct { color: #89B4FA; }
+  .code-block .ca { color: #CBA6F7; }
+  .code-block .cv { color: #A6E3A1; }
+  .code-block .cs { color: #F9E2AF; }
+  .code-block .cp { color: #89DCEB; }
+  .code-block .cc { color: #585B70; font-style: italic; }
+  .code-block .cn { color: #FAB387; }
+  .lang { position: absolute; top: .6rem; right: .75rem; background: rgba(255,255,255,.1); color: rgba(255,255,255,.5); font-size: .68rem; padding: 2px 8px; border-radius: 4px; font-family: sans-serif; }
+
+  .preview { border: 2px dashed var(--border); border-radius: 10px; padding: 1.5rem; margin: 1rem 0; background: var(--surface); position: relative; }
+  .preview::before { content: '🖥 Vista en navegador'; position: absolute; top: -11px; left: 14px; background: var(--surface); font-size: .73rem; color: var(--muted); padding: 0 6px; font-family: sans-serif; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  .ex { background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 12px; padding: 1.5rem; margin: 1.5rem 0; }
+  .ex-hd { display: flex; align-items: center; gap: .75rem; margin-bottom: 1rem; font-weight: 700; font-size: 1rem; color: #78350F; flex-wrap: wrap; }
+  .ex-badge { background: var(--accent); color: #fff; font-size: .68rem; padding: 2px 9px; border-radius: 20px; font-weight: 700; text-transform: uppercase; }
+  .ex ol { padding-left: 1.4rem; }
+  .ex ol li { margin-bottom: .6rem; font-size: .95rem; }
+  .ex p { font-size: .95rem; margin-bottom: .6rem; }
+
+  h2 { font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; }
+  h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 .5rem; }
+  p  { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: #f0ece6; color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  strong { font-weight: 700; }
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: white; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+  .demo-label { font-size: .72rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: .35rem; margin-top: .85rem; }
+
+  /* ════════════════════════════════════════
+     KEYFRAMES GLOBALES
+  ════════════════════════════════════════ */
+
+  @keyframes girar {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+  @keyframes pulsar {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50%       { transform: scale(1.15); opacity: .7; }
+  }
+  @keyframes rebotar {
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-20px); }
+  }
+  @keyframes parpadear {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0; }
+  }
+  @keyframes deslizarDesdeIzq {
+    from { transform: translateX(-60px); opacity: 0; }
+    to   { transform: translateX(0);     opacity: 1; }
+  }
+  @keyframes deslizarDesdeArr {
+    from { transform: translateY(-30px); opacity: 0; }
+    to   { transform: translateY(0);     opacity: 1; }
+  }
+  @keyframes aparecerEscala {
+    from { transform: scale(.7); opacity: 0; }
+    to   { transform: scale(1);  opacity: 1; }
+  }
+  @keyframes shimmer {
+    from { background-position: -600px 0; }
+    to   { background-position:  600px 0; }
+  }
+  @keyframes progreso {
+    from { width: 0%; }
+    to   { width: 75%; }
+  }
+  @keyframes onda {
+    0%        { transform: scale(0); opacity: .6; }
+    100%      { transform: scale(2.5); opacity: 0; }
+  }
+  @keyframes escribir {
+    from { width: 0; }
+    to   { width: 100%; }
+  }
+  @keyframes cursor {
+    0%, 100% { border-right-color: var(--primary); }
+    50%       { border-right-color: transparent; }
+  }
+  @keyframes flotar {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    33%       { transform: translateY(-8px) rotate(2deg); }
+    66%       { transform: translateY(-4px) rotate(-1deg); }
+  }
+  @keyframes gradienteMovil {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  @keyframes sacudir {
+    0%, 100%  { transform: translateX(0); }
+    20%        { transform: translateX(-6px); }
+    40%        { transform: translateX(6px); }
+    60%        { transform: translateX(-4px); }
+    80%        { transform: translateX(4px); }
+  }
+  @keyframes contador {
+    from { transform: scaleX(0); }
+    to   { transform: scaleX(1); }
+  }
+
+  /* ════════════════════════════════════════
+     DEMOS DE KEYFRAMES BÁSICOS
+  ════════════════════════════════════════ */
+  .anim-grid { display: flex; flex-wrap: wrap; gap: 1.25rem; margin: .75rem 0; align-items: center; }
+  .anim-box {
+    display: flex; flex-direction: column; align-items: center; gap: .4rem;
+    font-size: .72rem; color: var(--muted); font-weight: 600;
+  }
+  .anim-demo {
+    width: 52px; height: 52px; border-radius: 10px;
+    background: var(--primary); display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem; color: white;
+  }
+
+  .demo-girar  { animation: girar       1.2s linear infinite; }
+  .demo-pulsar { animation: pulsar      1s ease-in-out infinite; }
+  .demo-rebotar{ animation: rebotar     .8s ease-in-out infinite; }
+  .demo-parpade{ animation: parpadear   1s step-end infinite; }
+  .demo-flotar { animation: flotar      2.5s ease-in-out infinite; }
+
+  /* ════════════════════════════════════════
+     DEMOS DE PARÁMETROS
+  ════════════════════════════════════════ */
+  .param-demo { width: 40px; height: 40px; border-radius: 8px; background: var(--primary); margin: 0 auto; }
+  .pd-normal    { animation: girar 1s linear infinite; }
+  .pd-slow      { animation: girar 3s linear infinite; }
+  .pd-delay     { animation: girar 1s linear 1s infinite; }
+  .pd-2         { animation: girar 1s linear 2 forwards; }
+  .pd-alternate { animation: rebotar 1s ease-in-out infinite alternate; }
+  .pd-reverse   { animation: girar 1s linear infinite reverse; }
+
+  /* ════════════════════════════════════════
+     FILL-MODE DEMO
+  ════════════════════════════════════════ */
+  .fill-row { display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end; margin: .75rem 0; }
+  .fill-box {
+    text-align: center; font-size: .7rem; color: var(--muted); font-weight: 600;
+  }
+  .fill-inner {
+    width: 55px; height: 55px; border-radius: 8px; background: var(--primary);
+    display: flex; align-items: center; justify-content: center; color: white;
+    font-size: .7rem; font-weight: 700; margin: 0 auto 4px;
+    animation: deslizarDesdeIzq 1.5s ease 1s;
+  }
+  .fill-none     { animation-fill-mode: none; }
+  .fill-forwards { animation-fill-mode: forwards; }
+  .fill-backwards{ animation-fill-mode: backwards; }
+  .fill-both     { animation-fill-mode: both; }
+
+  /* ════════════════════════════════════════
+     LOADERS
+  ════════════════════════════════════════ */
+  .loaders-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem; margin: .75rem 0; }
+  .loader-box {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 12px;
+    padding: 1.25rem .75rem; display: flex; flex-direction: column; align-items: center; gap: .65rem;
+  }
+  .loader-label { font-size: .7rem; color: var(--muted); font-weight: 600; text-align: center; }
+
+  /* Spinner */
+  .spinner {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 3px solid var(--border);
+    border-top-color: var(--primary);
+    animation: girar .8s linear infinite;
+  }
+
+  /* Spinner doble */
+  .spinner-doble {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 3px solid var(--primary-light);
+    border-top-color: var(--primary);
+    border-bottom-color: var(--secondary);
+    animation: girar 1s cubic-bezier(.6,.15,.4,.85) infinite;
+  }
+
+  /* Puntos */
+  .dots { display: flex; gap: 5px; }
+  .dot {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--primary);
+    animation: pulsar .8s ease-in-out infinite;
+  }
+  .dot:nth-child(2) { animation-delay: .15s; background: var(--accent); }
+  .dot:nth-child(3) { animation-delay: .30s; background: var(--secondary); }
+
+  /* Barra pulsante */
+  .bar-loader { display: flex; gap: 3px; align-items: flex-end; height: 30px; }
+  .bar {
+    width: 5px; border-radius: 3px; background: var(--primary);
+    animation: rebotar .6s ease-in-out infinite;
+  }
+  .bar:nth-child(2) { animation-delay: .1s; height: 20px; background: var(--accent); }
+  .bar:nth-child(3) { animation-delay: .2s; height: 28px; }
+  .bar:nth-child(4) { animation-delay: .3s; height: 16px; background: var(--secondary); }
+  .bar:nth-child(5) { animation-delay: .4s; height: 24px; }
+
+  /* Onda pulsante */
+  .ripple-wrap { position: relative; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; }
+  .ripple {
+    position: absolute; width: 36px; height: 36px; border-radius: 50%;
+    border: 2px solid var(--primary);
+    animation: onda 1.5s ease-out infinite;
+  }
+  .ripple:nth-child(2) { animation-delay: .5s; border-color: var(--accent); }
+  .ripple-center { width: 10px; height: 10px; border-radius: 50%; background: var(--primary); position: relative; z-index: 1; }
+
+  /* Progreso */
+  .progress-wrap {
+    width: 100%; height: 6px; background: var(--primary-light); border-radius: 3px; overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%; background: var(--primary); border-radius: 3px;
+    animation: progreso 2s ease-in-out infinite alternate;
+    width: 0%;
+  }
+
+  /* ════════════════════════════════════════
+     SKELETON SCREEN
+  ════════════════════════════════════════ */
+  .skeleton-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 1.25rem; max-width: 340px;
+  }
+  .sk {
+    border-radius: 6px; overflow: hidden;
+    background: linear-gradient(90deg, #f0ece6 25%, #e8e4de 50%, #f0ece6 75%);
+    background-size: 600px 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+  }
+  .sk-img   { height: 140px; width: 100%; margin-bottom: .75rem; border-radius: 10px; }
+  .sk-title { height: 18px; width: 80%; margin-bottom: .5rem; }
+  .sk-line  { height: 12px; width: 100%; margin-bottom: .4rem; }
+  .sk-line.short { width: 65%; }
+  .sk-avatar { width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; }
+  .sk-footer { display: flex; align-items: center; gap: .5rem; margin-top: .75rem; }
+  .sk-meta   { flex: 1; display: flex; flex-direction: column; gap: .3rem; }
+  .sk-meta-line { height: 10px; }
+  .sk-meta-line.w60 { width: 60%; }
+  .sk-meta-line.w40 { width: 40%; }
+
+  /* ════════════════════════════════════════
+     ANIMACIONES DE ENTRADA
+  ════════════════════════════════════════ */
+  .entrada-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: .75rem; margin: .75rem 0; }
+  .entrada-box {
+    background: var(--primary-light); border: 1px solid var(--border);
+    border-radius: 10px; padding: .85rem; text-align: center;
+    font-size: .78rem; font-weight: 700; color: var(--primary);
+  }
+  .e-izq     { animation: deslizarDesdeIzq 1s ease both; }
+  .e-arr     { animation: deslizarDesdeArr 1s ease both; }
+  .e-escala  { animation: aparecerEscala   1s ease both; }
+  .e-fade    { animation: parpadear 2s ease-in-out 3; animation-fill-mode: forwards; }
+
+  /* Efecto encadenado */
+  .chain-grid { display: flex; gap: .5rem; flex-wrap: wrap; margin: .75rem 0; }
+  .chain-item {
+    background: var(--primary); color: white; border-radius: 8px;
+    padding: .4rem .8rem; font-size: .8rem; font-weight: 700;
+    animation: aparecerEscala .5s ease both;
+  }
+  .chain-item:nth-child(1) { animation-delay: 0s; }
+  .chain-item:nth-child(2) { animation-delay: .1s; background: var(--secondary); }
+  .chain-item:nth-child(3) { animation-delay: .2s; background: var(--accent); }
+  .chain-item:nth-child(4) { animation-delay: .3s; background: #7C3AED; }
+  .chain-item:nth-child(5) { animation-delay: .4s; background: #0891B2; }
+
+  /* ════════════════════════════════════════
+     EFECTO TYPEWRITER
+  ════════════════════════════════════════ */
+  .typewriter {
+    font-family: 'DM Mono', monospace; font-size: 1rem; font-weight: 700;
+    color: var(--primary); white-space: nowrap; overflow: hidden;
+    border-right: 3px solid var(--primary);
+    width: 0;
+    animation:
+      escribir  3s steps(30, end) forwards,
+      cursor    .7s step-end infinite;
+    animation-delay: 0s, 0s;
+    max-width: 100%;
+  }
+
+  /* ════════════════════════════════════════
+     GRADIENTE ANIMADO
+  ════════════════════════════════════════ */
+  .grad-animado {
+    background: linear-gradient(270deg, var(--primary), var(--accent), var(--secondary), #7C3AED);
+    background-size: 400% 400%;
+    animation: gradienteMovil 5s ease infinite;
+    border-radius: 10px; padding: 1.25rem;
+    color: white; text-align: center; font-weight: 700;
+  }
+
+  /* ════════════════════════════════════════
+     ANIMACIÓN DE ERROR (SACUDIR)
+  ════════════════════════════════════════ */
+  .error-input {
+    padding: .55rem .9rem; border: 2px solid #EF4444; border-radius: 8px;
+    font-family: inherit; font-size: .9rem; width: 100%; max-width: 300px;
+    outline: none; background: #FFF0F0;
+    animation: sacudir .5s ease;
+  }
+
+  /* ════════════════════════════════════════
+     BARRA DE ESTADÍSTICAS ANIMADA
+  ════════════════════════════════════════ */
+  .stats-bars { display: flex; flex-direction: column; gap: .75rem; margin: .75rem 0; }
+  .stat-row { display: flex; align-items: center; gap .75rem; }
+  .stat-label { width: 80px; font-size: .82rem; font-weight: 600; flex-shrink: 0; }
+  .stat-track { flex: 1; height: 10px; background: var(--bg); border-radius: 5px; overflow: hidden; border: 1px solid var(--border); }
+  .stat-fill {
+    height: 100%; border-radius: 5px; transform-origin: left;
+    animation: contador 1.5s ease both;
+  }
+  .sf-1 { background: var(--primary); width: 75%; animation-delay: .1s; }
+  .sf-2 { background: var(--secondary); width: 58%; animation-delay: .2s; }
+  .sf-3 { background: var(--accent); width: 90%; animation-delay: .3s; }
+  .sf-4 { background: #7C3AED; width: 42%; animation-delay: .4s; }
+
+  /* ════════════════════════════════════════
+     PREFERS-REDUCED-MOTION
+  ════════════════════════════════════════ */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: .01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: .01ms !important;
+    }
+  }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); }
+</style>
+</head>
+<body>
+
+<div style="background:#fff;border-bottom:1px solid #e8e4de;padding:0 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:200;height:45px;">
+  <a href="../index.html" style="display:inline-flex;align-items:center;gap:6px;font-family:'DM Sans',sans-serif;font-size:13px;color:#8a8480;text-decoration:none;padding:6px 14px;border:1px solid #e8e4de;border-radius:999px;" onmouseover="this.style.color='#1a1814';this.style.borderColor='#8a8480'" onmouseout="this.style.color='#8a8480';this.style.borderColor='#e8e4de'">← Volver a Café &lt;/&gt;</a>
+  <span style="font-family:'DM Sans',sans-serif;font-size:13px;color:#8a8480;">☕ Guía HTML &amp; CSS · Parte H</span>
+</div>
+
+<header>
+  <h1>HTML &amp; CSS — Parte H</h1>
+  <p>Animaciones CSS: @keyframes, animation, loaders, skeleton screens y efectos de entrada</p>
+  <span class="badge">✦ Curso de Soy Dalto · 18:02:00 – 19:31:00 ✦</span>
+</header>
+
+<div class="partes-nav">
+  <a class="partes-nav-prev" href="guia-parte-G-grid.html">← G</a>
+  <div class="partes-nav-list">
+    <a href="guia-html-css.html">Base</a>
+    <a href="guia-parte-A-html-avanzado.html">A</a>
+    <a href="guia-parte-B-html-avanzado.html">B</a>
+    <a href="guia-parte-C-css-avanzado.html">C</a>
+    <a href="guia-parte-D-posicionamiento.html">D</a>
+    <a href="guia-parte-E-flexbox.html">E</a>
+    <a href="guia-parte-F-responsive.html">F</a>
+    <a href="guia-parte-G-grid.html">G</a>
+    <a href="guia-parte-H-animaciones.html" class="activa">H</a>
+    <a href="#">I</a>
+    <a href="#">J</a>
+  </div>
+  <a class="partes-nav-next" href="#">I →</a>
+</div>
+
+<nav>
+  <a href="#diferencia">⚡ Transition vs Animation</a>
+  <a href="#keyframes">🎬 @keyframes</a>
+  <a href="#animation">🎛 animation</a>
+  <a href="#parametros">🔧 Parámetros</a>
+  <a href="#fillmode">📍 fill-mode</a>
+  <a href="#loaders">⏳ Loaders</a>
+  <a href="#skeleton">💀 Skeleton</a>
+  <a href="#entrada">🚪 Entrada</a>
+  <a href="#avanzado">✨ Avanzado</a>
+  <a href="#rendimiento">🚀 Rendimiento</a>
+  <a href="#ejercicio">✏️ Ejercicio</a>
+</nav>
+
+<main>
+<div class="parte-badge">📦 Parte H — Animaciones CSS (18:02 – 19:31 del video)</div>
+
+
+<!-- ══════════════════════════════════════════
+     TRANSITION VS ANIMATION
+══════════════════════════════════════════ -->
+<section class="module" id="diferencia">
+  <div class="module-header">
+    <div class="module-icon">⚡</div>
+    <div>
+      <div class="module-title">Transition vs Animation — cuándo usar cuál</div>
+      <div class="module-sub">Dos herramientas distintas para dos tipos de movimiento distintos</div>
+    </div>
+  </div>
+
+  <p>Ya conoces las <strong>transitions</strong> de la Parte D. Las animaciones (<code>@keyframes</code> + <code>animation</code>) son más poderosas pero también más complejas. La diferencia clave es:</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1rem 0">
+    <div style="background:var(--secondary-light);border-radius:12px;padding:1.1rem;border:1px solid var(--border)">
+      <p style="font-weight:700;color:var(--secondary);margin-bottom:.5rem">✅ Usa transition cuando…</p>
+      <ul style="font-size:.88rem;padding-left:1.2rem">
+        <li>El cambio es de un estado A a un estado B</li>
+        <li>Se dispara por una interacción del usuario (:hover, :focus, clase JS)</li>
+        <li>La animación solo tiene punto de inicio y punto de fin</li>
+        <li>Ejemplos: hover en botón, apertura de menú, cambio de color</li>
+      </ul>
+    </div>
+    <div style="background:var(--primary-light);border-radius:12px;padding:1.1rem;border:1px solid var(--border)">
+      <p style="font-weight:700;color:var(--primary);margin-bottom:.5rem">✅ Usa animation (@keyframes) cuando…</p>
+      <ul style="font-size:.88rem;padding-left:1.2rem">
+        <li>La animación corre sola, sin que el usuario haga nada</li>
+        <li>Necesita repetirse en loop infinito</li>
+        <li>Tiene más de dos estados intermedios (0%, 30%, 70%, 100%)</li>
+        <li>Ejemplos: loaders, pulsaciones, efectos de entrada al cargar</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <h4>🎭 Analogía: el actor y el bailarín</h4>
+    <p>Una <strong>transition</strong> es un actor que reacciona a lo que hace el público: si alguien lo aplaude (hover), él responde con un gesto. Una <strong>animation</strong> es un bailarín con una coreografía propia: baila con o sin público, sigue su partitura desde el principio hasta el final, puede repetirla varias veces, y tiene pasos intermedios planificados.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     @KEYFRAMES
+══════════════════════════════════════════ -->
+<section class="module" id="keyframes">
+  <div class="module-header">
+    <div class="module-icon">🎬</div>
+    <div>
+      <div class="module-title">@keyframes — La coreografía de la animación</div>
+      <div class="module-sub">Definir qué ocurre en cada punto del tiempo de la animación</div>
+    </div>
+  </div>
+
+  <p><code>@keyframes</code> es donde defines los "pasos" de la animación. Le das un nombre y describes cómo debe verse el elemento en distintos puntos del tiempo: al 0% (inicio), al 50% (mitad), al 100% (fin), o cualquier porcentaje intermedio.</p>
+
+  <div class="analogy">
+    <h4>🎥 Analogía: el storyboard de una película</h4>
+    <p>Antes de filmar una escena de acción, el director dibuja un storyboard: una secuencia de ilustraciones que muestran qué pasa en cada momento clave. El keyframe 0% es el primer dibujo, el 50% es el del medio, el 100% el final. El navegador "interpola" (dibuja los frames intermedios) entre cada keyframe, igual que los animadores rellenan los frames entre los dibujos clave.</p>
+  </div>
+
+  <h2>Anatomía de @keyframes</h2>
+
+  <div class="anatomy">
+    <span class="br">@keyframes</span> <span class="at">nombre-animacion</span> {
+    <br>&nbsp;&nbsp;<span class="lb">0% o from</span> {
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="at">transform</span>: <span class="vl">translateX(-50px)</span>;
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="at">opacity</span>: <span class="vl">0</span>;
+    <br>&nbsp;&nbsp;}
+    <br>&nbsp;&nbsp;<span class="lb2">50%</span> {
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="at">transform</span>: <span class="vl">translateX(10px)</span>;
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="at">opacity</span>: <span class="vl">.8</span>;
+    <br>&nbsp;&nbsp;}
+    <br>&nbsp;&nbsp;<span class="lb3">100% o to</span> {
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="at">transform</span>: <span class="vl">translateX(0)</span>;
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;<span class="at">opacity</span>: <span class="vl">1</span>;
+    <br>&nbsp;&nbsp;}
+    <br>}
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* Formas equivalentes de definir inicio y fin */</span>
+<span class="cp">@keyframes</span> <span class="cs">mi-animacion</span> {
+  <span class="cv">from</span> { <span class="ca">opacity</span>: <span class="cn">0</span>; }   <span class="cc">/* from = 0% */</span>
+  <span class="cv">to</span>   { <span class="ca">opacity</span>: <span class="cn">1</span>; }   <span class="cc">/* to = 100% */</span>
+}
+
+<span class="cc">/* Con porcentajes — más control */</span>
+<span class="cp">@keyframes</span> <span class="cs">rebotar</span> {
+  <span class="cv">0%</span>   { <span class="ca">transform</span>: translateY(<span class="cn">0</span>); }
+  <span class="cv">40%</span>  { <span class="ca">transform</span>: translateY(<span class="cn">-30px</span>); }
+  <span class="cv">60%</span>  { <span class="ca">transform</span>: translateY(<span class="cn">-15px</span>); }
+  <span class="cv">80%</span>  { <span class="ca">transform</span>: translateY(<span class="cn">-5px</span>); }
+  <span class="cv">100%</span> { <span class="ca">transform</span>: translateY(<span class="cn">0</span>); }
+}
+
+<span class="cc">/* Varios porcentajes con el mismo estilo */</span>
+<span class="cp">@keyframes</span> <span class="cs">parpadear</span> {
+  <span class="cv">0%, 100%</span> { <span class="ca">opacity</span>: <span class="cn">1</span>; }
+  <span class="cv">50%</span>       { <span class="ca">opacity</span>: <span class="cn">0</span>; }
+}
+
+<span class="cc">/* Animación de múltiples propiedades */</span>
+<span class="cp">@keyframes</span> <span class="cs">aparecerYSubir</span> {
+  <span class="cv">from</span> {
+    <span class="ca">opacity</span>:   <span class="cn">0</span>;
+    <span class="ca">transform</span>: translateY(<span class="cn">30px</span>) scale(<span class="cn">.95</span>);
+  }
+  <span class="cv">to</span> {
+    <span class="ca">opacity</span>:   <span class="cn">1</span>;
+    <span class="ca">transform</span>: translateY(<span class="cn">0</span>) scale(<span class="cn">1</span>);
+  }
+}</div>
+
+  <div class="preview">
+    <strong>Animaciones básicas con @keyframes:</strong>
+    <div class="anim-grid" style="margin-top:.75rem">
+      <div class="anim-box">
+        <div class="anim-demo demo-girar">⚙️</div>
+        <span>girar<br>linear infinite</span>
+      </div>
+      <div class="anim-box">
+        <div class="anim-demo demo-pulsar" style="background:var(--secondary)">❤️</div>
+        <span>pulsar<br>ease-in-out infinite</span>
+      </div>
+      <div class="anim-box">
+        <div class="anim-demo demo-rebotar" style="background:var(--accent)">⚽</div>
+        <span>rebotar<br>ease-in-out infinite</span>
+      </div>
+      <div class="anim-box">
+        <div class="anim-demo demo-parpade" style="background:#7C3AED">💡</div>
+        <span>parpadear<br>step-end infinite</span>
+      </div>
+      <div class="anim-box">
+        <div class="anim-demo demo-flotar" style="background:#0891B2">🚀</div>
+        <span>flotar<br>ease-in-out infinite</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     PROPIEDAD ANIMATION
+══════════════════════════════════════════ -->
+<section class="module" id="animation">
+  <div class="module-header">
+    <div class="module-icon">🎛️</div>
+    <div>
+      <div class="module-title">La propiedad animation — Conectar keyframes con elementos</div>
+      <div class="module-sub">El shorthand y todas sus sub-propiedades explicadas</div>
+    </div>
+  </div>
+
+  <p>Una vez que defines los <code>@keyframes</code>, necesitas conectarlos con un elemento usando la propiedad <code>animation</code>. Puedes usar el shorthand o cada sub-propiedad por separado.</p>
+
+  <div class="anatomy">
+    <span class="br">animation</span>:
+    <span class="at">nombre</span>
+    <span class="vl">duración</span>
+    <span class="at">timing</span>
+    <span class="vl">delay</span>
+    <span class="at">iteraciones</span>
+    <span class="vl">dirección</span>
+    <span class="at">fill-mode</span>
+    <span class="vl">play-state</span>;
+    <br><br>
+    <span class="lb">@keyframes</span>&nbsp;<span class="lb2">¿cuánto dura?</span>&nbsp;<span class="lb3">aceleración</span>&nbsp;<span class="lb">espera</span>&nbsp;<span class="lb2">¿cuántas veces?</span>&nbsp;<span class="lb3">¿normal/reverse?</span>&nbsp;<span class="lb">estado al terminar</span>&nbsp;<span class="lb2">pausa/corre</span>
+    <br><br>
+    <span class="cc">/* Ejemplo completo */</span>
+    <br>
+    <span class="br">animation</span>: <span class="at">aparecerYSubir</span> <span class="vl">.6s</span> <span class="at">ease-out</span> <span class="vl">.2s</span> <span class="at">1</span> <span class="vl">normal</span> <span class="at">forwards</span> <span class="vl">running</span>;
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* Shorthand — el orden importa: nombre duración timing delay iteraciones dirección fill play-state */</span>
+<span class="cp">.elemento</span> { <span class="ca">animation</span>: girar <span class="cn">1s</span> linear <span class="cn">0s</span> infinite normal none running; }
+
+<span class="cc">/* Sub-propiedades individuales (más legible para animaciones complejas) */</span>
+<span class="cp">.elemento</span> {
+  <span class="ca">animation-name</span>:            girar;
+  <span class="ca">animation-duration</span>:        <span class="cn">1s</span>;
+  <span class="ca">animation-timing-function</span>: linear;
+  <span class="ca">animation-delay</span>:           <span class="cn">0s</span>;
+  <span class="ca">animation-iteration-count</span>: infinite;
+  <span class="ca">animation-direction</span>:       normal;
+  <span class="ca">animation-fill-mode</span>:       none;
+  <span class="ca">animation-play-state</span>:      running;
+}
+
+<span class="cc">/* Múltiples animaciones en el mismo elemento — separadas por coma */</span>
+<span class="cp">.elemento</span> {
+  <span class="ca">animation</span>:
+    girar    <span class="cn">2s</span>    linear  infinite,
+    pulsar   <span class="cn">1.5s</span>  ease    infinite,
+    deslizar <span class="cn">.5s</span>   ease-out <span class="cn">1</span> forwards;
+}</div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     PARÁMETROS
+══════════════════════════════════════════ -->
+<section class="module" id="parametros">
+  <div class="module-header">
+    <div class="module-icon">🔧</div>
+    <div>
+      <div class="module-title">Parámetros de animation — Cada uno explicado</div>
+      <div class="module-sub">duration, timing-function, delay, iteration-count, direction</div>
+    </div>
+  </div>
+
+  <h2>animation-duration — ¿Cuánto dura?</h2>
+  <div class="code-block"><span class="lang">CSS</span><span class="ca">animation-duration</span>: <span class="cn">.3s</span>;   <span class="cc">/* Muy rápida — microinteracción */</span>
+<span class="ca">animation-duration</span>: <span class="cn">1s</span>;    <span class="cc">/* Normal — la más usada */</span>
+<span class="ca">animation-duration</span>: <span class="cn">2.5s</span>;  <span class="cc">/* Lenta — efectos dramáticos */</span>
+<span class="cc">/* Consejo: la mayoría de animaciones de UI van entre .2s y .6s */</span></div>
+
+  <h2>animation-timing-function — ¿Cómo acelera?</h2>
+  <p>Los mismos valores que en <code>transition</code>: <code>ease</code>, <code>linear</code>, <code>ease-in</code>, <code>ease-out</code>, <code>ease-in-out</code>, <code>cubic-bezier()</code>. Y además uno especial para animaciones:</p>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* steps() — animación por "pasos" discretos, sin interpolación */</span>
+<span class="ca">animation-timing-function</span>: steps(<span class="cn">4</span>);         <span class="cc">/* 4 pasos iguales */</span>
+<span class="ca">animation-timing-function</span>: steps(<span class="cn">1</span>, end);    <span class="cc">/* 1 paso al final — flip instantáneo */</span>
+<span class="ca">animation-timing-function</span>: step-start;       <span class="cc">/* Salta al estado final inmediatamente */</span>
+<span class="ca">animation-timing-function</span>: step-end;         <span class="cc">/* Permanece en inicio, salta al final */</span>
+<span class="cc">/* steps() es ideal para: sprites, relojes digitales, efecto typewriter */</span></div>
+
+  <h2>animation-delay — ¿Cuánto espera antes de empezar?</h2>
+  <div class="code-block"><span class="lang">CSS</span><span class="ca">animation-delay</span>: <span class="cn">0s</span>;    <span class="cc">/* Empieza inmediatamente (por defecto) */</span>
+<span class="ca">animation-delay</span>: <span class="cn">.5s</span>;   <span class="cc">/* Espera medio segundo */</span>
+<span class="ca">animation-delay</span>: <span class="cn">-1s</span>;   <span class="cc">/* ¡Delay negativo! Empieza como si ya hubiera pasado 1s */</span>
+<span class="cc">/* El delay negativo es útil para animar elementos encadenados sin esperas al inicio */</span>
+
+<span class="cc">/* Encadenado con nth-child — cada elemento aparece 0.1s después del anterior */</span>
+<span class="cp">.item:nth-child(1)</span> { <span class="ca">animation-delay</span>: <span class="cn">0s</span>; }
+<span class="cp">.item:nth-child(2)</span> { <span class="ca">animation-delay</span>: <span class="cn">.1s</span>; }
+<span class="cp">.item:nth-child(3)</span> { <span class="ca">animation-delay</span>: <span class="cn">.2s</span>; }</div>
+
+  <h2>animation-iteration-count — ¿Cuántas veces?</h2>
+  <div class="code-block"><span class="lang">CSS</span><span class="ca">animation-iteration-count</span>: <span class="cn">1</span>;        <span class="cc">/* Una vez (por defecto) */</span>
+<span class="ca">animation-iteration-count</span>: <span class="cn">3</span>;        <span class="cc">/* Exactamente 3 veces */</span>
+<span class="ca">animation-iteration-count</span>: infinite;  <span class="cc">/* Para siempre — loaders, pulsaciones */</span>
+<span class="ca">animation-iteration-count</span>: <span class="cn">2.5</span>;      <span class="cc">/* 2 y media veces (puede ser decimal) */</span></div>
+
+  <h2>animation-direction — ¿En qué dirección?</h2>
+  <div class="code-block"><span class="lang">CSS</span><span class="ca">animation-direction</span>: normal;            <span class="cc">/* 0% → 100% siempre (por defecto) */</span>
+<span class="ca">animation-direction</span>: reverse;           <span class="cc">/* 100% → 0% siempre */</span>
+<span class="ca">animation-direction</span>: alternate;         <span class="cc">/* 0%→100%, luego 100%→0%, alternando */</span>
+<span class="ca">animation-direction</span>: alternate-reverse; <span class="cc">/* 100%→0%, luego 0%→100%, alternando */</span>
+<span class="cc">/* alternate es muy útil para rebotes suaves: va y vuelve sin corte brusco */</span></div>
+
+  <h2>animation-play-state — Pausar con CSS o JS</h2>
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">.loader</span> { <span class="ca">animation-play-state</span>: running; } <span class="cc">/* Corriendo (por defecto) */</span>
+<span class="cp">.loader</span> { <span class="ca">animation-play-state</span>: paused; }  <span class="cc">/* Pausada */</span>
+
+<span class="cc">/* Patrón útil: pausar animación al hacer hover */</span>
+<span class="cp">.carrusel</span>            { <span class="ca">animation</span>: desplazar <span class="cn">10s</span> linear infinite; }
+<span class="cp">.carrusel:hover</span>      { <span class="ca">animation-play-state</span>: paused; }
+
+<span class="cc">/* Pausar con JavaScript */</span>
+<span class="cc">// elemento.style.animationPlayState = 'paused';</span>
+<span class="cc">// elemento.style.animationPlayState = 'running';</span></div>
+
+  <div class="preview">
+    <strong>Comparativa visual de dirección e iteraciones:</strong>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:1rem;margin-top:.75rem;text-align:center">
+      <div>
+        <div class="param-demo pd-normal" style="margin-bottom:.4rem"></div>
+        <div style="font-size:.72rem;color:var(--muted)">normal<br>1s infinite</div>
+      </div>
+      <div>
+        <div class="param-demo pd-slow" style="margin-bottom:.4rem;background:var(--secondary)"></div>
+        <div style="font-size:.72rem;color:var(--muted)">duration: 3s</div>
+      </div>
+      <div>
+        <div class="param-demo pd-reverse" style="margin-bottom:.4rem;background:var(--accent)"></div>
+        <div style="font-size:.72rem;color:var(--muted)">direction:<br>reverse</div>
+      </div>
+      <div>
+        <div class="param-demo pd-alternate" style="margin-bottom:.4rem;background:#7C3AED"></div>
+        <div style="font-size:.72rem;color:var(--muted)">direction:<br>alternate</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     FILL-MODE
+══════════════════════════════════════════ -->
+<section class="module" id="fillmode">
+  <div class="module-header">
+    <div class="module-icon">📍</div>
+    <div>
+      <div class="module-title">animation-fill-mode — El estado antes y después</div>
+      <div class="module-sub">El parámetro más confuso y más importante para animaciones de entrada</div>
+    </div>
+  </div>
+
+  <p><code>animation-fill-mode</code> controla qué estilos aplica el elemento <strong>antes de que empiece</strong> la animación (durante el delay) y <strong>después de que termine</strong>. Es el parámetro más importante para animaciones de entrada.</p>
+
+  <div class="analogy">
+    <h4>🎭 Analogía: el actor en el escenario</h4>
+    <p>Antes de que empiece la obra (durante el delay), ¿el actor aparece en el escenario o espera entre bastidores? Cuando termina su actuación, ¿se va corriendo o se queda en la última pose? <code>fill-mode: backwards</code> lo esconde antes, <code>forwards</code> lo deja en la pose final, <code>both</code> hace ambas cosas.</p>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Valor</th><th>Durante el delay (antes)</th><th>Al terminar (después)</th><th>Cuándo usarlo</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">none</span></td><td>Estilos normales del elemento</td><td>Vuelve a los estilos normales</td><td>Animaciones en loop que no tienen estado "final"</td></tr>
+      <tr><td><span class="tag">forwards</span></td><td>Estilos normales</td><td>Se queda en el keyframe final</td><td>Animaciones de entrada que deben quedarse visibles</td></tr>
+      <tr><td><span class="tag">backwards</span></td><td>Aplica el keyframe inicial (0%)</td><td>Vuelve a estilos normales</td><td>Cuando el elemento debe ser invisible durante el delay</td></tr>
+      <tr><td><span class="tag">both</span></td><td>Aplica el keyframe inicial (0%)</td><td>Se queda en el keyframe final</td><td>La opción más completa para animaciones de entrada — usa esta casi siempre</td></tr>
+    </tbody>
+  </table>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* El patrón más común: animación de entrada con fill-mode: both */</span>
+<span class="cp">@keyframes</span> <span class="cs">entrar</span> {
+  <span class="cv">from</span> { <span class="ca">opacity</span>: <span class="cn">0</span>; <span class="ca">transform</span>: translateY(<span class="cn">20px</span>); }
+  <span class="cv">to</span>   { <span class="ca">opacity</span>: <span class="cn">1</span>; <span class="ca">transform</span>: translateY(<span class="cn">0</span>); }
+}
+
+<span class="cc">/* Sin fill-mode: both — el elemento aparece visible durante el delay, luego desaparece al terminar */</span>
+<span class="cp">.malo</span> { <span class="ca">animation</span>: entrar <span class="cn">.5s</span> ease <span class="cn">.3s</span> <span class="cn">1</span>; }
+
+<span class="cc">/* Con fill-mode: both — invisible durante el delay, se queda visible al terminar ✅ */</span>
+<span class="cp">.bueno</span> { <span class="ca">animation</span>: entrar <span class="cn">.5s</span> ease <span class="cn">.3s</span> <span class="cn">1</span> both; }
+<span class="cc">/* El "both" al final del shorthand es animation-fill-mode */</span></div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     LOADERS
+══════════════════════════════════════════ -->
+<section class="module" id="loaders">
+  <div class="module-header">
+    <div class="module-icon">⏳</div>
+    <div>
+      <div class="module-title">Loaders — Indicadores de carga con CSS puro</div>
+      <div class="module-sub">Spinner, puntos, barras, ripple y barra de progreso</div>
+    </div>
+  </div>
+
+  <p>Los loaders son el caso de uso más clásico de las animaciones CSS. Son componentes pequeños que indican al usuario que algo está cargando. Con CSS puro puedes crear loaders profesionales sin imágenes ni JavaScript.</p>
+
+  <div class="preview">
+    <strong>Cinco tipos de loader en CSS puro:</strong>
+    <div class="loaders-grid" style="margin-top:.75rem">
+
+      <div class="loader-box">
+        <div class="spinner"></div>
+        <div class="loader-label">Spinner clásico</div>
+      </div>
+
+      <div class="loader-box">
+        <div class="spinner-doble"></div>
+        <div class="loader-label">Spinner doble</div>
+      </div>
+
+      <div class="loader-box">
+        <div class="dots">
+          <div class="dot"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+        </div>
+        <div class="loader-label">Puntos pulsantes</div>
+      </div>
+
+      <div class="loader-box">
+        <div class="bar-loader">
+          <div class="bar" style="height:22px"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+        </div>
+        <div class="loader-label">Barras de audio</div>
+      </div>
+
+      <div class="loader-box">
+        <div class="ripple-wrap">
+          <div class="ripple"></div>
+          <div class="ripple"></div>
+          <div class="ripple-center"></div>
+        </div>
+        <div class="loader-label">Onda ripple</div>
+      </div>
+
+      <div class="loader-box" style="grid-column:span 2">
+        <div class="progress-wrap" style="width:100%">
+          <div class="progress-bar"></div>
+        </div>
+        <div class="loader-label">Barra de progreso animada</div>
+      </div>
+
+    </div>
+  </div>
+
+  <h2>Código de los loaders más usados</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* ── SPINNER CLÁSICO ── */</span>
+<span class="cp">@keyframes</span> <span class="cs">girar</span> {
+  <span class="cv">to</span> { <span class="ca">transform</span>: rotate(<span class="cn">360deg</span>); }
+}
+<span class="cp">.spinner</span> {
+  <span class="ca">width</span>: <span class="cn">36px</span>; <span class="ca">height</span>: <span class="cn">36px</span>;
+  <span class="ca">border-radius</span>: <span class="cn">50%</span>;
+  <span class="ca">border</span>: <span class="cn">3px</span> solid <span class="cn">#eee</span>;       <span class="cc">/* Borde gris de fondo */</span>
+  <span class="ca">border-top-color</span>: var(<span class="cv">--primary</span>); <span class="cc">/* Solo el borde de arriba colorido */</span>
+  <span class="ca">animation</span>: girar <span class="cn">.8s</span> linear infinite;
+}
+
+<span class="cc">/* ── PUNTOS PULSANTES ── */</span>
+<span class="cp">@keyframes</span> <span class="cs">pulsar</span> {
+  <span class="cv">0%, 100%</span> { <span class="ca">transform</span>: scale(<span class="cn">1</span>); <span class="ca">opacity</span>: <span class="cn">1</span>; }
+  <span class="cv">50%</span>       { <span class="ca">transform</span>: scale(<span class="cn">1.4</span>); <span class="ca">opacity</span>: <span class="cn">.6</span>; }
+}
+<span class="cp">.dots</span> { <span class="ca">display</span>: flex; <span class="ca">gap</span>: <span class="cn">5px</span>; }
+<span class="cp">.dot</span>  {
+  <span class="ca">width</span>: <span class="cn">8px</span>; <span class="ca">height</span>: <span class="cn">8px</span>;
+  <span class="ca">border-radius</span>: <span class="cn">50%</span>; <span class="ca">background</span>: var(<span class="cv">--primary</span>);
+  <span class="ca">animation</span>: pulsar <span class="cn">.8s</span> ease-in-out infinite;
+}
+<span class="cp">.dot:nth-child(2)</span> { <span class="ca">animation-delay</span>: <span class="cn">.15s</span>; }
+<span class="cp">.dot:nth-child(3)</span> { <span class="ca">animation-delay</span>: <span class="cn">.3s</span>; }
+
+<span class="cc">/* ── RIPPLE ── */</span>
+<span class="cp">@keyframes</span> <span class="cs">onda</span> {
+  <span class="cv">0%</span>   { <span class="ca">transform</span>: scale(<span class="cn">0</span>); <span class="ca">opacity</span>: <span class="cn">.8</span>; }
+  <span class="cv">100%</span> { <span class="ca">transform</span>: scale(<span class="cn">2.5</span>); <span class="ca">opacity</span>: <span class="cn">0</span>; }
+}
+<span class="cp">.ripple-wrap</span> { <span class="ca">position</span>: relative; <span class="ca">width</span>: <span class="cn">36px</span>; <span class="ca">height</span>: <span class="cn">36px</span>; }
+<span class="cp">.ripple</span> {
+  <span class="ca">position</span>: absolute; <span class="ca">inset</span>: <span class="cn">0</span>;
+  <span class="ca">border-radius</span>: <span class="cn">50%</span>; <span class="ca">border</span>: <span class="cn">2px</span> solid var(<span class="cv">--primary</span>);
+  <span class="ca">animation</span>: onda <span class="cn">1.5s</span> ease-out infinite;
+}
+<span class="cp">.ripple:nth-child(2)</span> { <span class="ca">animation-delay</span>: <span class="cn">.5s</span>; }</div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     SKELETON SCREENS
+══════════════════════════════════════════ -->
+<section class="module" id="skeleton">
+  <div class="module-header">
+    <div class="module-icon">💀</div>
+    <div>
+      <div class="module-title">Skeleton Screens — La forma moderna de mostrar carga</div>
+      <div class="module-sub">Un placeholder animado con la forma del contenido real</div>
+    </div>
+  </div>
+
+  <p>Un <strong>skeleton screen</strong> es un placeholder con la forma aproximada del contenido que está cargando, con un efecto shimmer animado. Es mucho mejor que un spinner porque el usuario sabe qué tipo de contenido viene y la página se siente más rápida.</p>
+
+  <div class="analogy">
+    <h4>🏗️ Analogía: el andamiaje de un edificio</h4>
+    <p>Cuando construyen un edificio, ponen andamiaje metálico que tiene la forma aproximada del edificio final. Nadie confunde el andamiaje con el edificio, pero te da una idea de la escala y forma de lo que viene. El skeleton screen es ese andamiaje: tiene la forma del contenido final pero está hecho de cajas grises animadas.</p>
+  </div>
+
+  <div class="preview">
+    <strong>Skeleton screen de una tarjeta de artículo deportivo:</strong>
+    <div style="display:flex;gap:1.5rem;flex-wrap:wrap;margin-top:.75rem;align-items:flex-start">
+      <div class="skeleton-card">
+        <div class="sk sk-img"></div>
+        <div class="sk sk-title"></div>
+        <div class="sk sk-line"></div>
+        <div class="sk sk-line"></div>
+        <div class="sk sk-line short"></div>
+        <div class="sk-footer">
+          <div class="sk sk-avatar"></div>
+          <div class="sk-meta">
+            <div class="sk sk-meta-line w60"></div>
+            <div class="sk sk-meta-line w40"></div>
+          </div>
+        </div>
+      </div>
+      <div style="font-size:.85rem;max-width:280px;color:var(--muted);align-self:center">
+        <p style="margin-bottom:.5rem">El efecto shimmer se logra con un <code>background-image: linear-gradient</code> animado que se mueve horizontalmente.</p>
+        <p>Mientras el contenido real carga (con fetch/API), muestras este skeleton. Cuando llegan los datos, lo reemplazas con el contenido real.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* El efecto shimmer — gradiente que se desliza */</span>
+<span class="cp">@keyframes</span> <span class="cs">shimmer</span> {
+  <span class="cv">from</span> { <span class="ca">background-position</span>: -<span class="cn">600px</span> <span class="cn">0</span>; }
+  <span class="cv">to</span>   { <span class="ca">background-position</span>:  <span class="cn">600px</span> <span class="cn">0</span>; }
+}
+
+<span class="cc">/* La clase base de todos los elementos skeleton */</span>
+<span class="cp">.sk</span> {
+  <span class="ca">border-radius</span>: <span class="cn">6px</span>;
+  <span class="ca">background</span>: linear-gradient(
+    <span class="cn">90deg</span>,
+    <span class="cn">#f0ece6</span> <span class="cn">25%</span>,   <span class="cc">/* Color base */</span>
+    <span class="cn">#e4e0da</span> <span class="cn">50%</span>,   <span class="cc">/* Color brillante (el shimmer) */</span>
+    <span class="cn">#f0ece6</span> <span class="cn">75%</span>    <span class="cc">/* Vuelve al base */</span>
+  );
+  <span class="ca">background-size</span>: <span class="cn">600px</span> <span class="cn">100%</span>;    <span class="cc">/* Más ancho que el elemento para que el shimmer se vea */</span>
+  <span class="ca">animation</span>: shimmer <span class="cn">1.5s</span> ease-in-out infinite;
+}
+
+<span class="cc">/* Elementos específicos */</span>
+<span class="cp">.sk-imagen</span>  { <span class="ca">height</span>: <span class="cn">200px</span>; <span class="ca">width</span>: <span class="cn">100%</span>; }
+<span class="cp">.sk-titulo</span>  { <span class="ca">height</span>: <span class="cn">20px</span>;  <span class="ca">width</span>: <span class="cn">80%</span>; <span class="ca">margin-bottom</span>: <span class="cn">.5rem</span>; }
+<span class="cp">.sk-linea</span>   { <span class="ca">height</span>: <span class="cn">14px</span>;  <span class="ca">width</span>: <span class="cn">100%</span>; <span class="ca">margin-bottom</span>: <span class="cn">.4rem</span>; }
+<span class="cp">.sk-corta</span>   { <span class="ca">width</span>: <span class="cn">65%</span>; }
+<span class="cp">.sk-avatar</span>  { <span class="ca">width</span>: <span class="cn">36px</span>; <span class="ca">height</span>: <span class="cn">36px</span>; <span class="ca">border-radius</span>: <span class="cn">50%</span>; }</div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     ANIMACIONES DE ENTRADA
+══════════════════════════════════════════ -->
+<section class="module" id="entrada">
+  <div class="module-header">
+    <div class="module-icon">🚪</div>
+    <div>
+      <div class="module-title">Animaciones de entrada — Dar vida al cargar la página</div>
+      <div class="module-sub">Fade, slide, scale y efectos encadenados con delay</div>
+    </div>
+  </div>
+
+  <p>Las animaciones de entrada son las que ocurren cuando un elemento aparece por primera vez en pantalla. Son sutiles, cortas (0.3s–0.6s) y hacen que la página se sienta premium y bien cuidada.</p>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* Los @keyframes de entrada más usados */</span>
+
+<span class="cp">@keyframes</span> <span class="cs">fadeIn</span> {
+  <span class="cv">from</span> { <span class="ca">opacity</span>: <span class="cn">0</span>; }
+  <span class="cv">to</span>   { <span class="ca">opacity</span>: <span class="cn">1</span>; }
+}
+
+<span class="cp">@keyframes</span> <span class="cs">slideFromLeft</span> {
+  <span class="cv">from</span> { <span class="ca">opacity</span>: <span class="cn">0</span>; <span class="ca">transform</span>: translateX(<span class="cn">-40px</span>); }
+  <span class="cv">to</span>   { <span class="ca">opacity</span>: <span class="cn">1</span>; <span class="ca">transform</span>: translateX(<span class="cn">0</span>); }
+}
+
+<span class="cp">@keyframes</span> <span class="cs">slideFromTop</span> {
+  <span class="cv">from</span> { <span class="ca">opacity</span>: <span class="cn">0</span>; <span class="ca">transform</span>: translateY(<span class="cn">-20px</span>); }
+  <span class="cv">to</span>   { <span class="ca">opacity</span>: <span class="cn">1</span>; <span class="ca">transform</span>: translateY(<span class="cn">0</span>); }
+}
+
+<span class="cp">@keyframes</span> <span class="cs">scaleIn</span> {
+  <span class="cv">from</span> { <span class="ca">opacity</span>: <span class="cn">0</span>; <span class="ca">transform</span>: scale(<span class="cn">.8</span>); }
+  <span class="cv">to</span>   { <span class="ca">opacity</span>: <span class="cn">1</span>; <span class="ca">transform</span>: scale(<span class="cn">1</span>); }
+}
+
+<span class="cc">/* Aplicarlos con fill-mode: both para que funcionen correctamente */</span>
+<span class="cp">.hero-titulo</span>   { <span class="ca">animation</span>: slideFromTop   <span class="cn">.6s</span> ease          both; }
+<span class="cp">.hero-subtitulo</span>{ <span class="ca">animation</span>: slideFromLeft  <span class="cn">.6s</span> ease <span class="cn">.1s</span>    both; }
+<span class="cp">.hero-boton</span>    { <span class="ca">animation</span>: scaleIn        <span class="cn">.5s</span> ease <span class="cn">.2s</span>    both; }
+
+<span class="cc">/* Encadenado con nth-child — tarjetas aparecen una por una */</span>
+<span class="cp">.card</span> { <span class="ca">animation</span>: scaleIn <span class="cn">.4s</span> ease both; }
+<span class="cp">.card:nth-child(1)</span> { <span class="ca">animation-delay</span>: <span class="cn">0s</span>; }
+<span class="cp">.card:nth-child(2)</span> { <span class="ca">animation-delay</span>: <span class="cn">.08s</span>; }
+<span class="cp">.card:nth-child(3)</span> { <span class="ca">animation-delay</span>: <span class="cn">.16s</span>; }
+<span class="cp">.card:nth-child(4)</span> { <span class="ca">animation-delay</span>: <span class="cn">.24s</span>; }</div>
+
+  <div class="preview">
+    <strong>Efectos de entrada (se reproducen al cargar la página):</strong>
+    <div class="entrada-grid" style="margin-top:.75rem">
+      <div class="entrada-box e-izq">← Desde izquierda</div>
+      <div class="entrada-box e-arr" style="background:var(--secondary-light);color:var(--secondary)">↓ Desde arriba</div>
+      <div class="entrada-box e-escala" style="background:var(--accent-light);color:var(--accent)">⊕ Escala</div>
+    </div>
+    <div class="demo-label" style="margin-top:1rem">Encadenado con animation-delay — aparecen uno por uno:</div>
+    <div class="chain-grid">
+      <div class="chain-item">Liga MX</div>
+      <div class="chain-item">Champions</div>
+      <div class="chain-item">Copa MX</div>
+      <div class="chain-item">Premier</div>
+      <div class="chain-item">La Liga</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     EFECTOS AVANZADOS
+══════════════════════════════════════════ -->
+<section class="module" id="avanzado">
+  <div class="module-header">
+    <div class="module-icon">✨</div>
+    <div>
+      <div class="module-title">Efectos avanzados — Typewriter, gradiente animado, barras de stats</div>
+      <div class="module-sub">Animaciones que impresionan y técnicas profesionales</div>
+    </div>
+  </div>
+
+  <h2>Efecto Typewriter — texto que se escribe solo</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">@keyframes</span> <span class="cs">escribir</span> {
+  <span class="cv">from</span> { <span class="ca">width</span>: <span class="cn">0</span>; }
+  <span class="cv">to</span>   { <span class="ca">width</span>: <span class="cn">100%</span>; }
+}
+<span class="cp">@keyframes</span> <span class="cs">cursor</span> {
+  <span class="cv">0%, 100%</span> { <span class="ca">border-right-color</span>: var(<span class="cv">--primary</span>); }
+  <span class="cv">50%</span>       { <span class="ca">border-right-color</span>: transparent; }
+}
+
+<span class="cp">.typewriter</span> {
+  <span class="ca">font-family</span>: monospace;
+  <span class="ca">white-space</span>: nowrap;
+  <span class="ca">overflow</span>: hidden;
+  <span class="ca">border-right</span>: <span class="cn">3px</span> solid var(<span class="cv">--primary</span>); <span class="cc">/* El cursor parpadeante */</span>
+  <span class="ca">width</span>: <span class="cn">0</span>;
+  <span class="ca">animation</span>:
+    escribir <span class="cn">3s</span> steps(<span class="cn">30</span>, end) forwards,  <span class="cc">/* steps = número de caracteres aprox */</span>
+    cursor   <span class="cn">.7s</span> step-end infinite;           <span class="cc">/* steps para parpadeo instantáneo */</span>
+}</div>
+
+  <div class="preview">
+    <div class="typewriter">América 3 – 1 Guadalajara · Clásico Nacional 2025</div>
+  </div>
+
+  <h2>Gradiente animado — fondos con vida</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">@keyframes</span> <span class="cs">gradienteMovil</span> {
+  <span class="cv">0%</span>   { <span class="ca">background-position</span>: <span class="cn">0% 50%</span>; }
+  <span class="cv">50%</span>  { <span class="ca">background-position</span>: <span class="cn">100% 50%</span>; }
+  <span class="cv">100%</span> { <span class="ca">background-position</span>: <span class="cn">0% 50%</span>; }
+}
+
+<span class="cp">.grad-animado</span> {
+  <span class="ca">background</span>: linear-gradient(<span class="cn">270deg</span>, <span class="cn">#c44a2a</span>, <span class="cn">#b07010</span>, <span class="cn">#1a7a5a</span>, <span class="cn">#7C3AED</span>);
+  <span class="ca">background-size</span>: <span class="cn">400% 400%</span>;  <span class="cc">/* El truco: el fondo es más grande que el elemento */</span>
+  <span class="ca">animation</span>: gradienteMovil <span class="cn">5s</span> ease infinite;
+}</div>
+
+  <div class="preview">
+    <div class="grad-animado">
+      ⚽ FútbolPro — Resultados en vivo · Liga MX 2025
+    </div>
+  </div>
+
+  <h2>Barra de estadísticas animadas</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">@keyframes</span> <span class="cs">crecer</span> {
+  <span class="cv">from</span> { <span class="ca">transform</span>: scaleX(<span class="cn">0</span>); }
+  <span class="cv">to</span>   { <span class="ca">transform</span>: scaleX(<span class="cn">1</span>); }
+}
+
+<span class="cp">.stat-fill</span> {
+  <span class="ca">transform-origin</span>: left;  <span class="cc">/* Crece desde la izquierda */</span>
+  <span class="ca">animation</span>: crecer <span class="cn">1.5s</span> ease both;
+  <span class="ca">animation-delay</span>: <span class="cn">.2s</span>;
+}</div>
+
+  <div class="preview">
+    <strong>Estadísticas del partido (barras animadas al cargar):</strong>
+    <div class="stats-bars" style="margin-top:.75rem">
+      <div class="stat-row" style="display:flex;align-items:center;gap:.75rem">
+        <span class="stat-label">Posesión</span>
+        <div class="stat-track" style="flex:1;height:10px;background:var(--bg);border-radius:5px;overflow:hidden;border:1px solid var(--border)">
+          <div class="stat-fill sf-1"></div>
+        </div>
+        <span style="font-size:.82rem;font-weight:700;width:36px;text-align:right">75%</span>
+      </div>
+      <div class="stat-row" style="display:flex;align-items:center;gap:.75rem">
+        <span class="stat-label">Tiros</span>
+        <div class="stat-track" style="flex:1;height:10px;background:var(--bg);border-radius:5px;overflow:hidden;border:1px solid var(--border)">
+          <div class="stat-fill sf-2"></div>
+        </div>
+        <span style="font-size:.82rem;font-weight:700;width:36px;text-align:right">58%</span>
+      </div>
+      <div class="stat-row" style="display:flex;align-items:center;gap:.75rem">
+        <span class="stat-label">Precisión</span>
+        <div class="stat-track" style="flex:1;height:10px;background:var(--bg);border-radius:5px;overflow:hidden;border:1px solid var(--border)">
+          <div class="stat-fill sf-3"></div>
+        </div>
+        <span style="font-size:.82rem;font-weight:700;width:36px;text-align:right">90%</span>
+      </div>
+      <div class="stat-row" style="display:flex;align-items:center;gap:.75rem">
+        <span class="stat-label">Duelos</span>
+        <div class="stat-track" style="flex:1;height:10px;background:var(--bg);border-radius:5px;overflow:hidden;border:1px solid var(--border)">
+          <div class="stat-fill sf-4"></div>
+        </div>
+        <span style="font-size:.82rem;font-weight:700;width:36px;text-align:right">42%</span>
+      </div>
+    </div>
+  </div>
+
+  <h2>Animación de error — sacudir un campo inválido</h2>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">@keyframes</span> <span class="cs">sacudir</span> {
+  <span class="cv">0%, 100%</span>  { <span class="ca">transform</span>: translateX(<span class="cn">0</span>); }
+  <span class="cv">20%</span>        { <span class="ca">transform</span>: translateX(<span class="cn">-8px</span>); }
+  <span class="cv">40%</span>        { <span class="ca">transform</span>: translateX(<span class="cn">8px</span>); }
+  <span class="cv">60%</span>        { <span class="ca">transform</span>: translateX(<span class="cn">-4px</span>); }
+  <span class="cv">80%</span>        { <span class="ca">transform</span>: translateX(<span class="cn">4px</span>); }
+}
+
+<span class="cc">/* Con JS: agregar clase "error" al campo al enviar formulario vacío */</span>
+<span class="cp">.campo.error</span> { <span class="ca">animation</span>: sacudir <span class="cn">.5s</span> ease; <span class="ca">border-color</span>: red; }</div>
+
+  <div class="preview">
+    <strong>Campo con animación de error (como si ya intentaste enviarlo vacío):</strong>
+    <div style="margin-top:.75rem">
+      <input class="error-input" type="text" placeholder="Este campo está vacío ⚠️" readonly>
+      <p style="font-size:.8rem;color:var(--muted);margin-top:.4rem">La animación de sacudida se activa al cargar. En un proyecto real, la activas con JS al detectar el error.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     RENDIMIENTO
+══════════════════════════════════════════ -->
+<section class="module" id="rendimiento">
+  <div class="module-header">
+    <div class="module-icon">🚀</div>
+    <div>
+      <div class="module-title">Rendimiento y accesibilidad — Animar bien</div>
+      <div class="module-sub">GPU vs CPU, propiedades baratas y prefers-reduced-motion</div>
+    </div>
+  </div>
+
+  <h2>Propiedades baratas vs caras para animar</h2>
+
+  <p>No todas las propiedades CSS cuestan lo mismo en rendimiento. El navegador tiene dos formas de renderizar cambios: usando la <strong>CPU</strong> (costoso, puede causar janking) o la <strong>GPU</strong> (gratis, súper fluido). Siempre que puedas, anima solo propiedades que use la GPU:</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1rem 0">
+    <div style="background:var(--secondary-light);border-radius:12px;padding:1.1rem;border:1px solid var(--border)">
+      <p style="font-weight:700;color:var(--secondary);margin-bottom:.5rem">✅ Propiedades GPU (baratas)</p>
+      <ul style="font-size:.88rem;padding-left:1.2rem">
+        <li><code>transform</code> — mover, escalar, rotar</li>
+        <li><code>opacity</code> — transparencia</li>
+        <li><code>filter</code> — blur, brightness</li>
+        <li>Siempre fluido, incluso con muchos elementos</li>
+      </ul>
+    </div>
+    <div style="background:#FFF0F0;border-radius:12px;padding:1.1rem;border:1px solid var(--border)">
+      <p style="font-weight:700;color:#EF4444;margin-bottom:.5rem">❌ Propiedades CPU (costosas)</p>
+      <ul style="font-size:.88rem;padding-left:1.2rem">
+        <li><code>width</code>, <code>height</code> — fuerza un recálculo</li>
+        <li><code>top</code>, <code>left</code> — usa transform en su lugar</li>
+        <li><code>margin</code>, <code>padding</code> — afecta el layout</li>
+        <li><code>background-color</code> — mejor usar opacity</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* ❌ Animar width — causa recálculo de layout en cada frame */</span>
+<span class="cp">@keyframes</span> <span class="cs">malo</span> {
+  <span class="cv">from</span> { <span class="ca">width</span>: <span class="cn">0</span>; }
+  <span class="cv">to</span>   { <span class="ca">width</span>: <span class="cn">200px</span>; }
+}
+
+<span class="cc">/* ✅ Animar transform — la GPU lo maneja sin tocar el layout */</span>
+<span class="cp">@keyframes</span> <span class="cs">bueno</span> {
+  <span class="cv">from</span> { <span class="ca">transform</span>: scaleX(<span class="cn">0</span>); }
+  <span class="cv">to</span>   { <span class="ca">transform</span>: scaleX(<span class="cn">1</span>); }
+}
+
+<span class="cc">/* will-change: adelanta a la GPU que este elemento va a animarse */</span>
+<span class="cc">/* Solo úsalo en elementos que REALMENTE lo necesitan */</span>
+<span class="cp">.loader</span> { <span class="ca">will-change</span>: transform; }</div>
+
+  <h2>prefers-reduced-motion — Respetar a los usuarios</h2>
+
+  <p>Algunas personas tienen condiciones vestibulares o epilepsia que las hace sensibles al movimiento. Siempre respeta la preferencia del sistema operativo con esta media query:</p>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* La regla más importante de accesibilidad en animaciones */</span>
+<span class="cp">@media (prefers-reduced-motion: reduce)</span> {
+  <span class="cc">/* Opción nuclear: deshabilitar TODAS las animaciones */</span>
+  <span class="cp">*, *::before, *::after</span> {
+    <span class="ca">animation-duration</span>:        <span class="cn">.01ms</span> !important;
+    <span class="ca">animation-iteration-count</span>: <span class="cn">1</span>     !important;
+    <span class="ca">transition-duration</span>:       <span class="cn">.01ms</span> !important;
+  }
+}
+
+<span class="cc">/* Opción selectiva: desactivar solo las problemáticas */</span>
+<span class="cp">@media (prefers-reduced-motion: reduce)</span> {
+  <span class="cp">.carrusel</span>  { <span class="ca">animation</span>: none; }
+  <span class="cp">.paralax</span>   { <span class="ca">transform</span>: none !important; }
+  <span class="cc">/* Mantener animaciones sutiles de UI que son útiles */</span>
+  <span class="cp">.spinner</span>   { <span class="ca">animation-duration</span>: <span class="cn">2s</span>; } <span class="cc">/* Más lento, no eliminado */</span>
+}
+
+<span class="cc">/* La forma recomendada: diseñar primero SIN animaciones, luego agregar */</span>
+<span class="cp">.card</span> { <span class="ca">transition</span>: none; }
+<span class="cp">@media (prefers-reduced-motion: no-preference)</span> {
+  <span class="cp">.card</span> { <span class="ca">transition</span>: transform <span class="cn">.3s</span> ease, box-shadow <span class="cn">.3s</span> ease; }
+}</span></div>
+
+  <div class="tip">
+    <h4>🟢 Reglas de oro para animar bien</h4>
+    <ul>
+      <li>Usa solo <code>transform</code> y <code>opacity</code> para la mayoría de animaciones</li>
+      <li>Duración corta para UI (0.2s – 0.5s), más larga solo para efectos dramáticos</li>
+      <li>Menos es más: 1-2 animaciones por página, no 10</li>
+      <li>Las animaciones deben tener propósito: guiar la atención, confirmar una acción, mostrar estado</li>
+      <li>Siempre incluye <code>@media (prefers-reduced-motion: reduce)</code></li>
+      <li><code>animation-fill-mode: both</code> en casi todas las animaciones de entrada</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     EJERCICIO
+══════════════════════════════════════════ -->
+<section class="module" id="ejercicio">
+  <div class="module-header">
+    <div class="module-icon">✏️</div>
+    <div>
+      <div class="module-title">Ejercicio integrador — Pantalla de carga y resultados en vivo</div>
+      <div class="module-sub">Loaders, skeleton, animaciones de entrada y efectos avanzados</div>
+    </div>
+  </div>
+
+  <div class="ex">
+    <div class="ex-hd">✏️ Ejercicio — App de resultados deportivos animada <span class="ex-badge">Avanzado</span></div>
+
+    <p>Crea <code>resultados-animados.html</code>. El objetivo es que la página tenga una experiencia de carga animada completa, como una app real.</p>
+
+    <ol>
+      <li>
+        <strong>Pantalla de carga inicial</strong>: Al cargar la página, muestra durante 2 segundos un overlay con position:fixed que tiene:
+        <ul style="margin-top:.3rem">
+          <li>Un spinner grande centrado con <code>animation: girar</code></li>
+          <li>El texto "Cargando resultados..." con efecto typewriter</li>
+          <li>Con JS, después de 2s agrega la clase <code>.oculto</code> que hace <code>opacity:0</code> y <code>pointer-events:none</code> con una transition</li>
+        </ul>
+      </li>
+      <li>
+        <strong>Skeleton screen</strong>: Mientras "carga" (los primeros 2s), muestra 4 skeleton cards con efecto shimmer. Después reemplázalas con las tarjetas reales usando JS (<code>setTimeout</code>).
+      </li>
+      <li>
+        <strong>Animaciones de entrada encadenadas</strong>: Cuando las tarjetas reales aparecen, cada una debe animarse con <code>scaleIn</code> y un <code>animation-delay</code> de 0.1s entre cada una.
+      </li>
+      <li>
+        <strong>Marcador en vivo animado</strong>: Un marcador tipo "América 3 – 1 Chivas" donde:
+        <ul style="margin-top:.3rem">
+          <li>Los números del marcador tienen animación <code>pulsar</code></li>
+          <li>Hay un indicador "EN VIVO" con <code>parpadear</code></li>
+          <li>Un punto rojo pulsante con animación de ripple</li>
+        </ul>
+      </li>
+      <li>
+        <strong>Barras de estadísticas</strong>: Al hacer clic en "Ver estadísticas" (un botón que con JS agrega la clase <code>.visible</code>), las barras de posesión, tiros y precisión crecen con <code>animation: crecer</code> y delays encadenados.
+      </li>
+      <li>
+        <strong>Gradiente animado</strong> en el hero/header con <code>background-size: 400% 400%</code>.
+      </li>
+      <li>
+        <strong>prefers-reduced-motion</strong>: Agrega la media query que desactiva todas las animaciones para usuarios que la necesiten.
+      </li>
+    </ol>
+
+    <p style="margin-top:1rem"><strong>Bonus:</strong> Cuando el usuario hace hover en una tarjeta de resultado, muestra con CSS un tooltip con <code>::before</code> (Parte C) que diga "Click para ver detalle". La aparición del tooltip debe tener una <code>transition</code> de <code>opacity</code> de 0.2s.</p>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Resumen de lo que aprendiste en la Parte H</h4>
+    <ul>
+      <li><strong>Transition vs Animation:</strong> transition = reacción a interacción; animation = coreografía propia</li>
+      <li><strong>@keyframes:</strong> define los pasos con from/to o 0%–100%; los porcentajes pueden combinarse (0%, 100%)</li>
+      <li><strong>animation shorthand:</strong> nombre duración timing delay iteraciones dirección fill-mode play-state</li>
+      <li><strong>timing-function:</strong> ease, linear, ease-in/out, cubic-bezier(), steps() para animaciones discretas</li>
+      <li><strong>animation-delay:</strong> puede ser negativo para saltar parte de la animación</li>
+      <li><strong>animation-direction:</strong> alternate para rebotes suaves sin corte</li>
+      <li><strong>animation-fill-mode: both</strong> — para casi todas las animaciones de entrada</li>
+      <li><strong>animation-play-state:</strong> pausar/reanudar con CSS o JS</li>
+      <li><strong>Múltiples animaciones:</strong> separadas por coma en el shorthand</li>
+      <li><strong>Loaders:</strong> spinner, dots, barras, ripple, barra de progreso</li>
+      <li><strong>Skeleton screen:</strong> shimmer con gradiente animado de position</li>
+      <li><strong>Entrada:</strong> fadeIn, slideFrom*, scaleIn con fill-mode:both</li>
+      <li><strong>Encadenado:</strong> animation-delay + nth-child para aparición secuencial</li>
+      <li><strong>Avanzado:</strong> typewriter (steps), gradiente animado, barras de stats, sacudir error</li>
+      <li><strong>Rendimiento:</strong> solo transform y opacity; will-change con moderación</li>
+      <li><strong>Accesibilidad:</strong> @media (prefers-reduced-motion: reduce) siempre</li>
+    </ul>
+  </div>
+
+  <div class="concept">
+    <h4>💡 ¿Qué sigue? — Parte I</h4>
+    <p>La siguiente parte cubre la <strong>sección avanzada de CSS</strong>: <code>filter</code> y <code>backdrop-filter</code>, <code>transform</code> en profundidad (rotate, scale, skew, perspective, 3D), <strong>Variables CSS</strong> (custom properties) en profundidad, <code>calc()</code>, <code>clamp()</code>, unidades modernas de viewport (<code>svh</code>, <code>dvh</code>), <code>scroll-snap</code>, <code>scroll-behavior</code> y las propiedades <code>aspect-ratio</code> y <code>object-fit</code> avanzadas. Pídela cuando estés listo.</p>
+  </div>
+
+</section>
+</main>
+
+<footer>
+  Guía HTML &amp; CSS · Parte H — Animaciones CSS · Basada en el curso de Soy Dalto · Hugo 2025
+</footer>
+
+</body>
+</html>

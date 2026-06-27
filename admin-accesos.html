@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin · Solicitudes de Acceso</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f4f1ea; --surface: #fff; --ink: #1a1814;
+      --ink-muted: #6b6560; --border: #e5e0d8; --accent: #c44a2a;
+    }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--ink); min-height: 100vh; }
+
+    .adm-header {
+      background: #1a1814; color: #fff;
+      padding: 1rem 1.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .adm-header h1 { font-family: 'Fraunces', serif; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem; }
+    .adm-header-right { display: flex; align-items: center; gap: 0.8rem; }
+    .adm-user { font-size: 0.8rem; color: rgba(255,255,255,0.6); }
+    .btn-logout {
+      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+      color: #fff; border-radius: 8px; padding: 0.35rem 0.8rem;
+      font-size: 0.8rem; cursor: pointer; font-family: 'DM Sans', sans-serif;
+      transition: background 0.15s;
+    }
+    .btn-logout:hover { background: rgba(255,255,255,0.2); }
+
+    /* Login admin */
+    .adm-login {
+      max-width: 380px; margin: 4rem auto; padding: 2rem;
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: 18px; text-align: center;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+    }
+    .adm-login h2 { font-family: 'Fraunces', serif; font-size: 1.3rem; margin-bottom: 0.5rem; }
+    .adm-login p { font-size: 0.85rem; color: var(--ink-muted); margin-bottom: 1.5rem; line-height: 1.5; }
+    .btn-google-adm {
+      width: 100%; background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: 12px; padding: 0.75rem; font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem; font-weight: 500; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 0.7rem;
+      transition: all 0.15s; color: var(--ink);
+    }
+    .btn-google-adm:hover { border-color: #4285f4; box-shadow: 0 2px 8px rgba(66,133,244,0.15); }
+    .btn-google-adm svg { width: 20px; height: 20px; }
+
+    /* Contenido admin */
+    .adm-main { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+    .adm-stats {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem;
+    }
+    .adm-stat {
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: 14px; padding: 1.2rem;
+      display: flex; flex-direction: column; gap: 0.2rem;
+    }
+    .adm-stat strong { font-family: 'Fraunces', serif; font-size: 1.8rem; }
+    .adm-stat span { font-size: 0.75rem; color: var(--ink-muted); }
+    .adm-stat.pendientes strong { color: #d97706; }
+    .adm-stat.aprobados  strong { color: #16a34a; }
+
+    .adm-seccion-titulo {
+      font-family: 'Fraunces', serif; font-size: 1.1rem;
+      margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;
+    }
+
+    /* Tarjeta solicitud */
+    .adm-card {
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: 14px; padding: 1.2rem 1.3rem; margin-bottom: 0.8rem;
+      display: flex; align-items: flex-start; gap: 1rem;
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+
+    .adm-card-avatar {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), #f59e0b);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem; font-weight: 700; color: #fff; flex-shrink: 0;
+    }
+    .adm-card-info { flex: 1; min-width: 0; }
+    .adm-card-nombre { font-weight: 600; font-size: 0.95rem; }
+    .adm-card-email {
+      font-family: 'DM Mono', monospace; font-size: 0.78rem;
+      color: var(--accent); margin: 0.15rem 0;
+    }
+    .adm-card-motivo { font-size: 0.82rem; color: var(--ink-muted); line-height: 1.5; }
+    .adm-card-fecha { font-size: 0.7rem; color: var(--ink-muted); margin-top: 0.3rem; font-family: 'DM Mono', monospace; }
+
+    .adm-card-acciones { display: flex; flex-direction: column; gap: 0.5rem; flex-shrink: 0; }
+
+    .btn-aprobar {
+      background: #16a34a; color: #fff; border: none; border-radius: 8px;
+      padding: 0.45rem 1rem; font-size: 0.82rem; font-weight: 600;
+      cursor: pointer; font-family: 'DM Sans', sans-serif;
+      transition: background 0.15s; white-space: nowrap;
+    }
+    .btn-aprobar:hover { background: #15803d; }
+    .btn-aprobar:disabled { background: #ccc; cursor: not-allowed; }
+
+    .btn-rechazar {
+      background: none; border: 1.5px solid #e5e0d8; border-radius: 8px;
+      padding: 0.4rem 1rem; font-size: 0.82rem; color: #dc2626;
+      cursor: pointer; font-family: 'DM Sans', sans-serif;
+      transition: all 0.15s;
+    }
+    .btn-rechazar:hover { background: #fff5f5; border-color: #dc2626; }
+
+    .adm-badge {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      font-size: 0.72rem; font-weight: 600; padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+    }
+    .badge-pendiente { background: #fef3c7; color: #d97706; }
+    .badge-aprobado  { background: #dcfce7; color: #16a34a; }
+    .badge-rechazado { background: #fee2e2; color: #dc2626; }
+
+    .adm-vacio {
+      text-align: center; padding: 3rem; color: var(--ink-muted);
+      font-size: 0.9rem;
+    }
+
+    /* Toast */
+    #adm-toast {
+      position: fixed; bottom: 1.5rem; left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #1a1814; color: #fff;
+      padding: 0.7rem 1.4rem; border-radius: 999px;
+      font-size: 0.85rem; font-weight: 500;
+      transition: transform 0.3s; z-index: 9999; pointer-events: none;
+    }
+    #adm-toast.visible { transform: translateX(-50%) translateY(0); }
+
+    @media (max-width: 600px) {
+      .adm-stats { grid-template-columns: 1fr 1fr; }
+      .adm-card { flex-direction: column; }
+      .adm-card-acciones { flex-direction: row; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="adm-header">
+    <h1>☕ Admin · Café Código</h1>
+    <div class="adm-header-right">
+      <span class="adm-user" id="admUserEmail"></span>
+      <button class="btn-logout" id="btnLogout">Salir</button>
+    </div>
+  </header>
+
+  <!-- Login admin -->
+  <div id="admLogin" class="adm-login" style="display:none;">
+    <div style="font-size:2rem;margin-bottom:0.5rem;">🔐</div>
+    <h2>Panel de administración</h2>
+    <p>Solo el administrador puede ver y aprobar solicitudes de acceso.</p>
+    <button class="btn-google-adm" id="btnAdmGoogle">
+      <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+      </svg>
+      Entrar como administrador
+    </button>
+  </div>
+
+  <!-- Contenido admin (oculto hasta login) -->
+  <main class="adm-main" id="admContenido" style="display:none;">
+
+    <!-- Stats -->
+    <div class="adm-stats">
+      <div class="adm-stat pendientes">
+        <strong id="cntPendiente">0</strong>
+        <span>⏳ Pendientes</span>
+      </div>
+      <div class="adm-stat aprobados">
+        <strong id="cntAprobado">0</strong>
+        <span>✅ Aprobados</span>
+      </div>
+      <div class="adm-stat">
+        <strong id="cntTotal">0</strong>
+        <span>📋 Total solicitudes</span>
+      </div>
+    </div>
+
+    <!-- Pendientes -->
+    <h2 class="adm-seccion-titulo">⏳ Solicitudes pendientes</h2>
+    <div id="listaPendientes"></div>
+
+    <!-- Aprobados -->
+    <h2 class="adm-seccion-titulo" style="margin-top:2rem;">✅ Usuarios aprobados</h2>
+    <div id="listaAprobados"></div>
+
+  </main>
+
+  <div id="adm-toast">✅ ¡Listo!</div>
+
+  <!-- ── FIREBASE ── -->
+  <script type="module">
+    import { initializeApp }   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+    import { getFirestore, collection, onSnapshot, doc, updateDoc, deleteDoc, query, orderBy }
+                               from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+                               from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+
+    // ══ PEGA TU CONFIG AQUÍ ══
+    const firebaseConfig = {
+      apiKey:            "TU_API_KEY",
+      authDomain:        "TU_PROYECTO.firebaseapp.com",
+      projectId:         "TU_PROYECTO",
+      storageBucket:     "TU_PROYECTO.appspot.com",
+      messagingSenderId: "TU_SENDER_ID",
+      appId:             "TU_APP_ID"
+    };
+    // ══ TU EMAIL DE ADMIN ══
+    const ADMIN_EMAIL = "TU_EMAIL@gmail.com"; // ← pon tu correo aquí
+    // ══════════════════════
+
+    const app      = initializeApp(firebaseConfig);
+    const db       = getFirestore(app);
+    const auth     = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    const toast = document.getElementById('adm-toast');
+
+    function mostrarToast(msg) {
+      toast.textContent = msg;
+      toast.classList.add('visible');
+      setTimeout(() => toast.classList.remove('visible'), 3000);
+    }
+
+    // ── Auth state ──
+    onAuthStateChanged(auth, user => {
+      if (user && user.email === ADMIN_EMAIL) {
+        document.getElementById('admLogin').style.display    = 'none';
+        document.getElementById('admContenido').style.display = 'block';
+        document.getElementById('admUserEmail').textContent  = user.email;
+        cargarSolicitudes();
+      } else {
+        document.getElementById('admLogin').style.display    = 'block';
+        document.getElementById('admContenido').style.display = 'none';
+        if (user) {
+          signOut(auth);
+          alert('Tu cuenta no tiene permisos de administrador.');
+        }
+      }
+    });
+
+    // ── Login admin ──
+    document.getElementById('btnAdmGoogle').addEventListener('click', async () => {
+      try { await signInWithPopup(auth, provider); }
+      catch (e) { alert('Error al iniciar sesión.'); }
+    });
+
+    // ── Logout ──
+    document.getElementById('btnLogout').addEventListener('click', () => signOut(auth));
+
+    // ── Cargar solicitudes en tiempo real ──
+    function cargarSolicitudes() {
+      const q = query(collection(db, 'solicitudes_acceso'), orderBy('creadoEn', 'desc'));
+
+      onSnapshot(q, snap => {
+        const todas       = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        const pendientes  = todas.filter(s => s.estado === 'pendiente');
+        const aprobados   = todas.filter(s => s.estado === 'aprobado');
+
+        document.getElementById('cntPendiente').textContent = pendientes.length;
+        document.getElementById('cntAprobado').textContent  = aprobados.length;
+        document.getElementById('cntTotal').textContent     = todas.length;
+
+        renderLista('listaPendientes', pendientes, true);
+        renderLista('listaAprobados', aprobados, false);
+      });
+    }
+
+    // ── Renderizar lista ──
+    function renderLista(containerId, items, esPendiente) {
+      const cont = document.getElementById(containerId);
+      cont.innerHTML = '';
+
+      if (!items.length) {
+        cont.innerHTML = `<div class="adm-vacio">${esPendiente ? '🎉 No hay solicitudes pendientes' : '📭 Ningún usuario aprobado aún'}</div>`;
+        return;
+      }
+
+      items.forEach(s => cont.appendChild(crearCard(s, esPendiente)));
+    }
+
+    // ── Crear tarjeta ──
+    function crearCard(s, esPendiente) {
+      const div = document.createElement('div');
+      div.className = 'adm-card';
+      const inicial = (s.nombre || s.email || 'A').charAt(0).toUpperCase();
+      const fecha   = s.creadoEn?.toDate ? s.creadoEn.toDate().toLocaleDateString('es-MX', { day:'numeric', month:'short', year:'numeric' }) : '—';
+
+      div.innerHTML = `
+        <div class="adm-card-avatar">${inicial}</div>
+        <div class="adm-card-info">
+          <div class="adm-card-nombre">${esc(s.nombre || 'Sin nombre')}</div>
+          <div class="adm-card-email">${esc(s.email)}</div>
+          ${s.motivo ? `<div class="adm-card-motivo">"${esc(s.motivo)}"</div>` : ''}
+          <div class="adm-card-fecha">📅 ${fecha} · <span class="adm-badge ${s.estado === 'aprobado' ? 'badge-aprobado' : s.estado === 'rechazado' ? 'badge-rechazado' : 'badge-pendiente'}">${s.estado}</span></div>
+        </div>
+        <div class="adm-card-acciones">
+          ${esPendiente
+            ? `<button class="btn-aprobar" data-email="${s.email}">✅ Aprobar</button>
+               <button class="btn-rechazar" data-email="${s.email}">✕ Rechazar</button>`
+            : `<button class="btn-rechazar" data-email="${s.email}" style="font-size:0.75rem;">Revocar acceso</button>`
+          }
+        </div>
+      `;
+
+      // Aprobar
+      const btnAprobar = div.querySelector('.btn-aprobar');
+      if (btnAprobar) {
+        btnAprobar.addEventListener('click', async () => {
+          btnAprobar.disabled = true;
+          btnAprobar.textContent = 'Aprobando…';
+          await aprobarUsuario(s.email, s.nombre);
+        });
+      }
+
+      // Rechazar / revocar
+      div.querySelector('.btn-rechazar').addEventListener('click', async () => {
+        if (!confirm(`¿Rechazar/revocar acceso a ${s.email}?`)) return;
+        await revocarUsuario(s.email);
+      });
+
+      return div;
+    }
+
+    // ── Aprobar usuario ──
+    async function aprobarUsuario(email, nombre) {
+      try {
+        // Actualizar solicitud
+        await updateDoc(doc(db, 'solicitudes_acceso', email), { estado: 'aprobado' });
+        // Actualizar (o crear) en colección usuarios
+        await updateDoc(doc(db, 'usuarios', email), { aprobado: true });
+        mostrarToast(`✅ ${email} aprobado`);
+      } catch (e) {
+        console.error(e);
+        mostrarToast('⚠️ Error al aprobar. Revisa Firestore.');
+      }
+    }
+
+    // ── Revocar usuario ──
+    async function revocarUsuario(email) {
+      try {
+        await updateDoc(doc(db, 'solicitudes_acceso', email), { estado: 'rechazado' });
+        await updateDoc(doc(db, 'usuarios', email), { aprobado: false });
+        mostrarToast(`🚫 Acceso revocado para ${email}`);
+      } catch (e) {
+        console.error(e);
+        mostrarToast('⚠️ Error al revocar.');
+      }
+    }
+
+    function esc(str) {
+      return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+  </script>
+
+</body>
+</html>

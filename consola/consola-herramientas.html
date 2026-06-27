@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#1a1814">
+  <title>Café </> · ¿Qué consola uso?</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --font-title: 'Fraunces', Georgia, serif;
+      --font-body:  'DM Sans', system-ui, sans-serif;
+      --font-code:  'DM Mono', 'Fira Code', monospace;
+      --bg:         #1a1814;
+      --surface:    #201e17;
+      --border:     rgba(255,255,255,0.08);
+      --cream:      #f7f4ef;
+      --coral:      #c44a2a;
+      --amber:      #b07010;
+      --green:      #1a7a5a;
+      --blue:       #1a5fa5;
+      --java:       #534ab7;
+      --text-dim:   rgba(247,244,239,0.4);
+      --text-mid:   rgba(247,244,239,0.65);
+    }
+    body { font-family: var(--font-body); background: var(--bg); color: var(--cream); min-height: 100vh; line-height: 1.6; }
+
+    /* Header */
+    .site-header { position: sticky; top: 0; z-index: 100; background: #0f0d0a; border-bottom: 1px solid rgba(255,255,255,.07); }
+    .header-inner { max-width: 1240px; margin: 0 auto; padding: 0 24px; height: 62px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .logo-group { display: flex; align-items: center; gap: 10px; }
+    .logo-back { font-size: 13px; color: var(--text-dim); text-decoration: none; padding: 5px 10px; border-radius: 6px; transition: color .15s, background .15s; }
+    .logo-back:hover { color: var(--cream); background: rgba(255,255,255,.06); }
+    .logo-icon { font-size: 20px; }
+    .logo-title { font-family: var(--font-title); font-size: 17px; font-weight: 700; line-height: 1.2; }
+    .logo-code { color: var(--coral); }
+    .logo-sub { font-size: 11px; color: rgba(247,244,239,.35); }
+    .header-badges { display: flex; gap: 6px; }
+    .badge { font-family: var(--font-code); font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 6px; letter-spacing: .05em; }
+    .badge-guia { background: rgba(83,74,183,.2); color: #b4aef5; border: 1px solid rgba(83,74,183,.3); }
+
+    /* Wrap */
+    .consola-wrap { max-width: 1240px; margin: 0 auto; padding: 28px 24px 60px; }
+
+    /* Cabecera */
+    .consola-header {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; flex-wrap: wrap; margin-bottom: 24px;
+      padding: 20px 24px;
+      background: linear-gradient(135deg, var(--surface) 0%, #161310 100%);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--coral);
+      border-radius: 14px;
+      position: relative; overflow: hidden;
+    }
+    .consola-header::after {
+      content: ''; position: absolute; top: -20px; right: -20px;
+      width: 140px; height: 140px;
+      background: radial-gradient(circle, rgba(196,74,42,.1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .consola-titulo { font-family: var(--font-title); font-size: clamp(16px,2.2vw,24px); font-weight: 700; margin-bottom: 6px; }
+    .consola-desc { font-size: 13px; color: var(--text-mid); max-width: 580px; line-height: 1.65; }
+
+    /* Etiqueta de sección */
+    .ejemplos-label {
+      font-family: var(--font-code); font-size: 11px; font-weight: 700;
+      letter-spacing: .1em; text-transform: uppercase; color: var(--text-dim);
+      margin: 28px 0 14px; padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    /* ── Tabla comparativa ── */
+    .table-wrap { overflow-x: auto; margin-bottom: 8px; border-radius: 12px; border: 1px solid var(--border); }
+    .compare-table {
+      width: 100%; border-collapse: collapse; font-size: 13px;
+      background: var(--surface);
+    }
+    .compare-table th {
+      font-family: var(--font-code); font-size: 10.5px; font-weight: 700;
+      letter-spacing: .08em; text-transform: uppercase;
+      color: var(--text-dim); padding: 13px 16px; text-align: left;
+      border-bottom: 1px solid var(--border);
+      background: rgba(0,0,0,.2);
+    }
+    .compare-table td {
+      padding: 13px 16px; color: var(--text-mid);
+      border-bottom: 1px solid rgba(255,255,255,.04); vertical-align: middle;
+    }
+    .compare-table tr:last-child td { border-bottom: none; }
+    .compare-table tr:hover td { background: rgba(255,255,255,.02); }
+    .compare-table td:first-child { font-weight: 700; color: var(--cream); font-size: 14px; }
+    .check { color: #7ed490; font-weight: 600; }
+    .cross { color: var(--text-dim); }
+
+    /* ── Tarjetas de herramientas ── */
+    .herr-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 14px;
+      margin-top: 4px;
+    }
+    .herr-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px 22px;
+      transition: border-color .15s, transform .12s;
+    }
+    .herr-card:hover { border-color: rgba(196,74,42,.3); transform: translateY(-2px); }
+    .herr-lang {
+      font-family: var(--font-title); font-size: 18px; font-weight: 700;
+      color: var(--cream); margin-bottom: 6px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .herr-desc {
+      font-size: 13px; color: var(--text-mid); line-height: 1.65;
+      margin-bottom: 16px; padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .herr-item {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 11px 0; border-top: 1px solid rgba(255,255,255,.04);
+    }
+    .herr-tipo {
+      font-family: var(--font-code); font-size: 9.5px; font-weight: 700;
+      letter-spacing: .08em; text-transform: uppercase;
+      padding: 3px 8px; border-radius: 6px;
+      flex-shrink: 0; margin-top: 2px; white-space: nowrap;
+    }
+    .tipo-local   { background: rgba(26,122,90,.2);  color: #7ed4b4; border: 1px solid rgba(26,122,90,.3); }
+    .tipo-online  { background: rgba(176,112,16,.2); color: #f0c060; border: 1px solid rgba(176,112,16,.3); }
+    .tipo-ide     { background: rgba(83,74,183,.2);  color: #b4aef5; border: 1px solid rgba(83,74,183,.3); }
+    .tipo-cmd     { background: rgba(196,74,42,.2);  color: #f4a68a; border: 1px solid rgba(196,74,42,.3); }
+    .herr-nombre { font-size: 13.5px; font-weight: 700; color: var(--cream); margin-bottom: 3px; }
+    .herr-como {
+      font-size: 12.5px; color: var(--text-mid); line-height: 1.6;
+    }
+    .herr-como code {
+      font-family: var(--font-code); font-size: 11px;
+      background: rgba(255,255,255,.07); padding: 1px 5px;
+      border-radius: 4px; color: #f0c060;
+    }
+    .herr-como strong { color: var(--cream); font-weight: 600; }
+    .herr-link {
+      color: #f4a68a; font-size: 12px; text-decoration: none; font-weight: 600;
+    }
+    .herr-link:hover { text-decoration: underline; color: var(--coral); }
+
+    /* ── Aviso F12 ── */
+    .aviso-bloque {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--green);
+      border-radius: 12px;
+      padding: 18px 22px;
+      display: flex; gap: 14px; align-items: flex-start;
+    }
+    .aviso-icon { font-size: 24px; flex-shrink: 0; margin-top: 1px; }
+    .aviso-titulo { font-family: var(--font-title); font-size: 15px; font-weight: 700; margin-bottom: 5px; }
+    .aviso-desc { font-size: 13px; color: var(--text-mid); line-height: 1.65; }
+    .aviso-desc strong { color: var(--cream); }
+    .aviso-desc code {
+      font-family: var(--font-code); font-size: 12px;
+      background: rgba(255,255,255,.07); padding: 1px 6px;
+      border-radius: 4px; color: #f0c060;
+    }
+
+    /* Footer */
+    .site-footer { text-align: center; padding: 28px 24px; font-size: 13px; color: rgba(247,244,239,.2); border-top: 1px solid rgba(255,255,255,.05); }
+
+    @media (max-width: 700px) {
+      .herr-grid { grid-template-columns: 1fr; }
+      .consola-header { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="logo-group">
+        <a href="../capitulos.html?tab=consola" class="logo-back">← Consolas</a>
+        <span class="logo-icon">☕</span>
+        <div>
+          <h1 class="logo-title">Café <span class="logo-code">&lt;/&gt;</span></h1>
+          <p class="logo-sub">¿Qué consola uso?</p>
+        </div>
+      </div>
+      <div class="header-badges">
+        <span class="badge badge-guia">Guía</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="consola-wrap">
+
+    <div class="consola-header">
+      <div>
+        <h2 class="consola-titulo">🛠 ¿Qué consola o programa uso para cada lenguaje?</h2>
+        <p class="consola-desc">Una guía práctica de herramientas reales: dónde escribes, cómo ejecutas y dónde ves el resultado según el lenguaje.</p>
+      </div>
+    </div>
+
+    <!-- Tabla comparativa -->
+    <div class="ejemplos-label">📊 Comparativa rápida</div>
+    <div class="table-wrap">
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Lenguaje</th>
+            <th>¿Dónde se ejecuta?</th>
+            <th>¿Necesita instalar?</th>
+            <th>Consola de salida</th>
+            <th>IDE recomendado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>HTML + CSS</td>
+            <td>Navegador (Chrome, Firefox…)</td>
+            <td><span class="cross">✗ No</span></td>
+            <td>La propia página web</td>
+            <td>VS Code + Live Preview</td>
+          </tr>
+          <tr>
+            <td>JavaScript</td>
+            <td>Navegador ó Node.js</td>
+            <td><span class="cross">✗ No (navegador)</span></td>
+            <td>DevTools → Console (F12)</td>
+            <td>VS Code + Quokka.js</td>
+          </tr>
+          <tr>
+            <td>Python</td>
+            <td>Intérprete Python / Pyodide</td>
+            <td><span class="check">✓ Sí (opcional)</span></td>
+            <td>Terminal / IDLE / Jupyter</td>
+            <td>VS Code + ext. Python</td>
+          </tr>
+          <tr>
+            <td>Java</td>
+            <td>JVM (Java Virtual Machine)</td>
+            <td><span class="check">✓ Sí (JDK)</span></td>
+            <td>Terminal (javac + java)</td>
+            <td>IntelliJ IDEA / Eclipse</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Tarjetas por lenguaje -->
+    <div class="ejemplos-label">🔍 Detalle por lenguaje</div>
+    <div class="herr-grid">
+
+      <!-- HTML + CSS -->
+      <div class="herr-card">
+        <div class="herr-lang">🌐 HTML + CSS</div>
+        <p class="herr-desc">Se ejecutan directamente en el navegador. No hay consola de salida visible; el resultado es la página que ves.</p>
+        <div class="herr-item">
+          <span class="herr-tipo tipo-local">Local</span>
+          <div>
+            <div class="herr-nombre">VS Code + Live Preview</div>
+            <div class="herr-como">Instala la extensión <strong>"Live Preview"</strong> de Microsoft. Guarda el archivo .html y ves cambios en tiempo real en el editor.</div>
+          </div>
+        </div>
+        <div class="herr-item">
+          <span class="herr-tipo tipo-local">Local</span>
+          <div>
+            <div class="herr-nombre">Abrir con el navegador</div>
+            <div class="herr-como">Doble clic al archivo .html → se abre en Chrome/Firefox. Sin instalación extra.</div>
+          </div>
+        </div>
+        <div class="herr-item">
+          <span class="herr-tipo tipo-online">Online</span>
+          <div>
+            <div class="herr-nombre">CodePen / JSFiddle</div>
+            <div class="herr-como">Editores HTML+CSS+JS en el navegador. Perfectos para practicar sin instalar nada. <a href="https://codepen.io" target="_blank" class="herr-link">codepen.io ↗</a></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- JavaScript -->
+      <div class="herr-card">
+        <div class="herr-lang">⚡ JavaScript</div>
+        <p class="herr-desc">Corre en el navegador (cliente) o en Node.js (servidor/terminal). La consola es donde ves el output.</p>
+        <div class="herr-item">
+          <span class="herr-tipo tipo-cmd">F12</span>
+          <div>
+            <div class="herr-nombre">DevTools del navegador</div>
+            <div class="herr-como">Presiona <code>F12</code> → pestaña <strong>Console</strong>. Escribe JS directo y ves el resultado. Es la herramienta #1 del desarrollador web.</div>
+          </div>
+        </div>
+        <div class="herr-item">
+          <span class="herr-tipo tipo-local">Local</span>
+          <div>
+            <div class="herr-nombre">Node.js en terminal</div>
+            <div class="herr-como">Instala Node.js → en terminal escribe <code>node archivo.js</code>. Los <code>console.log()</code> aparecen en la terminal.</div>
+          </div>
+        </div>
+        <div class="herr-item">
+          <span class="herr-tipo tipo-ide">IDE</span>
+          <div>
+            <div class="herr-nombre">VS Code + Quokka.js</div>
+            <div class="herr-como">Extensión que muestra los resultados de console.log directamente en el editor, línea por línea en tiempo real.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Python -->
+      <div class="herr-card">
+        <div class="herr-lang">🐍 Python</div>
+        <p class="herr-desc">Lenguaje interpretado. No necesita compilar: el intérprete lee y ejecuta el código línea a línea.</p>
+        <div class="herr-item">
+          <span class="herr-tipo tipo-cmd">Terminal</span>
+          <div>
+            <div class="herr-nombre">Intérprete Python (REPL)</div>
+            <div class="herr-como">Escribe <code>python</code> en la terminal → entras al modo interactivo. <code>python archivo.py</code> ejecuta un archivo completo.</div>
+          </div>
+        </div>
+        <div class="herr-item">
+          <span class="herr-tipo tipo-ide">IDE</span>
+          <div>
+            <div class="herr-nombre">PyCharm / VS Code</div>
+            <div class="herr-como"><strong>PyCharm</strong> (JetBrains) es el IDE más completo para Python. <strong>VS Code</strong> + extensión Python también es excelente y más ligero.</div>
+          </div>
+        </div>
+        <div class="herr-item">
+          <span class="herr-tipo tipo-online">Online</span>
+          <div>
+            <div class="herr-nombre">Google Colab / Jupyter</div>
+            <div class="herr-como">Para ciencia de datos e IA. Celdas de código interactivas en el navegador. <a href="https://colab.research.google.com" target="_blank" class="herr-link">colab.google.com ↗</a></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Java -->
+      <div class="herr-card">
+        <div class="herr-lang">☕ Java</div>
+        <p class="herr-desc">Lenguaje compilado. El código .java se convierte a bytecode que ejecuta la JVM. Necesitas instalar el JDK.</p>
+        <div class="herr-item">
+          <span class="herr-tipo tipo-cmd">Terminal</span>
+          <div>
+            <div class="herr-nombre">javac + java (terminal)</div>
+            <div class="herr-como">Instala JDK → <code>javac Main.java</code> compila → <code>java Main</code> ejecuta. El <code>System.out.println()</code> aparece en la terminal.</div>
+          </div>
+        </div>
+        <div class="herr-item">
+          <span class="herr-tipo tipo-ide">IDE</span>
+          <div>
+            <div class="herr-nombre">IntelliJ IDEA</div>
+            <div class="herr-como">El IDE más usado por profesionales de Java. Tiene versión Community gratuita. Incluye compilador integrado, depurador y autocompletado inteligente.</div>
+          </div>
+        </div>
+        <div class="herr-item">
+          <span class="herr-tipo tipo-online">Online</span>
+          <div>
+            <div class="herr-nombre">OneCompiler / Replit</div>
+            <div class="herr-como">Sin instalar nada. Escribe y ejecuta Java en el navegador. <a href="https://onecompiler.com/java" target="_blank" class="herr-link">onecompiler.com/java ↗</a></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Consola F12 -->
+    <div class="ejemplos-label" style="margin-top:32px;">💡 El truco que todo dev conoce</div>
+    <div class="aviso-bloque">
+      <div class="aviso-icon">🔍</div>
+      <div>
+        <p class="aviso-titulo">Presiona F12 en cualquier página web</p>
+        <p class="aviso-desc">En Chrome o Firefox, <strong>F12</strong> abre las Herramientas de Desarrollador. En la pestaña <strong>Console</strong> puedes escribir JavaScript directamente. También puedes inspeccionar cualquier elemento de la página, ver el HTML, CSS, solicitudes de red y errores. Es tu laboratorio secreto para aprender cómo funciona cualquier web.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="site-footer">
+    <p>☕ Café &lt;/&gt; · Guía de herramientas</p>
+  </footer>
+
+</body>
+</html>

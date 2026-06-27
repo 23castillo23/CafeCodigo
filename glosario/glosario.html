@@ -890,9 +890,14 @@
        ============================================ */
 
     function detectLang(code) {
-      const firstLine = code.split('\n')[0];
-      if (/<[a-zA-Z]/.test(code) && !firstLine.trim().startsWith('{')) return 'html';
-      if (/[\w-]+\s*:\s*[^;{]+;/.test(code) && /{/.test(code)) return 'css';
+      const trimmed = code.trim();
+      const firstLine = trimmed.split('\n')[0].trim();
+      // JSON: empieza con { y tiene "clave": valor
+      if (/^[\[{]/.test(trimmed) && /"[^"]+"\s*:/.test(trimmed)) return 'js';
+      // HTML: tiene etiquetas
+      if (/<[a-zA-Z]/.test(code) && !firstLine.startsWith('{')) return 'html';
+      // CSS: tiene selector { propiedad: valor; }
+      if (/[\w.#-]+\s*\{[^}]*[\w-]+\s*:[^;]+;/.test(code)) return 'css';
       return 'js';
     }
 
@@ -903,8 +908,15 @@
     // Protege regiones ya coloreadas para que pasos posteriores no las toquen
     function makeProtector() {
       const store = [];
-      function save(html) { store.push(html); return '\x7F' + (store.length-1) + '\x7F'; }
-      function restore(s) { return s.replace(/\x7F(\d+)\x7F/g, (_, i) => store[+i]); }
+      // Usamos un prefijo/sufijo que nunca aparece en código ni es capturado por regex de tokens
+      function save(html) {
+        const id = store.length;
+        store.push(html);
+        return '\x02PROT_' + id + '_PROT\x03';
+      }
+      function restore(s) {
+        return s.replace(/\x02PROT_(\d+)_PROT\x03/g, (_, i) => store[+i]);
+      }
       return { save, restore };
     }
 
