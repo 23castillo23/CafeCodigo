@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía SQL desde Cero — Parte 2 · Soy Dalto</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --primary: #c44a2a; --primary-light: #fdf0ec;
+    --secondary: #1a7a5a; --secondary-light: #edf7f3;
+    --accent: #b07010; --accent-light: #fdf6e8;
+    --sql: #336791; --sql-light: #e8f0f8;
+    --bg: #f7f4ef; --surface: #ffffff;
+    --text: #1a1814; --muted: #8a8480; --border: #e8e4de;
+    --code-bg: #1a1814;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  .cafe-bar { background:#fff; border-bottom:1px solid #e8e4de; padding:0 24px; display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:200; height:45px; }
+  .cafe-bar a { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:#8a8480; text-decoration:none; padding:6px 14px; border:1px solid #e8e4de; border-radius:999px; transition:all .15s; }
+  .cafe-bar a:hover { color:#1a1814; border-color:#8a8480; }
+  .cafe-bar span { font-size:13px; color:#8a8480; }
+
+  .partes-nav { background:var(--surface); border-bottom:1px solid var(--border); position:sticky; top:45px; z-index:110; display:flex; align-items:center; height:38px; padding:0 1rem; }
+  .partes-nav-prev,.partes-nav-next { flex-shrink:0; padding:0 .75rem; height:100%; text-decoration:none; color:var(--muted); font-size:.78rem; font-weight:500; display:flex; align-items:center; transition:color .15s; white-space:nowrap; }
+  .partes-nav-prev { border-right:1px solid var(--border); }
+  .partes-nav-next { border-left:1px solid var(--border); }
+  .partes-nav-prev:hover,.partes-nav-next:hover { color:var(--sql); }
+  .partes-nav-list { flex:1; display:flex; align-items:center; justify-content:center; gap:.15rem; overflow-x:auto; padding:0 .5rem; }
+  .partes-nav-list::-webkit-scrollbar { display:none; }
+  .partes-nav-list a { flex-shrink:0; padding:2px 10px; border-radius:20px; text-decoration:none; font-size:.73rem; font-weight:600; color:var(--muted); transition:color .15s,background .15s; }
+  .partes-nav-list a:hover { color:var(--text); background:var(--bg); }
+  .partes-nav-list a.activa { background:var(--sql-light); color:var(--sql); }
+
+  header { background:#1a1814; color:#f7f4ef; padding:3rem 2rem 2rem; text-align:center; position:relative; overflow:hidden; }
+  header::before { content:'JOIN'; position:absolute; font-size:9rem; font-weight:900; color:rgba(51,103,145,0.12); right:-1rem; top:-1rem; font-family:monospace; line-height:1; }
+  header h1 { font-size:2.5rem; font-weight:800; letter-spacing:-1px; font-family:'Fraunces',serif; }
+  header p { font-size:1.1rem; opacity:.85; margin-top:.5rem; }
+  header .badge { display:inline-block; background:rgba(51,103,145,.25); border:1px solid rgba(51,103,145,.5); color:#89b4d8; border-radius:20px; padding:4px 14px; font-size:.8rem; margin-top:.75rem; font-weight:600; }
+
+  nav { background:var(--surface); border-bottom:1px solid var(--border); position:sticky; top:83px; z-index:100; display:flex; overflow-x:auto; }
+  nav::-webkit-scrollbar { display:none; }
+  nav a { flex-shrink:0; padding:.65rem .9rem; text-decoration:none; color:var(--muted); font-size:.78rem; font-weight:500; border-bottom:2px solid transparent; transition:color .2s,border-color .2s; white-space:nowrap; }
+  nav a:hover { color:var(--sql); border-bottom-color:var(--sql); }
+
+  main { max-width:940px; margin:0 auto; padding:2rem 1.5rem; }
+
+  .module { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:2rem; margin-bottom:2.5rem; }
+  .module-header { display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border); }
+  .module-icon { font-size:1.8rem; flex-shrink:0; }
+  .module-title { font-size:1.35rem; font-weight:700; }
+  .module-sub { font-size:.85rem; color:var(--muted); margin-top:2px; }
+
+  .analogy { background:#FFF7ED; border:1px solid #FDE68A; border-left:4px solid var(--accent); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .analogy h4 { color:#92400E; font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+  .analogy p { font-size:.95rem; color:#78350F; }
+
+  .concept { background:var(--primary-light); border-left:4px solid var(--primary); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .concept h4 { color:var(--primary); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+
+  .tip { background:var(--secondary-light); border-left:4px solid var(--secondary); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .tip h4 { color:var(--secondary); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+  .tip ul { padding-left:1.2rem; }
+
+  .warn { background:#fdf0ec; border-left:4px solid var(--primary); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .warn h4 { color:var(--primary); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+
+  .sql-block { background:var(--code-bg); border-radius:10px; padding:1.25rem 1.5rem; font-family:'DM Mono','Courier New',monospace; font-size:.88rem; line-height:1.9; overflow-x:auto; margin:1rem 0; position:relative; white-space:pre; }
+  .sql-block .kw { color:#89B4FA; font-weight:600; }
+  .sql-block .fn { color:#CBA6F7; }
+  .sql-block .st { color:#A6E3A1; }
+  .sql-block .nm { color:#F9E2AF; }
+  .sql-block .cm { color:#585B70; font-style:italic; }
+  .sql-block .tb { color:#89DCEB; }
+  .sql-block .op { color:#FAB387; }
+  .lang-badge { position:absolute; top:.6rem; right:.75rem; background:rgba(51,103,145,.3); color:#89b4d8; font-size:.68rem; padding:2px 8px; border-radius:4px; font-family:sans-serif; font-weight:600; }
+
+  .sql-result { margin:1rem 0; border-radius:10px; overflow:hidden; border:1px solid var(--border); }
+  .sql-result-header { background:var(--sql); color:white; padding:.5rem 1rem; font-size:.78rem; font-weight:700; display:flex; align-items:center; gap:.5rem; }
+  .sql-result table { width:100%; border-collapse:collapse; font-size:.87rem; }
+  .sql-result th { background:var(--sql-light); color:var(--sql); padding:.55rem 1rem; text-align:left; font-weight:700; font-family:'DM Mono',monospace; border-bottom:2px solid #c8ddf0; }
+  .sql-result td { padding:.5rem 1rem; border-bottom:1px solid var(--border); font-family:'DM Mono',monospace; }
+  .sql-result tr:last-child td { border-bottom:none; }
+  .sql-result tr:hover td { background:var(--bg); }
+  .sql-result .null-val { color:var(--muted); font-style:italic; }
+  .sql-rows { padding:.4rem 1rem; font-size:.75rem; color:var(--muted); background:var(--bg); border-top:1px solid var(--border); }
+
+  .ejercicio { background:#FFFBEB; border:1px solid #FDE68A; border-radius:14px; padding:1.5rem; margin:1.5rem 0; }
+  .ejercicio-hd { display:flex; align-items:center; gap:.75rem; margin-bottom:1rem; font-weight:700; font-size:1rem; color:#78350F; flex-wrap:wrap; }
+  .ej-badge { background:var(--accent); color:#fff; font-size:.68rem; padding:2px 9px; border-radius:20px; font-weight:700; text-transform:uppercase; }
+  .ej-badge.int { background:var(--primary); }
+  .ej-badge.sql { background:var(--sql); }
+  .editor-area { background:#1a1814; border-radius:10px; overflow:hidden; margin:.75rem 0; }
+  textarea.editor { width:100%; background:#252525; color:#e8e4de; border:none; padding:1rem 1.25rem; font-family:'DM Mono','Courier New',monospace; font-size:.87rem; line-height:1.8; resize:vertical; min-height:180px; outline:none; display:block; }
+  .btn-row { display:flex; gap:.5rem; flex-wrap:wrap; margin-top:.6rem; }
+  .run-btn { background:var(--sql); color:white; border:none; padding:.6rem 1.4rem; border-radius:8px; font-weight:700; font-size:.9rem; cursor:pointer; transition:background .15s; display:inline-flex; align-items:center; gap:.4rem; }
+  .run-btn:hover { background:#275070; }
+  .reset-btn { background:transparent; color:var(--muted); border:1px solid var(--border); padding:.6rem 1.1rem; border-radius:8px; font-size:.85rem; cursor:pointer; transition:all .15s; }
+  .reset-btn:hover { border-color:var(--sql); color:var(--sql); }
+  .output-label { font-size:.72rem; color:var(--muted); margin-top:.75rem; margin-bottom:.25rem; text-transform:uppercase; letter-spacing:.06em; }
+  .sql-output { background:#0f0f0f; border-radius:8px; padding:1rem 1.25rem; font-family:'DM Mono',monospace; font-size:.84rem; min-height:60px; color:#A6E3A1; white-space:pre; overflow-x:auto; }
+  .enunciado { background:#fff; border:1px dashed #FDE68A; border-radius:8px; padding:1rem 1.25rem; margin-bottom:.75rem; font-size:.94rem; line-height:1.6; }
+  .enunciado strong { color:#78350F; }
+
+  .tbl { width:100%; border-collapse:collapse; margin:1rem 0; font-size:.9rem; }
+  .tbl th { background:var(--sql-light); color:var(--sql); padding:.65rem 1rem; text-align:left; font-weight:600; }
+  .tbl td { padding:.65rem 1rem; border-bottom:1px solid var(--border); vertical-align:top; }
+  .tbl tr:hover td { background:var(--bg); }
+
+  .fn-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:1rem; margin:1rem 0; }
+  .fn-card { background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:1rem 1.1rem; }
+  .fn-card .fc-name { font-family:'DM Mono',monospace; font-size:.88rem; font-weight:700; color:var(--sql); background:var(--sql-light); padding:2px 8px; border-radius:6px; display:inline-block; margin-bottom:.5rem; }
+  .fn-card .fc-desc { font-size:.85rem; margin-bottom:.4rem; }
+  .fn-card .fc-ex { font-family:'DM Mono',monospace; font-size:.78rem; background:var(--code-bg); color:#A6E3A1; padding:.4rem .75rem; border-radius:6px; }
+
+  /* JOIN DIAGRAM */
+  .join-diagram { display:flex; align-items:center; justify-content:center; gap:0; margin:1.5rem 0; flex-wrap:wrap; }
+  .join-circle { width:140px; height:140px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'DM Mono',monospace; font-size:.75rem; font-weight:700; color:white; text-align:center; }
+  .jc-left { background:rgba(196,74,42,.7); margin-right:-35px; }
+  .jc-right { background:rgba(51,103,145,.7); margin-left:-35px; }
+  .join-label { text-align:center; font-size:.85rem; font-weight:700; color:var(--text); margin-top:.5rem; }
+
+  .parte-badge { display:inline-flex; align-items:center; gap:.5rem; background:var(--sql); color:white; border-radius:20px; padding:5px 16px; font-size:.82rem; font-weight:700; margin-bottom:1.5rem; }
+
+  h2 { font-size:1.2rem; font-weight:700; margin:1.75rem 0 .75rem; }
+  h3 { font-size:1rem; font-weight:700; margin:1.25rem 0 .5rem; }
+  p { margin-bottom:.8rem; }
+  ul,ol { padding-left:1.4rem; margin-bottom:.8rem; }
+  li { margin-bottom:.4rem; font-size:.96rem; }
+  code { font-family:'DM Mono',monospace; background:#f0ece6; color:var(--sql); padding:1px 5px; border-radius:4px; font-size:.9em; }
+  strong { font-weight:700; }
+
+  footer { text-align:center; padding:2rem; color:var(--muted); font-size:.85rem; border-top:1px solid var(--border); margin-top:1rem; background:var(--bg); }
+</style>
+</head>
+<body>
+
+<div class="cafe-bar">
+  <a href="../capitulos.html?tab=adicionales">← Volver a Mis Guias adicionales</a>
+  <span>🗄️ Guía SQL · Parte 2 de 3</span>
+</div>
+
+<div class="partes-nav">
+  <a class="partes-nav-prev" href="guia-sql-parte-1.html">← Parte 1</a>
+  <div class="partes-nav-list">
+    <a href="guia-sql-parte-1.html">Parte 1</a>
+    <a href="guia-sql-parte-2.html" class="activa">Parte 2</a>
+    <a href="guia-sql-parte-3.html">Parte 3</a>
+  </div>
+  <a class="partes-nav-next" href="guia-sql-parte-3.html">Parte 3 →</a>
+</div>
+
+<header>
+  <h1>SQL — Parte 2</h1>
+  <p>Funciones, agrupaciones y JOINs entre tablas</p>
+  <span class="badge">🗄️ Parte 2 de 3 · Curso completo de Soy Dalto</span>
+</header>
+
+<nav>
+  <a href="#funciones-texto">🔤 Funciones texto</a>
+  <a href="#funciones-num">🔢 Funciones numéricas</a>
+  <a href="#funciones-fecha">📅 Funciones fecha</a>
+  <a href="#agregacion">📊 Agregación</a>
+  <a href="#groupby">🗂 GROUP BY</a>
+  <a href="#having">🎯 HAVING</a>
+  <a href="#joins">🔗 JOINs</a>
+  <a href="#ej-joins">🧪 Ejercicio JOINs</a>
+</nav>
+
+<main>
+<div class="parte-badge">🗄️ Parte 2 — Funciones, GROUP BY y JOINs</div>
+
+
+<!-- ══════════════════════════════════════════
+     FUNCIONES DE TEXTO
+══════════════════════════════════════════ -->
+<section class="module" id="funciones-texto">
+  <div class="module-header">
+    <div class="module-icon">🔤</div>
+    <div>
+      <div class="module-title">Funciones de Texto</div>
+      <div class="module-sub">Transformar y manipular strings dentro de SQL</div>
+    </div>
+  </div>
+
+  <p>MySQL tiene funciones incorporadas para manipular texto directamente en las consultas — sin tener que traer los datos y procesarlos en otro lenguaje.</p>
+
+  <div class="analogy">
+    <h4>✂️ Analogía: el editor de texto integrado</h4>
+    <p>Imagina pedirle a un asistente "tráeme la lista de clientes, pero con los nombres en mayúsculas y solo mostrando los primeros 10 caracteres del email". Las funciones de texto en SQL son exactamente esa capacidad: transformar el dato mientras lo consultas, sin necesidad de procesarlo después en otro programa.</p>
+  </div>
+
+  <div class="fn-grid">
+    <div class="fn-card">
+      <span class="fc-name">UPPER() / LOWER()</span>
+      <p class="fc-desc">Convierte a mayúsculas o minúsculas.</p>
+      <div class="fc-ex">UPPER(nombre) → "ANA GARCÍA"</div>
+    </div>
+    <div class="fn-card">
+      <span class="fc-name">CONCAT()</span>
+      <p class="fc-desc">Une varios textos en uno solo.</p>
+      <div class="fc-ex">CONCAT(nombre,' - ',ciudad)</div>
+    </div>
+    <div class="fn-card">
+      <span class="fc-name">LENGTH()</span>
+      <p class="fc-desc">Cantidad de caracteres del texto.</p>
+      <div class="fc-ex">LENGTH('Hola') → 4</div>
+    </div>
+    <div class="fn-card">
+      <span class="fc-name">SUBSTRING()</span>
+      <p class="fc-desc">Extrae una porción del texto.</p>
+      <div class="fc-ex">SUBSTRING(email,1,5)</div>
+    </div>
+    <div class="fn-card">
+      <span class="fc-name">TRIM()</span>
+      <p class="fc-desc">Elimina espacios al inicio y final.</p>
+      <div class="fc-ex">TRIM('  hola  ') → 'hola'</div>
+    </div>
+    <div class="fn-card">
+      <span class="fc-name">REPLACE()</span>
+      <p class="fc-desc">Reemplaza una porción de texto por otra.</p>
+      <div class="fc-ex">REPLACE(tel,'-','')</div>
+    </div>
+  </div>
+
+  <div class="sql-block"><span class="lang-badge">SQL</span><span class="kw">USE</span> <span class="tb">cafe_curso</span>;
+
+<span class="cm">-- Combinar varias funciones de texto</span>
+<span class="kw">SELECT</span>
+  <span class="fn">UPPER</span>(<span class="tb">nombre</span>) <span class="kw">AS</span> <span class="st">'nombre_mayus'</span>,
+  <span class="fn">LOWER</span>(<span class="tb">email</span>) <span class="kw">AS</span> <span class="st">'email_minus'</span>,
+  <span class="fn">LENGTH</span>(<span class="tb">nombre</span>) <span class="kw">AS</span> <span class="st">'caracteres'</span>,
+  <span class="fn">CONCAT</span>(<span class="tb">nombre</span>, <span class="st">' vive en '</span>, <span class="tb">ciudad</span>) <span class="kw">AS</span> <span class="st">'descripcion'</span>
+<span class="kw">FROM</span> <span class="tb">clientes</span>;
+
+<span class="cm">-- Extraer el dominio del email</span>
+<span class="kw">SELECT</span>
+  <span class="tb">email</span>,
+  <span class="fn">SUBSTRING</span>(<span class="tb">email</span>, <span class="fn">LOCATE</span>(<span class="st">'@'</span>, <span class="tb">email</span>) + <span class="nm">1</span>) <span class="kw">AS</span> <span class="st">'dominio'</span>
+<span class="kw">FROM</span> <span class="tb">clientes</span>;
+
+<span class="cm">-- Limpiar y formatear nombres</span>
+<span class="kw">SELECT</span>
+  <span class="tb">nombre</span>,
+  <span class="fn">CONCAT</span>(
+    <span class="fn">UPPER</span>(<span class="fn">LEFT</span>(<span class="tb">nombre</span>,<span class="nm">1</span>)),
+    <span class="fn">LOWER</span>(<span class="fn">SUBSTRING</span>(<span class="tb">nombre</span>,<span class="nm">2</span>))
+  ) <span class="kw">AS</span> <span class="st">'nombre_formato'</span>
+<span class="kw">FROM</span> <span class="tb">clientes</span>;</div>
+
+  <div class="sql-result">
+    <div class="sql-result-header">📊 SELECT UPPER(nombre), LENGTH(nombre)...</div>
+    <table>
+      <thead><tr><th>nombre_mayus</th><th>caracteres</th></tr></thead>
+      <tbody>
+        <tr><td>ANA GARCÍA</td><td>10</td></tr>
+        <tr><td>LUIS PÉREZ</td><td>10</td></tr>
+        <tr><td>MARÍA LÓPEZ</td><td>11</td></tr>
+      </tbody>
+    </table>
+    <div class="sql-rows">3 de 7 registros mostrados</div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     FUNCIONES NUMÉRICAS
+══════════════════════════════════════════ -->
+<section class="module" id="funciones-num">
+  <div class="module-header">
+    <div class="module-icon">🔢</div>
+    <div>
+      <div class="module-title">Funciones Numéricas</div>
+      <div class="module-sub">Redondeo, cálculos y operaciones matemáticas</div>
+    </div>
+  </div>
+
+  <div class="fn-grid">
+    <div class="fn-card">
+      <span class="fc-name">ROUND(n, decimales)</span>
+      <p class="fc-desc">Redondea a la cantidad de decimales indicada.</p>
+      <div class="fc-ex">ROUND(15.678, 2) → 15.68</div>
+    </div>
+    <div class="fn-card">
+      <span class="fc-name">CEIL() / FLOOR()</span>
+      <p class="fc-desc">Redondea hacia arriba / hacia abajo.</p>
+      <div class="fc-ex">CEIL(4.1) → 5, FLOOR(4.9) → 4</div>
+    </div>
+    <div class="fn-card">
+      <span class="fc-name">ABS()</span>
+      <p class="fc-desc">Valor absoluto (sin signo negativo).</p>
+      <div class="fc-ex">ABS(-50) → 50</div>
+    </div>
+    <div class="fn-card">
+      <span class="fc-name">MOD(a, b)</span>
+      <p class="fc-desc">Resto de la división entre a y b.</p>
+      <div class="fc-ex">MOD(10, 3) → 1</div>
+    </div>
+    <div class="fn-card">
+      <span class="fc-name">POWER(a, b)</span>
+      <p class="fc-desc">a elevado a la potencia b.</p>
+      <div class="fc-ex">POWER(2, 10) → 1024</div>
+    </div>
+    <div class="fn-card">
+      <span class="fc-name">SQRT()</span>
+      <p class="fc-desc">Raíz cuadrada.</p>
+      <div class="fc-ex">SQRT(81) → 9</div>
+    </div>
+  </div>
+
+  <div class="sql-block"><span class="lang-badge">SQL</span><span class="kw">SELECT</span>
+  <span class="tb">nombre</span>,
+  <span class="tb">precio</span>,
+  <span class="fn">ROUND</span>(<span class="tb">precio</span> * <span class="nm">1.16</span>, <span class="nm">2</span>) <span class="kw">AS</span> <span class="st">'con_iva'</span>,
+  <span class="fn">CEIL</span>(<span class="tb">precio</span>) <span class="kw">AS</span> <span class="st">'redondeo_arriba'</span>,
+  <span class="fn">FLOOR</span>(<span class="tb">precio</span>) <span class="kw">AS</span> <span class="st">'redondeo_abajo'</span>
+<span class="kw">FROM</span> <span class="tb">menu</span>;</div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     FUNCIONES DE FECHA
+══════════════════════════════════════════ -->
+<section class="module" id="funciones-fecha">
+  <div class="module-header">
+    <div class="module-icon">📅</div>
+    <div>
+      <div class="module-title">Funciones de Fecha</div>
+      <div class="module-sub">Trabajar con fechas y calcular intervalos</div>
+    </div>
+  </div>
+
+  <div class="fn-grid">
+    <div class="fn-card">
+      <span class="fc-name">NOW() / CURDATE()</span>
+      <p class="fc-desc">Fecha+hora actual / solo fecha actual.</p>
+      <div class="fc-ex">NOW() → 2026-06-29 14:30:00</div>
+    </div>
+    <div class="fn-card">
+      <span class="fc-name">YEAR() / MONTH() / DAY()</span>
+      <p class="fc-desc">Extrae el año, mes o día de una fecha.</p>
+      <div class="fc-ex">YEAR('2023-05-15') → 2023</div>
+    </div>
+    <div class="fn-card">
+      <span class="fc-name">DATEDIFF(f1, f2)</span>
+      <p class="fc-desc">Días de diferencia entre dos fechas.</p>
+      <div class="fc-ex">DATEDIFF(NOW(), fecha_reg)</div>
+    </div>
+    <div class="fn-card">
+      <span class="fc-name">DATE_ADD() / DATE_SUB()</span>
+      <p class="fc-desc">Suma o resta tiempo a una fecha.</p>
+      <div class="fc-ex">DATE_ADD(hoy, INTERVAL 7 DAY)</div>
+    </div>
+    <div class="fn-card">
+      <span class="fc-name">DATE_FORMAT()</span>
+      <p class="fc-desc">Formatea la fecha en el estilo deseado.</p>
+      <div class="fc-ex">DATE_FORMAT(f,'%d/%m/%Y')</div>
+    </div>
+    <div class="fn-card">
+      <span class="fc-name">DAYNAME()</span>
+      <p class="fc-desc">Nombre del día de la semana.</p>
+      <div class="fc-ex">DAYNAME('2025-12-25') → 'Thursday'</div>
+    </div>
+  </div>
+
+  <div class="sql-block"><span class="lang-badge">SQL</span><span class="kw">SELECT</span>
+  <span class="tb">nombre</span>,
+  <span class="tb">fecha_reg</span>,
+  <span class="fn">DATEDIFF</span>(<span class="fn">CURDATE</span>(), <span class="tb">fecha_reg</span>) <span class="kw">AS</span> <span class="st">'dias_como_cliente'</span>,
+  <span class="fn">DATE_FORMAT</span>(<span class="tb">fecha_reg</span>, <span class="st">'%d/%m/%Y'</span>) <span class="kw">AS</span> <span class="st">'fecha_formato_mx'</span>
+<span class="kw">FROM</span> <span class="tb">clientes</span>;
+
+<span class="cm">-- Empleados con más de 1 año de antigüedad</span>
+<span class="kw">SELECT</span> <span class="tb">nombre</span>, <span class="tb">fecha_inicio</span>
+<span class="kw">FROM</span> <span class="tb">empleados</span>
+<span class="kw">WHERE</span> <span class="tb">fecha_inicio</span> < <span class="fn">DATE_SUB</span>(<span class="fn">CURDATE</span>(), <span class="kw">INTERVAL</span> <span class="nm">1</span> <span class="kw">YEAR</span>);</div>
+
+  <div class="ejercicio">
+    <div class="ejercicio-hd">✏️ Ejercicio — Reporte con funciones combinadas <span class="ej-badge sql">SQL</span></div>
+    <div class="enunciado"><strong>Objetivo:</strong> Combina funciones de texto, número y fecha en un solo reporte de clientes.</div>
+    <div class="editor-area">
+      <textarea class="editor" id="ej-funciones">USE cafe_curso;
+
+SELECT
+  CONCAT(UPPER(LEFT(nombre,1)), LOWER(SUBSTRING(nombre,2))) AS nombre_formato,
+  LOWER(email) AS email,
+  ciudad,
+  DATEDIFF(CURDATE(), fecha_reg) AS dias_cliente,
+  DATE_FORMAT(fecha_reg, '%d de %M de %Y') AS fecha_registro
+FROM clientes
+ORDER BY dias_cliente DESC;</textarea>
+    </div>
+    <div class="btn-row">
+      <button class="run-btn" onclick="mostrarResultado('out-funciones', resultados['funciones'])">▶ Ver resultado esperado</button>
+      <button class="reset-btn" onclick="resetEditor('out-funciones')">↺ Reiniciar</button>
+    </div>
+    <div class="output-label">Resultado esperado:</div>
+    <div class="sql-output" id="out-funciones">Presiona ▶ para ver el resultado...</div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     FUNCIONES DE AGREGACIÓN
+══════════════════════════════════════════ -->
+<section class="module" id="agregacion">
+  <div class="module-header">
+    <div class="module-icon">📊</div>
+    <div>
+      <div class="module-title">Funciones de Agregación</div>
+      <div class="module-sub">COUNT, SUM, AVG, MAX, MIN — resumir datos</div>
+    </div>
+  </div>
+
+  <p>Las funciones de agregación toman <strong>muchas filas</strong> y las resumen en <strong>un solo valor</strong>: el total, el promedio, el máximo, el mínimo, la cantidad.</p>
+
+  <div class="analogy">
+    <h4>🧮 Analogía: el resumen del contador</h4>
+    <p>Un contador no te entrega los 500 recibos de gastos del mes uno por uno — te entrega un resumen: "gastaste $45,000 en total, el gasto promedio fue de $90, el más caro fue $2,000". Eso es exactamente lo que hacen las funciones de agregación: convierten un montón de filas en una cifra resumida y útil.</p>
+  </div>
+
+  <div class="sql-block"><span class="lang-badge">SQL</span><span class="kw">USE</span> <span class="tb">cafe_curso</span>;
+
+<span class="kw">SELECT</span> <span class="fn">COUNT</span>(*) <span class="kw">AS</span> <span class="st">'total_clientes'</span> <span class="kw">FROM</span> <span class="tb">clientes</span>;
+<span class="kw">SELECT</span> <span class="fn">SUM</span>(<span class="tb">precio</span>) <span class="kw">AS</span> <span class="st">'valor_total_menu'</span> <span class="kw">FROM</span> <span class="tb">menu</span>;
+<span class="kw">SELECT</span> <span class="fn">AVG</span>(<span class="tb">precio</span>) <span class="kw">AS</span> <span class="st">'precio_promedio'</span> <span class="kw">FROM</span> <span class="tb">menu</span>;
+<span class="kw">SELECT</span> <span class="fn">MAX</span>(<span class="tb">precio</span>) <span class="kw">AS</span> <span class="st">'mas_caro'</span> <span class="kw">FROM</span> <span class="tb">menu</span>;
+<span class="kw">SELECT</span> <span class="fn">MIN</span>(<span class="tb">precio</span>) <span class="kw">AS</span> <span class="st">'mas_barato'</span> <span class="kw">FROM</span> <span class="tb">menu</span>;
+
+<span class="cm">-- Combinar varias en una sola consulta</span>
+<span class="kw">SELECT</span>
+  <span class="fn">COUNT</span>(*) <span class="kw">AS</span> <span class="st">'productos'</span>,
+  <span class="fn">ROUND</span>(<span class="fn">AVG</span>(<span class="tb">precio</span>),<span class="nm">2</span>) <span class="kw">AS</span> <span class="st">'promedio'</span>,
+  <span class="fn">MAX</span>(<span class="tb">precio</span>) <span class="kw">AS</span> <span class="st">'maximo'</span>,
+  <span class="fn">MIN</span>(<span class="tb">precio</span>) <span class="kw">AS</span> <span class="st">'minimo'</span>,
+  <span class="fn">SUM</span>(<span class="tb">precio</span>) <span class="kw">AS</span> <span class="st">'suma_total'</span>
+<span class="kw">FROM</span> <span class="tb">menu</span>;</div>
+
+  <div class="sql-result">
+    <div class="sql-result-header">📊 Resumen del menú</div>
+    <table>
+      <thead><tr><th>productos</th><th>promedio</th><th>maximo</th><th>minimo</th><th>suma_total</th></tr></thead>
+      <tbody>
+        <tr><td>9</td><td>72.50</td><td>95.00</td><td>49.50</td><td>652.50</td></tr>
+      </tbody>
+    </table>
+    <div class="sql-rows">1 fila resumen (de 9 productos)</div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     GROUP BY
+══════════════════════════════════════════ -->
+<section class="module" id="groupby">
+  <div class="module-header">
+    <div class="module-icon">🗂️</div>
+    <div>
+      <div class="module-title">GROUP BY — Agrupar y resumir por categorías</div>
+      <div class="module-sub">La combinación más poderosa con funciones de agregación</div>
+    </div>
+  </div>
+
+  <p><code>GROUP BY</code> agrupa filas que comparten un valor y aplica las funciones de agregación <strong>por cada grupo</strong>, en vez de a la tabla completa.</p>
+
+  <div class="analogy">
+    <h4>🗃️ Analogía: separar la ropa por color antes de lavar</h4>
+    <p>Antes de lavar la ropa, la separas en montones: blanca, de color, oscura. GROUP BY hace exactamente eso con los datos: en vez de un solo montón gigante de "todos los productos", los agrupa en montones por categoría — "todas las bebidas", "todas las comidas", "todos los postres" — y después puedes contar, sumar o promediar cada montón por separado.</p>
+  </div>
+
+  <div class="sql-block"><span class="lang-badge">SQL</span><span class="cm">-- Contar cuántos productos hay por categoría</span>
+<span class="kw">SELECT</span> <span class="tb">categoria</span>, <span class="fn">COUNT</span>(*) <span class="kw">AS</span> <span class="st">'cantidad'</span>
+<span class="kw">FROM</span> <span class="tb">menu</span>
+<span class="kw">GROUP BY</span> <span class="tb">categoria</span>;
+
+<span class="cm">-- Precio promedio por categoría</span>
+<span class="kw">SELECT</span> <span class="tb">categoria</span>, <span class="fn">ROUND</span>(<span class="fn">AVG</span>(<span class="tb">precio</span>),<span class="nm">2</span>) <span class="kw">AS</span> <span class="st">'promedio'</span>
+<span class="kw">FROM</span> <span class="tb">menu</span>
+<span class="kw">GROUP BY</span> <span class="tb">categoria</span>
+<span class="kw">ORDER BY</span> <span class="tb">promedio</span> <span class="kw">DESC</span>;
+
+<span class="cm">-- Cuántos clientes hay por ciudad</span>
+<span class="kw">SELECT</span> <span class="tb">ciudad</span>, <span class="fn">COUNT</span>(*) <span class="kw">AS</span> <span class="st">'clientes'</span>
+<span class="kw">FROM</span> <span class="tb">clientes</span>
+<span class="kw">GROUP BY</span> <span class="tb">ciudad</span>
+<span class="kw">ORDER BY</span> <span class="tb">clientes</span> <span class="kw">DESC</span>;
+
+<span class="cm">-- Resumen completo por categoría</span>
+<span class="kw">SELECT</span>
+  <span class="tb">categoria</span>,
+  <span class="fn">COUNT</span>(*) <span class="kw">AS</span> <span class="st">'productos'</span>,
+  <span class="fn">MIN</span>(<span class="tb">precio</span>) <span class="kw">AS</span> <span class="st">'mas_barato'</span>,
+  <span class="fn">MAX</span>(<span class="tb">precio</span>) <span class="kw">AS</span> <span class="st">'mas_caro'</span>,
+  <span class="fn">ROUND</span>(<span class="fn">AVG</span>(<span class="tb">precio</span>),<span class="nm">2</span>) <span class="kw">AS</span> <span class="st">'promedio'</span>
+<span class="kw">FROM</span> <span class="tb">menu</span>
+<span class="kw">GROUP BY</span> <span class="tb">categoria</span>;</div>
+
+  <div class="sql-result">
+    <div class="sql-result-header">📊 Resumen por categoría</div>
+    <table>
+      <thead><tr><th>categoria</th><th>productos</th><th>mas_barato</th><th>mas_caro</th><th>promedio</th></tr></thead>
+      <tbody>
+        <tr><td>bebida</td><td>4</td><td>49.50</td><td>82.50</td><td>70.13</td></tr>
+        <tr><td>comida</td><td>3</td><td>55.00</td><td>95.00</td><td>78.33</td></tr>
+        <tr><td>postre</td><td>2</td><td>60.00</td><td>80.00</td><td>70.00</td></tr>
+      </tbody>
+    </table>
+    <div class="sql-rows">3 grupos (de 9 productos originales)</div>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ Regla de oro de GROUP BY</h4>
+    <p>Toda columna en el SELECT que <strong>no</strong> esté dentro de una función de agregación (COUNT, SUM, AVG...) debe estar en el GROUP BY. Si seleccionas <code>nombre</code> sin agruparlo y sin agregarlo, MySQL no sabe qué valor de "nombre" mostrar para cada grupo — y dará error o un resultado impredecible.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     HAVING
+══════════════════════════════════════════ -->
+<section class="module" id="having">
+  <div class="module-header">
+    <div class="module-icon">🎯</div>
+    <div>
+      <div class="module-title">HAVING — Filtrar grupos (no filas)</div>
+      <div class="module-sub">El WHERE de los resultados agrupados</div>
+    </div>
+  </div>
+
+  <p><code>WHERE</code> filtra <strong>filas individuales antes</strong> de agrupar. <code>HAVING</code> filtra <strong>grupos completos después</strong> de agrupar. Es la diferencia clave entre ambos.</p>
+
+  <div class="analogy">
+    <h4>🏫 Analogía: filtrar antes vs después de armar los equipos</h4>
+    <p>Imagina que armas equipos de fútbol agrupando estudiantes por salón. <code>WHERE</code> es como decir "solo cuento a los estudiantes mayores de 12 años" — filtras ANTES de agrupar. <code>HAVING</code> es como decir "solo me interesan los salones que tengan más de 20 estudiantes en total" — filtras DESPUÉS de agrupar, evaluando el resultado del grupo completo.</p>
+  </div>
+
+  <div class="sql-block"><span class="lang-badge">SQL</span><span class="cm">-- WHERE filtra ANTES de agrupar (filas individuales)</span>
+<span class="kw">SELECT</span> <span class="tb">categoria</span>, <span class="fn">COUNT</span>(*) <span class="kw">AS</span> <span class="st">'cantidad'</span>
+<span class="kw">FROM</span> <span class="tb">menu</span>
+<span class="kw">WHERE</span> <span class="tb">disponible</span> = <span class="nm">TRUE</span>     <span class="cm">-- solo productos disponibles</span>
+<span class="kw">GROUP BY</span> <span class="tb">categoria</span>;
+
+<span class="cm">-- HAVING filtra DESPUÉS de agrupar (grupos completos)</span>
+<span class="kw">SELECT</span> <span class="tb">categoria</span>, <span class="fn">COUNT</span>(*) <span class="kw">AS</span> <span class="st">'cantidad'</span>
+<span class="kw">FROM</span> <span class="tb">menu</span>
+<span class="kw">GROUP BY</span> <span class="tb">categoria</span>
+<span class="kw">HAVING</span> <span class="fn">COUNT</span>(*) >= <span class="nm">3</span>;   <span class="cm">-- solo categorías con 3+ productos</span>
+
+<span class="cm">-- Ciudades con más de 1 cliente</span>
+<span class="kw">SELECT</span> <span class="tb">ciudad</span>, <span class="fn">COUNT</span>(*) <span class="kw">AS</span> <span class="st">'clientes'</span>
+<span class="kw">FROM</span> <span class="tb">clientes</span>
+<span class="kw">GROUP BY</span> <span class="tb">ciudad</span>
+<span class="kw">HAVING</span> <span class="fn">COUNT</span>(*) > <span class="nm">1</span>;
+
+<span class="cm">-- WHERE y HAVING combinados (¡muy común!)</span>
+<span class="kw">SELECT</span> <span class="tb">categoria</span>, <span class="fn">ROUND</span>(<span class="fn">AVG</span>(<span class="tb">precio</span>),<span class="nm">2</span>) <span class="kw">AS</span> <span class="st">'promedio'</span>
+<span class="kw">FROM</span> <span class="tb">menu</span>
+<span class="kw">WHERE</span> <span class="tb">disponible</span> = <span class="nm">TRUE</span>          <span class="cm">-- 1. filtra filas</span>
+<span class="kw">GROUP BY</span> <span class="tb">categoria</span>             <span class="cm">-- 2. agrupa</span>
+<span class="kw">HAVING</span> <span class="fn">AVG</span>(<span class="tb">precio</span>) > <span class="nm">60</span>     <span class="cm">-- 3. filtra grupos</span>
+<span class="kw">ORDER BY</span> <span class="tb">promedio</span> <span class="kw">DESC</span>;    <span class="cm">-- 4. ordena el resultado</span></div>
+
+  <table class="tbl">
+    <thead><tr><th>Aspecto</th><th>WHERE</th><th>HAVING</th></tr></thead>
+    <tbody>
+      <tr><td>¿Cuándo filtra?</td><td>Antes de agrupar</td><td>Después de agrupar</td></tr>
+      <tr><td>¿Qué filtra?</td><td>Filas individuales</td><td>Grupos completos</td></tr>
+      <tr><td>¿Puede usar funciones de agregación?</td><td>❌ No</td><td>✅ Sí</td></tr>
+      <tr><td>¿Funciona sin GROUP BY?</td><td>✅ Sí</td><td>Técnicamente sí, pero no tiene sentido sin agrupar</td></tr>
+    </tbody>
+  </table>
+
+  <div class="ejercicio">
+    <div class="ejercicio-hd">✏️ Ejercicio — Reportes con GROUP BY y HAVING <span class="ej-badge int">Integrador</span></div>
+    <div class="enunciado"><strong>Reto:</strong> Genera reportes de negocio combinando agregación, agrupación y filtros.</div>
+    <div class="editor-area">
+      <textarea class="editor" id="ej-having">USE cafe_curso;
+
+-- 1. Resumen completo del menú por categoría
+SELECT
+  categoria,
+  COUNT(*) AS productos,
+  MIN(precio) AS mas_barato,
+  MAX(precio) AS mas_caro,
+  ROUND(AVG(precio),2) AS promedio
+FROM menu
+GROUP BY categoria
+ORDER BY promedio DESC;
+
+-- 2. Ciudades con más de un cliente
+SELECT ciudad, COUNT(*) AS total_clientes
+FROM clientes
+GROUP BY ciudad
+HAVING COUNT(*) > 1
+ORDER BY total_clientes DESC;
+
+-- 3. Categorías cuyo promedio de precio supera $70
+SELECT categoria, ROUND(AVG(precio),2) AS promedio
+FROM menu
+GROUP BY categoria
+HAVING AVG(precio) > 70;
+
+-- 4. Cargos con salario total mayor a $15,000
+SELECT cargo, COUNT(*) AS empleados, SUM(salario) AS total_salarios
+FROM empleados
+GROUP BY cargo
+HAVING SUM(salario) > 15000
+ORDER BY total_salarios DESC;</textarea>
+    </div>
+    <div class="btn-row">
+      <button class="run-btn" onclick="mostrarResultado('out-having', resultados['having'])">▶ Ver resultado esperado</button>
+      <button class="reset-btn" onclick="resetEditor('out-having')">↺ Reiniciar</button>
+    </div>
+    <div class="output-label">Resultado esperado:</div>
+    <div class="sql-output" id="out-having">Presiona ▶ para ver el resultado...</div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     JOINS
+══════════════════════════════════════════ -->
+<section class="module" id="joins">
+  <div class="module-header">
+    <div class="module-icon">🔗</div>
+    <div>
+      <div class="module-title">JOINs — Combinar datos de varias tablas</div>
+      <div class="module-sub">INNER, LEFT, RIGHT JOIN — el corazón de las bases relacionales</div>
+    </div>
+  </div>
+
+  <p>Hasta ahora trabajamos con una tabla a la vez. Pero las bases de datos relacionales separan la información en varias tablas conectadas — los <strong>JOINs</strong> son la forma de combinarlas en una sola consulta.</p>
+
+  <div class="analogy">
+    <h4>🧩 Analogía: las dos mitades del rompecabezas</h4>
+    <p>Imagina dos listas separadas: una con nombres de clientes y sus IDs, otra con pedidos que solo tienen el ID del cliente (no su nombre). Por separado, ninguna lista te dice "qué pidió Ana García". Un JOIN es el proceso de unir ambas listas usando el ID como punto de conexión — como encajar dos mitades de un rompecabezas usando las muescas que coinciden.</p>
+  </div>
+
+  <h2>Preparando las tablas relacionadas</h2>
+  <p>Antes de hacer JOINs necesitamos una tabla de <strong>pedidos</strong> que se relacione con clientes y menú mediante <code>FOREIGN KEY</code>.</p>
+
+  <div class="sql-block"><span class="lang-badge">SQL</span><span class="kw">USE</span> <span class="tb">cafe_curso</span>;
+
+<span class="kw">CREATE TABLE IF NOT EXISTS</span> <span class="tb">pedidos</span> (
+  <span class="tb">id</span>            <span class="op">INT AUTO_INCREMENT PRIMARY KEY</span>,
+  <span class="tb">id_cliente</span>    <span class="op">INT</span>,
+  <span class="tb">id_producto</span>   <span class="op">INT</span>,
+  <span class="tb">cantidad</span>      <span class="op">INT DEFAULT</span> <span class="nm">1</span>,
+  <span class="tb">fecha_pedido</span>  <span class="op">DATETIME DEFAULT</span> <span class="fn">NOW</span>(),
+  <span class="kw">FOREIGN KEY</span> (<span class="tb">id_cliente</span>)  <span class="kw">REFERENCES</span> <span class="tb">clientes</span>(<span class="tb">id</span>),
+  <span class="kw">FOREIGN KEY</span> (<span class="tb">id_producto</span>) <span class="kw">REFERENCES</span> <span class="tb">menu</span>(<span class="tb">id</span>)
+);
+
+<span class="cm">-- Insertar pedidos de ejemplo</span>
+<span class="kw">INSERT INTO</span> <span class="tb">pedidos</span> (<span class="tb">id_cliente</span>, <span class="tb">id_producto</span>, <span class="tb">cantidad</span>) <span class="kw">VALUES</span>
+  (<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">2</span>),  <span class="cm">-- Ana pidió 2 Cappuccinos</span>
+  (<span class="nm">1</span>, <span class="nm">8</span>, <span class="nm">1</span>),  <span class="cm">-- Ana pidió 1 Cheesecake</span>
+  (<span class="nm">2</span>, <span class="nm">3</span>, <span class="nm">1</span>),  <span class="cm">-- Luis pidió 1 Latte</span>
+  (<span class="nm">3</span>, <span class="nm">1</span>, <span class="nm">3</span>),  <span class="cm">-- María pidió 3 Café Americano</span>
+  (<span class="nm">3</span>, <span class="nm">6</span>, <span class="nm">1</span>);  <span class="cm">-- María pidió 1 Sandwich Club</span>
+<span class="cm">-- Nota: Carlos, Sofia, Pedro y Laura no tienen pedidos aún</span></div>
+
+  <h2>INNER JOIN — solo coincidencias en ambas tablas</h2>
+  <div class="join-diagram">
+    <div class="join-circle jc-left">clientes</div>
+    <div class="join-circle jc-right">pedidos</div>
+  </div>
+  <p style="text-align:center;font-size:.85rem;color:var(--muted);margin-top:-1rem;">El área de intersección (centro) es lo que devuelve INNER JOIN</p>
+
+  <div class="sql-block"><span class="lang-badge">SQL</span><span class="kw">SELECT</span>
+  <span class="tb">c</span>.<span class="tb">nombre</span> <span class="kw">AS</span> <span class="st">'cliente'</span>,
+  <span class="tb">m</span>.<span class="tb">nombre</span> <span class="kw">AS</span> <span class="st">'producto'</span>,
+  <span class="tb">p</span>.<span class="tb">cantidad</span>,
+  <span class="tb">m</span>.<span class="tb">precio</span> * <span class="tb">p</span>.<span class="tb">cantidad</span> <span class="kw">AS</span> <span class="st">'subtotal'</span>
+<span class="kw">FROM</span> <span class="tb">pedidos</span> <span class="tb">p</span>
+<span class="kw">INNER JOIN</span> <span class="tb">clientes</span> <span class="tb">c</span> <span class="kw">ON</span> <span class="tb">p</span>.<span class="tb">id_cliente</span> = <span class="tb">c</span>.<span class="tb">id</span>
+<span class="kw">INNER JOIN</span> <span class="tb">menu</span> <span class="tb">m</span>     <span class="kw">ON</span> <span class="tb">p</span>.<span class="tb">id_producto</span> = <span class="tb">m</span>.<span class="tb">id</span>
+<span class="kw">ORDER BY</span> <span class="tb">c</span>.<span class="tb">nombre</span>;
+<span class="cm">-- Solo muestra clientes QUE TIENEN pedidos (5 filas)</span>
+<span class="cm">-- Carlos, Sofia, Pedro y Laura NO aparecen (sin pedidos)</span></div>
+
+  <div class="sql-result">
+    <div class="sql-result-header">📊 INNER JOIN: clientes con pedidos</div>
+    <table>
+      <thead><tr><th>cliente</th><th>producto</th><th>cantidad</th><th>subtotal</th></tr></thead>
+      <tbody>
+        <tr><td>Ana García</td><td>Cappuccino</td><td>2</td><td>143.00</td></tr>
+        <tr><td>Ana García</td><td>Cheesecake</td><td>1</td><td>80.00</td></tr>
+        <tr><td>Luis Pérez</td><td>Latte</td><td>1</td><td>77.00</td></tr>
+        <tr><td>María López</td><td>Café Americano</td><td>3</td><td>148.50</td></tr>
+        <tr><td>María López</td><td>Sandwich Club</td><td>1</td><td>95.00</td></tr>
+      </tbody>
+    </table>
+    <div class="sql-rows">5 registros (solo clientes con pedidos)</div>
+  </div>
+
+  <h2>LEFT JOIN — todos de la izquierda + coincidencias</h2>
+  <div class="join-diagram">
+    <div class="join-circle jc-left" style="background:rgba(196,74,42,.85);">clientes</div>
+    <div class="join-circle jc-right" style="background:rgba(51,103,145,.35);">pedidos</div>
+  </div>
+  <p style="text-align:center;font-size:.85rem;color:var(--muted);margin-top:-1rem;">El círculo izquierdo COMPLETO (todos los clientes) + sus pedidos si existen</p>
+
+  <div class="sql-block"><span class="lang-badge">SQL</span><span class="kw">SELECT</span>
+  <span class="tb">c</span>.<span class="tb">nombre</span> <span class="kw">AS</span> <span class="st">'cliente'</span>,
+  <span class="tb">m</span>.<span class="tb">nombre</span> <span class="kw">AS</span> <span class="st">'producto'</span>,
+  <span class="tb">p</span>.<span class="tb">cantidad</span>
+<span class="kw">FROM</span> <span class="tb">clientes</span> <span class="tb">c</span>
+<span class="kw">LEFT JOIN</span> <span class="tb">pedidos</span> <span class="tb">p</span> <span class="kw">ON</span> <span class="tb">c</span>.<span class="tb">id</span> = <span class="tb">p</span>.<span class="tb">id_cliente</span>
+<span class="kw">LEFT JOIN</span> <span class="tb">menu</span> <span class="tb">m</span>     <span class="kw">ON</span> <span class="tb">p</span>.<span class="tb">id_producto</span> = <span class="tb">m</span>.<span class="tb">id</span>
+<span class="kw">ORDER BY</span> <span class="tb">c</span>.<span class="tb">nombre</span>;
+<span class="cm">-- Muestra TODOS los clientes (7 filas), aunque algunos no tengan pedidos
+-- Esos casos muestran NULL en producto y cantidad</span>
+
+<span class="cm">-- Caso de uso típico: encontrar clientes SIN pedidos</span>
+<span class="kw">SELECT</span> <span class="tb">c</span>.<span class="tb">nombre</span>
+<span class="kw">FROM</span> <span class="tb">clientes</span> <span class="tb">c</span>
+<span class="kw">LEFT JOIN</span> <span class="tb">pedidos</span> <span class="tb">p</span> <span class="kw">ON</span> <span class="tb">c</span>.<span class="tb">id</span> = <span class="tb">p</span>.<span class="tb">id_cliente</span>
+<span class="kw">WHERE</span> <span class="tb">p</span>.<span class="tb">id</span> <span class="kw">IS NULL</span>;</div>
+
+  <div class="sql-result">
+    <div class="sql-result-header">📊 LEFT JOIN: TODOS los clientes (con o sin pedidos)</div>
+    <table>
+      <thead><tr><th>cliente</th><th>producto</th><th>cantidad</th></tr></thead>
+      <tbody>
+        <tr><td>Ana García</td><td>Cappuccino</td><td>2</td></tr>
+        <tr><td>Ana García</td><td>Cheesecake</td><td>1</td></tr>
+        <tr><td>Carlos Ruiz</td><td class="null-val">NULL</td><td class="null-val">NULL</td></tr>
+        <tr><td>Laura Jiménez</td><td class="null-val">NULL</td><td class="null-val">NULL</td></tr>
+        <tr><td>Luis Pérez</td><td>Latte</td><td>1</td></tr>
+        <tr><td>María López</td><td>Café Americano</td><td>3</td></tr>
+        <tr><td>María López</td><td>Sandwich Club</td><td>1</td></tr>
+        <tr><td>Pedro Torres</td><td class="null-val">NULL</td><td class="null-val">NULL</td></tr>
+        <tr><td>Sofia Méndez</td><td class="null-val">NULL</td><td class="null-val">NULL</td></tr>
+      </tbody>
+    </table>
+    <div class="sql-rows">9 registros (todos los clientes, con NULL donde no hay pedido)</div>
+  </div>
+
+  <h2>RIGHT JOIN — el espejo del LEFT JOIN</h2>
+  <div class="sql-block"><span class="lang-badge">SQL</span><span class="cm">-- RIGHT JOIN: todos de la derecha + coincidencias de la izquierda
+-- Es exactamente lo mismo que LEFT JOIN pero invirtiendo el orden de tablas</span>
+<span class="kw">SELECT</span>
+  <span class="tb">m</span>.<span class="tb">nombre</span> <span class="kw">AS</span> <span class="st">'producto'</span>,
+  <span class="tb">c</span>.<span class="tb">nombre</span> <span class="kw">AS</span> <span class="st">'cliente'</span>
+<span class="kw">FROM</span> <span class="tb">pedidos</span> <span class="tb">p</span>
+<span class="kw">RIGHT JOIN</span> <span class="tb">menu</span> <span class="tb">m</span>     <span class="kw">ON</span> <span class="tb">p</span>.<span class="tb">id_producto</span> = <span class="tb">m</span>.<span class="tb">id</span>
+<span class="kw">LEFT JOIN</span>  <span class="tb">clientes</span> <span class="tb">c</span> <span class="kw">ON</span> <span class="tb">p</span>.<span class="tb">id_cliente</span> = <span class="tb">c</span>.<span class="tb">id</span>;
+<span class="cm">-- Muestra TODOS los productos del menú, hayan sido pedidos o no</span>
+
+<span class="cm">-- Equivalente con LEFT JOIN (más común en la práctica, mismo resultado):</span>
+<span class="kw">SELECT</span> <span class="tb">m</span>.<span class="tb">nombre</span> <span class="kw">AS</span> <span class="st">'producto'</span>, <span class="tb">c</span>.<span class="tb">nombre</span> <span class="kw">AS</span> <span class="st">'cliente'</span>
+<span class="kw">FROM</span> <span class="tb">menu</span> <span class="tb">m</span>
+<span class="kw">LEFT JOIN</span> <span class="tb">pedidos</span> <span class="tb">p</span>  <span class="kw">ON</span> <span class="tb">m</span>.<span class="tb">id</span> = <span class="tb">p</span>.<span class="tb">id_producto</span>
+<span class="kw">LEFT JOIN</span> <span class="tb">clientes</span> <span class="tb">c</span> <span class="kw">ON</span> <span class="tb">p</span>.<span class="tb">id_cliente</span> = <span class="tb">c</span>.<span class="tb">id</span>;</div>
+
+  <table class="tbl">
+    <thead><tr><th>JOIN</th><th>¿Qué devuelve?</th><th>¿Cuándo usarlo?</th></tr></thead>
+    <tbody>
+      <tr><td><code>INNER JOIN</code></td><td>Solo filas que coinciden en AMBAS tablas</td><td>Cuando solo te interesan los registros relacionados (ej: pedidos reales)</td></tr>
+      <tr><td><code>LEFT JOIN</code></td><td>TODO de la tabla izquierda + coincidencias de la derecha (NULL si no hay)</td><td>Cuando necesitas TODOS los registros principales, tengan relación o no (ej: todos los clientes)</td></tr>
+      <tr><td><code>RIGHT JOIN</code></td><td>TODO de la tabla derecha + coincidencias de la izquierda</td><td>Poco usado — generalmente se prefiere LEFT JOIN cambiando el orden de las tablas</td></tr>
+    </tbody>
+  </table>
+
+  <div class="concept">
+    <h4>💡 Alias de tabla — por qué usar c, m, p</h4>
+    <p>En consultas con JOIN, escribir <code>clientes.nombre</code> y <code>menu.nombre</code> es repetitivo. Por eso se usan alias cortos: <code>clientes AS c</code> (o simplemente <code>clientes c</code>) te permite escribir <code>c.nombre</code>. Es una convención casi universal en SQL con JOINs — hace las consultas mucho más legibles.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     EJERCICIO INTEGRADOR JOINS
+══════════════════════════════════════════ -->
+<section class="module" id="ej-joins">
+  <div class="module-header">
+    <div class="module-icon">🧪</div>
+    <div>
+      <div class="module-title">Ejercicio Integrador — Reporte de ventas de la cafetería</div>
+      <div class="module-sub">JOINs + GROUP BY + funciones de agregación combinados</div>
+    </div>
+  </div>
+
+  <div class="ejercicio">
+    <div class="ejercicio-hd">📊 Reporte completo de ventas <span class="ej-badge int">Integrador</span></div>
+    <div class="enunciado">
+      <strong>Reto final de la Parte 2:</strong> Combina JOINs con GROUP BY para generar reportes de negocio reales: ventas por cliente, productos más vendidos, ingresos por categoría.
+    </div>
+    <div class="editor-area">
+      <textarea class="editor" id="ej-joins-final">USE cafe_curso;
+
+-- 1. Total gastado por cada cliente (solo los que han pedido)
+SELECT
+  c.nombre AS cliente,
+  COUNT(p.id) AS num_pedidos,
+  SUM(m.precio * p.cantidad) AS total_gastado
+FROM clientes c
+INNER JOIN pedidos p ON c.id = p.id_cliente
+INNER JOIN menu m ON p.id_producto = m.id
+GROUP BY c.id, c.nombre
+ORDER BY total_gastado DESC;
+
+-- 2. Producto más vendido (por cantidad)
+SELECT
+  m.nombre AS producto,
+  SUM(p.cantidad) AS unidades_vendidas
+FROM menu m
+INNER JOIN pedidos p ON m.id = p.id_producto
+GROUP BY m.id, m.nombre
+ORDER BY unidades_vendidas DESC
+LIMIT 1;
+
+-- 3. Ingresos totales por categoría
+SELECT
+  m.categoria,
+  SUM(m.precio * p.cantidad) AS ingresos
+FROM menu m
+INNER JOIN pedidos p ON m.id = p.id_producto
+GROUP BY m.categoria
+ORDER BY ingresos DESC;
+
+-- 4. Clientes que NUNCA han hecho un pedido (oportunidad de marketing)
+SELECT c.nombre, c.email
+FROM clientes c
+LEFT JOIN pedidos p ON c.id = p.id_cliente
+WHERE p.id IS NULL;
+
+-- 5. Resumen general del negocio
+SELECT
+  COUNT(DISTINCT c.id) AS clientes_con_pedidos,
+  COUNT(p.id) AS total_pedidos,
+  SUM(m.precio * p.cantidad) AS ingresos_totales,
+  ROUND(AVG(m.precio * p.cantidad), 2) AS ticket_promedio
+FROM pedidos p
+INNER JOIN clientes c ON p.id_cliente = c.id
+INNER JOIN menu m ON p.id_producto = m.id;</textarea>
+    </div>
+    <div class="btn-row">
+      <button class="run-btn" onclick="mostrarResultado('out-joins-final', resultados['joinsFinal'])">▶ Ver resultado esperado</button>
+      <button class="reset-btn" onclick="resetEditor('out-joins-final')">↺ Reiniciar</button>
+    </div>
+    <div class="output-label">Resultado esperado:</div>
+    <div class="sql-output" id="out-joins-final">Presiona ▶ para ver el resultado...</div>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Resumen de la Parte 2</h4>
+    <ul>
+      <li><strong>Funciones de texto:</strong> UPPER, LOWER, CONCAT, LENGTH, SUBSTRING, TRIM, REPLACE</li>
+      <li><strong>Funciones numéricas:</strong> ROUND, CEIL, FLOOR, ABS, MOD, POWER, SQRT</li>
+      <li><strong>Funciones de fecha:</strong> NOW, CURDATE, DATEDIFF, DATE_ADD, DATE_FORMAT</li>
+      <li><strong>Agregación:</strong> COUNT, SUM, AVG, MAX, MIN</li>
+      <li><strong>GROUP BY:</strong> agrupar filas y resumir por categoría</li>
+      <li><strong>HAVING:</strong> filtrar grupos (a diferencia de WHERE que filtra filas)</li>
+      <li><strong>JOINs:</strong> INNER JOIN (intersección), LEFT JOIN (todo + coincidencias), RIGHT JOIN</li>
+    </ul>
+  </div>
+</section>
+
+<!-- SIGUIENTE PARTE -->
+<section class="module" style="background:linear-gradient(135deg,#1a1814,#2a2420);border-color:#3a3430;text-align:center;">
+  <div style="font-size:2rem;margin-bottom:.75rem;">→</div>
+  <h2 style="color:#f7f4ef;margin-bottom:.5rem;">Parte 3 — Subconsultas, Vistas, Procedimientos y Triggers</h2>
+  <p style="color:rgba(247,244,239,0.7);margin-bottom:1.25rem;">Subconsultas anidadas · CREATE VIEW · Stored Procedures · Triggers · Índices · Proyecto final</p>
+  <a href="guia-sql-parte-3.html" style="display:inline-block;background:var(--sql);color:white;font-weight:700;padding:.8rem 2rem;border-radius:10px;text-decoration:none;font-size:.95rem;">Ir a Parte 3 →</a>
+</section>
+
+</main>
+
+<footer>
+  Guía SQL desde Cero · Parte 2 · Basada en el curso de Soy Dalto · Hugo 2025 ·
+  <a href="https://www.youtube.com/watch?v=DFg1V-rO6Pg" target="_blank" rel="noopener" style="color:var(--sql);">Ver curso original →</a>
+</footer>
+
+<script>
+const resultados = {
+  funciones: `nombre_formato | email             | ciudad      | dias_cliente | fecha_registro
+---------------+-------------------+-------------+--------------+------------------------
+Carlos Ruiz    | carlos@yahoo.com  | Guadalajara | ~1200        | 05 de marzo de 2023
+María López    | maria@gmail.com   | Monterrey   | ~1200        | 05 de marzo de 2023
+Luis Pérez     | luis@hotmail.com  | Guadalajara | ~1220        | 20 de febrero de 2023
+Ana García     | ana@gmail.com     | México DF   | ~1260        | 15 de enero de 2023
+(días calculados desde fecha actual)`,
+
+  having: `Query 1 — Resumen por categoría:
+categoria | productos | mas_barato | mas_caro | promedio
+----------+-----------+------------+----------+----------
+comida    | 3         | 55.00      | 95.00    | 78.33
+bebida    | 4         | 49.50      | 82.50    | 70.13
+postre    | 2         | 60.00      | 80.00    | 70.00
+
+Query 2 — Ciudades con +1 cliente:
+ciudad      | total_clientes
+------------+----------------
+Guadalajara | 2
+México DF   | 2
+Monterrey   | 2
+
+Query 4 — Cargos con salario total > $15,000:
+cargo    | empleados | total_salarios
+---------+-----------+----------------
+Barista  | 2          | 16500.00`,
+
+  joinsFinal: `Query 1 — Total gastado por cliente:
+cliente      | num_pedidos | total_gastado
+-------------+-------------+--------------
+María López  | 2           | 243.50
+Ana García   | 2           | 223.00
+Luis Pérez   | 1           | 77.00
+
+Query 2 — Producto más vendido:
+producto       | unidades_vendidas
+----------------+-------------------
+Café Americano | 3
+
+Query 3 — Ingresos por categoría:
+categoria | ingresos
+----------+----------
+comida    | 243.50
+bebida    | 220.00
+postre    | 80.00
+
+Query 4 — Clientes sin pedidos:
+nombre        | email
+--------------+-------------------
+Carlos Ruiz   | carlos@yahoo.com
+Sofia Méndez  | sofia@gmail.com
+Pedro Torres  | pedro@gmail.com
+Laura Jiménez | laura@gmail.com
+
+Query 5 — Resumen general:
+clientes_con_pedidos | total_pedidos | ingresos_totales | ticket_promedio
+----------------------+---------------+------------------+-----------------
+3                     | 5             | 543.50           | 108.70`
+};
+
+function mostrarResultado(outputId, texto) {
+  const out = document.getElementById(outputId);
+  out.textContent = texto;
+}
+
+function resetEditor(outputId) {
+  document.getElementById(outputId).textContent = 'Presiona ▶ para ver el resultado...';
+}
+</script>
+</body>
+</html>

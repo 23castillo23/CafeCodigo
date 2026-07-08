@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía CMD desde Cero — Café &lt;/&gt;</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --primary: #c44a2a; --primary-light: #fdf0ec;
+    --secondary: #1a7a5a; --secondary-light: #edf7f3;
+    --accent: #b07010; --accent-light: #fdf6e8;
+    --cmd: #1a7a1a; --cmd-light: #edf7ed;
+    --bg: #f7f4ef; --surface: #ffffff;
+    --text: #1a1814; --muted: #8a8480; --border: #e8e4de;
+    --code-bg: #0c0c0c;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  .cafe-bar { background:#fff; border-bottom:1px solid #e8e4de; padding:0 24px; display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:200; height:45px; }
+  .cafe-bar a { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:#8a8480; text-decoration:none; padding:6px 14px; border:1px solid #e8e4de; border-radius:999px; transition:all .15s; }
+  .cafe-bar a:hover { color:#1a1814; border-color:#8a8480; }
+  .cafe-bar span { font-size:13px; color:#8a8480; }
+
+  header { background:#0c0c0c; color:#cccccc; padding:3rem 2rem 2rem; text-align:center; position:relative; overflow:hidden; }
+  header::before { content:'C:\\>_'; position:absolute; font-size:9rem; font-weight:900; color:rgba(255,255,255,0.04); right:-1rem; top:-1rem; font-family:'DM Mono',monospace; line-height:1; white-space:nowrap; }
+  header h1 { font-size:2.5rem; font-weight:800; letter-spacing:-1px; font-family:'Fraunces',serif; color:#ffffff; }
+  header p { font-size:1.1rem; opacity:.7; margin-top:.5rem; }
+  header .badge { display:inline-block; background:rgba(26,122,26,.3); border:1px solid rgba(26,122,26,.6); color:#4ec94e; border-radius:20px; padding:4px 14px; font-size:.8rem; margin-top:.75rem; font-weight:600; }
+
+  nav { background:#1a1814; border-bottom:1px solid #333; position:sticky; top:45px; z-index:100; display:flex; overflow-x:auto; }
+  nav::-webkit-scrollbar { display:none; }
+  nav a { flex-shrink:0; padding:.65rem .9rem; text-decoration:none; color:#888; font-size:.78rem; font-weight:500; border-bottom:2px solid transparent; transition:color .2s,border-color .2s; white-space:nowrap; }
+  nav a:hover { color:#4ec94e; border-bottom-color:#4ec94e; }
+
+  main { max-width:940px; margin:0 auto; padding:2rem 1.5rem; }
+
+  .module { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:2rem; margin-bottom:2.5rem; }
+  .module-header { display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border); }
+  .module-icon { font-size:1.8rem; flex-shrink:0; }
+  .module-title { font-size:1.35rem; font-weight:700; }
+  .module-sub { font-size:.85rem; color:var(--muted); margin-top:2px; }
+
+  .analogy { background:#FFF7ED; border:1px solid #FDE68A; border-left:4px solid var(--accent); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .analogy h4 { color:#92400E; font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+  .analogy p { font-size:.95rem; color:#78350F; }
+
+  .concept { background:var(--primary-light); border-left:4px solid var(--primary); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .concept h4 { color:var(--primary); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+
+  .tip { background:var(--secondary-light); border-left:4px solid var(--secondary); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .tip h4 { color:var(--secondary); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+  .tip ul { padding-left:1.2rem; }
+
+  .warn { background:#fdf0ec; border-left:4px solid var(--primary); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .warn h4 { color:var(--primary); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+
+  /* TERMINAL SIMULADA */
+  .terminal { background:#0c0c0c; border-radius:12px; overflow:hidden; margin:1.25rem 0; box-shadow:0 4px 24px rgba(0,0,0,0.25); }
+  .terminal-bar { background:#2a2a2a; padding:.5rem 1rem; display:flex; align-items:center; gap:.5rem; }
+  .terminal-dot { width:12px; height:12px; border-radius:50%; }
+  .td-red { background:#ff5f57; }
+  .td-yel { background:#febc2e; }
+  .td-grn { background:#28c840; }
+  .terminal-title { color:#888; font-size:.75rem; font-family:'DM Mono',monospace; margin-left:.25rem; }
+  .terminal-body { padding:1.25rem 1.5rem; font-family:'DM Mono','Courier New',monospace; font-size:.87rem; line-height:1.9; white-space:pre-wrap; }
+  .t-prompt { color:#4ec94e; }
+  .t-cmd { color:#ffffff; }
+  .t-out { color:#cccccc; }
+  .t-comment { color:#555; font-style:italic; }
+  .t-error { color:#ff5f57; }
+  .t-path { color:#4ec9b0; }
+  .t-highlight { color:#f0b429; }
+
+  /* TABLA DE COMANDOS */
+  .cmd-table { width:100%; border-collapse:collapse; margin:1rem 0; font-size:.88rem; }
+  .cmd-table th { background:#1a1814; color:#4ec94e; padding:.65rem 1rem; text-align:left; font-weight:700; font-family:'DM Mono',monospace; font-size:.8rem; }
+  .cmd-table td { padding:.65rem 1rem; border-bottom:1px solid var(--border); vertical-align:top; }
+  .cmd-table tr:hover td { background:var(--bg); }
+  .cmd-table .cmd-cell { font-family:'DM Mono',monospace; font-weight:700; color:var(--cmd); background:var(--cmd-light); padding:2px 6px; border-radius:5px; white-space:nowrap; font-size:.85rem; }
+
+  /* EJERCICIO INTERACTIVO */
+  .ejercicio { background:#FFFBEB; border:1px solid #FDE68A; border-radius:14px; padding:1.5rem; margin:1.5rem 0; }
+  .ejercicio-hd { display:flex; align-items:center; gap:.75rem; margin-bottom:1rem; font-weight:700; font-size:1rem; color:#78350F; flex-wrap:wrap; }
+  .ej-badge { background:var(--accent); color:#fff; font-size:.68rem; padding:2px 9px; border-radius:20px; font-weight:700; text-transform:uppercase; }
+  .ej-badge.int { background:var(--primary); }
+  .ej-badge.avz { background:#7c3aed; }
+  .enunciado { background:#fff; border:1px dashed #FDE68A; border-radius:8px; padding:1rem 1.25rem; margin-bottom:.75rem; font-size:.94rem; line-height:1.6; }
+  .enunciado strong { color:#78350F; }
+
+  /* GLOSARIO GRID */
+  .glos { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1rem; margin:1rem 0; }
+  .glos-item { background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:1rem 1.1rem; }
+  .glos-item .emoji { font-size:1.3rem; display:block; margin-bottom:.3rem; }
+  .glos-item dt { font-weight:700; color:#1a1814; font-size:.92rem; margin-bottom:.25rem; font-family:'DM Mono',monospace; }
+  .glos-item dd { font-size:.84rem; color:var(--muted); line-height:1.5; }
+
+  .parte-badge { display:inline-flex; align-items:center; gap:.5rem; background:#1a1814; color:#4ec94e; border-radius:20px; padding:5px 16px; font-size:.82rem; font-weight:700; margin-bottom:1.5rem; font-family:'DM Mono',monospace; }
+
+  .tbl { width:100%; border-collapse:collapse; margin:1rem 0; font-size:.9rem; }
+  .tbl th { background:var(--cmd-light); color:var(--cmd); padding:.65rem 1rem; text-align:left; font-weight:600; }
+  .tbl td { padding:.65rem 1rem; border-bottom:1px solid var(--border); vertical-align:top; }
+  .tbl tr:hover td { background:var(--bg); }
+
+  h2 { font-size:1.2rem; font-weight:700; margin:1.75rem 0 .75rem; }
+  h3 { font-size:1rem; font-weight:700; margin:1.25rem 0 .5rem; }
+  p { margin-bottom:.8rem; }
+  ul,ol { padding-left:1.4rem; margin-bottom:.8rem; }
+  li { margin-bottom:.4rem; font-size:.96rem; }
+  code { font-family:'DM Mono',monospace; background:#f0ece6; color:#1a7a1a; padding:1px 6px; border-radius:4px; font-size:.9em; font-weight:600; }
+  strong { font-weight:700; }
+
+  footer { text-align:center; padding:2rem; color:var(--muted); font-size:.85rem; border-top:1px solid var(--border); margin-top:1rem; background:var(--bg); }
+</style>
+</head>
+<body>
+
+<div class="cafe-bar">
+  <a href="../capitulos.html?tab=adicionales">← Volver a Mis Guias adicionales</a>
+  <span>💻 Guía CMD — Símbolo del sistema</span>
+</div>
+
+<header>
+  <h1>CMD desde Cero</h1>
+  <p>Domina el Símbolo del sistema de Windows — todos los comandos, con analogías y práctica</p>
+  <span class="badge">💻 Guía completa · Principiante → Avanzado</span>
+</header>
+
+<nav>
+  <a href="#intro">🖥️ ¿Qué es?</a>
+  <a href="#abrir">🚀 Cómo abrir</a>
+  <a href="#estructura">📐 Estructura</a>
+  <a href="#navegacion">📁 Navegación</a>
+  <a href="#archivos">📄 Archivos</a>
+  <a href="#directorios">📂 Directorios</a>
+  <a href="#visualizar">👁️ Ver contenido</a>
+  <a href="#red">🌐 Red</a>
+  <a href="#sistema">⚙️ Sistema</a>
+  <a href="#procesos">🔄 Procesos</a>
+  <a href="#avanzado">🧠 Avanzado</a>
+  <a href="#atajos">⌨️ Atajos</a>
+  <a href="#cheatsheet">📋 Cheat Sheet</a>
+</nav>
+
+<main>
+<div class="parte-badge">C:\> Guía completa del CMD de Windows</div>
+
+
+<!-- ══════════════════════════════════════════
+     ¿QUÉ ES EL CMD?
+══════════════════════════════════════════ -->
+<section class="module" id="intro">
+  <div class="module-header">
+    <div class="module-icon">🖥️</div>
+    <div>
+      <div class="module-title">¿Qué es el CMD y por qué aprenderlo?</div>
+      <div class="module-sub">El Símbolo del sistema — la interfaz de texto de Windows</div>
+    </div>
+  </div>
+
+  <p>El <strong>CMD (Command Prompt)</strong> o Símbolo del sistema es una interfaz de texto donde le das instrucciones a Windows escribiendo comandos. A diferencia de hacer clic en íconos, aquí escribes exactamente lo que quieres que la computadora haga.</p>
+
+  <div class="analogy">
+    <h4>🎙️ Analogía: hablarle directamente al sistema operativo</h4>
+    <p>La interfaz gráfica (el escritorio con íconos) es como usar señas para comunicarte. El CMD es como hablarle directamente: en vez de señalar la carpeta y arrastrarla, le dices "mueve esta carpeta de aquí a allá". Es más directo, más rápido para ciertas tareas y permite hacer cosas que la interfaz gráfica no expone. Un mecánico con herramientas manuales puede hacer trabajos que una máquina automática no puede.</p>
+  </div>
+
+  <h2>¿Por qué sigue siendo útil el CMD en 2026?</h2>
+  <div class="glos">
+    <div class="glos-item"><span class="emoji">⚡</span><dt>Velocidad</dt><dd>Muchas tareas repetitivas se hacen en segundos con un comando vs. minutos haciendo clic.</dd></div>
+    <div class="glos-item"><span class="emoji">🤖</span><dt>Automatización</dt><dd>Puedes crear scripts (.bat) que ejecuten decenas de acciones automáticamente.</dd></div>
+    <div class="glos-item"><span class="emoji">🔧</span><dt>Administración</dt><dd>Diagnosticar redes, gestionar procesos, reparar el sistema — imprescindible para IT.</dd></div>
+    <div class="glos-item"><span class="emoji">💻</span><dt>Desarrollo</dt><dd>Git, Node.js, Python, npm — todos se usan desde la terminal. El CMD es la puerta de entrada.</dd></div>
+    <div class="glos-item"><span class="emoji">📦</span><dt>Servidores</dt><dd>Los servidores Linux/Windows Server no tienen interfaz gráfica — solo terminal.</dd></div>
+    <div class="glos-item"><span class="emoji">🛡️</span><dt>Seguridad</dt><dd>Analizar puertos, conexiones activas, procesos sospechosos — esencial en ciberseguridad.</dd></div>
+  </div>
+
+  <div class="concept">
+    <h4>💡 CMD vs PowerShell vs Terminal de Windows</h4>
+    <p><strong>CMD</strong>: el clásico, disponible desde DOS. Comandos simples, compatible con todo. <strong>PowerShell</strong>: más moderno y poderoso, orientado a administración de sistemas, compatible con los mismos comandos del CMD más muchos más. <strong>Terminal de Windows</strong>: solo es la "ventana" que puedes usar para abrir CMD, PowerShell o WSL (Linux en Windows) desde el mismo lugar. Esta guía cubre CMD — cuando lo domines, PowerShell es el siguiente paso natural.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     CÓMO ABRIR EL CMD
+══════════════════════════════════════════ -->
+<section class="module" id="abrir">
+  <div class="module-header">
+    <div class="module-icon">🚀</div>
+    <div>
+      <div class="module-title">Cómo abrir el CMD</div>
+      <div class="module-sub">5 formas de acceder al Símbolo del sistema</div>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Método</th><th>Pasos</th><th>Cuándo usarlo</th></tr></thead>
+    <tbody>
+      <tr><td>⌨️ <strong>Ejecutar</strong></td><td>Presiona <code>Win + R</code> → escribe <code>cmd</code> → Enter</td><td>La forma más rápida y universal</td></tr>
+      <tr><td>🔍 <strong>Búsqueda</strong></td><td>Presiona <code>Win</code> → escribe <code>cmd</code> → Enter</td><td>Si necesitas ver el ícono antes de abrir</td></tr>
+      <tr><td>👑 <strong>Administrador</strong></td><td><code>Win</code> → escribe <code>cmd</code> → clic derecho → "Ejecutar como administrador"</td><td>Para comandos que requieren permisos elevados</td></tr>
+      <tr><td>📁 <strong>Desde carpeta</strong></td><td>Abre la carpeta en Explorador → barra de dirección → escribe <code>cmd</code> → Enter</td><td>Para abrir CMD ya posicionado en esa carpeta</td></tr>
+      <tr><td>🔧 <strong>Task Manager</strong></td><td>Ctrl+Shift+Esc → Archivo → Ejecutar nueva tarea → escribe <code>cmd</code></td><td>Si el sistema tiene problemas y la barra de tareas no responde</td></tr>
+    </tbody>
+  </table>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="terminal-dot td-red"></div>
+      <div class="terminal-dot td-yel"></div>
+      <div class="terminal-dot td-grn"></div>
+      <span class="terminal-title">Símbolo del sistema</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-out">Microsoft Windows [Versión 10.0.22631.3810]</span>
+<span class="t-out">(c) Microsoft Corporation. Todos los derechos reservados.</span>
+<span class="t-out"> </span>
+<span class="t-prompt">C:\Users\Hugo></span><span class="t-cmd">_</span>
+    </div>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ CMD normal vs CMD como Administrador</h4>
+    <p>El CMD normal solo puede modificar archivos y carpetas donde tu usuario tiene permisos. El CMD como <strong>Administrador</strong> tiene acceso total al sistema — puede modificar archivos del sistema, instalar programas, cambiar configuraciones de red. Úsalo solo cuando sea necesario: los errores con permisos de admin pueden dañar el sistema.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     ESTRUCTURA DEL CMD
+══════════════════════════════════════════ -->
+<section class="module" id="estructura">
+  <div class="module-header">
+    <div class="module-icon">📐</div>
+    <div>
+      <div class="module-title">Estructura del CMD — Entender la pantalla</div>
+      <div class="module-sub">El prompt, la ruta actual, cómo escribir comandos</div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="terminal-dot td-red"></div>
+      <div class="terminal-dot td-yel"></div>
+      <div class="terminal-dot td-grn"></div>
+      <span class="terminal-title">Símbolo del sistema</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-comment">╔══════════════════════════════════════════════════════╗</span>
+<span class="t-comment">║  Unidad  Ruta actual               Prompt             ║</span>
+<span class="t-comment">║    ↓         ↓                       ↓               ║</span>
+<span class="t-prompt">C:\Users\Hugo\Documentos></span><span class="t-cmd">dir /w</span>
+<span class="t-comment">║                          ↑       ↑                   ║</span>
+<span class="t-comment">║                        Comando Modificador (flag)     ║</span>
+<span class="t-comment">╚══════════════════════════════════════════════════════╝</span>
+    </div>
+  </div>
+
+  <h2>Partes de un comando</h2>
+  <table class="tbl">
+    <thead><tr><th>Parte</th><th>Ejemplo</th><th>¿Qué es?</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Comando</strong></td><td><code>copy</code></td><td>La instrucción principal — qué quieres hacer</td></tr>
+      <tr><td><strong>Argumento</strong></td><td><code>archivo.txt</code></td><td>El objeto sobre el que actúa el comando</td></tr>
+      <tr><td><strong>Destino</strong></td><td><code>C:\Backup\</code></td><td>A dónde o con qué — el segundo argumento</td></tr>
+      <tr><td><strong>Modificador / Flag</strong></td><td><code>/s</code> <code>/w</code> <code>/p</code></td><td>Opciones que cambian el comportamiento del comando</td></tr>
+    </tbody>
+  </table>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div>
+      <span class="terminal-title">Ejemplo completo</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-comment">-- Estructura: COMANDO argumento1 argumento2 /modificador</span>
+<span class="t-prompt">C:\Users\Hugo></span> <span class="t-cmd">copy archivo.txt C:\Backup\ /y</span>
+<span class="t-comment">                ↑      ↑           ↑         ↑</span>
+<span class="t-comment">             Comando  Origen    Destino  /y = no preguntar</span>
+<span class="t-out"> </span>
+<span class="t-out">        1 archivo(s) copiado(s).</span>
+    </div>
+  </div>
+
+  <h2>Rutas en Windows — absoluta vs relativa</h2>
+  <div class="analogy">
+    <h4>🗺️ Analogía: la dirección de tu casa</h4>
+    <p>Una <strong>ruta absoluta</strong> es como la dirección completa de tu casa: "Av. Reforma 123, Col. Centro, México DF" — funciona desde cualquier lugar del mundo. Una <strong>ruta relativa</strong> es como decirle a un vecino "está a dos cuadras al norte" — solo funciona si ambos saben desde dónde cuentan. En el CMD, la ruta relativa siempre parte de donde estás actualmente (el prompt).</p>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div>
+      <span class="terminal-title">Rutas absolutas vs relativas</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-comment">-- Ruta ABSOLUTA: empieza desde la raíz de la unidad</span>
+<span class="t-prompt">C:\cualquier\lugar></span> <span class="t-cmd">cd C:\Users\Hugo\Documentos</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- Ruta RELATIVA: parte desde donde estás ahora</span>
+<span class="t-prompt">C:\Users\Hugo></span> <span class="t-cmd">cd Documentos</span>
+<span class="t-comment">-- (mismo resultado si ya estás en C:\Users\Hugo)</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- Caracteres especiales de rutas:</span>
+<span class="t-prompt">C:\Users\Hugo></span> <span class="t-cmd">cd ..</span>   <span class="t-comment">← subir un nivel (al directorio padre)</span>
+<span class="t-prompt">C:\Users></span> <span class="t-cmd">cd ..\..</span> <span class="t-comment">← subir dos niveles</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">cd \</span>     <span class="t-comment">← ir a la raíz de la unidad</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">cd %userprofile%</span> <span class="t-comment">← ir a la carpeta del usuario actual</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     NAVEGACIÓN
+══════════════════════════════════════════ -->
+<section class="module" id="navegacion">
+  <div class="module-header">
+    <div class="module-icon">📁</div>
+    <div>
+      <div class="module-title">Navegación — Moverte por el sistema de archivos</div>
+      <div class="module-sub">cd · dir · tree · pushd · popd</div>
+    </div>
+  </div>
+
+  <h2>cd — Cambiar de directorio (Change Directory)</h2>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div>
+      <span class="terminal-title">Comando cd</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-prompt">C:\Users\Hugo></span> <span class="t-cmd">cd Documentos</span>
+<span class="t-prompt">C:\Users\Hugo\Documentos></span>
+
+<span class="t-prompt">C:\Users\Hugo\Documentos></span> <span class="t-cmd">cd ..</span>
+<span class="t-prompt">C:\Users\Hugo></span>
+
+<span class="t-prompt">C:\Users\Hugo></span> <span class="t-cmd">cd C:\Windows\System32</span>
+<span class="t-prompt">C:\Windows\System32></span>
+
+<span class="t-comment">-- Cambiar de unidad (no basta con cd)</span>
+<span class="t-prompt">C:\Users\Hugo></span> <span class="t-cmd">D:</span>
+<span class="t-prompt">D:\></span>
+
+<span class="t-comment">-- Ver directorio actual sin moverse</span>
+<span class="t-prompt">C:\Users\Hugo></span> <span class="t-cmd">cd</span>
+<span class="t-out">C:\Users\Hugo</span>
+    </div>
+  </div>
+
+  <h2>dir — Listar contenido del directorio</h2>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div>
+      <span class="terminal-title">Comando dir</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-prompt">C:\Users\Hugo></span> <span class="t-cmd">dir</span>
+<span class="t-out"> El volumen de la unidad C no tiene etiqueta.</span>
+<span class="t-out"> Número de serie del volumen: 1A2B-3C4D</span>
+<span class="t-out"> </span>
+<span class="t-out"> Directorio de C:\Users\Hugo</span>
+<span class="t-out"> </span>
+<span class="t-out">29/06/2026  10:30    &lt;DIR&gt;          .</span>
+<span class="t-out">29/06/2026  10:30    &lt;DIR&gt;          ..</span>
+<span class="t-out">15/01/2026  09:15    &lt;DIR&gt;          Documentos</span>
+<span class="t-out">20/03/2026  14:22    &lt;DIR&gt;          Descargas</span>
+<span class="t-out">10/05/2026  08:00           4,096   notas.txt</span>
+<span class="t-out">22/06/2026  11:30          12,288   proyecto.docx</span>
+<span class="t-out">               2 archivos          16,384 bytes</span>
+<span class="t-out">               4 directorios  150,345,216,000 bytes libres</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- Modificadores de dir:</span>
+<span class="t-prompt">C:\Users\Hugo></span> <span class="t-cmd">dir /w</span>      <span class="t-comment">← formato ancho (varias columnas)</span>
+<span class="t-prompt">C:\Users\Hugo></span> <span class="t-cmd">dir /p</span>      <span class="t-comment">← pausar por páginas (si hay muchos archivos)</span>
+<span class="t-prompt">C:\Users\Hugo></span> <span class="t-cmd">dir /s</span>      <span class="t-comment">← incluir subdirectorios</span>
+<span class="t-prompt">C:\Users\Hugo></span> <span class="t-cmd">dir /a</span>      <span class="t-comment">← mostrar archivos ocultos y del sistema</span>
+<span class="t-prompt">C:\Users\Hugo></span> <span class="t-cmd">dir /o:s</span>    <span class="t-comment">← ordenar por tamaño</span>
+<span class="t-prompt">C:\Users\Hugo></span> <span class="t-cmd">dir /o:d</span>    <span class="t-comment">← ordenar por fecha</span>
+<span class="t-prompt">C:\Users\Hugo></span> <span class="t-cmd">dir *.txt</span>   <span class="t-comment">← solo archivos .txt</span>
+<span class="t-prompt">C:\Users\Hugo></span> <span class="t-cmd">dir /s /b *.jpg</span> <span class="t-comment">← buscar todos los .jpg en subcarpetas</span>
+    </div>
+  </div>
+
+  <h2>tree — Ver estructura de carpetas en árbol</h2>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div>
+      <span class="terminal-title">Comando tree</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-prompt">C:\proyectos\mi-web></span> <span class="t-cmd">tree</span>
+<span class="t-out">Listado de rutas de carpetas para el volumen Windows</span>
+<span class="t-out">C:\PROYECTOS\MI-WEB</span>
+<span class="t-out">├───css</span>
+<span class="t-out">├───js</span>
+<span class="t-out">├───images</span>
+<span class="t-out">│   ├───icons</span>
+<span class="t-out">│   └───photos</span>
+<span class="t-out">└───fonts</span>
+<span class="t-out"> </span>
+<span class="t-prompt">C:\proyectos\mi-web></span> <span class="t-cmd">tree /f</span>  <span class="t-comment">← mostrar también los archivos</span>
+    </div>
+  </div>
+
+  <div class="ejercicio">
+    <div class="ejercicio-hd">✏️ Ejercicio — Navegar por tu sistema <span class="ej-badge">Principiante</span></div>
+    <div class="enunciado">
+      <strong>Abre el CMD y practica estos comandos en orden. Observa cómo cambia el prompt con cada cd.</strong>
+    </div>
+    <div class="terminal">
+      <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">Tu turno — copia en el CMD</span></div>
+      <div class="terminal-body">
+<span class="t-comment">-- Paso 1: ver dónde estás</span>
+<span class="t-prompt">C:\Users\TuNombre></span> <span class="t-cmd">cd</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- Paso 2: listar lo que hay en tu carpeta actual</span>
+<span class="t-prompt">C:\Users\TuNombre></span> <span class="t-cmd">dir</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- Paso 3: entrar a Documentos</span>
+<span class="t-prompt">C:\Users\TuNombre></span> <span class="t-cmd">cd Documentos</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- Paso 4: ver estructura de carpetas</span>
+<span class="t-prompt">C:\Users\TuNombre\Documentos></span> <span class="t-cmd">tree</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- Paso 5: volver a tu carpeta de usuario</span>
+<span class="t-prompt">C:\Users\TuNombre\Documentos></span> <span class="t-cmd">cd ..</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- Paso 6: ir directo a la raíz</span>
+<span class="t-prompt">C:\Users\TuNombre></span> <span class="t-cmd">cd \</span>
+<span class="t-prompt">C:\></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     ARCHIVOS
+══════════════════════════════════════════ -->
+<section class="module" id="archivos">
+  <div class="module-header">
+    <div class="module-icon">📄</div>
+    <div>
+      <div class="module-title">Gestión de Archivos</div>
+      <div class="module-sub">copy · move · del · ren · type · echo</div>
+    </div>
+  </div>
+
+  <h2>copy — Copiar archivos</h2>
+  <div class="terminal">
+    <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">copy</span></div>
+    <div class="terminal-body">
+<span class="t-comment">-- Copiar un archivo al mismo directorio con otro nombre</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">copy notas.txt notas_backup.txt</span>
+<span class="t-out">        1 archivo(s) copiado(s).</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- Copiar a otra carpeta</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">copy notas.txt C:\Backup\notas.txt</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- Copiar todos los archivos .txt de una carpeta</span>
+<span class="t-prompt">C:\trabajo></span> <span class="t-cmd">copy *.txt C:\Backup\</span>
+<span class="t-out">        3 archivo(s) copiado(s).</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- /y = no preguntar si el archivo ya existe (sobreescribir sin confirmar)</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">copy /y notas.txt C:\Backup\</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- xcopy = copia con subdirectorios (para copiar carpetas enteras)</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">xcopy C:\trabajo C:\Backup\trabajo /s /e /i</span>
+<span class="t-comment">--                                        ↑  ↑  ↑</span>
+<span class="t-comment">--                                       /s /e = incluye subcarpetas vacías</span>
+<span class="t-comment">--                                               /i = asumir que destino es carpeta</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- robocopy = la opción más potente (Windows 7+)</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">robocopy C:\trabajo C:\Backup\trabajo /mir</span>
+<span class="t-comment">--                                           ↑ /mir = espejo (sincroniza y borra lo que no esté en origen)</span>
+    </div>
+  </div>
+
+  <h2>move — Mover (cortar y pegar) archivos</h2>
+  <div class="terminal">
+    <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">move</span></div>
+    <div class="terminal-body">
+<span class="t-comment">-- Mover un archivo a otra ubicación</span>
+<span class="t-prompt">C:\Descargas></span> <span class="t-cmd">move reporte.pdf C:\Documentos\Trabajo\</span>
+<span class="t-out">        1 archivo(s) movido(s).</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- Mover Y renombrar al mismo tiempo</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">move reporte_borrador.pdf C:\Documentos\reporte_final.pdf</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- Mover varios archivos</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">move *.jpg C:\Imagenes\</span>
+    </div>
+  </div>
+
+  <h2>del / erase — Eliminar archivos</h2>
+  <div class="terminal">
+    <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">del</span></div>
+    <div class="terminal-body">
+<span class="t-comment">-- Eliminar un archivo</span>
+<span class="t-prompt">C:\temp></span> <span class="t-cmd">del archivo_viejo.txt</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- Eliminar múltiples archivos con comodín</span>
+<span class="t-prompt">C:\temp></span> <span class="t-cmd">del *.tmp</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- /p = pedir confirmación antes de borrar cada archivo</span>
+<span class="t-prompt">C:\temp></span> <span class="t-cmd">del /p archivo.txt</span>
+<span class="t-out">C:\temp\archivo.txt, ¿Eliminar (S/N)?</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- /s = borrar también en subcarpetas</span>
+<span class="t-prompt">C:\temp></span> <span class="t-cmd">del /s *.log</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- /q = silencioso (no pide confirmación para comodines)</span>
+<span class="t-prompt">C:\temp></span> <span class="t-cmd">del /q /s *.tmp</span>
+    </div>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ del NO manda a la Papelera de reciclaje</h4>
+    <p>Cuando eliminas con <code>del</code>, el archivo <strong>se borra permanentemente</strong>. No va a la Papelera de reciclaje como cuando presionas Delete en el Explorador. No hay Ctrl+Z. Antes de usar <code>del</code> con comodines (<code>*.txt</code>), verifica siempre con <code>dir *.txt</code> qué archivos serán afectados.</p>
+  </div>
+
+  <h2>ren — Renombrar archivos y carpetas</h2>
+  <div class="terminal">
+    <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">ren</span></div>
+    <div class="terminal-body">
+<span class="t-comment">-- Renombrar un archivo</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">ren borrador.txt reporte_final.txt</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- Cambiar extensión de múltiples archivos con comodín</span>
+<span class="t-prompt">C:\fotos></span> <span class="t-cmd">ren *.jpeg *.jpg</span>
+    </div>
+  </div>
+
+  <h2>type — Ver el contenido de un archivo de texto</h2>
+  <div class="terminal">
+    <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">type y echo</span></div>
+    <div class="terminal-body">
+<span class="t-comment">-- Ver el contenido de un archivo</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">type notas.txt</span>
+<span class="t-out">Estas son mis notas del día</span>
+<span class="t-out">Recordar llamar al cliente</span>
+<span class="t-out">Entregar proyecto el viernes</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- echo: mostrar texto en pantalla O escribir en archivo</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">echo Hola, esto es un texto</span>
+<span class="t-out">Hola, esto es un texto</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- Crear/sobreescribir un archivo con echo (el > redirige la salida)</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">echo Mi primera línea > mi_archivo.txt</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- >> agrega al final sin borrar lo existente</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">echo Segunda línea >> mi_archivo.txt</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">type mi_archivo.txt</span>
+<span class="t-out">Mi primera línea</span>
+<span class="t-out">Segunda línea</span>
+    </div>
+  </div>
+
+  <div class="ejercicio">
+    <div class="ejercicio-hd">✏️ Ejercicio — Crear y gestionar archivos <span class="ej-badge">Principiante</span></div>
+    <div class="enunciado"><strong>Objetivo:</strong> Crea una estructura de proyecto desde cero usando solo comandos.</div>
+    <div class="terminal">
+      <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">Ejercicio completo</span></div>
+      <div class="terminal-body">
+<span class="t-comment">-- 1. Ir al escritorio</span>
+<span class="t-prompt">C:\Users\Hugo></span> <span class="t-cmd">cd %userprofile%\Desktop</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- 2. Crear un archivo de notas</span>
+<span class="t-prompt">C:\...\Desktop></span> <span class="t-cmd">echo Mis primeras notas en CMD > notas_cmd.txt</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- 3. Agregar más texto</span>
+<span class="t-prompt">C:\...\Desktop></span> <span class="t-cmd">echo Aprendiendo a usar el CMD >> notas_cmd.txt</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- 4. Ver el resultado</span>
+<span class="t-prompt">C:\...\Desktop></span> <span class="t-cmd">type notas_cmd.txt</span>
+<span class="t-out">Mis primeras notas en CMD</span>
+<span class="t-out">Aprendiendo a usar el CMD</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- 5. Crear una copia de respaldo</span>
+<span class="t-prompt">C:\...\Desktop></span> <span class="t-cmd">copy notas_cmd.txt notas_cmd_backup.txt</span>
+<span class="t-out">        1 archivo(s) copiado(s).</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- 6. Renombrar el original</span>
+<span class="t-prompt">C:\...\Desktop></span> <span class="t-cmd">ren notas_cmd.txt mis_notas.txt</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- 7. Ver que todo está bien</span>
+<span class="t-prompt">C:\...\Desktop></span> <span class="t-cmd">dir *.txt</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     DIRECTORIOS
+══════════════════════════════════════════ -->
+<section class="module" id="directorios">
+  <div class="module-header">
+    <div class="module-icon">📂</div>
+    <div>
+      <div class="module-title">Gestión de Directorios (Carpetas)</div>
+      <div class="module-sub">mkdir · rmdir · xcopy — crear y eliminar carpetas</div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">mkdir · rmdir</span></div>
+    <div class="terminal-body">
+<span class="t-comment">-- mkdir (make directory): crear una carpeta</span>
+<span class="t-prompt">C:\proyectos></span> <span class="t-cmd">mkdir mi-proyecto</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- Crear estructura de carpetas anidadas de una vez</span>
+<span class="t-prompt">C:\proyectos></span> <span class="t-cmd">mkdir mi-proyecto\css</span>
+<span class="t-prompt">C:\proyectos></span> <span class="t-cmd">mkdir mi-proyecto\js</span>
+<span class="t-prompt">C:\proyectos></span> <span class="t-cmd">mkdir mi-proyecto\img\icons</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- Ver resultado</span>
+<span class="t-prompt">C:\proyectos></span> <span class="t-cmd">tree mi-proyecto</span>
+<span class="t-out">MI-PROYECTO</span>
+<span class="t-out">├───css</span>
+<span class="t-out">├───img</span>
+<span class="t-out">│   └───icons</span>
+<span class="t-out">└───js</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- rmdir (remove directory): eliminar una carpeta VACÍA</span>
+<span class="t-prompt">C:\proyectos></span> <span class="t-cmd">rmdir carpeta-vacia</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- /s = eliminar aunque tenga contenido</span>
+<span class="t-comment">-- /q = silencioso (no pide confirmación)</span>
+<span class="t-prompt">C:\proyectos></span> <span class="t-cmd">rmdir /s /q carpeta-con-cosas</span>
+    </div>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ rmdir /s /q — No hay vuelta atrás</h4>
+    <p><code>rmdir /s /q</code> elimina la carpeta y todo su contenido sin preguntar y sin ir a la Papelera. Es equivalente a pulsar Shift+Delete en el Explorador. Úsalo con extrema precaución — una ruta incorrecta puede eliminar carpetas importantes del sistema.</p>
+  </div>
+
+  <div class="ejercicio">
+    <div class="ejercicio-hd">✏️ Ejercicio — Estructura de proyecto web <span class="ej-badge int">Intermedio</span></div>
+    <div class="enunciado"><strong>Objetivo:</strong> Crea la estructura completa de un proyecto web con solo comandos CMD.</div>
+    <div class="terminal">
+      <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">Proyecto web desde CMD</span></div>
+      <div class="terminal-body">
+<span class="t-prompt">C:\></span> <span class="t-cmd">mkdir C:\proyectos\mi-sitio</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">cd C:\proyectos\mi-sitio</span>
+<span class="t-out"> </span>
+<span class="t-prompt">C:\proyectos\mi-sitio></span> <span class="t-cmd">mkdir css js img img\icons fonts</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- Crear archivos base</span>
+<span class="t-prompt">C:\proyectos\mi-sitio></span> <span class="t-cmd">echo ^&lt;!DOCTYPE html^&gt; > index.html</span>
+<span class="t-prompt">C:\proyectos\mi-sitio></span> <span class="t-cmd">echo /* estilos */ > css\style.css</span>
+<span class="t-prompt">C:\proyectos\mi-sitio></span> <span class="t-cmd">echo // scripts > js\main.js</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- Ver la estructura final</span>
+<span class="t-prompt">C:\proyectos\mi-sitio></span> <span class="t-cmd">tree /f</span>
+<span class="t-out">MI-SITIO</span>
+<span class="t-out">│   index.html</span>
+<span class="t-out">├───css</span>
+<span class="t-out">│       style.css</span>
+<span class="t-out">├───fonts</span>
+<span class="t-out">├───img</span>
+<span class="t-out">│   └───icons</span>
+<span class="t-out">└───js</span>
+<span class="t-out">        main.js</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     VISUALIZAR CONTENIDO
+══════════════════════════════════════════ -->
+<section class="module" id="visualizar">
+  <div class="module-header">
+    <div class="module-icon">👁️</div>
+    <div>
+      <div class="module-title">Visualizar y buscar contenido</div>
+      <div class="module-sub">more · find · findstr — leer y buscar en archivos</div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">more · find · findstr</span></div>
+    <div class="terminal-body">
+<span class="t-comment">-- more: ver archivos grandes página por página</span>
+<span class="t-prompt">C:\logs></span> <span class="t-cmd">more sistema.log</span>
+<span class="t-out">... (contenido del archivo)</span>
+<span class="t-out">-- Más --   ← presiona Space para avanzar, Q para salir</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- El pipe | pasa la salida de un comando a otro</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">dir /s | more</span>   <span class="t-comment">← paginar la salida de dir</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- find: buscar texto exacto en archivos</span>
+<span class="t-prompt">C:\logs></span> <span class="t-cmd">find "ERROR" sistema.log</span>
+<span class="t-out">---------- SISTEMA.LOG</span>
+<span class="t-out">2026-06-28 ERROR: conexión rechazada</span>
+<span class="t-out">2026-06-29 ERROR: tiempo de espera agotado</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- /c = contar ocurrencias en vez de mostrarlas</span>
+<span class="t-prompt">C:\logs></span> <span class="t-cmd">find /c "ERROR" sistema.log</span>
+<span class="t-out">---------- SISTEMA.LOG: 2</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- /i = ignorar mayúsculas/minúsculas</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">find /i "error" sistema.log</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- findstr: como find pero con soporte para patrones (más potente)</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">findstr /i "error warning" sistema.log</span>
+<span class="t-comment">-- busca líneas que contengan "error" O "warning"</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- /s = buscar en subcarpetas también</span>
+<span class="t-prompt">C:\proyectos></span> <span class="t-cmd">findstr /s /i "TODO" *.js</span>
+<span class="t-comment">-- busca "TODO" en todos los archivos .js de todas las subcarpetas</span>
+    </div>
+  </div>
+
+  <h2>Redirección y tuberías (pipes)</h2>
+  <div class="terminal">
+    <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">Redirección >  >>  |</span></div>
+    <div class="terminal-body">
+<span class="t-comment">-- > redirige la salida a un archivo (SOBREESCRIBE)</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">dir > lista_archivos.txt</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- >> agrega al final del archivo (ACUMULA)</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">date /t >> reporte.txt</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">time /t >> reporte.txt</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- | (pipe) pasa la salida de un comando como entrada de otro</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">dir /s | find "proyecto"</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">dir /s /b *.txt | find /c "."</span>  <span class="t-comment">← contar archivos .txt</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- 2> redirige los errores (stderr) a un archivo</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">dir carpeta_inexistente 2> errores.txt</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     RED
+══════════════════════════════════════════ -->
+<section class="module" id="red">
+  <div class="module-header">
+    <div class="module-icon">🌐</div>
+    <div>
+      <div class="module-title">Comandos de Red</div>
+      <div class="module-sub">ping · ipconfig · tracert · netstat · nslookup</div>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <h4>🔍 Analogía: el diagnóstico del mecánico</h4>
+    <p>Cuando tu auto tiene problemas, el mecánico conecta un escáner para ver qué pasa internamente. Los comandos de red son ese escáner para tu conexión a internet: te dicen si hay conexión, por dónde viajan los datos, qué dispositivos están conectados, qué puertos están abiertos.</p>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">ipconfig — tu configuración de red</span></div>
+    <div class="terminal-body">
+<span class="t-comment">-- Ver toda la configuración de red</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">ipconfig</span>
+<span class="t-out"> </span>
+<span class="t-out">Adaptador de Ethernet:</span>
+<span class="t-out">   Dirección IPv4. . . . . . : <span class="t-highlight">192.168.1.105</span></span>
+<span class="t-out">   Máscara de subred . . . . : 255.255.255.0</span>
+<span class="t-out">   Puerta de enlace . . . . . : <span class="t-highlight">192.168.1.1</span></span>
+<span class="t-out"> </span>
+<span class="t-comment">-- /all = información completa (MAC, DNS, DHCP...)</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">ipconfig /all</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- Renovar dirección IP (cuando hay problemas de conexión)</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">ipconfig /release</span>   <span class="t-comment">← liberar IP actual</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">ipconfig /renew</span>    <span class="t-comment">← solicitar nueva IP</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- Limpiar caché DNS (soluciona muchos problemas de navegación)</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">ipconfig /flushdns</span>
+<span class="t-out">La caché de resolución de DNS se vació correctamente.</span>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">ping — probar conectividad</span></div>
+    <div class="terminal-body">
+<span class="t-comment">-- Hacer ping a una dirección (envía 4 paquetes por defecto)</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">ping google.com</span>
+<span class="t-out"> </span>
+<span class="t-out">Haciendo ping a google.com [142.250.65.46] con 32 bytes de datos:</span>
+<span class="t-out">Respuesta desde 142.250.65.46: bytes=32 tiempo=18ms TTL=118</span>
+<span class="t-out">Respuesta desde 142.250.65.46: bytes=32 tiempo=17ms TTL=118</span>
+<span class="t-out"> </span>
+<span class="t-out">Estadísticas de ping para 142.250.65.46:</span>
+<span class="t-out">    Paquetes: enviados = 4, recibidos = 4, perdidos = 0 (0% perdidos)</span>
+<span class="t-out">Tiempos de respuesta en milisegundos:</span>
+<span class="t-out">    Mínimo = 17ms, Máximo = 19ms, Media = 18ms</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- -t = ping continuo (hasta que presiones Ctrl+C)</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">ping -t 8.8.8.8</span>     <span class="t-comment">← 8.8.8.8 = DNS de Google</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- -n = número de paquetes específico</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">ping -n 10 google.com</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- Verificar si hay conexión local (la loopback)</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">ping 127.0.0.1</span>       <span class="t-comment">← si esto falla, la red local está rota</span>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">tracert · netstat · nslookup</span></div>
+    <div class="terminal-body">
+<span class="t-comment">-- tracert: ver el camino que hacen los datos hasta su destino</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">tracert google.com</span>
+<span class="t-out"> </span>
+<span class="t-out">Traza a la ruta a google.com [142.250.65.46]</span>
+<span class="t-out">sobre un máximo de 30 saltos:</span>
+<span class="t-out">  1    1 ms    1 ms    1 ms  192.168.1.1         ← tu router</span>
+<span class="t-out">  2    8 ms    8 ms    9 ms  10.0.0.1            ← tu ISP</span>
+<span class="t-out">  3   12 ms   11 ms   12 ms  187.174.32.1</span>
+<span class="t-out">  ...hasta llegar a destino</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- netstat: ver conexiones activas y puertos en uso</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">netstat -an</span>
+<span class="t-out">  Proto  Dirección local         Dirección remota        Estado</span>
+<span class="t-out">  TCP    0.0.0.0:80              0.0.0.0:0               LISTENING</span>
+<span class="t-out">  TCP    192.168.1.105:54321     142.250.65.46:443       ESTABLISHED</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- -b = mostrar qué programa tiene cada puerto abierto (requiere admin)</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">netstat -b</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- nslookup: resolver nombres de dominio a IPs</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">nslookup google.com</span>
+<span class="t-out">Servidor:  dns.google</span>
+<span class="t-out">Address:  8.8.8.8</span>
+<span class="t-out"> </span>
+<span class="t-out">Respuesta no autoritativa:</span>
+<span class="t-out">Nombre:  google.com</span>
+<span class="t-out">Addresses:  142.250.65.46</span>
+    </div>
+  </div>
+
+  <div class="ejercicio">
+    <div class="ejercicio-hd">✏️ Ejercicio — Diagnóstico de red completo <span class="ej-badge int">Intermedio</span></div>
+    <div class="enunciado"><strong>Objetivo:</strong> Ejecuta estos comandos en orden para hacer un diagnóstico completo de tu conexión.</div>
+    <div class="terminal">
+      <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">Diagnóstico de red</span></div>
+      <div class="terminal-body">
+<span class="t-comment">-- 1. Ver tu IP actual</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">ipconfig</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- 2. Verificar conexión local (loopback)</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">ping 127.0.0.1</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- 3. Verificar conexión a tu router (sustituye por tu IP de puerta de enlace)</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">ping 192.168.1.1</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- 4. Verificar conexión a internet</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">ping 8.8.8.8</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- 5. Verificar resolución DNS (nombres a IPs)</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">ping google.com</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- 6. Ver ruta hasta Google</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">tracert google.com</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- 7. Ver conexiones activas</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">netstat -an | find "ESTABLISHED"</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     SISTEMA
+══════════════════════════════════════════ -->
+<section class="module" id="sistema">
+  <div class="module-header">
+    <div class="module-icon">⚙️</div>
+    <div>
+      <div class="module-title">Comandos del Sistema</div>
+      <div class="module-sub">systeminfo · sfc · chkdsk · shutdown · cls · help</div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">Información y mantenimiento</span></div>
+    <div class="terminal-body">
+<span class="t-comment">-- systeminfo: información completa del sistema</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">systeminfo</span>
+<span class="t-out">Nombre de host:          MIPC</span>
+<span class="t-out">Nombre del sistema op.:  Microsoft Windows 11 Pro</span>
+<span class="t-out">Versión del sistema op.: 10.0.22631</span>
+<span class="t-out">Tipo de sistema:         x64-based PC</span>
+<span class="t-out">Procesador:              Intel(R) Core(TM) i5-12400</span>
+<span class="t-out">Memoria física total:    16,384 MB</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- ver solo el nombre del equipo</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">hostname</span>
+<span class="t-out">MIPC</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- ver fecha y hora</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">date /t</span>
+<span class="t-out">dom 29/06/2026</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">time /t</span>
+<span class="t-out">11:45</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- cls: limpiar la pantalla (Clear Screen)</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">cls</span>
+<span class="t-out">[pantalla limpia]</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- help: ver la ayuda de un comando</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">help dir</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">dir /?</span>   <span class="t-comment">← /? también muestra ayuda en la mayoría de comandos</span>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">Reparación del sistema (requiere Admin)</span></div>
+    <div class="terminal-body">
+<span class="t-comment">-- sfc /scannow: escanear y reparar archivos del sistema dañados</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">sfc /scannow</span>
+<span class="t-out">Verificación de porcentaje completado: 100</span>
+<span class="t-out">Protección de recursos de Windows no encontró ninguna infracción de integridad.</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- chkdsk: verificar y reparar errores en el disco</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">chkdsk C: /f /r</span>
+<span class="t-comment">-- /f = corregir errores, /r = recuperar sectores dañados</span>
+<span class="t-comment">-- (requiere reinicio para discos en uso)</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- DISM: reparar imagen del sistema de Windows</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">DISM /Online /Cleanup-Image /RestoreHealth</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- shutdown: apagar, reiniciar o cerrar sesión</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">shutdown /s /t 0</span>    <span class="t-comment">← apagar inmediatamente</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">shutdown /r /t 0</span>    <span class="t-comment">← reiniciar inmediatamente</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">shutdown /l</span>         <span class="t-comment">← cerrar sesión</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">shutdown /a</span>         <span class="t-comment">← abortar un apagado programado</span>
+<span class="t-comment">-- /t 60 = esperar 60 segundos antes de ejecutar</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     PROCESOS
+══════════════════════════════════════════ -->
+<section class="module" id="procesos">
+  <div class="module-header">
+    <div class="module-icon">🔄</div>
+    <div>
+      <div class="module-title">Gestión de Procesos</div>
+      <div class="module-sub">tasklist · taskkill — ver y terminar procesos</div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">tasklist · taskkill</span></div>
+    <div class="terminal-body">
+<span class="t-comment">-- tasklist: ver todos los procesos en ejecución</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">tasklist</span>
+<span class="t-out">Nombre de imagen              PID Sesión        N.° de ses.  Uso de mem.</span>
+<span class="t-out">========================= ======= ============ =========== ============</span>
+<span class="t-out">System Idle Process             0 Services                0         8 K</span>
+<span class="t-out">chrome.exe                   4532 Console                 1   250,320 K</span>
+<span class="t-out">Code.exe                     7821 Console                 1   185,640 K</span>
+<span class="t-out">notepad.exe                  9012 Console                 1     5,120 K</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- filtrar por nombre de proceso</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">tasklist | find "chrome"</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- taskkill: terminar un proceso</span>
+<span class="t-comment">-- /PID = por ID del proceso, /IM = por nombre</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">taskkill /IM notepad.exe</span>
+<span class="t-out">CORRECTO: Se envió la señal de finalización al proceso "notepad.exe" con PID 9012.</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- /f = forzar el cierre (para procesos que no responden)</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">taskkill /f /IM chrome.exe</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- cerrar por PID específico</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">taskkill /f /PID 4532</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- start: abrir un programa desde CMD</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">start notepad.exe</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">start chrome.exe https://google.com</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">start .</span>   <span class="t-comment">← abrir el Explorador en la carpeta actual</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     AVANZADO — VARIABLES Y SCRIPTS
+══════════════════════════════════════════ -->
+<section class="module" id="avanzado">
+  <div class="module-header">
+    <div class="module-icon">🧠</div>
+    <div>
+      <div class="module-title">CMD Avanzado — Variables y Scripts .bat</div>
+      <div class="module-sub">Variables de entorno, SET, IF, FOR y automatización</div>
+    </div>
+  </div>
+
+  <h2>Variables de entorno</h2>
+  <div class="terminal">
+    <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">Variables</span></div>
+    <div class="terminal-body">
+<span class="t-comment">-- set: ver todas las variables de entorno</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">set</span>
+<span class="t-out">APPDATA=C:\Users\Hugo\AppData\Roaming</span>
+<span class="t-out">COMPUTERNAME=MIPC</span>
+<span class="t-out">PATH=C:\Windows\System32;C:\Program Files\...</span>
+<span class="t-out">USERPROFILE=C:\Users\Hugo</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- Usar una variable con %nombre%</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">echo %username%</span>
+<span class="t-out">Hugo</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">cd %USERPROFILE%\Desktop</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- Crear tu propia variable (solo existe en esa sesión de CMD)</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">set MI_VAR=Hola desde CMD</span>
+<span class="t-prompt">C:\></span> <span class="t-cmd">echo %MI_VAR%</span>
+<span class="t-out">Hola desde CMD</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- Variables de entorno más útiles:</span>
+<span class="t-comment">-- %USERPROFILE% → C:\Users\TuNombre</span>
+<span class="t-comment">-- %APPDATA%     → C:\Users\TuNombre\AppData\Roaming</span>
+<span class="t-comment">-- %TEMP%        → carpeta de archivos temporales</span>
+<span class="t-comment">-- %WINDIR%      → C:\Windows</span>
+<span class="t-comment">-- %DATE%        → fecha actual</span>
+<span class="t-comment">-- %TIME%        → hora actual</span>
+    </div>
+  </div>
+
+  <h2>Scripts .bat — automatizar tareas</h2>
+  <div class="analogy">
+    <h4>🤖 Analogía: la lista de tareas del robot</h4>
+    <p>Un script .bat es una lista de instrucciones que le das al CMD para que las ejecute en orden, automáticamente, sin que estés presente. Es como dejarle una lista de tareas a un robot: "primero crea la carpeta backup, luego copia los archivos, luego elimina los temporales, luego muestra un mensaje de que terminó". Tú defines la lista una vez, y el robot la ejecuta cada vez que le dices.</p>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">backup.bat — script de respaldo automático</span></div>
+    <div class="terminal-body">
+<span class="t-comment">@echo off</span>                          <span class="t-comment">← no mostrar cada comando al ejecutarse</span>
+<span class="t-comment">title Script de Respaldo Automático</span>
+<span class="t-comment"> </span>
+<span class="t-comment">:: Configuración</span>
+<span class="t-cmd">set ORIGEN=C:\Users\Hugo\Documentos</span>
+<span class="t-cmd">set DESTINO=D:\Backup</span>
+<span class="t-cmd">set FECHA=%DATE:~6,4%-%DATE:~3,2%-%DATE:~0,2%</span>
+<span class="t-comment"> </span>
+<span class="t-comment">:: Crear carpeta del día</span>
+<span class="t-cmd">mkdir "%DESTINO%\%FECHA%" 2>nul</span>
+<span class="t-comment"> </span>
+<span class="t-comment">:: Verificar si el origen existe</span>
+<span class="t-cmd">if not exist "%ORIGEN%" (</span>
+<span class="t-cmd">    echo ERROR: La carpeta origen no existe</span>
+<span class="t-cmd">    pause</span>
+<span class="t-cmd">    exit /b 1</span>
+<span class="t-cmd">)</span>
+<span class="t-comment"> </span>
+<span class="t-comment">:: Copiar archivos</span>
+<span class="t-cmd">echo Iniciando respaldo...</span>
+<span class="t-cmd">xcopy "%ORIGEN%" "%DESTINO%\%FECHA%" /s /e /y /q</span>
+<span class="t-comment"> </span>
+<span class="t-comment">:: Confirmar resultado</span>
+<span class="t-cmd">echo.</span>
+<span class="t-cmd">echo Respaldo completado: %DESTINO%\%FECHA%</span>
+<span class="t-cmd">pause</span>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">IF y FOR en scripts</span></div>
+    <div class="terminal-body">
+<span class="t-comment">-- IF: condición</span>
+<span class="t-cmd">if exist "archivo.txt" (</span>
+<span class="t-cmd">    echo El archivo existe</span>
+<span class="t-cmd">) else (</span>
+<span class="t-cmd">    echo El archivo NO existe</span>
+<span class="t-cmd">)</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- FOR: repetición sobre archivos</span>
+<span class="t-cmd">for %%f in (*.txt) do (</span>
+<span class="t-cmd">    echo Procesando: %%f</span>
+<span class="t-cmd">    copy "%%f" "C:\Backup\"</span>
+<span class="t-cmd">)</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- FOR con rango de números</span>
+<span class="t-cmd">for /l %%i in (1,1,5) do (</span>
+<span class="t-cmd">    echo Iteración numero %%i</span>
+<span class="t-cmd">)</span>
+<span class="t-out">Iteración numero 1</span>
+<span class="t-out">Iteración numero 2</span>
+<span class="t-out">Iteración numero 3</span>
+<span class="t-out">Iteración numero 4</span>
+<span class="t-out">Iteración numero 5</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     ATAJOS DE TECLADO
+══════════════════════════════════════════ -->
+<section class="module" id="atajos">
+  <div class="module-header">
+    <div class="module-icon">⌨️</div>
+    <div>
+      <div class="module-title">Atajos de teclado del CMD</div>
+      <div class="module-sub">Los atajos que multiplican tu velocidad</div>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Atajo</th><th>¿Qué hace?</th><th>Imprescindible</th></tr></thead>
+    <tbody>
+      <tr><td><code>↑ / ↓</code></td><td>Navegar por el historial de comandos anteriores</td><td>⭐⭐⭐</td></tr>
+      <tr><td><code>Tab</code></td><td>Autocompletar el nombre de archivo o carpeta (presiona varias veces para ciclar)</td><td>⭐⭐⭐</td></tr>
+      <tr><td><code>Ctrl + C</code></td><td>Cancelar el comando que está ejecutándose</td><td>⭐⭐⭐</td></tr>
+      <tr><td><code>Ctrl + V</code></td><td>Pegar texto (en Windows 10/11 — antes había que clic derecho)</td><td>⭐⭐⭐</td></tr>
+      <tr><td><code>F7</code></td><td>Ver historial de comandos en una ventana emergente</td><td>⭐⭐</td></tr>
+      <tr><td><code>Ctrl + A</code></td><td>Seleccionar todo el texto en pantalla</td><td>⭐⭐</td></tr>
+      <tr><td><code>Ctrl + M</code></td><td>Activar modo de selección con el ratón</td><td>⭐</td></tr>
+      <tr><td><code>Ctrl + Home</code></td><td>Ir al inicio del buffer de la terminal</td><td>⭐</td></tr>
+      <tr><td><code>Alt + Enter</code></td><td>Pantalla completa / ventana</td><td>⭐</td></tr>
+      <tr><td><code>doskey /history</code></td><td>Ver todo el historial de comandos de la sesión actual</td><td>⭐⭐</td></tr>
+    </tbody>
+  </table>
+
+  <div class="tip">
+    <h4>🟢 El truco del Tab — el más valioso</h4>
+    <p>Empieza a escribir el nombre de un archivo o carpeta y presiona <code>Tab</code>. CMD lo completa automáticamente. Si hay varios que coinciden, sigue presionando Tab para ciclar por ellos. Esto evita errores de escritura y te ahorra tiempo constantemente. Por ejemplo: escribe <code>cd Doc</code> + Tab y aparece <code>cd Documentos</code>.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     CHEAT SHEET COMPLETO
+══════════════════════════════════════════ -->
+<section class="module" id="cheatsheet">
+  <div class="module-header">
+    <div class="module-icon">📋</div>
+    <div>
+      <div class="module-title">Cheat Sheet — Todos los comandos de un vistazo</div>
+      <div class="module-sub">La referencia rápida completa del CMD</div>
+    </div>
+  </div>
+
+  <h2>🧭 Navegación</h2>
+  <table class="cmd-table">
+    <thead><tr><th>Comando</th><th>¿Qué hace?</th><th>Ejemplo</th></tr></thead>
+    <tbody>
+      <tr><td><span class="cmd-cell">cd carpeta</span></td><td>Entrar a una carpeta</td><td><code>cd Documentos</code></td></tr>
+      <tr><td><span class="cmd-cell">cd ..</span></td><td>Subir al directorio padre</td><td><code>cd ..</code></td></tr>
+      <tr><td><span class="cmd-cell">cd \</span></td><td>Ir a la raíz de la unidad</td><td><code>cd \</code></td></tr>
+      <tr><td><span class="cmd-cell">cd</span></td><td>Mostrar directorio actual</td><td><code>cd</code></td></tr>
+      <tr><td><span class="cmd-cell">D:</span></td><td>Cambiar de unidad</td><td><code>D:</code></td></tr>
+      <tr><td><span class="cmd-cell">dir</span></td><td>Listar contenido del directorio</td><td><code>dir /w /p</code></td></tr>
+      <tr><td><span class="cmd-cell">tree</span></td><td>Ver árbol de carpetas</td><td><code>tree /f</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>📄 Archivos</h2>
+  <table class="cmd-table">
+    <thead><tr><th>Comando</th><th>¿Qué hace?</th><th>Ejemplo</th></tr></thead>
+    <tbody>
+      <tr><td><span class="cmd-cell">copy</span></td><td>Copiar archivo</td><td><code>copy a.txt C:\Backup\</code></td></tr>
+      <tr><td><span class="cmd-cell">xcopy</span></td><td>Copiar con subcarpetas</td><td><code>xcopy src\ dst\ /s /e</code></td></tr>
+      <tr><td><span class="cmd-cell">robocopy</span></td><td>Copia robusta y sincronización</td><td><code>robocopy src dst /mir</code></td></tr>
+      <tr><td><span class="cmd-cell">move</span></td><td>Mover archivo</td><td><code>move file.txt C:\Nueva\</code></td></tr>
+      <tr><td><span class="cmd-cell">del</span></td><td>Eliminar archivo (permanente)</td><td><code>del /q *.tmp</code></td></tr>
+      <tr><td><span class="cmd-cell">ren</span></td><td>Renombrar archivo</td><td><code>ren viejo.txt nuevo.txt</code></td></tr>
+      <tr><td><span class="cmd-cell">type</span></td><td>Ver contenido de un archivo</td><td><code>type config.txt</code></td></tr>
+      <tr><td><span class="cmd-cell">echo</span></td><td>Mostrar texto / crear archivos</td><td><code>echo texto > file.txt</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>📂 Directorios</h2>
+  <table class="cmd-table">
+    <thead><tr><th>Comando</th><th>¿Qué hace?</th><th>Ejemplo</th></tr></thead>
+    <tbody>
+      <tr><td><span class="cmd-cell">mkdir</span></td><td>Crear carpeta</td><td><code>mkdir nueva-carpeta</code></td></tr>
+      <tr><td><span class="cmd-cell">rmdir</span></td><td>Eliminar carpeta vacía</td><td><code>rmdir vacía</code></td></tr>
+      <tr><td><span class="cmd-cell">rmdir /s /q</span></td><td>Eliminar carpeta con todo su contenido</td><td><code>rmdir /s /q carpeta</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>🔎 Búsqueda</h2>
+  <table class="cmd-table">
+    <thead><tr><th>Comando</th><th>¿Qué hace?</th><th>Ejemplo</th></tr></thead>
+    <tbody>
+      <tr><td><span class="cmd-cell">find</span></td><td>Buscar texto en archivos</td><td><code>find "error" log.txt</code></td></tr>
+      <tr><td><span class="cmd-cell">findstr</span></td><td>Buscar con patrones (más potente)</td><td><code>findstr /s /i "TODO" *.js</code></td></tr>
+      <tr><td><span class="cmd-cell">dir /s /b</span></td><td>Buscar archivos por nombre</td><td><code>dir /s /b *.jpg</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>🌐 Red</h2>
+  <table class="cmd-table">
+    <thead><tr><th>Comando</th><th>¿Qué hace?</th><th>Ejemplo</th></tr></thead>
+    <tbody>
+      <tr><td><span class="cmd-cell">ipconfig</span></td><td>Ver configuración de red</td><td><code>ipconfig /all</code></td></tr>
+      <tr><td><span class="cmd-cell">ipconfig /flushdns</span></td><td>Limpiar caché DNS</td><td><code>ipconfig /flushdns</code></td></tr>
+      <tr><td><span class="cmd-cell">ping</span></td><td>Probar conectividad</td><td><code>ping -t 8.8.8.8</code></td></tr>
+      <tr><td><span class="cmd-cell">tracert</span></td><td>Trazar ruta hasta destino</td><td><code>tracert google.com</code></td></tr>
+      <tr><td><span class="cmd-cell">netstat</span></td><td>Ver conexiones activas y puertos</td><td><code>netstat -an</code></td></tr>
+      <tr><td><span class="cmd-cell">nslookup</span></td><td>Resolver nombre de dominio</td><td><code>nslookup google.com</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>⚙️ Sistema</h2>
+  <table class="cmd-table">
+    <thead><tr><th>Comando</th><th>¿Qué hace?</th><th>Ejemplo</th></tr></thead>
+    <tbody>
+      <tr><td><span class="cmd-cell">cls</span></td><td>Limpiar la pantalla</td><td><code>cls</code></td></tr>
+      <tr><td><span class="cmd-cell">systeminfo</span></td><td>Info completa del sistema</td><td><code>systeminfo</code></td></tr>
+      <tr><td><span class="cmd-cell">hostname</span></td><td>Nombre del equipo</td><td><code>hostname</code></td></tr>
+      <tr><td><span class="cmd-cell">set</span></td><td>Ver/crear variables de entorno</td><td><code>set MI_VAR=valor</code></td></tr>
+      <tr><td><span class="cmd-cell">sfc /scannow</span></td><td>Reparar archivos del sistema</td><td><code>sfc /scannow</code></td></tr>
+      <tr><td><span class="cmd-cell">chkdsk</span></td><td>Verificar/reparar disco</td><td><code>chkdsk C: /f</code></td></tr>
+      <tr><td><span class="cmd-cell">shutdown</span></td><td>Apagar/reiniciar/cerrar sesión</td><td><code>shutdown /r /t 0</code></td></tr>
+      <tr><td><span class="cmd-cell">help</span></td><td>Ayuda de un comando</td><td><code>help dir</code> o <code>dir /?</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>🔄 Procesos</h2>
+  <table class="cmd-table">
+    <thead><tr><th>Comando</th><th>¿Qué hace?</th><th>Ejemplo</th></tr></thead>
+    <tbody>
+      <tr><td><span class="cmd-cell">tasklist</span></td><td>Ver procesos en ejecución</td><td><code>tasklist | find "chrome"</code></td></tr>
+      <tr><td><span class="cmd-cell">taskkill</span></td><td>Terminar un proceso</td><td><code>taskkill /f /IM app.exe</code></td></tr>
+      <tr><td><span class="cmd-cell">start</span></td><td>Abrir programa o carpeta</td><td><code>start .</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>🔀 Redirección</h2>
+  <table class="cmd-table">
+    <thead><tr><th>Operador</th><th>¿Qué hace?</th><th>Ejemplo</th></tr></thead>
+    <tbody>
+      <tr><td><span class="cmd-cell">></span></td><td>Redirige salida a archivo (sobreescribe)</td><td><code>dir > lista.txt</code></td></tr>
+      <tr><td><span class="cmd-cell">>></span></td><td>Redirige salida a archivo (acumula)</td><td><code>echo ok >> log.txt</code></td></tr>
+      <tr><td><span class="cmd-cell">|</span></td><td>Pasa la salida como entrada del siguiente</td><td><code>dir | find "txt"</code></td></tr>
+      <tr><td><span class="cmd-cell">2></span></td><td>Redirige errores a archivo</td><td><code>cmd 2> errores.txt</code></td></tr>
+    </tbody>
+  </table>
+
+  <div style="background:linear-gradient(135deg,#0c0c0c,#1a1a1a);border-radius:12px;padding:2rem;text-align:center;margin-top:1.5rem;">
+    <div style="font-size:2.5rem;margin-bottom:.75rem;">🎉</div>
+    <h2 style="color:#4ec94e;margin-bottom:.5rem;font-size:1.4rem;">¡Ya dominas el CMD!</h2>
+    <p style="color:rgba(255,255,255,0.65);margin-bottom:1.25rem;">El siguiente paso natural es aprender <strong style="color:#fff;">PowerShell</strong> (más poderoso) o <strong style="color:#fff;">Git Bash</strong> (para desarrollo). Ambos usan comandos similares a los que acabas de aprender.</p>
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+      <div style="background:rgba(255,255,255,.07);border-radius:10px;padding:.75rem 1.5rem;color:#ccc;font-size:.88rem;">→ Aprende PowerShell</div>
+      <div style="background:rgba(255,255,255,.07);border-radius:10px;padding:.75rem 1.5rem;color:#ccc;font-size:.88rem;">→ Aprende Git desde CMD</div>
+      <div style="background:rgba(255,255,255,.07);border-radius:10px;padding:.75rem 1.5rem;color:#ccc;font-size:.88rem;">→ Automatiza con .bat</div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Guía CMD desde Cero · Café &lt;/&gt; · Hugo 2025
+</footer>
+
+</body>
+</html>

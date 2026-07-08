@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía SQL desde Cero — Parte 1 · Soy Dalto</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --primary: #c44a2a; --primary-light: #fdf0ec;
+    --secondary: #1a7a5a; --secondary-light: #edf7f3;
+    --accent: #b07010; --accent-light: #fdf6e8;
+    --sql: #336791; --sql-light: #e8f0f8;
+    --bg: #f7f4ef; --surface: #ffffff;
+    --text: #1a1814; --muted: #8a8480; --border: #e8e4de;
+    --code-bg: #1a1814;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  .cafe-bar { background:#fff; border-bottom:1px solid #e8e4de; padding:0 24px; display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:200; height:45px; }
+  .cafe-bar a { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:#8a8480; text-decoration:none; padding:6px 14px; border:1px solid #e8e4de; border-radius:999px; transition:all .15s; }
+  .cafe-bar a:hover { color:#1a1814; border-color:#8a8480; }
+  .cafe-bar span { font-size:13px; color:#8a8480; }
+
+  .partes-nav { background:var(--surface); border-bottom:1px solid var(--border); position:sticky; top:45px; z-index:110; display:flex; align-items:center; height:38px; padding:0 1rem; }
+  .partes-nav-list { flex:1; display:flex; align-items:center; justify-content:center; gap:.15rem; overflow-x:auto; padding:0 .5rem; }
+  .partes-nav-list::-webkit-scrollbar { display:none; }
+  .partes-nav-list a { flex-shrink:0; padding:2px 10px; border-radius:20px; text-decoration:none; font-size:.73rem; font-weight:600; color:var(--muted); transition:color .15s,background .15s; }
+  .partes-nav-list a:hover { color:var(--text); background:var(--bg); }
+  .partes-nav-list a.activa { background:var(--sql-light); color:var(--sql); }
+  .partes-nav-next { flex-shrink:0; padding:0 .75rem; height:100%; text-decoration:none; color:var(--muted); font-size:.78rem; font-weight:500; border-left:1px solid var(--border); display:flex; align-items:center; transition:color .15s; white-space:nowrap; }
+  .partes-nav-next:hover { color:var(--sql); }
+
+  header { background:#1a1814; color:#f7f4ef; padding:3rem 2rem 2rem; text-align:center; position:relative; overflow:hidden; }
+  header::before { content:'SQL'; position:absolute; font-size:14rem; font-weight:900; color:rgba(51,103,145,0.12); right:-1rem; top:-2rem; font-family:monospace; line-height:1; }
+  header h1 { font-size:2.5rem; font-weight:800; letter-spacing:-1px; font-family:'Fraunces',serif; }
+  header p { font-size:1.1rem; opacity:.85; margin-top:.5rem; }
+  header .badge { display:inline-block; background:rgba(51,103,145,.25); border:1px solid rgba(51,103,145,.5); color:#89b4d8; border-radius:20px; padding:4px 14px; font-size:.8rem; margin-top:.75rem; font-weight:600; }
+
+  nav { background:var(--surface); border-bottom:1px solid var(--border); position:sticky; top:83px; z-index:100; display:flex; overflow-x:auto; }
+  nav::-webkit-scrollbar { display:none; }
+  nav a { flex-shrink:0; padding:.65rem .9rem; text-decoration:none; color:var(--muted); font-size:.78rem; font-weight:500; border-bottom:2px solid transparent; transition:color .2s,border-color .2s; white-space:nowrap; }
+  nav a:hover { color:var(--sql); border-bottom-color:var(--sql); }
+
+  main { max-width:940px; margin:0 auto; padding:2rem 1.5rem; }
+
+  .module { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:2rem; margin-bottom:2.5rem; }
+  .module-header { display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border); }
+  .module-icon { font-size:1.8rem; flex-shrink:0; }
+  .module-title { font-size:1.35rem; font-weight:700; }
+  .module-sub { font-size:.85rem; color:var(--muted); margin-top:2px; }
+
+  .analogy { background:#FFF7ED; border:1px solid #FDE68A; border-left:4px solid var(--accent); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .analogy h4 { color:#92400E; font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+  .analogy p { font-size:.95rem; color:#78350F; }
+
+  .concept { background:var(--primary-light); border-left:4px solid var(--primary); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .concept h4 { color:var(--primary); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+
+  .tip { background:var(--secondary-light); border-left:4px solid var(--secondary); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .tip h4 { color:var(--secondary); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+  .tip ul { padding-left:1.2rem; }
+
+  .warn { background:#fdf0ec; border-left:4px solid var(--primary); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .warn h4 { color:var(--primary); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+
+  /* SQL CODE BLOCKS */
+  .sql-block { background:var(--code-bg); border-radius:10px; padding:1.25rem 1.5rem; font-family:'DM Mono','Courier New',monospace; font-size:.88rem; line-height:1.9; overflow-x:auto; margin:1rem 0; position:relative; white-space:pre; }
+  .sql-block .kw { color:#89B4FA; font-weight:600; } /* keywords */
+  .sql-block .fn { color:#CBA6F7; } /* functions */
+  .sql-block .st { color:#A6E3A1; } /* strings */
+  .sql-block .nm { color:#F9E2AF; } /* numbers */
+  .sql-block .cm { color:#585B70; font-style:italic; } /* comments */
+  .sql-block .tb { color:#89DCEB; } /* table/column names */
+  .sql-block .op { color:#FAB387; } /* operators/types */
+  .lang-badge { position:absolute; top:.6rem; right:.75rem; background:rgba(51,103,145,.3); color:#89b4d8; font-size:.68rem; padding:2px 8px; border-radius:4px; font-family:sans-serif; font-weight:600; }
+
+  /* TABLA DE RESULTADO SQL */
+  .sql-result { margin:1rem 0; border-radius:10px; overflow:hidden; border:1px solid var(--border); }
+  .sql-result-header { background:var(--sql); color:white; padding:.5rem 1rem; font-size:.78rem; font-weight:700; display:flex; align-items:center; gap:.5rem; }
+  .sql-result table { width:100%; border-collapse:collapse; font-size:.87rem; }
+  .sql-result th { background:var(--sql-light); color:var(--sql); padding:.55rem 1rem; text-align:left; font-weight:700; font-family:'DM Mono',monospace; border-bottom:2px solid #c8ddf0; }
+  .sql-result td { padding:.5rem 1rem; border-bottom:1px solid var(--border); font-family:'DM Mono',monospace; }
+  .sql-result tr:last-child td { border-bottom:none; }
+  .sql-result tr:hover td { background:var(--bg); }
+  .sql-result .null-val { color:var(--muted); font-style:italic; }
+  .sql-rows { padding:.4rem 1rem; font-size:.75rem; color:var(--muted); background:var(--bg); border-top:1px solid var(--border); }
+
+  /* EJERCICIO INTERACTIVO */
+  .ejercicio { background:#FFFBEB; border:1px solid #FDE68A; border-radius:14px; padding:1.5rem; margin:1.5rem 0; }
+  .ejercicio-hd { display:flex; align-items:center; gap:.75rem; margin-bottom:1rem; font-weight:700; font-size:1rem; color:#78350F; flex-wrap:wrap; }
+  .ej-badge { background:var(--accent); color:#fff; font-size:.68rem; padding:2px 9px; border-radius:20px; font-weight:700; text-transform:uppercase; }
+  .ej-badge.int { background:var(--primary); }
+  .ej-badge.sql { background:var(--sql); }
+  .editor-area { background:#1a1814; border-radius:10px; overflow:hidden; margin:.75rem 0; }
+  .editor-tabs { display:flex; border-bottom:1px solid #333; }
+  .editor-tab { padding:.4rem 1rem; font-size:.75rem; color:#888; font-family:'DM Mono',monospace; cursor:pointer; background:transparent; border:none; }
+  .editor-tab.activa { background:#252525; color:#f7f4ef; }
+  textarea.editor { width:100%; background:#252525; color:#e8e4de; border:none; padding:1rem 1.25rem; font-family:'DM Mono','Courier New',monospace; font-size:.87rem; line-height:1.8; resize:vertical; min-height:160px; outline:none; display:block; }
+  .btn-row { display:flex; gap:.5rem; flex-wrap:wrap; margin-top:.6rem; }
+  .run-btn { background:var(--sql); color:white; border:none; padding:.6rem 1.4rem; border-radius:8px; font-weight:700; font-size:.9rem; cursor:pointer; transition:background .15s; display:inline-flex; align-items:center; gap:.4rem; }
+  .run-btn:hover { background:#275070; }
+  .reset-btn { background:transparent; color:var(--muted); border:1px solid var(--border); padding:.6rem 1.1rem; border-radius:8px; font-size:.85rem; cursor:pointer; transition:all .15s; }
+  .reset-btn:hover { border-color:var(--sql); color:var(--sql); }
+  .output-label { font-size:.72rem; color:var(--muted); margin-top:.75rem; margin-bottom:.25rem; text-transform:uppercase; letter-spacing:.06em; }
+  .sql-output { background:#0f0f0f; border-radius:8px; padding:1rem 1.25rem; font-family:'DM Mono',monospace; font-size:.84rem; min-height:60px; color:#A6E3A1; white-space:pre; overflow-x:auto; }
+  .sql-output.error { color:#F38BA8; }
+  .enunciado { background:#fff; border:1px dashed #FDE68A; border-radius:8px; padding:1rem 1.25rem; margin-bottom:.75rem; font-size:.94rem; line-height:1.6; }
+  .enunciado strong { color:#78350F; }
+
+  .tbl { width:100%; border-collapse:collapse; margin:1rem 0; font-size:.9rem; }
+  .tbl th { background:var(--sql-light); color:var(--sql); padding:.65rem 1rem; text-align:left; font-weight:600; }
+  .tbl td { padding:.65rem 1rem; border-bottom:1px solid var(--border); vertical-align:top; }
+  .tbl tr:hover td { background:var(--bg); }
+
+  .tipo-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1rem; margin:1rem 0; }
+  .tipo-card { background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:1rem 1.1rem; }
+  .tipo-card .tc-cat { font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--sql); margin-bottom:.4rem; }
+  .tipo-card .tc-name { font-family:'DM Mono',monospace; font-size:.9rem; font-weight:700; color:var(--text); margin-bottom:.3rem; }
+  .tipo-card .tc-desc { font-size:.83rem; color:var(--muted); }
+
+  .parte-badge { display:inline-flex; align-items:center; gap:.5rem; background:var(--sql); color:white; border-radius:20px; padding:5px 16px; font-size:.82rem; font-weight:700; margin-bottom:1.5rem; }
+
+  h2 { font-size:1.2rem; font-weight:700; margin:1.75rem 0 .75rem; }
+  h3 { font-size:1rem; font-weight:700; margin:1.25rem 0 .5rem; }
+  p { margin-bottom:.8rem; }
+  ul,ol { padding-left:1.4rem; margin-bottom:.8rem; }
+  li { margin-bottom:.4rem; font-size:.96rem; }
+  code { font-family:'DM Mono',monospace; background:#f0ece6; color:var(--sql); padding:1px 5px; border-radius:4px; font-size:.9em; }
+  strong { font-weight:700; }
+
+  footer { text-align:center; padding:2rem; color:var(--muted); font-size:.85rem; border-top:1px solid var(--border); margin-top:1rem; background:var(--bg); }
+</style>
+</head>
+<body>
+
+<div class="cafe-bar">
+  <a href="../capitulos.html?tab=adicionales">← Volver a Mis Guias adicionales</a>
+  <span>🗄️ Guía SQL · Parte 1 de 3</span>
+</div>
+
+<div class="partes-nav">
+  <div class="partes-nav-list">
+    <a href="guia-sql-parte-1.html" class="activa">Parte 1</a>
+    <a href="guia-sql-parte-2.html">Parte 2</a>
+    <a href="guia-sql-parte-3.html">Parte 3</a>
+  </div>
+  <a class="partes-nav-next" href="guia-sql-parte-2.html">Parte 2 →</a>
+</div>
+
+<header>
+  <h1>SQL desde Cero</h1>
+  <p>Bases de datos relacionales, tablas, registros y consultas</p>
+  <span class="badge">🗄️ Parte 1 de 3 · Curso completo de Soy Dalto · 7+ horas</span>
+</header>
+
+<nav>
+  <a href="#intro">🌐 ¿Qué es SQL?</a>
+  <a href="#bases">🗄️ Bases de datos</a>
+  <a href="#tablas">📋 Tablas</a>
+  <a href="#registros">➕ Registros</a>
+  <a href="#tipos">🔢 Tipos de datos</a>
+  <a href="#select">🔍 SELECT</a>
+  <a href="#where">🎯 WHERE</a>
+  <a href="#operadores">⚙️ Operadores</a>
+</nav>
+
+<main>
+<div class="parte-badge">🗄️ Parte 1 — Fundamentos de SQL y MySQL</div>
+
+
+<!-- ══════════════════════════════════════════
+     INTRODUCCIÓN
+══════════════════════════════════════════ -->
+<section class="module" id="intro">
+  <div class="module-header">
+    <div class="module-icon">🌐</div>
+    <div>
+      <div class="module-title">¿Qué es SQL y por qué aprenderlo?</div>
+      <div class="module-sub">El lenguaje más usado para bases de datos relacionales · Introducción</div>
+    </div>
+  </div>
+
+  <p><strong>SQL (Structured Query Language)</strong> es el lenguaje estándar para comunicarse con bases de datos relacionales. Con SQL puedes crear estructuras de datos, insertar información, consultarla, actualizarla y eliminarla. Es el lenguaje más solicitado en ofertas de trabajo de tecnología.</p>
+
+  <div class="analogy">
+    <h4>📚 Analogía: la biblioteca organizada</h4>
+    <p>Imagina una biblioteca gigante con millones de libros. Sin un sistema de organización, encontrar un libro sería imposible. La biblioteca tiene ficheros, categorías, estantes numerados — una estructura que permite encontrar cualquier libro en segundos. Una <strong>base de datos</strong> es esa biblioteca digital, y <strong>SQL</strong> es el lenguaje con el que le hablas al bibliotecario: "tráeme todos los libros de ciencia ficción publicados después del 2010, ordenados por autor". El bibliotecario entiende ese lenguaje y te devuelve exactamente lo que pediste.</p>
+  </div>
+
+  <h2>¿Qué es una base de datos relacional?</h2>
+  <p>Una base de datos relacional organiza la información en <strong>tablas</strong> (como hojas de Excel) que pueden estar relacionadas entre sí. Cada tabla tiene filas (registros) y columnas (campos). La "relación" viene de poder conectar tablas: la tabla de clientes se relaciona con la tabla de pedidos, que se relaciona con la tabla de productos.</p>
+
+  <div class="sql-result">
+    <div class="sql-result-header">📋 Ejemplo: tabla de clientes en una base de datos</div>
+    <table>
+      <thead><tr><th>id_cliente</th><th>nombre</th><th>email</th><th>ciudad</th><th>fecha_registro</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>Ana García</td><td>ana@gmail.com</td><td>México DF</td><td>2023-01-15</td></tr>
+        <tr><td>2</td><td>Luis Pérez</td><td>luis@hotmail.com</td><td>Guadalajara</td><td>2023-02-20</td></tr>
+        <tr><td>3</td><td>María López</td><td>maria@gmail.com</td><td>Monterrey</td><td>2023-03-05</td></tr>
+      </tbody>
+    </table>
+    <div class="sql-rows">3 registros · 5 columnas</div>
+  </div>
+
+  <h2>MySQL — el gestor de bases de datos que usaremos</h2>
+  <p>SQL es el <em>lenguaje</em>. MySQL es el <em>programa</em> que lo interpreta y gestiona las bases de datos. Es el más popular del mundo, gratuito, open source, y el que usa el curso de Dalto.</p>
+
+  <div class="tipo-grid">
+    <div class="tipo-card">
+      <div class="tc-cat">Gestor</div>
+      <div class="tc-name">MySQL</div>
+      <div class="tc-desc">El más popular. Gratuito. Usado por Facebook, Twitter, YouTube. Lo usaremos en este curso.</div>
+    </div>
+    <div class="tipo-card">
+      <div class="tc-cat">Gestor</div>
+      <div class="tc-name">PostgreSQL</div>
+      <div class="tc-desc">Más potente para datos complejos. Preferido en proyectos académicos y científicos.</div>
+    </div>
+    <div class="tipo-card">
+      <div class="tc-cat">Gestor</div>
+      <div class="tc-name">SQL Server</div>
+      <div class="tc-desc">De Microsoft. Muy usado en empresas grandes con ecosistema Windows.</div>
+    </div>
+    <div class="tipo-card">
+      <div class="tc-cat">Herramienta</div>
+      <div class="tc-name">MySQL Workbench</div>
+      <div class="tc-desc">La interfaz visual oficial para MySQL. Donde escribirás y ejecutarás tus consultas SQL.</div>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Instalación de MySQL + Workbench paso a paso</h4>
+    <ul>
+      <li>Ve a <strong>dev.mysql.com/downloads/</strong> y descarga <strong>MySQL Installer</strong> (Windows) o el paquete de tu sistema operativo</li>
+      <li>Durante la instalación, selecciona <strong>"Developer Default"</strong> — incluye MySQL Server + Workbench</li>
+      <li>Elige una contraseña para el usuario <code>root</code> — no la olvides, la necesitarás siempre</li>
+      <li>Al terminar, abre <strong>MySQL Workbench</strong>, conéctate a <code>localhost</code> con el usuario <code>root</code></li>
+      <li>Verás el editor SQL donde ejecutarás todas las consultas del curso</li>
+    </ul>
+  </div>
+
+  <div class="concept">
+    <h4>💡 Cómo ejecutar SQL en Workbench</h4>
+    <p>Escribe tu consulta SQL en el área de texto central. Para ejecutarla: <strong>Ctrl+Enter</strong> (ejecuta la línea donde está el cursor) o <strong>Ctrl+Shift+Enter</strong> (ejecuta todo). El resultado aparece en el panel inferior. El rayo ⚡ en la barra también ejecuta.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     BASES DE DATOS
+══════════════════════════════════════════ -->
+<section class="module" id="bases">
+  <div class="module-header">
+    <div class="module-icon">🗄️</div>
+    <div>
+      <div class="module-title">Crear, mostrar y eliminar Bases de Datos</div>
+      <div class="module-sub">CREATE DATABASE · SHOW DATABASES · DROP DATABASE · USE</div>
+    </div>
+  </div>
+
+  <p>Una base de datos es el <strong>contenedor principal</strong> que agrupa todas las tablas relacionadas de un proyecto. Es lo primero que debes crear antes de hacer cualquier otra cosa.</p>
+
+  <div class="analogy">
+    <h4>🏢 Analogía: el edificio de oficinas</h4>
+    <p>Una base de datos es como un edificio. Dentro del edificio hay oficinas (tablas). Dentro de cada oficina hay archiveros (registros). Puedes tener varios edificios (varias bases de datos): uno para tu tienda online, otro para tu sistema de recursos humanos, otro para tu blog. MySQL puede gestionar todos esos edificios a la vez, pero en cada momento solo trabajas "dentro de" uno.</p>
+  </div>
+
+  <h2>Comandos para gestionar bases de datos</h2>
+
+  <div class="sql-block"><span class="lang-badge">SQL</span><span class="cm">-- Ver todas las bases de datos existentes</span>
+<span class="kw">SHOW</span> <span class="kw">DATABASES</span>;
+
+<span class="cm">-- Crear una nueva base de datos</span>
+<span class="kw">CREATE</span> <span class="kw">DATABASE</span> <span class="tb">tienda_online</span>;
+
+<span class="cm">-- Crear solo si NO existe (evita error si ya existe)</span>
+<span class="kw">CREATE</span> <span class="kw">DATABASE</span> <span class="kw">IF NOT EXISTS</span> <span class="tb">tienda_online</span>;
+
+<span class="cm">-- Seleccionar la base de datos con la que vamos a trabajar</span>
+<span class="kw">USE</span> <span class="tb">tienda_online</span>;
+
+<span class="cm">-- Ver en qué base de datos estamos</span>
+<span class="kw">SELECT</span> <span class="fn">DATABASE</span>();
+
+<span class="cm">-- Eliminar una base de datos (¡CUIDADO! No hay vuelta atrás)</span>
+<span class="kw">DROP</span> <span class="kw">DATABASE</span> <span class="tb">tienda_online</span>;
+
+<span class="cm">-- Eliminar solo si existe (evita error si no existe)</span>
+<span class="kw">DROP</span> <span class="kw">DATABASE</span> <span class="kw">IF EXISTS</span> <span class="tb">tienda_online</span>;</div>
+
+  <div class="sql-result">
+    <div class="sql-result-header">📊 Resultado de SHOW DATABASES</div>
+    <table>
+      <thead><tr><th>Database</th></tr></thead>
+      <tbody>
+        <tr><td>information_schema</td></tr>
+        <tr><td>mysql</td></tr>
+        <tr><td>performance_schema</td></tr>
+        <tr><td>tienda_online</td></tr>
+      </tbody>
+    </table>
+    <div class="sql-rows">4 registros</div>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ DROP DATABASE es irreversible</h4>
+    <p>El comando <code>DROP DATABASE</code> elimina la base de datos y <strong>todos sus datos para siempre</strong>. No hay papelera de reciclaje ni Ctrl+Z. Antes de ejecutarlo, asegúrate de estar completamente seguro. En producción, siempre haz un backup antes.</p>
+  </div>
+
+  <div class="ejercicio">
+    <div class="ejercicio-hd">✏️ Ejercicio — Crea tu primera base de datos <span class="ej-badge sql">SQL</span></div>
+    <div class="enunciado">
+      <strong>Objetivo:</strong> Copia este código en MySQL Workbench y ejecútalo paso a paso. Observa cómo aparece la base de datos en el panel izquierdo "Schemas".
+    </div>
+    <div class="editor-area">
+      <div class="editor-tabs"><button class="editor-tab activa">ejercicio.sql</button></div>
+      <textarea class="editor" id="ej-bd">-- PASO 1: Ver bases de datos existentes
+SHOW DATABASES;
+
+-- PASO 2: Crear la base de datos del curso
+CREATE DATABASE IF NOT EXISTS cafe_curso;
+
+-- PASO 3: Seleccionarla para trabajar
+USE cafe_curso;
+
+-- PASO 4: Confirmar que estamos en la correcta
+SELECT DATABASE();
+
+-- RESULTADO ESPERADO: "cafe_curso"</textarea>
+    </div>
+    <div class="btn-row">
+      <button class="run-btn" onclick="mostrarResultado('out-bd', resultados['bd'])">▶ Ver resultado esperado</button>
+      <button class="reset-btn" onclick="resetEditor('ej-bd', 'out-bd')">↺ Reiniciar</button>
+    </div>
+    <div class="output-label">Resultado esperado (ejecútalo en Workbench para ver el real):</div>
+    <div class="sql-output" id="out-bd">Presiona ▶ para ver el resultado esperado...</div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     TABLAS
+══════════════════════════════════════════ -->
+<section class="module" id="tablas">
+  <div class="module-header">
+    <div class="module-icon">📋</div>
+    <div>
+      <div class="module-title">Crear, mostrar y eliminar Tablas</div>
+      <div class="module-sub">CREATE TABLE · SHOW TABLES · DESCRIBE · DROP TABLE</div>
+    </div>
+  </div>
+
+  <p>Las tablas son el corazón de una base de datos relacional. Cada tabla representa una <strong>entidad</strong> de tu sistema: clientes, productos, pedidos, empleados. Al crear una tabla defines su estructura: qué columnas tiene y qué tipo de dato guarda cada una.</p>
+
+  <div class="analogy">
+    <h4>📊 Analogía: la hoja de cálculo estructurada</h4>
+    <p>Una tabla SQL es como una hoja de Excel muy estricta. Primero defines las columnas (nombre, tipo de dato, restricciones) — como poner encabezados y configurar validaciones. Después agregas filas de datos. La diferencia clave: Excel te deja poner cualquier cosa en cualquier celda. SQL te obliga a respetar la estructura que definiste — eso garantiza consistencia y permite hacer consultas eficientes.</p>
+  </div>
+
+  <h2>CREATE TABLE — crear la estructura</h2>
+
+  <div class="sql-block"><span class="lang-badge">SQL</span><span class="kw">USE</span> <span class="tb">cafe_curso</span>;
+
+<span class="cm">-- Crear una tabla de productos</span>
+<span class="kw">CREATE TABLE</span> <span class="tb">productos</span> (
+  <span class="tb">id</span>          <span class="op">INT</span> <span class="kw">AUTO_INCREMENT</span> <span class="kw">PRIMARY KEY</span>, <span class="cm">-- ID único, se incrementa solo</span>
+  <span class="tb">nombre</span>      <span class="op">VARCHAR</span>(<span class="nm">100</span>) <span class="kw">NOT NULL</span>,              <span class="cm">-- Texto, máx 100 chars, obligatorio</span>
+  <span class="tb">precio</span>      <span class="op">DECIMAL</span>(<span class="nm">10</span>,<span class="nm">2</span>) <span class="kw">NOT NULL</span>,             <span class="cm">-- Número decimal (ej: 1999.99)</span>
+  <span class="tb">stock</span>       <span class="op">INT</span> <span class="kw">DEFAULT</span> <span class="nm">0</span>,                      <span class="cm">-- Entero, por defecto 0</span>
+  <span class="tb">categoria</span>   <span class="op">VARCHAR</span>(<span class="nm">50</span>),                          <span class="cm">-- Texto opcional (puede ser NULL)</span>
+  <span class="tb">activo</span>      <span class="op">BOOLEAN</span> <span class="kw">DEFAULT</span> <span class="nm">TRUE</span>,               <span class="cm">-- Booleano, por defecto activo</span>
+  <span class="tb">fecha_alta</span>  <span class="op">DATETIME</span> <span class="kw">DEFAULT</span> <span class="fn">NOW</span>()              <span class="cm">-- Fecha y hora de creación automática</span>
+);
+
+<span class="cm">-- Ver todas las tablas de la base de datos actual</span>
+<span class="kw">SHOW TABLES</span>;
+
+<span class="cm">-- Ver la estructura de una tabla (columnas, tipos, restricciones)</span>
+<span class="kw">DESCRIBE</span> <span class="tb">productos</span>;
+<span class="cm">-- También funciona: DESC productos;</span>
+
+<span class="cm">-- Ver el SQL que generó la tabla</span>
+<span class="kw">SHOW CREATE TABLE</span> <span class="tb">productos</span>;
+
+<span class="cm">-- Eliminar una tabla</span>
+<span class="kw">DROP TABLE</span> <span class="kw">IF EXISTS</span> <span class="tb">productos</span>;</div>
+
+  <div class="sql-result">
+    <div class="sql-result-header">📊 Resultado de DESCRIBE productos</div>
+    <table>
+      <thead><tr><th>Field</th><th>Type</th><th>Null</th><th>Key</th><th>Default</th><th>Extra</th></tr></thead>
+      <tbody>
+        <tr><td>id</td><td>int</td><td>NO</td><td>PRI</td><td class="null-val">NULL</td><td>auto_increment</td></tr>
+        <tr><td>nombre</td><td>varchar(100)</td><td>NO</td><td></td><td class="null-val">NULL</td><td></td></tr>
+        <tr><td>precio</td><td>decimal(10,2)</td><td>NO</td><td></td><td class="null-val">NULL</td><td></td></tr>
+        <tr><td>stock</td><td>int</td><td>YES</td><td></td><td>0</td><td></td></tr>
+        <tr><td>categoria</td><td>varchar(50)</td><td>YES</td><td></td><td class="null-val">NULL</td><td></td></tr>
+        <tr><td>activo</td><td>tinyint(1)</td><td>YES</td><td></td><td>1</td><td></td></tr>
+        <tr><td>fecha_alta</td><td>datetime</td><td>YES</td><td></td><td>NOW()</td><td></td></tr>
+      </tbody>
+    </table>
+    <div class="sql-rows">7 columnas</div>
+  </div>
+
+  <h2>Restricciones (CONSTRAINTS) más importantes</h2>
+
+  <table class="tbl">
+    <thead><tr><th>Restricción</th><th>¿Qué hace?</th><th>Ejemplo</th></tr></thead>
+    <tbody>
+      <tr><td><code>PRIMARY KEY</code></td><td>Identifica de forma única cada fila. No puede repetirse ni ser NULL.</td><td><code>id INT PRIMARY KEY</code></td></tr>
+      <tr><td><code>AUTO_INCREMENT</code></td><td>El número se incrementa automáticamente con cada nuevo registro.</td><td><code>id INT AUTO_INCREMENT</code></td></tr>
+      <tr><td><code>NOT NULL</code></td><td>El campo es obligatorio — no puede dejarse vacío.</td><td><code>nombre VARCHAR(100) NOT NULL</code></td></tr>
+      <tr><td><code>DEFAULT valor</code></td><td>Si no se proporciona un valor, usa este por defecto.</td><td><code>stock INT DEFAULT 0</code></td></tr>
+      <tr><td><code>UNIQUE</code></td><td>El valor no puede repetirse en ninguna fila de la tabla.</td><td><code>email VARCHAR(100) UNIQUE</code></td></tr>
+      <tr><td><code>FOREIGN KEY</code></td><td>Relaciona una columna con la PRIMARY KEY de otra tabla.</td><td>Lo veremos en JOINs</td></tr>
+    </tbody>
+  </table>
+
+  <div class="ejercicio">
+    <div class="ejercicio-hd">✏️ Ejercicio — Diseña la base de datos de una cafetería <span class="ej-badge sql">SQL</span></div>
+    <div class="enunciado">
+      <strong>Objetivo:</strong> Crea tres tablas relacionadas para una cafetería: clientes, productos y empleados. Copia en Workbench y ejecuta.
+    </div>
+    <div class="editor-area">
+      <textarea class="editor" id="ej-tablas">USE cafe_curso;
+
+-- Tabla de clientes
+CREATE TABLE IF NOT EXISTS clientes (
+  id          INT AUTO_INCREMENT PRIMARY KEY,
+  nombre      VARCHAR(100) NOT NULL,
+  email       VARCHAR(150) UNIQUE NOT NULL,
+  telefono    VARCHAR(20),
+  ciudad      VARCHAR(80),
+  fecha_reg   DATE DEFAULT (CURRENT_DATE)
+);
+
+-- Tabla de productos del menú
+CREATE TABLE IF NOT EXISTS menu (
+  id          INT AUTO_INCREMENT PRIMARY KEY,
+  nombre      VARCHAR(100) NOT NULL,
+  descripcion TEXT,
+  precio      DECIMAL(8,2) NOT NULL,
+  categoria   ENUM('bebida','comida','postre') NOT NULL,
+  disponible  BOOLEAN DEFAULT TRUE
+);
+
+-- Tabla de empleados
+CREATE TABLE IF NOT EXISTS empleados (
+  id          INT AUTO_INCREMENT PRIMARY KEY,
+  nombre      VARCHAR(100) NOT NULL,
+  cargo       VARCHAR(50) NOT NULL,
+  salario     DECIMAL(10,2),
+  fecha_inicio DATE,
+  activo      BOOLEAN DEFAULT TRUE
+);
+
+-- Verificar que se crearon
+SHOW TABLES;
+
+-- Ver estructura de clientes
+DESCRIBE clientes;</textarea>
+    </div>
+    <div class="btn-row">
+      <button class="run-btn" onclick="mostrarResultado('out-tablas', resultados['tablas'])">▶ Ver resultado esperado</button>
+      <button class="reset-btn" onclick="resetEditor('ej-tablas','out-tablas')">↺ Reiniciar</button>
+    </div>
+    <div class="output-label">Resultado esperado:</div>
+    <div class="sql-output" id="out-tablas">Presiona ▶ para ver el resultado...</div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     REGISTROS — INSERT
+══════════════════════════════════════════ -->
+<section class="module" id="registros">
+  <div class="module-header">
+    <div class="module-icon">➕</div>
+    <div>
+      <div class="module-title">Insertar, actualizar y eliminar Registros</div>
+      <div class="module-sub">INSERT INTO · UPDATE · DELETE · TRUNCATE</div>
+    </div>
+  </div>
+
+  <p>Una vez que tienes la estructura (tablas), es hora de llenarla con datos. Los registros son las <strong>filas de datos</strong> dentro de una tabla.</p>
+
+  <h2>INSERT INTO — agregar registros</h2>
+
+  <div class="sql-block"><span class="lang-badge">SQL</span><span class="kw">USE</span> <span class="tb">cafe_curso</span>;
+
+<span class="cm">-- Insertar un registro (especificando columnas)</span>
+<span class="kw">INSERT INTO</span> <span class="tb">clientes</span> (<span class="tb">nombre</span>, <span class="tb">email</span>, <span class="tb">telefono</span>, <span class="tb">ciudad</span>)
+<span class="kw">VALUES</span> (<span class="st">'Ana García'</span>, <span class="st">'ana@gmail.com'</span>, <span class="st">'5551234567'</span>, <span class="st">'México DF'</span>);
+
+<span class="cm">-- Insertar múltiples registros en una sola consulta (más eficiente)</span>
+<span class="kw">INSERT INTO</span> <span class="tb">clientes</span> (<span class="tb">nombre</span>, <span class="tb">email</span>, <span class="tb">ciudad</span>)
+<span class="kw">VALUES</span>
+  (<span class="st">'Luis Pérez'</span>,   <span class="st">'luis@hotmail.com'</span>,  <span class="st">'Guadalajara'</span>),
+  (<span class="st">'María López'</span>,  <span class="st">'maria@gmail.com'</span>,   <span class="st">'Monterrey'</span>),
+  (<span class="st">'Carlos Ruiz'</span>,  <span class="st">'carlos@yahoo.com'</span>,  <span class="st">'Guadalajara'</span>),
+  (<span class="st">'Sofia Méndez'</span>, <span class="st">'sofia@outlook.com'</span>, <span class="st">'México DF'</span>);
+
+<span class="cm">-- Insertar productos en el menú</span>
+<span class="kw">INSERT INTO</span> <span class="tb">menu</span> (<span class="tb">nombre</span>, <span class="tb">precio</span>, <span class="tb">categoria</span>)
+<span class="kw">VALUES</span>
+  (<span class="st">'Café Americano'</span>,  <span class="nm">45.00</span>,  <span class="st">'bebida'</span>),
+  (<span class="st">'Cappuccino'</span>,       <span class="nm">65.00</span>,  <span class="st">'bebida'</span>),
+  (<span class="st">'Croissant'</span>,        <span class="nm">55.00</span>,  <span class="st">'comida'</span>),
+  (<span class="st">'Cheesecake'</span>,       <span class="nm">80.00</span>,  <span class="st">'postre'</span>),
+  (<span class="st">'Latte'</span>,            <span class="nm">70.00</span>,  <span class="st">'bebida'</span>),
+  (<span class="st">'Sandwich Club'</span>,    <span class="nm">95.00</span>,  <span class="st">'comida'</span>);</div>
+
+  <h2>UPDATE — modificar registros existentes</h2>
+
+  <div class="sql-block"><span class="lang-badge">SQL</span><span class="cm">-- Actualizar UN registro (siempre usa WHERE para no actualizar todos)</span>
+<span class="kw">UPDATE</span> <span class="tb">clientes</span>
+<span class="kw">SET</span> <span class="tb">telefono</span> = <span class="st">'5559876543'</span>, <span class="tb">ciudad</span> = <span class="st">'Puebla'</span>
+<span class="kw">WHERE</span> <span class="tb">id</span> = <span class="nm">1</span>;
+
+<span class="cm">-- Actualizar VARIOS registros con una condición</span>
+<span class="kw">UPDATE</span> <span class="tb">menu</span>
+<span class="kw">SET</span> <span class="tb">precio</span> = <span class="tb">precio</span> * <span class="nm">1.10</span>  <span class="cm">-- aumentar precios 10%</span>
+<span class="kw">WHERE</span> <span class="tb">categoria</span> = <span class="st">'bebida'</span>;
+
+<span class="cm">-- Desactivar un producto</span>
+<span class="kw">UPDATE</span> <span class="tb">menu</span>
+<span class="kw">SET</span> <span class="tb">disponible</span> = <span class="nm">FALSE</span>
+<span class="kw">WHERE</span> <span class="tb">nombre</span> = <span class="st">'Croissant'</span>;</div>
+
+  <div class="warn">
+    <h4>⚠️ UPDATE sin WHERE — el error más peligroso en SQL</h4>
+    <p>Si ejecutas <code>UPDATE clientes SET ciudad = 'Prueba'</code> sin el <code>WHERE</code>, actualizarás la ciudad de <strong>TODOS</strong> los clientes. Antes de ejecutar un UPDATE, siempre escribe primero el WHERE. MySQL Workbench tiene un modo "Safe Updates" que bloquea esto — mantenlo activado mientras aprendes.</p>
+  </div>
+
+  <h2>DELETE y TRUNCATE — eliminar registros</h2>
+
+  <div class="sql-block"><span class="lang-badge">SQL</span><span class="cm">-- Eliminar UN registro específico</span>
+<span class="kw">DELETE FROM</span> <span class="tb">clientes</span>
+<span class="kw">WHERE</span> <span class="tb">id</span> = <span class="nm">3</span>;
+
+<span class="cm">-- Eliminar VARIOS registros con condición</span>
+<span class="kw">DELETE FROM</span> <span class="tb">menu</span>
+<span class="kw">WHERE</span> <span class="tb">disponible</span> = <span class="nm">FALSE</span>;
+
+<span class="cm">-- TRUNCATE: vacía la tabla ENTERA y resetea el auto_increment</span>
+<span class="cm">-- Más rápido que DELETE sin WHERE, pero no se puede deshacer</span>
+<span class="kw">TRUNCATE TABLE</span> <span class="tb">menu</span>;</div>
+
+  <table class="tbl">
+    <thead><tr><th>Comando</th><th>¿Qué hace?</th><th>¿Resetea AUTO_INCREMENT?</th><th>¿Se puede filtrar?</th></tr></thead>
+    <tbody>
+      <tr><td><code>DELETE FROM tabla WHERE ...</code></td><td>Elimina filas específicas</td><td>No</td><td>Sí (con WHERE)</td></tr>
+      <tr><td><code>DELETE FROM tabla</code></td><td>Elimina TODAS las filas</td><td>No</td><td>No</td></tr>
+      <tr><td><code>TRUNCATE TABLE tabla</code></td><td>Vacía la tabla completamente</td><td>✅ Sí</td><td>No</td></tr>
+    </tbody>
+  </table>
+
+  <div class="ejercicio">
+    <div class="ejercicio-hd">✏️ Ejercicio — Carga completa de datos de cafetería <span class="ej-badge int">Integrador</span></div>
+    <div class="enunciado"><strong>Objetivo:</strong> Inserta datos reales en las tres tablas. Luego practica UPDATE y DELETE con casos concretos.</div>
+    <div class="editor-area">
+      <textarea class="editor" id="ej-insert">USE cafe_curso;
+
+-- ── Insertar clientes ────────────────────────
+INSERT INTO clientes (nombre, email, telefono, ciudad) VALUES
+  ('Ana García',    'ana@gmail.com',    '5551111111', 'México DF'),
+  ('Luis Pérez',    'luis@hotmail.com', '5552222222', 'Guadalajara'),
+  ('María López',   'maria@gmail.com',  '5553333333', 'Monterrey'),
+  ('Carlos Ruiz',   'carlos@yahoo.com', '5554444444', 'Guadalajara'),
+  ('Sofia Méndez',  'sofia@gmail.com',  '5555555555', 'México DF'),
+  ('Pedro Torres',  'pedro@gmail.com',  '5556666666', 'Puebla'),
+  ('Laura Jiménez', 'laura@gmail.com',  '5557777777', 'Monterrey');
+
+-- ── Insertar menú ────────────────────────────
+INSERT INTO menu (nombre, descripcion, precio, categoria) VALUES
+  ('Café Americano', 'Café negro clásico',         45.00, 'bebida'),
+  ('Cappuccino',     'Café con leche espumada',    65.00, 'bebida'),
+  ('Latte',          'Café con leche suave',       70.00, 'bebida'),
+  ('Matcha Latte',   'Té verde con leche',         75.00, 'bebida'),
+  ('Croissant',      'Croissant mantequilla',      55.00, 'comida'),
+  ('Sandwich Club',  'Jamón, queso y vegetales',   95.00, 'comida'),
+  ('Avocado Toast',  'Pan tostado con aguacate',   85.00, 'comida'),
+  ('Cheesecake',     'Tarta de queso clásica',     80.00, 'postre'),
+  ('Brownie',        'Brownie de chocolate',       60.00, 'postre');
+
+-- ── Insertar empleados ───────────────────────
+INSERT INTO empleados (nombre, cargo, salario, fecha_inicio) VALUES
+  ('Marco Rodríguez', 'Barista',    8500.00, '2022-01-10'),
+  ('Elena Vargas',    'Gerente',   15000.00, '2021-06-01'),
+  ('Diego Morales',   'Barista',    8000.00, '2022-08-15'),
+  ('Carmen Santos',   'Cajera',     7500.00, '2023-02-20');
+
+-- ── Practicar UPDATE ──────────────────────────
+-- 1. Subir 10% el precio de todas las bebidas
+UPDATE menu SET precio = precio * 1.10 WHERE categoria = 'bebida';
+
+-- 2. Actualizar teléfono de Ana García
+UPDATE clientes SET telefono = '5551999999' WHERE id = 1;
+
+-- 3. Desactivar el Croissant (sin stock)
+UPDATE menu SET disponible = FALSE WHERE nombre = 'Croissant';
+
+-- ── Verificar resultados ──────────────────────
+SELECT 'Clientes:' AS tabla, COUNT(*) AS total FROM clientes
+UNION ALL
+SELECT 'Menu:', COUNT(*) FROM menu
+UNION ALL
+SELECT 'Empleados:', COUNT(*) FROM empleados;</textarea>
+    </div>
+    <div class="btn-row">
+      <button class="run-btn" onclick="mostrarResultado('out-insert', resultados['insert'])">▶ Ver resultado esperado</button>
+      <button class="reset-btn" onclick="resetEditor('ej-insert','out-insert')">↺ Reiniciar</button>
+    </div>
+    <div class="output-label">Resultado esperado:</div>
+    <div class="sql-output" id="out-insert">Presiona ▶ para ver el resultado...</div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     TIPOS DE DATOS
+══════════════════════════════════════════ -->
+<section class="module" id="tipos">
+  <div class="module-header">
+    <div class="module-icon">🔢</div>
+    <div>
+      <div class="module-title">Tipos de Datos en MySQL</div>
+      <div class="module-sub">Numéricos, texto, fechas y especiales</div>
+    </div>
+  </div>
+
+  <p>Elegir el tipo de dato correcto para cada columna es fundamental: afecta el espacio en disco, la velocidad de las consultas y qué operaciones puedes hacer con el dato.</p>
+
+  <div class="analogy">
+    <h4>📦 Analogía: los moldes de fábrica</h4>
+    <p>En una fábrica de chocolates, tienes moldes de diferentes formas y tamaños. No puedes poner un chocolate de 500g en un molde de 50g, ni tiene sentido usar un molde enorme para uno pequeño. Los tipos de datos son esos moldes: cada columna tiene exactamente el molde adecuado para lo que va a guardar. Usar el molde equivocado desperdicia espacio, ralentiza la base de datos o directamente no permite guardar el dato.</p>
+  </div>
+
+  <h2>Tipos numéricos</h2>
+  <div class="tipo-grid">
+    <div class="tipo-card">
+      <div class="tc-cat">Entero pequeño</div>
+      <div class="tc-name">TINYINT</div>
+      <div class="tc-desc">-128 a 127 (o 0-255 UNSIGNED). Para estados, booleanos, edades pequeñas. 1 byte.</div>
+    </div>
+    <div class="tipo-card">
+      <div class="tc-cat">Entero estándar</div>
+      <div class="tc-name">INT</div>
+      <div class="tc-desc">-2,147,483,648 a 2,147,483,647. El más usado para IDs y contadores. 4 bytes.</div>
+    </div>
+    <div class="tipo-card">
+      <div class="tc-cat">Entero grande</div>
+      <div class="tc-name">BIGINT</div>
+      <div class="tc-desc">Hasta ±9.2 quintillones. Para IDs de alta escala (Twitter usa BIGINT para IDs de tweets). 8 bytes.</div>
+    </div>
+    <div class="tipo-card">
+      <div class="tc-cat">Decimal exacto</div>
+      <div class="tc-name">DECIMAL(m,d)</div>
+      <div class="tc-desc">Para dinero y precios. DECIMAL(10,2) → hasta 99,999,999.99. Exacto, sin redondeo.</div>
+    </div>
+    <div class="tipo-card">
+      <div class="tc-cat">Decimal flotante</div>
+      <div class="tc-name">FLOAT / DOUBLE</div>
+      <div class="tc-desc">Para cálculos científicos. Puede tener pequeños errores de precisión — NO usar para dinero.</div>
+    </div>
+    <div class="tipo-card">
+      <div class="tc-cat">Booleano</div>
+      <div class="tc-name">BOOLEAN / BOOL</div>
+      <div class="tc-desc">TRUE o FALSE. Internamente es TINYINT(1). 0=FALSE, cualquier otro=TRUE.</div>
+    </div>
+  </div>
+
+  <h2>Tipos de texto</h2>
+  <div class="tipo-grid">
+    <div class="tipo-card">
+      <div class="tc-cat">Texto variable</div>
+      <div class="tc-name">VARCHAR(n)</div>
+      <div class="tc-desc">El más usado. Hasta n caracteres. Solo usa el espacio que necesita. Ideal para nombres, emails, títulos. Máx: 65,535.</div>
+    </div>
+    <div class="tipo-card">
+      <div class="tc-cat">Texto fijo</div>
+      <div class="tc-name">CHAR(n)</div>
+      <div class="tc-desc">Siempre ocupa n caracteres (rellena con espacios). Para datos de longitud fija: códigos postales, códigos de país.</div>
+    </div>
+    <div class="tipo-card">
+      <div class="tc-cat">Texto largo</div>
+      <div class="tc-name">TEXT</div>
+      <div class="tc-desc">Para textos largos: descripciones, artículos, comentarios. Hasta 65,535 caracteres. No se puede indexar completo.</div>
+    </div>
+    <div class="tipo-card">
+      <div class="tc-cat">Lista fija</div>
+      <div class="tc-name">ENUM('a','b','c')</div>
+      <div class="tc-desc">Solo acepta los valores listados. Para categorías fijas: estados, roles, tipos. Eficiente en almacenamiento.</div>
+    </div>
+  </div>
+
+  <h2>Tipos de fecha y hora</h2>
+  <table class="tbl">
+    <thead><tr><th>Tipo</th><th>Formato</th><th>Rango</th><th>Cuándo usarlo</th></tr></thead>
+    <tbody>
+      <tr><td><code>DATE</code></td><td><code>YYYY-MM-DD</code></td><td>1000-01-01 a 9999-12-31</td><td>Fechas sin hora: cumpleaños, fechas de entrega</td></tr>
+      <tr><td><code>TIME</code></td><td><code>HH:MM:SS</code></td><td>-838:59:59 a 838:59:59</td><td>Duración, horarios</td></tr>
+      <tr><td><code>DATETIME</code></td><td><code>YYYY-MM-DD HH:MM:SS</code></td><td>1000 a 9999</td><td>Fecha y hora de un evento: pedidos, registros</td></tr>
+      <tr><td><code>TIMESTAMP</code></td><td><code>YYYY-MM-DD HH:MM:SS</code></td><td>1970 a 2038</td><td>Auditoría: created_at, updated_at. Se actualiza automáticamente.</td></tr>
+      <tr><td><code>YEAR</code></td><td><code>YYYY</code></td><td>1901 a 2155</td><td>Solo el año: año de publicación, año fiscal</td></tr>
+    </tbody>
+  </table>
+
+  <div class="sql-block"><span class="lang-badge">SQL</span><span class="cm">-- Ejemplos de uso de tipos de datos</span>
+<span class="kw">CREATE TABLE</span> <span class="tb">ejemplo_tipos</span> (
+  <span class="cm">-- Numéricos</span>
+  <span class="tb">id</span>           <span class="op">INT</span> <span class="kw">AUTO_INCREMENT PRIMARY KEY</span>,
+  <span class="tb">edad</span>         <span class="op">TINYINT UNSIGNED</span>,            <span class="cm">-- 0 a 255</span>
+  <span class="tb">precio</span>       <span class="op">DECIMAL</span>(<span class="nm">10</span>,<span class="nm">2</span>),
+  <span class="tb">latitud</span>      <span class="op">DOUBLE</span>,                      <span class="cm">-- Para coordenadas GPS</span>
+
+  <span class="cm">-- Texto</span>
+  <span class="tb">nombre</span>       <span class="op">VARCHAR</span>(<span class="nm">100</span>) <span class="kw">NOT NULL</span>,
+  <span class="tb">codigo_pais</span>  <span class="op">CHAR</span>(<span class="nm">2</span>),                    <span class="cm">-- MX, US, AR (siempre 2 chars)</span>
+  <span class="tb">descripcion</span>  <span class="op">TEXT</span>,
+  <span class="tb">estado</span>       <span class="op">ENUM</span>(<span class="st">'activo'</span>,<span class="st">'inactivo'</span>,<span class="st">'pendiente'</span>),
+
+  <span class="cm">-- Fechas</span>
+  <span class="tb">fecha_nac</span>    <span class="op">DATE</span>,
+  <span class="tb">creado_en</span>    <span class="op">TIMESTAMP</span> <span class="kw">DEFAULT</span> <span class="fn">CURRENT_TIMESTAMP</span>,
+  <span class="tb">actualizado</span>  <span class="op">TIMESTAMP</span> <span class="kw">DEFAULT</span> <span class="fn">CURRENT_TIMESTAMP</span> <span class="kw">ON UPDATE</span> <span class="fn">CURRENT_TIMESTAMP</span>
+);</div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     SELECT — CONSULTAS BÁSICAS
+══════════════════════════════════════════ -->
+<section class="module" id="select">
+  <div class="module-header">
+    <div class="module-icon">🔍</div>
+    <div>
+      <div class="module-title">SELECT — La consulta más importante de SQL</div>
+      <div class="module-sub">Leer y filtrar datos de las tablas</div>
+    </div>
+  </div>
+
+  <p><code>SELECT</code> es el comando que usarás el 80% del tiempo en SQL. Sirve para <strong>leer datos</strong> de una o más tablas, con filtros, ordenamiento, agrupaciones y más.</p>
+
+  <div class="analogy">
+    <h4>🔎 Analogía: el buscador inteligente</h4>
+    <p>SELECT es como un buscador de archivos muy avanzado. No solo te muestra archivos — te deja filtrar por fecha, tipo, tamaño; ordenarlos por nombre o fecha; mostrar solo 10 resultados; combinar archivos de diferentes carpetas. La diferencia con buscadores web: tú defines exactamente qué quieres ver y cómo lo quieres ver, con una precisión quirúrgica.</p>
+  </div>
+
+  <h2>Anatomía de un SELECT</h2>
+  <div class="sql-block"><span class="lang-badge">SQL</span><span class="cm">-- Estructura completa de un SELECT (no todas las partes son obligatorias)</span>
+<span class="kw">SELECT</span>   columnas           <span class="cm">-- ¿Qué columnas quiero ver?</span>
+<span class="kw">FROM</span>     tabla              <span class="cm">-- ¿De qué tabla?</span>
+<span class="kw">WHERE</span>    condición          <span class="cm">-- ¿Con qué filtro? (opcional)</span>
+<span class="kw">ORDER BY</span> columna <span class="kw">ASC/DESC</span>  <span class="cm">-- ¿En qué orden? (opcional)</span>
+<span class="kw">LIMIT</span>    número;            <span class="cm">-- ¿Cuántos resultados máximo? (opcional)</span></div>
+
+  <div class="sql-block"><span class="lang-badge">SQL</span><span class="kw">USE</span> <span class="tb">cafe_curso</span>;
+
+<span class="cm">-- Seleccionar TODAS las columnas</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tb">clientes</span>;
+
+<span class="cm">-- Seleccionar columnas específicas</span>
+<span class="kw">SELECT</span> <span class="tb">nombre</span>, <span class="tb">email</span>, <span class="tb">ciudad</span>
+<span class="kw">FROM</span> <span class="tb">clientes</span>;
+
+<span class="cm">-- Alias — cambiar el nombre de la columna en el resultado</span>
+<span class="kw">SELECT</span>
+  <span class="tb">nombre</span>  <span class="kw">AS</span> <span class="st">'Cliente'</span>,
+  <span class="tb">email</span>   <span class="kw">AS</span> <span class="st">'Correo electrónico'</span>,
+  <span class="tb">ciudad</span>  <span class="kw">AS</span> <span class="st">'Ubicación'</span>
+<span class="kw">FROM</span> <span class="tb">clientes</span>;
+
+<span class="cm">-- Columnas calculadas</span>
+<span class="kw">SELECT</span>
+  <span class="tb">nombre</span>,
+  <span class="tb">precio</span>,
+  <span class="tb">precio</span> * <span class="nm">1.16</span> <span class="kw">AS</span> <span class="st">'precio_con_iva'</span>
+<span class="kw">FROM</span> <span class="tb">menu</span>;
+
+<span class="cm">-- SELECT sin FROM — útil para calcular o ver funciones</span>
+<span class="kw">SELECT</span> <span class="nm">2</span> + <span class="nm">2</span>;
+<span class="kw">SELECT</span> <span class="fn">NOW</span>();
+<span class="kw">SELECT</span> <span class="fn">VERSION</span>();</div>
+
+  <div class="sql-result">
+    <div class="sql-result-header">📊 Resultado: SELECT nombre, precio, precio * 1.16 AS precio_con_iva FROM menu</div>
+    <table>
+      <thead><tr><th>nombre</th><th>precio</th><th>precio_con_iva</th></tr></thead>
+      <tbody>
+        <tr><td>Café Americano</td><td>49.50</td><td>57.4200</td></tr>
+        <tr><td>Cappuccino</td><td>71.50</td><td>82.9400</td></tr>
+        <tr><td>Latte</td><td>77.00</td><td>89.3200</td></tr>
+        <tr><td>Matcha Latte</td><td>82.50</td><td>95.7000</td></tr>
+        <tr><td>Croissant</td><td>55.00</td><td>63.8000</td></tr>
+        <tr><td>Cheesecake</td><td>80.00</td><td>92.8000</td></tr>
+      </tbody>
+    </table>
+    <div class="sql-rows">6 registros</div>
+  </div>
+
+  <div class="ejercicio">
+    <div class="ejercicio-hd">✏️ Practica SELECT básico <span class="ej-badge sql">SQL</span></div>
+    <div class="enunciado"><strong>Objetivo:</strong> Escribe consultas SELECT para obtener distintas vistas de los datos. Modifica las columnas y agrega aliases.</div>
+    <div class="editor-area">
+      <textarea class="editor" id="ej-select">USE cafe_curso;
+
+-- 1. Ver todos los clientes completos
+SELECT * FROM clientes;
+
+-- 2. Ver solo nombre y ciudad de clientes
+SELECT nombre, ciudad FROM clientes;
+
+-- 3. Ver menú con precio con IVA (16%)
+SELECT
+  nombre,
+  categoria,
+  precio AS precio_base,
+  ROUND(precio * 1.16, 2) AS precio_iva
+FROM menu;
+
+-- 4. Ver empleados y su salario mensual + anual
+SELECT
+  nombre,
+  cargo,
+  salario AS salario_mensual,
+  salario * 12 AS salario_anual
+FROM empleados;
+
+-- 5. Calcular sin tabla
+SELECT
+  'Precio sin IVA' AS concepto, 100.00 AS monto
+UNION ALL
+SELECT 'IVA (16%)', 16.00
+UNION ALL
+SELECT 'Total', 116.00;</textarea>
+    </div>
+    <div class="btn-row">
+      <button class="run-btn" onclick="mostrarResultado('out-select', resultados['select'])">▶ Ver resultado esperado</button>
+      <button class="reset-btn" onclick="resetEditor('ej-select','out-select')">↺ Reiniciar</button>
+    </div>
+    <div class="output-label">Resultado esperado:</div>
+    <div class="sql-output" id="out-select">Presiona ▶ para ver el resultado...</div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     WHERE
+══════════════════════════════════════════ -->
+<section class="module" id="where">
+  <div class="module-header">
+    <div class="module-icon">🎯</div>
+    <div>
+      <div class="module-title">WHERE — Filtrar resultados</div>
+      <div class="module-sub">Condiciones, operadores y patrones de búsqueda</div>
+    </div>
+  </div>
+
+  <p><code>WHERE</code> filtra las filas que cumplan una condición. Sin él, SELECT devuelve todo. Con él, devuelves exactamente lo que necesitas.</p>
+
+  <div class="sql-block"><span class="lang-badge">SQL</span><span class="cm">-- WHERE con comparadores simples</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tb">clientes</span> <span class="kw">WHERE</span> <span class="tb">ciudad</span> = <span class="st">'México DF'</span>;
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tb">menu</span>     <span class="kw">WHERE</span> <span class="tb">precio</span> > <span class="nm">70</span>;
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tb">menu</span>     <span class="kw">WHERE</span> <span class="tb">precio</span> <span class="kw">BETWEEN</span> <span class="nm">50</span> <span class="kw">AND</span> <span class="nm">80</span>;
+
+<span class="cm">-- Condiciones múltiples</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tb">menu</span>
+<span class="kw">WHERE</span> <span class="tb">categoria</span> = <span class="st">'bebida'</span> <span class="kw">AND</span> <span class="tb">precio</span> < <span class="nm">70</span>;
+
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tb">clientes</span>
+<span class="kw">WHERE</span> <span class="tb">ciudad</span> = <span class="st">'México DF'</span> <span class="kw">OR</span> <span class="tb">ciudad</span> = <span class="st">'Guadalajara'</span>;
+
+<span class="cm">-- IN: equivalente a múltiples OR</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tb">clientes</span>
+<span class="kw">WHERE</span> <span class="tb">ciudad</span> <span class="kw">IN</span> (<span class="st">'México DF'</span>, <span class="st">'Guadalajara'</span>, <span class="st">'Monterrey'</span>);
+
+<span class="cm">-- NOT IN: todo lo que NO esté en la lista</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tb">menu</span>
+<span class="kw">WHERE</span> <span class="tb">categoria</span> <span class="kw">NOT IN</span> (<span class="st">'postre'</span>);
+
+<span class="cm">-- LIKE: búsqueda de patrones en texto</span>
+<span class="cm">-- % = cualquier cantidad de caracteres, _ = exactamente 1 carácter</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tb">clientes</span> <span class="kw">WHERE</span> <span class="tb">email</span> <span class="kw">LIKE</span> <span class="st">'%@gmail.com'</span>;  <span class="cm">-- termina en @gmail.com</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tb">menu</span>     <span class="kw">WHERE</span> <span class="tb">nombre</span> <span class="kw">LIKE</span> <span class="st">'%Latte%'</span>;      <span class="cm">-- contiene "Latte"</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tb">clientes</span> <span class="kw">WHERE</span> <span class="tb">nombre</span> <span class="kw">LIKE</span> <span class="st">'A%'</span>;           <span class="cm">-- empieza con A</span>
+
+<span class="cm">-- IS NULL / IS NOT NULL: verificar valores vacíos</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tb">clientes</span> <span class="kw">WHERE</span> <span class="tb">telefono</span> <span class="kw">IS NULL</span>;
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tb">clientes</span> <span class="kw">WHERE</span> <span class="tb">telefono</span> <span class="kw">IS NOT NULL</span>;</div>
+
+  <div class="ejercicio">
+    <div class="ejercicio-hd">✏️ Ejercicio integrador — Consultas con filtros reales <span class="ej-badge int">Integrador</span></div>
+    <div class="enunciado">
+      <strong>Reto:</strong> Escribe las consultas necesarias para responder cada pregunta sobre los datos de la cafetería. Pruébalas en Workbench.
+    </div>
+    <div class="editor-area">
+      <textarea class="editor" id="ej-where">USE cafe_curso;
+
+-- 1. ¿Qué productos del menú cuestan más de $70?
+SELECT nombre, precio, categoria
+FROM menu
+WHERE precio > 70
+ORDER BY precio DESC;
+
+-- 2. ¿Qué clientes son de México DF o Monterrey?
+SELECT nombre, ciudad, email
+FROM clientes
+WHERE ciudad IN ('México DF', 'Monterrey');
+
+-- 3. ¿Qué bebidas cuestan entre $50 y $80?
+SELECT nombre, precio
+FROM menu
+WHERE categoria = 'bebida' AND precio BETWEEN 50 AND 80
+ORDER BY precio;
+
+-- 4. ¿Qué clientes usan Gmail?
+SELECT nombre, email
+FROM clientes
+WHERE email LIKE '%@gmail.com';
+
+-- 5. ¿Qué empleados ganan más de $9,000?
+SELECT nombre, cargo, salario
+FROM empleados
+WHERE salario > 9000
+ORDER BY salario DESC;
+
+-- 6. ¿Qué productos del menú NO son postres?
+SELECT nombre, precio, categoria
+FROM menu
+WHERE categoria != 'postre'
+ORDER BY categoria, precio;
+
+-- 7. Buscar productos que contengan "Café" en el nombre
+SELECT nombre, precio, categoria
+FROM menu
+WHERE nombre LIKE '%Café%';</textarea>
+    </div>
+    <div class="btn-row">
+      <button class="run-btn" onclick="mostrarResultado('out-where', resultados['where'])">▶ Ver resultado esperado</button>
+      <button class="reset-btn" onclick="resetEditor('ej-where','out-where')">↺ Reiniciar</button>
+    </div>
+    <div class="output-label">Resultado esperado:</div>
+    <div class="sql-output" id="out-where">Presiona ▶ para ver el resultado...</div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     OPERADORES EN SQL
+══════════════════════════════════════════ -->
+<section class="module" id="operadores">
+  <div class="module-header">
+    <div class="module-icon">⚙️</div>
+    <div>
+      <div class="module-title">ORDER BY · LIMIT · DISTINCT</div>
+      <div class="module-sub">Ordenar, limitar y eliminar duplicados en resultados</div>
+    </div>
+  </div>
+
+  <div class="sql-block"><span class="lang-badge">SQL</span><span class="cm">-- ORDER BY: ordenar resultados</span>
+<span class="cm">-- ASC = ascendente (A-Z, 1-9) — es el predeterminado</span>
+<span class="cm">-- DESC = descendente (Z-A, 9-1)</span>
+
+<span class="kw">SELECT</span> <span class="tb">nombre</span>, <span class="tb">precio</span>
+<span class="kw">FROM</span> <span class="tb">menu</span>
+<span class="kw">ORDER BY</span> <span class="tb">precio</span> <span class="kw">ASC</span>;   <span class="cm">-- del más barato al más caro</span>
+
+<span class="kw">SELECT</span> <span class="tb">nombre</span>, <span class="tb">precio</span>
+<span class="kw">FROM</span> <span class="tb">menu</span>
+<span class="kw">ORDER BY</span> <span class="tb">precio</span> <span class="kw">DESC</span>;  <span class="cm">-- del más caro al más barato</span>
+
+<span class="cm">-- Ordenar por múltiples columnas</span>
+<span class="kw">SELECT</span> <span class="tb">nombre</span>, <span class="tb">categoria</span>, <span class="tb">precio</span>
+<span class="kw">FROM</span> <span class="tb">menu</span>
+<span class="kw">ORDER BY</span> <span class="tb">categoria</span> <span class="kw">ASC</span>, <span class="tb">precio</span> <span class="kw">DESC</span>;
+<span class="cm">-- Ordena primero por categoría A-Z,</span>
+<span class="cm">-- y dentro de cada categoría, por precio de mayor a menor</span>
+
+<span class="cm">-- LIMIT: traer solo N resultados</span>
+<span class="kw">SELECT</span> <span class="tb">nombre</span>, <span class="tb">precio</span>
+<span class="kw">FROM</span> <span class="tb">menu</span>
+<span class="kw">ORDER BY</span> <span class="tb">precio</span> <span class="kw">DESC</span>
+<span class="kw">LIMIT</span> <span class="nm">3</span>;  <span class="cm">-- los 3 más caros</span>
+
+<span class="cm">-- LIMIT con OFFSET: paginación</span>
+<span class="cm">-- LIMIT cantidad OFFSET desde_dónde</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tb">clientes</span>
+<span class="kw">LIMIT</span> <span class="nm">3</span> <span class="kw">OFFSET</span> <span class="nm">0</span>;   <span class="cm">-- página 1 (registros 1-3)</span>
+
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tb">clientes</span>
+<span class="kw">LIMIT</span> <span class="nm">3</span> <span class="kw">OFFSET</span> <span class="nm">3</span>;   <span class="cm">-- página 2 (registros 4-6)</span>
+
+<span class="cm">-- DISTINCT: eliminar duplicados en el resultado</span>
+<span class="kw">SELECT</span> <span class="kw">DISTINCT</span> <span class="tb">ciudad</span>
+<span class="kw">FROM</span> <span class="tb">clientes</span>;
+<span class="cm">-- Sin DISTINCT: 7 filas (con ciudades repetidas)</span>
+<span class="cm">-- Con DISTINCT: 4 filas (cada ciudad una sola vez)</span>
+
+<span class="kw">SELECT</span> <span class="kw">DISTINCT</span> <span class="tb">categoria</span>
+<span class="kw">FROM</span> <span class="tb">menu</span>;</div>
+
+  <div class="sql-result">
+    <div class="sql-result-header">📊 SELECT DISTINCT ciudad FROM clientes</div>
+    <table>
+      <thead><tr><th>ciudad</th></tr></thead>
+      <tbody>
+        <tr><td>México DF</td></tr>
+        <tr><td>Guadalajara</td></tr>
+        <tr><td>Monterrey</td></tr>
+        <tr><td>Puebla</td></tr>
+      </tbody>
+    </table>
+    <div class="sql-rows">4 registros únicos (de 7 totales)</div>
+  </div>
+
+  <div class="ejercicio">
+    <div class="ejercicio-hd">✏️ Ejercicio final Parte 1 — Consultas completas <span class="ej-badge int">Integrador</span></div>
+    <div class="enunciado">
+      <strong>Reto completo:</strong> Usando todo lo aprendido (SELECT, WHERE, ORDER BY, LIMIT, DISTINCT), responde estas preguntas sobre la cafetería.
+    </div>
+    <div class="editor-area">
+      <textarea class="editor" id="ej-final1">USE cafe_curso;
+
+-- 1. Top 3 productos más caros del menú
+SELECT nombre, precio, categoria
+FROM menu
+ORDER BY precio DESC
+LIMIT 3;
+
+-- 2. Ciudades únicas de los clientes (sin repetir)
+SELECT DISTINCT ciudad FROM clientes ORDER BY ciudad;
+
+-- 3. Bebidas disponibles ordenadas de menor a mayor precio
+SELECT nombre, precio
+FROM menu
+WHERE categoria = 'bebida' AND disponible = TRUE
+ORDER BY precio ASC;
+
+-- 4. El empleado mejor pagado
+SELECT nombre, cargo, salario
+FROM empleados
+ORDER BY salario DESC
+LIMIT 1;
+
+-- 5. Clientes de Guadalajara o Monterrey, ordenados por nombre
+SELECT nombre, ciudad, email
+FROM clientes
+WHERE ciudad IN ('Guadalajara', 'Monterrey')
+ORDER BY nombre ASC;
+
+-- 6. Menú completo ordenado por categoría y luego precio
+SELECT categoria, nombre, precio,
+  CASE WHEN disponible THEN '✅' ELSE '❌' END AS disponible
+FROM menu
+ORDER BY categoria, precio;
+
+-- 7. Página 1 de clientes (3 por página)
+SELECT nombre, ciudad
+FROM clientes
+ORDER BY nombre
+LIMIT 3 OFFSET 0;</textarea>
+    </div>
+    <div class="btn-row">
+      <button class="run-btn" onclick="mostrarResultado('out-final1', resultados['final1'])">▶ Ver resultado esperado</button>
+      <button class="reset-btn" onclick="resetEditor('ej-final1','out-final1')">↺ Reiniciar</button>
+    </div>
+    <div class="output-label">Resultado esperado:</div>
+    <div class="sql-output" id="out-final1">Presiona ▶ para ver el resultado...</div>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Resumen de la Parte 1</h4>
+    <ul>
+      <li><strong>Base de datos:</strong> CREATE DATABASE · USE · SHOW DATABASES · DROP DATABASE</li>
+      <li><strong>Tablas:</strong> CREATE TABLE (con tipos y restricciones) · DESCRIBE · DROP TABLE</li>
+      <li><strong>Registros:</strong> INSERT INTO · UPDATE (siempre con WHERE) · DELETE · TRUNCATE</li>
+      <li><strong>Tipos de datos:</strong> INT, DECIMAL, VARCHAR, TEXT, ENUM, DATE, DATETIME, BOOLEAN</li>
+      <li><strong>Consultas:</strong> SELECT · FROM · WHERE · ORDER BY · LIMIT · DISTINCT · aliases</li>
+    </ul>
+  </div>
+</section>
+
+<!-- SIGUIENTE PARTE -->
+<section class="module" style="background:linear-gradient(135deg,#1a1814,#2a2420);border-color:#3a3430;text-align:center;">
+  <div style="font-size:2rem;margin-bottom:.75rem;">→</div>
+  <h2 style="color:#f7f4ef;margin-bottom:.5rem;">Parte 2 — Funciones, GROUP BY, JOINs y Subconsultas</h2>
+  <p style="color:rgba(247,244,239,0.7);margin-bottom:1.25rem;">Funciones de texto, numéricas y de fecha · GROUP BY y HAVING · INNER JOIN, LEFT JOIN, RIGHT JOIN · Subconsultas</p>
+  <a href="guia-sql-parte-2.html" style="display:inline-block;background:var(--sql);color:white;font-weight:700;padding:.8rem 2rem;border-radius:10px;text-decoration:none;font-size:.95rem;">Ir a Parte 2 →</a>
+</section>
+
+</main>
+
+<footer>
+  Guía SQL desde Cero · Parte 1 · Basada en el curso de Soy Dalto · Hugo 2025 ·
+  <a href="https://www.youtube.com/watch?v=DFg1V-rO6Pg" target="_blank" rel="noopener" style="color:var(--sql);">Ver curso original →</a>
+</footer>
+
+<script>
+const resultados = {
+  bd: `SHOW DATABASES:
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| cafe_curso         |    ← tu nueva base de datos
+| mysql              |
+| performance_schema |
++--------------------+
+
+SELECT DATABASE():
++------------+
+| DATABASE() |
++------------+
+| cafe_curso |
++------------+`,
+
+  tablas: `SHOW TABLES:
++----------------------+
+| Tables_in_cafe_curso |
++----------------------+
+| clientes             |
+| empleados            |
+| menu                 |
++----------------------+
+
+DESCRIBE clientes:
++----------+--------------+------+-----+---------+----------------+
+| Field    | Type         | Null | Key | Default | Extra          |
++----------+--------------+------+-----+---------+----------------+
+| id       | int          | NO   | PRI | NULL    | auto_increment |
+| nombre   | varchar(100) | NO   |     | NULL    |                |
+| email    | varchar(150) | NO   | UNI | NULL    |                |
+| telefono | varchar(20)  | YES  |     | NULL    |                |
+| ciudad   | varchar(80)  | YES  |     | NULL    |                |
+| fecha_reg| date         | YES  |     | today   |                |
++----------+--------------+------+-----+---------+----------------+`,
+
+  insert: `tabla         | total
+--------------+-------
+Clientes:     | 7
+Menu:         | 9
+Empleados:    | 4
+
+✅ INSERT completado correctamente.
+✅ UPDATE: precios de bebidas aumentados 10%.
+✅ UPDATE: teléfono de Ana García actualizado.
+✅ UPDATE: Croissant desactivado.`,
+
+  select: `Query 1 — SELECT nombre, ciudad FROM clientes:
+nombre          | ciudad
+----------------+-----------
+Ana García      | México DF
+Luis Pérez      | Guadalajara
+María López     | Monterrey
+Carlos Ruiz     | Guadalajara
+Sofia Méndez    | México DF
+Pedro Torres    | Puebla
+Laura Jiménez   | Monterrey
+
+Query 2 — precio con IVA:
+nombre         | precio_base | precio_iva
+---------------+-------------+-----------
+Café Americano | 49.50       | 57.42
+Cappuccino     | 71.50       | 82.94
+Latte          | 77.00       | 89.32
+...`,
+
+  where: `Query 1 — Productos > $70:
+nombre       | precio | categoria
+-------------+--------+----------
+Cappuccino   | 71.50  | bebida
+Latte        | 77.00  | bebida
+Matcha Latte | 82.50  | bebida
+Cheesecake   | 80.00  | postre
+
+Query 2 — Clientes de DF o Monterrey:
+nombre         | ciudad
+---------------+-----------
+Ana García     | México DF
+María López    | Monterrey
+Sofia Méndez   | México DF
+Laura Jiménez  | Monterrey
+
+Query 4 — Clientes con Gmail:
+nombre         | email
+---------------+-------------------
+Ana García     | ana@gmail.com
+María López    | maria@gmail.com
+Sofia Méndez   | sofia@gmail.com
+Pedro Torres   | pedro@gmail.com
+Laura Jiménez  | laura@gmail.com`,
+
+  final1: `Query 1 — Top 3 más caros:
+nombre         | precio | categoria
+---------------+--------+----------
+Sandwich Club  | 95.00  | comida
+Avocado Toast  | 85.00  | comida
+Cheesecake     | 80.00  | postre
+
+Query 2 — Ciudades únicas:
+ciudad
+-----------
+Guadalajara
+México DF
+Monterrey
+Puebla
+
+Query 4 — Empleado mejor pagado:
+nombre         | cargo   | salario
+---------------+---------+----------
+Elena Vargas   | Gerente | 15000.00
+
+Query 7 — Página 1 (primeros 3 clientes):
+nombre        | ciudad
+--------------+----------
+Ana García    | México DF
+Carlos Ruiz   | Guadalajara
+Laura Jiménez | Monterrey`
+};
+
+function mostrarResultado(outputId, texto) {
+  const out = document.getElementById(outputId);
+  out.textContent = texto;
+  out.className = 'sql-output';
+}
+
+function resetEditor(editorId, outputId) {
+  document.getElementById(outputId).textContent = 'Presiona ▶ para ver el resultado...';
+  document.getElementById(outputId).className = 'sql-output';
+}
+</script>
+</body>
+</html>

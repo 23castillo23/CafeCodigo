@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía Terminal Linux desde Cero — Café &lt;/&gt;</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --primary: #c44a2a; --primary-light: #fdf0ec;
+    --secondary: #1a7a5a; --secondary-light: #edf7f3;
+    --accent: #b07010; --accent-light: #fdf6e8;
+    --cmd: #1a7a1a; --cmd-light: #edf7ed;
+    --bg: #f7f4ef; --surface: #ffffff;
+    --text: #1a1814; --muted: #8a8480; --border: #e8e4de;
+    --code-bg: #0c0c0c;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  .cafe-bar { background:#fff; border-bottom:1px solid #e8e4de; padding:0 24px; display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:200; height:45px; }
+  .cafe-bar a { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:#8a8480; text-decoration:none; padding:6px 14px; border:1px solid #e8e4de; border-radius:999px; transition:all .15s; }
+  .cafe-bar a:hover { color:#1a1814; border-color:#8a8480; }
+  .cafe-bar span { font-size:13px; color:#8a8480; }
+
+  header { background:#0c0c0c; color:#cccccc; padding:3rem 2rem 2rem; text-align:center; position:relative; overflow:hidden; }
+  header::before { content:'~$_'; position:absolute; font-size:9rem; font-weight:900; color:rgba(255,255,255,0.04); right:-1rem; top:-1rem; font-family:'DM Mono',monospace; line-height:1; white-space:nowrap; }
+  header h1 { font-size:2.5rem; font-weight:800; letter-spacing:-1px; font-family:'Fraunces',serif; color:#ffffff; }
+  header p { font-size:1.1rem; opacity:.7; margin-top:.5rem; }
+  header .badge { display:inline-block; background:rgba(26,122,26,.3); border:1px solid rgba(26,122,26,.6); color:#4ec94e; border-radius:20px; padding:4px 14px; font-size:.8rem; margin-top:.75rem; font-weight:600; }
+
+  nav { background:#1a1814; border-bottom:1px solid #333; position:sticky; top:45px; z-index:100; display:flex; overflow-x:auto; }
+  nav::-webkit-scrollbar { display:none; }
+  nav a { flex-shrink:0; padding:.65rem .9rem; text-decoration:none; color:#888; font-size:.78rem; font-weight:500; border-bottom:2px solid transparent; transition:color .2s,border-color .2s; white-space:nowrap; }
+  nav a:hover { color:#4ec94e; border-bottom-color:#4ec94e; }
+
+  main { max-width:940px; margin:0 auto; padding:2rem 1.5rem; }
+
+  .module { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:2rem; margin-bottom:2.5rem; }
+  .module-header { display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border); }
+  .module-icon { font-size:1.8rem; flex-shrink:0; }
+  .module-title { font-size:1.35rem; font-weight:700; }
+  .module-sub { font-size:.85rem; color:var(--muted); margin-top:2px; }
+
+  .analogy { background:#FFF7ED; border:1px solid #FDE68A; border-left:4px solid var(--accent); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .analogy h4 { color:#92400E; font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+  .analogy p { font-size:.95rem; color:#78350F; }
+
+  .concept { background:var(--primary-light); border-left:4px solid var(--primary); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .concept h4 { color:var(--primary); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+
+  .tip { background:var(--secondary-light); border-left:4px solid var(--secondary); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .tip h4 { color:var(--secondary); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+  .tip ul { padding-left:1.2rem; }
+
+  .warn { background:#fdf0ec; border-left:4px solid var(--primary); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .warn h4 { color:var(--primary); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+
+  /* TERMINAL SIMULADA */
+  .terminal { background:#0c0c0c; border-radius:12px; overflow:hidden; margin:1.25rem 0; box-shadow:0 4px 24px rgba(0,0,0,0.25); }
+  .terminal-bar { background:#2a2a2a; padding:.5rem 1rem; display:flex; align-items:center; gap:.5rem; }
+  .terminal-dot { width:12px; height:12px; border-radius:50%; }
+  .td-red { background:#ff5f57; }
+  .td-yel { background:#febc2e; }
+  .td-grn { background:#28c840; }
+  .terminal-title { color:#888; font-size:.75rem; font-family:'DM Mono',monospace; margin-left:.25rem; }
+  .terminal-body { padding:1.25rem 1.5rem; font-family:'DM Mono','Courier New',monospace; font-size:.87rem; line-height:1.9; white-space:pre-wrap; }
+  .t-prompt { color:#4ec94e; }
+  .t-cmd { color:#ffffff; }
+  .t-out { color:#cccccc; }
+  .t-comment { color:#555; font-style:italic; }
+  .t-error { color:#ff5f57; }
+  .t-path { color:#4ec9b0; }
+  .t-highlight { color:#f0b429; }
+
+  /* TABLA DE COMANDOS */
+  .cmd-table { width:100%; border-collapse:collapse; margin:1rem 0; font-size:.88rem; }
+  .cmd-table th { background:#1a1814; color:#4ec94e; padding:.65rem 1rem; text-align:left; font-weight:700; font-family:'DM Mono',monospace; font-size:.8rem; }
+  .cmd-table td { padding:.65rem 1rem; border-bottom:1px solid var(--border); vertical-align:top; }
+  .cmd-table tr:hover td { background:var(--bg); }
+  .cmd-table .cmd-cell { font-family:'DM Mono',monospace; font-weight:700; color:var(--cmd); background:var(--cmd-light); padding:2px 6px; border-radius:5px; white-space:nowrap; font-size:.85rem; }
+
+  /* EJERCICIO INTERACTIVO */
+  .ejercicio { background:#FFFBEB; border:1px solid #FDE68A; border-radius:14px; padding:1.5rem; margin:1.5rem 0; }
+  .ejercicio-hd { display:flex; align-items:center; gap:.75rem; margin-bottom:1rem; font-weight:700; font-size:1rem; color:#78350F; flex-wrap:wrap; }
+  .ej-badge { background:var(--accent); color:#fff; font-size:.68rem; padding:2px 9px; border-radius:20px; font-weight:700; text-transform:uppercase; }
+  .ej-badge.int { background:var(--primary); }
+  .ej-badge.avz { background:#7c3aed; }
+  .enunciado { background:#fff; border:1px dashed #FDE68A; border-radius:8px; padding:1rem 1.25rem; margin-bottom:.75rem; font-size:.94rem; line-height:1.6; }
+  .enunciado strong { color:#78350F; }
+
+  /* GLOSARIO GRID */
+  .glos { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1rem; margin:1rem 0; }
+  .glos-item { background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:1rem 1.1rem; }
+  .glos-item .emoji { font-size:1.3rem; display:block; margin-bottom:.3rem; }
+  .glos-item dt { font-weight:700; color:#1a1814; font-size:.92rem; margin-bottom:.25rem; font-family:'DM Mono',monospace; }
+  .glos-item dd { font-size:.84rem; color:var(--muted); line-height:1.5; }
+
+  .parte-badge { display:inline-flex; align-items:center; gap:.5rem; background:#1a1814; color:#4ec94e; border-radius:20px; padding:5px 16px; font-size:.82rem; font-weight:700; margin-bottom:1.5rem; font-family:'DM Mono',monospace; }
+
+  .tbl { width:100%; border-collapse:collapse; margin:1rem 0; font-size:.9rem; }
+  .tbl th { background:var(--cmd-light); color:var(--cmd); padding:.65rem 1rem; text-align:left; font-weight:600; }
+  .tbl td { padding:.65rem 1rem; border-bottom:1px solid var(--border); vertical-align:top; }
+  .tbl tr:hover td { background:var(--bg); }
+
+  h2 { font-size:1.2rem; font-weight:700; margin:1.75rem 0 .75rem; }
+  h3 { font-size:1rem; font-weight:700; margin:1.25rem 0 .5rem; }
+  p { margin-bottom:.8rem; }
+  ul,ol { padding-left:1.4rem; margin-bottom:.8rem; }
+  li { margin-bottom:.4rem; font-size:.96rem; }
+  code { font-family:'DM Mono',monospace; background:#f0ece6; color:#1a7a1a; padding:1px 6px; border-radius:4px; font-size:.9em; font-weight:600; }
+  strong { font-weight:700; }
+
+  footer { text-align:center; padding:2rem; color:var(--muted); font-size:.85rem; border-top:1px solid var(--border); margin-top:1rem; background:var(--bg); }
+</style>
+</head>
+<body>
+
+<div class="cafe-bar">
+  <a href="../capitulos.html?tab=adicionales">← Volver a Mis Guias adicionales</a>
+  <span>🐧 Guía Terminal Linux — Bash</span>
+</div>
+
+<header>
+  <h1>Terminal Linux desde Cero</h1>
+  <p>Domina la terminal de Linux (Bash) — comandos, permisos, procesos y scripting, con analogías y práctica</p>
+  <span class="badge">🐧 Guía completa · Principiante → Avanzado</span>
+</header>
+
+<nav>
+  <a href="#intro">🐧 ¿Qué es?</a>
+  <a href="#abrir">🚀 Cómo abrir</a>
+  <a href="#estructura">📐 Estructura</a>
+  <a href="#navegacion">📁 Navegación</a>
+  <a href="#archivos">📄 Archivos</a>
+  <a href="#permisos">🔐 Permisos</a>
+  <a href="#busqueda">🔎 Búsqueda</a>
+  <a href="#redireccion">🔀 Pipes y redirección</a>
+  <a href="#red">🌐 Red</a>
+  <a href="#sistema">⚙️ Sistema</a>
+  <a href="#procesos">🔄 Procesos</a>
+  <a href="#paquetes">📦 Paquetes</a>
+  <a href="#avanzado">🧠 Avanzado</a>
+  <a href="#atajos">⌨️ Atajos</a>
+  <a href="#cheatsheet">📋 Cheat Sheet</a>
+</nav>
+
+<main>
+<div class="parte-badge">~$ Guía completa de la Terminal de Linux</div>
+
+
+<!-- ══════════════════════════════════════════
+     ¿QUÉ ES LA TERMINAL DE LINUX?
+══════════════════════════════════════════ -->
+<section class="module" id="intro">
+  <div class="module-header">
+    <div class="module-icon">🐧</div>
+    <div>
+      <div class="module-title">¿Qué es la terminal y por qué aprenderla?</div>
+      <div class="module-sub">La shell — la interfaz de texto de Linux</div>
+    </div>
+  </div>
+
+  <p>La <strong>terminal</strong> es una ventana donde escribes comandos de texto para darle instrucciones al sistema operativo. El programa que interpreta esos comandos se llama <strong>shell</strong>, y la más usada en Linux es <strong>Bash</strong> (Bourne Again SHell). A diferencia del CMD de Windows, en Linux la terminal no es opcional: buena parte de la administración de servidores, del desarrollo de software y de la ciencia de datos ocurre exclusivamente ahí.</p>
+
+  <div class="analogy">
+    <h4>🎙️ Analogía: hablarle directamente al sistema operativo</h4>
+    <p>Si el escritorio con íconos es como comunicarte por señas, la terminal es como hablarle directo al oído del sistema operativo. En vez de buscar la carpeta y arrastrarla al bote de basura, le dices "borra este archivo". Un chef con cuchillo en mano trabaja distinto a uno que solo usa una picadora automática: ambos cocinan, pero uno tiene control total sobre cada corte.</p>
+  </div>
+
+  <h2>¿Por qué la terminal es imprescindible en Linux?</h2>
+  <div class="glos">
+    <div class="glos-item"><span class="emoji">🖥️</span><dt>Servidores sin interfaz</dt><dd>La inmensa mayoría de los servidores Linux (los que alojan páginas web, bases de datos, APIs) no tienen escritorio — solo terminal.</dd></div>
+    <div class="glos-item"><span class="emoji">🤖</span><dt>Automatización</dt><dd>Scripts de Bash (.sh) pueden encadenar decenas de comandos y ejecutarse solos, incluso de forma programada.</dd></div>
+    <div class="glos-item"><span class="emoji">💻</span><dt>Desarrollo</dt><dd>Git, Docker, Node.js, Python — casi todo el ecosistema de desarrollo moderno vive y se controla desde la terminal.</dd></div>
+    <div class="glos-item"><span class="emoji">☁️</span><dt>Nube y DevOps</dt><dd>AWS, servidores en la nube, contenedores — se administran conectándote por SSH a una terminal remota.</dd></div>
+    <div class="glos-item"><span class="emoji">🛡️</span><dt>Seguridad</dt><dd>Analizar procesos, permisos, tráfico de red, logs — el pan de cada día en ciberseguridad se hace desde la shell.</dd></div>
+    <div class="glos-item"><span class="emoji">⚡</span><dt>Velocidad</dt><dd>Combinar comandos con pipes (<code>|</code>) resuelve en una línea lo que tomaría minutos con clics.</dd></div>
+  </div>
+
+  <div class="concept">
+    <h4>💡 Shell, terminal y consola — no son lo mismo</h4>
+    <p>La <strong>terminal</strong> es la ventana donde escribes (la aplicación gráfica). La <strong>shell</strong> es el programa que interpreta lo que escribes y lo ejecuta — Bash es la más común, pero también existen Zsh, Fish o Dash. La <strong>consola</strong> tradicionalmente se refiere a la pantalla física de acceso directo al sistema, sin entorno gráfico. En la práctica cotidiana, la gente usa los tres términos casi como sinónimos.</p>
+  </div>
+
+  <div class="tip">
+    <h4>💡 ¿Y si vengo de CMD?</h4>
+    <ul>
+      <li><code>dir</code> → <code>ls</code> — listar archivos</li>
+      <li><code>cd</code> se comporta casi igual</li>
+      <li><code>copy</code>/<code>move</code>/<code>del</code> → <code>cp</code>/<code>mv</code>/<code>rm</code></li>
+      <li>Las rutas usan <code>/</code> en vez de <code>\</code>, y Linux <strong>distingue mayúsculas de minúsculas</strong> (<code>Foto.jpg</code> ≠ <code>foto.jpg</code>)</li>
+      <li>No hay letras de unidad (<code>C:</code>, <code>D:</code>) — todo cuelga de una sola raíz <code>/</code></li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     CÓMO ABRIR LA TERMINAL
+══════════════════════════════════════════ -->
+<section class="module" id="abrir">
+  <div class="module-header">
+    <div class="module-icon">🚀</div>
+    <div>
+      <div class="module-title">Cómo abrir la terminal</div>
+      <div class="module-sub">Accesos rápidos y formas de llegar a la shell</div>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Método</th><th>Pasos</th><th>Cuándo usarlo</th></tr></thead>
+    <tbody>
+      <tr><td>⌨️ <strong>Atajo universal</strong></td><td><code>Ctrl + Alt + T</code> (funciona en la mayoría de distros con GNOME/Ubuntu)</td><td>La forma más rápida en escritorio</td></tr>
+      <tr><td>🔍 <strong>Buscador de apps</strong></td><td>Abre el menú de aplicaciones → escribe <code>terminal</code> → Enter</td><td>Cuando el atajo no está configurado</td></tr>
+      <tr><td>📁 <strong>Desde un gestor de archivos</strong></td><td>Clic derecho en una carpeta → "Abrir terminal aquí"</td><td>Para empezar ya posicionado en esa carpeta</td></tr>
+      <tr><td>🔒 <strong>Consola TTY</strong></td><td><code>Ctrl + Alt + F2</code> (F1-F6 según distro)</td><td>Cuando el entorno gráfico falla y necesitas acceso directo</td></tr>
+      <tr><td>🌐 <strong>SSH remoto</strong></td><td><code>ssh usuario@servidor</code> desde tu propia terminal</td><td>Para administrar un servidor remoto sin escritorio</td></tr>
+    </tbody>
+  </table>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="terminal-dot td-red"></div>
+      <div class="terminal-dot td-yel"></div>
+      <div class="terminal-dot td-grn"></div>
+      <span class="terminal-title">bash</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-out">Welcome to Ubuntu 24.04 LTS (GNU/Linux 6.8.0-generic x86_64)</span>
+<span class="t-out"> </span>
+<span class="t-out"> * Documentation:  https://help.ubuntu.com</span>
+<span class="t-out"> </span>
+<span class="t-prompt">hugo@cafe-server:~$</span><span class="t-cmd">_</span>
+    </div>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ Usuario normal vs superusuario (root)</h4>
+    <p>Un usuario normal solo puede modificar sus propios archivos. El superusuario, o <strong>root</strong>, tiene acceso total al sistema. En vez de iniciar sesión como root todo el tiempo (peligroso), se usa <code>sudo</code> ("superuser do") para ejecutar un solo comando con privilegios elevados. Un error con <code>sudo</code> puede dañar el sistema — úsalo con cuidado y solo cuando lo necesites.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     ESTRUCTURA
+══════════════════════════════════════════ -->
+<section class="module" id="estructura">
+  <div class="module-header">
+    <div class="module-icon">📐</div>
+    <div>
+      <div class="module-title">Estructura de la terminal — Entender la pantalla</div>
+      <div class="module-sub">El prompt, la ruta actual, cómo escribir comandos</div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="terminal-dot td-red"></div>
+      <div class="terminal-dot td-yel"></div>
+      <div class="terminal-dot td-grn"></div>
+      <span class="terminal-title">Anatomía del prompt</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-comment">╔═══════════════════════════════════════════════════════════╗</span>
+<span class="t-comment">║ Usuario  Host       Ruta actual        Símbolo             ║</span>
+<span class="t-comment">║    ↓       ↓             ↓                ↓                ║</span>
+<span class="t-prompt">hugo@cafe-server:~/proyectos$</span><span class="t-cmd"> ls -la</span>
+<span class="t-comment">║                              ↑    ↑                        ║</span>
+<span class="t-comment">║                           Comando Modificador (flag)        ║</span>
+    </div>
+  </div>
+
+  <h2>Partes de un comando</h2>
+  <table class="tbl">
+    <thead><tr><th>Parte</th><th>Ejemplo</th><th>¿Qué es?</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Comando</strong></td><td><code>cp</code></td><td>La instrucción principal — qué quieres hacer</td></tr>
+      <tr><td><strong>Argumento</strong></td><td><code>archivo.txt</code></td><td>El objeto sobre el que actúa el comando</td></tr>
+      <tr><td><strong>Destino</strong></td><td><code>~/Backup/</code></td><td>A dónde o con qué — el segundo argumento</td></tr>
+      <tr><td><strong>Flag corta</strong></td><td><code>-r</code> <code>-v</code></td><td>Opción de una sola letra, precedida por un guion</td></tr>
+      <tr><td><strong>Flag larga</strong></td><td><code>--recursive</code></td><td>Versión legible de una flag, precedida por dos guiones</td></tr>
+    </tbody>
+  </table>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div>
+      <span class="terminal-title">Ejemplo completo</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-comment">-- Estructura: comando argumento1 argumento2 -flag</span>
+<span class="t-prompt">hugo@cafe-server:~$</span> <span class="t-cmd">cp -v archivo.txt ~/Backup/</span>
+<span class="t-comment">           ↑    ↑        ↑           ↑</span>
+<span class="t-comment">        Comando -v    Origen      Destino</span>
+<span class="t-out"> </span>
+<span class="t-out">'archivo.txt' -> '/home/hugo/Backup/archivo.txt'</span>
+    </div>
+  </div>
+
+  <h2>Rutas en Linux — absoluta vs relativa</h2>
+  <div class="analogy">
+    <h4>🗺️ Analogía: la dirección de tu casa</h4>
+    <p>Una <strong>ruta absoluta</strong> es la dirección completa: "Av. Reforma 123, Col. Centro" — funciona desde cualquier lugar. Una <strong>ruta relativa</strong> es como decirle a un vecino "está a dos cuadras al norte" — solo funciona si ambos parten del mismo punto. En Linux toda ruta absoluta empieza en la raíz <code>/</code>; la relativa parte de donde estés parado en ese momento.</p>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div>
+      <span class="terminal-title">Rutas absolutas vs relativas y atajos</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-comment">-- Ruta ABSOLUTA: empieza desde la raíz /</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">cd /home/hugo/proyectos</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- Ruta RELATIVA: parte desde donde estás ahora</span>
+<span class="t-prompt">hugo@cafe-server:~$</span> <span class="t-cmd">cd proyectos</span>
+<span class="t-comment">-- (mismo resultado si ya estabas en /home/hugo)</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- Caracteres especiales de rutas:</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">cd ..</span>    <span class="t-comment">← subir un nivel (directorio padre)</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">cd ../..</span> <span class="t-comment">← subir dos niveles</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">cd ~</span>     <span class="t-comment">← ir a tu carpeta personal (home)</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">cd /</span>     <span class="t-comment">← ir a la raíz del sistema</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">cd -</span>     <span class="t-comment">← volver al directorio anterior</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">cd .</span>     <span class="t-comment">← el directorio actual (se usa mucho en otros comandos)</span>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>💡 El árbol de directorios de Linux</h4>
+    <p>A diferencia de Windows, Linux no tiene letras de unidad — todo el sistema cuelga de una única raíz <code>/</code>. Las carpetas más importantes: <code>/home</code> (carpetas personales de cada usuario), <code>/etc</code> (archivos de configuración), <code>/bin</code> y <code>/usr/bin</code> (programas ejecutables), <code>/var</code> (logs y datos variables), <code>/tmp</code> (archivos temporales que se borran al reiniciar), y <code>/root</code> (carpeta personal del superusuario, distinta a <code>/</code>).</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     NAVEGACIÓN
+══════════════════════════════════════════ -->
+<section class="module" id="navegacion">
+  <div class="module-header">
+    <div class="module-icon">📁</div>
+    <div>
+      <div class="module-title">Navegación — Moverte por el sistema de archivos</div>
+      <div class="module-sub">pwd · cd · ls · tree</div>
+    </div>
+  </div>
+
+  <h2>pwd — Saber dónde estás (Print Working Directory)</h2>
+  <div class="terminal">
+    <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">Comando pwd</span></div>
+    <div class="terminal-body">
+<span class="t-prompt">hugo@cafe-server:~/proyectos$</span> <span class="t-cmd">pwd</span>
+<span class="t-out">/home/hugo/proyectos</span>
+    </div>
+  </div>
+
+  <h2>cd — Cambiar de directorio (Change Directory)</h2>
+  <div class="terminal">
+    <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">Comando cd</span></div>
+    <div class="terminal-body">
+<span class="t-prompt">~$</span> <span class="t-cmd">cd Documentos</span>
+<span class="t-prompt">~/Documentos$</span>
+
+<span class="t-prompt">~/Documentos$</span> <span class="t-cmd">cd ..</span>
+<span class="t-prompt">~$</span>
+
+<span class="t-prompt">~$</span> <span class="t-cmd">cd /etc/nginx</span>
+<span class="t-prompt">/etc/nginx$</span>
+    </div>
+  </div>
+
+  <h2>ls — Listar contenido del directorio</h2>
+  <div class="terminal">
+    <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">Comando ls</span></div>
+    <div class="terminal-body">
+<span class="t-prompt">~$</span> <span class="t-cmd">ls</span>
+<span class="t-out">Descargas  Documentos  Escritorio  proyecto.docx  notas.txt</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- Modificadores de ls:</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">ls -l</span>     <span class="t-comment">← formato largo (permisos, dueño, tamaño, fecha)</span>
+<span class="t-out">drwxr-xr-x  3 hugo hugo  4096 jul  6 10:30 Documentos</span>
+<span class="t-out">-rw-r--r--  1 hugo hugo  4096 may 10 09:15 notas.txt</span>
+<span class="t-out"> </span>
+<span class="t-prompt">~$</span> <span class="t-cmd">ls -a</span>     <span class="t-comment">← mostrar también archivos ocultos (los que empiezan con .)</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">ls -la</span>    <span class="t-comment">← combinar flags: largo + ocultos</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">ls -lh</span>    <span class="t-comment">← tamaños legibles (K, M, G en vez de bytes)</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">ls -t</span>     <span class="t-comment">← ordenar por fecha de modificación</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">ls -S</span>     <span class="t-comment">← ordenar por tamaño</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">ls *.txt</span>  <span class="t-comment">← solo archivos .txt (comodín *)</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">ls -R</span>     <span class="t-comment">← listar de forma recursiva (incluye subcarpetas)</span>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>💡 Puedes combinar flags cortas</h4>
+    <p><code>ls -la</code> es lo mismo que <code>ls -l -a</code>. La mayoría de comandos de Linux permiten juntar varias flags de una sola letra detrás de un solo guion.</p>
+  </div>
+
+  <h2>tree — Ver estructura de carpetas en árbol</h2>
+  <div class="terminal">
+    <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">Comando tree (puede requerir instalación)</span></div>
+    <div class="terminal-body">
+<span class="t-prompt">~/proyectos/mi-web$</span> <span class="t-cmd">tree</span>
+<span class="t-out">.</span>
+<span class="t-out">├── index.html</span>
+<span class="t-out">├── css</span>
+<span class="t-out">│   └── style.css</span>
+<span class="t-out">└── js</span>
+<span class="t-out">    └── app.js</span>
+<span class="t-out"> </span>
+<span class="t-out">2 directories, 3 files</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- si no está instalado:</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">sudo apt install tree</span>
+    </div>
+  </div>
+
+  <div class="ejercicio">
+    <div class="ejercicio-hd">✏️ Ejercicio — Explora tu sistema <span class="ej-badge">Principiante</span></div>
+    <div class="enunciado"><strong>Objetivo:</strong> Practica moverte y listar contenido combinando los comandos que acabas de ver.</div>
+    <div class="terminal">
+      <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">Reto de navegación</span></div>
+      <div class="terminal-body">
+<span class="t-comment">-- 1. Confirma dónde estás parado</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">pwd</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- 2. Ve a tu carpeta personal</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">cd ~</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- 3. Lista todo, incluidos archivos ocultos, en formato largo</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">ls -la</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- 4. Entra a Documentos (o créala si no existe, lo verás más adelante)</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">cd Documentos</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- 5. Regresa al directorio anterior con el atajo rápido</span>
+<span class="t-prompt">~/Documentos$</span> <span class="t-cmd">cd -</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     ARCHIVOS
+══════════════════════════════════════════ -->
+<section class="module" id="archivos">
+  <div class="module-header">
+    <div class="module-icon">📄</div>
+    <div>
+      <div class="module-title">Gestión de Archivos y Carpetas</div>
+      <div class="module-sub">touch · mkdir · cp · mv · rm · cat · nano</div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">Crear archivos y carpetas</span></div>
+    <div class="terminal-body">
+<span class="t-comment">-- touch: crear un archivo vacío (o actualizar su fecha si ya existe)</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">touch notas.txt</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- mkdir: crear una carpeta</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">mkdir proyecto</span>
+<span class="t-comment">-- -p = crear carpetas intermedias que no existan</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">mkdir -p proyecto/src/componentes</span>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">Copiar, mover y eliminar</span></div>
+    <div class="terminal-body">
+<span class="t-comment">-- cp: copiar archivo</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">cp archivo.txt ~/Backup/</span>
+<span class="t-comment">-- -r = copiar carpetas completas (recursivo)</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">cp -r proyecto/ ~/Backup/</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- mv: mover Y también sirve para renombrar</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">mv archivo.txt ~/Documentos/</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">mv viejo.txt nuevo.txt</span>   <span class="t-comment">← "renombrar" es mover al mismo lugar con otro nombre</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- rm: eliminar (¡permanente, no hay papelera!)</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">rm archivo.txt</span>
+<span class="t-comment">-- -r = eliminar carpetas con contenido</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">rm -r carpeta/</span>
+<span class="t-comment">-- -i = pedir confirmación antes de cada borrado (recomendado)</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">rm -ri carpeta/</span>
+    </div>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ rm no tiene papelera de reciclaje</h4>
+    <p>En Linux, <code>rm</code> borra de forma permanente e inmediata — no hay "restaurar desde papelera". El comando más peligroso que existe es <code>rm -rf /</code> (borrar todo desde la raíz sin preguntar); los sistemas modernos lo bloquean por defecto, pero variantes con rutas mal escritas siguen siendo un riesgo real. Piensa dos veces antes de usar <code>-f</code> (forzar, sin preguntar).</p>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">Ver y editar contenido</span></div>
+    <div class="terminal-body">
+<span class="t-comment">-- cat: mostrar el contenido completo de un archivo</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">cat config.txt</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- less: ver archivo largo página por página (q para salir)</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">less log.txt</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- head / tail: ver solo el inicio o el final de un archivo</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">head -n 10 log.txt</span>   <span class="t-comment">← primeras 10 líneas</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">tail -n 10 log.txt</span>   <span class="t-comment">← últimas 10 líneas</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">tail -f log.txt</span>      <span class="t-comment">← seguir el archivo en vivo (muy usado con logs de servidor)</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- nano: editor de texto simple dentro de la terminal</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">nano config.txt</span>
+<span class="t-comment">-- Ctrl+O guarda, Ctrl+X sale</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- echo: mostrar texto / crear o agregar contenido a un archivo</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">echo "Hola mundo"</span>
+<span class="t-out">Hola mundo</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">echo "Hola" > archivo.txt</span>   <span class="t-comment">← crea/sobreescribe archivo.txt</span>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>💡 nano vs vim</h4>
+    <p><strong>nano</strong> es amigable para principiantes: los atajos aparecen en pantalla y funciona como cualquier editor de texto. <strong>vim</strong> es mucho más poderoso pero tiene una curva de aprendizaje empinada — funciona por "modos" (normal, inserción, comando) y no se cierra con Ctrl+X. Si te encuentras dentro de vim sin saber cómo salir: presiona <code>Esc</code>, luego escribe <code>:q</code> y Enter.</p>
+  </div>
+
+  <div class="ejercicio">
+    <div class="ejercicio-hd">✏️ Ejercicio — Organiza una carpeta de proyecto <span class="ej-badge int">Intermedio</span></div>
+    <div class="enunciado"><strong>Objetivo:</strong> Crea una estructura de carpetas típica de un proyecto web y mueve un archivo dentro de ella.</div>
+    <div class="terminal">
+      <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">Estructura de proyecto</span></div>
+      <div class="terminal-body">
+<span class="t-comment">-- 1. Crea la carpeta principal con subcarpetas de una vez</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">mkdir -p mi-web/css mi-web/js</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- 2. Crea el archivo principal</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">touch mi-web/index.html</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- 3. Crea un archivo de estilos y agrega una línea de contenido</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">echo "body { margin: 0; }" > mi-web/css/style.css</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- 4. Verifica la estructura completa</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">tree mi-web</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     PERMISOS
+══════════════════════════════════════════ -->
+<section class="module" id="permisos">
+  <div class="module-header">
+    <div class="module-icon">🔐</div>
+    <div>
+      <div class="module-title">Permisos — Quién puede hacer qué</div>
+      <div class="module-sub">chmod · chown · sudo — el corazón de la seguridad en Linux</div>
+    </div>
+  </div>
+
+  <p>Cada archivo en Linux tiene un dueño, un grupo y tres tipos de permisos: <strong>leer (r)</strong>, <strong>escribir (w)</strong> y <strong>ejecutar (x)</strong>. Esto es algo que el CMD de Windows apenas expone, pero en Linux es central: define quién puede abrir, modificar o correr cada archivo.</p>
+
+  <div class="analogy">
+    <h4>🔑 Analogía: las llaves de un edificio de oficinas</h4>
+    <p>Piensa en cada archivo como una oficina. El <strong>dueño</strong> tiene su propio juego de llaves. El <strong>grupo</strong> (por ejemplo, el equipo de contabilidad) comparte otro juego. Y "otros" es cualquier persona que entra al edificio. Cada juego de llaves puede abrir la puerta (leer), reordenar los muebles (escribir) o usar la maquinaria dentro (ejecutar) — y no todos tienen los mismos permisos.</p>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">Leer los permisos con ls -l</span></div>
+    <div class="terminal-body">
+<span class="t-prompt">~$</span> <span class="t-cmd">ls -l script.sh</span>
+<span class="t-out">-rwxr-xr-- 1 hugo hugo 220 jul 6 10:00 script.sh</span>
+<span class="t-out"> </span>
+<span class="t-comment">╔═══════════════════════════════════════════════════════╗</span>
+<span class="t-comment">║ -   rwx    r-x    r--    ← tipo + 3 grupos de permisos ║</span>
+<span class="t-comment">║ ↑    ↑      ↑      ↑                                   ║</span>
+<span class="t-comment">║ tipo dueño grupo  otros                                ║</span>
+<span class="t-comment">╚═══════════════════════════════════════════════════════╝</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- tipo: - archivo normal, d carpeta, l enlace simbólico</span>
+<span class="t-comment">-- rwx = leer + escribir + ejecutar | r-x = leer + ejecutar | r-- = solo leer</span>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Valor numérico</th><th>Permisos</th><th>Significado</th></tr></thead>
+    <tbody>
+      <tr><td><code>7</code></td><td><code>rwx</code></td><td>Leer + escribir + ejecutar (4+2+1)</td></tr>
+      <tr><td><code>6</code></td><td><code>rw-</code></td><td>Leer + escribir (4+2)</td></tr>
+      <tr><td><code>5</code></td><td><code>r-x</code></td><td>Leer + ejecutar (4+1)</td></tr>
+      <tr><td><code>4</code></td><td><code>r--</code></td><td>Solo leer</td></tr>
+      <tr><td><code>0</code></td><td><code>---</code></td><td>Sin ningún permiso</td></tr>
+    </tbody>
+  </table>
+
+  <div class="terminal">
+    <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">chmod — cambiar permisos</span></div>
+    <div class="terminal-body">
+<span class="t-comment">-- Modo numérico: dueño-grupo-otros</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">chmod 755 script.sh</span>   <span class="t-comment">← dueño: rwx, grupo: r-x, otros: r-x</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">chmod 644 notas.txt</span>   <span class="t-comment">← dueño: rw-, grupo: r--, otros: r-- (típico para archivos normales)</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- Modo simbólico: sumar o quitar permisos puntuales</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">chmod +x script.sh</span>    <span class="t-comment">← dar permiso de ejecución a todos</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">chmod u+x script.sh</span>   <span class="t-comment">← solo al dueño (u=user)</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">chmod g-w archivo.txt</span> <span class="t-comment">← quitar escritura al grupo (g=group)</span>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">chown y sudo</span></div>
+    <div class="terminal-body">
+<span class="t-comment">-- chown: cambiar el dueño de un archivo (requiere sudo)</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">sudo chown hugo archivo.txt</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">sudo chown hugo:desarrollo archivo.txt</span>  <span class="t-comment">← dueño y grupo a la vez</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- sudo: ejecutar un comando puntual como superusuario</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">sudo apt update</span>
+<span class="t-out">[sudo] password for hugo: </span>
+<span class="t-comment">-- sudo -i: abrir una sesión completa como root (usar con mucho cuidado)</span>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>💡 ¿Por qué mis scripts .sh no se ejecutan?</h4>
+    <p>Un script recién creado normalmente no tiene permiso de ejecución. Si al correr <code>./script.sh</code> ves "Permission denied", la solución casi siempre es <code>chmod +x script.sh</code>.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     BÚSQUEDA
+══════════════════════════════════════════ -->
+<section class="module" id="busqueda">
+  <div class="module-header">
+    <div class="module-icon">🔎</div>
+    <div>
+      <div class="module-title">Búsqueda</div>
+      <div class="module-sub">find · grep · locate · which</div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">find — buscar archivos por nombre, tipo o tamaño</span></div>
+    <div class="terminal-body">
+<span class="t-comment">-- Buscar por nombre en la carpeta actual y subcarpetas</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">find . -name "*.jpg"</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- Buscar solo carpetas</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">find . -type d -name "node_modules"</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- Buscar archivos de más de 100MB</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">find . -size +100M</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- Buscar y eliminar en un solo paso (con cuidado)</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">find . -name "*.tmp" -delete</span>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">grep — buscar texto dentro de archivos</span></div>
+    <div class="terminal-body">
+<span class="t-comment">-- Buscar una palabra dentro de un archivo</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">grep "error" log.txt</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- -i = ignorar mayúsculas/minúsculas</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">grep -i "error" log.txt</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- -r = buscar recursivamente en todas las subcarpetas</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">grep -r "TODO" proyecto/</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- -n = mostrar el número de línea donde aparece</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">grep -n "function" app.js</span>
+<span class="t-out">14:function iniciar() {</span>
+<span class="t-out">28:function detener() {</span>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">locate · which</span></div>
+    <div class="terminal-body">
+<span class="t-comment">-- locate: búsqueda instantánea usando un índice pre-generado (más rápido que find)</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">locate archivo.txt</span>
+<span class="t-comment">-- si el índice está desactualizado: sudo updatedb</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- which: saber en qué ruta está instalado un comando</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">which python3</span>
+<span class="t-out">/usr/bin/python3</span>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>💡 find vs grep vs locate</h4>
+    <p><strong>find</strong> busca archivos por nombre, tipo, tamaño o fecha. <strong>grep</strong> busca texto dentro del contenido de los archivos. <strong>locate</strong> también busca archivos por nombre, pero usa un índice pre-armado en vez de recorrer el disco en tiempo real — es mucho más rápido pero puede estar desactualizado.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     PIPES Y REDIRECCIÓN
+══════════════════════════════════════════ -->
+<section class="module" id="redireccion">
+  <div class="module-header">
+    <div class="module-icon">🔀</div>
+    <div>
+      <div class="module-title">Pipes y Redirección</div>
+      <div class="module-sub">Encadenar comandos y guardar su salida</div>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <h4>🏭 Analogía: la línea de ensamblaje</h4>
+    <p>Cada comando produce una "salida" y puede tomar una "entrada". El operador <code>|</code> (pipe) es como una banda transportadora que conecta la salida de una máquina directamente con la entrada de la siguiente, sin pasos manuales de por medio. En vez de guardar resultados intermedios, encadenas comandos hasta obtener justo lo que necesitas.</p>
+  </div>
+
+  <table class="cmd-table">
+    <thead><tr><th>Operador</th><th>¿Qué hace?</th><th>Ejemplo</th></tr></thead>
+    <tbody>
+      <tr><td><span class="cmd-cell">|</span></td><td>Pasa la salida de un comando como entrada del siguiente</td><td><code>ls -la | grep ".txt"</code></td></tr>
+      <tr><td><span class="cmd-cell">></span></td><td>Redirige la salida a un archivo (sobreescribe)</td><td><code>ls > lista.txt</code></td></tr>
+      <tr><td><span class="cmd-cell">>></span></td><td>Redirige la salida a un archivo (acumula al final)</td><td><code>echo "ok" >> log.txt</code></td></tr>
+      <tr><td><span class="cmd-cell">&lt;</span></td><td>Usa un archivo como entrada de un comando</td><td><code>sort < lista.txt</code></td></tr>
+      <tr><td><span class="cmd-cell">2></span></td><td>Redirige solo los mensajes de error a un archivo</td><td><code>comando 2> errores.txt</code></td></tr>
+      <tr><td><span class="cmd-cell">&&</span></td><td>Ejecuta el segundo comando solo si el primero tuvo éxito</td><td><code>mkdir app && cd app</code></td></tr>
+      <tr><td><span class="cmd-cell">;</span></td><td>Ejecuta comandos en secuencia sin importar el resultado</td><td><code>echo a; echo b</code></td></tr>
+    </tbody>
+  </table>
+
+  <div class="terminal">
+    <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">Encadenando comandos en la práctica</span></div>
+    <div class="terminal-body">
+<span class="t-comment">-- Contar cuántos archivos .js hay en el proyecto</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">find . -name "*.js" | wc -l</span>
+<span class="t-out">24</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- Ver los 5 procesos que más memoria consumen</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">ps aux | sort -k4 -rn | head -5</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- Guardar la lista de archivos en un archivo de texto</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">ls -la > inventario.txt</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- Buscar "ERROR" dentro del log y contar cuántas veces aparece</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">cat log.txt | grep "ERROR" | wc -l</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     RED
+══════════════════════════════════════════ -->
+<section class="module" id="red">
+  <div class="module-header">
+    <div class="module-icon">🌐</div>
+    <div>
+      <div class="module-title">Comandos de Red</div>
+      <div class="module-sub">ip · ping · traceroute · ss · curl · dig</div>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <h4>🔍 Analogía: el diagnóstico del mecánico</h4>
+    <p>Los comandos de red son el escáner de diagnóstico de tu conexión: te dicen si hay señal, por dónde viajan los datos y qué está conectado en cada puerto. Igual que un mecánico revisa cable por cable antes de decir "es la batería", tú revisas capa por capa antes de culpar al Wi-Fi.</p>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">ip — tu configuración de red</span></div>
+    <div class="terminal-body">
+<span class="t-comment">-- Ver direcciones IP de todas las interfaces (reemplaza al viejo ifconfig)</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">ip a</span>
+<span class="t-out"> </span>
+<span class="t-out">2: eth0: &lt;BROADCAST,MULTICAST,UP&gt; ...</span>
+<span class="t-out">    inet <span class="t-highlight">192.168.1.105</span>/24 brd 192.168.1.255</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- Ver la tabla de rutas (puerta de enlace)</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">ip route</span>
+<span class="t-out">default via <span class="t-highlight">192.168.1.1</span> dev eth0</span>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">ping — probar conectividad</span></div>
+    <div class="terminal-body">
+<span class="t-comment">-- Ping envía paquetes hasta que lo detengas (Ctrl+C), a diferencia del CMD</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">ping google.com</span>
+<span class="t-out">64 bytes from 142.250.65.46: icmp_seq=1 ttl=118 time=18.2 ms</span>
+<span class="t-out">64 bytes from 142.250.65.46: icmp_seq=2 ttl=118 time=17.9 ms</span>
+<span class="t-out">^C</span>
+<span class="t-out">--- google.com ping statistics ---</span>
+<span class="t-out">2 packets transmitted, 2 received, 0% packet loss</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- -c = número específico de paquetes (como -n en Windows)</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">ping -c 4 8.8.8.8</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- probar la conexión local (loopback)</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">ping -c 2 127.0.0.1</span>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">traceroute · ss · dig · curl</span></div>
+    <div class="terminal-body">
+<span class="t-comment">-- traceroute: ver el camino que hacen los datos hasta su destino</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">traceroute google.com</span>
+<span class="t-out">1  192.168.1.1  1.2 ms   ← tu router</span>
+<span class="t-out">2  10.0.0.1     8.1 ms   ← tu ISP</span>
+<span class="t-out">...hasta llegar a destino</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- ss: ver conexiones y puertos activos (reemplaza al viejo netstat)</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">ss -tulnp</span>
+<span class="t-out">Netid  State   Local Address:Port   Process</span>
+<span class="t-out">tcp    LISTEN  0.0.0.0:80           nginx</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- dig: resolver nombres de dominio a IPs (más detallado que nslookup)</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">dig google.com</span>
+<span class="t-out">;; ANSWER SECTION:</span>
+<span class="t-out">google.com.  300  IN  A  142.250.65.46</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- curl: descargar contenido de una URL o probar una API</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">curl https://api.github.com</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">curl -O https://ejemplo.com/archivo.zip</span>  <span class="t-comment">← descargar y guardar el archivo</span>
+    </div>
+  </div>
+
+  <div class="ejercicio">
+    <div class="ejercicio-hd">✏️ Ejercicio — Diagnóstico de red completo <span class="ej-badge int">Intermedio</span></div>
+    <div class="enunciado"><strong>Objetivo:</strong> Ejecuta estos comandos en orden para hacer un diagnóstico completo de tu conexión.</div>
+    <div class="terminal">
+      <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">Diagnóstico de red</span></div>
+      <div class="terminal-body">
+<span class="t-comment">-- 1. Ver tu IP actual</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">ip a</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- 2. Verificar conexión local</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">ping -c 2 127.0.0.1</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- 3. Verificar conexión a tu router</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">ping -c 2 192.168.1.1</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- 4. Verificar conexión a internet</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">ping -c 2 8.8.8.8</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- 5. Verificar resolución DNS</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">ping -c 2 google.com</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- 6. Ver ruta hasta Google</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">traceroute google.com</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- 7. Ver conexiones establecidas</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">ss -t state established</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     SISTEMA
+══════════════════════════════════════════ -->
+<section class="module" id="sistema">
+  <div class="module-header">
+    <div class="module-icon">⚙️</div>
+    <div>
+      <div class="module-title">Comandos del Sistema</div>
+      <div class="module-sub">uname · df · du · free · date · clear · man</div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">Información del sistema</span></div>
+    <div class="terminal-body">
+<span class="t-comment">-- uname: información básica del sistema</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">uname -a</span>
+<span class="t-out">Linux cafe-server 6.8.0-generic x86_64 GNU/Linux</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- hostname: nombre del equipo</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">hostname</span>
+<span class="t-out">cafe-server</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- df: espacio en disco disponible (Disk Free)</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">df -h</span>
+<span class="t-out">Filesystem  Size  Used  Avail  Use%  Mounted on</span>
+<span class="t-out">/dev/sda1    50G   18G   30G   38%   /</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- du: espacio que ocupa una carpeta (Disk Usage)</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">du -sh proyecto/</span>
+<span class="t-out">240M    proyecto/</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- free: memoria RAM disponible</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">free -h</span>
+<span class="t-out">              total   used   free   available</span>
+<span class="t-out">Mem:          15Gi    4.2Gi  8.1Gi  10Gi</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- date: ver fecha y hora</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">date</span>
+<span class="t-out">lun jul  6 11:45:03 CST 2026</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- clear: limpiar la pantalla (equivalente a cls)</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">clear</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- man: manual de un comando (la ayuda oficial e integrada)</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">man ls</span>
+<span class="t-comment">-- presiona q para salir del manual</span>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>💡 man es tu mejor amigo</h4>
+    <p>Casi todo comando de Linux tiene un manual integrado con <code>man comando</code>. Si no existe, prueba <code>comando --help</code>. Nunca vas a memorizar todas las flags — ni falta que hace, para eso está el manual.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     PROCESOS
+══════════════════════════════════════════ -->
+<section class="module" id="procesos">
+  <div class="module-header">
+    <div class="module-icon">🔄</div>
+    <div>
+      <div class="module-title">Gestión de Procesos</div>
+      <div class="module-sub">ps · top · kill · jobs · bg / fg</div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">ps · top · kill</span></div>
+    <div class="terminal-body">
+<span class="t-comment">-- ps: ver procesos en ejecución (foto fija)</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">ps aux</span>
+<span class="t-out">USER   PID  %CPU %MEM  COMMAND</span>
+<span class="t-out">hugo   4532  2.1  3.4   /usr/bin/chrome</span>
+<span class="t-out">hugo   7821  0.5  1.2   /usr/bin/code</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- filtrar por nombre de proceso</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">ps aux | grep chrome</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- top: monitor de procesos en tiempo real (q para salir)</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">top</span>
+<span class="t-comment">-- htop es una versión más visual (puede requerir: sudo apt install htop)</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- kill: terminar un proceso por su PID</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">kill 4532</span>
+<span class="t-comment">-- kill -9 = forzar el cierre (para procesos que no responden)</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">kill -9 4532</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- killall: terminar por nombre en vez de PID</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">killall chrome</span>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">Procesos en segundo plano</span></div>
+    <div class="terminal-body">
+<span class="t-comment">-- & al final ejecuta el comando en segundo plano (sigues usando la terminal)</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">npm run dev &</span>
+<span class="t-out">[1] 8842</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- jobs: ver qué procesos tienes corriendo en esta sesión</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">jobs</span>
+<span class="t-out">[1]+  Running   npm run dev &</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- fg: traer un proceso al primer plano</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">fg %1</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- Ctrl+Z pausa el proceso en primer plano; bg lo reanuda en segundo plano</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">bg %1</span>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>💡 PID — el número de identidad de cada proceso</h4>
+    <p>Cada programa en ejecución recibe un <strong>PID</strong> (Process ID) único mientras corre. Comandos como <code>kill</code> lo usan para saber exactamente a qué proceso apuntar, ya que puede haber varios procesos con el mismo nombre corriendo a la vez.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     PAQUETES
+══════════════════════════════════════════ -->
+<section class="module" id="paquetes">
+  <div class="module-header">
+    <div class="module-icon">📦</div>
+    <div>
+      <div class="module-title">Gestión de Paquetes</div>
+      <div class="module-sub">apt · dpkg — instalar y actualizar software</div>
+    </div>
+  </div>
+
+  <p>En Linux no se descargan instaladores .exe de internet: se usa un <strong>gestor de paquetes</strong> que descarga, instala y actualiza software desde repositorios oficiales. En Ubuntu/Debian el gestor es <code>apt</code>; otras distros usan <code>dnf</code>/<code>yum</code> (Fedora/RHEL) o <code>pacman</code> (Arch).</p>
+
+  <div class="terminal">
+    <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">apt — Ubuntu / Debian</span></div>
+    <div class="terminal-body">
+<span class="t-comment">-- Actualizar la lista de paquetes disponibles (siempre primero)</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">sudo apt update</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- Actualizar todos los paquetes instalados a su última versión</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">sudo apt upgrade</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- Instalar un programa</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">sudo apt install htop</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- Eliminar un programa</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">sudo apt remove htop</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- Buscar un paquete por nombre</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">apt search nginx</span>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>💡 apt vs apt-get vs dpkg</h4>
+    <ul>
+      <li><strong>apt</strong> — el comando moderno y recomendado para uso diario</li>
+      <li><strong>apt-get</strong> — la versión más antigua, todavía usada en scripts</li>
+      <li><strong>dpkg</strong> — el gestor de bajo nivel que instala archivos <code>.deb</code> individuales, por ejemplo <code>sudo dpkg -i paquete.deb</code></li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     AVANZADO — VARIABLES Y SCRIPTS
+══════════════════════════════════════════ -->
+<section class="module" id="avanzado">
+  <div class="module-header">
+    <div class="module-icon">🧠</div>
+    <div>
+      <div class="module-title">Avanzado — Variables y Scripts de Bash</div>
+      <div class="module-sub">Variables de entorno · scripts .sh · condicionales · bucles</div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">Variables</span></div>
+    <div class="terminal-body">
+<span class="t-comment">-- Crear una variable (sin espacios alrededor del =)</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">nombre="Hugo"</span>
+<span class="t-comment">-- Usarla con $</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">echo "Hola, $nombre"</span>
+<span class="t-out">Hola, Hugo</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- Variables de entorno importantes</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">echo $HOME</span>     <span class="t-comment">← tu carpeta personal</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">echo $PATH</span>     <span class="t-comment">← carpetas donde el sistema busca comandos ejecutables</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">echo $USER</span>     <span class="t-comment">← tu nombre de usuario</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- export: hacer que una variable esté disponible para otros programas</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">export API_KEY="abc123"</span>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>💡 ¿Qué es el PATH?</h4>
+    <p>El <strong>PATH</strong> es una lista de carpetas donde Bash busca el programa que escribiste, en orden. Por eso puedes escribir <code>ls</code> desde cualquier lugar sin dar la ruta completa: <code>/bin/ls</code> ya está en una carpeta listada en el PATH. Si instalas un programa y "no se reconoce como comando", casi siempre es porque su carpeta no está en el PATH.</p>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">Tu primer script .sh</span></div>
+    <div class="terminal-body">
+<span class="t-comment">-- 1. Crear el archivo</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">nano saludo.sh</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- 2. Contenido del script:</span>
+<span class="t-out">#!/bin/bash</span>
+<span class="t-out">echo "Iniciando respaldo..."</span>
+<span class="t-out">mkdir -p ~/Backup</span>
+<span class="t-out">cp -r ~/Documentos ~/Backup/</span>
+<span class="t-out">echo "Respaldo completado."</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- 3. Dar permiso de ejecución</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">chmod +x saludo.sh</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- 4. Ejecutarlo</span>
+<span class="t-prompt">~$</span> <span class="t-cmd">./saludo.sh</span>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>💡 La línea shebang <code>#!/bin/bash</code></h4>
+    <p>La primera línea de todo script le dice al sistema qué intérprete usar para ejecutarlo. <code>#!/bin/bash</code> significa "ejecuta este archivo con Bash". Sin esta línea, el script podría interpretarse con el shell equivocado.</p>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">Condicionales y bucles</span></div>
+    <div class="terminal-body">
+<span class="t-comment">-- Condicional if</span>
+<span class="t-out">#!/bin/bash</span>
+<span class="t-out">if [ -f "archivo.txt" ]; then</span>
+<span class="t-out">  echo "El archivo existe"</span>
+<span class="t-out">else</span>
+<span class="t-out">  echo "No se encontró"</span>
+<span class="t-out">fi</span>
+<span class="t-out"> </span>
+<span class="t-comment">-- Bucle for</span>
+<span class="t-out">for archivo in *.txt; do</span>
+<span class="t-out">  echo "Procesando $archivo"</span>
+<span class="t-out">done</span>
+    </div>
+  </div>
+
+  <div class="ejercicio">
+    <div class="ejercicio-hd">✏️ Ejercicio — Script de respaldo automático <span class="ej-badge avz">Avanzado</span></div>
+    <div class="enunciado"><strong>Objetivo:</strong> Escribe un script que cree una carpeta con la fecha del día y copie ahí tus archivos <code>.txt</code>.</div>
+    <div class="terminal">
+      <div class="terminal-bar"><div class="terminal-dot td-red"></div><div class="terminal-dot td-yel"></div><div class="terminal-dot td-grn"></div><span class="terminal-title">backup.sh</span></div>
+      <div class="terminal-body">
+<span class="t-out">#!/bin/bash</span>
+<span class="t-comment"># Guarda la fecha de hoy en una variable</span>
+<span class="t-out">fecha=$(date +%Y-%m-%d)</span>
+<span class="t-out">destino=~/Backup/$fecha</span>
+<span class="t-out"> </span>
+<span class="t-comment"># Crea la carpeta de destino si no existe</span>
+<span class="t-out">mkdir -p "$destino"</span>
+<span class="t-out"> </span>
+<span class="t-comment"># Copia todos los .txt a esa carpeta</span>
+<span class="t-out">cp *.txt "$destino"/</span>
+<span class="t-out"> </span>
+<span class="t-out">echo "Respaldo del $fecha completado en $destino"</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     ATAJOS DE TECLADO
+══════════════════════════════════════════ -->
+<section class="module" id="atajos">
+  <div class="module-header">
+    <div class="module-icon">⌨️</div>
+    <div>
+      <div class="module-title">Atajos de Teclado</div>
+      <div class="module-sub">Muévete y controla la terminal sin tocar el mouse</div>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Atajo</th><th>¿Qué hace?</th></tr></thead>
+    <tbody>
+      <tr><td><code>Ctrl + C</code></td><td>Cancelar el comando en ejecución</td></tr>
+      <tr><td><code>Ctrl + Z</code></td><td>Pausar el proceso actual (queda "suspendido")</td></tr>
+      <tr><td><code>Ctrl + D</code></td><td>Cerrar la sesión de terminal actual (EOF)</td></tr>
+      <tr><td><code>Ctrl + L</code></td><td>Limpiar la pantalla (igual que <code>clear</code>)</td></tr>
+      <tr><td><code>Ctrl + A</code></td><td>Ir al inicio de la línea que estás escribiendo</td></tr>
+      <tr><td><code>Ctrl + E</code></td><td>Ir al final de la línea</td></tr>
+      <tr><td><code>Ctrl + U</code></td><td>Borrar toda la línea hasta el inicio</td></tr>
+      <tr><td><code>Ctrl + R</code></td><td>Buscar en el historial de comandos escritos</td></tr>
+      <tr><td><code>Tab</code></td><td>Autocompletar nombres de archivos y comandos</td></tr>
+      <tr><td><code>↑ / ↓</code></td><td>Navegar por comandos anteriores</td></tr>
+      <tr><td><code>!!</code></td><td>Repetir el último comando ejecutado</td></tr>
+      <tr><td><code>!apt</code></td><td>Repetir el comando más reciente que empiece con "apt"</td></tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     CHEAT SHEET
+══════════════════════════════════════════ -->
+<section class="module" id="cheatsheet">
+  <div class="module-header">
+    <div class="module-icon">📋</div>
+    <div>
+      <div class="module-title">Cheat Sheet — Referencia rápida</div>
+      <div class="module-sub">Todos los comandos de la guía en un solo lugar</div>
+    </div>
+  </div>
+
+  <h2>📁 Navegación</h2>
+  <table class="cmd-table">
+    <thead><tr><th>Comando</th><th>¿Qué hace?</th><th>Ejemplo</th></tr></thead>
+    <tbody>
+      <tr><td><span class="cmd-cell">pwd</span></td><td>Mostrar directorio actual</td><td><code>pwd</code></td></tr>
+      <tr><td><span class="cmd-cell">cd ..</span></td><td>Subir al directorio padre</td><td><code>cd ..</code></td></tr>
+      <tr><td><span class="cmd-cell">cd ~</span></td><td>Ir a la carpeta personal</td><td><code>cd ~</code></td></tr>
+      <tr><td><span class="cmd-cell">cd -</span></td><td>Volver al directorio anterior</td><td><code>cd -</code></td></tr>
+      <tr><td><span class="cmd-cell">ls</span></td><td>Listar contenido del directorio</td><td><code>ls -la</code></td></tr>
+      <tr><td><span class="cmd-cell">tree</span></td><td>Ver árbol de carpetas</td><td><code>tree -L 2</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>📄 Archivos</h2>
+  <table class="cmd-table">
+    <thead><tr><th>Comando</th><th>¿Qué hace?</th><th>Ejemplo</th></tr></thead>
+    <tbody>
+      <tr><td><span class="cmd-cell">touch</span></td><td>Crear archivo vacío</td><td><code>touch nota.txt</code></td></tr>
+      <tr><td><span class="cmd-cell">cp</span></td><td>Copiar archivo o carpeta</td><td><code>cp -r src/ dst/</code></td></tr>
+      <tr><td><span class="cmd-cell">mv</span></td><td>Mover o renombrar</td><td><code>mv a.txt b.txt</code></td></tr>
+      <tr><td><span class="cmd-cell">rm</span></td><td>Eliminar archivo (permanente)</td><td><code>rm -r carpeta/</code></td></tr>
+      <tr><td><span class="cmd-cell">cat</span></td><td>Ver contenido completo</td><td><code>cat config.txt</code></td></tr>
+      <tr><td><span class="cmd-cell">nano</span></td><td>Editar un archivo</td><td><code>nano config.txt</code></td></tr>
+      <tr><td><span class="cmd-cell">echo</span></td><td>Mostrar texto / crear archivos</td><td><code>echo texto > file.txt</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>📂 Directorios</h2>
+  <table class="cmd-table">
+    <thead><tr><th>Comando</th><th>¿Qué hace?</th><th>Ejemplo</th></tr></thead>
+    <tbody>
+      <tr><td><span class="cmd-cell">mkdir</span></td><td>Crear carpeta</td><td><code>mkdir -p a/b/c</code></td></tr>
+      <tr><td><span class="cmd-cell">rmdir</span></td><td>Eliminar carpeta vacía</td><td><code>rmdir vacía</code></td></tr>
+      <tr><td><span class="cmd-cell">rm -r</span></td><td>Eliminar carpeta con contenido</td><td><code>rm -r carpeta/</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>🔐 Permisos</h2>
+  <table class="cmd-table">
+    <thead><tr><th>Comando</th><th>¿Qué hace?</th><th>Ejemplo</th></tr></thead>
+    <tbody>
+      <tr><td><span class="cmd-cell">chmod</span></td><td>Cambiar permisos</td><td><code>chmod 755 script.sh</code></td></tr>
+      <tr><td><span class="cmd-cell">chown</span></td><td>Cambiar dueño</td><td><code>sudo chown hugo archivo.txt</code></td></tr>
+      <tr><td><span class="cmd-cell">sudo</span></td><td>Ejecutar como superusuario</td><td><code>sudo apt update</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>🔎 Búsqueda</h2>
+  <table class="cmd-table">
+    <thead><tr><th>Comando</th><th>¿Qué hace?</th><th>Ejemplo</th></tr></thead>
+    <tbody>
+      <tr><td><span class="cmd-cell">find</span></td><td>Buscar archivos</td><td><code>find . -name "*.jpg"</code></td></tr>
+      <tr><td><span class="cmd-cell">grep</span></td><td>Buscar texto en archivos</td><td><code>grep -r "TODO" .</code></td></tr>
+      <tr><td><span class="cmd-cell">which</span></td><td>Ubicar un comando instalado</td><td><code>which python3</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>🌐 Red</h2>
+  <table class="cmd-table">
+    <thead><tr><th>Comando</th><th>¿Qué hace?</th><th>Ejemplo</th></tr></thead>
+    <tbody>
+      <tr><td><span class="cmd-cell">ip a</span></td><td>Ver configuración de red</td><td><code>ip a</code></td></tr>
+      <tr><td><span class="cmd-cell">ping</span></td><td>Probar conectividad</td><td><code>ping -c 4 8.8.8.8</code></td></tr>
+      <tr><td><span class="cmd-cell">traceroute</span></td><td>Trazar ruta hasta destino</td><td><code>traceroute google.com</code></td></tr>
+      <tr><td><span class="cmd-cell">ss</span></td><td>Ver conexiones activas y puertos</td><td><code>ss -tulnp</code></td></tr>
+      <tr><td><span class="cmd-cell">dig</span></td><td>Resolver nombre de dominio</td><td><code>dig google.com</code></td></tr>
+      <tr><td><span class="cmd-cell">curl</span></td><td>Descargar o consultar una URL</td><td><code>curl -O url</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>⚙️ Sistema</h2>
+  <table class="cmd-table">
+    <thead><tr><th>Comando</th><th>¿Qué hace?</th><th>Ejemplo</th></tr></thead>
+    <tbody>
+      <tr><td><span class="cmd-cell">clear</span></td><td>Limpiar la pantalla</td><td><code>clear</code></td></tr>
+      <tr><td><span class="cmd-cell">uname -a</span></td><td>Info del sistema</td><td><code>uname -a</code></td></tr>
+      <tr><td><span class="cmd-cell">df -h</span></td><td>Espacio en disco</td><td><code>df -h</code></td></tr>
+      <tr><td><span class="cmd-cell">free -h</span></td><td>Memoria RAM disponible</td><td><code>free -h</code></td></tr>
+      <tr><td><span class="cmd-cell">man</span></td><td>Manual de un comando</td><td><code>man ls</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>🔄 Procesos</h2>
+  <table class="cmd-table">
+    <thead><tr><th>Comando</th><th>¿Qué hace?</th><th>Ejemplo</th></tr></thead>
+    <tbody>
+      <tr><td><span class="cmd-cell">ps aux</span></td><td>Ver procesos en ejecución</td><td><code>ps aux | grep chrome</code></td></tr>
+      <tr><td><span class="cmd-cell">top</span></td><td>Monitor en tiempo real</td><td><code>top</code></td></tr>
+      <tr><td><span class="cmd-cell">kill</span></td><td>Terminar un proceso</td><td><code>kill -9 4532</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>🔀 Redirección</h2>
+  <table class="cmd-table">
+    <thead><tr><th>Operador</th><th>¿Qué hace?</th><th>Ejemplo</th></tr></thead>
+    <tbody>
+      <tr><td><span class="cmd-cell">></span></td><td>Redirige salida a archivo (sobreescribe)</td><td><code>ls > lista.txt</code></td></tr>
+      <tr><td><span class="cmd-cell">>></span></td><td>Redirige salida a archivo (acumula)</td><td><code>echo ok >> log.txt</code></td></tr>
+      <tr><td><span class="cmd-cell">|</span></td><td>Pasa la salida como entrada del siguiente</td><td><code>ls | grep "txt"</code></td></tr>
+      <tr><td><span class="cmd-cell">2></span></td><td>Redirige errores a archivo</td><td><code>cmd 2> errores.txt</code></td></tr>
+    </tbody>
+  </table>
+
+  <div style="background:linear-gradient(135deg,#0c0c0c,#1a1a1a);border-radius:12px;padding:2rem;text-align:center;margin-top:1.5rem;">
+    <div style="font-size:2.5rem;margin-bottom:.75rem;">🎉</div>
+    <h2 style="color:#4ec94e;margin-bottom:.5rem;font-size:1.4rem;">¡Ya dominas la terminal de Linux!</h2>
+    <p style="color:rgba(255,255,255,0.65);margin-bottom:1.25rem;">El siguiente paso natural es aprender <strong style="color:#fff;">Git</strong> desde la terminal, explorar <strong style="color:#fff;">SSH</strong> para servidores remotos, o profundizar en <strong style="color:#fff;">Docker</strong>. Todos parten de lo que acabas de aprender.</p>
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+      <div style="background:rgba(255,255,255,.07);border-radius:10px;padding:.75rem 1.5rem;color:#ccc;font-size:.88rem;">→ Aprende Git desde la terminal</div>
+      <div style="background:rgba(255,255,255,.07);border-radius:10px;padding:.75rem 1.5rem;color:#ccc;font-size:.88rem;">→ Conéctate a un servidor con SSH</div>
+      <div style="background:rgba(255,255,255,.07);border-radius:10px;padding:.75rem 1.5rem;color:#ccc;font-size:.88rem;">→ Automatiza con scripts .sh</div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Guía Terminal Linux desde Cero · Café &lt;/&gt; · Hugo 2025
+</footer>
+
+</body>
+</html>

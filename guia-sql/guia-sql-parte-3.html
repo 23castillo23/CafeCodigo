@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía SQL desde Cero — Parte 3 · Soy Dalto</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --primary: #c44a2a; --primary-light: #fdf0ec;
+    --secondary: #1a7a5a; --secondary-light: #edf7f3;
+    --accent: #b07010; --accent-light: #fdf6e8;
+    --sql: #336791; --sql-light: #e8f0f8;
+    --bg: #f7f4ef; --surface: #ffffff;
+    --text: #1a1814; --muted: #8a8480; --border: #e8e4de;
+    --code-bg: #1a1814;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  .cafe-bar { background:#fff; border-bottom:1px solid #e8e4de; padding:0 24px; display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:200; height:45px; }
+  .cafe-bar a { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:#8a8480; text-decoration:none; padding:6px 14px; border:1px solid #e8e4de; border-radius:999px; transition:all .15s; }
+  .cafe-bar a:hover { color:#1a1814; border-color:#8a8480; }
+  .cafe-bar span { font-size:13px; color:#8a8480; }
+
+  .partes-nav { background:var(--surface); border-bottom:1px solid var(--border); position:sticky; top:45px; z-index:110; display:flex; align-items:center; height:38px; padding:0 1rem; }
+  .partes-nav-prev { flex-shrink:0; padding:0 .75rem; height:100%; text-decoration:none; color:var(--muted); font-size:.78rem; font-weight:500; border-right:1px solid var(--border); display:flex; align-items:center; transition:color .15s; white-space:nowrap; }
+  .partes-nav-prev:hover { color:var(--sql); }
+  .partes-nav-list { flex:1; display:flex; align-items:center; justify-content:center; gap:.15rem; overflow-x:auto; padding:0 .5rem; }
+  .partes-nav-list::-webkit-scrollbar { display:none; }
+  .partes-nav-list a { flex-shrink:0; padding:2px 10px; border-radius:20px; text-decoration:none; font-size:.73rem; font-weight:600; color:var(--muted); transition:color .15s,background .15s; }
+  .partes-nav-list a:hover { color:var(--text); background:var(--bg); }
+  .partes-nav-list a.activa { background:var(--sql-light); color:var(--sql); }
+
+  header { background:#1a1814; color:#f7f4ef; padding:3rem 2rem 2rem; text-align:center; position:relative; overflow:hidden; }
+  header::before { content:'⚡'; position:absolute; font-size:12rem; color:rgba(51,103,145,0.1); right:0; top:-1rem; line-height:1; }
+  header h1 { font-size:2.5rem; font-weight:800; letter-spacing:-1px; font-family:'Fraunces',serif; }
+  header p { font-size:1.1rem; opacity:.85; margin-top:.5rem; }
+  header .badge { display:inline-block; background:rgba(51,103,145,.25); border:1px solid rgba(51,103,145,.5); color:#89b4d8; border-radius:20px; padding:4px 14px; font-size:.8rem; margin-top:.75rem; font-weight:600; }
+
+  nav { background:var(--surface); border-bottom:1px solid var(--border); position:sticky; top:83px; z-index:100; display:flex; overflow-x:auto; }
+  nav::-webkit-scrollbar { display:none; }
+  nav a { flex-shrink:0; padding:.65rem .9rem; text-decoration:none; color:var(--muted); font-size:.78rem; font-weight:500; border-bottom:2px solid transparent; transition:color .2s,border-color .2s; white-space:nowrap; }
+  nav a:hover { color:var(--sql); border-bottom-color:var(--sql); }
+
+  main { max-width:940px; margin:0 auto; padding:2rem 1.5rem; }
+
+  .module { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:2rem; margin-bottom:2.5rem; }
+  .module-header { display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border); }
+  .module-icon { font-size:1.8rem; flex-shrink:0; }
+  .module-title { font-size:1.35rem; font-weight:700; }
+  .module-sub { font-size:.85rem; color:var(--muted); margin-top:2px; }
+
+  .analogy { background:#FFF7ED; border:1px solid #FDE68A; border-left:4px solid var(--accent); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .analogy h4 { color:#92400E; font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+  .analogy p { font-size:.95rem; color:#78350F; }
+
+  .concept { background:var(--primary-light); border-left:4px solid var(--primary); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .concept h4 { color:var(--primary); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+
+  .tip { background:var(--secondary-light); border-left:4px solid var(--secondary); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .tip h4 { color:var(--secondary); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+  .tip ul { padding-left:1.2rem; }
+
+  .warn { background:#fdf0ec; border-left:4px solid var(--primary); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .warn h4 { color:var(--primary); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+
+  .sql-block { background:var(--code-bg); border-radius:10px; padding:1.25rem 1.5rem; font-family:'DM Mono','Courier New',monospace; font-size:.88rem; line-height:1.9; overflow-x:auto; margin:1rem 0; position:relative; white-space:pre; }
+  .sql-block .kw { color:#89B4FA; font-weight:600; }
+  .sql-block .fn { color:#CBA6F7; }
+  .sql-block .st { color:#A6E3A1; }
+  .sql-block .nm { color:#F9E2AF; }
+  .sql-block .cm { color:#585B70; font-style:italic; }
+  .sql-block .tb { color:#89DCEB; }
+  .sql-block .op { color:#FAB387; }
+  .lang-badge { position:absolute; top:.6rem; right:.75rem; background:rgba(51,103,145,.3); color:#89b4d8; font-size:.68rem; padding:2px 8px; border-radius:4px; font-family:sans-serif; font-weight:600; }
+
+  .sql-result { margin:1rem 0; border-radius:10px; overflow:hidden; border:1px solid var(--border); }
+  .sql-result-header { background:var(--sql); color:white; padding:.5rem 1rem; font-size:.78rem; font-weight:700; display:flex; align-items:center; gap:.5rem; }
+  .sql-result table { width:100%; border-collapse:collapse; font-size:.87rem; }
+  .sql-result th { background:var(--sql-light); color:var(--sql); padding:.55rem 1rem; text-align:left; font-weight:700; font-family:'DM Mono',monospace; border-bottom:2px solid #c8ddf0; }
+  .sql-result td { padding:.5rem 1rem; border-bottom:1px solid var(--border); font-family:'DM Mono',monospace; }
+  .sql-result tr:last-child td { border-bottom:none; }
+  .sql-result tr:hover td { background:var(--bg); }
+  .sql-result .null-val { color:var(--muted); font-style:italic; }
+  .sql-rows { padding:.4rem 1rem; font-size:.75rem; color:var(--muted); background:var(--bg); border-top:1px solid var(--border); }
+
+  .ejercicio { background:#FFFBEB; border:1px solid #FDE68A; border-radius:14px; padding:1.5rem; margin:1.5rem 0; }
+  .ejercicio-hd { display:flex; align-items:center; gap:.75rem; margin-bottom:1rem; font-weight:700; font-size:1rem; color:#78350F; flex-wrap:wrap; }
+  .ej-badge { background:var(--accent); color:#fff; font-size:.68rem; padding:2px 9px; border-radius:20px; font-weight:700; text-transform:uppercase; }
+  .ej-badge.int { background:var(--primary); }
+  .ej-badge.sql { background:var(--sql); }
+  .ej-badge.fin { background:#7c3aed; }
+  .editor-area { background:#1a1814; border-radius:10px; overflow:hidden; margin:.75rem 0; }
+  textarea.editor { width:100%; background:#252525; color:#e8e4de; border:none; padding:1rem 1.25rem; font-family:'DM Mono','Courier New',monospace; font-size:.87rem; line-height:1.8; resize:vertical; min-height:180px; outline:none; display:block; }
+  .btn-row { display:flex; gap:.5rem; flex-wrap:wrap; margin-top:.6rem; }
+  .run-btn { background:var(--sql); color:white; border:none; padding:.6rem 1.4rem; border-radius:8px; font-weight:700; font-size:.9rem; cursor:pointer; transition:background .15s; display:inline-flex; align-items:center; gap:.4rem; }
+  .run-btn:hover { background:#275070; }
+  .reset-btn { background:transparent; color:var(--muted); border:1px solid var(--border); padding:.6rem 1.1rem; border-radius:8px; font-size:.85rem; cursor:pointer; transition:all .15s; }
+  .reset-btn:hover { border-color:var(--sql); color:var(--sql); }
+  .output-label { font-size:.72rem; color:var(--muted); margin-top:.75rem; margin-bottom:.25rem; text-transform:uppercase; letter-spacing:.06em; }
+  .sql-output { background:#0f0f0f; border-radius:8px; padding:1rem 1.25rem; font-family:'DM Mono',monospace; font-size:.84rem; min-height:60px; color:#A6E3A1; white-space:pre; overflow-x:auto; }
+  .enunciado { background:#fff; border:1px dashed #FDE68A; border-radius:8px; padding:1rem 1.25rem; margin-bottom:.75rem; font-size:.94rem; line-height:1.6; }
+  .enunciado strong { color:#78350F; }
+
+  .tbl { width:100%; border-collapse:collapse; margin:1rem 0; font-size:.9rem; }
+  .tbl th { background:var(--sql-light); color:var(--sql); padding:.65rem 1rem; text-align:left; font-weight:600; }
+  .tbl td { padding:.65rem 1rem; border-bottom:1px solid var(--border); vertical-align:top; }
+  .tbl tr:hover td { background:var(--bg); }
+
+  .parte-badge { display:inline-flex; align-items:center; gap:.5rem; background:var(--sql); color:white; border-radius:20px; padding:5px 16px; font-size:.82rem; font-weight:700; margin-bottom:1.5rem; }
+
+  h2 { font-size:1.2rem; font-weight:700; margin:1.75rem 0 .75rem; }
+  h3 { font-size:1rem; font-weight:700; margin:1.25rem 0 .5rem; }
+  p { margin-bottom:.8rem; }
+  ul,ol { padding-left:1.4rem; margin-bottom:.8rem; }
+  li { margin-bottom:.4rem; font-size:.96rem; }
+  code { font-family:'DM Mono',monospace; background:#f0ece6; color:var(--sql); padding:1px 5px; border-radius:4px; font-size:.9em; }
+  strong { font-weight:700; }
+
+  footer { text-align:center; padding:2rem; color:var(--muted); font-size:.85rem; border-top:1px solid var(--border); margin-top:1rem; background:var(--bg); }
+</style>
+</head>
+<body>
+
+<div class="cafe-bar">
+  <a href="../capitulos.html?tab=adicionales">← Volver a Mis Guias adicionales</a>
+  <span>🗄️ Guía SQL · Parte 3 de 3</span>
+</div>
+
+<div class="partes-nav">
+  <a class="partes-nav-prev" href="guia-sql-parte-2.html">← Parte 2</a>
+  <div class="partes-nav-list">
+    <a href="guia-sql-parte-1.html">Parte 1</a>
+    <a href="guia-sql-parte-2.html">Parte 2</a>
+    <a href="guia-sql-parte-3.html" class="activa">Parte 3</a>
+  </div>
+  <span style="flex-shrink:0;padding:0 .75rem;font-size:.78rem;color:var(--muted);">✅ Final</span>
+</div>
+
+<header>
+  <h1>SQL — Parte 3</h1>
+  <p>Subconsultas, Vistas, Procedimientos, Triggers y Proyecto Final</p>
+  <span class="badge">🗄️ Parte 3 de 3 · Curso completo de Soy Dalto</span>
+</header>
+
+<nav>
+  <a href="#subconsultas">🔎 Subconsultas</a>
+  <a href="#vistas">👁️ Vistas</a>
+  <a href="#indices">⚡ Índices</a>
+  <a href="#procedimientos">⚙️ Procedimientos</a>
+  <a href="#triggers">🎬 Triggers</a>
+  <a href="#proyecto">🏗️ Proyecto Final</a>
+  <a href="#resumen">📋 Resumen</a>
+</nav>
+
+<main>
+<div class="parte-badge">🗄️ Parte 3 — Temas Avanzados de SQL</div>
+
+
+<!-- ══════════════════════════════════════════
+     SUBCONSULTAS
+══════════════════════════════════════════ -->
+<section class="module" id="subconsultas">
+  <div class="module-header">
+    <div class="module-icon">🔎</div>
+    <div>
+      <div class="module-title">Subconsultas (Subqueries) — Consultas dentro de consultas</div>
+      <div class="module-sub">Resolver problemas en pasos, anidando SELECT dentro de SELECT</div>
+    </div>
+  </div>
+
+  <p>Una subconsulta es un <code>SELECT</code> que vive <strong>dentro</strong> de otra consulta SQL. Se usa cuando necesitas el resultado de una consulta como entrada para otra.</p>
+
+  <div class="analogy">
+    <h4>🪆 Analogía: las muñecas rusas (matrioskas)</h4>
+    <p>Una subconsulta es como una muñeca rusa: hay una consulta principal que contiene otra consulta más pequeña en su interior. Primero se resuelve la consulta de adentro (la muñeca pequeña), y su resultado se usa como ingrediente para resolver la consulta de afuera (la muñeca grande). Por ejemplo: "encuentra los productos que cuestan más que el precio promedio" — primero hay que calcular el promedio (subconsulta), y después comparar cada producto contra ese promedio (consulta externa).</p>
+  </div>
+
+  <h2>Subconsultas en WHERE</h2>
+  <div class="sql-block"><span class="lang-badge">SQL</span><span class="kw">USE</span> <span class="tb">cafe_curso</span>;
+
+<span class="cm">-- Productos más caros que el promedio</span>
+<span class="kw">SELECT</span> <span class="tb">nombre</span>, <span class="tb">precio</span>
+<span class="kw">FROM</span> <span class="tb">menu</span>
+<span class="kw">WHERE</span> <span class="tb">precio</span> > (
+  <span class="kw">SELECT</span> <span class="fn">AVG</span>(<span class="tb">precio</span>) <span class="kw">FROM</span> <span class="tb">menu</span>   <span class="cm">-- subconsulta: calcula el promedio</span>
+);
+
+<span class="cm">-- Clientes que SÍ han hecho pedidos (usando IN)</span>
+<span class="kw">SELECT</span> <span class="tb">nombre</span>, <span class="tb">email</span>
+<span class="kw">FROM</span> <span class="tb">clientes</span>
+<span class="kw">WHERE</span> <span class="tb">id</span> <span class="kw">IN</span> (
+  <span class="kw">SELECT DISTINCT</span> <span class="tb">id_cliente</span> <span class="kw">FROM</span> <span class="tb">pedidos</span>
+);
+
+<span class="cm">-- Clientes que NUNCA han pedido (usando NOT IN)</span>
+<span class="kw">SELECT</span> <span class="tb">nombre</span>, <span class="tb">email</span>
+<span class="kw">FROM</span> <span class="tb">clientes</span>
+<span class="kw">WHERE</span> <span class="tb">id</span> <span class="kw">NOT IN</span> (
+  <span class="kw">SELECT DISTINCT</span> <span class="tb">id_cliente</span> <span class="kw">FROM</span> <span class="tb">pedidos</span>
+);
+
+<span class="cm">-- El producto más caro (usando subconsulta con MAX)</span>
+<span class="kw">SELECT</span> <span class="tb">nombre</span>, <span class="tb">precio</span>
+<span class="kw">FROM</span> <span class="tb">menu</span>
+<span class="kw">WHERE</span> <span class="tb">precio</span> = (<span class="kw">SELECT</span> <span class="fn">MAX</span>(<span class="tb">precio</span>) <span class="kw">FROM</span> <span class="tb">menu</span>);</div>
+
+  <h2>Subconsultas en SELECT (columna calculada)</h2>
+  <div class="sql-block"><span class="lang-badge">SQL</span><span class="cm">-- Mostrar cada producto y cuánto se aleja del promedio</span>
+<span class="kw">SELECT</span>
+  <span class="tb">nombre</span>,
+  <span class="tb">precio</span>,
+  (<span class="kw">SELECT</span> <span class="fn">ROUND</span>(<span class="fn">AVG</span>(<span class="tb">precio</span>),<span class="nm">2</span>) <span class="kw">FROM</span> <span class="tb">menu</span>) <span class="kw">AS</span> <span class="st">'promedio_general'</span>,
+  <span class="tb">precio</span> - (<span class="kw">SELECT</span> <span class="fn">AVG</span>(<span class="tb">precio</span>) <span class="kw">FROM</span> <span class="tb">menu</span>) <span class="kw">AS</span> <span class="st">'diferencia'</span>
+<span class="kw">FROM</span> <span class="tb">menu</span>;</div>
+
+  <h2>Subconsultas en FROM (tabla derivada)</h2>
+  <div class="sql-block"><span class="lang-badge">SQL</span><span class="cm">-- Usar el resultado de una consulta como si fuera una tabla</span>
+<span class="kw">SELECT</span> <span class="tb">categoria</span>, <span class="tb">promedio</span>
+<span class="kw">FROM</span> (
+  <span class="kw">SELECT</span> <span class="tb">categoria</span>, <span class="fn">AVG</span>(<span class="tb">precio</span>) <span class="kw">AS</span> <span class="tb">promedio</span>
+  <span class="kw">FROM</span> <span class="tb">menu</span>
+  <span class="kw">GROUP BY</span> <span class="tb">categoria</span>
+) <span class="kw">AS</span> <span class="tb">resumen</span>
+<span class="kw">WHERE</span> <span class="tb">promedio</span> > <span class="nm">65</span>;</div>
+
+  <div class="sql-result">
+    <div class="sql-result-header">📊 Productos más caros que el promedio ($72.50)</div>
+    <table>
+      <thead><tr><th>nombre</th><th>precio</th></tr></thead>
+      <tbody>
+        <tr><td>Matcha Latte</td><td>82.50</td></tr>
+        <tr><td>Cheesecake</td><td>80.00</td></tr>
+        <tr><td>Sandwich Club</td><td>95.00</td></tr>
+        <tr><td>Avocado Toast</td><td>85.00</td></tr>
+        <tr><td>Latte</td><td>77.00</td></tr>
+      </tbody>
+    </table>
+    <div class="sql-rows">5 de 9 productos por encima del promedio</div>
+  </div>
+
+  <div class="concept">
+    <h4>💡 Subconsulta vs JOIN — ¿cuándo usar cada uno?</h4>
+    <p>Si necesitas combinar columnas de varias tablas para mostrarlas juntas → usa JOIN. Si solo necesitas <strong>filtrar</strong> usando un valor calculado de otra tabla (sin mostrar sus columnas) → la subconsulta suele ser más clara. En la práctica, muchas consultas con subconsultas se pueden reescribir con JOIN y viceversa — con la experiencia aprenderás cuál es más legible para cada caso.</p>
+  </div>
+
+  <div class="ejercicio">
+    <div class="ejercicio-hd">✏️ Ejercicio — Subconsultas en acción <span class="ej-badge sql">SQL</span></div>
+    <div class="enunciado"><strong>Objetivo:</strong> Resuelve estas preguntas usando subconsultas anidadas.</div>
+    <div class="editor-area">
+      <textarea class="editor" id="ej-subq">USE cafe_curso;
+
+-- 1. Empleados que ganan más que el salario promedio
+SELECT nombre, cargo, salario
+FROM empleados
+WHERE salario > (SELECT AVG(salario) FROM empleados);
+
+-- 2. El cliente que más ha gastado (usando subconsulta)
+SELECT nombre FROM clientes
+WHERE id = (
+  SELECT id_cliente
+  FROM pedidos p
+  JOIN menu m ON p.id_producto = m.id
+  GROUP BY id_cliente
+  ORDER BY SUM(m.precio * p.cantidad) DESC
+  LIMIT 1
+);
+
+-- 3. Productos del menú que nunca se han vendido
+SELECT nombre, categoria FROM menu
+WHERE id NOT IN (SELECT DISTINCT id_producto FROM pedidos);
+
+-- 4. Categorías cuyo promedio supera el promedio general del menú
+SELECT categoria, ROUND(AVG(precio),2) AS promedio_categoria
+FROM menu
+GROUP BY categoria
+HAVING AVG(precio) > (SELECT AVG(precio) FROM menu);</textarea>
+    </div>
+    <div class="btn-row">
+      <button class="run-btn" onclick="mostrarResultado('out-subq', resultados['subq'])">▶ Ver resultado esperado</button>
+      <button class="reset-btn" onclick="resetEditor('out-subq')">↺ Reiniciar</button>
+    </div>
+    <div class="output-label">Resultado esperado:</div>
+    <div class="sql-output" id="out-subq">Presiona ▶ para ver el resultado...</div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     VISTAS
+══════════════════════════════════════════ -->
+<section class="module" id="vistas">
+  <div class="module-header">
+    <div class="module-icon">👁️</div>
+    <div>
+      <div class="module-title">Vistas (VIEWS) — Consultas guardadas como tablas virtuales</div>
+      <div class="module-sub">Reutilizar lógica compleja sin repetir código</div>
+    </div>
+  </div>
+
+  <p>Una vista es un <strong>SELECT guardado con un nombre</strong>. Se comporta como una tabla virtual: puedes hacer SELECT sobre ella como si fuera una tabla real, pero internamente solo es una consulta predefinida que se ejecuta cada vez que la usas.</p>
+
+  <div class="analogy">
+    <h4>📐 Analogía: la plantilla de documento guardada</h4>
+    <p>Si cada semana tienes que armar el mismo informe combinando datos de varias hojas de cálculo, lo más sensato es crear una plantilla una sola vez y reutilizarla. Una vista es exactamente eso: en vez de escribir el mismo JOIN complejo de 5 tablas cada vez que necesitas un reporte, lo guardas una vez como vista y después solo escribes <code>SELECT * FROM mi_vista</code>.</p>
+  </div>
+
+  <div class="sql-block"><span class="lang-badge">SQL</span><span class="kw">USE</span> <span class="tb">cafe_curso</span>;
+
+<span class="cm">-- Crear una vista con el reporte de ventas por cliente</span>
+<span class="kw">CREATE VIEW</span> <span class="tb">vista_ventas_clientes</span> <span class="kw">AS</span>
+<span class="kw">SELECT</span>
+  <span class="tb">c</span>.<span class="tb">nombre</span> <span class="kw">AS</span> <span class="st">'cliente'</span>,
+  <span class="tb">c</span>.<span class="tb">ciudad</span>,
+  <span class="fn">COUNT</span>(<span class="tb">p</span>.<span class="tb">id</span>) <span class="kw">AS</span> <span class="st">'total_pedidos'</span>,
+  <span class="fn">SUM</span>(<span class="tb">m</span>.<span class="tb">precio</span> * <span class="tb">p</span>.<span class="tb">cantidad</span>) <span class="kw">AS</span> <span class="st">'total_gastado'</span>
+<span class="kw">FROM</span> <span class="tb">clientes</span> <span class="tb">c</span>
+<span class="kw">INNER JOIN</span> <span class="tb">pedidos</span> <span class="tb">p</span> <span class="kw">ON</span> <span class="tb">c</span>.<span class="tb">id</span> = <span class="tb">p</span>.<span class="tb">id_cliente</span>
+<span class="kw">INNER JOIN</span> <span class="tb">menu</span> <span class="tb">m</span>     <span class="kw">ON</span> <span class="tb">p</span>.<span class="tb">id_producto</span> = <span class="tb">m</span>.<span class="tb">id</span>
+<span class="kw">GROUP BY</span> <span class="tb">c</span>.<span class="tb">id</span>, <span class="tb">c</span>.<span class="tb">nombre</span>, <span class="tb">c</span>.<span class="tb">ciudad</span>;
+
+<span class="cm">-- Usar la vista — se ve y se usa como una tabla normal</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tb">vista_ventas_clientes</span>
+<span class="kw">ORDER BY</span> <span class="tb">total_gastado</span> <span class="kw">DESC</span>;
+
+<span class="cm">-- Filtrar sobre una vista, como en cualquier tabla</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tb">vista_ventas_clientes</span>
+<span class="kw">WHERE</span> <span class="tb">total_gastado</span> > <span class="nm">100</span>;
+
+<span class="cm">-- Ver todas las vistas existentes</span>
+<span class="kw">SHOW</span> <span class="kw">FULL TABLES</span> <span class="kw">WHERE</span> <span class="tb">table_type</span> = <span class="st">'VIEW'</span>;
+
+<span class="cm">-- Modificar una vista existente</span>
+<span class="kw">CREATE OR REPLACE VIEW</span> <span class="tb">vista_ventas_clientes</span> <span class="kw">AS</span>
+<span class="kw">SELECT</span> <span class="tb">c</span>.<span class="tb">nombre</span>, <span class="fn">SUM</span>(<span class="tb">m</span>.<span class="tb">precio</span> * <span class="tb">p</span>.<span class="tb">cantidad</span>) <span class="kw">AS</span> <span class="st">'total'</span>
+<span class="kw">FROM</span> <span class="tb">clientes</span> <span class="tb">c</span>
+<span class="kw">JOIN</span> <span class="tb">pedidos</span> <span class="tb">p</span> <span class="kw">ON</span> <span class="tb">c</span>.<span class="tb">id</span> = <span class="tb">p</span>.<span class="tb">id_cliente</span>
+<span class="kw">JOIN</span> <span class="tb">menu</span> <span class="tb">m</span> <span class="kw">ON</span> <span class="tb">p</span>.<span class="tb">id_producto</span> = <span class="tb">m</span>.<span class="tb">id</span>
+<span class="kw">GROUP BY</span> <span class="tb">c</span>.<span class="tb">id</span>;
+
+<span class="cm">-- Eliminar una vista</span>
+<span class="kw">DROP VIEW IF EXISTS</span> <span class="tb">vista_ventas_clientes</span>;</div>
+
+  <div class="tip">
+    <h4>🟢 Ventajas de usar vistas</h4>
+    <ul>
+      <li><strong>Reutilización:</strong> escribes la lógica compleja una sola vez</li>
+      <li><strong>Seguridad:</strong> puedes dar acceso a una vista sin exponer las tablas reales completas</li>
+      <li><strong>Simplicidad:</strong> el resto del equipo solo necesita saber <code>SELECT * FROM vista</code></li>
+      <li><strong>Mantenimiento:</strong> si la lógica cambia, actualizas la vista una vez y todo lo que la usa se actualiza automáticamente</li>
+    </ul>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ Las vistas no almacenan datos</h4>
+    <p>Una vista <strong>no guarda una copia de los datos</strong> — ejecuta la consulta original cada vez que la usas. Si los datos de las tablas base cambian, la vista refleja el cambio automáticamente en la siguiente consulta. No es una "foto" fija, es una "ventana" siempre actualizada.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     ÍNDICES
+══════════════════════════════════════════ -->
+<section class="module" id="indices">
+  <div class="module-header">
+    <div class="module-icon">⚡</div>
+    <div>
+      <div class="module-title">Índices — Acelerar las búsquedas</div>
+      <div class="module-sub">CREATE INDEX para optimizar el rendimiento de consultas</div>
+    </div>
+  </div>
+
+  <p>Un índice es una estructura adicional que MySQL mantiene para <strong>encontrar filas más rápido</strong>, sin tener que revisar toda la tabla fila por fila.</p>
+
+  <div class="analogy">
+    <h4>📖 Analogía: el índice de un libro</h4>
+    <p>Si buscas el capítulo "Triggers" en un libro de 500 páginas sin índice, tendrías que hojear página por página. Con el índice al final del libro, vas directo a "Triggers, página 412" y llegas en segundos. Un índice en SQL hace exactamente eso: mantiene una estructura ordenada que le dice a MySQL "el cliente con id=347 está exactamente aquí", evitando recorrer toda la tabla.</p>
+  </div>
+
+  <div class="sql-block"><span class="lang-badge">SQL</span><span class="cm">-- Crear un índice en una columna que se consulta frecuentemente</span>
+<span class="kw">CREATE INDEX</span> <span class="tb">idx_email</span> <span class="kw">ON</span> <span class="tb">clientes</span>(<span class="tb">email</span>);
+<span class="kw">CREATE INDEX</span> <span class="tb">idx_ciudad</span> <span class="kw">ON</span> <span class="tb">clientes</span>(<span class="tb">ciudad</span>);
+
+<span class="cm">-- Índice en columnas usadas para JOIN (muy recomendado)</span>
+<span class="kw">CREATE INDEX</span> <span class="tb">idx_id_cliente</span> <span class="kw">ON</span> <span class="tb">pedidos</span>(<span class="tb">id_cliente</span>);
+
+<span class="cm">-- Ver los índices de una tabla</span>
+<span class="kw">SHOW INDEX FROM</span> <span class="tb">clientes</span>;
+
+<span class="cm">-- Eliminar un índice</span>
+<span class="kw">DROP INDEX</span> <span class="tb">idx_email</span> <span class="kw">ON</span> <span class="tb">clientes</span>;
+
+<span class="cm">-- Analizar qué tan rápida es una consulta (EXPLAIN)</span>
+<span class="kw">EXPLAIN SELECT</span> * <span class="kw">FROM</span> <span class="tb">clientes</span> <span class="kw">WHERE</span> <span class="tb">email</span> = <span class="st">'ana@gmail.com'</span>;</div>
+
+  <div class="warn">
+    <h4>⚠️ Los índices tienen un costo</h4>
+    <p>Los índices aceleran las <strong>lecturas</strong> (SELECT), pero ralentizan las <strong>escrituras</strong> (INSERT, UPDATE, DELETE) — porque MySQL tiene que actualizar el índice cada vez que cambian los datos. Las reglas prácticas: indexa columnas que usas frecuentemente en WHERE, JOIN y ORDER BY; no indexes todo, ni columnas que casi nunca consultas.</p>
+  </div>
+
+  <div class="concept">
+    <h4>💡 PRIMARY KEY ya es un índice</h4>
+    <p>Cuando defines <code>PRIMARY KEY</code> en una columna, MySQL crea automáticamente un índice sobre ella. Por eso buscar por <code>id</code> siempre es rápido sin que tengas que hacer nada extra. Lo mismo pasa con columnas <code>UNIQUE</code>.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     PROCEDIMIENTOS ALMACENADOS
+══════════════════════════════════════════ -->
+<section class="module" id="procedimientos">
+  <div class="module-header">
+    <div class="module-icon">⚙️</div>
+    <div>
+      <div class="module-title">Procedimientos Almacenados (Stored Procedures)</div>
+      <div class="module-sub">Bloques de lógica SQL reutilizables, con parámetros</div>
+    </div>
+  </div>
+
+  <p>Un procedimiento almacenado es un <strong>bloque de código SQL guardado</strong> en la base de datos, que se puede ejecutar (llamar) cuando lo necesites, recibiendo parámetros como una función.</p>
+
+  <div class="analogy">
+    <h4>🤖 Analogía: el botón de macro de la fábrica</h4>
+    <p>Imagina una máquina de fábrica con un botón "ARMAR PEDIDO" que ejecuta automáticamente toda una secuencia: verifica stock, descuenta inventario, registra la venta, genera el ticket. En vez de hacer cada paso manualmente cada vez, presionas el botón con los parámetros (qué producto, cuánta cantidad) y la máquina ejecuta toda la secuencia. Un procedimiento almacenado es ese botón: empaqueta lógica compleja de varios pasos en una sola llamada.</p>
+  </div>
+
+  <h2>Sintaxis básica</h2>
+  <div class="sql-block"><span class="lang-badge">SQL</span><span class="kw">USE</span> <span class="tb">cafe_curso</span>;
+
+<span class="cm">-- Cambiar el delimitador (porque el procedimiento usa ; internamente)</span>
+<span class="kw">DELIMITER</span> //
+
+<span class="kw">CREATE PROCEDURE</span> <span class="fn">obtener_pedidos_cliente</span>(<span class="kw">IN</span> <span class="tb">cliente_id</span> <span class="op">INT</span>)
+<span class="kw">BEGIN</span>
+  <span class="kw">SELECT</span>
+    <span class="tb">m</span>.<span class="tb">nombre</span> <span class="kw">AS</span> <span class="st">'producto'</span>,
+    <span class="tb">p</span>.<span class="tb">cantidad</span>,
+    <span class="tb">m</span>.<span class="tb">precio</span> * <span class="tb">p</span>.<span class="tb">cantidad</span> <span class="kw">AS</span> <span class="st">'subtotal'</span>
+  <span class="kw">FROM</span> <span class="tb">pedidos</span> <span class="tb">p</span>
+  <span class="kw">JOIN</span> <span class="tb">menu</span> <span class="tb">m</span> <span class="kw">ON</span> <span class="tb">p</span>.<span class="tb">id_producto</span> = <span class="tb">m</span>.<span class="tb">id</span>
+  <span class="kw">WHERE</span> <span class="tb">p</span>.<span class="tb">id_cliente</span> = <span class="tb">cliente_id</span>;
+<span class="kw">END</span> //
+
+<span class="kw">DELIMITER</span> ;
+
+<span class="cm">-- Llamar (ejecutar) el procedimiento</span>
+<span class="kw">CALL</span> <span class="fn">obtener_pedidos_cliente</span>(<span class="nm">1</span>);  <span class="cm">-- pedidos de Ana García</span>
+<span class="kw">CALL</span> <span class="fn">obtener_pedidos_cliente</span>(<span class="nm">3</span>);  <span class="cm">-- pedidos de María López</span></div>
+
+  <h2>Procedimiento con parámetros de entrada y salida</h2>
+  <div class="sql-block"><span class="lang-badge">SQL</span><span class="kw">DELIMITER</span> //
+
+<span class="kw">CREATE PROCEDURE</span> <span class="fn">total_gastado_cliente</span>(
+  <span class="kw">IN</span>  <span class="tb">p_cliente_id</span> <span class="op">INT</span>,
+  <span class="kw">OUT</span> <span class="tb">p_total</span>       <span class="op">DECIMAL</span>(<span class="nm">10</span>,<span class="nm">2</span>)
+)
+<span class="kw">BEGIN</span>
+  <span class="kw">SELECT</span> <span class="fn">COALESCE</span>(<span class="fn">SUM</span>(<span class="tb">m</span>.<span class="tb">precio</span> * <span class="tb">p</span>.<span class="tb">cantidad</span>), <span class="nm">0</span>) <span class="kw">INTO</span> <span class="tb">p_total</span>
+  <span class="kw">FROM</span> <span class="tb">pedidos</span> <span class="tb">p</span>
+  <span class="kw">JOIN</span> <span class="tb">menu</span> <span class="tb">m</span> <span class="kw">ON</span> <span class="tb">p</span>.<span class="tb">id_producto</span> = <span class="tb">m</span>.<span class="tb">id</span>
+  <span class="kw">WHERE</span> <span class="tb">p</span>.<span class="tb">id_cliente</span> = <span class="tb">p_cliente_id</span>;
+<span class="kw">END</span> //
+
+<span class="kw">DELIMITER</span> ;
+
+<span class="cm">-- Usar el procedimiento con OUT</span>
+<span class="kw">CALL</span> <span class="fn">total_gastado_cliente</span>(<span class="nm">3</span>, @<span class="tb">total</span>);
+<span class="kw">SELECT</span> @<span class="tb">total</span> <span class="kw">AS</span> <span class="st">'total_gastado_maria'</span>;</div>
+
+  <h2>Procedimiento que inserta datos (con lógica)</h2>
+  <div class="sql-block"><span class="lang-badge">SQL</span><span class="kw">DELIMITER</span> //
+
+<span class="kw">CREATE PROCEDURE</span> <span class="fn">registrar_pedido</span>(
+  <span class="kw">IN</span> <span class="tb">p_cliente</span>  <span class="op">INT</span>,
+  <span class="kw">IN</span> <span class="tb">p_producto</span> <span class="op">INT</span>,
+  <span class="kw">IN</span> <span class="tb">p_cantidad</span> <span class="op">INT</span>
+)
+<span class="kw">BEGIN</span>
+  <span class="cm">-- Validar que el producto esté disponible antes de insertar</span>
+  <span class="kw">IF</span> (<span class="kw">SELECT</span> <span class="tb">disponible</span> <span class="kw">FROM</span> <span class="tb">menu</span> <span class="kw">WHERE</span> <span class="tb">id</span> = <span class="tb">p_producto</span>) = <span class="kw">TRUE</span> <span class="kw">THEN</span>
+    <span class="kw">INSERT INTO</span> <span class="tb">pedidos</span> (<span class="tb">id_cliente</span>, <span class="tb">id_producto</span>, <span class="tb">cantidad</span>)
+    <span class="kw">VALUES</span> (<span class="tb">p_cliente</span>, <span class="tb">p_producto</span>, <span class="tb">p_cantidad</span>);
+    <span class="kw">SELECT</span> <span class="st">'Pedido registrado correctamente'</span> <span class="kw">AS</span> <span class="st">'resultado'</span>;
+  <span class="kw">ELSE</span>
+    <span class="kw">SELECT</span> <span class="st">'Error: producto no disponible'</span> <span class="kw">AS</span> <span class="st">'resultado'</span>;
+  <span class="kw">END IF</span>;
+<span class="kw">END</span> //
+
+<span class="kw">DELIMITER</span> ;
+
+<span class="kw">CALL</span> <span class="fn">registrar_pedido</span>(<span class="nm">2</span>, <span class="nm">4</span>, <span class="nm">2</span>);  <span class="cm">-- Luis pide 2 Matcha Latte</span></div>
+
+  <div class="tip">
+    <h4>🟢 ¿Por qué cambiar el DELIMITER?</h4>
+    <p>El punto y coma <code>;</code> normalmente le dice a MySQL "fin de la instrucción". Pero dentro de un procedimiento necesitas varios <code>;</code> para separar las líneas internas sin que MySQL crea que el procedimiento ya terminó. Por eso temporalmente cambiamos el delimitador a <code>//</code>, escribimos todo el procedimiento, y al final regresamos el delimitador a <code>;</code> con <code>DELIMITER ;</code>.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     TRIGGERS
+══════════════════════════════════════════ -->
+<section class="module" id="triggers">
+  <div class="module-header">
+    <div class="module-icon">🎬</div>
+    <div>
+      <div class="module-title">Triggers (Disparadores) — Acciones automáticas</div>
+      <div class="module-sub">Código que se ejecuta solo cuando algo sucede en la tabla</div>
+    </div>
+  </div>
+
+  <p>Un trigger es código que se ejecuta <strong>automáticamente</strong> cuando ocurre un evento en una tabla: antes o después de un INSERT, UPDATE o DELETE. A diferencia de los procedimientos, nunca los "llamas" tú — se disparan solos.</p>
+
+  <div class="analogy">
+    <h4>🚨 Analogía: la alarma de la puerta del refrigerador</h4>
+    <p>El refrigerador de una cocina industrial tiene un sensor: si la puerta queda abierta más de 30 segundos, suena una alarma automáticamente. Nadie tiene que activarla manualmente — el sensor reacciona al evento (puerta abierta). Un trigger funciona igual: defines "cuando pase X en esta tabla, ejecuta automáticamente Y" — y MySQL lo dispara solo, sin que nadie tenga que llamarlo.</p>
+  </div>
+
+  <h2>Trigger BEFORE INSERT — validar antes de guardar</h2>
+  <div class="sql-block"><span class="lang-badge">SQL</span><span class="kw">DELIMITER</span> //
+
+<span class="kw">CREATE TRIGGER</span> <span class="fn">validar_precio_positivo</span>
+<span class="kw">BEFORE INSERT ON</span> <span class="tb">menu</span>
+<span class="kw">FOR EACH ROW</span>
+<span class="kw">BEGIN</span>
+  <span class="kw">IF</span> <span class="kw">NEW</span>.<span class="tb">precio</span> <= <span class="nm">0</span> <span class="kw">THEN</span>
+    <span class="kw">SIGNAL SQLSTATE</span> <span class="st">'45000'</span>
+    <span class="kw">SET MESSAGE_TEXT</span> = <span class="st">'El precio debe ser mayor a cero'</span>;
+  <span class="kw">END IF</span>;
+<span class="kw">END</span> //
+
+<span class="kw">DELIMITER</span> ;
+
+<span class="cm">-- Esto FALLARÁ gracias al trigger:</span>
+<span class="kw">INSERT INTO</span> <span class="tb">menu</span> (<span class="tb">nombre</span>, <span class="tb">precio</span>, <span class="tb">categoria</span>)
+<span class="kw">VALUES</span> (<span class="st">'Producto gratis'</span>, -<span class="nm">10</span>, <span class="st">'bebida'</span>);
+<span class="cm">-- Error 1644: El precio debe ser mayor a cero</span></div>
+
+  <h2>Trigger AFTER INSERT — registrar en log de auditoría</h2>
+  <div class="sql-block"><span class="lang-badge">SQL</span><span class="cm">-- Primero, una tabla para guardar el historial</span>
+<span class="kw">CREATE TABLE IF NOT EXISTS</span> <span class="tb">log_pedidos</span> (
+  <span class="tb">id</span>           <span class="op">INT AUTO_INCREMENT PRIMARY KEY</span>,
+  <span class="tb">id_pedido</span>    <span class="op">INT</span>,
+  <span class="tb">mensaje</span>      <span class="op">VARCHAR</span>(<span class="nm">255</span>),
+  <span class="tb">fecha</span>        <span class="op">DATETIME DEFAULT</span> <span class="fn">NOW</span>()
+);
+
+<span class="kw">DELIMITER</span> //
+
+<span class="kw">CREATE TRIGGER</span> <span class="fn">log_nuevo_pedido</span>
+<span class="kw">AFTER INSERT ON</span> <span class="tb">pedidos</span>
+<span class="kw">FOR EACH ROW</span>
+<span class="kw">BEGIN</span>
+  <span class="kw">INSERT INTO</span> <span class="tb">log_pedidos</span> (<span class="tb">id_pedido</span>, <span class="tb">mensaje</span>)
+  <span class="kw">VALUES</span> (
+    <span class="kw">NEW</span>.<span class="tb">id</span>,
+    <span class="fn">CONCAT</span>(<span class="st">'Nuevo pedido #'</span>, <span class="kw">NEW</span>.<span class="tb">id</span>, <span class="st">' del cliente '</span>, <span class="kw">NEW</span>.<span class="tb">id_cliente</span>)
+  );
+<span class="kw">END</span> //
+
+<span class="kw">DELIMITER</span> ;
+
+<span class="cm">-- Cada vez que se inserte un pedido, se registra automáticamente en el log</span>
+<span class="kw">INSERT INTO</span> <span class="tb">pedidos</span> (<span class="tb">id_cliente</span>, <span class="tb">id_producto</span>, <span class="tb">cantidad</span>) <span class="kw">VALUES</span> (<span class="nm">5</span>, <span class="nm">2</span>, <span class="nm">1</span>);
+
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> <span class="tb">log_pedidos</span>;</div>
+
+  <h2>Trigger AFTER UPDATE — actualizar stock automáticamente</h2>
+  <div class="sql-block"><span class="lang-badge">SQL</span><span class="kw">DELIMITER</span> //
+
+<span class="kw">CREATE TRIGGER</span> <span class="fn">descontar_stock_al_pedir</span>
+<span class="kw">AFTER INSERT ON</span> <span class="tb">pedidos</span>
+<span class="kw">FOR EACH ROW</span>
+<span class="kw">BEGIN</span>
+  <span class="kw">UPDATE</span> <span class="tb">menu</span>
+  <span class="kw">SET</span> <span class="tb">stock</span> = <span class="tb">stock</span> - <span class="kw">NEW</span>.<span class="tb">cantidad</span>
+  <span class="kw">WHERE</span> <span class="tb">id</span> = <span class="kw">NEW</span>.<span class="tb">id_producto</span>;
+<span class="kw">END</span> //
+
+<span class="kw">DELIMITER</span> ;
+<span class="cm">-- Ahora cada nuevo pedido descuenta el stock automáticamente, sin código extra</span>
+
+<span class="cm">-- Ver todos los triggers de la base de datos</span>
+<span class="kw">SHOW TRIGGERS</span>;
+
+<span class="cm">-- Eliminar un trigger</span>
+<span class="kw">DROP TRIGGER IF EXISTS</span> <span class="tb">descontar_stock_al_pedir</span>;</div>
+
+  <table class="tbl">
+    <thead><tr><th>Momento</th><th>Evento</th><th>Caso de uso típico</th></tr></thead>
+    <tbody>
+      <tr><td><code>BEFORE INSERT</code></td><td>Antes de guardar</td><td>Validar datos, calcular un valor antes de insertar</td></tr>
+      <tr><td><code>AFTER INSERT</code></td><td>Después de guardar</td><td>Actualizar stock, registrar en log, enviar notificación</td></tr>
+      <tr><td><code>BEFORE UPDATE</code></td><td>Antes de actualizar</td><td>Validar el nuevo valor, evitar cambios inválidos</td></tr>
+      <tr><td><code>AFTER UPDATE</code></td><td>Después de actualizar</td><td>Registrar el cambio (auditoría), sincronizar otra tabla</td></tr>
+      <tr><td><code>BEFORE/AFTER DELETE</code></td><td>Antes/después de eliminar</td><td>Archivar el registro antes de borrarlo, mantener historial</td></tr>
+    </tbody>
+  </table>
+
+  <div class="concept">
+    <h4>💡 NEW y OLD — las variables mágicas de los triggers</h4>
+    <p><code>NEW</code> hace referencia a los valores que se están insertando o al nuevo valor en un UPDATE. <code>OLD</code> hace referencia al valor anterior en un UPDATE o DELETE. En un INSERT solo existe NEW. En un DELETE solo existe OLD. En un UPDATE existen ambos — puedes comparar <code>OLD.precio</code> contra <code>NEW.precio</code> para saber si cambió.</p>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ Los triggers son invisibles — úsalos con moderación</h4>
+    <p>Un problema común con triggers: el código se ejecuta automáticamente y "en silencio", lo que puede confundir a otros desarrolladores que no saben que existen. Si haces un INSERT y misteriosamente otra tabla cambia, probablemente hay un trigger detrás. Documenta bien tus triggers y úsalos solo cuando la automatización realmente simplifica el sistema.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     PROYECTO FINAL
+══════════════════════════════════════════ -->
+<section class="module" id="proyecto">
+  <div class="module-header">
+    <div class="module-icon">🏗️</div>
+    <div>
+      <div class="module-title">Proyecto Final — Sistema completo de Cafetería</div>
+      <div class="module-sub">Integra todo lo aprendido: tablas, JOINs, vistas, procedimientos y triggers</div>
+    </div>
+  </div>
+
+  <p>Este proyecto final integra <strong>todo el curso</strong> en un sistema funcional: base de datos completa, relaciones entre tablas, vista de reportes, procedimiento para registrar ventas, y trigger para mantener el stock actualizado automáticamente.</p>
+
+  <div class="ejercicio">
+    <div class="ejercicio-hd">🏗️ Proyecto Final — Sistema de Cafetería Completo <span class="ej-badge fin">Proyecto Final</span></div>
+    <div class="enunciado">
+      <strong>Copia este script completo en MySQL Workbench y ejecútalo de principio a fin.</strong> Construye un sistema con: base de datos, 4 tablas relacionadas, datos de ejemplo, una vista de reportes, un procedimiento para registrar ventas con validación, y un trigger que actualiza el stock automáticamente.
+    </div>
+    <div class="editor-area">
+      <textarea class="editor" id="ej-proyecto">-- ═══════════════════════════════════════════
+-- PROYECTO FINAL: SISTEMA DE CAFETERÍA
+-- ═══════════════════════════════════════════
+
+CREATE DATABASE IF NOT EXISTS cafeteria_final;
+USE cafeteria_final;
+
+-- ── TABLAS ────────────────────────────────────
+CREATE TABLE clientes (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nombre VARCHAR(100) NOT NULL,
+  email VARCHAR(150) UNIQUE NOT NULL,
+  ciudad VARCHAR(80)
+);
+
+CREATE TABLE menu (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nombre VARCHAR(100) NOT NULL,
+  precio DECIMAL(8,2) NOT NULL,
+  categoria ENUM('bebida','comida','postre') NOT NULL,
+  stock INT DEFAULT 50
+);
+
+CREATE TABLE pedidos (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  id_cliente INT,
+  id_producto INT,
+  cantidad INT DEFAULT 1,
+  fecha_pedido DATETIME DEFAULT NOW(),
+  FOREIGN KEY (id_cliente) REFERENCES clientes(id),
+  FOREIGN KEY (id_producto) REFERENCES menu(id)
+);
+
+CREATE TABLE log_ventas (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  mensaje VARCHAR(255),
+  fecha DATETIME DEFAULT NOW()
+);
+
+-- ── DATOS DE EJEMPLO ──────────────────────────
+INSERT INTO clientes (nombre, email, ciudad) VALUES
+  ('Ana García', 'ana@gmail.com', 'México DF'),
+  ('Luis Pérez', 'luis@hotmail.com', 'Guadalajara'),
+  ('María López', 'maria@gmail.com', 'Monterrey');
+
+INSERT INTO menu (nombre, precio, categoria, stock) VALUES
+  ('Café Americano', 45.00, 'bebida', 100),
+  ('Cappuccino', 65.00, 'bebida', 80),
+  ('Croissant', 55.00, 'comida', 30),
+  ('Cheesecake', 80.00, 'postre', 20);
+
+-- ── VISTA: reporte de ventas por cliente ──────
+CREATE OR REPLACE VIEW vista_reporte_ventas AS
+SELECT
+  c.nombre AS cliente,
+  COUNT(p.id) AS pedidos_totales,
+  SUM(m.precio * p.cantidad) AS total_gastado
+FROM clientes c
+JOIN pedidos p ON c.id = p.id_cliente
+JOIN menu m ON p.id_producto = m.id
+GROUP BY c.id, c.nombre;
+
+-- ── TRIGGER: descontar stock automáticamente ──
+DELIMITER //
+CREATE TRIGGER trg_descontar_stock
+AFTER INSERT ON pedidos
+FOR EACH ROW
+BEGIN
+  UPDATE menu SET stock = stock - NEW.cantidad WHERE id = NEW.id_producto;
+  INSERT INTO log_ventas (mensaje)
+  VALUES (CONCAT('Pedido #', NEW.id, ' registrado, stock actualizado'));
+END //
+DELIMITER ;
+
+-- ── PROCEDIMIENTO: registrar venta con validación ──
+DELIMITER //
+CREATE PROCEDURE registrar_venta(
+  IN p_cliente INT,
+  IN p_producto INT,
+  IN p_cantidad INT
+)
+BEGIN
+  DECLARE stock_actual INT;
+  SELECT stock INTO stock_actual FROM menu WHERE id = p_producto;
+
+  IF stock_actual >= p_cantidad THEN
+    INSERT INTO pedidos (id_cliente, id_producto, cantidad)
+    VALUES (p_cliente, p_producto, p_cantidad);
+    SELECT 'Venta registrada con éxito ✅' AS resultado;
+  ELSE
+    SELECT CONCAT('❌ Stock insuficiente. Disponible: ', stock_actual) AS resultado;
+  END IF;
+END //
+DELIMITER ;
+
+-- ── PROBAR EL SISTEMA COMPLETO ────────────────
+CALL registrar_venta(1, 2, 3);  -- Ana pide 3 Cappuccinos
+CALL registrar_venta(2, 4, 1);  -- Luis pide 1 Cheesecake
+CALL registrar_venta(3, 1, 5);  -- María pide 5 Café Americano
+CALL registrar_venta(1, 3, 100); -- Intento con stock insuficiente
+
+-- Ver el reporte (la vista)
+SELECT * FROM vista_reporte_ventas;
+
+-- Ver que el stock se actualizó solo (gracias al trigger)
+SELECT nombre, stock FROM menu;
+
+-- Ver el log generado automáticamente
+SELECT * FROM log_ventas;</textarea>
+    </div>
+    <div class="btn-row">
+      <button class="run-btn" onclick="mostrarResultado('out-proyecto', resultados['proyecto'])">▶ Ver resultado esperado</button>
+      <button class="reset-btn" onclick="resetEditor('out-proyecto')">↺ Reiniciar</button>
+    </div>
+    <div class="output-label">Resultado esperado:</div>
+    <div class="sql-output" id="out-proyecto">Presiona ▶ para ver el resultado...</div>
+  </div>
+
+  <div class="concept">
+    <h4>💡 Qué demuestra este proyecto</h4>
+    <p>Este sistema muestra el patrón real de cómo se construyen aplicaciones con SQL: las <strong>tablas</strong> guardan los datos, los <strong>FOREIGN KEY</strong> mantienen la integridad entre ellas, el <strong>procedimiento</strong> centraliza la lógica de negocio (no se puede vender sin stock), el <strong>trigger</strong> automatiza tareas repetitivas (descontar stock, generar log), y la <strong>vista</strong> simplifica los reportes que un dashboard o aplicación consultaría constantemente.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     RESUMEN FINAL
+══════════════════════════════════════════ -->
+<section class="module" id="resumen">
+  <div class="module-header">
+    <div class="module-icon">📋</div>
+    <div>
+      <div class="module-title">Resumen Final — Todo el curso de SQL</div>
+      <div class="module-sub">Lo que aprendiste en las 3 partes</div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin-bottom:1.5rem;">
+
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:1.2rem;">
+      <div style="font-size:1.3rem;margin-bottom:.5rem;">🗄️</div>
+      <strong>Parte 1 — Fundamentos</strong>
+      <ul style="margin-top:.5rem;font-size:.88rem;color:var(--muted);">
+        <li>Bases de datos: CREATE, USE, DROP</li>
+        <li>Tablas, tipos de datos, restricciones</li>
+        <li>INSERT, UPDATE, DELETE</li>
+        <li>SELECT, WHERE, ORDER BY, LIMIT</li>
+      </ul>
+    </div>
+
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:1.2rem;">
+      <div style="font-size:1.3rem;margin-bottom:.5rem;">🔗</div>
+      <strong>Parte 2 — Análisis de datos</strong>
+      <ul style="margin-top:.5rem;font-size:.88rem;color:var(--muted);">
+        <li>Funciones de texto, número y fecha</li>
+        <li>COUNT, SUM, AVG, MAX, MIN</li>
+        <li>GROUP BY y HAVING</li>
+        <li>INNER, LEFT, RIGHT JOIN</li>
+      </ul>
+    </div>
+
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:1.2rem;">
+      <div style="font-size:1.3rem;margin-bottom:.5rem;">⚙️</div>
+      <strong>Parte 3 — Avanzado</strong>
+      <ul style="margin-top:.5rem;font-size:.88rem;color:var(--muted);">
+        <li>Subconsultas anidadas</li>
+        <li>Vistas (VIEW) reutilizables</li>
+        <li>Índices para performance</li>
+        <li>Procedimientos y Triggers</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="tip">
+    <h4>🟢 ¿Qué aprender ahora?</h4>
+    <ul>
+      <li><strong>Normalización de bases de datos:</strong> 1FN, 2FN, 3FN — diseño correcto de tablas</li>
+      <li><strong>Modelado entidad-relación:</strong> diagramas ER antes de crear las tablas</li>
+      <li><strong>Window Functions:</strong> ROW_NUMBER, RANK, PARTITION BY — análisis avanzado</li>
+      <li><strong>Transacciones:</strong> BEGIN, COMMIT, ROLLBACK — operaciones seguras</li>
+      <li><strong>Conectar SQL con un lenguaje de programación:</strong> Python (mysql-connector), Node.js, PHP</li>
+      <li><strong>Otro gestor:</strong> PostgreSQL para conocer diferencias con MySQL</li>
+    </ul>
+  </div>
+
+  <div style="background:linear-gradient(135deg,#1a1814,#2a2420);border-radius:12px;padding:2rem;text-align:center;margin-top:1.5rem;">
+    <div style="font-size:2.5rem;margin-bottom:.75rem;">🎉</div>
+    <h2 style="color:#89b4d8;margin-bottom:.5rem;font-size:1.4rem;">¡Completaste el curso de SQL!</h2>
+    <p style="color:rgba(247,244,239,0.75);margin-bottom:1.25rem;">Pasaste de no saber qué es una base de datos a diseñar sistemas completos con tablas relacionadas, reportes automáticos y lógica de negocio encapsulada en procedimientos y triggers.</p>
+    <a href="https://www.youtube.com/watch?v=DFg1V-rO6Pg" target="_blank" rel="noopener" style="display:inline-block;background:var(--sql);color:white;font-weight:700;padding:.75rem 1.75rem;border-radius:10px;text-decoration:none;font-size:.95rem;">Ver curso original en YouTube →</a>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Guía SQL desde Cero · Parte 3 de 3 · Basada en el curso de Soy Dalto · Hugo 2025
+</footer>
+
+<script>
+const resultados = {
+  subq: `Query 1 — Empleados sobre el promedio (~$9750):
+nombre        | cargo   | salario
+--------------+---------+----------
+Elena Vargas  | Gerente | 15000.00
+
+Query 2 — Cliente que más ha gastado:
+nombre
+-----------
+María López
+
+Query 3 — Productos nunca vendidos:
+nombre        | categoria
+--------------+-----------
+Matcha Latte  | bebida
+Avocado Toast | comida
+Brownie       | postre
+
+Query 4 — Categorías sobre el promedio general ($72.50):
+categoria | promedio_categoria
+----------+--------------------
+comida    | 78.33`,
+
+  proyecto: `CALL registrar_venta(1, 2, 3):
+resultado
+-----------------------------
+Venta registrada con éxito ✅
+
+CALL registrar_venta(1, 3, 100):
+resultado
+-----------------------------------
+❌ Stock insuficiente. Disponible: 30
+
+SELECT * FROM vista_reporte_ventas:
+cliente      | pedidos_totales | total_gastado
+-------------+-----------------+---------------
+Ana García   | 1               | 195.00
+Luis Pérez   | 1               | 80.00
+María López  | 1               | 225.00
+
+SELECT nombre, stock FROM menu:
+nombre          | stock
+----------------+-------
+Café Americano  | 95    (100 - 5)
+Cappuccino      | 77    (80 - 3)
+Croissant       | 30    (sin cambios)
+Cheesecake      | 19    (20 - 1)
+
+SELECT * FROM log_ventas:
+id | mensaje                                    | fecha
+---+--------------------------------------------+-------------------
+1  | Pedido #1 registrado, stock actualizado     | 2026-06-29 ...
+2  | Pedido #2 registrado, stock actualizado     | 2026-06-29 ...
+3  | Pedido #3 registrado, stock actualizado     | 2026-06-29 ...`
+};
+
+function mostrarResultado(outputId, texto) {
+  document.getElementById(outputId).textContent = texto;
+}
+function resetEditor(outputId) {
+  document.getElementById(outputId).textContent = 'Presiona ▶ para ver el resultado...';
+}
+</script>
+</body>
+</html>

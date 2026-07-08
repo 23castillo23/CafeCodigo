@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux vs CMD — Comparativa Completa — Café &lt;/&gt;</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --primary: #c44a2a; --primary-light: #fdf0ec;
+    --secondary: #1a7a5a; --secondary-light: #edf7f3;
+    --accent: #b07010; --accent-light: #fdf6e8;
+    --cmd: #1a7a1a; --cmd-light: #edf7ed;
+    --bg: #f7f4ef; --surface: #ffffff;
+    --text: #1a1814; --muted: #8a8480; --border: #e8e4de;
+    --code-bg: #0c0c0c;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  .cafe-bar { background:#fff; border-bottom:1px solid #e8e4de; padding:0 24px; display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:200; height:45px; }
+  .cafe-bar a { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:#8a8480; text-decoration:none; padding:6px 14px; border:1px solid #e8e4de; border-radius:999px; transition:all .15s; }
+  .cafe-bar a:hover { color:#1a1814; border-color:#8a8480; }
+  .cafe-bar span { font-size:13px; color:#8a8480; }
+
+  header { background:#0c0c0c; color:#cccccc; padding:3rem 2rem 2rem; text-align:center; position:relative; overflow:hidden; }
+  header::before { content:'🐧⇄🪟'; position:absolute; font-size:7rem; font-weight:900; color:rgba(255,255,255,0.04); right:-1rem; top:-1rem; line-height:1; white-space:nowrap; }
+  header h1 { font-size:2.5rem; font-weight:800; letter-spacing:-1px; font-family:'Fraunces',serif; color:#ffffff; }
+  header p { font-size:1.1rem; opacity:.7; margin-top:.5rem; }
+  header .badge { display:inline-block; background:rgba(26,122,26,.3); border:1px solid rgba(26,122,26,.6); color:#4ec94e; border-radius:20px; padding:4px 14px; font-size:.8rem; margin-top:.75rem; font-weight:600; }
+
+  nav { background:#1a1814; border-bottom:1px solid #333; position:sticky; top:45px; z-index:100; display:flex; overflow-x:auto; }
+  nav::-webkit-scrollbar { display:none; }
+  nav a { flex-shrink:0; padding:.65rem .9rem; text-decoration:none; color:#888; font-size:.78rem; font-weight:500; border-bottom:2px solid transparent; transition:color .2s,border-color .2s; white-space:nowrap; }
+  nav a:hover { color:#4ec94e; border-bottom-color:#4ec94e; }
+
+  main { max-width:1040px; margin:0 auto; padding:2rem 1.5rem; }
+
+  .module { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:2rem; margin-bottom:2.5rem; }
+  .module-header { display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border); }
+  .module-icon { font-size:1.8rem; flex-shrink:0; }
+  .module-title { font-size:1.35rem; font-weight:700; }
+  .module-sub { font-size:.85rem; color:var(--muted); margin-top:2px; }
+
+  .analogy { background:#FFF7ED; border:1px solid #FDE68A; border-left:4px solid var(--accent); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .analogy h4 { color:#92400E; font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+  .analogy p { font-size:.95rem; color:#78350F; }
+
+  .concept { background:var(--primary-light); border-left:4px solid var(--primary); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .concept h4 { color:var(--primary); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+
+  .tip { background:var(--secondary-light); border-left:4px solid var(--secondary); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .tip h4 { color:var(--secondary); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+  .tip ul { padding-left:1.2rem; }
+
+  .warn { background:#fdf0ec; border-left:4px solid var(--primary); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .warn h4 { color:var(--primary); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+
+  .parte-badge { display:inline-flex; align-items:center; gap:.5rem; background:#1a1814; color:#4ec94e; border-radius:20px; padding:5px 16px; font-size:.82rem; font-weight:700; margin-bottom:1.5rem; font-family:'DM Mono',monospace; }
+
+  h2 { font-size:1.2rem; font-weight:700; margin:1.75rem 0 .75rem; }
+  h3 { font-size:1rem; font-weight:700; margin:1.25rem 0 .5rem; }
+  p { margin-bottom:.8rem; }
+  ul,ol { padding-left:1.4rem; margin-bottom:.8rem; }
+  li { margin-bottom:.4rem; font-size:.96rem; }
+  code { font-family:'DM Mono',monospace; background:#f0ece6; color:#1a7a1a; padding:1px 6px; border-radius:4px; font-size:.9em; font-weight:600; }
+  strong { font-weight:700; }
+
+  /* TABLA COMPARATIVA — pieza central de esta guía */
+  .compare-wrap { overflow-x:auto; margin:1rem 0 1.75rem; border-radius:12px; border:1px solid var(--border); }
+  .compare { width:100%; border-collapse:collapse; font-size:.85rem; min-width:640px; }
+  .compare thead th { padding:.75rem 1rem; text-align:left; font-weight:700; font-family:'DM Mono',monospace; font-size:.78rem; text-transform:uppercase; letter-spacing:.04em; }
+  .compare thead th.th-accion { background:#1a1814; color:#ccc; width:22%; }
+  .compare thead th.th-lin { background:#0f2e1c; color:#4ec94e; width:39%; }
+  .compare thead th.th-win { background:#2e1a10; color:#f0b429; width:39%; }
+  .compare tbody td { padding:.65rem 1rem; border-bottom:1px solid var(--border); vertical-align:top; font-size:.86rem; }
+  .compare tbody tr:last-child td { border-bottom:none; }
+  .compare tbody tr:hover td { filter:brightness(0.98); }
+  .compare td.c-accion { font-weight:600; color:var(--text); background:var(--bg); font-size:.83rem; }
+  .compare td.c-lin { background:var(--cmd-light); font-family:'DM Mono',monospace; font-size:.82rem; }
+  .compare td.c-win { background:var(--primary-light); font-family:'DM Mono',monospace; font-size:.82rem; }
+  .compare td.c-lin code, .compare td.c-win code { background:transparent; padding:0; color:inherit; font-weight:600; display:block; margin-bottom:2px; }
+  .compare td.c-lin { color:#0f4a2e; }
+  .compare td.c-win { color:#8a3418; }
+  .compare .nota { font-family:'DM Sans',sans-serif; color:var(--muted); font-weight:400; font-size:.78rem; font-style:italic; display:block; margin-top:2px; }
+  .compare .sin-equiv { font-family:'DM Sans',sans-serif; color:var(--muted); font-style:italic; font-size:.82rem; }
+
+  .legend { display:flex; gap:1.5rem; align-items:center; margin-bottom:1rem; font-size:.82rem; color:var(--muted); flex-wrap:wrap; }
+  .legend span { display:inline-flex; align-items:center; gap:.4rem; }
+  .legend .dot { width:12px; height:12px; border-radius:4px; display:inline-block; }
+  .dot-lin { background:var(--cmd); }
+  .dot-win { background:var(--primary); }
+
+  footer { text-align:center; padding:2rem; color:var(--muted); font-size:.85rem; border-top:1px solid var(--border); margin-top:1rem; background:var(--bg); }
+</style>
+</head>
+<body>
+
+<div class="cafe-bar">
+  <a href="../capitulos.html?tab=adicionales">← Volver a Mis Guias adicionales</a>
+  <span>🐧⇄🪟 Comparativa Linux vs CMD</span>
+</div>
+
+<header>
+  <h1>Linux vs CMD</h1>
+  <p>Los mismos objetivos, dos terminales — comparados comando por comando, de lo básico a lo avanzado</p>
+  <span class="badge">📊 Guía comparativa · Principiante → Avanzado</span>
+</header>
+
+<nav>
+  <a href="#intro">🧭 Cómo usar esta guía</a>
+  <a href="#navegacion">📁 Navegación</a>
+  <a href="#carpetas">📂 Carpetas</a>
+  <a href="#archivos">📄 Archivos — crear/copiar/mover</a>
+  <a href="#contenido">👁️ Ver y editar contenido</a>
+  <a href="#busqueda">🔎 Búsqueda</a>
+  <a href="#permisos">🔐 Permisos y administrador</a>
+  <a href="#procesos">🔄 Procesos</a>
+  <a href="#red">🌐 Red</a>
+  <a href="#sistema">⚙️ Sistema y variables</a>
+  <a href="#redireccion">🔀 Pipes y redirección</a>
+</nav>
+
+<main>
+<div class="parte-badge">🐧⇄🪟 Comparativa completa: mismo objetivo, dos terminales</div>
+
+
+<!-- ══════════════════════════════════════════
+     INTRO
+══════════════════════════════════════════ -->
+<section class="module" id="intro">
+  <div class="module-header">
+    <div class="module-icon">🧭</div>
+    <div>
+      <div class="module-title">Cómo usar esta guía</div>
+      <div class="module-sub">La misma tarea, resuelta de dos formas</div>
+    </div>
+  </div>
+
+  <p>Esta guía junta cada acción cotidiana de terminal en una tabla de tres columnas: la <strong>acción</strong> que quieres lograr, cómo se hace en <strong>Linux (Bash)</strong>, y cómo se hace en <strong>CMD (Windows)</strong>. Cuando una acción tiene varias formas válidas de lograrse, se listan todas como filas separadas para que veas el abanico completo de opciones.</p>
+
+  <div class="legend">
+    <span><span class="dot dot-lin"></span> Verde = sintaxis de Linux / Bash</span>
+    <span><span class="dot dot-win"></span> Terracota = sintaxis de CMD / Windows</span>
+  </div>
+
+  <div class="concept">
+    <h4>💡 La diferencia de fondo entre ambas terminales</h4>
+    <p>CMD nació para DOS en los años 80 y arrastra esa herencia: comandos cortos, flags con <code>/</code>, y muchas tareas que requieren herramientas externas o PowerShell. Bash nació en un mundo Unix diseñado desde el inicio para encadenar comandos pequeños con pipes (<code>|</code>) y trabajar con texto plano. Por eso Linux suele tener más de una forma "elegante" de resolver algo, mientras que CMD suele depender de flags específicas de un comando monolítico.</p>
+  </div>
+
+  <div class="tip">
+    <h4>💡 Tres reglas para no perderte</h4>
+    <ul>
+      <li>Linux <strong>distingue mayúsculas de minúsculas</strong> en todo — archivos, carpetas y comandos. CMD no.</li>
+      <li>Linux usa <code>/</code> para rutas, CMD usa <code>\</code> (aunque CMD moderno también acepta <code>/</code> en muchos casos).</li>
+      <li>En Linux casi todo se resuelve con un puñado de comandos + flags. En CMD, para lo más avanzado (JSON, objetos, bucles complejos) normalmente ya te mueves a PowerShell.</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     NAVEGACIÓN
+══════════════════════════════════════════ -->
+<section class="module" id="navegacion">
+  <div class="module-header">
+    <div class="module-icon">📁</div>
+    <div>
+      <div class="module-title">Navegación</div>
+      <div class="module-sub">Moverte por el sistema de archivos</div>
+    </div>
+  </div>
+
+  <div class="compare-wrap">
+  <table class="compare">
+    <thead><tr><th class="th-accion">Acción</th><th class="th-lin">🐧 Linux</th><th class="th-win">🪟 CMD</th></tr></thead>
+    <tbody>
+      <tr><td class="c-accion">Ver dónde estás parado</td><td class="c-lin"><code>pwd</code></td><td class="c-win"><code>cd</code><span class="nota">sin argumentos</span></td></tr>
+      <tr><td class="c-accion">Entrar a una carpeta</td><td class="c-lin"><code>cd Documentos</code></td><td class="c-win"><code>cd Documentos</code></td></tr>
+      <tr><td class="c-accion">Entrar a carpeta con espacios</td><td class="c-lin"><code>cd "Mis Documentos"</code></td><td class="c-win"><code>cd "Mis Documentos"</code></td></tr>
+      <tr><td class="c-accion">Subir un nivel</td><td class="c-lin"><code>cd ..</code></td><td class="c-win"><code>cd ..</code></td></tr>
+      <tr><td class="c-accion">Subir varios niveles</td><td class="c-lin"><code>cd ../../..</code></td><td class="c-win"><code>cd ..\..\..</code></td></tr>
+      <tr><td class="c-accion">Ir a la carpeta personal</td><td class="c-lin"><code>cd ~</code><span class="nota">o <code>cd $HOME</code></span></td><td class="c-win"><code>cd %userprofile%</code></td></tr>
+      <tr><td class="c-accion">Ir a la raíz</td><td class="c-lin"><code>cd /</code></td><td class="c-win"><code>cd \</code></td></tr>
+      <tr><td class="c-accion">Volver al directorio anterior</td><td class="c-lin"><code>cd -</code></td><td class="c-win"><code>pushd</code> / <code>popd</code><span class="nota">requiere haber usado pushd antes</span></td></tr>
+      <tr><td class="c-accion">Ruta absoluta directa</td><td class="c-lin"><code>cd /home/hugo/proyectos</code></td><td class="c-win"><code>cd C:\Users\Hugo\proyectos</code></td></tr>
+      <tr><td class="c-accion">Cambiar de unidad de disco</td><td class="c-lin"><span class="sin-equiv">No existe el concepto — todo cuelga de una sola raíz <code>/</code></span></td><td class="c-win"><code>D:</code><span class="nota">solo escribir la letra + dos puntos</span></td></tr>
+      <tr><td class="c-accion">Listar contenido</td><td class="c-lin"><code>ls</code></td><td class="c-win"><code>dir</code></td></tr>
+      <tr><td class="c-accion">Listar con detalle (permisos, tamaño, fecha)</td><td class="c-lin"><code>ls -l</code></td><td class="c-win"><code>dir</code><span class="nota">CMD siempre muestra detalle por defecto</span></td></tr>
+      <tr><td class="c-accion">Listar incluyendo ocultos</td><td class="c-lin"><code>ls -a</code></td><td class="c-win"><code>dir /a</code></td></tr>
+      <tr><td class="c-accion">Listar en columnas / formato ancho</td><td class="c-lin"><code>ls -C</code><span class="nota">suele ser el default en terminal</span></td><td class="c-win"><code>dir /w</code></td></tr>
+      <tr><td class="c-accion">Listar tamaños legibles (K/M/G)</td><td class="c-lin"><code>ls -lh</code></td><td class="c-win"><span class="sin-equiv">No existe — CMD siempre muestra bytes</span></td></tr>
+      <tr><td class="c-accion">Listar solo un tipo de archivo</td><td class="c-lin"><code>ls *.txt</code></td><td class="c-win"><code>dir *.txt</code></td></tr>
+      <tr><td class="c-accion">Listar incluyendo subcarpetas</td><td class="c-lin"><code>ls -R</code></td><td class="c-win"><code>dir /s</code></td></tr>
+      <tr><td class="c-accion">Ver estructura en árbol</td><td class="c-lin"><code>tree</code></td><td class="c-win"><code>tree /f</code><span class="nota">/f incluye archivos, no solo carpetas</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     CARPETAS
+══════════════════════════════════════════ -->
+<section class="module" id="carpetas">
+  <div class="module-header">
+    <div class="module-icon">📂</div>
+    <div>
+      <div class="module-title">Carpetas</div>
+      <div class="module-sub">Crear, copiar, mover, renombrar y eliminar</div>
+    </div>
+  </div>
+
+  <div class="compare-wrap">
+  <table class="compare">
+    <thead><tr><th class="th-accion">Acción</th><th class="th-lin">🐧 Linux</th><th class="th-win">🪟 CMD</th></tr></thead>
+    <tbody>
+      <tr><td class="c-accion">Crear carpeta</td><td class="c-lin"><code>mkdir nuevaCarpeta</code></td><td class="c-win"><code>mkdir nuevaCarpeta</code></td></tr>
+      <tr><td class="c-accion">Crear carpeta con espacios en el nombre</td><td class="c-lin"><code>mkdir "nueva carpeta"</code></td><td class="c-win"><code>mkdir "nueva carpeta"</code></td></tr>
+      <tr><td class="c-accion">Crear varias carpetas a la vez</td><td class="c-lin"><code>mkdir carpeta1 carpeta2 carpeta3</code></td><td class="c-win"><code>mkdir carpeta1 carpeta2 carpeta3</code></td></tr>
+      <tr><td class="c-accion">Crear carpeta anidada (con subcarpetas que no existen)</td><td class="c-lin"><code>mkdir -p proyecto/src/img</code><span class="nota">-p obligatorio, si no, da error</span></td><td class="c-win"><code>mkdir proyecto\src\img</code><span class="nota">CMD lo hace directo, sin flag</span></td></tr>
+      <tr><td class="c-accion">Copiar una carpeta (con todo su contenido)</td><td class="c-lin"><code>cp -r origen/ destino/</code></td><td class="c-win"><code>xcopy origen destino /e /i</code><span class="nota">/e = subcarpetas, /i = asume que destino es carpeta</span></td></tr>
+      <tr><td class="c-accion">Copiar carpeta (alternativa robusta)</td><td class="c-lin"><code>rsync -av origen/ destino/</code><span class="nota">puede requerir instalación</span></td><td class="c-win"><code>robocopy origen destino /e</code></td></tr>
+      <tr><td class="c-accion">Mover / renombrar una carpeta</td><td class="c-lin"><code>mv carpetaVieja carpetaNueva</code></td><td class="c-win"><code>move carpetaVieja carpetaNueva</code><span class="nota">move también renombra si el destino no existe</span></td></tr>
+      <tr><td class="c-accion">Renombrar carpeta (forma explícita)</td><td class="c-lin"><code>mv carpetaVieja carpetaNueva</code><span class="nota">Linux no distingue "mover" de "renombrar"</span></td><td class="c-win"><code>ren carpetaVieja carpetaNueva</code></td></tr>
+      <tr><td class="c-accion">Eliminar carpeta vacía</td><td class="c-lin"><code>rmdir carpeta</code></td><td class="c-win"><code>rmdir carpeta</code><span class="nota">o <code>rd carpeta</code></span></td></tr>
+      <tr><td class="c-accion">Eliminar carpeta con contenido</td><td class="c-lin"><code>rm -r carpeta</code><span class="nota">pide confirmar solo con -i</span></td><td class="c-win"><code>rmdir /s carpeta</code><span class="nota">pide confirmación</span></td></tr>
+      <tr><td class="c-accion">Eliminar carpeta con contenido, sin preguntar</td><td class="c-lin"><code>rm -rf carpeta</code></td><td class="c-win"><code>rmdir /s /q carpeta</code></td></tr>
+      <tr><td class="c-accion">Abrir carpeta en el explorador gráfico</td><td class="c-lin"><code>xdg-open .</code><span class="nota">nombre varía según entorno de escritorio</span></td><td class="c-win"><code>start .</code></td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     ARCHIVOS
+══════════════════════════════════════════ -->
+<section class="module" id="archivos">
+  <div class="module-header">
+    <div class="module-icon">📄</div>
+    <div>
+      <div class="module-title">Archivos — crear, copiar, mover, eliminar</div>
+      <div class="module-sub">Todas las variantes cotidianas</div>
+    </div>
+  </div>
+
+  <div class="compare-wrap">
+  <table class="compare">
+    <thead><tr><th class="th-accion">Acción</th><th class="th-lin">🐧 Linux</th><th class="th-win">🪟 CMD</th></tr></thead>
+    <tbody>
+      <tr><td class="c-accion">Crear archivo de texto vacío</td><td class="c-lin"><code>touch archivo.txt</code></td><td class="c-win"><code>type nul > archivo.txt</code><span class="nota">o <code>copy nul archivo.txt</code></span></td></tr>
+      <tr><td class="c-accion">Crear archivo con contenido inicial</td><td class="c-lin"><code>echo "Hola" > archivo.txt</code></td><td class="c-win"><code>echo Hola > archivo.txt</code></td></tr>
+      <tr><td class="c-accion">Crear archivo con nombre con espacios</td><td class="c-lin"><code>touch "mi archivo.txt"</code></td><td class="c-win"><code>type nul > "mi archivo.txt"</code></td></tr>
+      <tr><td class="c-accion">Copiar un archivo</td><td class="c-lin"><code>cp archivo.txt destino/</code></td><td class="c-win"><code>copy archivo.txt destino\</code></td></tr>
+      <tr><td class="c-accion">Copiar y renombrar a la vez</td><td class="c-lin"><code>cp archivo.txt copia.txt</code></td><td class="c-win"><code>copy archivo.txt copia.txt</code></td></tr>
+      <tr><td class="c-accion">Copiar varios archivos a una carpeta</td><td class="c-lin"><code>cp a.txt b.txt destino/</code></td><td class="c-win"><code>copy a.txt+b.txt destino\</code><span class="nota">⚠️ en CMD el + junta/concatena, no copia por separado — usa <code>xcopy a.txt b.txt destino\</code> para copiar limpio</span></td></tr>
+      <tr><td class="c-accion">Copiar sin sobreescribir si ya existe</td><td class="c-lin"><code>cp -n archivo.txt destino/</code></td><td class="c-win"><code>copy /-y archivo.txt destino\</code></td></tr>
+      <tr><td class="c-accion">Mover un archivo</td><td class="c-lin"><code>mv archivo.txt destino/</code></td><td class="c-win"><code>move archivo.txt destino\</code></td></tr>
+      <tr><td class="c-accion">Renombrar un archivo</td><td class="c-lin"><code>mv viejo.txt nuevo.txt</code></td><td class="c-win"><code>ren viejo.txt nuevo.txt</code></td></tr>
+      <tr><td class="c-accion">Renombrar varios archivos con patrón</td><td class="c-lin"><code>for f in *.jpeg; do mv "$f" "${f%.jpeg}.jpg"; done</code></td><td class="c-win"><code>ren *.jpeg *.jpg</code><span class="nota">CMD lo permite directo con comodines</span></td></tr>
+      <tr><td class="c-accion">Eliminar un archivo</td><td class="c-lin"><code>rm archivo.txt</code></td><td class="c-win"><code>del archivo.txt</code><span class="nota">o <code>erase archivo.txt</code></span></td></tr>
+      <tr><td class="c-accion">Eliminar varios archivos por patrón</td><td class="c-lin"><code>rm *.tmp</code></td><td class="c-win"><code>del *.tmp</code></td></tr>
+      <tr><td class="c-accion">Eliminar sin pedir confirmación</td><td class="c-lin"><code>rm -f archivo.txt</code><span class="nota">rm no pregunta por defecto</span></td><td class="c-win"><code>del /q archivo.txt</code></td></tr>
+      <tr><td class="c-accion">Eliminar pidiendo confirmar cada uno</td><td class="c-lin"><code>rm -i archivo.txt</code></td><td class="c-win"><code>del /p archivo.txt</code></td></tr>
+      <tr><td class="c-accion">Abrir archivo con su programa por defecto</td><td class="c-lin"><code>xdg-open archivo.pdf</code></td><td class="c-win"><code>start archivo.pdf</code></td></tr>
+      <tr><td class="c-accion">Ver el tamaño de un archivo</td><td class="c-lin"><code>ls -lh archivo.txt</code><span class="nota">o <code>du -h archivo.txt</code></span></td><td class="c-win"><code>dir archivo.txt</code></td></tr>
+      <tr><td class="c-accion">Comparar dos archivos</td><td class="c-lin"><code>diff a.txt b.txt</code></td><td class="c-win"><code>fc a.txt b.txt</code></td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     VER Y EDITAR CONTENIDO
+══════════════════════════════════════════ -->
+<section class="module" id="contenido">
+  <div class="module-header">
+    <div class="module-icon">👁️</div>
+    <div>
+      <div class="module-title">Ver y editar contenido de archivos</div>
+      <div class="module-sub">Leer, escribir, añadir texto, abrir con editor</div>
+    </div>
+  </div>
+
+  <div class="compare-wrap">
+  <table class="compare">
+    <thead><tr><th class="th-accion">Acción</th><th class="th-lin">🐧 Linux</th><th class="th-win">🪟 CMD</th></tr></thead>
+    <tbody>
+      <tr><td class="c-accion">Ver contenido completo de un archivo</td><td class="c-lin"><code>cat archivo.txt</code></td><td class="c-win"><code>type archivo.txt</code></td></tr>
+      <tr><td class="c-accion">Ver contenido paginado (pantalla por pantalla)</td><td class="c-lin"><code>less archivo.txt</code><span class="nota">q para salir</span></td><td class="c-win"><code>more archivo.txt</code></td></tr>
+      <tr><td class="c-accion">Ver las primeras líneas</td><td class="c-lin"><code>head -n 10 archivo.txt</code></td><td class="c-win"><span class="sin-equiv">No existe de forma nativa — usa PowerShell: <code>Get-Content archivo.txt -Head 10</code></span></td></tr>
+      <tr><td class="c-accion">Ver las últimas líneas</td><td class="c-lin"><code>tail -n 10 archivo.txt</code></td><td class="c-win"><span class="sin-equiv">No existe de forma nativa — PowerShell: <code>Get-Content archivo.txt -Tail 10</code></span></td></tr>
+      <tr><td class="c-accion">Ver un archivo en vivo mientras crece (logs)</td><td class="c-lin"><code>tail -f archivo.log</code></td><td class="c-win"><span class="sin-equiv">No existe en CMD — PowerShell: <code>Get-Content archivo.log -Wait</code></span></td></tr>
+      <tr><td class="c-accion">Añadir texto al final del archivo</td><td class="c-lin"><code>echo "más texto" >> archivo.txt</code></td><td class="c-win"><code>echo mas texto >> archivo.txt</code></td></tr>
+      <tr><td class="c-accion">Sobrescribir todo el contenido</td><td class="c-lin"><code>echo "nuevo texto" > archivo.txt</code></td><td class="c-win"><code>echo nuevo texto > archivo.txt</code></td></tr>
+      <tr><td class="c-accion">Escribir varias líneas de una vez</td><td class="c-lin"><code>printf "línea1\nlínea2\n" > archivo.txt</code></td><td class="c-win"><code>(echo línea1 & echo línea2) > archivo.txt</code></td></tr>
+      <tr><td class="c-accion">Abrir archivo en editor de texto de terminal</td><td class="c-lin"><code>nano archivo.txt</code><span class="nota">Ctrl+O guarda, Ctrl+X sale</span></td><td class="c-win"><span class="sin-equiv">CMD no tiene editor de terminal — abre uno gráfico:</span></td></tr>
+      <tr><td class="c-accion">Abrir archivo en editor de texto gráfico</td><td class="c-lin"><code>gedit archivo.txt</code><span class="nota">o el editor gráfico de tu distro</span></td><td class="c-win"><code>notepad archivo.txt</code></td></tr>
+      <tr><td class="c-accion">Contar líneas de un archivo</td><td class="c-lin"><code>wc -l archivo.txt</code></td><td class="c-win"><code>find /c /v "" archivo.txt</code><span class="nota">truco poco intuitivo de CMD</span></td></tr>
+      <tr><td class="c-accion">Contar palabras de un archivo</td><td class="c-lin"><code>wc -w archivo.txt</code></td><td class="c-win"><span class="sin-equiv">No existe de forma nativa en CMD</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="tip">
+    <h4>💡 CMD se queda corto aquí — y está bien</h4>
+    <p>Notarás que en esta sección varias filas dicen "no existe en CMD". No es un error tuyo: CMD fue diseñado en los 80 para tareas simples. Cuando Windows necesita algo más potente, la solución moderna es <strong>PowerShell</strong>, que si tiene equivalentes directos a <code>head</code>, <code>tail</code> y compañía.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     BÚSQUEDA
+══════════════════════════════════════════ -->
+<section class="module" id="busqueda">
+  <div class="module-header">
+    <div class="module-icon">🔎</div>
+    <div>
+      <div class="module-title">Búsqueda</div>
+      <div class="module-sub">Encontrar archivos y texto dentro de ellos</div>
+    </div>
+  </div>
+
+  <div class="compare-wrap">
+  <table class="compare">
+    <thead><tr><th class="th-accion">Acción</th><th class="th-lin">🐧 Linux</th><th class="th-win">🪟 CMD</th></tr></thead>
+    <tbody>
+      <tr><td class="c-accion">Buscar archivo por nombre</td><td class="c-lin"><code>find . -name "*.jpg"</code></td><td class="c-win"><code>dir /s /b *.jpg</code></td></tr>
+      <tr><td class="c-accion">Buscar solo carpetas</td><td class="c-lin"><code>find . -type d -name "node_modules"</code></td><td class="c-win"><code>dir /s /b /ad node_modules</code></td></tr>
+      <tr><td class="c-accion">Buscar por tamaño</td><td class="c-lin"><code>find . -size +100M</code></td><td class="c-win"><span class="sin-equiv">No existe de forma nativa — requiere PowerShell</span></td></tr>
+      <tr><td class="c-accion">Buscar texto dentro de un archivo</td><td class="c-lin"><code>grep "error" log.txt</code></td><td class="c-win"><code>findstr "error" log.txt</code></td></tr>
+      <tr><td class="c-accion">Buscar texto ignorando mayúsculas</td><td class="c-lin"><code>grep -i "error" log.txt</code></td><td class="c-win"><code>findstr /i "error" log.txt</code></td></tr>
+      <tr><td class="c-accion">Buscar texto en todas las subcarpetas</td><td class="c-lin"><code>grep -r "TODO" .</code></td><td class="c-win"><code>findstr /s /i "TODO" *.*</code></td></tr>
+      <tr><td class="c-accion">Buscar mostrando número de línea</td><td class="c-lin"><code>grep -n "función" app.js</code></td><td class="c-win"><code>findstr /n "función" app.js</code></td></tr>
+      <tr><td class="c-accion">Ubicar en qué ruta está instalado un comando</td><td class="c-lin"><code>which python3</code></td><td class="c-win"><code>where python</code></td></tr>
+      <tr><td class="c-accion">Búsqueda rápida por índice pre-generado</td><td class="c-lin"><code>locate archivo.txt</code></td><td class="c-win"><span class="sin-equiv">No existe — CMD siempre recorre el disco en el momento</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     PERMISOS Y ADMINISTRADOR
+══════════════════════════════════════════ -->
+<section class="module" id="permisos">
+  <div class="module-header">
+    <div class="module-icon">🔐</div>
+    <div>
+      <div class="module-title">Permisos y administrador</div>
+      <div class="module-sub">Un concepto que Linux expone y CMD casi esconde</div>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <h4>🔑 Analogía: el mismo edificio, dos formas de gestionar llaves</h4>
+    <p>Linux te da un panel de control detallado: cada archivo dice exactamente quién puede leer, escribir o ejecutar. Windows, en cambio, maneja permisos por listas de control de acceso (ACL) mucho más elaboradas mediante <code>icacls</code>, pero en el uso diario del CMD casi nunca las tocas — en vez de eso, simplemente abres CMD "como Administrador" para tener paso libre.</p>
+  </div>
+
+  <div class="compare-wrap">
+  <table class="compare">
+    <thead><tr><th class="th-accion">Acción</th><th class="th-lin">🐧 Linux</th><th class="th-win">🪟 CMD</th></tr></thead>
+    <tbody>
+      <tr><td class="c-accion">Ejecutar un solo comando con privilegios elevados</td><td class="c-lin"><code>sudo apt update</code></td><td class="c-win"><span class="sin-equiv">No existe por-comando — hay que abrir toda la ventana de CMD como Administrador</span></td></tr>
+      <tr><td class="c-accion">Abrir una sesión completa como superusuario</td><td class="c-lin"><code>sudo -i</code></td><td class="c-win">Clic derecho en CMD → <span class="sin-equiv">"Ejecutar como administrador"</span></td></tr>
+      <tr><td class="c-accion">Ver los permisos de un archivo</td><td class="c-lin"><code>ls -l archivo.txt</code></td><td class="c-win"><code>icacls archivo.txt</code></td></tr>
+      <tr><td class="c-accion">Dar permiso de ejecución a un script</td><td class="c-lin"><code>chmod +x script.sh</code></td><td class="c-win"><span class="sin-equiv">No aplica igual — los .bat/.exe son ejecutables por extensión, no por permiso</span></td></tr>
+      <tr><td class="c-accion">Cambiar permisos en modo numérico</td><td class="c-lin"><code>chmod 755 script.sh</code></td><td class="c-win"><code>icacls script.sh /grant Usuarios:RX</code></td></tr>
+      <tr><td class="c-accion">Cambiar el dueño de un archivo</td><td class="c-lin"><code>sudo chown hugo archivo.txt</code></td><td class="c-win"><code>icacls archivo.txt /setowner Hugo</code></td></tr>
+      <tr><td class="c-accion">Ejecutar como otro usuario</td><td class="c-lin"><code>sudo -u otroUsuario comando</code></td><td class="c-win"><code>runas /user:otroUsuario comando</code></td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     PROCESOS
+══════════════════════════════════════════ -->
+<section class="module" id="procesos">
+  <div class="module-header">
+    <div class="module-icon">🔄</div>
+    <div>
+      <div class="module-title">Procesos</div>
+      <div class="module-sub">Ver, filtrar y terminar programas en ejecución</div>
+    </div>
+  </div>
+
+  <div class="compare-wrap">
+  <table class="compare">
+    <thead><tr><th class="th-accion">Acción</th><th class="th-lin">🐧 Linux</th><th class="th-win">🪟 CMD</th></tr></thead>
+    <tbody>
+      <tr><td class="c-accion">Ver todos los procesos en ejecución</td><td class="c-lin"><code>ps aux</code></td><td class="c-win"><code>tasklist</code></td></tr>
+      <tr><td class="c-accion">Filtrar procesos por nombre</td><td class="c-lin"><code>ps aux | grep chrome</code></td><td class="c-win"><code>tasklist | find "chrome"</code></td></tr>
+      <tr><td class="c-accion">Monitor de procesos en tiempo real</td><td class="c-lin"><code>top</code><span class="nota">o <code>htop</code> si está instalado</span></td><td class="c-win"><span class="sin-equiv">No hay equivalente en terminal — usa el Administrador de tareas gráfico</span></td></tr>
+      <tr><td class="c-accion">Terminar proceso por nombre</td><td class="c-lin"><code>killall chrome</code></td><td class="c-win"><code>taskkill /IM chrome.exe</code></td></tr>
+      <tr><td class="c-accion">Terminar proceso por ID (PID)</td><td class="c-lin"><code>kill 4532</code></td><td class="c-win"><code>taskkill /PID 4532</code></td></tr>
+      <tr><td class="c-accion">Forzar el cierre (no responde)</td><td class="c-lin"><code>kill -9 4532</code></td><td class="c-win"><code>taskkill /f /PID 4532</code></td></tr>
+      <tr><td class="c-accion">Abrir un programa desde la terminal</td><td class="c-lin"><code>firefox &</code><span class="nota">& lo manda a segundo plano</span></td><td class="c-win"><code>start firefox</code></td></tr>
+      <tr><td class="c-accion">Ejecutar un comando en segundo plano</td><td class="c-lin"><code>comando &</code></td><td class="c-win"><code>start /b comando</code></td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     RED
+══════════════════════════════════════════ -->
+<section class="module" id="red">
+  <div class="module-header">
+    <div class="module-icon">🌐</div>
+    <div>
+      <div class="module-title">Red</div>
+      <div class="module-sub">Diagnóstico de conexión</div>
+    </div>
+  </div>
+
+  <div class="compare-wrap">
+  <table class="compare">
+    <thead><tr><th class="th-accion">Acción</th><th class="th-lin">🐧 Linux</th><th class="th-win">🪟 CMD</th></tr></thead>
+    <tbody>
+      <tr><td class="c-accion">Ver tu configuración de red</td><td class="c-lin"><code>ip a</code></td><td class="c-win"><code>ipconfig</code></td></tr>
+      <tr><td class="c-accion">Ver configuración completa (MAC, DNS...)</td><td class="c-lin"><code>ip a</code> + <code>cat /etc/resolv.conf</code></td><td class="c-win"><code>ipconfig /all</code></td></tr>
+      <tr><td class="c-accion">Probar conectividad con paquetes limitados</td><td class="c-lin"><code>ping -c 4 google.com</code></td><td class="c-win"><code>ping -n 4 google.com</code></td></tr>
+      <tr><td class="c-accion">Ping continuo hasta detenerlo</td><td class="c-lin"><code>ping google.com</code><span class="nota">Linux es continuo por defecto</span></td><td class="c-win"><code>ping -t google.com</code></td></tr>
+      <tr><td class="c-accion">Trazar la ruta hasta un destino</td><td class="c-lin"><code>traceroute google.com</code></td><td class="c-win"><code>tracert google.com</code></td></tr>
+      <tr><td class="c-accion">Ver conexiones activas y puertos</td><td class="c-lin"><code>ss -tulnp</code><span class="nota">reemplaza al viejo netstat</span></td><td class="c-win"><code>netstat -an</code></td></tr>
+      <tr><td class="c-accion">Resolver un nombre de dominio a IP</td><td class="c-lin"><code>dig google.com</code></td><td class="c-win"><code>nslookup google.com</code></td></tr>
+      <tr><td class="c-accion">Limpiar caché DNS</td><td class="c-lin"><code>sudo systemd-resolve --flush-caches</code><span class="nota">varía según distro</span></td><td class="c-win"><code>ipconfig /flushdns</code></td></tr>
+      <tr><td class="c-accion">Descargar un archivo desde una URL</td><td class="c-lin"><code>curl -O https://ejemplo.com/archivo.zip</code></td><td class="c-win"><code>curl -O https://ejemplo.com/archivo.zip</code><span class="nota">curl viene integrado desde Windows 10</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     SISTEMA Y VARIABLES
+══════════════════════════════════════════ -->
+<section class="module" id="sistema">
+  <div class="module-header">
+    <div class="module-icon">⚙️</div>
+    <div>
+      <div class="module-title">Sistema y variables</div>
+      <div class="module-sub">Información, mantenimiento y variables de entorno</div>
+    </div>
+  </div>
+
+  <div class="compare-wrap">
+  <table class="compare">
+    <thead><tr><th class="th-accion">Acción</th><th class="th-lin">🐧 Linux</th><th class="th-win">🪟 CMD</th></tr></thead>
+    <tbody>
+      <tr><td class="c-accion">Limpiar la pantalla</td><td class="c-lin"><code>clear</code><span class="nota">o Ctrl+L</span></td><td class="c-win"><code>cls</code></td></tr>
+      <tr><td class="c-accion">Ver información del sistema</td><td class="c-lin"><code>uname -a</code></td><td class="c-win"><code>systeminfo</code></td></tr>
+      <tr><td class="c-accion">Ver nombre del equipo</td><td class="c-lin"><code>hostname</code></td><td class="c-win"><code>hostname</code></td></tr>
+      <tr><td class="c-accion">Ver fecha y hora</td><td class="c-lin"><code>date</code></td><td class="c-win"><code>date /t</code> + <code>time /t</code></td></tr>
+      <tr><td class="c-accion">Ver espacio libre en disco</td><td class="c-lin"><code>df -h</code></td><td class="c-win"><span class="sin-equiv">No hay comando corto nativo — usa el Explorador o PowerShell <code>Get-PSDrive</code></span></td></tr>
+      <tr><td class="c-accion">Ver espacio que ocupa una carpeta</td><td class="c-lin"><code>du -sh carpeta/</code></td><td class="c-win"><span class="sin-equiv">No existe de forma nativa en CMD</span></td></tr>
+      <tr><td class="c-accion">Ver memoria RAM disponible</td><td class="c-lin"><code>free -h</code></td><td class="c-win"><code>systeminfo | findstr Memoria</code></td></tr>
+      <tr><td class="c-accion">Ver ayuda de un comando</td><td class="c-lin"><code>man ls</code></td><td class="c-win"><code>help dir</code><span class="nota">o <code>dir /?</code></span></td></tr>
+      <tr><td class="c-accion">Ver usuario actual</td><td class="c-lin"><code>whoami</code></td><td class="c-win"><code>whoami</code></td></tr>
+      <tr><td class="c-accion">Crear una variable temporal</td><td class="c-lin"><code>nombre="Hugo"</code></td><td class="c-win"><code>set nombre=Hugo</code></td></tr>
+      <tr><td class="c-accion">Usar el valor de una variable</td><td class="c-lin"><code>echo $nombre</code></td><td class="c-win"><code>echo %nombre%</code></td></tr>
+      <tr><td class="c-accion">Ver la variable de rutas ejecutables</td><td class="c-lin"><code>echo $PATH</code></td><td class="c-win"><code>echo %PATH%</code></td></tr>
+      <tr><td class="c-accion">Ver la carpeta personal del usuario</td><td class="c-lin"><code>echo $HOME</code></td><td class="c-win"><code>echo %userprofile%</code></td></tr>
+      <tr><td class="c-accion">Apagar el equipo</td><td class="c-lin"><code>sudo shutdown now</code></td><td class="c-win"><code>shutdown /s /t 0</code></td></tr>
+      <tr><td class="c-accion">Reiniciar el equipo</td><td class="c-lin"><code>sudo reboot</code></td><td class="c-win"><code>shutdown /r /t 0</code></td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     PIPES Y REDIRECCIÓN
+══════════════════════════════════════════ -->
+<section class="module" id="redireccion">
+  <div class="module-header">
+    <div class="module-icon">🔀</div>
+    <div>
+      <div class="module-title">Pipes y redirección</div>
+      <div class="module-sub">Encadenar comandos y guardar salidas — aquí ambas terminales se parecen mucho</div>
+    </div>
+  </div>
+
+  <div class="compare-wrap">
+  <table class="compare">
+    <thead><tr><th class="th-accion">Acción</th><th class="th-lin">🐧 Linux</th><th class="th-win">🪟 CMD</th></tr></thead>
+    <tbody>
+      <tr><td class="c-accion">Pasar la salida de un comando a otro</td><td class="c-lin"><code>ls | grep txt</code></td><td class="c-win"><code>dir | find "txt"</code></td></tr>
+      <tr><td class="c-accion">Guardar la salida en un archivo (sobreescribe)</td><td class="c-lin"><code>ls > lista.txt</code></td><td class="c-win"><code>dir > lista.txt</code></td></tr>
+      <tr><td class="c-accion">Añadir la salida a un archivo (acumula)</td><td class="c-lin"><code>echo "ok" >> log.txt</code></td><td class="c-win"><code>echo ok >> log.txt</code></td></tr>
+      <tr><td class="c-accion">Redirigir solo los errores</td><td class="c-lin"><code>comando 2> errores.txt</code></td><td class="c-win"><code>comando 2> errores.txt</code></td></tr>
+      <tr><td class="c-accion">Ejecutar el segundo comando solo si el primero tuvo éxito</td><td class="c-lin"><code>mkdir app && cd app</code></td><td class="c-win"><code>mkdir app && cd app</code></td></tr>
+      <tr><td class="c-accion">Ejecutar comandos en secuencia (sin importar resultado)</td><td class="c-lin"><code>echo a; echo b</code></td><td class="c-win"><code>echo a & echo b</code></td></tr>
+      <tr><td class="c-accion">Usar un archivo como entrada de un comando</td><td class="c-lin"><code>sort < lista.txt</code></td><td class="c-win"><code>sort < lista.txt</code></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="tip">
+    <h4>💡 Aquí es donde más se parecen</h4>
+    <p>Los operadores de redirección (<code>|</code>, <code>&gt;</code>, <code>&gt;&gt;</code>, <code>2&gt;</code>) son casi idénticos en ambas terminales porque los dos heredaron esta idea del mismo lugar: los sistemas Unix de los años 70. Si dominas pipes en una, ya sabes el 90% en la otra.</p>
+  </div>
+
+  <div style="background:linear-gradient(135deg,#0c0c0c,#1a1a1a);border-radius:12px;padding:2rem;text-align:center;margin-top:1.5rem;">
+    <div style="font-size:2.5rem;margin-bottom:.75rem;">🎉</div>
+    <h2 style="color:#4ec94e;margin-bottom:.5rem;font-size:1.4rem;">¡Ya sabes moverte en ambos mundos!</h2>
+    <p style="color:rgba(255,255,255,0.65);margin-bottom:1.25rem;">Si quieres profundizar en cada lado por separado, revisa la <strong style="color:#fff;">Guía CMD desde Cero</strong> y la <strong style="color:#fff;">Guía Terminal Linux desde Cero</strong> — ahí cada comando tiene su propia explicación paso a paso con analogías y ejercicios.</p>
+    <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+      <a href="guia-cmd.html" style="display:inline-block; background:var(--primary); color:white; text-decoration:none; font-weight:700; padding:.85rem 2rem; border-radius:10px; font-size:1rem; transition:opacity .2s;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">→ Guía CMD desde Cero</a>
+      <a href="guia-linux.html" style="display:inline-block; background:var(--primary); color:white; text-decoration:none; font-weight:700; padding:.85rem 2rem; border-radius:10px; font-size:1rem; transition:opacity .2s;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">→ Guía Terminal Linux desde Cero</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Linux vs CMD — Comparativa Completa · Café &lt;/&gt; · Hugo 2025
+</footer>
+
+</body>
+</html>
