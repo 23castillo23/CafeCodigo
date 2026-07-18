@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cómo funciona una computadora desde cero — Café &lt;/&gt;</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --primary: #c44a2a; --primary-light: #fdf0ec;
+    --secondary: #1a7a5a; --secondary-light: #edf7f3;
+    --accent: #b07010; --accent-light: #fdf6e8;
+    --blue: #1a5fa5; --blue-light: #e6f1fb;
+    --bg: #f7f4ef; --surface: #ffffff;
+    --text: #1a1814; --muted: #8a8480; --border: #e8e4de;
+    --code-bg: #0c0c0c;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  .cafe-bar { background:#fff; border-bottom:1px solid #e8e4de; padding:0 24px; display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:200; height:45px; }
+  .cafe-bar a { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:#8a8480; text-decoration:none; padding:6px 14px; border:1px solid #e8e4de; border-radius:999px; transition:all .15s; }
+  .cafe-bar a:hover { color:#1a1814; border-color:#8a8480; }
+  .cafe-bar span { font-size:13px; color:#8a8480; }
+
+  header { background:#0c0c0c; color:#cccccc; padding:3rem 2rem 2rem; text-align:center; position:relative; overflow:hidden; }
+  header::before { content:'01001'; position:absolute; font-size:6rem; font-weight:900; color:rgba(255,255,255,0.04); right:-1rem; top:-1rem; line-height:1; font-family:'DM Mono',monospace; letter-spacing:.2em; white-space:nowrap; }
+  header h1 { font-size:2.3rem; font-weight:800; letter-spacing:-1px; font-family:'Fraunces',serif; color:#ffffff; }
+  header p { font-size:1.1rem; opacity:.7; margin-top:.5rem; }
+  header .badge { display:inline-block; background:rgba(196,74,42,.3); border:1px solid rgba(196,74,42,.6); color:#ff9d73; border-radius:20px; padding:4px 14px; font-size:.8rem; margin-top:.75rem; font-weight:600; }
+
+  nav { background:#1a1814; border-bottom:1px solid #333; position:sticky; top:45px; z-index:100; display:flex; overflow-x:auto; }
+  nav::-webkit-scrollbar { display:none; }
+  nav a { flex-shrink:0; padding:.65rem .9rem; text-decoration:none; color:#888; font-size:.78rem; font-weight:500; border-bottom:2px solid transparent; transition:color .2s,border-color .2s; white-space:nowrap; }
+  nav a:hover { color:#ff9d73; border-bottom-color:#ff9d73; }
+
+  main { max-width:940px; margin:0 auto; padding:2rem 1.5rem; }
+
+  .module { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:2rem; margin-bottom:2.5rem; }
+  .module-header { display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border); }
+  .module-icon { font-size:1.8rem; flex-shrink:0; }
+  .module-title { font-size:1.35rem; font-weight:700; }
+  .module-sub { font-size:.85rem; color:var(--muted); margin-top:2px; }
+
+  .analogy { background:#FFF7ED; border:1px solid #FDE68A; border-left:4px solid var(--accent); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .analogy h4 { color:#92400E; font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+  .analogy p { font-size:.95rem; color:#78350F; }
+
+  .concept { background:var(--primary-light); border-left:4px solid var(--primary); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .concept h4 { color:var(--primary); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+
+  .tip { background:var(--secondary-light); border-left:4px solid var(--secondary); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .tip h4 { color:var(--secondary); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+  .tip ul { padding-left:1.2rem; }
+
+  .warn { background:var(--primary-light); border-left:4px solid var(--primary); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .warn h4 { color:var(--primary); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+
+  .bin-box { background:var(--code-bg); color:#e5e5e5; border-radius:12px; padding:1.25rem 1.5rem; margin:1.25rem 0; font-family:'DM Mono',monospace; font-size:.87rem; line-height:1.9; overflow-x:auto; }
+  .bin-box .lbl { color:#888; font-style:italic; }
+  .bin-box .val { color:#f0b429; font-weight:700; }
+  .bin-box .bit1 { color:#4ec94e; }
+  .bin-box .bit0 { color:#555; }
+
+  .glos { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1rem; margin:1rem 0; }
+  .glos-item { background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:1rem 1.1rem; }
+  .glos-item .emoji { font-size:1.3rem; display:block; margin-bottom:.3rem; }
+  .glos-item dt { font-weight:700; color:#1a1814; font-size:.92rem; margin-bottom:.25rem; }
+  .glos-item dd { font-size:.84rem; color:var(--muted); line-height:1.5; }
+
+  .capas { display:flex; flex-direction:column; gap:.5rem; margin:1.25rem 0; }
+  .capa { display:flex; align-items:center; gap:1rem; background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:.85rem 1.25rem; }
+  .capa-num { flex-shrink:0; width:28px; height:28px; border-radius:50%; background:var(--primary); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.85rem; }
+  .capa-txt strong { display:block; font-size:.95rem; }
+  .capa-txt span { font-size:.82rem; color:var(--muted); }
+  .capa-flecha { text-align:center; color:var(--muted); font-size:.9rem; }
+
+  .ejercicio { background:#FFFBEB; border:1px solid #FDE68A; border-radius:14px; padding:1.5rem; margin:1.5rem 0; }
+  .ejercicio-hd { display:flex; align-items:center; gap:.75rem; margin-bottom:1rem; font-weight:700; font-size:1rem; color:#78350F; flex-wrap:wrap; }
+  .ej-badge { background:var(--accent); color:#fff; font-size:.68rem; padding:2px 9px; border-radius:20px; font-weight:700; text-transform:uppercase; }
+  .pregunta { background:#fff; border:1px dashed #FDE68A; border-radius:8px; padding:1rem 1.25rem; margin-bottom:.75rem; font-size:.94rem; line-height:1.6; }
+
+  .parte-badge { display:inline-flex; align-items:center; gap:.5rem; background:#1a1814; color:#ff9d73; border-radius:20px; padding:5px 16px; font-size:.82rem; font-weight:700; margin-bottom:1.5rem; font-family:'DM Mono',monospace; }
+
+  .tbl { width:100%; border-collapse:collapse; margin:1rem 0; font-size:.9rem; }
+  .tbl th { background:var(--primary-light); color:var(--primary); padding:.65rem 1rem; text-align:left; font-weight:600; }
+  .tbl td { padding:.65rem 1rem; border-bottom:1px solid var(--border); vertical-align:top; }
+  .tbl tr:hover td { background:var(--bg); }
+
+  h2 { font-size:1.2rem; font-weight:700; margin:1.75rem 0 .75rem; }
+  h3 { font-size:1rem; font-weight:700; margin:1.25rem 0 .5rem; }
+  p { margin-bottom:.8rem; }
+  ul,ol { padding-left:1.4rem; margin-bottom:.8rem; }
+  li { margin-bottom:.4rem; font-size:.96rem; }
+  code { font-family:'DM Mono',monospace; background:#f0ece6; color:var(--primary); padding:1px 6px; border-radius:4px; font-size:.9em; font-weight:600; }
+  strong { font-weight:700; }
+  a.enlace-video { color:var(--blue); text-decoration:none; font-weight:600; }
+  a.enlace-video:hover { text-decoration:underline; }
+
+  footer { text-align:center; padding:2rem; color:var(--muted); font-size:.85rem; border-top:1px solid var(--border); margin-top:1rem; background:var(--bg); }
+</style>
+</head>
+<body>
+
+<div class="cafe-bar">
+  <a href="../capitulos.html?tab=glosario">← Volver a Glosario &lt;/&gt;</a>
+  <span>01001 Cómo funciona una computadora</span>
+</div>
+
+<header>
+  <h1>Cómo funciona una computadora, desde cero</h1>
+  <p>Del interruptor eléctrico hasta la imagen que ves en pantalla — todos los pasos, sin saltarse ninguno</p>
+  <span class="badge">💡 Guía de fundamentos · Sin código, solo entender</span>
+</header>
+
+<nav>
+  <a href="#pregunta-real">🤔 La pregunta real</a>
+  <a href="#electricidad">⚡ Electricidad y transistores</a>
+  <a href="#bits">🔢 Bits y bytes</a>
+  <a href="#texto">🔤 Cómo se guarda el texto</a>
+  <a href="#imagenes">🖼️ Cómo se guardan las imágenes</a>
+  <a href="#sonido">🔊 Cómo se guarda el sonido</a>
+  <a href="#software">🧠 El software también es bits</a>
+  <a href="#capas">🪜 Las capas de traducción</a>
+  <a href="#so">🖥️ El Sistema Operativo</a>
+  <a href="#resumen">🗺️ El viaje completo</a>
+  <a href="#glosario">📖 Glosario</a>
+  <a href="#videos">🎬 Videos recomendados</a>
+</nav>
+
+<main>
+<div class="parte-badge">01001 Guía de fundamentos — cómo funciona una computadora</div>
+
+
+<!-- ══════════════════════════════════════════
+     LA PREGUNTA REAL
+══════════════════════════════════════════ -->
+<section class="module" id="pregunta-real">
+  <div class="module-header">
+    <div class="module-icon">🤔</div>
+    <div>
+      <div class="module-title">La pregunta real detrás de tu pregunta</div>
+      <div class="module-sub">"Si todo son ceros y unos, ¿por qué veo imágenes y colores?"</div>
+    </div>
+  </div>
+
+  <p>Esta es una de las mejores preguntas que puedes hacerte sobre computación, y la respuesta corta es: <strong>nunca ves los ceros y unos porque hay muchísimas capas de traducción entre el transistor y tu ojo</strong> — y cada capa hace su trabajo tan bien que la anterior queda completamente escondida.</p>
+
+  <div class="analogy">
+    <h4>🎭 Analogía: una obra de teatro</h4>
+    <p>Cuando ves una obra de teatro, ves actores, un escenario, una historia. No ves los cables de luces detrás del telón, ni el guión técnico, ni las notas del director al oído del actor. Todo eso existe y hace que la obra funcione — pero está diseñado a propósito para que tú nunca lo notes. Una computadora es igual: los ceros y unos son los cables detrás del telón. Tú ves el resultado final: la "obra" (la imagen, el texto, el color).</p>
+  </div>
+
+  <p>Esta guía te va a llevar por <strong>cada una de esas capas</strong>, en orden, desde el interruptor eléctrico más simple hasta la imagen que aparece en tu pantalla. Al final vas a poder explicar tú mismo por qué "todo son ceros y unos" y "veo imágenes a color" no se contradicen — son simplemente el principio y el final del mismo camino.</p>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     ELECTRICIDAD Y TRANSISTORES
+══════════════════════════════════════════ -->
+<section class="module" id="electricidad">
+  <div class="module-header">
+    <div class="module-icon">⚡</div>
+    <div>
+      <div class="module-title">Capa 1 — Electricidad y transistores</div>
+      <div class="module-sub">El fondo físico de todo: ¿hay corriente o no la hay?</div>
+    </div>
+  </div>
+
+  <p>Adentro de cualquier computadora, celular o consola hay un chip con miles de millones de piezas microscópicas llamadas <strong>transistores</strong>. Cada transistor es, en esencia, un interruptor de luz extremadamente pequeño y extremadamente rápido: puede estar <strong>abierto</strong> (deja pasar corriente) o <strong>cerrado</strong> (la bloquea).</p>
+
+  <div class="analogy">
+    <h4>💡 Analogía: una fila de focos</h4>
+    <p>Imagina una fila de focos de navidad. Cada uno solo puede estar prendido o apagado — no existe "medio prendido". Un transistor es exactamente ese foco, solo que mide una fracción de la milésima parte de un cabello humano, y puede cambiar de estado miles de millones de veces por segundo.</p>
+  </div>
+
+  <div class="glos">
+    <div class="glos-item"><span class="emoji">🔌</span><dt>Corriente</dt><dd>Electricidad fluyendo por un circuito. Su presencia o ausencia es el mensaje más básico que existe dentro de un chip.</dd></div>
+    <div class="glos-item"><span class="emoji">🔀</span><dt>Transistor</dt><dd>Un interruptor microscópico. Prendido = pasa corriente. Apagado = no pasa. Esa es toda su función.</dd></div>
+    <div class="glos-item"><span class="emoji">🧩</span><dt>Chip / Procesador</dt><dd>Una pastilla de silicio que contiene miles de millones de transistores conectados entre sí.</dd></div>
+  </div>
+
+  <div class="concept">
+    <h4>💡 Por qué solo dos estados, y no diez</h4>
+    <p>Podrías preguntarte: ¿por qué no usar 10 niveles de electricidad, como los 10 dígitos que usamos los humanos (0 al 9)? La respuesta es fiabilidad: distinguir "hay corriente" de "no hay corriente" es prácticamente imposible de confundir, incluso con interferencia eléctrica. Distinguir 10 niveles distintos de voltaje sería mucho más propenso a errores. Dos estados es la opción más simple y más confiable — y resulta que con solo dos estados, combinados en grandes cantidades, puedes representar absolutamente cualquier información.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     BITS Y BYTES
+══════════════════════════════════════════ -->
+<section class="module" id="bits">
+  <div class="module-header">
+    <div class="module-icon">🔢</div>
+    <div>
+      <div class="module-title">Capa 2 — Bits y bytes</div>
+      <div class="module-sub">De "hay o no hay corriente" a números</div>
+    </div>
+  </div>
+
+  <p>A cada uno de esos estados (corriente / no corriente) lo llamamos <strong>bit</strong> — la unidad de información más pequeña que existe. Un bit por sí solo casi no dice nada: solo "sí" o "no". La magia empieza cuando agrupas varios bits.</p>
+
+  <div class="bin-box">
+<span class="lbl">-- Un bit por sí solo:</span>
+<span class="bit1">1</span>  <span class="lbl">= "sí, hay corriente"</span>
+<span class="bit0">0</span>  <span class="lbl">= "no, no hay corriente"</span>
+
+<span class="lbl">-- 8 bits juntos = 1 byte. Con 8 interruptores tienes 256 combinaciones posibles:</span>
+<span class="bit0">0</span><span class="bit0">0</span><span class="bit0">0</span><span class="bit0">0</span><span class="bit0">0</span><span class="bit0">0</span><span class="bit0">0</span><span class="bit0">0</span>  <span class="lbl">=</span> <span class="val">0</span>
+<span class="bit0">0</span><span class="bit0">0</span><span class="bit0">0</span><span class="bit0">0</span><span class="bit0">0</span><span class="bit0">0</span><span class="bit0">0</span><span class="bit1">1</span>  <span class="lbl">=</span> <span class="val">1</span>
+<span class="bit0">0</span><span class="bit0">0</span><span class="bit0">0</span><span class="bit0">0</span><span class="bit0">0</span><span class="bit0">1</span><span class="bit0">0</span><span class="bit0">0</span>  <span class="lbl">=</span> <span class="val">4</span>
+<span class="bit0">0</span><span class="bit1">1</span><span class="bit0">0</span><span class="bit0">0</span><span class="bit0">0</span><span class="bit0">0</span><span class="bit0">0</span><span class="bit1">1</span>  <span class="lbl">=</span> <span class="val">65</span>
+<span class="bit1">1</span><span class="bit1">1</span><span class="bit1">1</span><span class="bit1">1</span><span class="bit1">1</span><span class="bit1">1</span><span class="bit1">1</span><span class="bit1">1</span>  <span class="lbl">=</span> <span class="val">255</span>  <span class="lbl">(el máximo posible con 8 bits)</span>
+  </div>
+
+  <div class="analogy">
+    <h4>🔐 Analogía: la clave de una caja fuerte</h4>
+    <p>Piensa en 8 interruptores como una caja fuerte con 8 palancas, cada una arriba o abajo. El "código" de la caja fuerte no es una sola palanca — es la <strong>combinación completa</strong> de las 8. Y como cada palanca tiene 2 posiciones, hay exactamente 2×2×2×2×2×2×2×2 = 256 combinaciones distintas posibles. Ese es el mismo principio con el que un byte representa un número entre 0 y 255.</p>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Unidad</th><th>Cuántos bits</th><th>¿Qué tanto es?</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Bit</strong></td><td>1</td><td>Un solo "sí/no"</td></tr>
+      <tr><td><strong>Byte</strong></td><td>8 bits</td><td>Un número del 0 al 255, o 1 carácter de texto simple</td></tr>
+      <tr><td><strong>Kilobyte (KB)</strong></td><td>~1,000 bytes</td><td>Un párrafo de texto</td></tr>
+      <tr><td><strong>Megabyte (MB)</strong></td><td>~1,000,000 bytes</td><td>Una canción o una foto</td></tr>
+      <tr><td><strong>Gigabyte (GB)</strong></td><td>~1,000,000,000 bytes</td><td>Una película</td></tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     TEXTO
+══════════════════════════════════════════ -->
+<section class="module" id="texto">
+  <div class="module-header">
+    <div class="module-icon">🔤</div>
+    <div>
+      <div class="module-title">Capa 3 — Cómo se guarda el texto</div>
+      <div class="module-sub">La primera "tabla de traducción": ASCII y Unicode</div>
+    </div>
+  </div>
+
+  <p>Un byte es solo un número. Para que ese número signifique una <strong>letra</strong>, hace falta un acuerdo — una tabla que toda la industria decidió respetar. Esa tabla se llama <strong>ASCII</strong> (y su versión moderna y más completa, que incluye emojis y acentos, se llama <strong>Unicode</strong>).</p>
+
+  <div class="bin-box">
+<span class="lbl">-- La tabla ASCII dice, por acuerdo universal:</span>
+<span class="val">65</span> <span class="lbl">=</span> <span class="bit1">A</span>       <span class="lbl">binario:</span> 01000001
+<span class="val">97</span> <span class="lbl">=</span> <span class="bit1">a</span>       <span class="lbl">binario:</span> 01100001
+<span class="val">48</span> <span class="lbl">=</span> <span class="bit1">0</span>       <span class="lbl">binario:</span> 00110000  <span class="lbl">(el carácter "0", no el número)</span>
+<span class="val">32</span> <span class="lbl">=</span> <span class="bit1">(espacio)</span>  <span class="lbl">binario:</span> 00100000
+  </div>
+
+  <p>Cuando escribes la palabra <code>"Hola"</code>, la computadora no guarda "la palabra Hola" — guarda cuatro bytes seguidos: el código de la H, el de la o, el de la l, y el de la a. Cuando algo tiene que <em>mostrarte</em> ese texto en pantalla, lee esos números, los busca en la tabla, y dibuja las letras correspondientes.</p>
+
+  <div class="concept">
+    <h4>💡 Por eso las mayúsculas y minúsculas son "letras distintas" para la computadora</h4>
+    <p>La A mayúscula es el número 65. La a minúscula es el número 97. Para nosotros son "la misma letra en otro estilo" — para la computadora son dos números completamente distintos, sin relación aparente. Esto explica, por ejemplo, por qué en Linux <code>Foto.jpg</code> y <code>foto.jpg</code> son dos archivos diferentes: a nivel de bytes, literalmente lo son.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     IMÁGENES
+══════════════════════════════════════════ -->
+<section class="module" id="imagenes">
+  <div class="module-header">
+    <div class="module-icon">🖼️</div>
+    <div>
+      <div class="module-title">Capa 3 (otra rama) — Cómo se guardan las imágenes</div>
+      <div class="module-sub">Cada color es también solo tres números</div>
+    </div>
+  </div>
+
+  <p>Una imagen digital es una cuadrícula de puntitos de color llamados <strong>píxeles</strong>. Cada píxel guarda su color como tres números — cuánto rojo, cuánto verde y cuánto azul tiene, cada uno del 0 al 255 (¡exactamente el rango de un byte!). A esto se le llama el modelo de color <strong>RGB</strong> (Red, Green, Blue).</p>
+
+  <div class="bin-box">
+<span class="lbl">-- Un solo píxel guarda 3 bytes (uno por color):</span>
+<span class="lbl">Rojo:</span>   <span class="val">230</span>  <span class="lbl">binario: 11100110</span>
+<span class="lbl">Verde:</span>  <span class="val">80</span>   <span class="lbl">binario: 01010000</span>
+<span class="lbl">Azul:</span>   <span class="val">40</span>   <span class="lbl">binario: 00101000</span>
+<span class="lbl">-- Esa combinación (230, 80, 40) se ve como un naranja/terracota</span>
+<span class="lbl">-- Una imagen de 1000x1000 píxeles = 1,000,000 de estos grupos de 3 bytes</span>
+  </div>
+
+  <div class="analogy">
+    <h4>🎨 Analogía: pintar por números</h4>
+    <p>Seguro de niño hiciste un dibujo de "pintar por números", donde cada zona tenía un número y tú sabías que "el 3 es azul, el 5 es rojo". Una imagen digital es exactamente eso, pero automatizado y a una escala enorme: cada uno de los millones de puntitos de tu pantalla tiene su propio "número de color", y la pantalla simplemente los pinta todos, miles de veces por segundo.</p>
+  </div>
+
+  <p>Por eso cuando cambias el <strong>zoom</strong> mucho en una foto y empiezas a ver cuadritos de colores — esos cuadritos son literalmente los píxeles, cada uno mostrando el color que sus 3 bytes le indicaron.</p>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     SONIDO
+══════════════════════════════════════════ -->
+<section class="module" id="sonido">
+  <div class="module-header">
+    <div class="module-icon">🔊</div>
+    <div>
+      <div class="module-title">Capa 3 (otra rama) — Cómo se guarda el sonido</div>
+      <div class="module-sub">Miles de "fotografías" del aire vibrando, cada segundo</div>
+    </div>
+  </div>
+
+  <p>El sonido es aire vibrando. Para grabarlo digitalmente, un micrófono mide qué tan fuerte está vibrando el aire miles de veces por segundo (normalmente 44,100 veces, en el audio de buena calidad) y guarda cada medición como un número. Esa secuencia de números, reproducida en el mismo orden y a la misma velocidad, hace vibrar tu bocina de la misma forma — y tu oído lo interpreta como el sonido original.</p>
+
+  <div class="analogy">
+    <h4>🎞️ Analogía: una fila de fotos que forman una película</h4>
+    <p>Así como un video es solo muchas fotos mostradas rápido una tras otra, el audio digital es solo muchas "fotos" del volumen del aire, tomadas 44,100 veces por segundo. Ninguna es "el sonido" por sí sola — es la secuencia completa, reproducida a la velocidad correcta, la que reconstruye algo que tu oído reconoce como música o voz.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     SOFTWARE
+══════════════════════════════════════════ -->
+<section class="module" id="software">
+  <div class="module-header">
+    <div class="module-icon">🧠</div>
+    <div>
+      <div class="module-title">Capa 4 — El software también son bits</div>
+      <div class="module-sub">Los programas no son una excepción a la regla</div>
+    </div>
+  </div>
+
+  <p>Hasta ahora hablamos de <em>datos</em> (texto, imágenes, sonido). Pero los <strong>programas</strong> — el código que hace que las cosas pasen — también se guardan como bytes. La diferencia es la tabla de traducción: en vez de traducirse a letras o colores, esos bytes se traducen a <strong>instrucciones</strong> que el procesador sabe ejecutar, como "suma estos dos números" o "copia este dato de un lugar a otro".</p>
+
+  <div class="bin-box">
+<span class="lbl">-- Una instrucción real de procesador se ve, en el fondo, así:</span>
+<span class="val">10110000 01100001</span>  <span class="lbl">-- "guarda el número 97 en un cajón de memoria"</span>
+<span class="lbl">-- El procesador entiende miles de instrucciones así de simples</span>
+<span class="lbl">-- y las ejecuta en orden, miles de millones por segundo</span>
+  </div>
+
+  <div class="concept">
+    <h4>💡 Por eso nadie programa en binario hoy</h4>
+    <p>En los años 40 y 50, sí — programar significaba literalmente perforar tarjetas con patrones de ceros y unos. Hoy existen <strong>lenguajes de programación</strong> como JavaScript, Python o C, diseñados para que los humanos escribamos instrucciones en algo parecido al inglés, y un programa llamado <strong>compilador</strong> (o intérprete) se encarga de traducir eso, automáticamente, hasta llegar a los bytes que el procesador realmente necesita.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     CAPAS DE TRADUCCIÓN
+══════════════════════════════════════════ -->
+<section class="module" id="capas">
+  <div class="module-header">
+    <div class="module-icon">🪜</div>
+    <div>
+      <div class="module-title">Capa 5 — Las capas de traducción, todas juntas</div>
+      <div class="module-sub">Aquí está la respuesta completa a tu pregunta</div>
+    </div>
+  </div>
+
+  <p>Ya viste cada pieza por separado. Ahora júntalas: entre el transistor y la imagen que ves en pantalla hay una <strong>escalera de capas</strong>, cada una construida encima de la anterior, y cada una escondiendo la complejidad de la que está debajo:</p>
+
+  <div class="capas">
+    <div class="capa"><div class="capa-num">1</div><div class="capa-txt"><strong>Electricidad</strong><span>hay o no hay corriente en un cable</span></div></div>
+    <div class="capa-flecha">↓</div>
+    <div class="capa"><div class="capa-num">2</div><div class="capa-txt"><strong>Transistores</strong><span>millones de interruptores prendidos/apagados</span></div></div>
+    <div class="capa-flecha">↓</div>
+    <div class="capa"><div class="capa-num">3</div><div class="capa-txt"><strong>Bits y bytes</strong><span>esos estados agrupados en números</span></div></div>
+    <div class="capa-flecha">↓</div>
+    <div class="capa"><div class="capa-num">4</div><div class="capa-txt"><strong>Tablas de traducción</strong><span>ASCII, RGB — qué significa cada número</span></div></div>
+    <div class="capa-flecha">↓</div>
+    <div class="capa"><div class="capa-num">5</div><div class="capa-txt"><strong>El Sistema Operativo</strong><span>Windows, Linux, Android — organiza todo esto en tiempo real</span></div></div>
+    <div class="capa-flecha">↓</div>
+    <div class="capa"><div class="capa-num">6</div><div class="capa-txt"><strong>La pantalla</strong><span>millones de píxeles pintándose muchas veces por segundo</span></div></div>
+    <div class="capa-flecha">↓</div>
+    <div class="capa"><div class="capa-num">7</div><div class="capa-txt"><strong>Tus ojos</strong><span>ven el resultado: una imagen, un color, una letra</span></div></div>
+  </div>
+
+  <div class="analogy">
+    <h4>🏢 Analogía: un edificio de oficinas</h4>
+    <p>Nadie en el piso 20 de un edificio ve los cimientos — pero los cimientos siguen ahí, sosteniendo todo. Cada piso se construye confiando en que el piso de abajo hace bien su trabajo, sin necesitar saber cómo lo hace. Los bits son los cimientos de la computación: siempre están ahí, trabajando, aunque tú solo veas "el piso 20" (la imagen en tu pantalla).</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     SISTEMA OPERATIVO
+══════════════════════════════════════════ -->
+<section class="module" id="so">
+  <div class="module-header">
+    <div class="module-icon">🖥️</div>
+    <div>
+      <div class="module-title">¿Y qué hace exactamente Windows, Linux o Android?</div>
+      <div class="module-sub">El "administrador" de todas estas capas</div>
+    </div>
+  </div>
+
+  <p>Un <strong>Sistema Operativo</strong> es el programa maestro que decide, en tiempo real, qué hace cada parte de la computadora: qué programa puede usar el procesador en este instante, dónde guarda cada archivo, y — lo más relevante para tu pregunta — <strong>cómo traducir los bytes de cada programa en algo que puedas ver, tocar o escuchar</strong>.</p>
+
+  <div class="glos">
+    <div class="glos-item"><span class="emoji">🪟</span><dt>Windows</dt><dd>Sistema operativo de Microsoft, el más común en computadoras de escritorio y laptops para uso general.</dd></div>
+    <div class="glos-item"><span class="emoji">🐧</span><dt>Linux</dt><dd>Familia de sistemas operativos de código abierto, dominante en servidores y muy popular entre desarrolladores.</dd></div>
+    <div class="glos-item"><span class="emoji">🤖</span><dt>Android</dt><dd>Sistema operativo de Google para celulares, construido sobre una base de Linux.</dd></div>
+  </div>
+
+  <p>Cuando abres una foto, el Sistema Operativo: (1) encuentra los bytes de ese archivo en el disco, (2) le pide a un programa (el visor de fotos) que los lea, (3) ese programa entiende el formato de la imagen y calcula el color de cada píxel, y (4) el Sistema Operativo le pasa esos colores a la tarjeta gráfica, que finalmente enciende los píxeles físicos de tu pantalla con esos colores exactos. Todo esto ocurre en una fracción de segundo, y por diseño, tú nunca ves ninguno de esos pasos intermedios — solo el resultado: la foto.</p>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     RESUMEN — EL VIAJE COMPLETO
+══════════════════════════════════════════ -->
+<section class="module" id="resumen">
+  <div class="module-header">
+    <div class="module-icon">🗺️</div>
+    <div>
+      <div class="module-title">El viaje completo de un bit</div>
+      <div class="module-sub">De principio a fin, con un ejemplo real</div>
+    </div>
+  </div>
+
+  <p>Sigamos un solo ejemplo de principio a fin: <strong>escribes la letra "A" en un documento</strong>.</p>
+
+  <ol>
+    <li>Presionas la tecla A. El teclado envía una señal eléctrica específica para esa tecla.</li>
+    <li>El Sistema Operativo recibe esa señal y la traduce al número 65 (el código ASCII de "A").</li>
+    <li>El programa (por ejemplo, un editor de texto) guarda el número 65 en la memoria, como el byte <code>01000001</code>.</li>
+    <li>Cuando toca mostrarlo en pantalla, el programa le pide al Sistema Operativo que dibuje el carácter correspondiente al número 65.</li>
+    <li>El Sistema Operativo usa una <strong>fuente tipográfica</strong> (una tabla que dice qué píxeles pintar para dibujar una "A" bonita) y calcula qué píxeles deben encenderse, y de qué color.</li>
+    <li>Esa información de píxeles se envía a la tarjeta gráfica, que enciende los transistores de tu pantalla exactos para formar la letra "A" que ves.</li>
+  </ol>
+
+  <div class="warn">
+    <h4>⚠️ Todo esto pasa en menos de una centésima de segundo</h4>
+    <p>Lo que acabas de leer en 6 pasos ocurre tan rápido que percibes la letra apareciendo "al instante" cuando presionas la tecla. Esa es la escala de velocidad con la que trabaja una computadora moderna — miles de millones de operaciones como esta, cada segundo.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     GLOSARIO
+══════════════════════════════════════════ -->
+<section class="module" id="glosario">
+  <div class="module-header">
+    <div class="module-icon">📖</div>
+    <div>
+      <div class="module-title">Glosario</div>
+      <div class="module-sub">Los términos de esta guía, en un solo lugar</div>
+    </div>
+  </div>
+
+  <div class="glos">
+    <div class="glos-item"><span class="emoji">🔌</span><dt>Bit</dt><dd>La unidad más pequeña de información: 0 o 1. Físicamente, corriente o no corriente.</dd></div>
+    <div class="glos-item"><span class="emoji">📦</span><dt>Byte</dt><dd>Un grupo de 8 bits. Representa un número del 0 al 255.</dd></div>
+    <div class="glos-item"><span class="emoji">🔀</span><dt>Transistor</dt><dd>Un interruptor eléctrico microscópico: la pieza física que hace posible un bit.</dd></div>
+    <div class="glos-item"><span class="emoji">🔤</span><dt>ASCII / Unicode</dt><dd>Tablas que asignan un número a cada letra, símbolo o emoji.</dd></div>
+    <div class="glos-item"><span class="emoji">🎨</span><dt>RGB</dt><dd>Modelo de color que representa cada píxel con 3 números: rojo, verde y azul.</dd></div>
+    <div class="glos-item"><span class="emoji">🟦</span><dt>Píxel</dt><dd>El punto de color más pequeño que puede mostrar una pantalla.</dd></div>
+    <div class="glos-item"><span class="emoji">🧮</span><dt>Procesador / CPU</dt><dd>El chip que ejecuta instrucciones, una tras otra, miles de millones de veces por segundo.</dd></div>
+    <div class="glos-item"><span class="emoji">🖥️</span><dt>Sistema Operativo</dt><dd>El programa maestro (Windows, Linux, Android) que coordina hardware y software.</dd></div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     PREGUNTAS DE REPASO
+══════════════════════════════════════════ -->
+<section class="module">
+  <div class="module-header">
+    <div class="module-icon">✏️</div>
+    <div>
+      <div class="module-title">Preguntas para revisar que quedó claro</div>
+      <div class="module-sub">No hay código aquí — solo pon en tus palabras lo que entendiste</div>
+    </div>
+  </div>
+
+  <div class="ejercicio">
+    <div class="ejercicio-hd">🧠 Repaso conceptual <span class="ej-badge">Sin código</span></div>
+    <div class="pregunta"><strong>1.</strong> ¿Por qué una computadora usa solo dos estados (0 y 1) en vez de diez, como nosotros?</div>
+    <div class="pregunta"><strong>2.</strong> Si guardas la palabra "Sol", ¿cuántos bytes ocupa aproximadamente, y por qué?</div>
+    <div class="pregunta"><strong>3.</strong> ¿Qué tienen en común un byte de texto y un byte de una imagen? ¿Qué los hace distintos?</div>
+    <div class="pregunta"><strong>4.</strong> Explica con tus propias palabras qué hace un Sistema Operativo, usando la analogía del edificio de oficinas.</div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════
+     VIDEOS RECOMENDADOS
+══════════════════════════════════════════ -->
+<section class="module" id="videos">
+  <div class="module-header">
+    <div class="module-icon">🎬</div>
+    <div>
+      <div class="module-title">Videos recomendados para reforzar</div>
+      <div class="module-sub">En español, si quieres verlo explicado con animaciones</div>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Recurso</th><th>De qué trata</th></tr></thead>
+    <tbody>
+      <tr><td><a class="enlace-video" href="https://www.youtube.com/watch?v=RVGIXfC4Xeg" target="_blank">Sistema BINARIO y Puertas Lógicas: La BASE de como funciona tu PC</a></td><td>Recorre las capas desde el binario hasta los circuitos integrados</td></tr>
+      <tr><td><a class="enlace-video" href="https://www.youtube.com/watch?v=-ZTekGoR8uQ" target="_blank">¿Cómo funciona un procesador? Desde un transistor hasta una CPU</a></td><td>Cómo los transistores se combinan para formar circuitos lógicos y un procesador completo</td></tr>
+      <tr><td><a class="enlace-video" href="https://www.youtube.com/watch?v=ljSdrYmdF44" target="_blank">¿Cómo funciona el TRANSISTOR?</a></td><td>La historia y el funcionamiento físico del transistor, la pieza más pequeña de esta guía</td></tr>
+      <tr><td><a class="enlace-video" href="https://ed.team/blog/por-que-las-computadoras-solo-entienden-0-y-1-codigo-binario" target="_blank">¿Por qué las computadoras solo entienden 0 y 1?</a></td><td>Artículo de EDteam con la historia de por qué se eligió el sistema binario</td></tr>
+    </tbody>
+  </table>
+
+  <div style="background:linear-gradient(135deg,#0c0c0c,#1a1a1a);border-radius:12px;padding:2rem;text-align:center;margin-top:1.5rem;">
+    <div style="font-size:2.5rem;margin-bottom:.75rem;">🎉</div>
+    <h2 style="color:#ff9d73;margin-bottom:.5rem;font-size:1.4rem;">Ya conoces el camino completo de un bit</h2>
+    <p style="color:rgba(255,255,255,0.65);margin-bottom:0;">Desde la electricidad hasta la imagen en pantalla — la próxima vez que alguien te diga "todo son ceros y unos", vas a poder explicarle exactamente por qué eso no contradice todo lo que ves en tu monitor.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Cómo funciona una computadora, desde cero · Café &lt;/&gt; · Hugo 2025
+</footer>
+
+</body>
+</html>
