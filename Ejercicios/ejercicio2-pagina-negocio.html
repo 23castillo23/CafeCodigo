@@ -520,21 +520,21 @@
       <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"tarjetas"</span><span class="ct">&gt;</span>
 
         <span class="ct">&lt;article</span> <span class="ca">class</span>=<span class="cv">"tarjeta"</span><span class="ct">&gt;</span>
-          <span class="ct">&lt;p</span> <span class="ca">class</span>=<span class="cv">"tarjeta-icono"</span><span class="ct">&gt;</span><span class="cs">☕</span><span class="ct">&lt;/p&gt;</span>
+          <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"tarjeta-icono"</span><span class="ct">&gt;</span><span class="cs">☕</span><span class="ct">&lt;/span&gt;</span>
           <span class="ct">&lt;h3&gt;</span><span class="cs">Café de especialidad</span><span class="ct">&lt;/h3&gt;</span>
           <span class="ct">&lt;p&gt;</span><span class="cs">Espresso, americano, latte y más. Granos de origen
              único seleccionados cada temporada.</span><span class="ct">&lt;/p&gt;</span>
         <span class="ct">&lt;/article&gt;</span>
 
         <span class="ct">&lt;article</span> <span class="ca">class</span>=<span class="cv">"tarjeta"</span><span class="ct">&gt;</span>
-          <span class="ct">&lt;p</span> <span class="ca">class</span>=<span class="cv">"tarjeta-icono"</span><span class="ct">&gt;</span><span class="cs">🥐</span><span class="ct">&lt;/p&gt;</span>
+          <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"tarjeta-icono"</span><span class="ct">&gt;</span><span class="cs">🥐</span><span class="ct">&lt;/span&gt;</span>
           <span class="ct">&lt;h3&gt;</span><span class="cs">Repostería artesanal</span><span class="ct">&lt;/h3&gt;</span>
           <span class="ct">&lt;p&gt;</span><span class="cs">Croissants, muffins y pan dulce horneados
              cada mañana. Sin conservadores.</span><span class="ct">&lt;/p&gt;</span>
         <span class="ct">&lt;/article&gt;</span>
 
         <span class="ct">&lt;article</span> <span class="ca">class</span>=<span class="cv">"tarjeta"</span><span class="ct">&gt;</span>
-          <span class="ct">&lt;p</span> <span class="ca">class</span>=<span class="cv">"tarjeta-icono"</span><span class="ct">&gt;</span><span class="cs">💻</span><span class="ct">&lt;/p&gt;</span>
+          <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"tarjeta-icono"</span><span class="ct">&gt;</span><span class="cs">💻</span><span class="ct">&lt;/span&gt;</span>
           <span class="ct">&lt;h3&gt;</span><span class="cs">Espacio de trabajo</span><span class="ct">&lt;/h3&gt;</span>
           <span class="ct">&lt;p&gt;</span><span class="cs">WiFi rápido, enchufes en cada mesa y ambiente
              tranquilo. Ideal para trabajar o estudiar.</span><span class="ct">&lt;/p&gt;</span>
@@ -551,9 +551,36 @@
       <tr><td><span class="tag">.contenedor</span></td><td>Div interno con <code>max-width</code> y <code>margin: 0 auto</code>. Lo reutilizaremos en todas las secciones para que el contenido siempre esté centrado.</td></tr>
       <tr><td><span class="tag">.tarjetas</span></td><td>El div que contiene las tres tarjetas. Con CSS le daremos un layout en columnas.</td></tr>
       <tr><td><span class="tag">.tarjeta</span></td><td>Cada tarjeta individual. Le daremos <code>padding</code>, <code>border</code>, <code>border-radius</code> y <code>background</code>.</td></tr>
-      <tr><td><span class="tag">.tarjeta-icono</span></td><td>El emoji grande que encabeza cada tarjeta. Lo agrandamos con <code>font-size</code>.</td></tr>
+      <tr><td><span class="tag">.tarjeta-icono</span></td><td>El emoji grande que encabeza cada tarjeta. Va en un <code>&lt;span&gt;</code> (no en un <code>&lt;p&gt;</code>) y lo agrandamos con <code>font-size</code>.</td></tr>
     </tbody>
   </table>
+
+  <div class="warn">
+    <h4>⚠️ ¿Por qué &lt;span&gt; y no &lt;p&gt; para el ícono?</h4>
+    <p>Es tentador usar <code>&lt;p class="tarjeta-icono"&gt;</code> porque parece un simple párrafo más. El problema aparece más adelante en el CSS: la regla <code>.tarjeta p</code> (que le da estilo al texto de descripción) selecciona <strong>cualquier</strong> <code>&lt;p&gt;</code> dentro de <code>.tarjeta</code> — incluido el del ícono. Y como <code>.tarjeta p</code> tiene más especificidad (clase + etiqueta) que <code>.tarjeta-icono</code> (solo clase), termina ganando y aplastando el <code>font-size: 36px</code> del ícono con el <code>font-size: 14px</code> pensado para los párrafos normales.</p>
+    <p style="margin-top:.5rem">Por eso el ícono va en un <code>&lt;span&gt;</code>: como no es un <code>&lt;p&gt;</code>, la regla <code>.tarjeta p</code> nunca lo toca, y <code>.tarjeta-icono</code> manda sin competencia. Es un ejemplo real de cómo la especificidad CSS puede arruinar un estilo aunque el selector "correcto" también exista en tu hoja — conviene revisarlo cuando un elemento no toma el tamaño o color que le pusiste.</p>
+  </div>
+
+  <div class="concept">
+    <h4>💡 ¿Qué es &lt;span&gt; exactamente?</h4>
+    <p><code>&lt;span&gt;</code> es una etiqueta genérica, igual que <code>&lt;div&gt;</code>: no tiene significado semántico, solo sirve para poder aplicarle una clase de CSS. La diferencia es el tipo de elemento:</p>
+    <ul>
+      <li><code>&lt;div&gt;</code> es <strong>de bloque</strong>: siempre ocupa todo el ancho disponible y empieza en línea nueva. Se usa para agrupar secciones grandes.</li>
+      <li><code>&lt;span&gt;</code> es <strong>en línea</strong>: solo ocupa el espacio de su contenido y se acomoda dentro del flujo del texto, sin romper la línea. Se usa para estilizar una parte pequeña de un párrafo o título, como <code>El precio es &lt;span class="oferta"&gt;$99&lt;/span&gt;</code>.</li>
+    </ul>
+    <p style="margin-top:.5rem">En nuestro caso, el ícono va en <code>&lt;span&gt;</code> por dos razones: es un elemento pequeño que no necesita comportarse como bloque, y al no ser un <code>&lt;p&gt;</code> evita el choque de especificidad con <code>.tarjeta p</code> que vimos arriba.</p>
+  </div>
+
+  <div class="concept">
+    <h4>🔍 &lt;section&gt; y &lt;div&gt; en el mismo bloque — ¿por qué van juntos?</h4>
+    <p>Mira el código de arriba: hay un <code>&lt;section&gt;</code> por fuera y varios <code>&lt;div&gt;</code> por dentro. No es un error ni algo intercambiable — <strong>casi siempre se anidan</strong> porque cada uno hace un trabajo distinto:</p>
+    <ul>
+      <li><code>&lt;section&gt;</code> = bloque con <strong>significado</strong>. Le dice al navegador, a Google y a los lectores de pantalla "aquí empieza un tema completo" — por eso trae su propio <code>&lt;h2&gt;Nuestros servicios&lt;/h2&gt;</code>.</li>
+      <li><code>&lt;div&gt;</code> = una caja <strong>sin significado</strong>, solo para agrupar visualmente y poder aplicarle CSS. El <code>&lt;div class="tarjetas"&gt;</code> no le dice nada a nadie sobre el contenido — solo existe para poder ponerle <code>display: flex</code> y acomodar las tarjetas en fila.</li>
+    </ul>
+    <p style="margin-top:.75rem"><strong>Pregunta clave para decidir cuál usar:</strong> ¿este bloque tendría sentido como su propio tema si lo sacaras de la página? Si sí → <code>section</code>. Si solo lo necesitas para acomodar visualmente algo que ya está dentro de una section (como <code>.tarjetas</code> o <code>.contenedor</code>) → <code>div</code>.</p>
+    <p style="margin-top:.75rem">Por eso ves <code>id</code> y <code>class</code> juntos en la misma etiqueta, como <code>&lt;section id="servicios" class="seccion-servicios"&gt;</code>: el <code>id</code> es único en toda la página y sirve para que el link <code>&lt;a href="#servicios"&gt;</code> salte exactamente ahí; la <code>class</code> se puede repetir en varios elementos y sirve para compartir estilos de CSS. No compiten entre sí — cada uno responde una pregunta distinta, y muchas veces necesitas los dos a la vez.</p>
+  </div>
 
   <hr>
 
@@ -814,7 +841,7 @@
   <span class="ca">border-top</span>: <span class="cn">4px solid</span> var(<span class="cv">--azul-oscuro</span>); <span class="cc">/* acento decorativo arriba */</span>
 }
 
-<span class="cp">.tarjeta-icono</span> {
+<span class="cp">.tarjeta-icono</span> { <span class="cc">/* es un &lt;span&gt;, no un &lt;p&gt;, para que .tarjeta p no lo pise */</span>
   <span class="ca">font-size</span>: <span class="cn">36px</span>;
   <span class="ca">margin-bottom</span>: <span class="cn">12px</span>;
 }
