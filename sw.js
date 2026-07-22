@@ -3,15 +3,17 @@
    Hace que la app funcione sin internet
    ============================================ */
 
-const CACHE = 'cafe-codigo-v8'
+const CACHE = 'cafe-codigo-v9'
 
 // Solo cachear lo esencial — si un archivo no existe no bloquea la instalación
 const ARCHIVOS_CORE = [
   './',
   './index.html',
+  './portal.html',
   './capitulos.html',
   './css/style.css',
   './js/script.js',
+  './js/auth-guard.js',
   './manifest.webmanifest'
 ]
 

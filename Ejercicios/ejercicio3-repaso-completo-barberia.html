@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Ejercicio 4 — Repaso completo: TODO lo del Ejercicio 1 y 2, aplicado a una página de barbería.">
+<meta name="author" content="Hugo">
+<title>Ejercicio 3 — Repaso Completo: Barbería | HTML & CSS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #c44a2a;
+    --primary-light:  #fdf0ec;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --danger:         #c44a2a;
+    --danger-light:   #fdf0ec;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1a1814;
+    --code-text:      #e8e4de;
+  }
+
+  body { font-family: 'DM Sans', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  /* TOPBAR */
+  .topbar { background:#ffffff; border-bottom:1px solid var(--border); padding:0 24px; display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:200; height:45px; }
+  .topbar a { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--muted); text-decoration:none; padding:6px 14px; border:1px solid var(--border); border-radius:999px; transition:all 0.15s; }
+  .topbar a:hover { color:var(--text); border-color:#8a8480; }
+  .topbar span { font-size:13px; color:var(--muted); }
+
+  header { background: #1a1814; color: #f7f4ef; padding: 3rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: '💈'; position: absolute; font-size: 12rem; right: -1rem; top: -2rem; opacity: .06; line-height: 1; }
+  header .ex-label { display: inline-block; background: var(--primary); color: white; border-radius: 20px; padding: 4px 16px; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 1rem; }
+  header h1 { font-size: 2.4rem; font-weight: 800; letter-spacing: -1px; }
+  header p.sub { font-size: 1.05rem; opacity: .8; margin-top: .5rem; font-style: italic; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; display: flex; overflow-x: auto; }
+  nav a { flex-shrink: 0; padding: .75rem 1.1rem; text-decoration: none; color: var(--muted); font-size: .82rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: white; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2.5rem; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-size: 1.35rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  .analogy { background: #FFF7ED; border: 1px solid #FDE68A; border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: #92400E; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; color: #78350F; }
+
+  .concept { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p, .tip ul { font-size: .95rem; }
+  .tip ul { padding-left: 1.2rem; }
+  .tip li { margin-bottom: .3rem; }
+
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  .reto { background: #F0F4FF; border: 1px solid #C7D2FE; border-left: 4px solid #4338CA; border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .reto h4 { color: #4338CA; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .reto p, .reto ul { font-size: .95rem; }
+  .reto ul { padding-left: 1.2rem; margin-top: .4rem; }
+
+  .code-block { background: var(--code-bg); color: var(--code-text); border-radius: 10px; padding: 1.25rem 1.5rem; font-family: 'DM Mono', 'Courier New', monospace; font-size: .88rem; line-height: 1.85; overflow-x: auto; margin: 1rem 0; position: relative; white-space: pre; }
+  .code-block .ct { color: #89B4FA; }
+  .code-block .ca { color: #CBA6F7; }
+  .code-block .cv { color: #A6E3A1; }
+  .code-block .cs { color: #F9E2AF; }
+  .code-block .cp { color: #89DCEB; }
+  .code-block .cc { color: #585B70; font-style: italic; }
+  .code-block .cn { color: #FAB387; }
+  .lang { position: absolute; top: .6rem; right: .75rem; background: rgba(255,255,255,.1); color: rgba(255,255,255,.5); font-size: .68rem; padding: 2px 8px; border-radius: 4px; font-family: sans-serif; }
+
+  .preview { border: 2px dashed var(--border); border-radius: 10px; padding: 1.25rem 1.5rem; margin: 1rem 0; background: var(--surface); position: relative; }
+  .preview::before { content: '🖥 Vista en navegador'; position: absolute; top: -11px; left: 14px; background: var(--surface); font-size: .73rem; color: var(--muted); padding: 0 6px; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  .glos { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .glos-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; }
+  .glos-item .etq { font-family: 'DM Mono', 'Courier New', monospace; font-weight: 700; color: var(--primary); font-size: .92rem; margin-bottom: .4rem; display: block; }
+  .glos-item p { font-size: .87rem; color: var(--text); line-height: 1.5; margin-bottom: .5rem; }
+  .glos-item .ejemplo { font-family: 'DM Mono', 'Courier New', monospace; font-size: .78rem; background: var(--code-bg); color: var(--code-text); padding: .5rem .7rem; border-radius: 6px; display: block; overflow-x: auto; white-space: pre; }
+  .glos-item.invisible { border-left: 4px solid var(--accent); }
+  .glos-item.invisible .etq::after { content: ' 👻 invisible'; font-size: .65rem; color: var(--accent); font-weight: 700; font-family: 'DM Sans', sans-serif; }
+
+  .chip { display: inline-block; background: var(--primary-light); color: var(--primary); font-size: .8rem; padding: 3px 12px; border-radius: 20px; font-weight: 600; margin: 3px; font-family: 'DM Mono', monospace; }
+  .chip.done { background: var(--secondary-light); color: var(--secondary); }
+
+  .reto-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin: 1.25rem 0; }
+  .reto-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+  .reto-card .nivel { display: inline-block; font-size: .72rem; font-weight: 700; padding: 2px 10px; border-radius: 20px; margin-bottom: .6rem; text-transform: uppercase; letter-spacing: .06em; }
+  .nivel-f { background: #FEF3C7; color: #92400E; }
+  .nivel-m { background: #FFEDD5; color: #C2410C; }
+  .nivel-a { background: #FEE2E2; color: #B91C1C; }
+  .reto-card h4 { font-size: .95rem; font-weight: 700; margin-bottom: .5rem; }
+  .reto-card p { font-size: .88rem; color: var(--muted); margin-bottom: .5rem; }
+  .reto-card strong { color: var(--text); }
+
+  details.solucion { margin-top: .9rem; }
+  details.solucion summary { cursor: pointer; font-size: .85rem; font-weight: 700; color: #4338CA; list-style: none; padding: 6px 14px; background: #EEF2FF; border-radius: 20px; display: inline-block; }
+  details.solucion summary::-webkit-details-marker { display: none; }
+  details.solucion summary::before { content: '▶ '; }
+  details.solucion[open] summary::before { content: '▼ '; }
+  details.solucion[open] summary { margin-bottom: .5rem; }
+
+  h2 { font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; color: var(--text); }
+  h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 .5rem; }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: #f0ece6; color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+
+  /* ── BOX MODEL DIAGRAM ── */
+  .bm-wrap { display: flex; justify-content: center; margin: 1.5rem 0; }
+  .bm-margin { background: #FEF3C7; border: 2px dashed #D97706; border-radius: 10px; padding: 24px; position: relative; }
+  .bm-margin-label { position: absolute; top: 4px; left: 10px; font-size: .7rem; font-weight: 700; color: #92400E; font-family: 'DM Mono', monospace; text-transform: uppercase; }
+  .bm-border { background: #FCA5A5; border-radius: 6px; padding: 20px; position: relative; }
+  .bm-border-label { position: absolute; top: 4px; left: 10px; font-size: .7rem; font-weight: 700; color: #7F1D1D; font-family: 'DM Mono', monospace; text-transform: uppercase; }
+  .bm-padding { background: #BBF7D0; border-radius: 4px; padding: 20px; position: relative; }
+  .bm-padding-label { position: absolute; top: 4px; left: 10px; font-size: .7rem; font-weight: 700; color: #14532D; font-family: 'DM Mono', monospace; text-transform: uppercase; }
+  .bm-content { background: #BFDBFE; border-radius: 3px; padding: 16px 24px; text-align: center; font-family: 'DM Mono', monospace; font-size: .85rem; font-weight: 700; color: #1E3A5F; min-width: 140px; }
+
+  /* ── DEMO BARBERÍA (paleta propia) ── */
+  .bb { --negro:#1c1a17; --dorado:#c9a227; --crema:#f7f2e7; --gris:#54504a; --borde:#e6ddc8; }
+  .demo-page { font-family: Arial, sans-serif; font-size: 13px; color: var(--negro); background: var(--crema); border-radius: 10px; overflow: hidden; }
+  .demo-navbar { background: var(--negro); color: white; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; }
+  .demo-navbar .logo { font-weight: 800; }
+  .demo-navbar ul { display: flex; gap: 16px; list-style: none; padding: 0; margin: 0; }
+  .demo-navbar a { color: rgba(255,255,255,.8); text-decoration: none; font-size: .82rem; }
+  .demo-hero { background: var(--negro); color: white; text-align: center; padding: 36px 20px 30px; }
+  .demo-hero h1 { font-size: 1.4rem; margin-bottom: 6px; }
+  .demo-hero p { opacity: .8; font-size: .82rem; margin-bottom: 14px; }
+  .demo-btn { display: inline-block; background: var(--dorado); color: var(--negro); font-weight: 700; padding: 8px 20px; border-radius: 6px; text-decoration: none; font-size: .8rem; }
+  .demo-body { padding: 24px 22px; }
+  .demo-title { font-size: 1.05rem; font-weight: 800; margin-bottom: 4px; }
+  .demo-underline { width: 40px; height: 3px; background: var(--dorado); margin-bottom: 16px; }
+  .demo-gallery { display: flex; gap: 10px; margin-bottom: 26px; }
+  .demo-gallery div { flex: 1; height: 70px; border-radius: 6px; border: 3px solid var(--dorado); background: repeating-linear-gradient(45deg, #ddd, #ddd 6px, #eee 6px, #eee 12px); }
+  .demo-cards { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 26px; }
+  .demo-card { flex: 1; min-width: 140px; background: white; border: 1px solid var(--borde); border-top: 3px solid var(--dorado); border-radius: 8px; padding: 14px; }
+  .demo-card .icon { font-size: 1.4rem; margin-bottom: 6px; }
+  .demo-card h3 { font-size: .88rem; margin-bottom: 4px; }
+  .demo-card p { font-size: .74rem; color: var(--gris); margin: 0; }
+  .demo-productos { background: white; border: 1px solid var(--borde); border-radius: 8px; padding: 16px 20px; margin-bottom: 26px; }
+  .demo-productos li { font-size: .82rem; margin-bottom: 6px; list-style: disc; margin-left: 16px; }
+  .demo-productos li.destacado { font-weight: 700; color: var(--dorado); font-style: italic; }
+  .demo-contact { background: white; border: 1px solid var(--borde); border-left: 4px solid var(--negro); border-radius: 0 8px 8px 0; padding: 14px 18px; }
+  .demo-contact p { font-size: .8rem; margin-bottom: 6px; }
+  .demo-footer { background: var(--negro); color: rgba(255,255,255,.7); text-align: center; padding: 12px; font-size: .74rem; }
+</style>
+</head>
+<body>
+
+  <!-- TOPBAR -->
+<div class="topbar">
+  <a href="../capitulos.html?tab=ejercicios">← Volver al curso</a>
+  <span class="topbar-sep">|</span>
+  <span class="topbar-label">Ejercicios:</span>
+  <div class="topbar-nav">
+    <a href="ejercicio1-receta-tacos.html">🌮 Ej1</a>
+    <a href="ejercicio2-pagina-negocio.html">🛍 Ej2</a>
+    <a href="ejercicio3-repaso-completo-barberia.html" class="ej-activo">💈 EjR</a>
+    <a href="ejercicio3-perfil-futbol.html">⚽ Ej3</a>
+    <a href="ejercicio4-pagina-contacto.html">📬 Ej4</a>
+    <a href="ejercicio5-portfolio-responsive.html">📱 Ej5</a>
+    <a href="ejercicio6-dashboard-metricas.html">📊 Ej6</a>
+  </div>
+</div>
+
+<header>
+  <span class="ex-label">Ejercicio 3 · Repaso completo</span>
+  <h1>💈 Barbería El Trébol</h1>
+  <p class="sub">Repaso a fondo: TODO lo del Ejercicio 1 + TODO lo del Ejercicio 2, en un solo proyecto</p>
+  <span class="badge">HTML fundamentos · Semántica · Box Model · Flexbox · Selectores · Especificidad</span>
+</header>
+
+<nav>
+  <a href="#intro">Intro</a>
+  <a href="#checklist">✅ Checklist</a>
+  <a href="#invisible">🕵️ Invisibles</a>
+  <a href="#boxmodel">📦 Box Model</a>
+  <a href="#selectores">🎯 Selectores</a>
+  <a href="#p1">1 · Estructura</a>
+  <a href="#p2">2 · Nav + Hero</a>
+  <a href="#p3">3 · Galería</a>
+  <a href="#p4">4 · Servicios</a>
+  <a href="#p5">5 · Productos y pasos</a>
+  <a href="#p6">6 · Reseñas</a>
+  <a href="#p7">7 · Contacto</a>
+  <a href="#retos">🏆 Retos</a>
+  <a href="#glosario">Glosario</a>
+</nav>
+
+<main>
+
+<!-- ══════════════════════════
+     INTRO
+══════════════════════════ -->
+<section class="module" id="intro">
+  <div class="module-header">
+    <div class="module-icon">🎯</div>
+    <div>
+      <div class="module-title">Repaso completo — esta vez sin dejar nada fuera</div>
+      <div class="module-sub">Vamos a tocar cada etiqueta y cada propiedad que ya viste</div>
+    </div>
+  </div>
+  <p>Este ejercicio es más largo a propósito. Vamos a construir <strong>Barbería El Trébol</strong> completa, sección por sección, y cada sección está diseñada para forzarte a usar algo específico del Ejercicio 1 o del Ejercicio 2. Al final hay un glosario que puedes comparar contra el de ambos ejercicios para confirmar que no falta nada.</p>
+  <p>Sigue usando el mismo sistema de antes:</p>
+  <ul>
+    <li><span class="tag">📘 Guiado</span> — código completo + explicación línea por línea.</li>
+    <li><span class="tag">🧩 Reto</span> — tú escribes el código; hay solución escondida en "Ver solución".</li>
+  </ul>
+</section>
+
+<!-- ══════════════════════════
+     CHECKLIST
+══════════════════════════ -->
+<section class="module" id="checklist">
+  <div class="module-header">
+    <div class="module-icon">✅</div>
+    <div>
+      <div class="module-title">Checklist de todo lo que cubre este ejercicio</div>
+      <div class="module-sub">Compáralo contra el resumen del Ejercicio 1 y 2 — no debería faltar nada</div>
+    </div>
+  </div>
+
+  <h2>Del Ejercicio 1 (fundamentos)</h2>
+  <div style="margin-bottom:1rem">
+    <span class="chip done">DOCTYPE / html lang / head / meta charset / meta viewport</span>
+    <span class="chip done">title / link stylesheet</span>
+    <span class="chip done">header / section / footer</span>
+    <span class="chip done">h1 - h2</span>
+    <span class="chip done">p</span>
+    <span class="chip done">ul + li (clase simple y doble clase)</span>
+    <span class="chip done">ol + li</span>
+    <span class="chip done">img (src, alt, width, height)</span>
+    <span class="chip done">a href + target="_blank" + rel="noopener"</span>
+    <span class="chip done">span</span>
+    <span class="chip done">strong / em</span>
+    <span class="chip done">selector de ID (#nombre)</span>
+    <span class="chip done">selector de clase (.nombre)</span>
+    <span class="chip done">selector descendiente (#id p)</span>
+    <span class="chip done">selector múltiple (a, b, c { })</span>
+    <span class="chip done">font-family / font-size / color / background-color</span>
+    <span class="chip done">text-align / text-transform / letter-spacing / text-decoration</span>
+    <span class="chip done">line-height / border / border-radius / border-bottom</span>
+    <span class="chip done">margin: 0 auto / max-width</span>
+    <span class="chip done">a:hover</span>
+  </div>
+
+  <h2>Del Ejercicio 2 (semántica y Box Model)</h2>
+  <div>
+    <span class="chip done">nav / main (único) / div / article / address</span>
+    <span class="chip done">href="tel:..." / href="mailto:..." / href="#id"</span>
+    <span class="chip done">box-sizing: border-box</span>
+    <span class="chip done">:root + var(--nombre)</span>
+    <span class="chip done">display: flex / gap / flex: 1</span>
+    <span class="chip done">justify-content / align-items</span>
+    <span class="chip done">width: 100% / opacity</span>
+    <span class="chip done">border-left / border-radius parcial</span>
+    <span class="chip done">list-style: none</span>
+    <span class="chip done">display: inline-block</span>
+    <span class="chip done">transition</span>
+    <span class="chip done">:last-child</span>
+    <span class="chip done">Especificidad CSS (span vs p)</span>
+  </div>
+</section>
+
+<!-- ══════════════════════════
+     EFECTOS INVISIBLES
+══════════════════════════ -->
+<section class="module" id="invisible">
+  <div class="module-header">
+    <div class="module-icon">🕵️</div>
+    <div>
+      <div class="module-title">Recordatorio: efectos invisibles</div>
+      <div class="module-sub">Los mismos bugs que resolviste, para tenerlos frescos</div>
+    </div>
+  </div>
+  <table class="tbl">
+    <thead><tr><th>Lo que ves</th><th>La causa invisible</th></tr></thead>
+    <tbody>
+      <tr><td>Un elemento ignora el estilo que le pusiste</td><td><strong>Especificidad:</strong> otra regla más específica (clase+etiqueta le gana a solo clase) lo está sobrescribiendo.</td></tr>
+      <tr><td>Una propiedad entera "no existe"</td><td><strong>Typo en la unidad</strong> (<code>24x</code> en vez de <code>24px</code>): CSS descarta la línea completa, sin aviso.</td></tr>
+      <tr><td>Los elementos miden más de lo esperado</td><td>Falta <code>box-sizing: border-box</code> — el padding/border se suma al width en vez de incluirse.</td></tr>
+      <tr><td>El bloque no se centra aunque tenga <code>margin: 0 auto</code></td><td>Le falta un <code>width</code> o <code>max-width</code> definido — sin eso, el bloque ya ocupa todo el ancho y no hay nada que centrar.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ══════════════════════════
+     BOX MODEL
+══════════════════════════ -->
+<section class="module" id="boxmodel">
+  <div class="module-header">
+    <div class="module-icon">📦</div>
+    <div>
+      <div class="module-title">Repaso visual: el Box Model</div>
+      <div class="module-sub">Las 4 capas de todo elemento HTML, de afuera hacia adentro</div>
+    </div>
+  </div>
+
+  <div class="bm-wrap">
+    <div class="bm-margin"><span class="bm-margin-label">margin</span>
+      <div class="bm-border"><span class="bm-border-label">border</span>
+        <div class="bm-padding"><span class="bm-padding-label">padding</span>
+          <div class="bm-content">contenido</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Capa</th><th>Qué controla</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">content</span></td><td>El texto o imagen real. Su tamaño lo define <code>width</code>/<code>height</code>, o el contenido mismo.</td></tr>
+      <tr><td><span class="tag">padding</span></td><td>Espacio <strong>dentro</strong> del borde, entre el contenido y el borde. Con <code>border-box</code>, se resta del width.</td></tr>
+      <tr><td><span class="tag">border</span></td><td>La línea visible alrededor del padding.</td></tr>
+      <tr><td><span class="tag">margin</span></td><td>Espacio <strong>fuera</strong> del borde, hacia los elementos vecinos. Nunca tiene fondo ni borde propio — es aire.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="analogy">
+    <h4>🖼️ Analogía</h4>
+    <p>Piensa en un cuadro colgado en la pared: la <strong>pintura</strong> es el contenido, el <strong>marco</strong> es el border, el <strong>passe-partout</strong> (el cartón blanco entre pintura y marco) es el padding, y el <strong>espacio en la pared</strong> antes del siguiente cuadro es el margin.</p>
+  </div>
+</section>
+
+<!-- ══════════════════════════
+     SELECTORES
+══════════════════════════ -->
+<section class="module" id="selectores">
+  <div class="module-header">
+    <div class="module-icon">🎯</div>
+    <div>
+      <div class="module-title">Repaso: ID vs clase vs descendiente</div>
+      <div class="module-sub">Los tres tipos de selector que ya usaste, juntos para comparar</div>
+    </div>
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* Selector de ID: solo UN elemento, el que tenga id="hero" */</span>
+<span class="cp">#hero</span> { <span class="ca">background-color</span>: var(<span class="cv">--negro</span>); }
+
+<span class="cc">/* Selector de clase: TODOS los elementos con class="servicio" */</span>
+<span class="cp">.servicio</span> { <span class="ca">padding</span>: <span class="cn">20px</span>; }
+
+<span class="cc">/* Selector descendiente: solo los <p> que estén DENTRO de #hero */</span>
+<span class="cp">#hero p</span> { <span class="ca">opacity</span>: <span class="cn">0.8</span>; }
+
+<span class="cc">/* Selector múltiple: aplica lo mismo a varios selectores separados por coma */</span>
+<span class="cp">.servicio, .producto, .resena</span> { <span class="ca">border-radius</span>: <span class="cn">8px</span>; }</div>
+
+  <table class="tbl">
+    <thead><tr><th>Selector</th><th>¿A cuántos elementos aplica?</th><th>¿Cuándo usarlo?</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">#id</span></td><td>Uno solo, único en toda la página</td><td>Elementos irrepetibles: el hero, la barra de navegación, el pie de página.</td></tr>
+      <tr><td><span class="tag">.clase</span></td><td>Todos los que tengan esa clase</td><td>Elementos repetidos: tarjetas, productos, botones.</td></tr>
+      <tr><td><span class="tag">selector selector</span></td><td>Solo los que estén anidados dentro del primero</td><td>Cuando quieres afectar solo el contenido de un bloque específico, sin crear una clase nueva.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ══════════════════════════
+     PARTE 1 — ARCHIVOS Y ESTRUCTURA BASE
+══════════════════════════ -->
+<section class="module" id="p1">
+  <div class="module-header">
+    <div class="module-icon">🏗️</div>
+    <div>
+      <div class="module-title">Parte 1 — Archivos y esqueleto HTML</div>
+      <div class="module-sub">📘 Guiado</div>
+    </div>
+  </div>
+
+  <p>Crea la carpeta <code>barberia-web</code> con <code>index.html</code> y <code>styles.css</code>. El esqueleto es idéntico al de los dos ejercicios anteriores:</p>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="ct">&lt;!DOCTYPE html&gt;</span>
+<span class="ct">&lt;html</span> <span class="ca">lang</span>=<span class="cv">"es"</span><span class="ct">&gt;</span>
+<span class="ct">&lt;head&gt;</span>
+  <span class="ct">&lt;meta</span> <span class="ca">charset</span>=<span class="cv">"UTF-8"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;meta</span> <span class="ca">name</span>=<span class="cv">"viewport"</span> <span class="ca">content</span>=<span class="cv">"width=device-width, initial-scale=1.0"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;meta</span> <span class="ca">name</span>=<span class="cv">"description"</span> <span class="ca">content</span>=<span class="cv">"Barbería El Trébol — cortes clásicos"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;title&gt;</span><span class="cs">Barbería El Trébol</span><span class="ct">&lt;/title&gt;</span>
+  <span class="ct">&lt;link</span> <span class="ca">rel</span>=<span class="cv">"stylesheet"</span> <span class="ca">href</span>=<span class="cv">"styles.css"</span><span class="ct">&gt;</span>
+<span class="ct">&lt;/head&gt;</span>
+<span class="ct">&lt;body&gt;</span>
+  <span class="cc">&lt;!-- todo el contenido va aquí --&gt;</span>
+<span class="ct">&lt;/body&gt;</span>
+<span class="ct">&lt;/html&gt;</span></div>
+
+  <table class="tbl">
+    <thead><tr><th>Línea</th><th>Qué hace</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">&lt;!DOCTYPE html&gt;</span></td><td>Declara HTML5. Siempre la primera línea, sin excepción.</td></tr>
+      <tr><td><span class="tag">lang="es"</span></td><td>Le dice al navegador (y a lectores de pantalla) que el idioma del contenido es español.</td></tr>
+      <tr><td><span class="tag">meta charset="UTF-8"</span></td><td>Permite tildes, ñ y emojis sin caracteres raros. Va primero dentro de <code>&lt;head&gt;</code>.</td></tr>
+      <tr><td><span class="tag">meta viewport</span></td><td>Hace que la página se adapte al ancho de pantallas móviles.</td></tr>
+      <tr><td><span class="tag">meta description</span></td><td>El resumen que Google muestra en los resultados de búsqueda.</td></tr>
+      <tr><td><span class="tag">link rel="stylesheet"</span></td><td>Conecta tu archivo CSS. Sin esto, ningún estilo se aplica.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ══════════════════════════
+     PARTE 2 — NAV + HERO
+══════════════════════════ -->
+<section class="module" id="p2">
+  <div class="module-header">
+    <div class="module-icon">🧭</div>
+    <div>
+      <div class="module-title">Parte 2 — Barra de navegación + Hero</div>
+      <div class="module-sub">📘 Guiado · nav, ul/li, flexbox, justify-content, align-items, opacity, botón como &lt;a&gt;</div>
+    </div>
+  </div>
+
+  <div class="preview">
+    <div class="bb demo-page">
+      <div class="demo-navbar">
+        <span class="logo">💈 El Trébol</span>
+        <ul><li><a href="#">Inicio</a></li><li><a href="#">Servicios</a></li><li><a href="#">Contacto</a></li></ul>
+      </div>
+      <div class="demo-hero">
+        <h1>Estilo que inspira confianza</h1>
+        <p>Cortes clásicos y afeitado tradicional desde 1998</p>
+        <a href="#" class="demo-btn">Reserva tu cita</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="cc">&lt;!-- NAV: usa &lt;ul&gt;+&lt;li&gt; para la lista de enlaces, como en Ej1 --&gt;</span>
+<span class="ct">&lt;nav</span> <span class="ca">id</span>=<span class="cv">"navbar"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;p</span> <span class="ca">class</span>=<span class="cv">"logo"</span><span class="ct">&gt;</span>💈 El Trébol<span class="ct">&lt;/p&gt;</span>
+  <span class="ct">&lt;ul</span> <span class="ca">class</span>=<span class="cv">"nav-links"</span><span class="ct">&gt;</span>
+    <span class="ct">&lt;li&gt;&lt;a</span> <span class="ca">href</span>=<span class="cv">"#inicio"</span><span class="ct">&gt;</span>Inicio<span class="ct">&lt;/a&gt;&lt;/li&gt;</span>
+    <span class="ct">&lt;li&gt;&lt;a</span> <span class="ca">href</span>=<span class="cv">"#servicios"</span><span class="ct">&gt;</span>Servicios<span class="ct">&lt;/a&gt;&lt;/li&gt;</span>
+    <span class="ct">&lt;li&gt;&lt;a</span> <span class="ca">href</span>=<span class="cv">"#contacto"</span><span class="ct">&gt;</span>Contacto<span class="ct">&lt;/a&gt;&lt;/li&gt;</span>
+  <span class="ct">&lt;/ul&gt;</span>
+<span class="ct">&lt;/nav&gt;</span>
+
+<span class="cc">&lt;!-- HERO: main solo puede haber uno; hero es la primera section dentro --&gt;</span>
+<span class="ct">&lt;main&gt;</span>
+  <span class="ct">&lt;section</span> <span class="ca">id</span>=<span class="cv">"inicio"</span> <span class="ca">class</span>=<span class="cv">"hero"</span><span class="ct">&gt;</span>
+    <span class="ct">&lt;h1&gt;</span>Estilo que inspira confianza<span class="ct">&lt;/h1&gt;</span>
+    <span class="ct">&lt;p&gt;</span>Cortes clásicos y afeitado tradicional desde 1998<span class="ct">&lt;/p&gt;</span>
+    <span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"#servicios"</span> <span class="ca">class</span>=<span class="cv">"btn-principal"</span><span class="ct">&gt;</span>Reserva tu cita<span class="ct">&lt;/a&gt;</span>
+  <span class="ct">&lt;/section&gt;</span></div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">#navbar</span> {
+  <span class="ca">display</span>: flex;
+  <span class="ca">justify-content</span>: space-between; <span class="cc">/* logo a la izquierda, menú a la derecha */</span>
+  <span class="ca">align-items</span>: center;         <span class="cc">/* centra todo verticalmente en la barra */</span>
+  <span class="ca">background-color</span>: var(<span class="cv">--negro</span>);
+  <span class="ca">padding</span>: <span class="cn">14px 24px</span>;
+}
+
+<span class="cp">.nav-links</span> {
+  <span class="ca">display</span>: flex;
+  <span class="ca">gap</span>: <span class="cn">16px</span>;
+  <span class="ca">list-style</span>: none; <span class="cc">/* quita los puntos por defecto del &lt;ul&gt; */</span>
+}
+
+<span class="cp">.nav-links a</span> {
+  <span class="ca">color</span>: rgba(<span class="cn">255,255,255,0.8</span>);
+  <span class="ca">text-decoration</span>: none;
+}
+
+<span class="cp">.hero</span> {
+  <span class="ca">background-color</span>: var(<span class="cv">--negro</span>);
+  <span class="ca">color</span>: white;
+  <span class="ca">text-align</span>: center;
+  <span class="ca">padding</span>: <span class="cn">60px 20px</span>;
+}
+
+<span class="cp">.hero p</span> {
+  <span class="ca">opacity</span>: <span class="cn">0.8</span>; <span class="cc">/* aclara el texto sin cambiar el color */</span>
+  <span class="ca">margin-bottom</span>: <span class="cn">20px</span>;
+}
+
+<span class="cc">/* El "botón" es en realidad un &lt;a&gt; disfrazado con display:inline-block */</span>
+<span class="cp">.btn-principal</span> {
+  <span class="ca">display</span>: inline-block; <span class="cc">/* permite darle padding, sin esto un &lt;a&gt; ignora el padding vertical */</span>
+  <span class="ca">background-color</span>: var(<span class="cv">--dorado</span>);
+  <span class="ca">color</span>: var(<span class="cv">--negro</span>);
+  <span class="ca">font-weight</span>: bold;
+  <span class="ca">text-decoration</span>: none;
+  <span class="ca">padding</span>: <span class="cn">12px 28px</span>;
+  <span class="ca">border-radius</span>: <span class="cn">8px</span>;
+  <span class="ca">transition</span>: <span class="cn">opacity 0.2s</span>;
+}
+<span class="cp">.btn-principal:hover</span> { <span class="ca">opacity</span>: <span class="cn">0.85</span>; }</div>
+
+  <table class="tbl">
+    <thead><tr><th>Propiedad</th><th>Qué hace</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">justify-content: space-between;</span></td><td>En un flex container, empuja el primer hijo al inicio y el último al final, repartiendo el espacio sobrante entre ellos.</td></tr>
+      <tr><td><span class="tag">align-items: center;</span></td><td>Centra los hijos en el eje vertical (cuando la fila es horizontal) — soluciona el clásico problema de "centrar verticalmente".</td></tr>
+      <tr><td><span class="tag">list-style: none;</span></td><td>Quita los puntos (•) que el navegador pone por defecto a los <code>&lt;li&gt;</code>.</td></tr>
+      <tr><td><span class="tag">opacity: 0.8;</span></td><td>Transparencia de 0 (invisible) a 1 (sólido). Aquí suaviza el texto sin necesidad de un gris distinto.</td></tr>
+      <tr><td><span class="tag">display: inline-block;</span></td><td>Un <code>&lt;a&gt;</code> normal es "en línea" e ignora <code>padding</code> vertical y <code>width/height</code>. <code>inline-block</code> le permite comportarse como bloque (aceptar padding completo) sin dejar de fluir en línea con el texto.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ══════════════════════════
+     PARTE 3 — GALERÍA (IMG)
+══════════════════════════ -->
+<section class="module" id="p3">
+  <div class="module-header">
+    <div class="module-icon">📸</div>
+    <div>
+      <div class="module-title">Parte 3 — Galería de fotos</div>
+      <div class="module-sub">📘 Guiado · &lt;img&gt;, width: 100%, flexbox</div>
+    </div>
+  </div>
+
+  <div class="preview">
+    <div class="bb demo-page">
+      <div class="demo-body" style="padding-top:16px">
+        <div class="demo-gallery"><div></div><div></div><div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="ct">&lt;section</span> <span class="ca">id</span>=<span class="cv">"galeria"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;h2&gt;</span>Nuestro espacio<span class="ct">&lt;/h2&gt;</span>
+  <span class="ct">&lt;div</span> <span class="ca">class</span>=<span class="cv">"galeria-grid"</span><span class="ct">&gt;</span>
+    <span class="ct">&lt;img</span> <span class="ca">src</span>=<span class="cv">"https://placehold.co/400x300/1c1a17/c9a227?text=Sillón+1"</span> <span class="ca">alt</span>=<span class="cv">"Sillón de corte clásico"</span> <span class="ca">width</span>=<span class="cv">"400"</span> <span class="ca">height</span>=<span class="cv">"300"</span><span class="ct">&gt;</span>
+    <span class="ct">&lt;img</span> <span class="ca">src</span>=<span class="cv">"https://placehold.co/400x300/1c1a17/c9a227?text=Sillón+2"</span> <span class="ca">alt</span>=<span class="cv">"Área de afeitado"</span> <span class="ca">width</span>=<span class="cv">"400"</span> <span class="ca">height</span>=<span class="cv">"300"</span><span class="ct">&gt;</span>
+    <span class="ct">&lt;img</span> <span class="ca">src</span>=<span class="cv">"https://placehold.co/400x300/1c1a17/c9a227?text=Sillón+3"</span> <span class="ca">alt</span>=<span class="cv">"Recepción de la barbería"</span> <span class="ca">width</span>=<span class="cv">"400"</span> <span class="ca">height</span>=<span class="cv">"300"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;/div&gt;</span>
+<span class="ct">&lt;/section&gt;</span></div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">.galeria-grid</span> {
+  <span class="ca">display</span>: flex;
+  <span class="ca">gap</span>: <span class="cn">10px</span>;
+}
+
+<span class="cp">.galeria-grid img</span> {
+  <span class="ca">width</span>: <span class="cn">100%</span>;      <span class="cc">/* cada imagen llena su espacio flex, sin importar su tamaño real */</span>
+  <span class="ca">border-radius</span>: <span class="cn">6px</span>;
+  <span class="ca">border</span>: <span class="cn">3px solid</span> var(<span class="cv">--dorado</span>);
+}</div>
+
+  <table class="tbl">
+    <thead><tr><th>Atributo/Propiedad</th><th>Qué hace</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">alt</span></td><td>Texto alternativo. Obligatorio siempre: describe la imagen para lectores de pantalla y se muestra si la imagen no carga.</td></tr>
+      <tr><td><span class="tag">width / height (HTML)</span></td><td>El tamaño <em>real</em> de la imagen. Evita que la página "salte" mientras la imagen carga, reservando el espacio de antemano.</td></tr>
+      <tr><td><span class="tag">width: 100% (CSS)</span></td><td>Distinto al atributo HTML: aquí hace que la imagen ocupe todo el ancho disponible de <strong>su contenedor flex</strong> (no de la pantalla completa), adaptándose si cambias el <code>gap</code> o agregas más imágenes.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ══════════════════════════
+     PARTE 4 — RETO SERVICIOS
+══════════════════════════ -->
+<section class="module" id="p4">
+  <div class="module-header">
+    <div class="module-icon">✂️</div>
+    <div>
+      <div class="module-title">Parte 4 — Tarjetas de servicios</div>
+      <div class="module-sub">🧩 Reto · flex: 1, span vs p, border-top de acento</div>
+    </div>
+  </div>
+
+  <div class="preview">
+    <div class="bb demo-page">
+      <div class="demo-body">
+        <div class="demo-cards">
+          <div class="demo-card"><div class="icon">✂️</div><h3>Corte clásico</h3><p>Tijera y máquina, incluye lavado.</p></div>
+          <div class="demo-card"><div class="icon">🪒</div><h3>Afeitado</h3><p>Navaja y espuma caliente.</p></div>
+          <div class="demo-card"><div class="icon">🧔</div><h3>Barba</h3><p>Perfilado y aceite incluido.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="reto">
+    <h4>🧩 Tu tarea</h4>
+    <ul>
+      <li>Tres <code>&lt;article class="servicio"&gt;</code> dentro de un <code>&lt;div class="tarjetas"&gt;</code> con <code>display: flex; gap: 20px;</code></li>
+      <li>Ícono en <code>&lt;span class="servicio-icono"&gt;</code> — no en <code>&lt;p&gt;</code> (recuerda la especificidad).</li>
+      <li>Cada tarjeta con <code>flex: 1</code>, <code>padding</code>, <code>border-radius</code> y <code>border-top</code> dorado de acento.</li>
+    </ul>
+    <details class="solucion">
+      <summary>Ver solución</summary>
+      <div class="code-block"><span class="lang">HTML+CSS</span><span class="ct">&lt;article</span> <span class="ca">class</span>=<span class="cv">"servicio"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;span</span> <span class="ca">class</span>=<span class="cv">"servicio-icono"</span><span class="ct">&gt;</span>✂️<span class="ct">&lt;/span&gt;</span>
+  <span class="ct">&lt;h3&gt;</span>Corte clásico<span class="ct">&lt;/h3&gt;</span>
+  <span class="ct">&lt;p&gt;</span>Tijera y máquina, incluye lavado.<span class="ct">&lt;/p&gt;</span>
+<span class="ct">&lt;/article&gt;</span>
+<span class="cc">/* repite para Afeitado y Barba */</span>
+
+<span class="cp">.tarjetas</span> { <span class="ca">display</span>: flex; <span class="ca">gap</span>: <span class="cn">20px</span>; }
+<span class="cp">.servicio</span> { <span class="ca">background</span>: white; <span class="ca">border</span>: <span class="cn">1px solid</span> var(<span class="cv">--borde</span>); <span class="ca">border-top</span>: <span class="cn">3px solid</span> var(<span class="cv">--dorado</span>); <span class="ca">border-radius</span>: <span class="cn">10px</span>; <span class="ca">padding</span>: <span class="cn">20px</span>; <span class="ca">flex</span>: <span class="cn">1</span>; }
+<span class="cp">.servicio-icono</span> { <span class="ca">font-size</span>: <span class="cn">28px</span>; <span class="ca">display</span>: block; <span class="ca">margin-bottom</span>: <span class="cn">8px</span>; }
+<span class="cp">.servicio p</span> { <span class="ca">font-size</span>: <span class="cn">13px</span>; <span class="ca">color</span>: var(<span class="cv">--gris</span>); }</div>
+    </details>
+  </div>
+</section>
+
+<!-- ══════════════════════════
+     PARTE 5 — PRODUCTOS Y PASOS
+══════════════════════════ -->
+<section class="module" id="p5">
+  <div class="module-header">
+    <div class="module-icon">🧴</div>
+    <div>
+      <div class="module-title">Parte 5 — Lista de productos y pasos del servicio</div>
+      <div class="module-sub">🧩 Reto · &lt;ul&gt; con doble clase, &lt;ol&gt; con strong/em</div>
+    </div>
+  </div>
+
+  <p>Esto recrea directamente el patrón de "ingredientes" (lista sin orden, con un elemento destacado de dos clases) y "preparación" (lista con orden, usando <code>strong</code>/<code>em</code>) del Ejercicio 1 — pero con productos de barbería.</p>
+
+  <div class="preview">
+    <div class="bb demo-page">
+      <div class="demo-body">
+        <div class="demo-productos">
+          <ul>
+            <li>Shampoo anticaída</li>
+            <li>Cera modeladora mate</li>
+            <li>Aceite para barba</li>
+            <li class="destacado">Pomada premium El Trébol (edición limitada)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="reto">
+    <h4>🧩 Tu tarea — Lista de productos (ul)</h4>
+    <ul>
+      <li>Una <code>&lt;ul&gt;</code> con 3 <code>&lt;li class="producto"&gt;</code> normales.</li>
+      <li>Un cuarto <code>&lt;li class="producto destacado"&gt;</code> — dos clases en el mismo elemento, separadas por espacio.</li>
+      <li>En CSS, <code>.producto</code> define el estilo base y <code>.destacado</code> agrega color dorado + cursiva + negrita — ambas reglas se combinan en ese último <code>&lt;li&gt;</code>.</li>
+    </ul>
+    <details class="solucion">
+      <summary>Ver solución</summary>
+      <div class="code-block"><span class="lang">HTML+CSS</span><span class="ct">&lt;ul&gt;</span>
+  <span class="ct">&lt;li</span> <span class="ca">class</span>=<span class="cv">"producto"</span><span class="ct">&gt;</span>Shampoo anticaída<span class="ct">&lt;/li&gt;</span>
+  <span class="ct">&lt;li</span> <span class="ca">class</span>=<span class="cv">"producto"</span><span class="ct">&gt;</span>Cera modeladora mate<span class="ct">&lt;/li&gt;</span>
+  <span class="ct">&lt;li</span> <span class="ca">class</span>=<span class="cv">"producto"</span><span class="ct">&gt;</span>Aceite para barba<span class="ct">&lt;/li&gt;</span>
+  <span class="ct">&lt;li</span> <span class="ca">class</span>=<span class="cv">"producto destacado"</span><span class="ct">&gt;</span>Pomada premium El Trébol (edición limitada)<span class="ct">&lt;/li&gt;</span>
+<span class="ct">&lt;/ul&gt;</span>
+
+<span class="cp">.producto</span> { <span class="ca">font-size</span>: <span class="cn">15px</span>; <span class="ca">margin-bottom</span>: <span class="cn">6px</span>; }
+<span class="cp">.destacado</span> { <span class="ca">font-weight</span>: bold; <span class="ca">color</span>: var(<span class="cv">--dorado</span>); <span class="ca">font-style</span>: italic; }</div>
+    </details>
+  </div>
+
+  <div class="reto" style="margin-top:1.25rem">
+    <h4>🧩 Tu tarea — Pasos del servicio (ol)</h4>
+    <ul>
+      <li>Una <code>&lt;ol&gt;</code> con 4 pasos de "cómo es una sesión de corte" (lavado → corte → peinado → producto final).</li>
+      <li>En al menos un paso, usa <code>&lt;strong&gt;</code> para resaltar un tiempo o dato importante, y <code>&lt;em&gt;</code> en otro para dar énfasis.</li>
+    </ul>
+    <details class="solucion">
+      <summary>Ver solución</summary>
+      <div class="code-block"><span class="lang">HTML</span><span class="ct">&lt;ol&gt;</span>
+  <span class="ct">&lt;li&gt;</span>Lavado con shampoo anticaída.<span class="ct">&lt;/li&gt;</span>
+  <span class="ct">&lt;li&gt;</span>Corte a tijera y máquina, aproximadamente <span class="ct">&lt;strong&gt;</span>25 minutos<span class="ct">&lt;/strong&gt;</span>.<span class="ct">&lt;/li&gt;</span>
+  <span class="ct">&lt;li&gt;</span>Peinado con cera, dejando un acabado <span class="ct">&lt;em&gt;</span>natural y mate<span class="ct">&lt;/em&gt;</span>.<span class="ct">&lt;/li&gt;</span>
+  <span class="ct">&lt;li&gt;</span>Toque final con aceite para barba. <span class="ct">&lt;strong&gt;</span>¡Listo!<span class="ct">&lt;/strong&gt;&lt;/li&gt;</span>
+<span class="ct">&lt;/ol&gt;</span></div>
+    </details>
+  </div>
+</section>
+
+<!-- ══════════════════════════
+     PARTE 6 — RESEÑAS (ENLACE EXTERNO)
+══════════════════════════ -->
+<section class="module" id="p6">
+  <div class="module-header">
+    <div class="module-icon">⭐</div>
+    <div>
+      <div class="module-title">Parte 6 — Reseñas y enlace externo</div>
+      <div class="module-sub">🧩 Reto · &lt;a target="_blank" rel="noopener"&gt;</div>
+    </div>
+  </div>
+
+  <div class="reto">
+    <h4>🧩 Tu tarea</h4>
+    <ul>
+      <li>Un párrafo mencionando que tienen buenas reseñas, con <code>&lt;strong&gt;</code> en la calificación (ej. "4.9 de 5 estrellas").</li>
+      <li>Un enlace <code>&lt;a href="..." target="_blank" rel="noopener"&gt;</code> que diga "Ver todas las reseñas en Google" — recuerda por qué siempre van juntos <code>target="_blank"</code> y <code>rel="noopener"</code>.</li>
+    </ul>
+    <details class="solucion">
+      <summary>Ver solución</summary>
+      <div class="code-block"><span class="lang">HTML</span><span class="ct">&lt;p&gt;</span>Tenemos <span class="ct">&lt;strong&gt;</span>4.9 de 5 estrellas<span class="ct">&lt;/strong&gt;</span> en más de 300 reseñas.<span class="ct">&lt;/p&gt;</span>
+<span class="ct">&lt;p&gt;&lt;a</span> <span class="ca">href</span>=<span class="cv">"https://www.google.com/maps"</span> <span class="ca">target</span>=<span class="cv">"_blank"</span> <span class="ca">rel</span>=<span class="cv">"noopener"</span><span class="ct">&gt;</span>Ver todas las reseñas en Google<span class="ct">&lt;/a&gt;&lt;/p&gt;</span></div>
+      <p><strong>Por qué van juntos:</strong> <code>target="_blank"</code> abre el enlace en una pestaña nueva; <code>rel="noopener"</code> es una medida de seguridad que evita que esa pestaña nueva pueda manipular la pestaña original. Se recomienda agregarlo siempre que uses <code>target="_blank"</code>.</p>
+    </details>
+  </div>
+</section>
+
+<!-- ══════════════════════════
+     PARTE 7 — CONTACTO (BOX MODEL + BUGS)
+══════════════════════════ -->
+<section class="module" id="p7">
+  <div class="module-header">
+    <div class="module-icon">📍</div>
+    <div>
+      <div class="module-title">Parte 7 — Contacto</div>
+      <div class="module-sub">🧩 Reto de detective + construcción · address, box model, margin auto vs text-align</div>
+    </div>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ Encuentra el bug antes de seguir</h4>
+    <div class="code-block"><span class="lang">CSS</span><span class="cp">.info-contacto</span> {
+  <span class="ca">background-color</span>: white;
+  <span class="ca">border-left</span>: <span class="cn">4px solid</span> var(<span class="cv">--negro</span>);
+  <span class="ca">padding</span>: <span class="cn">24x</span> <span class="cn">32px</span>;
+}</div>
+    <details class="solucion">
+      <summary>Ver explicación</summary>
+      <p><code>24x</code> no es una unidad válida (falta la <strong>p</strong> de <code>px</code>). CSS descarta toda la declaración <code>padding</code>, así que la caja se queda sin espacio interior en ningún lado. Corrección: <code>padding: 24px 32px;</code></p>
+    </details>
+  </div>
+
+  <div class="reto">
+    <h4>🧩 Tu tarea</h4>
+    <ul>
+      <li><code>&lt;address class="info-contacto"&gt;</code> con teléfono (<code>tel:</code>), correo (<code>mailto:</code>) y dirección — recuerda <code>font-style: normal;</code> porque <code>address</code> es cursiva por defecto.</li>
+      <li><code>.info-contacto</code> con <code>padding</code> correcto, <code>border-left</code> de acento y <code>border-radius</code> solo del lado derecho.</li>
+      <li>Quita el <code>margin-bottom</code> del último párrafo con <code>:last-child</code>.</li>
+      <li>Envuelve toda la sección de contacto en un contenedor con <code>max-width: 700px; margin: 0 auto;</code> para centrarlo en la página.</li>
+    </ul>
+    <details class="solucion">
+      <summary>Ver solución</summary>
+      <div class="code-block"><span class="lang">HTML</span><span class="ct">&lt;address</span> <span class="ca">class</span>=<span class="cv">"info-contacto"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;p&gt;</span>📍 Av. Independencia 88, Centro<span class="ct">&lt;/p&gt;</span>
+  <span class="ct">&lt;p&gt;</span>📞 <span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"tel:2299876543"</span><span class="ct">&gt;</span>229 987 6543<span class="ct">&lt;/a&gt;&lt;/p&gt;</span>
+  <span class="ct">&lt;p&gt;</span>✉️ <span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"mailto:hola@eltrebol.com"</span><span class="ct">&gt;</span>hola@eltrebol.com<span class="ct">&lt;/a&gt;&lt;/p&gt;</span>
+<span class="ct">&lt;/address&gt;</span></div>
+      <div class="code-block"><span class="lang">CSS</span><span class="cp">.contenedor-contacto</span> { <span class="ca">max-width</span>: <span class="cn">700px</span>; <span class="ca">margin</span>: <span class="cn">0 auto</span>; }
+
+<span class="cp">.info-contacto</span> {
+  <span class="ca">font-style</span>: normal;
+  <span class="ca">background-color</span>: white;
+  <span class="ca">border-left</span>: <span class="cn">4px solid</span> var(<span class="cv">--dorado</span>);
+  <span class="ca">border-radius</span>: <span class="cn">0 8px 8px 0</span>;
+  <span class="ca">padding</span>: <span class="cn">20px 28px</span>;
+}
+<span class="cp">.info-contacto p</span> { <span class="ca">margin-bottom</span>: <span class="cn">8px</span>; }
+<span class="cp">.info-contacto p:last-child</span> { <span class="ca">margin-bottom</span>: <span class="cn">0</span>; }</div>
+    </details>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ margin: 0 auto no es lo mismo que text-align: center</h4>
+    <p><code>margin: 0 auto</code> centra el <strong>bloque completo</strong> dentro de su contenedor (necesita un <code>width</code> o <code>max-width</code> para funcionar). <code>text-align: center</code> centra el <strong>texto dentro</strong> del bloque. Puedes necesitar los dos a la vez, para cosas distintas.</p>
+  </div>
+
+  <div class="preview">
+    <div class="bb demo-page">
+      <div class="demo-body">
+        <div class="demo-title">Encuéntranos</div>
+        <div class="demo-underline"></div>
+        <div class="demo-contact">
+          <p>📍 Av. Independencia 88, Centro</p>
+          <p>📞 <a href="#">229 987 6543</a></p>
+          <p>✉️ <a href="#">hola@eltrebol.com</a></p>
+        </div>
+      </div>
+      <div class="demo-footer">© 2025 Barbería El Trébol</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════
+     RETOS FINALES
+══════════════════════════ -->
+<section class="module" id="retos">
+  <div class="module-header">
+    <div class="module-icon">🏆</div>
+    <div>
+      <div class="module-title">Retos finales — arma todo junto</div>
+      <div class="module-sub">Construye barberia-web/index.html con las 7 partes integradas</div>
+    </div>
+  </div>
+
+  <div class="reto-grid">
+    <div class="reto-card">
+      <span class="nivel nivel-f">🟡 Fácil</span>
+      <h4>Reto 1 — Footer completo</h4>
+      <p>Agrega un <code>&lt;footer&gt;</code> con <code>&lt;p&gt;</code> de copyright y un segundo <code>&lt;p&gt;</code> con horario. Dale fondo <code>var(--negro)</code>, texto blanco y <code>text-align: center</code>.</p>
+    </div>
+    <div class="reto-card">
+      <span class="nivel nivel-m">🟠 Medio</span>
+      <h4>Reto 2 — Cuarto servicio</h4>
+      <p>Agrega <strong>💇 Tinte y color</strong> a las tarjetas de servicio sin tocar el CSS de <code>.tarjetas</code> — comprueba que <code>flex: 1</code> reparte el espacio solo.</p>
+    </div>
+    <div class="reto-card">
+      <span class="nivel nivel-a">🔴 Avanzado</span>
+      <h4>Reto 3 — Barbero destacado</h4>
+      <p>Agrega una sección "Nuestro equipo" con 2 <code>&lt;article&gt;</code> (nombre + especialidad). Al primero agrégale clase extra <code>"top"</code> y en CSS <code>.barbero.top</code> con <code>border: 2px solid var(--dorado)</code> y una etiqueta "★ Más solicitado" con <code>&lt;span&gt;</code>.</p>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>✅ Checklist final</h4>
+    <ul>
+      <li>Solo hay un <code>&lt;main&gt;</code> en toda la página.</li>
+      <li>Todos los íconos de tarjetas miden igual (span, no p).</li>
+      <li>La caja de contacto tiene padding visible en los 4 lados.</li>
+      <li>El enlace externo de reseñas tiene <code>target="_blank"</code> y <code>rel="noopener"</code> juntos.</li>
+      <li>La lista de productos tiene un elemento con dos clases funcionando a la vez.</li>
+      <li>Usaste al menos un selector de ID, uno de clase y uno descendiente.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ══════════════════════════
+     GLOSARIO
+══════════════════════════ -->
+<section class="module" id="glosario">
+  <div class="module-header">
+    <div class="module-icon">📋</div>
+    <div>
+      <div class="module-title">Glosario final combinado</div>
+      <div class="module-sub">Las 33 etiquetas y propiedades reales de los Ejercicios 1 y 2 — qué son y para qué sirven</div>
+    </div>
+  </div>
+
+  <h3 style="font-size:1.05rem;font-weight:700;margin:1.2rem 0 .6rem">📗 Del Ejercicio 1 (fundamentos)</h3>
+  <div class="glos">
+    <div class="glos-item"><span class="etq">&lt;header&gt;</span>
+      <p>Encabezado de la página o de una sección: título y datos generales. Va una vez, arriba de todo.</p>
+      <span class="ejemplo">&lt;header&gt;&lt;h1&gt;Tacos&lt;/h1&gt;&lt;/header&gt;</span>
+    </div>
+    <div class="glos-item"><span class="etq">&lt;section id="..."&gt;</span>
+      <p>Agrupa contenido relacionado con su propio tema, como un capítulo de un libro. El <code>id</code> sirve para enlazarlo con <code>#id</code>.</p>
+      <span class="ejemplo">&lt;section id="ingredientes"&gt;...&lt;/section&gt;</span>
+    </div>
+    <div class="glos-item"><span class="etq">&lt;footer&gt;</span>
+      <p>Pie de página — información de cierre. Va una vez, al final.</p>
+    </div>
+    <div class="glos-item"><span class="etq">&lt;h1&gt; / &lt;h2&gt;</span>
+      <p><code>&lt;h1&gt;</code>: el título más importante, solo uno por página. <code>&lt;h2&gt;</code>: subtítulos de cada sección.</p>
+    </div>
+    <div class="glos-item"><span class="etq">&lt;p&gt;</span>
+      <p>Párrafo de texto. Crea espacio arriba/abajo automáticamente — es un elemento de bloque.</p>
+    </div>
+    <div class="glos-item"><span class="etq">&lt;ul&gt; / &lt;ol&gt; / &lt;li&gt;</span>
+      <p><code>&lt;ul&gt;</code>: lista SIN orden importante (viñetas •). <code>&lt;ol&gt;</code>: lista CON orden (1, 2, 3...). <code>&lt;li&gt;</code>: cada elemento de cualquiera de las dos.</p>
+      <span class="ejemplo">&lt;ol&gt;&lt;li&gt;Paso 1&lt;/li&gt;&lt;/ol&gt;</span>
+    </div>
+    <div class="glos-item"><span class="etq">&lt;li class="a b"&gt;</span>
+      <p>Un <code>&lt;li&gt;</code> puede llevar una sola clase o dos a la vez, separadas por espacio — cada una aportando su propio estilo en el CSS.</p>
+      <span class="ejemplo">&lt;li class="servicio destacado"&gt;...&lt;/li&gt;</span>
+    </div>
+    <div class="glos-item"><span class="etq">&lt;img&gt;</span>
+      <p>Muestra una imagen. <code>src</code> = la ruta/URL. <code>alt</code> = texto alternativo si no carga (nunca lo omitas). <code>width/height</code> = tamaño, evita que la página "salte" al cargar.</p>
+      <span class="ejemplo">&lt;img src="foto.jpg" alt="Tacos" width="600" height="350"&gt;</span>
+    </div>
+    <div class="glos-item"><span class="etq">&lt;a href="..."&gt;</span>
+      <p>Enlace. Puede apuntar a otra página, a un sitio externo, o (como verás abajo) a un teléfono, correo o sección de la misma página.</p>
+    </div>
+    <div class="glos-item"><span class="etq">target="_blank" + rel="noopener"</span>
+      <p><code>target="_blank"</code> abre el enlace en una pestaña nueva. <code>rel="noopener"</code> es una medida de seguridad que siempre debe acompañarlo.</p>
+      <span class="ejemplo">&lt;a href="..." target="_blank" rel="noopener"&gt;</span>
+    </div>
+    <div class="glos-item"><span class="etq">&lt;span&gt;</span>
+      <p>Contenedor en línea (no hace salto de línea) sin apariencia propia. Se usa para rodear una parte de un texto y darle estilo distinto sin afectar el resto del párrafo.</p>
+      <span class="ejemplo">&lt;p&gt;&lt;span class="tiempo"&gt;⏱ 30 min&lt;/span&gt;&lt;/p&gt;</span>
+    </div>
+    <div class="glos-item"><span class="etq">&lt;strong&gt; / &lt;em&gt;</span>
+      <p><code>&lt;strong&gt;</code>: marca importancia (negrita). <code>&lt;em&gt;</code>: marca énfasis (cursiva). No son solo estilo visual, también tienen significado.</p>
+    </div>
+    <div class="glos-item"><span class="etq">selector de ID (#nombre)</span>
+      <p>Apunta a un único elemento con ese <code>id</code>. Tiene más especificidad (más "fuerza") que un selector de clase.</p>
+      <span class="ejemplo">#encabezado { color: red; }</span>
+    </div>
+    <div class="glos-item"><span class="etq">selector de clase (.nombre)</span>
+      <p>Apunta a TODOS los elementos que tengan esa clase, sin importar cuántos haya en la página.</p>
+      <span class="ejemplo">.tarjeta { padding: 16px; }</span>
+    </div>
+    <div class="glos-item"><span class="etq">selector descendiente (#id p)</span>
+      <p>Aplica solo a los <code>&lt;p&gt;</code> que estén DENTRO del elemento con ese id — más específico que una clase suelta.</p>
+      <span class="ejemplo">#contacto p { margin-bottom: 8px; }</span>
+    </div>
+    <div class="glos-item"><span class="etq">selector múltiple (a, b, c { })</span>
+      <p>Aplica la misma regla a varios selectores distintos a la vez, separados por comas, para no repetir código.</p>
+      <span class="ejemplo">h1, h2, .titulo { font-weight: 700; }</span>
+    </div>
+    <div class="glos-item"><span class="etq">font-family / font-size / color / background-color</span>
+      <p>Las 4 propiedades básicas de texto y color: tipografía, tamaño del texto, color del texto y color de fondo.</p>
+    </div>
+    <div class="glos-item"><span class="etq">text-align / text-transform / letter-spacing / text-decoration</span>
+      <p>Alineación (left/center/right), forzar mayúsculas/minúsculas, espacio entre letras, y subrayado o quitarlo — muy usado en enlaces.</p>
+    </div>
+    <div class="glos-item"><span class="etq">line-height / border / border-radius / border-bottom</span>
+      <p>Espacio vertical entre líneas, borde completo alrededor, esquinas redondeadas, o borde solo en la parte de abajo.</p>
+    </div>
+    <div class="glos-item"><span class="etq">margin: 0 auto / max-width</span>
+      <p>Centra un bloque horizontalmente, siempre que tenga un <code>max-width</code> definido — sin eso, <code>margin: 0 auto</code> no tiene efecto.</p>
+    </div>
+    <div class="glos-item"><span class="etq">a:hover</span>
+      <p>Estilo que se aplica SOLO mientras el mouse está encima del enlace — nunca se ve en una captura de pantalla, solo al interactuar.</p>
+    </div>
+  </div>
+
+  <h3 style="font-size:1.05rem;font-weight:700;margin:1.5rem 0 .6rem">📘 Del Ejercicio 2 (semántica y Box Model)</h3>
+  <div class="glos">
+    <div class="glos-item"><span class="etq">&lt;nav&gt;</span>
+      <p>Agrupa los enlaces de navegación principal del sitio — no cualquier lista de links, sino específicamente el menú.</p>
+    </div>
+    <div class="glos-item"><span class="etq">&lt;main&gt;</span>
+      <p>El contenido único e importante de la página. <strong>Solo puede haber uno por página</strong> — tener dos es un error semántico.</p>
+    </div>
+    <div class="glos-item"><span class="etq">&lt;div&gt;</span>
+      <p>Caja genérica, sin significado propio. Úsala solo cuando necesitas agrupar visualmente algo que no encaja como sección, artículo o dato de contacto.</p>
+    </div>
+    <div class="glos-item"><span class="etq">&lt;article&gt;</span>
+      <p>Contenido que tendría sentido por sí solo, fuera de esta página (ej. una tarjeta de servicio, una noticia).</p>
+    </div>
+    <div class="glos-item"><span class="etq">&lt;address&gt;</span>
+      <p>Datos de contacto de un negocio o persona. El navegador la muestra en cursiva por defecto, sin que tú lo pidas.</p>
+    </div>
+    <div class="glos-item"><span class="etq">href="tel:..."</span>
+      <p>En celular, ofrece llamar directamente al número al tocar el enlace.</p>
+      <span class="ejemplo">&lt;a href="tel:2291234567"&gt;229...&lt;/a&gt;</span>
+    </div>
+    <div class="glos-item"><span class="etq">href="mailto:..."</span>
+      <p>Abre el programa de correo del usuario con esa dirección ya escrita.</p>
+      <span class="ejemplo">&lt;a href="mailto:hola@negocio.com"&gt;</span>
+    </div>
+    <div class="glos-item"><span class="etq">href="#id"</span>
+      <p>Enlace de ancla: hace que la página salte hasta el elemento que tenga ese mismo <code>id</code>.</p>
+      <span class="ejemplo">&lt;a href="#contacto"&gt;Contacto&lt;/a&gt;</span>
+    </div>
+    <div class="glos-item invisible"><span class="etq">box-sizing: border-box</span>
+      <p>Hace que <code>padding</code> y <code>border</code> se cuenten DENTRO del <code>width</code>, no que se sumen. Nunca "se ve" directamente, pero si falta, todos tus anchos se descuadran.</p>
+    </div>
+    <div class="glos-item"><span class="etq">margin / padding shorthand</span>
+      <p>Varios valores en una línea: 4 valores = arriba derecha abajo izquierda; 2 valores = vertical horizontal.</p>
+      <span class="ejemplo">padding: 24px 32px;</span>
+    </div>
+    <div class="glos-item"><span class="etq">margin: 0 auto</span>
+      <p>Centra un bloque horizontalmente, siempre que tenga <code>max-width</code> definido.</p>
+    </div>
+    <div class="glos-item"><span class="etq">max-width</span>
+      <p>Límite de ancho para que el contenido no se estire demasiado en pantallas grandes.</p>
+    </div>
+    <div class="glos-item invisible"><span class="etq">:root + variables</span>
+      <p>Declara valores reutilizables (colores, medidas). Por sí sola, <strong>no pinta nada</strong> — solo guarda el valor.</p>
+    </div>
+    <div class="glos-item"><span class="etq">var(--nombre)</span>
+      <p>Así USAS una variable ya declarada en <code>:root</code>. Sin esto, la variable existe pero no hace nada.</p>
+    </div>
+    <div class="glos-item"><span class="etq">selector descendiente (.clase p)</span>
+      <p>Aplica solo a los <code>&lt;p&gt;</code> que estén DENTRO de <code>.clase</code>. Más específico que una clase sola.</p>
+    </div>
+    <div class="glos-item"><span class="etq">list-style: none</span>
+      <p>Quita las viñetas (•) de una lista <code>&lt;ul&gt;</code>.</p>
+    </div>
+    <div class="glos-item"><span class="etq">display: flex</span>
+      <p>Convierte al elemento en un contenedor que acomoda a sus hijos en fila. Por sí solo NO reparte espacio ni separa.</p>
+    </div>
+    <div class="glos-item"><span class="etq">gap</span>
+      <p>Espacio ENTRE elementos flex, sin usar margin.</p>
+    </div>
+    <div class="glos-item"><span class="etq">flex: 1</span>
+      <p>Le dice a un hijo flex "reparte el espacio sobrante en partes iguales" — por eso varias tarjetas terminan midiendo lo mismo.</p>
+    </div>
+    <div class="glos-item"><span class="etq">justify-content / align-items</span>
+      <p><code>justify-content</code> alinea los hijos flex en el eje principal (horizontal, si es fila). <code>align-items</code> los alinea en el eje cruzado (vertical, si es fila).</p>
+    </div>
+    <div class="glos-item"><span class="etq">width: 100% / opacity</span>
+      <p><code>width: 100%</code> ocupa todo el ancho disponible del contenedor. <code>opacity</code> controla la transparencia — de 0 (invisible) a 1 (sólido).</p>
+    </div>
+    <div class="glos-item"><span class="etq">border-top / border-left</span>
+      <p>Acento de color en un solo lado — muy usado en tarjetas.</p>
+    </div>
+    <div class="glos-item"><span class="etq">border-radius parcial</span>
+      <p><code>0 8px 8px 0</code> redondea solo un lado — combina bien con un <code>border-left</code> de acento en el lado opuesto.</p>
+    </div>
+    <div class="glos-item"><span class="etq">display: inline-block</span>
+      <p>Hace que un elemento se comporte como texto en línea pero acepte <code>width</code>, <code>height</code>, <code>padding</code> y <code>margin</code> como una caja de verdad.</p>
+    </div>
+    <div class="glos-item invisible"><span class="etq">transition</span>
+      <p>Anima el cambio entre dos estados (ej. antes/después de <code>:hover</code>). Es invisible hasta que interactúas — nunca se ve en una captura de pantalla.</p>
+    </div>
+    <div class="glos-item"><span class="etq">:last-child</span>
+      <p>Selecciona solo el último hijo de su tipo — útil para quitar el <code>margin-bottom</code> extra del último elemento de una lista.</p>
+    </div>
+    <div class="glos-item"><span class="etq">Especificidad CSS (span vs p)</span>
+      <p>Cuando dos reglas compiten por el mismo elemento, gana la más específica. Un selector de clase en un <code>&lt;span&gt;</code> le gana a un selector de etiqueta como <code>p</code>, aunque el <code>p</code> esté escrito después en el archivo.</p>
+    </div>
+  </div>
+
+  <div class="concept" style="margin-top:1.5rem">
+    <h4>💡 ¿Qué sigue?</h4>
+    <p>Con este repaso ya dominas fundamentos, semántica, Box Model, Flexbox básico y especificidad. El siguiente salto natural es Flexbox a fondo (columnas, wrap, orden) y después CSS Grid para layouts de dos y tres columnas más complejos.</p>
+  </div>
+</section>
+
+</main>
+
+<footer style="text-align:center; padding: 1.5rem; color: var(--muted); font-size: .85rem;">
+  Ejercicio 4 — Repaso Completo: Barbería · HTML &amp; CSS · Hugo 2025
+</footer>
+
+</body>
+</html>

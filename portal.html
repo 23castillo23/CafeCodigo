@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1a1814">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Café </> · Portal</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cafe-bg: #f7f4ef;
+    --cafe-ink: #1a1814;
+    --cafe-accent: #c44a2a;
+    --cafe-accent-soft: #fdf0ec;
+
+    --apoyo-bg: #14121a;
+    --apoyo-bg2: #1c1826;
+    --apoyo-ink: #f1eef7;
+    --apoyo-accent: #5b4ab7;
+    --apoyo-accent-soft: #b4aef5;
+
+    --datos-bg: #0a1420;
+    --datos-bg2: #0f1e30;
+    --datos-ink: #eaf2fb;
+    --datos-accent: #1a5fa5;
+    --datos-accent-soft: #86bef5;
+
+    --font-title: 'Fraunces', serif;
+    --font-body: 'DM Sans', sans-serif;
+    --font-code: 'DM Mono', monospace;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin:0; padding:0; height:100%; }
+  body{ font-family: var(--font-body); overflow: hidden; }
+
+  /* ============ BARRA SUPERIOR ============ */
+  .topbar{
+    height: 60px;
+    background: var(--cafe-ink);
+    color: #f7f4ef;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap: 10px;
+    font-family: var(--font-title);
+    font-weight:700;
+    font-size:15px;
+    letter-spacing:.01em;
+  }
+  .topbar span{
+    font-family: var(--font-code);
+    font-weight:400;
+    font-size:11px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color: rgba(247,244,239,.45);
+  }
+
+  .portal{
+    display:flex;
+    width:100vw;
+    height: calc(100vh - 60px);
+  }
+
+  /* ============ LADOS (base) ============ */
+  .side{
+    position:relative;
+    flex: 1;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    padding: 0 4.5vw;
+    overflow:hidden;
+    transition: flex 0.55s cubic-bezier(.22,.61,.36,1);
+    cursor:pointer;
+    text-decoration:none;
+  }
+
+  /* hover: el lado activo crece, los otros dos ceden parejo */
+  .portal:has(.side-cafe:hover) .side-cafe { flex: 1.7; }
+  .portal:has(.side-cafe:hover) .side-apoyo,
+  .portal:has(.side-cafe:hover) .side-datos { flex: 0.65; }
+
+  .portal:has(.side-apoyo:hover) .side-apoyo { flex: 1.7; }
+  .portal:has(.side-apoyo:hover) .side-cafe,
+  .portal:has(.side-apoyo:hover) .side-datos { flex: 0.65; }
+
+  .portal:has(.side-datos:hover) .side-datos { flex: 1.7; }
+  .portal:has(.side-datos:hover) .side-cafe,
+  .portal:has(.side-datos:hover) .side-apoyo { flex: 0.65; }
+
+  /* ---- Café (ruta principal) ---- */
+  .side-cafe{ background: var(--cafe-bg); color: var(--cafe-ink); }
+  .side-cafe .badge{ background: var(--cafe-accent-soft); color: var(--cafe-accent); }
+  .side-cafe .cta{ background: var(--cafe-accent); color: #fff; }
+  .side-cafe .cta:hover{ background: #a33b21; }
+  .side-cafe .deco{ stroke: var(--cafe-accent); opacity:.28; }
+
+  /* ---- Aprendizaje / apoyo ---- */
+  .side-apoyo{
+    background: linear-gradient(165deg, var(--apoyo-bg) 55%, var(--apoyo-bg2));
+    color: var(--apoyo-ink);
+  }
+  .side-apoyo .badge{ background: rgba(91,74,183,0.25); color: var(--apoyo-accent-soft); border:1px solid rgba(91,74,183,0.35); }
+  .side-apoyo .cta{ background: var(--apoyo-accent); color:#fff; }
+  .side-apoyo .cta:hover{ background:#463894; }
+  .side-apoyo .deco{ stroke: var(--apoyo-accent-soft); opacity:.3; }
+
+  /* ---- Datos curiosos ---- */
+  .side-datos{
+    background: linear-gradient(160deg, var(--datos-bg) 55%, var(--datos-bg2));
+    color: var(--datos-ink);
+  }
+  .side-datos .badge{ background: rgba(26,95,165,0.25); color: var(--datos-accent-soft); border:1px solid rgba(26,95,165,0.35); }
+  .side-datos .cta{ background: var(--datos-accent); color:#fff; }
+  .side-datos .cta:hover{ background:#134a83; }
+  .side-datos .deco{ stroke: var(--datos-accent-soft); opacity:.35; }
+
+  /* ============ CONTENIDO ============ */
+  .badge{
+    font-family: var(--font-code);
+    font-size: 10.5px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    padding: 4px 11px;
+    border-radius: 999px;
+    margin-bottom: 16px;
+    width: fit-content;
+  }
+  .titulo{
+    font-family: var(--font-title);
+    font-weight:700;
+    font-size: clamp(24px, 2.6vw, 38px);
+    line-height:1.05;
+    margin: 0 0 10px;
+  }
+  .subtitulo{
+    font-family: var(--font-title);
+    font-style: italic;
+    font-weight:400;
+    font-size: clamp(13px,1.1vw,15px);
+    margin: 0 0 12px;
+    opacity:.8;
+  }
+  .desc{
+    font-size: 13.5px;
+    line-height:1.6;
+    max-width: 300px;
+    opacity:.75;
+    margin-bottom: 24px;
+  }
+  .cta{
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 11px 20px;
+    border-radius: 999px;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    transition: background .15s, transform .15s;
+    width: fit-content;
+  }
+  .side:hover .cta{ transform: translateX(4px); }
+
+  .deco-wrap{ position:absolute; inset:0; pointer-events:none; opacity:0; transition: opacity .4s; }
+  .side:hover .deco-wrap{ opacity:1; }
+  .deco-wrap{ right:-30px; width:260px; }
+
+  /* ============ MOBILE ============ */
+  @media (max-width: 820px){
+    .portal{ flex-direction:column; height:auto; overflow-y:auto; }
+    html, body{ overflow:auto; }
+    .side, .portal:has(.side-cafe:hover) .side-cafe,
+    .portal:has(.side-apoyo:hover) .side-apoyo,
+    .portal:has(.side-datos:hover) .side-datos,
+    .portal:has(.side-cafe:hover) .side-apoyo,
+    .portal:has(.side-cafe:hover) .side-datos,
+    .portal:has(.side-apoyo:hover) .side-cafe,
+    .portal:has(.side-apoyo:hover) .side-datos,
+    .portal:has(.side-datos:hover) .side-cafe,
+    .portal:has(.side-datos:hover) .side-apoyo{
+      flex: none !important;
+      padding: 8vh 8vw;
+    }
+    .desc{ max-width:none; }
+  }
+
+  @media (prefers-reduced-motion: reduce){ .side{ transition:none; } }
+</style>
+</head>
+<body>
+
+  <div class="topbar">☕ Café&nbsp;&lt;/&gt; <span>· elige tu camino</span></div>
+
+  <div class="portal">
+
+    <a href="capitulos.html?mundo=cafe&tab=capitulos" class="side side-cafe">
+      <div class="deco-wrap">
+        <svg class="deco" width="260" height="100%" viewBox="0 0 260 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M230 780 C210 740, 250 720, 230 680 C210 640, 250 620, 230 580" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="230" cy="140" r="70" stroke-width="1.5"/>
+        </svg>
+      </div>
+      <span class="badge">📚 RUTA PRINCIPAL</span>
+      <h1 class="titulo">Café&nbsp;&lt;/&gt;</h1>
+      <p class="subtitulo">HTML, CSS y JavaScript, paso a paso.</p>
+      <p class="desc">Capítulos, guías y ejercicios del camino principal de programación.</p>
+      <span class="cta">Entrar a los capítulos →</span>
+    </a>
+
+    <a href="capitulos.html?mundo=aprendizaje&tab=adicionales" class="side side-apoyo">
+      <div class="deco-wrap">
+        <svg class="deco" width="260" height="100%" viewBox="0 0 260 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="60" y="200" width="40" height="40" rx="4" stroke-width="1.5"/>
+          <rect x="130" y="260" width="40" height="40" rx="4" stroke-width="1.5"/>
+          <path d="M100 220 h30" stroke-width="1.5"/>
+          <path d="M60 400 l40 30 l-40 30" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <span class="badge">🧩 HABILIDADES DE APOYO</span>
+      <h1 class="titulo">Aprendizaje</h1>
+      <p class="subtitulo">Lo que no es HTML/CSS/JS, pero hace falta.</p>
+      <p class="desc">Terminal, Git y control de versiones, bases de datos y herramientas — fuera de la ruta principal, pero necesarias.</p>
+      <span class="cta">Ver habilidades →</span>
+    </a>
+
+    <a href="capitulos.html?mundo=datos&tab=datoscuriosos" class="side side-datos">
+      <div class="deco-wrap">
+        <svg class="deco" width="260" height="100%" viewBox="0 0 260 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 200 h50 v40 h40 v-80 h50" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="70" cy="200" r="4" fill="currentColor"/>
+          <circle cx="110" cy="240" r="4" fill="currentColor"/>
+        </svg>
+      </div>
+      <span class="badge">🧠 CURIOSIDAD</span>
+      <h1 class="titulo">Datos curiosos</h1>
+      <p class="subtitulo">Lo que hay detrás de la pantalla.</p>
+      <p class="desc">Hardware y arquitectura de computadoras, sin código y sin memorizar. Solo curiosidad.</p>
+      <span class="cta">Explorar →</span>
+    </a>
+
+  </div>
+
+  <script src="js/auth-guard.js"></script>
+</body>
+</html>
