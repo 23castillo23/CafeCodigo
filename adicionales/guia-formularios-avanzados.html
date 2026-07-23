@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía Formularios Avanzados — Café </></title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #c44a2a;
+    --primary-light:  #fdf0ec;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --danger:         #c44a2a;
+    --danger-light:   #fdf0ec;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1a1814;
+    --code-text:      #e8e4de;
+  }
+
+  body { font-family: 'DM Sans', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  .cafe-bar { background:#ffffff; border-bottom:1px solid #e8e4de; padding:0 24px; display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:200; height:45px; }
+  .cafe-bar a { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:#8a8480; text-decoration:none; padding:6px 14px; border:1px solid #e8e4de; border-radius:999px; transition:all 0.15s; }
+  .cafe-bar a:hover { color:#1a1814; border-color:#8a8480; }
+  .cafe-bar span { font-size:13px; color:#8a8480; }
+
+  header { background: #1a1814; color: #f7f4ef; padding: 3rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: '<>'; position: absolute; font-size: 14rem; font-weight: 900; color: rgba(255,255,255,0.04); right: -2rem; top: -3rem; font-family: monospace; line-height: 1; }
+  header h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; font-family: 'Fraunces', serif; }
+  header p { font-size: 1.1rem; opacity: .85; margin-top: .5rem; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 45px; z-index: 100; display: flex; overflow-x: auto; gap: 0; }
+  nav a { flex-shrink: 0; padding: .75rem 1rem; text-decoration: none; color: var(--muted); font-size: .78rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2.5rem; scroll-margin-top:100px; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-size: 1.35rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  .analogy { background: #FFF7ED; border: 1px solid #FDE68A; border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: #92400E; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; color: #78350F; }
+
+  .concept { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p, .tip ul { font-size: .95rem; }
+  .tip ul { padding-left: 1.2rem; }
+
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  .code-block { background: var(--code-bg); color: var(--code-text); border-radius: 10px; padding: 1.25rem 1.5rem; font-family: 'DM Mono', 'Courier New', monospace; font-size: .88rem; line-height: 1.85; overflow-x: auto; margin: 1rem 0; position: relative; white-space: pre; }
+  .code-block .ct { color: #89B4FA; }
+  .code-block .ca { color: #CBA6F7; }
+  .code-block .cv { color: #A6E3A1; }
+  .code-block .cs { color: #F9E2AF; }
+  .code-block .cp { color: #89DCEB; }
+  .code-block .cc { color: #585B70; font-style: italic; }
+  .code-block .cn { color: #FAB387; }
+  .lang { position: absolute; top: .6rem; right: .75rem; background: rgba(255,255,255,.1); color: rgba(255,255,255,.5); font-size: .68rem; padding: 2px 8px; border-radius: 4px; font-family: sans-serif; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+  .kbd { display: inline-block; background: #f0ece6; border: 1px solid var(--border); border-bottom: 2px solid #ccc; border-radius: 5px; font-family: 'DM Mono', monospace; font-size: .8rem; padding: 1px 8px; color: var(--text); }
+
+  .ex { background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 12px; padding: 1.5rem; margin: 1.5rem 0; }
+  .ex-hd { display: flex; align-items: center; gap: .75rem; margin-bottom: 1rem; font-weight: 700; font-size: 1rem; color: #78350F; flex-wrap: wrap; }
+  .ex-badge { background: var(--accent); color: #fff; font-size: .68rem; padding: 2px 9px; border-radius: 20px; font-weight: 700; text-transform: uppercase; }
+  .ex ol { padding-left: 1.4rem; }
+  .ex ol li { margin-bottom: .6rem; font-size: .95rem; }
+  .ex p { font-size: .95rem; margin-bottom: .6rem; }
+
+  .glos { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .glos-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; }
+  .glos-item dt { font-weight: 700; color: var(--primary); font-size: .92rem; margin-bottom: .3rem; }
+  .glos-item dd { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+  .glos-item .emoji { font-size: 1.3rem; display: block; margin-bottom: .3rem; }
+
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: white; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  .steps { counter-reset: steps; }
+  .step { display: flex; gap: 1rem; margin-bottom: 1rem; align-items: flex-start; }
+  .step::before { counter-increment: steps; content: counter(steps); background: var(--primary); color: white; font-size: .78rem; font-weight: 700; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: .2rem; font-family: 'DM Mono', monospace; }
+  .step p { font-size: .95rem; margin: 0; }
+
+  h2 { font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; color: var(--text); }
+  h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 .5rem; }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: #f0ece6; color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+  strong { font-weight: 700; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); }
+</style>
+</head>
+<body>
+
+<div class="cafe-bar">
+  <a href="../capitulos.html?tab=adicionales">← Volver a Guías Adicionales</a>
+  <span>📝 Guía Formularios Avanzados</span>
+</div>
+
+<header>
+  <h1>Formularios Avanzados</h1>
+  <p>Validación nativa, patrones y los atributos que casi nadie usa</p>
+  <span class="badge">✦ Guía adicional · HTML ✦</span>
+</header>
+
+<nav>
+  <a href="#intro">🎯 Intro</a>
+  <a href="#validacion-nativa">✅ Validación nativa</a>
+  <a href="#atributos">🧩 Atributos poco usados</a>
+  <a href="#pseudo-clases">🎨 Pseudo-clases</a>
+  <a href="#js-api">⚙️ Constraint API</a>
+</nav>
+
+<main>
+
+<div class="parte-badge">📝 Guía adicional — HTML, CSS y JavaScript</div>
+
+<!-- ═══════════════════════════════════════════
+     INTRO
+═══════════════════════════════════════════ -->
+<section class="module" id="intro">
+  <div class="module-header">
+    <div class="module-icon">🎯</div>
+    <div>
+      <div class="module-title">Introducción — más allá del &lt;input&gt; básico</div>
+      <div class="module-sub">Por qué un formulario "bien hecho" no necesita casi JavaScript</div>
+    </div>
+  </div>
+
+  <p>Ya sabes crear un <code>&lt;form&gt;</code> con <code>&lt;input&gt;</code> y un botón de enviar. Esta guía va un paso más allá: cómo hacer que el propio navegador valide los datos por ti, sin escribir una sola línea de JavaScript para los casos más comunes — y cómo tomar el control con JS solo cuando de verdad lo necesitas.</p>
+
+  <div class="concept">
+    <h4>💡 Lo que vas a aprender</h4>
+    <p>La validación nativa de HTML5 (<code>required</code>, <code>pattern</code>, tipos de <code>input</code>), atributos que mejoran mucho la experiencia y casi nadie conoce, cómo diseñar los estados de error con CSS puro, y cómo personalizar los mensajes de error con la Constraint Validation API de JavaScript.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     VALIDACIÓN NATIVA
+═══════════════════════════════════════════ -->
+<section class="module" id="validacion-nativa">
+  <div class="module-header">
+    <div class="module-icon">✅</div>
+    <div>
+      <div class="module-title">Validación nativa de HTML5</div>
+      <div class="module-sub">El navegador ya sabe validar — solo hay que decirle las reglas</div>
+    </div>
+  </div>
+
+  <p>Antes de escribir JavaScript para "revisar" que un campo esté bien lleno, recuerda que HTML ya trae un sistema de validación integrado. Se activa solo con atributos.</p>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="ct">&lt;form&gt;</span>
+  <span class="ct">&lt;label&gt;</span>Correo: <span class="ct">&lt;/label&gt;</span>
+  <span class="ct">&lt;input</span> <span class="ca">type</span>=<span class="cs">"email"</span> <span class="ca">required</span> <span class="ca">placeholder</span>=<span class="cs">"tucorreo@ejemplo.com"</span><span class="ct">&gt;</span>
+
+  <span class="ct">&lt;label&gt;</span>Edad: <span class="ct">&lt;/label&gt;</span>
+  <span class="ct">&lt;input</span> <span class="ca">type</span>=<span class="cs">"number"</span> <span class="ca">min</span>=<span class="cs">"18"</span> <span class="ca">max</span>=<span class="cs">"99"</span> <span class="ca">required</span><span class="ct">&gt;</span>
+
+  <span class="ct">&lt;button&gt;</span>Enviar<span class="ct">&lt;/button&gt;</span>
+<span class="ct">&lt;/form&gt;</span>
+</div>
+
+  <p>Con solo <code>type="email"</code> y <code>required</code>, el navegador ya rechaza correos mal escritos y campos vacíos — sin una línea de JavaScript.</p>
+
+  <table class="tbl">
+    <tr><th>Atributo</th><th>Qué hace</th></tr>
+    <tr><td><span class="tag">required</span></td><td>El campo no puede quedar vacío.</td></tr>
+    <tr><td><span class="tag">min / max</span></td><td>Rango permitido para números y fechas.</td></tr>
+    <tr><td><span class="tag">minlength / maxlength</span></td><td>Rango permitido de caracteres en texto.</td></tr>
+    <tr><td><span class="tag">type="email"</span></td><td>Exige el formato de un correo válido.</td></tr>
+    <tr><td><span class="tag">pattern</span></td><td>Exige que el valor cumpla una expresión regular.</td></tr>
+  </table>
+
+  <div class="analogy">
+    <h4>🚪 Analogía: el portero del club</h4>
+    <p>La validación nativa es como un portero en la puerta: revisa que cumplas las reglas básicas (identificación, código de vestimenta) antes de dejarte pasar. No necesitas contratar a alguien más adentro (JavaScript) para revisar lo mismo otra vez — el portero ya filtró lo obvio.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     ATRIBUTOS POCO USADOS
+═══════════════════════════════════════════ -->
+<section class="module" id="atributos">
+  <div class="module-header">
+    <div class="module-icon">🧩</div>
+    <div>
+      <div class="module-title">Atributos poco usados (pero muy útiles)</div>
+      <div class="module-sub">Pequeños detalles que mejoran mucho la experiencia</div>
+    </div>
+  </div>
+
+  <dl class="glos">
+    <div class="glos-item">
+      <span class="emoji">🔤</span>
+      <dt>pattern</dt>
+      <dd>Valida el valor contra una expresión regular. Ej: <code>pattern="[0-9]{5}"</code> exige exactamente 5 dígitos.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">📋</span>
+      <dt>list + datalist</dt>
+      <dd>Convierte un input de texto en un autocompletado con sugerencias, sin JavaScript ni librerías externas.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">⌨️</span>
+      <dt>inputmode</dt>
+      <dd>Le dice al teclado del celular qué mostrar: <code>inputmode="numeric"</code> abre el teclado numérico aunque el input siga siendo de texto.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🚫</span>
+      <dt>novalidate</dt>
+      <dd>Atributo del <code>&lt;form&gt;</code> que desactiva la validación nativa por completo, para cuando quieres controlarla 100% con JavaScript.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🔁</span>
+      <dt>autocomplete</dt>
+      <dd>Le dice al navegador qué tipo de dato es (<code>autocomplete="email"</code>, <code>"tel"</code>, <code>"cc-number"</code>) para autocompletar mejor.</dd>
+    </div>
+  </dl>
+
+  <h2>Ejemplo: datalist para autocompletado</h2>
+  <div class="code-block"><span class="lang">HTML</span><span class="ct">&lt;input</span> <span class="ca">list</span>=<span class="cs">"lenguajes"</span> <span class="ca">name</span>=<span class="cs">"lenguaje"</span><span class="ct">&gt;</span>
+<span class="ct">&lt;datalist</span> <span class="ca">id</span>=<span class="cs">"lenguajes"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;option</span> <span class="ca">value</span>=<span class="cs">"HTML"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;option</span> <span class="ca">value</span>=<span class="cs">"CSS"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;option</span> <span class="ca">value</span>=<span class="cs">"JavaScript"</span><span class="ct">&gt;</span>
+<span class="ct">&lt;/datalist&gt;</span>
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PSEUDO-CLASES
+═══════════════════════════════════════════ -->
+<section class="module" id="pseudo-clases">
+  <div class="module-header">
+    <div class="module-icon">🎨</div>
+    <div>
+      <div class="module-title">Estilizar la validación con CSS</div>
+      <div class="module-sub">El navegador ya sabe si el campo es válido — solo hay que pintarlo</div>
+    </div>
+  </div>
+
+  <p>Cuando un campo tiene reglas de validación, el navegador le agrega automáticamente un estado que puedes usar en CSS, sin ninguna clase manual.</p>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* Campo válido */</span>
+<span class="cn">input</span><span class="cv">:valid</span> {
+  <span class="cp">border-color</span>: <span class="cv">green</span>;
+}
+
+<span class="cc">/* Campo inválido, pero solo cuando el usuario ya interactuó */</span>
+<span class="cn">input</span><span class="cv">:invalid</span><span class="cv">:not</span>(<span class="cv">:placeholder-shown</span>) {
+  <span class="cp">border-color</span>: <span class="cv">crimson</span>;
+}
+
+<span class="cc">/* Foco visible por teclado, no por mouse */</span>
+<span class="cn">input</span><span class="cv">:focus-visible</span> {
+  <span class="cp">outline</span>: <span class="cv">2px</span> <span class="cv">solid</span> <span class="cv">dodgerblue</span>;
+}
+</div>
+
+  <div class="tip">
+    <h4>🟢 El truco de :not(:placeholder-shown)</h4>
+    <p>Usar solo <code>:invalid</code> pinta de rojo el campo desde que carga la página, antes de que el usuario escriba nada — se ve agresivo. Combinarlo con <code>:not(:placeholder-shown)</code> hace que el rojo aparezca solo después de que el usuario empezó a escribir y lo dejó incompleto o mal.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     CONSTRAINT VALIDATION API
+═══════════════════════════════════════════ -->
+<section class="module" id="js-api">
+  <div class="module-header">
+    <div class="module-icon">⚙️</div>
+    <div>
+      <div class="module-title">Mensajes personalizados con JavaScript</div>
+      <div class="module-sub">Constraint Validation API — cuando el mensaje del navegador no alcanza</div>
+    </div>
+  </div>
+
+  <p>El mensaje de error que muestra el navegador por defecto ("Rellena este campo") no se puede traducir ni personalizar solo con HTML. Para eso existe la Constraint Validation API.</p>
+
+  <div class="code-block"><span class="lang">JavaScript</span><span class="cc">const input = document.querySelector('#usuario')</span>
+
+<span class="ct">input</span>.<span class="cn">addEventListener</span>(<span class="cs">'invalid'</span>, () <span class="ca">=&gt;</span> {
+  <span class="ct">input</span>.<span class="cn">setCustomValidity</span>(<span class="cs">'Escribe un nombre de usuario válido'</span>)
+})
+
+<span class="ct">input</span>.<span class="cn">addEventListener</span>(<span class="cs">'input'</span>, () <span class="ca">=&gt;</span> {
+  <span class="cc">// Limpiar el mensaje personalizado en cuanto el usuario corrige</span>
+  <span class="ct">input</span>.<span class="cn">setCustomValidity</span>(<span class="cs">''</span>)
+})
+</div>
+
+  <div class="warn">
+    <h4>⚠️ No olvides limpiar el mensaje</h4>
+    <p>Si llamas a <code>setCustomValidity()</code> con un texto y nunca lo vuelves a limpiar con <code>setCustomValidity('')</code>, el campo queda inválido para siempre, aunque el usuario lo corrija. Siempre limpia el mensaje en el evento <code>input</code>.</p>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Resumen de la guía</h4>
+    <ul>
+      <li><strong>Validación nativa:</strong> <code>required</code>, <code>min/max</code>, <code>pattern</code>, tipos de <code>input</code>.</li>
+      <li><strong>Atributos útiles:</strong> <code>datalist</code>, <code>inputmode</code>, <code>autocomplete</code>, <code>novalidate</code>.</li>
+      <li><strong>CSS:</strong> <code>:valid</code>, <code>:invalid</code>, <code>:focus-visible</code>, <code>:not(:placeholder-shown)</code>.</li>
+      <li><strong>JavaScript:</strong> Constraint Validation API para mensajes personalizados.</li>
+    </ul>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Guía Formularios Avanzados · Café &lt;/&gt; · Guías Adicionales
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía Por qué JavaScript se llama así — Café </></title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #c49a1a;
+    --primary-light:  #fdf6e0;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --danger:         #c44a2a;
+    --danger-light:   #fdf0ec;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1a1814;
+    --code-text:      #e8e4de;
+  }
+
+  body { font-family: 'DM Sans', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  .cafe-bar { background:#ffffff; border-bottom:1px solid #e8e4de; padding:0 24px; display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:200; height:45px; }
+  .cafe-bar a { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:#8a8480; text-decoration:none; padding:6px 14px; border:1px solid #e8e4de; border-radius:999px; transition:all 0.15s; }
+  .cafe-bar a:hover { color:#1a1814; border-color:#8a8480; }
+  .cafe-bar span { font-size:13px; color:#8a8480; }
+
+  header { background: #1a1814; color: #f7f4ef; padding: 3rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: '☕'; position: absolute; font-size: 12rem; font-weight: 900; color: rgba(255,255,255,0.04); right: -1rem; top: -2rem; font-family: monospace; line-height: 1; }
+  header h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; font-family: 'Fraunces', serif; }
+  header p { font-size: 1.1rem; opacity: .85; margin-top: .5rem; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 45px; z-index: 100; display: flex; overflow-x: auto; gap: 0; }
+  nav a { flex-shrink: 0; padding: .75rem 1rem; text-decoration: none; color: var(--muted); font-size: .78rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2.5rem; scroll-margin-top:100px; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-size: 1.35rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  .analogy { background: #FFF7ED; border: 1px solid #FDE68A; border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: #92400E; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; color: #78350F; }
+
+  .concept { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p, .tip ul { font-size: .95rem; }
+  .tip ul { padding-left: 1.2rem; }
+
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  .glos { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .glos-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; }
+  .glos-item dt { font-weight: 700; color: var(--primary); font-size: .92rem; margin-bottom: .3rem; }
+  .glos-item dd { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+  .glos-item .emoji { font-size: 1.3rem; display: block; margin-bottom: .3rem; }
+
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: white; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  h2 { font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; color: var(--text); }
+  h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 .5rem; }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: #f0ece6; color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+  strong { font-weight: 700; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); }
+</style>
+</head>
+<body>
+
+<div class="cafe-bar">
+  <a href="../capitulos.html?tab=datoscuriosos">← Volver a Datos Curiosos</a>
+  <span>☕ Origen de JavaScript</span>
+</div>
+
+<header>
+  <h1>Por qué JavaScript se llama así</h1>
+  <p>Y por qué casi no tiene nada que ver con Java</p>
+  <span class="badge">✦ Dato curioso · Historia de la web ✦</span>
+</header>
+
+<nav>
+  <a href="#intro">🎯 Intro</a>
+  <a href="#diez-dias">📅 Los 10 días</a>
+  <a href="#cambios-de-nombre">🔄 3 nombres en 1 año</a>
+  <a href="#jugada-marketing">📈 La jugada de marketing</a>
+  <a href="#relacion-con-java">☕ ¿Y Java?</a>
+</nav>
+
+<main>
+
+<div class="parte-badge">🧠 Dato curioso — Historia y curiosidades de HTML, CSS y JS</div>
+
+<!-- ═══════════════════════════════════════════
+     INTRO
+═══════════════════════════════════════════ -->
+<section class="module" id="intro">
+  <div class="module-header">
+    <div class="module-icon">🎯</div>
+    <div>
+      <div class="module-title">Introducción — un nombre que confunde desde 1995</div>
+      <div class="module-sub">El malentendido más viejo de la programación web</div>
+    </div>
+  </div>
+
+  <p>Casi todo el que empieza a programar se hace la misma pregunta al ver el nombre: "¿JavaScript es una versión chiquita de Java?" La respuesta corta es <strong>no</strong>. La respuesta larga es una historia de una empresa apurada, un lenguaje escrito en 10 días y una decisión de marketing que quedó pegada para siempre.</p>
+
+  <div class="concept">
+    <h4>💡 El dato en una frase</h4>
+    <p>JavaScript se llama así por una alianza comercial entre Netscape y Sun Microsystems en 1995 — no porque sea una variación de Java. Técnicamente, se parecen tanto como un carro y una alfombra: ambas palabras en inglés empiezan distinto, pero eso es todo.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     LOS 10 DÍAS
+═══════════════════════════════════════════ -->
+<section class="module" id="diez-dias">
+  <div class="module-header">
+    <div class="module-icon">📅</div>
+    <div>
+      <div class="module-title">10 días que crearon un lenguaje</div>
+      <div class="module-sub">Brendan Eich y la carrera contra el calendario</div>
+    </div>
+  </div>
+
+  <p>En mayo de 1995, un ingeniero de Netscape llamado <strong>Brendan Eich</strong> recibió el encargo de crear un lenguaje de programación para que las páginas web dejaran de ser documentos estáticos y pudieran reaccionar a lo que hacía el usuario. Tenía diez días.</p>
+
+  <div class="analogy">
+    <h4>🏃 Analogía: la receta de emergencia</h4>
+    <p>Imagina que te avisan una hora antes de que llegan invitados a cenar y tienes que inventar un platillo con lo que hay en la alacena. Eso hizo Eich, pero con un lenguaje de programación: tomó ideas de varios lenguajes que ya conocía (Scheme, Self, Java) y las mezcló rápido para cumplir con el plazo de Netscape.</p>
+  </div>
+
+  <p>El resultado fue un lenguaje con funciones como "ciudadanos de primera clase" (tomado de Scheme), prototipos en lugar de clases (tomado de Self), y una sintaxis de llaves y punto y coma parecida a la de Java — para que se sintiera familiar a los programadores de la época.</p>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     CAMBIOS DE NOMBRE
+═══════════════════════════════════════════ -->
+<section class="module" id="cambios-de-nombre">
+  <div class="module-header">
+    <div class="module-icon">🔄</div>
+    <div>
+      <div class="module-title">Tres nombres en menos de un año</div>
+      <div class="module-sub">Mocha → LiveScript → JavaScript</div>
+    </div>
+  </div>
+
+  <p>El lenguaje no nació llamándose JavaScript. Pasó por tres nombres distintos en cuestión de meses:</p>
+
+  <table class="tbl">
+    <tr><th>Nombre</th><th>Momento</th><th>Qué pasó</th></tr>
+    <tr><td><span class="tag">Mocha</span></td><td>Mayo 1995</td><td>Nombre interno de desarrollo, usado por Eich y el equipo de Netscape.</td></tr>
+    <tr><td><span class="tag">LiveScript</span></td><td>Septiembre 1995</td><td>Nombre público al lanzarlo en el navegador Netscape Navigator 2.0 beta.</td></tr>
+    <tr><td><span class="tag">JavaScript</span></td><td>Diciembre 1995</td><td>Renombrado como parte de un acuerdo comercial con Sun Microsystems, dueña de Java.</td></tr>
+  </table>
+
+  <p>El cambio final, de LiveScript a JavaScript, no tuvo nada que ver con el código — fue una decisión de negocio.</p>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     LA JUGADA DE MARKETING
+═══════════════════════════════════════════ -->
+<section class="module" id="jugada-marketing">
+  <div class="module-header">
+    <div class="module-icon">📈</div>
+    <div>
+      <div class="module-title">La jugada de marketing detrás del nombre</div>
+      <div class="module-sub">1995 era el año en que "Java" vendía solo</div>
+    </div>
+  </div>
+
+  <p>En 1995, Java —el lenguaje de Sun Microsystems— era la palabra de moda en la industria del software. Netscape tenía un acuerdo de colaboración con Sun, y renombrar su nuevo lenguaje para que sonara relacionado con Java era, sobre todo, una estrategia de mercadotecnia para subirse a esa ola de popularidad.</p>
+
+  <div class="tip">
+    <h4>🟢 No fue una decisión técnica</h4>
+    <ul>
+      <li>El lenguaje no se rediseñó para parecerse más a Java al cambiar de nombre.</li>
+      <li>La sintaxis con llaves ya se parecía a Java desde antes, como a muchos lenguajes de la época.</li>
+      <li>El nombre "JavaScript" es una marca registrada de Oracle (heredada de Sun) hasta hoy.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     RELACIÓN CON JAVA
+═══════════════════════════════════════════ -->
+<section class="module" id="relacion-con-java">
+  <div class="module-header">
+    <div class="module-icon">☕</div>
+    <div>
+      <div class="module-title">¿Entonces qué relación real tienen?</div>
+      <div class="module-sub">Casi ninguna — y las diferencias lo demuestran</div>
+    </div>
+  </div>
+
+  <dl class="glos">
+    <div class="glos-item">
+      <span class="emoji">🏗️</span>
+      <dt>Tipado</dt>
+      <dd>Java es de tipado estático (defines el tipo de cada variable). JavaScript es de tipado dinámico (el tipo se decide en tiempo de ejecución).</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🧬</span>
+      <dt>Modelo de objetos</dt>
+      <dd>Java usa clases desde el inicio. JavaScript nació basado en prototipos — las clases llegaron muchos años después, en ES6, como una capa de azúcar sintáctica.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">⚙️</span>
+      <dt>Cómo se ejecutan</dt>
+      <dd>Java se compila a bytecode y corre en la JVM. JavaScript corre interpretado (y hoy compilado JIT) directamente en el motor del navegador.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🎯</span>
+      <dt>Para qué se creó</dt>
+      <dd>Java se creó para aplicaciones independientes de la plataforma. JavaScript se creó específicamente para reaccionar a eventos dentro de una página web.</dd>
+    </div>
+  </dl>
+
+  <div class="warn">
+    <h4>⚠️ El error que persigue al lenguaje</h4>
+    <p>Confundir Java con JavaScript sigue siendo, treinta años después, uno de los malentendidos más comunes fuera del mundo de la programación — un recordatorio de que un nombre elegido por marketing puede pesar más que la lógica técnica, para siempre.</p>
+  </div>
+
+  <div class="concept">
+    <h4>💡 Resumen del dato curioso</h4>
+    <p>JavaScript nació como Mocha, se lanzó como LiveScript, y terminó llamándose JavaScript por un acuerdo comercial con Sun Microsystems en 1995 — no por parecido técnico con Java. Ambos lenguajes comparten una sintaxis de llaves heredada de la misma época, pero su tipado, su modelo de objetos y su forma de ejecutarse son completamente distintos.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Guía Por qué JavaScript se llama así · Café &lt;/&gt; · Datos Curiosos
+</footer>
+
+</body>
+</html>
