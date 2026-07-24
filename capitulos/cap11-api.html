@@ -1,58 +1,249 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>Cafe Cap 11 Conexion con APIs</title>
-  <link rel="manifest" href="../manifest.webmanifest">
-  <link rel="icon" href="../icons/icon.svg" type="image/svg+xml">
-  <link
-    href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap"
-    rel="stylesheet">
-  <link rel="stylesheet" href="../css/style.css">
-</head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  :root {
+    --primary:        #c44a2a;
+    --primary-light:  #fdf0ec;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --danger:         #c44a2a;
+    --danger-light:   #fdf0ec;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1a1814;
+    --code-text:      #e8e4de;
+  }
+  body { font-family: 'DM Sans','Segoe UI',sans-serif; background:var(--bg); color:var(--text); line-height:1.7; font-size:16px; }
 
-<body class="pagina-capitulo">
-  <header class="site-header">
-    <div class="header-inner">
-      <div class="logo-group">
-        <a href="../capitulos.html" class="logo-back">&larr; Capitulos</a><span class="logo-icon">&#9749;</span>
-        <div>
-          <h1 class="logo-title">Cafe &lt;/&gt;</h1>
-          <p class="logo-sub">Cap 11 &middot; Conexion con APIs</p>
-        </div>
-      </div><span class="badge badge-js">JS</span>
-    </div>
-  </header>
-  <nav class="sidebar">
-    <p class="nav-label">En este capitulo</p>
-    <ul class="nav-list">
-      <li class="nav-item"><a href="#api-fetch">fetch</a></li>
-      <li class="nav-item"><a href="#api-json">Procesar JSON</a></li>
-      <li class="nav-item"><a href="#api-metodos">GET y POST</a></li>
-      <li class="nav-item"><a href="#api-errores">Errores HTTP</a></li>
-      <li class="nav-item"><a href="#api-cors">CORS</a></li>
-      <li class="nav-item"><a href="#api-conexion">Conexion</a></li>
-    </ul>
-    <div class="nav-separador"></div>
-    <p class="nav-label">Navegacion</p>
-    <ul class="nav-list">
-      <li class="nav-item"><a href="cap00-conceptos.html">← 00 · Antes de empezar</a></li>
-      <li class="nav-item"><a href="cap01-html.html">← 01 · HTML</a></li>
-      <li class="nav-item"><a href="cap02-javascript.html">← 02 · JavaScript</a></li>
-      <li class="nav-item"><a href="cap03-css.html">← 03 · CSS</a></li>
-      <li class="nav-item"><a href="cap04-control.html">← 04 · Estructuras</a></li>      
-      <li class="nav-item"><a href="cap05-datos.html">← 05 · Arreglos</a></li> 
-      <li class="nav-item"><a href="cap06-funciones.html">← 06 · Funciones</a></li>     
-      <li class="nav-item"><a href="cap07-dom.html">← 07 · DOM</a></li>
-      <li class="nav-item"><a href="cap08-formularios.html">&larr; 08 · Formularios</a></li>
-      <li class="nav-item"><a href="cap09-async.html">&larr; 09 · Código</a></li>
-      <li class="nav-item"><a href="cap10-almacenamiento.html">&larr; 10 · Almacenamiento</a></li>      
-      <li class="nav-item"><a href="cap12-firebase.html">12 · Base de Datos &rarr;</a></li>
-    </ul>
-  </nav>
-  <main class="main-content">
+  header { background:#1a1814; color:#f7f4ef; padding:2rem 2rem 2rem; text-align:center; position:relative; overflow:hidden; }
+  header::before { content:'HTTP'; position:absolute; font-size:11rem; font-weight:900; color:rgba(255,255,255,0.04); right:-1rem; top:-1rem; font-family:monospace; line-height:1; }
+  header h1 { font-size:2.5rem; font-weight:800; letter-spacing:-1px; font-family:'Fraunces',serif; }
+  header p { font-size:1.1rem; opacity:.85; margin-top:.5rem; }
+  header .badge { display:inline-block; background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.3); border-radius:20px; padding:4px 14px; font-size:.8rem; margin-top:.75rem; }
+
+  nav { background:var(--surface); border-bottom:1px solid var(--border); position:sticky; top:45px; z-index:100; display:flex; overflow-x:auto; gap:0; }
+  nav a { flex-shrink:0; padding:.75rem 1rem; text-decoration:none; color:var(--muted); font-size:.78rem; font-weight:500; border-bottom:2px solid transparent; transition:color .2s,border-color .2s; white-space:nowrap; }
+  nav a:hover { color:var(--primary); border-bottom-color:var(--primary); }
+  nav a.activo { color:var(--primary); border-bottom-color:var(--primary); }
+  nav a.activo { color:var(--primary); border-bottom-color:var(--primary); }
+
+  main { max-width:920px; margin:0 auto; padding:2rem 1.5rem; }
+  .parte-badge { display:inline-flex; align-items:center; gap:.5rem; background:var(--primary); color:white; border-radius:20px; padding:5px 16px; font-size:.82rem; font-weight:700; margin-bottom:1.5rem; }
+
+  .module { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:2rem; margin-bottom:2.5rem; scroll-margin-top:100px; }
+  .module-header { display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border); }
+  .module-icon { font-size:1.8rem; flex-shrink:0; }
+  .module-title { font-size:1.35rem; font-weight:700; }
+  .module-sub { font-size:.85rem; color:var(--muted); margin-top:2px; }
+
+  .analogy { background:#FFF7ED; border:1px solid #FDE68A; border-left:4px solid var(--accent); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .analogy h4 { color:#92400E; font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+  .analogy p { font-size:.95rem; color:#78350F; }
+
+  .concept { background:var(--primary-light); border-left:4px solid var(--primary); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .concept h4 { color:var(--primary); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+  .concept p { font-size:.95rem; }
+
+  .tip { background:var(--secondary-light); border-left:4px solid var(--secondary); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .tip h4 { color:var(--secondary); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+  .tip p,.tip ul { font-size:.95rem; }
+  .tip ul { padding-left:1.2rem; }
+
+  .warn { background:var(--danger-light); border-left:4px solid var(--danger); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin:1.1rem 0; }
+  .warn h4 { color:var(--danger); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.4rem; }
+  .warn p { font-size:.95rem; }
+
+  .code-block { background:var(--code-bg); color:var(--code-text); border-radius:10px; padding:1.25rem 1.5rem; font-family:'DM Mono','Courier New',monospace; font-size:.88rem; line-height:1.85; overflow-x:auto; margin:1rem 0; position:relative; white-space:pre; }
+  .code-block .ct { color:#89B4FA; }
+  .code-block .ca { color:#CBA6F7; }
+  .code-block .cv { color:#A6E3A1; }
+  .code-block .cs { color:#F9E2AF; }
+  .code-block .cp { color:#89DCEB; }
+  .code-block .cc { color:#585B70; font-style:italic; }
+  .code-block .cn { color:#FAB387; }
+  .code-block .ce { color:#F38BA8; }
+  .lang { position:absolute; top:.6rem; right:.75rem; background:rgba(255,255,255,.1); color:rgba(255,255,255,.5); font-size:.68rem; padding:2px 8px; border-radius:4px; font-family:sans-serif; }
+
+  .tbl { width:100%; border-collapse:collapse; margin:1rem 0; font-size:.9rem; }
+  .tbl th { background:var(--primary-light); color:var(--primary); padding:.65rem 1rem; text-align:left; font-weight:600; }
+  .tbl td { padding:.65rem 1rem; border-bottom:1px solid var(--border); vertical-align:top; }
+  .tbl tr:hover td { background:var(--bg); }
+
+  .tag { display:inline-block; background:var(--primary-light); color:var(--primary); font-family:'DM Mono',monospace; font-size:.84rem; padding:1px 7px; border-radius:4px; font-weight:600; }
+  .tag-green { background:var(--secondary-light); color:var(--secondary); }
+  .tag-amber { background:var(--accent-light); color:var(--accent); }
+  .tag-gray { background:#f0ece6; color:#5a5650; }
+  .kbd { display:inline-block; background:#f0ece6; border:1px solid var(--border); border-bottom:2px solid #ccc; border-radius:5px; font-family:'DM Mono',monospace; font-size:.8rem; padding:1px 8px; color:var(--text); }
+
+  .glos { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1rem; margin:1rem 0; }
+  .glos-item { background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:1rem 1.1rem; }
+  .glos-item dt { font-weight:700; color:var(--primary); font-size:.92rem; margin-bottom:.3rem; }
+  .glos-item dd { font-size:.85rem; color:var(--muted); line-height:1.5; }
+  .glos-item .emoji { font-size:1.3rem; display:block; margin-bottom:.3rem; }
+
+  .ex { background:#FFFBEB; border:1px solid #FDE68A; border-radius:12px; padding:1.5rem; margin:1.5rem 0; }
+  .ex-hd { display:flex; align-items:center; gap:.75rem; margin-bottom:1rem; font-weight:700; font-size:1rem; color:#78350F; flex-wrap:wrap; }
+  .ex-badge { background:var(--accent); color:#fff; font-size:.68rem; padding:2px 9px; border-radius:20px; font-weight:700; text-transform:uppercase; }
+
+  .steps { counter-reset:steps; }
+  .step { display:flex; gap:1rem; margin-bottom:1rem; align-items:flex-start; }
+  .step::before { counter-increment:steps; content:counter(steps); background:var(--primary); color:white; font-size:.78rem; font-weight:700; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:.2rem; font-family:'DM Mono',monospace; }
+  .step p { font-size:.95rem; margin:0; }
+
+  .method-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1rem; margin:1rem 0; }
+  .method-card { border-radius:12px; padding:1.2rem 1.4rem; border:1px solid var(--border); }
+  .method-card .mc-verb { font-family:'DM Mono',monospace; font-size:1rem; font-weight:700; display:inline-block; padding:2px 12px; border-radius:6px; margin-bottom:.6rem; }
+  .mc-get { background:#E6F4FF; color:#0550AE; border-color:#A8C8F0; }
+  .mc-post { background:#E6F9F0; color:#0A6B3E; border-color:#7DD5A8; }
+  .mc-put { background:#FFF3E0; color:#8B4500; border-color:#F4B56A; }
+  .mc-patch { background:#F3E8FF; color:#6B21A8; border-color:#C4A0E8; }
+  .mc-delete { background:#FFF0F0; color:#9B1C1C; border-color:#F8A8A8; }
+  .method-card p { font-size:.9rem; color:var(--muted); margin:.4rem 0; }
+  .method-card .crud { font-size:.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; }
+
+  /* ── SANDBOX INTERACTIVO ── */
+  .sandbox { background:#f0ece6; border:1px solid var(--border); border-radius:14px; margin:1.5rem 0; overflow:hidden; }
+  .sandbox-bar { background:#1a1814; color:#f7f4ef; padding:.75rem 1.25rem; display:flex; align-items:center; gap:.75rem; flex-wrap:wrap; }
+  .sandbox-bar span { font-family:'DM Mono',monospace; font-size:.78rem; color:#A6E3A1; }
+  .sandbox-bar .sb-title { font-size:.85rem; font-weight:600; flex:1; }
+  .sandbox-body { padding:1.25rem; }
+  .sandbox-body label { font-size:.82rem; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; display:block; margin-bottom:.3rem; }
+  .sb-select { font-family:'DM Mono',monospace; font-size:.9rem; padding:.45rem .75rem; border:1px solid var(--border); border-radius:7px; background:var(--surface); color:var(--text); cursor:pointer; }
+  .sb-input { width:100%; font-family:'DM Mono',monospace; font-size:.88rem; padding:.5rem .8rem; border:1px solid var(--border); border-radius:7px; background:var(--surface); color:var(--text); margin-bottom:.75rem; }
+  .sb-textarea { width:100%; font-family:'DM Mono',monospace; font-size:.85rem; padding:.6rem .8rem; border:1px solid var(--border); border-radius:7px; background:var(--surface); color:var(--text); min-height:80px; resize:vertical; margin-bottom:.75rem; }
+  .sb-btn { background:var(--primary); color:white; border:none; padding:.5rem 1.2rem; border-radius:7px; font-size:.9rem; font-weight:600; cursor:pointer; font-family:'DM Sans',sans-serif; }
+  .sb-btn:hover { background:#a83920; }
+  .sb-btn:disabled { background:#ccc; cursor:not-allowed; }
+  .sb-output { background:var(--code-bg); color:var(--code-text); border-radius:8px; padding:1rem 1.2rem; font-family:'DM Mono',monospace; font-size:.82rem; line-height:1.7; margin-top:.75rem; min-height:60px; white-space:pre-wrap; word-break:break-all; display:none; }
+  .sb-output.visible { display:block; }
+  .sb-status { font-size:.78rem; font-weight:700; padding:2px 8px; border-radius:4px; }
+  .status-ok { background:#E6F9F0; color:#0A6B3E; }
+  .status-err { background:#FFF0F0; color:#9B1C1C; }
+  .status-loading { background:#FFF3E0; color:#8B4500; }
+  .sb-row { display:flex; gap:.75rem; align-items:flex-end; flex-wrap:wrap; margin-bottom:.75rem; }
+  .sb-row > div { flex:1; min-width:140px; }
+  .sb-quizrow { display:flex; gap:.5rem; flex-wrap:wrap; margin:.5rem 0; }
+  .sb-quiz-btn { background:var(--surface); border:1px solid var(--border); border-radius:7px; padding:.4rem .9rem; font-size:.88rem; cursor:pointer; font-family:'DM Sans',sans-serif; transition:background .15s; }
+  .sb-quiz-btn:hover { background:var(--bg); }
+  .sb-quiz-btn.correct { background:#E6F9F0; border-color:#7DD5A8; color:#0A6B3E; font-weight:700; }
+  .sb-quiz-btn.wrong { background:#FFF0F0; border-color:#F8A8A8; color:#9B1C1C; }
+  .sb-feedback { font-size:.88rem; margin-top:.5rem; min-height:1.4rem; }
+
+  h2 { font-size:1.2rem; font-weight:700; margin:1.75rem 0 .75rem; color:var(--text); }
+  h3 { font-size:1rem; font-weight:700; margin:1.25rem 0 .5rem; }
+  p { margin-bottom:.8rem; }
+  ul,ol { padding-left:1.4rem; margin-bottom:.8rem; }
+  li { margin-bottom:.4rem; font-size:.96rem; }
+  code { font-family:'DM Mono',monospace; background:#f0ece6; color:var(--primary); padding:1px 5px; border-radius:4px; font-size:.9em; }
+  hr { border:none; border-top:1px solid var(--border); margin:1.5rem 0; }
+  strong { font-weight:700; }
+  footer { text-align:center; padding:2rem; color:var(--muted); font-size:.85rem; border-top:1px solid var(--border); margin-top:1rem; background:var(--bg); }
+  .cafe-bar { background:#ffffff; border-bottom:1px solid #e8e4de; padding:0 24px; display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:200; height:45px; }
+  .cafe-bar a { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:#8a8480; text-decoration:none; padding:6px 14px; border:1px solid #e8e4de; border-radius:999px; transition:all 0.15s; }
+  .cafe-bar a:hover { color:#1a1814; border-color:#8a8480; }
+  .cafe-bar span { font-size:13px; color:#8a8480; }
+
+  /* ═══ ESTILOS PROPIOS DE CAP00 (adaptados a la paleta de esta guía) ═══ */
+  :root {
+    --ink2: #4a4640;
+    --gen: #3a5a9a;
+    --gen-bg: #eef2fa;
+    --gen-border: #c0cce8;
+  }
+
+  .cap-intro { display:flex; align-items:flex-start; gap:1.1rem; padding:1.5rem 1.75rem; background:var(--surface); border:1px solid var(--border); border-radius:16px; margin-bottom:1.5rem; }
+  .cap-numero { font-family:'Fraunces',serif; font-size:2.8rem; font-weight:700; color:var(--border); line-height:1; flex-shrink:0; }
+  .cap-titulo { font-family:'Fraunces',serif; font-size:1.5rem; font-weight:700; margin:.4rem 0; }
+  .cap-desc { font-size:.9rem; color:var(--muted); }
+
+  .leccion { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:2rem; margin-bottom:1.75rem; scroll-margin-top:100px; }
+  .leccion-header { display:flex; align-items:flex-start; gap:1rem; margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border); }
+  .leccion-icono { font-size:1.8rem; line-height:1; flex-shrink:0; }
+  .leccion-titulo { font-family:'Fraunces',serif; font-size:1.35rem; font-weight:700; margin-bottom:2px; }
+  .leccion-tagline { font-size:.85rem; color:var(--muted); font-style:italic; }
+  .leccion-desc { font-size:.95rem; color:var(--ink2); margin-bottom:1rem; line-height:1.75; }
+
+  .analogia { background:var(--bg); border-left:3px solid var(--primary); border-radius:0 10px 10px 0; padding:1.1rem 1.25rem; margin-bottom:1.1rem; font-size:.92rem; color:var(--ink2); }
+
+  .tip-box { background:var(--gen-bg); border:1px solid var(--gen-border); border-radius:10px; padding:1.1rem 1.25rem; font-size:.88rem; color:var(--gen); margin-top:1.1rem; line-height:1.65; }
+
+  .proyecto-callout { display:flex; gap:.6rem; align-items:flex-start; background:var(--gen-bg); border:1px solid var(--gen-border); border-radius:10px; padding:1.1rem 1.25rem; margin-top:1.1rem; }
+  .proyecto-callout p { font-size:.88rem; color:var(--gen); line-height:1.65; }
+  .proyecto-callout strong { font-weight:600; }
+
+  .dos-col { display:grid; grid-template-columns:1fr 1fr; gap:.75rem; margin-bottom:1.1rem; }
+  @media (max-width:640px) { .dos-col { grid-template-columns:1fr; } }
+
+  .mini-card { background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:1rem; }
+  .mini-card.borde-html { border-top:2px solid var(--primary); }
+  .mini-card.borde-css  { border-top:2px solid var(--secondary); }
+  .mini-card.borde-js   { border-top:2px solid var(--accent); }
+  .mini-card h4 { font-size:.85rem; font-weight:600; margin-bottom:.5rem; display:flex; align-items:center; gap:.5rem; }
+  .mini-card p { font-size:.85rem; color:var(--ink2); line-height:1.6; }
+
+  .badge2, .leccion .badge, .mini-card .badge, .cap-intro .badge { display:inline-block; font-family:'DM Mono',monospace; font-size:.68rem; font-weight:600; letter-spacing:.05em; padding:2px 9px; border-radius:999px; text-transform:uppercase; white-space:nowrap; }
+  .badge-html { background:var(--primary-light); color:var(--primary); border:1px solid #f0c4b8; }
+  .badge-css  { background:var(--secondary-light); color:var(--secondary); border:1px solid #b8e0d0; }
+  .badge-js   { background:var(--accent-light); color:var(--accent); border:1px solid #f0d898; }
+  .badge-gen  { background:var(--gen-bg); color:var(--gen); border:1px solid var(--gen-border); }
+
+  .diagrama { background:var(--code-bg); color:var(--code-text); border-radius:10px; padding:1.1rem 1.4rem; font-family:'DM Mono',monospace; font-size:.85rem; line-height:1.8; margin-bottom:1.1rem; overflow-x:auto; white-space:pre; }
+
+  .code-lang { position:absolute; top:.6rem; right:.75rem; background:rgba(255,255,255,.1); color:rgba(255,255,255,.5); font-size:.68rem; padding:2px 8px; border-radius:4px; font-family:sans-serif; }
+
+  .c-comment { color:#585B70; font-style:italic; }
+  .c-key     { color:#89B4FA; }
+  .c-str     { color:#A6E3A1; }
+  .c-tag     { color:#F38BA8; }
+  .c-attr    { color:#CBA6F7; }
+  .c-val     { color:#F9E2AF; }
+
+  .cap-navegacion { display:flex; justify-content:space-between; align-items:center; margin-top:2.25rem; padding-top:1.75rem; border-top:1px solid var(--border); gap:.75rem; }
+  .conexion-box { background:var(--text) !important; border-color:var(--text) !important; }
+  .btn-nav-cap { display:inline-block; padding:.7rem 1.25rem; border-radius:999px; font-size:.88rem; font-weight:600; background:var(--text); color:var(--bg); text-decoration:none; transition:background .15s; }
+  .btn-nav-cap:hover { background:var(--primary); }
+  .btn-nav-prev { background:var(--bg); color:var(--text); border:1px solid var(--border); }
+  .btn-nav-prev:hover { background:#f0ece6; }
+
+</style>
+<title>Café </> · Cap 11 · Conexion con APIs</title>
+</head>
+<body>
+
+<!-- BARRA CAFÉ -->
+<div class="cafe-bar">
+  <a href="../capitulos.html">← Capítulos</a>
+  <span>☕ Cap 11 · Conexion con APIs</span>
+</div>
+
+<header>
+  <h1>Conexión con APIs</h1>
+  <p>fetch, JSON y manejo de errores - como tu app habla con servidores externos</p>
+  <span class="badge">✦ Capítulo 11 · JavaScript ✦</span>
+</header>
+
+<nav>
+  <a href="#api-fetch">🌐 fetch</a>
+  <a href="#api-json">📦 Procesar JSON</a>
+  <a href="#api-metodos">🔀 GET y POST</a>
+  <a href="#api-errores">🚫 Errores HTTP</a>
+  <a href="#api-cors">🔒 CORS</a>
+  <a href="#api-conexion">🔗 Conexion</a>
+</nav>
+
+<main>
     <div class="cap-intro" data-lang="js"><span class="cap-numero">11</span>
       <div><span class="badge badge-js">JavaScript</span>
         <h2 class="cap-titulo">Conexion con APIs</h2>
@@ -285,8 +476,38 @@ cargarPosts()</pre>
     </article>
     <div class="cap-navegacion"><a href="cap10-almacenamiento.html" class="btn-nav-cap btn-nav-prev">&larr; Almacenamiento</a>
       <a href="cap12-firebase.html" class="btn-nav-cap">Firebase &rarr;</a></div>
-  </main>
-  <script src="../js/script.js"></script>
-</body>
+</main>
 
+<footer>
+  Café </> · Capítulo 11 · Conexión con APIs ·
+  <a href="cap10-almacenamiento.html" style="color:var(--primary);">← Anterior</a> ·
+  <a href="cap12-firebase.html" style="color:var(--primary);">Siguiente: 12 · Firebase →</a>
+</footer>
+
+<script>
+/* ─── PESTAÑA ACTIVA EN NAV (SCROLL) ─── */
+function iniciarObservadorNav() {
+  const enlaces = document.querySelectorAll('nav a');
+  if (!enlaces.length) return;
+
+  const obs = new IntersectionObserver(
+    entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          const id = e.target.id;
+          if (!id) return;
+          enlaces.forEach(a => a.classList.remove('activo'));
+          const activo = document.querySelector(`nav a[href="#${id}"]`);
+          if (activo) activo.classList.add('activo');
+        }
+      });
+    },
+    { threshold: 0.35, rootMargin: '-90px 0px -60% 0px' }
+  );
+
+  document.querySelectorAll('.leccion[id]').forEach(el => obs.observe(el));
+}
+document.addEventListener('DOMContentLoaded', iniciarObservadorNav);
+</script>
+</body>
 </html>

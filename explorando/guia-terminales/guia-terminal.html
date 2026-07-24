@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#473b63">
+<meta name="description" content="Guía de Terminal: qué es, por qué se usa y los comandos esenciales para moverte sin mouse.">
+<title>Terminal · Guía · Explorando</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:        #473b63;
+    --bg-2:      #3c3255;
+    --bg-warm:   #5c3f63;
+    --surface:   #574a76;
+    --surface-2: #635485;
+    --border:    rgba(230,222,250,0.14);
+    --border-hi: rgba(230,222,250,0.28);
+    --ink:       #f3f0fb;
+    --muted:     #c6bce2;
+    --muted-2:   #9a8fc0;
+    --accent:    #a48ce8;
+    --accent-2:  #e08fc0;
+    --accent-soft: rgba(164,140,232,0.18);
+    --accent-2-soft: rgba(224,143,192,0.16);
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+  html { scroll-behavior: smooth; scroll-padding-top: 90px; }
+  body {
+    font-family: var(--font-body);
+    color: var(--ink);
+    line-height: 1.7;
+    background-color: var(--bg);
+    background-image:
+      radial-gradient(circle at 10% 4%, rgba(164,140,232,0.16), transparent 42%),
+      radial-gradient(circle at 92% 2%, rgba(224,143,192,0.12), transparent 40%),
+      radial-gradient(circle at 78% 96%, rgba(92,63,99,0.55), transparent 55%),
+      linear-gradient(150deg, var(--bg) 0%, var(--bg) 42%, var(--bg-warm) 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+  a { color: inherit; }
+
+  /* ============ VOLVER ============ */
+  .volver-cta {
+    display: flex; align-items: center; gap: 1.1rem;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 14px; padding: 1rem 1.3rem;
+    margin: 20px auto 0; max-width: 760px;
+    text-decoration: none; color: inherit;
+    transition: transform .15s ease, border-color .15s ease;
+  }
+  .volver-cta:hover { transform: translateY(-2px); border-color: var(--border-hi); }
+  .volver-cta .vc-icon { font-size: 1.3rem; flex-shrink: 0; }
+  .volver-cta .vc-title { color: #fff; font-weight: 700; font-size: .92rem; font-family: var(--font-display); }
+  .volver-cta .vc-desc { color: var(--muted); font-size: .78rem; margin-top: 1px; }
+  .volver-cta .vc-arrow { margin-left: auto; color: var(--accent); font-family: var(--font-mono); font-size: .8rem; flex-shrink: 0; }
+
+  /* ============ HERO ============ */
+  header.hero {
+    max-width: 760px; margin: 0 auto;
+    padding: 2.4rem 20px 1rem;
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--font-mono); font-size: 11px; color: var(--accent);
+    background: var(--accent-soft); border: 1px solid rgba(164,140,232,0.32);
+    border-radius: 999px; padding: 5px 14px; margin-bottom: 1.1rem;
+    text-transform: uppercase; letter-spacing: .06em;
+  }
+  h1.hero-title {
+    font-family: var(--font-display); font-weight: 700;
+    font-size: clamp(1.9rem, 4vw, 2.5rem); line-height: 1.12;
+    letter-spacing: -0.5px; color: #fff; margin-bottom: .8rem;
+  }
+  h1.hero-title .accent { color: var(--accent-2); }
+  p.hero-desc { font-size: 1rem; color: var(--muted); max-width: 600px; }
+  .hero-meta { display: flex; gap: 1.4rem; margin-top: 1.4rem; flex-wrap: wrap; }
+  .hmeta { font-family: var(--font-mono); font-size: .76rem; color: var(--muted-2); display: flex; align-items: center; gap: 6px; }
+
+  /* ============ ÍNDICE ============ */
+  nav.indice {
+    max-width: 760px; margin: 2rem auto 0; padding: 0 20px;
+  }
+  .indice-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    padding: 1.3rem 1.5rem;
+  }
+  .indice-card p.indice-label {
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--accent-2); margin-bottom: .9rem;
+  }
+  .indice-lista { display: flex; flex-direction: column; gap: .5rem; }
+  .indice-lista a {
+    font-size: .87rem; color: var(--muted); text-decoration: none;
+    display: flex; align-items: center; gap: 8px;
+    padding: .3rem 0;
+    transition: color .15s;
+  }
+  .indice-lista a:hover { color: var(--accent-2); }
+  .indice-lista .num {
+    font-family: var(--font-mono); font-size: .75rem; color: var(--accent);
+    width: 20px; flex-shrink: 0;
+  }
+
+  /* ============ MAIN ============ */
+  main { max-width: 760px; margin: 0 auto; padding: 2.6rem 20px 5rem; }
+
+  section.bloque { margin-bottom: 3.4rem; scroll-margin-top: 90px; }
+  section.bloque .bloque-eyebrow {
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--accent-2); margin-bottom: .6rem; display: block;
+  }
+  section.bloque h2 {
+    font-family: var(--font-display); font-size: clamp(1.3rem, 2.6vw, 1.6rem); font-weight: 700;
+    color: #fff; margin-bottom: 1rem;
+  }
+  section.bloque p { font-size: .96rem; color: var(--muted); margin-bottom: 1rem; }
+  section.bloque p strong { color: var(--ink); }
+  section.bloque ul, section.bloque ol { margin: 0 0 1rem 1.2rem; color: var(--muted); font-size: .95rem; }
+  section.bloque li { margin-bottom: .5rem; }
+  section.bloque li strong { color: var(--ink); }
+
+  /* ---- Tarjeta de definición ---- */
+  .def-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 1.3rem 1.4rem; margin: 1.2rem 0; display: flex; gap: .9rem; align-items: flex-start;
+  }
+  .def-card .dc-icon { font-size: 1.3rem; flex-shrink: 0; }
+  .def-card h4 { font-family: var(--font-display); font-size: .95rem; color: #fff; margin-bottom: .3rem; }
+  .def-card p { font-size: .87rem; color: var(--muted); margin: 0; }
+
+  /* ---- Comparación terminal / shell / consola ---- */
+  .comp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 1.2rem 0; }
+  .comp-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem 1.2rem;
+  }
+  .comp-card h4 { font-family: var(--font-display); font-size: .9rem; color: var(--accent-2); margin-bottom: .4rem; }
+  .comp-card p { font-size: .82rem; color: var(--muted); margin: 0; }
+
+  /* ---- Bloque de terminal (código simulado) ---- */
+  .term-block {
+    background: #211c33; border: 1px solid var(--border); border-radius: 12px;
+    overflow: hidden; margin: 1.2rem 0;
+  }
+  .term-block-bar {
+    display: flex; align-items: center; gap: 8px;
+    padding: .6rem .9rem; background: #372f5539;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-mono); font-size: .7rem; color: var(--muted-2);
+  }
+  .tdot { width: 8px; height: 8px; border-radius: 50%; }
+  .tdot.r { background: #d9695f; } .tdot.y { background: #e3b34d; } .tdot.g { background: #7fae6d; }
+  .term-block-body { padding: 1rem 1.2rem 1.2rem; font-family: var(--font-mono); font-size: .82rem; overflow-x: auto; }
+  .term-block-body .l { margin-bottom: .5rem; white-space: pre; }
+  .term-block-body .prompt { color: var(--accent-2); }
+  .term-block-body .cmd { color: #f0eaf9; }
+  .term-block-body .out { color: var(--muted); padding-left: 1.1rem; }
+  .term-block-body .cm { color: var(--muted-2); font-style: italic; }
+
+  /* ---- Tabla de comandos ---- */
+  .tabla-wrap { overflow-x: auto; margin: 1.2rem 0; border-radius: 12px; border: 1px solid var(--border); }
+  table.tabla-comandos { width: 100%; border-collapse: collapse; font-size: .87rem; }
+  table.tabla-comandos th {
+    background: var(--surface-2); text-align: left; padding: .8rem 1rem;
+    font-family: var(--font-mono); font-size: .74rem; text-transform: uppercase; letter-spacing: .05em;
+    color: var(--accent-2); border-bottom: 1px solid var(--border);
+  }
+  table.tabla-comandos td {
+    padding: .75rem 1rem; border-bottom: 1px solid var(--border); color: var(--muted); vertical-align: top;
+  }
+  table.tabla-comandos tr:last-child td { border-bottom: none; }
+  table.tabla-comandos code {
+    font-family: var(--font-mono); background: var(--accent-soft); color: var(--accent);
+    padding: .1rem .4rem; border-radius: 6px; font-size: .85rem;
+  }
+  table.tabla-comandos td.col-cmd { color: #fff; font-weight: 600; white-space: nowrap; }
+
+  /* ---- Aviso / tip ---- */
+  .tip {
+    display: flex; gap: .8rem; background: var(--accent-soft); border: 1px solid rgba(164,140,232,0.3);
+    border-radius: 12px; padding: 1rem 1.2rem; margin: 1.2rem 0; align-items: flex-start;
+  }
+  .tip .icon { font-size: 1.1rem; flex-shrink: 0; }
+  .tip p { font-size: .86rem; color: var(--ink); margin: 0; }
+  .tip strong { color: #fff; }
+
+  .warn {
+    display: flex; gap: .8rem; background: rgba(224,143,192,0.1); border: 1px solid rgba(224,143,192,0.3);
+    border-radius: 12px; padding: 1rem 1.2rem; margin: 1.2rem 0; align-items: flex-start;
+  }
+  .warn .icon { font-size: 1.1rem; flex-shrink: 0; }
+  .warn p { font-size: .86rem; color: var(--ink); margin: 0; }
+  .warn strong { color: var(--accent-2); }
+
+  /* ---- Glosario ---- */
+  .glosario-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+  .glos-item {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem 1.2rem;
+  }
+  .glos-item dt { font-family: var(--font-mono); font-size: .82rem; color: var(--accent-2); font-weight: 600; margin-bottom: .3rem; }
+  .glos-item dd { font-size: .84rem; color: var(--muted); margin: 0; }
+
+  /* ---- Navegación final ---- */
+  .fin-nav {
+    display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+    margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .fin-nav a {
+    font-family: var(--font-mono); font-size: .85rem; color: var(--accent);
+    text-decoration: none; display: flex; align-items: center; gap: 6px;
+  }
+  .fin-nav a:hover { color: var(--accent-2); }
+
+  footer.site-footer {
+    text-align: center; padding: 2.6rem 1.5rem; color: var(--muted-2); font-size: .82rem;
+    border-top: 1px solid var(--border); font-family: var(--font-mono);
+  }
+  footer.site-footer a { color: var(--accent); text-decoration: none; }
+
+  @media (max-width: 640px) {
+    header.hero { padding-top: 1.6rem; }
+  }
+</style>
+</head>
+<body>
+
+  <a href="../explorando-capitulos.html" class="volver-cta">
+    <span class="vc-icon">🧰</span>
+    <span style="flex:1;">
+      <div class="vc-title">Explorando · Habilidades de apoyo</div>
+      <div class="vc-desc">Volver a todas las habilidades</div>
+    </span>
+    <span class="vc-arrow">← Volver</span>
+  </a>
+
+  <header class="hero">
+    <span class="hero-badge">🖥️ fundamentos</span>
+    <h1 class="hero-title">Terminal: <span class="accent">moverte sin mouse</span>.</h1>
+    <p class="hero-desc">La terminal es la herramienta que más vas a usar como programador después del propio editor de código. Aquí ves qué es, por qué importa, y los comandos que vas a repetir todos los días hasta que se vuelvan automáticos.</p>
+    <div class="hero-meta">
+      <span class="hmeta">📖 Lectura ~12 min</span>
+      <span class="hmeta">🧰 Habilidad de apoyo</span>
+      <span class="hmeta">🔗 Sin ejercicios, solo referencia</span>
+    </div>
+  </header>
+
+  <nav class="indice">
+    <div class="indice-card">
+      <p class="indice-label">En esta guía</p>
+      <div class="indice-lista">
+        <a href="#que-es"><span class="num">01</span> ¿Qué es una terminal?</a>
+        <a href="#por-que"><span class="num">02</span> ¿Por qué usarla en vez del mouse?</a>
+        <a href="#navegacion"><span class="num">03</span> Navegación básica</a>
+        <a href="#archivos"><span class="num">04</span> Crear, mover y borrar archivos</a>
+        <a href="#ver-contenido"><span class="num">05</span> Ver el contenido de un archivo</a>
+        <a href="#permisos"><span class="num">06</span> Permisos, sin miedo</a>
+        <a href="#atajos"><span class="num">07</span> Atajos que te van a ahorrar tiempo</a>
+        <a href="#tuberias"><span class="num">08</span> Tuberías y redirección</a>
+        <a href="#glosario"><span class="num">09</span> Glosario rápido</a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+
+    <!-- ===== 1. QUÉ ES ===== -->
+    <section class="bloque" id="que-es">
+      <span class="bloque-eyebrow">01 · Fundamentos</span>
+      <h2>¿Qué es una terminal?</h2>
+      <p>Una <strong>terminal</strong> es una ventana donde le escribes instrucciones a tu computadora en forma de texto, en vez de hacer clic en íconos. Escribes un comando, presionas Enter, y la computadora lo ejecuta y te devuelve el resultado — también en texto.</p>
+
+      <div class="comp-grid">
+        <div class="comp-card">
+          <h4>Terminal</h4>
+          <p>La ventana o programa donde escribes. Es la "cara" visible: la app que abres.</p>
+        </div>
+        <div class="comp-card">
+          <h4>Shell</h4>
+          <p>El intérprete que entiende tus comandos y los ejecuta. Bash, Zsh y PowerShell son shells distintos.</p>
+        </div>
+        <div class="comp-card">
+          <h4>Consola</h4>
+          <p>Se usa casi como sinónimo de terminal. Históricamente era la pantalla física conectada a una computadora central.</p>
+        </div>
+      </div>
+
+      <p>En la práctica, cuando alguien dice "abre la terminal" o "abre la consola", casi siempre se refiere a lo mismo: esa ventana negra (o de colores) donde vas a escribir comandos.</p>
+    </section>
+
+    <!-- ===== 2. POR QUÉ ===== -->
+    <section class="bloque" id="por-que">
+      <span class="bloque-eyebrow">02 · Motivación</span>
+      <h2>¿Por qué usarla en vez del mouse?</h2>
+      <p>No es que el mouse esté mal — es que hay tareas que con la terminal son instantáneas y con clics se vuelven eternas.</p>
+      <ul>
+        <li><strong>Velocidad:</strong> renombrar 200 archivos con un patrón toma un comando, no 200 clics.</li>
+        <li><strong>Repetibilidad:</strong> un comando se puede guardar, compartir y volver a ejecutar exactamente igual.</li>
+        <li><strong>Es donde vive el resto de tus herramientas:</strong> Git, servidores locales, gestores de paquetes (npm, pip) — casi todo el ecosistema de programación se controla desde la terminal.</li>
+        <li><strong>Acceso remoto:</strong> cuando te conectas a un servidor que no tiene pantalla ni mouse, la terminal es la única forma de trabajar en él.</li>
+      </ul>
+      <div class="tip">
+        <span class="icon">💡</span>
+        <p><strong>No necesitas memorizar todo de un jazo.</strong> Con 10-15 comandos básicos ya puedes moverte, crear, editar y borrar sin abrir el explorador de archivos. El resto se va pegando con la práctica.</p>
+      </div>
+    </section>
+
+    <!-- ===== 3. NAVEGACIÓN ===== -->
+    <section class="bloque" id="navegacion">
+      <span class="bloque-eyebrow">03 · Lo esencial</span>
+      <h2>Navegación básica</h2>
+      <p>Todo en tu computadora vive dentro de carpetas (también llamadas <strong>directorios</strong>), una dentro de otra. Navegar es simplemente moverte entre esas carpetas usando comandos en lugar de doble clic.</p>
+
+      <div class="term-block">
+        <div class="term-block-bar">
+          <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
+          <span style="margin-left:6px;">terminal</span>
+        </div>
+        <div class="term-block-body">
+          <div class="l"><span class="prompt">$</span> <span class="cmd">pwd</span></div>
+          <div class="l out">/home/hugo/proyectos</div>
+          <div class="l cm">// pwd = "print working directory": te dice dónde estás parado</div>
+          <div class="l"><span class="prompt">$</span> <span class="cmd">ls</span></div>
+          <div class="l out">capitulos.html   index.html   img/   css/</div>
+          <div class="l cm">// ls (Linux/Mac) o dir (Windows): lista lo que hay en la carpeta actual</div>
+          <div class="l"><span class="prompt">$</span> <span class="cmd">cd img</span></div>
+          <div class="l cm">// cd = "change directory": entras a la carpeta "img"</div>
+          <div class="l"><span class="prompt">$</span> <span class="cmd">cd ..</span></div>
+          <div class="l cm">// ".." significa "un nivel arriba" — regresas a la carpeta anterior</div>
+        </div>
+      </div>
+
+      <div class="tabla-wrap">
+        <table class="tabla-comandos">
+          <thead><tr><th>Comando</th><th>Qué hace</th></tr></thead>
+          <tbody>
+            <tr><td class="col-cmd"><code>pwd</code></td><td>Muestra la ruta completa de la carpeta donde estás.</td></tr>
+            <tr><td class="col-cmd"><code>ls</code> / <code>dir</code></td><td>Lista archivos y carpetas del directorio actual. <code>ls -la</code> muestra también los ocultos y con detalle.</td></tr>
+            <tr><td class="col-cmd"><code>cd &lt;carpeta&gt;</code></td><td>Entra a esa carpeta. <code>cd ..</code> sube un nivel, <code>cd ~</code> te lleva a tu carpeta de usuario.</td></tr>
+            <tr><td class="col-cmd"><code>cd /</code></td><td>Te lleva a la raíz del sistema de archivos.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== 4. ARCHIVOS ===== -->
+    <section class="bloque" id="archivos">
+      <span class="bloque-eyebrow">04 · Lo esencial</span>
+      <h2>Crear, mover y borrar archivos</h2>
+      <p>Una vez que sabes moverte, el siguiente paso es manipular lo que hay dentro de cada carpeta.</p>
+
+      <div class="tabla-wrap">
+        <table class="tabla-comandos">
+          <thead><tr><th>Comando</th><th>Qué hace</th></tr></thead>
+          <tbody>
+            <tr><td class="col-cmd"><code>mkdir nombre</code></td><td>Crea una carpeta nueva llamada "nombre".</td></tr>
+            <tr><td class="col-cmd"><code>touch archivo.txt</code></td><td>Crea un archivo vacío (en Windows, <code>type nul &gt; archivo.txt</code>).</td></tr>
+            <tr><td class="col-cmd"><code>cp origen destino</code></td><td>Copia un archivo o carpeta (con <code>-r</code> para carpetas completas).</td></tr>
+            <tr><td class="col-cmd"><code>mv origen destino</code></td><td>Mueve o renombra un archivo — no deja copia en el lugar original.</td></tr>
+            <tr><td class="col-cmd"><code>rm archivo</code></td><td>Borra un archivo. Con <code>-r</code> borra una carpeta completa.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="warn">
+        <span class="icon">⚠️</span>
+        <p><strong>rm no manda nada a la papelera.</strong> Cuando borras algo desde la terminal, se borra directo — no hay "deshacer". Antes de usar <code>rm -r</code> en una carpeta, revisa dos veces qué estás borrando y desde dónde.</p>
+      </div>
+    </section>
+
+    <!-- ===== 5. VER CONTENIDO ===== -->
+    <section class="bloque" id="ver-contenido">
+      <span class="bloque-eyebrow">05 · Lo esencial</span>
+      <h2>Ver el contenido de un archivo</h2>
+      <p>No siempre necesitas abrir un editor completo solo para revisar qué hay dentro de un archivo.</p>
+
+      <div class="term-block">
+        <div class="term-block-bar">
+          <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
+          <span style="margin-left:6px;">terminal</span>
+        </div>
+        <div class="term-block-body">
+          <div class="l"><span class="prompt">$</span> <span class="cmd">cat notas.txt</span></div>
+          <div class="l out">Aquí aparece todo el contenido del archivo de una sola vez</div>
+          <div class="l"><span class="prompt">$</span> <span class="cmd">head -n 5 notas.txt</span></div>
+          <div class="l out">Muestra solo las primeras 5 líneas</div>
+        </div>
+      </div>
+
+      <p><strong>cat</strong> (de "concatenate") imprime todo el archivo en la terminal. Es perfecto para archivos cortos como configuraciones o notas rápidas — para archivos largos, se usa más un editor.</p>
+    </section>
+
+    <!-- ===== 6. PERMISOS ===== -->
+    <section class="bloque" id="permisos">
+      <span class="bloque-eyebrow">06 · Un poco más allá</span>
+      <h2>Permisos, sin miedo</h2>
+      <p>En sistemas tipo Linux/Mac, cada archivo tiene permisos que definen quién puede leerlo, escribirlo o ejecutarlo. No necesitas dominarlos desde el día uno, pero sí reconocerlos.</p>
+
+      <div class="def-card">
+        <span class="dc-icon">🔐</span>
+        <div>
+          <h4>rwx</h4>
+          <p>Read (leer), write (escribir), execute (ejecutar). Al escribir <code>ls -l</code> vas a ver algo como <code>-rwxr--r--</code>: son los permisos del dueño, del grupo y de todos los demás, en ese orden.</p>
+        </div>
+      </div>
+
+      <div class="def-card">
+        <span class="dc-icon">🧑‍💻</span>
+        <div>
+          <h4>sudo</h4>
+          <p>"Super user do" — ejecuta un comando con permisos de administrador. Se usa cuando el sistema te bloquea una acción por seguridad. Úsalo solo cuando sepas exactamente qué comando estás corriendo.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 7. ATAJOS ===== -->
+    <section class="bloque" id="atajos">
+      <span class="bloque-eyebrow">07 · Productividad</span>
+      <h2>Atajos que te van a ahorrar tiempo</h2>
+
+      <div class="tabla-wrap">
+        <table class="tabla-comandos">
+          <thead><tr><th>Atajo</th><th>Qué hace</th></tr></thead>
+          <tbody>
+            <tr><td class="col-cmd"><code>Tab</code></td><td>Autocompleta nombres de archivos y carpetas — no necesitas escribirlos completos.</td></tr>
+            <tr><td class="col-cmd"><code>↑ / ↓</code></td><td>Navega entre los comandos que ya escribiste antes.</td></tr>
+            <tr><td class="col-cmd"><code>Ctrl + C</code></td><td>Cancela el comando que está corriendo en este momento.</td></tr>
+            <tr><td class="col-cmd"><code>Ctrl + R</code></td><td>Busca en tu historial de comandos escribiendo parte de lo que recuerdas.</td></tr>
+            <tr><td class="col-cmd"><code>Ctrl + L</code> / <code>clear</code></td><td>Limpia la pantalla de la terminal sin borrar el historial.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== 8. TUBERÍAS ===== -->
+    <section class="bloque" id="tuberias">
+      <span class="bloque-eyebrow">08 · Un poco más allá</span>
+      <h2>Tuberías y redirección</h2>
+      <p>Uno de los grandes poderes de la terminal es poder conectar comandos entre sí, para que la salida de uno sea la entrada del siguiente.</p>
+
+      <div class="term-block">
+        <div class="term-block-bar">
+          <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
+          <span style="margin-left:6px;">terminal</span>
+        </div>
+        <div class="term-block-body">
+          <div class="l"><span class="prompt">$</span> <span class="cmd">ls | grep .html</span></div>
+          <div class="l cm">// el símbolo | ("pipe") pasa el resultado de ls a grep, que filtra solo lo que contiene ".html"</div>
+          <div class="l"><span class="prompt">$</span> <span class="cmd">ls > lista.txt</span></div>
+          <div class="l cm">// el símbolo > guarda el resultado del comando en un archivo, en vez de mostrarlo en pantalla</div>
+        </div>
+      </div>
+
+      <p>No necesitas usarlas todos los días, pero reconocerlas te va a ahorrar mucha confusión cuando las veas en guías o en código de otras personas.</p>
+    </section>
+
+    <!-- ===== 9. GLOSARIO ===== -->
+    <section class="bloque" id="glosario">
+      <span class="bloque-eyebrow">09 · Referencia rápida</span>
+      <h2>Glosario</h2>
+      <dl class="glosario-grid">
+        <div class="glos-item">
+          <dt>Terminal</dt>
+          <dd>La ventana donde escribes comandos de texto para controlar la computadora.</dd>
+        </div>
+        <div class="glos-item">
+          <dt>Shell</dt>
+          <dd>El programa que interpreta y ejecuta los comandos que escribes (Bash, Zsh, PowerShell).</dd>
+        </div>
+        <div class="glos-item">
+          <dt>Comando</dt>
+          <dd>Una instrucción de texto que le das a la terminal, como <code>ls</code> o <code>cd</code>.</dd>
+        </div>
+        <div class="glos-item">
+          <dt>Argumento</dt>
+          <dd>Información extra que le das a un comando, como el nombre de la carpeta en <code>cd carpeta</code>.</dd>
+        </div>
+        <div class="glos-item">
+          <dt>Flag / bandera</dt>
+          <dd>Un modificador que cambia el comportamiento de un comando, como el <code>-r</code> en <code>rm -r</code>.</dd>
+        </div>
+        <div class="glos-item">
+          <dt>Ruta (path)</dt>
+          <dd>La dirección de un archivo o carpeta dentro del sistema. Puede ser absoluta o relativa.</dd>
+        </div>
+        <div class="glos-item">
+          <dt>Ruta absoluta</dt>
+          <dd>Empieza desde la raíz del sistema, ej. <code>/home/hugo/proyectos</code>.</dd>
+        </div>
+        <div class="glos-item">
+          <dt>Ruta relativa</dt>
+          <dd>Parte de donde ya estás parado, ej. <code>../imagenes</code>.</dd>
+        </div>
+      </dl>
+    </section>
+
+    <div class="fin-nav">
+      <a href="../explorando-capitulos.html">← Volver a Explorando</a>
+      <a href="../explorando-capitulos.html#panel-git">Siguiente: Git &amp; Control de Versiones →</a>
+    </div>
+
+  </main>
+
+  <footer class="site-footer">
+    🧰 Explorando · un proyecto hermano de <a href="../../capitulos.html">Café &lt;/&gt;</a>
+  </footer>
+
+</body>
+</html>

@@ -33,6 +33,15 @@
   .topbar { background:#ffffff; border-bottom:1px solid var(--border); padding:0 24px; display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:200; height:45px; }
   .topbar a { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--muted); text-decoration:none; padding:6px 14px; border:1px solid var(--border); border-radius:999px; transition:all 0.15s; }
   .topbar a:hover { color:var(--text); border-color:#8a8480; }
+  .topbar a.ej-activo { background:var(--primary); color:#fff; border-color:var(--primary); font-weight:600; }
+  .topbar a.ej-activo:hover { background:var(--primary); color:#fff; border-color:var(--primary); }
+  .topbar { flex-wrap: nowrap; }
+  .topbar-nav { display:flex; align-items:center; gap:8px; overflow-x:auto; min-width:0; flex:1; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
+  .topbar-nav::-webkit-scrollbar { display:none; }
+  .topbar-nav a { flex-shrink:0; }
+  .topbar-nav { cursor: grab; }
+  .topbar-label { flex-shrink:0; }
+  @media (max-width:480px) { .topbar-label, .topbar-sep { display:none; } .topbar a[href*="capitulos"] { flex-shrink:0; padding:6px 10px; } }
   .topbar span { font-size:13px; color:var(--muted); }
 
   /* HEADER */
@@ -1497,5 +1506,38 @@ input[type='email']:not(:placeholder-shown):invalid</span> {
   Ejercicio 4 — Página de Contacto · Formularios · Animaciones CSS · Pseudo-clases · Hugo 2025
 </footer>
 
+<script>
+/* ─── SCROLL HORIZONTAL DE LA BARRA DE EJERCICIOS ─── */
+(function () {
+  var nav = document.querySelector('.topbar-nav');
+  if (!nav) return;
+
+  /* Rueda del mouse (vertical) mueve la barra horizontalmente */
+  nav.addEventListener('wheel', function (e) {
+    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+      e.preventDefault();
+      nav.scrollLeft += e.deltaY;
+    }
+  }, { passive: false });
+
+  /* Arrastrar con el mouse (clic y arrastrar) */
+  var arrastrando = false, inicioX = 0, scrollInicio = 0;
+  nav.addEventListener('mousedown', function (e) {
+    arrastrando = true;
+    inicioX = e.pageX;
+    scrollInicio = nav.scrollLeft;
+    nav.style.cursor = 'grabbing';
+  });
+  window.addEventListener('mouseup', function () {
+    arrastrando = false;
+    nav.style.cursor = '';
+  });
+  window.addEventListener('mousemove', function (e) {
+    if (!arrastrando) return;
+    e.preventDefault();
+    nav.scrollLeft = scrollInicio - (e.pageX - inicioX);
+  });
+})();
+</script>
 </body>
 </html>
