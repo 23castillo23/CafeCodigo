@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía Por qué el navegador adivina tu HTML mal escrito — Café </></title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #c49a1a;
+    --primary-light:  #fdf6e0;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --danger:         #c44a2a;
+    --danger-light:   #fdf0ec;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1a1814;
+    --code-text:      #e8e4de;
+  }
+
+  body { font-family: 'DM Sans', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  .cafe-bar { background:#ffffff; border-bottom:1px solid #e8e4de; padding:0 24px; display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:200; height:45px; }
+  .cafe-bar a { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:#8a8480; text-decoration:none; padding:6px 14px; border:1px solid #e8e4de; border-radius:999px; transition:all 0.15s; }
+  .cafe-bar a:hover { color:#1a1814; border-color:#8a8480; }
+  .cafe-bar span { font-size:13px; color:#8a8480; }
+
+  header { background: #1a1814; color: #f7f4ef; padding: 3rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: '☕'; position: absolute; font-size: 12rem; font-weight: 900; color: rgba(255,255,255,0.04); right: -1rem; top: -2rem; font-family: monospace; line-height: 1; }
+  header h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; font-family: 'Fraunces', serif; }
+  header p { font-size: 1.1rem; opacity: .85; margin-top: .5rem; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 45px; z-index: 100; display: flex; overflow-x: auto; gap: 0; }
+  nav a { flex-shrink: 0; padding: .75rem 1rem; text-decoration: none; color: var(--muted); font-size: .78rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2.5rem; scroll-margin-top:100px; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-size: 1.35rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  .analogy { background: #FFF7ED; border: 1px solid #FDE68A; border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: #92400E; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; color: #78350F; }
+
+  .concept { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p, .tip ul { font-size: .95rem; }
+  .tip ul { padding-left: 1.2rem; }
+
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  .glos { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .glos-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; }
+  .glos-item dt { font-weight: 700; color: var(--primary); font-size: .92rem; margin-bottom: .3rem; }
+  .glos-item dd { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+  .glos-item .emoji { font-size: 1.3rem; display: block; margin-bottom: .3rem; }
+
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: white; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  h2 { font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; color: var(--text); }
+  h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 .5rem; }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: #f0ece6; color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+  strong { font-weight: 700; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); }
+</style>
+</head>
+<body>
+
+<div class="cafe-bar">
+  <a href="../capitulos.html?tab=datoscuriosos">← Volver a Datos Curiosos</a>
+  <span>☕ El navegador que "adivina" tu HTML</span>
+</div>
+
+<header>
+  <h1>Por qué el navegador "adivina" tu HTML mal escrito</h1>
+  <p>El parsing tolerante a errores</p>
+  <span class="badge">✦ Dato curioso · Historia de la web ✦</span>
+</header>
+
+<nav>
+  <a href="#intro">🎯 Intro</a>
+  <a href="#el-perdon-original">🤲 El perdón original: no rechazar nada</a>
+  <a href="#el-caos">🌀 El caos de que cada uno "adivinara" distinto</a>
+  <a href="#quirks-mode">🎭 Quirks mode vs. standards mode</a>
+  <a href="#estandarizacion">📐 HTML5 estandariza hasta los errores</a>
+  <a href="#legado">🏛️ Lo que significa hoy</a>
+</nav>
+
+<main>
+
+<div class="parte-badge">🧠 Dato curioso — Historia y curiosidades de HTML, CSS y JS</div>
+
+<!-- ═══════════════════════════════════════════
+     INTRO
+═══════════════════════════════════════════ -->
+<section class="module" id="intro">
+  <div class="module-header">
+    <div class="module-icon">🎯</div>
+    <div>
+      <div class="module-title">Introducción — un lenguaje que nunca te grita un error</div>
+      <div class="module-sub">Si olvidas cerrar una etiqueta, el navegador simplemente lo resuelve por ti</div>
+    </div>
+  </div>
+
+  <p>Si escribes JavaScript con un error de sintaxis, el programa se detiene y te avisa. Si escribes HTML con etiquetas mal cerradas, mal anidadas o directamente inventadas, el navegador casi nunca se queja: intenta interpretar tu intención y sigue adelante, mostrando algo en pantalla de todas formas. Esa tolerancia no es un accidente — es una decisión de diseño que viene desde los primeros años de la web.</p>
+
+  <div class="concept">
+    <h4>💡 El dato en una frase</h4>
+    <p>Los navegadores "perdonan" el HTML mal escrito porque, desde los años 90, se diseñaron para nunca rechazar una página por completo. Durante años cada navegador "adivinaba" los errores a su manera —con resultados distintos entre sí—, hasta que la especificación de HTML5, publicada por el WHATWG, estandarizó exactamente cómo debía corregirse cada tipo de error.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     EL PERDÓN ORIGINAL
+═══════════════════════════════════════════ -->
+<section class="module" id="el-perdon-original">
+  <div class="module-header">
+    <div class="module-icon">🤲</div>
+    <div>
+      <div class="module-title">El perdón original: no rechazar nada</div>
+      <div class="module-sub">Una decisión tomada desde los primeros navegadores</div>
+    </div>
+  </div>
+
+  <p>Desde los primeros navegadores como Mosaic y Netscape Navigator, se tomó una decisión de diseño clave: si el navegador encontraba HTML mal formado, en vez de mostrar una pantalla de error como haría un compilador tradicional, debía intentar mostrar <em>algo</em> igual, adivinando la intención del autor lo mejor posible.</p>
+
+  <div class="analogy">
+    <h4>📖 Analogía: el maestro que corrige mientras lee en voz alta</h4>
+    <p>Imagina a un maestro leyendo en voz alta el ensayo de un estudiante con errores de puntuación y frases incompletas. En lugar de detenerse a cada rato a señalar el error, el maestro sigue leyendo, ajustando mentalmente el sentido de las frases para que la lectura fluya. El navegador hace algo parecido con el HTML: en vez de detenerse en cada etiqueta mal cerrada, sigue adelante, "corrigiendo" sobre la marcha.</p>
+  </div>
+
+  <p>Esta filosofía tenía sentido en un contexto donde mucha gente escribía HTML a mano, sin herramientas de validación, y donde una página con un solo error no debía quedar completamente inaccesible para el usuario final.</p>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     EL CAOS
+═══════════════════════════════════════════ -->
+<section class="module" id="el-caos">
+  <div class="module-header">
+    <div class="module-icon">🌀</div>
+    <div>
+      <div class="module-title">El caos de que cada uno "adivinara" distinto</div>
+      <div class="module-sub">Perdonar el error estaba bien — el problema era que nadie corregía igual</div>
+    </div>
+  </div>
+
+  <p>El problema no era perdonar los errores, sino que cada navegador tenía su propia lógica interna, no documentada ni compartida, para decidir cómo corregirlos. Un mismo HTML mal formado —con una etiqueta sin cerrar o anidada de forma incorrecta— podía generar una estructura final distinta en Internet Explorer, Netscape o, más adelante, Firefox.</p>
+
+  <table class="tbl">
+    <tr><th>Situación</th><th>Por qué generaba problemas</th></tr>
+    <tr><td>Etiquetas sin cerrar</td><td>Cada motor de renderizado decidía dónde "cerrar" el elemento de forma distinta, alterando el resto de la página.</td></tr>
+    <tr><td>Anidamiento incorrecto (ej. una tabla dentro de un párrafo)</td><td>Los navegadores reordenaban el árbol del documento con reglas propias, no estandarizadas.</td></tr>
+    <tr><td>Caracteres o etiquetas desconocidas</td><td>Algunos navegadores las ignoraban, otros intentaban interpretarlas de todas formas.</td></tr>
+  </table>
+
+  <p>Esto obligaba a los desarrolladores a probar sus páginas en cada navegador por separado, incluso si el HTML "se veía" correcto a simple vista, porque la forma en que el navegador reparaba internamente los errores podía cambiar por completo el resultado visual.</p>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     QUIRKS MODE
+═══════════════════════════════════════════ -->
+<section class="module" id="quirks-mode">
+  <div class="module-header">
+    <div class="module-icon">🎭</div>
+    <div>
+      <div class="module-title">Quirks mode vs. standards mode</div>
+      <div class="module-sub">Cuando el propio navegador decide si "portarse mal" a propósito</div>
+    </div>
+  </div>
+
+  <p>Para no romper millones de páginas viejas escritas pensando en los comportamientos "raros" de los navegadores antiguos, los navegadores modernos incorporaron un mecanismo llamado <strong>quirks mode</strong> (modo de peculiaridades). Si una página no incluye una declaración <code>&lt;!DOCTYPE&gt;</code> válida, el navegador asume que fue escrita en la época previa a los estándares y activa deliberadamente comportamientos antiguos e inconsistentes, para que siga viéndose como su autor esperaba en aquel entonces.</p>
+
+  <div class="tip">
+    <h4>🟢 Los tres modos que existen hoy</h4>
+    <ul>
+      <li><strong>Quirks mode:</strong> imita el comportamiento inconsistente de navegadores de los años 90.</li>
+      <li><strong>Standards mode:</strong> sigue las especificaciones modernas del W3C/WHATWG al pie de la letra.</li>
+      <li><strong>Almost standards mode:</strong> un punto intermedio, usado por algunos DOCTYPE antiguos, con pequeñas excepciones (como el manejo de altura de celdas en tablas).</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     HTML5 ESTANDARIZA
+═══════════════════════════════════════════ -->
+<section class="module" id="estandarizacion">
+  <div class="module-header">
+    <div class="module-icon">📐</div>
+    <div>
+      <div class="module-title">HTML5 estandariza hasta los errores</div>
+      <div class="module-sub">El algoritmo de parsing más detallado de la historia de la web</div>
+    </div>
+  </div>
+
+  <p>A mediados de la década de 2000, el grupo <strong>WHATWG</strong> (impulsado inicialmente por ingenieros de Mozilla, Apple y Opera) tomó una decisión poco común para un estándar técnico: en lugar de solo describir cómo procesar HTML válido, la especificación de HTML5 documentó, con un nivel de detalle enorme, exactamente <strong>cómo debía comportarse un navegador ante cada tipo de HTML mal formado</strong>.</p>
+
+  <div class="warn">
+    <h4>⚠️ Por qué esto era necesario</h4>
+    <p>Antes de HTML5, ningún estándar oficial explicaba qué hacer con un HTML inválido — cada navegador improvisaba su propia solución. Al estandarizar también el manejo de errores, HTML5 logró que, por primera vez, todos los navegadores importantes reconstruyeran un HTML mal escrito de la misma manera exacta, eliminando gran parte de esas inconsistencias históricas.</p>
+  </div>
+
+  <p>Este trabajo se conoce formalmente como el <strong>algoritmo de parsing de HTML5</strong>, e incluye reglas extremadamente específicas: qué elementos pueden "cerrar implícitamente" a otros, cómo reordenar etiquetas mal anidadas, y qué hacer con contenido de texto suelto fuera de cualquier etiqueta.</p>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     LEGADO
+═══════════════════════════════════════════ -->
+<section class="module" id="legado">
+  <div class="module-header">
+    <div class="module-icon">🏛️</div>
+    <div>
+      <div class="module-title">Lo que significa hoy</div>
+      <div class="module-sub">Por qué tu HTML "casi siempre funciona", aunque tenga errores</div>
+    </div>
+  </div>
+
+  <dl class="glos">
+    <div class="glos-item">
+      <span class="emoji">🧩</span>
+      <dt>Parsing tolerante a errores</dt>
+      <dd>La estrategia de intentar interpretar y mostrar un documento incluso cuando no cumple perfectamente con las reglas del lenguaje.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🌲</span>
+      <dt>Árbol del DOM</dt>
+      <dd>La estructura jerárquica que el navegador construye a partir del HTML, incluso si tuvo que "corregir" el documento original para lograrlo.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">📄</span>
+      <dt>DOCTYPE</dt>
+      <dd>La declaración al inicio de un documento HTML que le indica al navegador qué modo de renderizado usar (quirks, casi estándar o estándar).</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">📚</span>
+      <dt>Algoritmo de parsing de HTML5</dt>
+      <dd>La sección de la especificación de HTML5 que define, con precisión, cómo debe reaccionar un navegador ante cualquier tipo de error de marcado.</dd>
+    </div>
+  </dl>
+
+  <div class="concept">
+    <h4>💡 Resumen del dato curioso</h4>
+    <p>Los navegadores "adivinan" tu HTML mal escrito porque, desde los años 90, se diseñaron para nunca dejar una página completamente rota por un error de marcado. Ese perdón funcionó bien de forma individual, pero durante años cada navegador reparaba los errores con su propia lógica no documentada, generando resultados distintos entre sí. HTML5 resolvió el problema de raíz al estandarizar, con un detalle sin precedentes, exactamente cómo debe corregirse cada tipo de error — convirtiendo lo que antes era una "adivinanza" en una regla precisa que todos los navegadores siguen por igual.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Guía Por qué el navegador "adivina" tu HTML mal escrito · Café &lt;/&gt; · Datos Curiosos
+</footer>
+
+</body>
+</html>

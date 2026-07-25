@@ -10,10 +10,18 @@ const ARCHIVOS_CORE = [
   './',
   './index.html',
   './portal.html',
+  './acceso.html',
   './capitulos.html',
   './css/style.css',
+  './css/estilos-portafolio.css',
+  './css/capitulos.css',
   './js/script.js',
+  './js/datos-cursos.js',
   './js/auth-guard.js',
+  './js/consola-demo.js',
+  './js/capitulos.js',
+  './image/icons/icon-192.png',
+  './image/icons/icon-512.png',
   './manifest.webmanifest'
 ]
 

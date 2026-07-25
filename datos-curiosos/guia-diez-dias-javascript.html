@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía 10 días que crearon JavaScript — Café </></title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #c49a1a;
+    --primary-light:  #fdf6e0;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --danger:         #c44a2a;
+    --danger-light:   #fdf0ec;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1a1814;
+    --code-text:      #e8e4de;
+  }
+
+  body { font-family: 'DM Sans', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  .cafe-bar { background:#ffffff; border-bottom:1px solid #e8e4de; padding:0 24px; display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:200; height:45px; }
+  .cafe-bar a { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:#8a8480; text-decoration:none; padding:6px 14px; border:1px solid #e8e4de; border-radius:999px; transition:all 0.15s; }
+  .cafe-bar a:hover { color:#1a1814; border-color:#8a8480; }
+  .cafe-bar span { font-size:13px; color:#8a8480; }
+
+  header { background: #1a1814; color: #f7f4ef; padding: 3rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: '☕'; position: absolute; font-size: 12rem; font-weight: 900; color: rgba(255,255,255,0.04); right: -1rem; top: -2rem; font-family: monospace; line-height: 1; }
+  header h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; font-family: 'Fraunces', serif; }
+  header p { font-size: 1.1rem; opacity: .85; margin-top: .5rem; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 45px; z-index: 100; display: flex; overflow-x: auto; gap: 0; }
+  nav a { flex-shrink: 0; padding: .75rem 1rem; text-decoration: none; color: var(--muted); font-size: .78rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2.5rem; scroll-margin-top:100px; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-size: 1.35rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  .analogy { background: #FFF7ED; border: 1px solid #FDE68A; border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: #92400E; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; color: #78350F; }
+
+  .concept { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p, .tip ul { font-size: .95rem; }
+  .tip ul { padding-left: 1.2rem; }
+
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  .glos { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .glos-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; }
+  .glos-item dt { font-weight: 700; color: var(--primary); font-size: .92rem; margin-bottom: .3rem; }
+  .glos-item dd { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+  .glos-item .emoji { font-size: 1.3rem; display: block; margin-bottom: .3rem; }
+
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: white; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  h2 { font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; color: var(--text); }
+  h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 .5rem; }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: #f0ece6; color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+  strong { font-weight: 700; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); }
+</style>
+</head>
+<body>
+
+<div class="cafe-bar">
+  <a href="../capitulos.html?tab=datoscuriosos">← Volver a Datos Curiosos</a>
+  <span>☕ 10 días que crearon JavaScript</span>
+</div>
+
+<header>
+  <h1>10 días que crearon JavaScript</h1>
+  <p>La historia de Brendan Eich</p>
+  <span class="badge">✦ Dato curioso · Historia de la web ✦</span>
+</header>
+
+<nav>
+  <a href="#intro">🎯 Intro</a>
+  <a href="#el-encargo">📋 El encargo original: ni siquiera era JavaScript</a>
+  <a href="#el-giro">🔀 El giro de último momento</a>
+  <a href="#las-influencias">🧩 Tres lenguajes en una mezcladora</a>
+  <a href="#la-semana">📅 Cómo fueron esos diez días</a>
+  <a href="#legado">🏛️ Lo que esa prisa dejó para siempre</a>
+</nav>
+
+<main>
+
+<div class="parte-badge">🧠 Dato curioso — Historia y curiosidades de HTML, CSS y JS</div>
+
+<!-- ═══════════════════════════════════════════
+     INTRO
+═══════════════════════════════════════════ -->
+<section class="module" id="intro">
+  <div class="module-header">
+    <div class="module-icon">🎯</div>
+    <div>
+      <div class="module-title">Introducción — el lenguaje más usado del mundo nació sin tiempo que perder</div>
+      <div class="module-sub">Mayo de 1995, Mountain View, California</div>
+    </div>
+  </div>
+
+  <p>Es difícil encontrar otra pieza de tecnología tan usada en el mundo que haya nacido bajo tanta presión de tiempo como JavaScript. Su creador, <strong>Brendan Eich</strong>, diseñó la primera versión del lenguaje en apenas diez días, en mayo de 1995, mientras trabajaba en Netscape Communications.</p>
+
+  <div class="concept">
+    <h4>💡 El dato en una frase</h4>
+    <p>Brendan Eich escribió el primer prototipo de lo que sería JavaScript en 10 días de mayo de 1995, bajo presión de Netscape para tener listo un lenguaje de scripting antes del lanzamiento de Netscape Navigator 2.0 — combinando ideas de tres lenguajes distintos: Scheme, Self y Java.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     EL ENCARGO ORIGINAL
+═══════════════════════════════════════════ -->
+<section class="module" id="el-encargo">
+  <div class="module-header">
+    <div class="module-icon">📋</div>
+    <div>
+      <div class="module-title">El encargo original: ni siquiera era JavaScript</div>
+      <div class="module-sub">A Eich lo contrataron para meter Scheme en el navegador</div>
+    </div>
+  </div>
+
+  <p>Cuando Brendan Eich se unió a Netscape en abril de 1995, su encargo inicial no era crear un lenguaje nuevo desde cero: la idea original era integrar <strong>Scheme</strong>, un lenguaje funcional ya existente, dentro del navegador Netscape Navigator, para permitir programar pequeños scripts dentro de las páginas web.</p>
+
+  <div class="analogy">
+    <h4>🏠 Analogía: contratado para pintar y terminas construyendo la casa</h4>
+    <p>Es como si contrataran a alguien para pintar unas paredes y, a mitad de la semana, le pidieran mejor construir una habitación entera, con plano nuevo incluido, porque cambió lo que el cliente realmente necesitaba. Eso le pasó a Eich: el plan de integrar Scheme cambió de rumbo casi de inmediato por presiones del negocio.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     EL GIRO
+═══════════════════════════════════════════ -->
+<section class="module" id="el-giro">
+  <div class="module-header">
+    <div class="module-icon">🔀</div>
+    <div>
+      <div class="module-title">El giro de último momento: tenía que "parecerse a Java"</div>
+      <div class="module-sub">La sombra del acuerdo con Sun Microsystems</div>
+    </div>
+  </div>
+
+  <p>Netscape estaba negociando en paralelo una alianza con <strong>Sun Microsystems</strong> para incluir la tecnología Java (los famosos "applets") dentro de su navegador. Como parte de esa estrategia comercial, la dirección de Netscape —incluido el cofundador <strong>Marc Andreessen</strong>— decidió que el nuevo lenguaje de scripting debía tener una sintaxis que se sintiera familiar para los programadores de Java, en lugar de la sintaxis de Scheme, más alejada de lo que la mayoría conocía.</p>
+
+  <div class="warn">
+    <h4>⚠️ La presión no era solo técnica</h4>
+    <p>Netscape quería lanzar Navigator 2.0 con esta nueva capacidad de scripting integrada, y el calendario del producto ya estaba fijado. Eich tuvo que diseñar el lenguaje en paralelo a decisiones de negocio que seguían cambiando, con una fecha límite que no se podía mover.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     LAS INFLUENCIAS
+═══════════════════════════════════════════ -->
+<section class="module" id="las-influencias">
+  <div class="module-header">
+    <div class="module-icon">🧩</div>
+    <div>
+      <div class="module-title">Tres lenguajes en una mezcladora</div>
+      <div class="module-sub">Scheme, Self y Java, combinados contra reloj</div>
+    </div>
+  </div>
+
+  <p>Para cumplir con el plazo, Eich no diseñó el lenguaje completamente desde cero: tomó prestadas ideas de lenguajes que ya conocía bien.</p>
+
+  <table class="tbl">
+    <tr><th>Lenguaje</th><th>Qué le aportó a JavaScript</th></tr>
+    <tr><td><span class="tag">Scheme</span></td><td>Funciones como "ciudadanos de primera clase": se pueden guardar en variables, pasar como argumentos y devolver desde otras funciones.</td></tr>
+    <tr><td><span class="tag">Self</span></td><td>Herencia basada en prototipos, en lugar de clases fijas — un objeto puede heredar directamente de otro objeto.</td></tr>
+    <tr><td><span class="tag">Java</span></td><td>La sintaxis general: llaves, punto y coma, y varios nombres de tipos de datos, para que se sintiera familiar a los programadores de la época.</td></tr>
+  </table>
+
+  <p>Esta mezcla explica por qué, técnicamente, JavaScript se parece muy poco a Java a pesar del nombre: su corazón funcional y su sistema de prototipos vienen de otras dos tradiciones completamente distintas.</p>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     LA SEMANA
+═══════════════════════════════════════════ -->
+<section class="module" id="la-semana">
+  <div class="module-header">
+    <div class="module-icon">📅</div>
+    <div>
+      <div class="module-title">Cómo fueron esos diez días</div>
+      <div class="module-sub">De un prototipo funcional a una demo interna</div>
+    </div>
+  </div>
+
+  <p>Eich ha contado en distintas entrevistas y charlas a lo largo de los años que el diseño inicial —la sintaxis básica, el modelo de objetos basado en prototipos y el sistema de tipos dinámico— quedó definido en ese lapso de aproximadamente diez días de mayo de 1995. El resultado fue un prototipo funcional que Netscape pudo mostrar internamente y usar como base para seguir desarrollando el lenguaje durante los meses siguientes, antes de su lanzamiento público.</p>
+
+  <div class="tip">
+    <h4>🟢 Lo que sí alcanzó a definirse en esos días</h4>
+    <ul>
+      <li>El modelo de prototipos para la herencia entre objetos.</li>
+      <li>Las funciones como valores de primera clase.</li>
+      <li>Un sistema de tipos dinámico, sin necesidad de declarar el tipo de cada variable.</li>
+      <li>Una sintaxis con llaves y punto y coma, similar a la de Java y C.</li>
+    </ul>
+  </div>
+
+  <p>El lenguaje se integró primero en una versión beta de Netscape Navigator 2.0, lanzada en septiembre de 1995 bajo el nombre <strong>LiveScript</strong>. Fue renombrado a <strong>JavaScript</strong> en diciembre de ese mismo año, como parte del acuerdo comercial con Sun Microsystems.</p>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     LEGADO
+═══════════════════════════════════════════ -->
+<section class="module" id="legado">
+  <div class="module-header">
+    <div class="module-icon">🏛️</div>
+    <div>
+      <div class="module-title">Lo que esa prisa dejó para siempre</div>
+      <div class="module-sub">Decisiones de diez días que siguen presentes treinta años después</div>
+    </div>
+  </div>
+
+  <dl class="glos">
+    <div class="glos-item">
+      <span class="emoji">🧬</span>
+      <dt>Prototipos, no clases</dt>
+      <dd>El modelo de herencia original de JavaScript, heredado de Self, se mantuvo como base del lenguaje incluso después de que ES6 (2015) agregara la palabra clave <code>class</code> como una capa de sintaxis sobre ese mismo sistema.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🎭</span>
+      <dt>Tipado dinámico</dt>
+      <dd>La decisión de no exigir declarar tipos de variables, tomada por rapidez, se convirtió en una característica que definió al lenguaje —para bien y para mal— durante décadas.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🏃</span>
+      <dt>Presión comercial, no técnica</dt>
+      <dd>Muchas decisiones de diseño no vinieron de un ideal técnico, sino de la necesidad de Netscape de cerrar un producto con una fecha de lanzamiento fija.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🌍</span>
+      <dt>Estandarización posterior</dt>
+      <dd>Para evitar que cada navegador implementara su propia versión del lenguaje, JavaScript se envió a estandarización en Ecma International en 1996, dando origen a la especificación ECMAScript.</dd>
+    </div>
+  </dl>
+
+  <div class="concept">
+    <h4>💡 Resumen del dato curioso</h4>
+    <p>JavaScript nació de un cambio de planes de último momento: de integrar Scheme a crear, en apenas diez días de mayo de 1995, un lenguaje nuevo con sintaxis parecida a Java para encajar con una alianza comercial de Netscape con Sun Microsystems. Brendan Eich combinó ideas de Scheme, Self y Java bajo una presión de tiempo enorme, y varias de esas decisiones improvisadas —como el modelo de prototipos y el tipado dinámico— definieron el lenguaje durante las tres décadas siguientes.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Guía 10 días que crearon JavaScript · Café &lt;/&gt; · Datos Curiosos
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía Cómo nació Node.js — Café </></title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #c49a1a;
+    --primary-light:  #fdf6e0;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --danger:         #c44a2a;
+    --danger-light:   #fdf0ec;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1a1814;
+    --code-text:      #e8e4de;
+  }
+
+  body { font-family: 'DM Sans', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  .cafe-bar { background:#ffffff; border-bottom:1px solid #e8e4de; padding:0 24px; display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:200; height:45px; }
+  .cafe-bar a { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:#8a8480; text-decoration:none; padding:6px 14px; border:1px solid #e8e4de; border-radius:999px; transition:all 0.15s; }
+  .cafe-bar a:hover { color:#1a1814; border-color:#8a8480; }
+  .cafe-bar span { font-size:13px; color:#8a8480; }
+
+  header { background: #1a1814; color: #f7f4ef; padding: 3rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: '☕'; position: absolute; font-size: 12rem; font-weight: 900; color: rgba(255,255,255,0.04); right: -1rem; top: -2rem; font-family: monospace; line-height: 1; }
+  header h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; font-family: 'Fraunces', serif; }
+  header p { font-size: 1.1rem; opacity: .85; margin-top: .5rem; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 45px; z-index: 100; display: flex; overflow-x: auto; gap: 0; }
+  nav a { flex-shrink: 0; padding: .75rem 1rem; text-decoration: none; color: var(--muted); font-size: .78rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2.5rem; scroll-margin-top:100px; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-size: 1.35rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  .analogy { background: #FFF7ED; border: 1px solid #FDE68A; border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: #92400E; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; color: #78350F; }
+
+  .concept { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p, .tip ul { font-size: .95rem; }
+  .tip ul { padding-left: 1.2rem; }
+
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  .glos { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .glos-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; }
+  .glos-item dt { font-weight: 700; color: var(--primary); font-size: .92rem; margin-bottom: .3rem; }
+  .glos-item dd { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+  .glos-item .emoji { font-size: 1.3rem; display: block; margin-bottom: .3rem; }
+
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: white; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  h2 { font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; color: var(--text); }
+  h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 .5rem; }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: #f0ece6; color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+  strong { font-weight: 700; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); }
+</style>
+</head>
+<body>
+
+<div class="cafe-bar">
+  <a href="../capitulos.html?tab=datoscuriosos">← Volver a Datos Curiosos</a>
+  <span>☕ Cómo nació Node.js</span>
+</div>
+
+<header>
+  <h1>Cómo nació Node.js</h1>
+  <p>Y por qué cambió todo para JavaScript</p>
+  <span class="badge">✦ Dato curioso · Historia de la web ✦</span>
+</header>
+
+<nav>
+  <a href="#intro">🎯 Intro</a>
+  <a href="#el-problema">🐌 El problema que nadie resolvía bien</a>
+  <a href="#ryan-dahl">👤 Ryan Dahl y la charla en JSConf</a>
+  <a href="#v8">⚙️ Por qué V8 fue la pieza clave</a>
+  <a href="#npm">📦 npm: el otro invento que lo cambió todo</a>
+  <a href="#legado">🏛️ De Node.js a un ecosistema completo</a>
+</nav>
+
+<main>
+
+<div class="parte-badge">🧠 Dato curioso — Historia y curiosidades de HTML, CSS y JS</div>
+
+<!-- ═══════════════════════════════════════════
+     INTRO
+═══════════════════════════════════════════ -->
+<section class="module" id="intro">
+  <div class="module-header">
+    <div class="module-icon">🎯</div>
+    <div>
+      <div class="module-title">Introducción — JavaScript se escapó del navegador</div>
+      <div class="module-sub">De un lenguaje encerrado en la pestaña a uno que corre servidores enteros</div>
+    </div>
+  </div>
+
+  <p>Durante más de una década, JavaScript solo existió dentro del navegador. No podía leer un archivo del disco, abrir una conexión de red directa ni actuar como el "cerebro" de un servidor. Eso cambió radicalmente en 2009, cuando un desarrollador llamado <strong>Ryan Dahl</strong> presentó <strong>Node.js</strong>: una forma de correr JavaScript por fuera del navegador, directamente en un servidor.</p>
+
+  <div class="concept">
+    <h4>💡 El dato en una frase</h4>
+    <p>Node.js nació en 2009, creado por Ryan Dahl, usando el motor V8 de JavaScript que Google había liberado como código abierto para su navegador Chrome. Su gran aporte fue un modelo de entrada/salida (I/O) asíncrono y no bloqueante, pensado para manejar muchísimas conexiones simultáneas sin desperdiciar recursos.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     EL PROBLEMA
+═══════════════════════════════════════════ -->
+<section class="module" id="el-problema">
+  <div class="module-header">
+    <div class="module-icon">🐌</div>
+    <div>
+      <div class="module-title">El problema que nadie resolvía bien: la concurrencia</div>
+      <div class="module-sub">Cuando cada conexión nueva significaba otro hilo o proceso</div>
+    </div>
+  </div>
+
+  <p>Antes de Node.js, la mayoría de los servidores web (como el modelo clásico de Apache) manejaban cada conexión nueva creando un hilo o proceso dedicado. Esto funcionaba bien con pocas conexiones, pero se volvía muy costoso en memoria y rendimiento cuando un servidor tenía que atender miles de conexiones simultáneas, como suele pasar con aplicaciones en tiempo real (chats, notificaciones push, streaming de datos).</p>
+
+  <div class="analogy">
+    <h4>🍽️ Analogía: el mesero contra la cocina de línea de ensamblaje</h4>
+    <p>El modelo clásico era como asignar un mesero exclusivo a cada mesa, que se queda parado esperando mientras la cocina prepara el platillo, sin poder atender a nadie más mientras tanto. El modelo de Node.js es como un solo mesero muy eficiente que toma la orden de una mesa, la manda a la cocina, y mientras se prepara, atiende a otras mesas — y regresa a servir el platillo en cuanto está listo, sin haber estado nunca parado sin hacer nada.</p>
+  </div>
+
+  <p>A ese segundo modelo se le conoce como <strong>I/O no bloqueante</strong> (non-blocking I/O), basado en un bucle de eventos (<em>event loop</em>) que va atendiendo tareas conforme se completan, en lugar de esperar a que cada una termine antes de pasar a la siguiente.</p>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     RYAN DAHL
+═══════════════════════════════════════════ -->
+<section class="module" id="ryan-dahl">
+  <div class="module-header">
+    <div class="module-icon">👤</div>
+    <div>
+      <div class="module-title">Ryan Dahl y la charla que presentó Node.js al mundo</div>
+      <div class="module-sub">Noviembre de 2009, JSConf EU en Berlín</div>
+    </div>
+  </div>
+
+  <p>Ryan Dahl venía experimentando con la idea de un servidor basado en eventos antes de decidirse por JavaScript como lenguaje. Presentó Node.js formalmente en la conferencia <strong>JSConf EU</strong>, en Berlín, en noviembre de 2009. La charla, en la que mostró en vivo cómo Node.js podía manejar conexiones sin bloquear el servidor, es recordada como un momento clave para la comunidad de JavaScript.</p>
+
+  <div class="tip">
+    <h4>🟢 Por qué eligió JavaScript y no otro lenguaje</h4>
+    <ul>
+      <li>JavaScript no tenía una historia previa de I/O bloqueante en el navegador, así que no había "malos hábitos" que romper.</li>
+      <li>El modelo basado en funciones de callback ya era muy natural para los programadores de JavaScript, gracias a su uso constante en eventos del navegador (clics, temporizadores).</li>
+      <li>El motor V8 de Google, recién liberado como código abierto, ofrecía un rendimiento excelente para ejecutar JavaScript fuera del navegador.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     V8
+═══════════════════════════════════════════ -->
+<section class="module" id="v8">
+  <div class="module-header">
+    <div class="module-icon">⚙️</div>
+    <div>
+      <div class="module-title">Por qué V8 fue la pieza clave</div>
+      <div class="module-sub">El motor de Chrome, reutilizado para correr en un servidor</div>
+    </div>
+  </div>
+
+  <p>Google había lanzado su navegador <strong>Chrome</strong> en 2008 junto con un motor de JavaScript propio, <strong>V8</strong>, diseñado para compilar el código JavaScript directamente a código máquina en lugar de solo interpretarlo, lo que lo hacía notablemente más rápido que los motores de la competencia en ese momento. Y, algo crucial, Google liberó V8 como proyecto de <strong>código abierto</strong>.</p>
+
+  <table class="tbl">
+    <tr><th>Pieza</th><th>De dónde vino</th><th>Para qué la usó Node.js</th></tr>
+    <tr><td><span class="tag">V8</span></td><td>Google Chrome (2008)</td><td>Motor para ejecutar JavaScript fuera del navegador, a alta velocidad.</td></tr>
+    <tr><td><span class="tag">libuv</span></td><td>Desarrollado para Node.js</td><td>Librería en C que maneja el bucle de eventos y las operaciones de I/O asíncronas.</td></tr>
+    <tr><td><span class="tag">npm</span></td><td>Isaac Schlueter, 2010</td><td>Gestor de paquetes que permitió compartir código Node.js fácilmente.</td></tr>
+  </table>
+
+  <p>Sin V8 disponible como código abierto y gratuito, construir Node.js habría requerido escribir un motor de JavaScript desde cero — un esfuerzo enorme que probablemente habría retrasado, o impedido, que el proyecto despegara como lo hizo.</p>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     NPM
+═══════════════════════════════════════════ -->
+<section class="module" id="npm">
+  <div class="module-header">
+    <div class="module-icon">📦</div>
+    <div>
+      <div class="module-title">npm: el otro invento que lo cambió todo</div>
+      <div class="module-sub">2010 — Isaac Schlueter le da a Node.js un gestor de paquetes</div>
+    </div>
+  </div>
+
+  <p>Un año después del lanzamiento de Node.js, en 2010, el desarrollador <strong>Isaac Schlueter</strong> creó <strong>npm</strong> (Node Package Manager), el gestor de paquetes que permitió a cualquier persona publicar y reutilizar librerías de JavaScript con extrema facilidad. Este detalle fue determinante: sin una forma sencilla de compartir código, el ecosistema de Node.js habría crecido mucho más lento.</p>
+
+  <div class="warn">
+    <h4>⚠️ El crecimiento de npm terminó siendo su propio fenómeno</h4>
+    <p>Con el tiempo, npm se convirtió en el mayor registro de paquetes de código de cualquier lenguaje de programación en el mundo, con más de un millón de paquetes publicados. Ese mismo crecimiento explosivo es parte de lo que después alimentó la llamada "fatiga de JavaScript": tantas opciones disponibles que elegir se volvió, en sí mismo, un trabajo.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     LEGADO
+═══════════════════════════════════════════ -->
+<section class="module" id="legado">
+  <div class="module-header">
+    <div class="module-icon">🏛️</div>
+    <div>
+      <div class="module-title">De Node.js a un ecosistema completo</div>
+      <div class="module-sub">Cómo un proyecto personal terminó bajo una fundación</div>
+    </div>
+  </div>
+
+  <p>Node.js fue adoptado rápidamente por empresas con necesidades de alta concurrencia, como PayPal, Netflix y LinkedIn, que reportaron mejoras notables de rendimiento al migrar partes de su infraestructura. En 2014, por diferencias sobre cómo se gobernaba el proyecto dentro de la empresa Joyent (que entonces controlaba Node.js), una parte de la comunidad creó un fork independiente llamado <strong>io.js</strong>. Las dos ramas se reunificaron en 2015 bajo la recién creada <strong>Node.js Foundation</strong>, un organismo neutral encargado de gobernar el proyecto de forma abierta.</p>
+
+  <dl class="glos">
+    <div class="glos-item">
+      <span class="emoji">🔁</span>
+      <dt>Event loop (bucle de eventos)</dt>
+      <dd>El mecanismo central de Node.js que va procesando tareas asíncronas conforme terminan, sin bloquear la ejecución del programa.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">⛔</span>
+      <dt>I/O no bloqueante</dt>
+      <dd>Un modelo donde el programa no se detiene a esperar una operación lenta (como leer un archivo), sino que sigue atendiendo otras tareas mientras tanto.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🍴</span>
+      <dt>Fork (io.js)</dt>
+      <dd>Una copia independiente de un proyecto de código abierto, creada por desacuerdos sobre su dirección o gobernanza.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🏢</span>
+      <dt>Node.js Foundation</dt>
+      <dd>Organismo sin fines de lucro creado en 2015 para gobernar el proyecto de forma abierta, tras la reunificación con io.js.</dd>
+    </div>
+  </dl>
+
+  <div class="concept">
+    <h4>💡 Resumen del dato curioso</h4>
+    <p>Node.js nació en 2009 de la mano de Ryan Dahl, aprovechando el motor V8 que Google había liberado para Chrome, con el objetivo de resolver el problema de manejar muchas conexiones simultáneas sin desperdiciar recursos. La llegada de npm en 2010 aceleró su adopción al facilitar compartir código, y su gobernanza pasó de una sola empresa a una fundación abierta tras el episodio del fork io.js. Ese conjunto de decisiones convirtió a JavaScript, un lenguaje pensado originalmente solo para el navegador, en una de las tecnologías más usadas también del lado del servidor.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Guía Cómo nació Node.js · Café &lt;/&gt; · Datos Curiosos
+</footer>
+
+</body>
+</html>

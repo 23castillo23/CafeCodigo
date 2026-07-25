@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía El mito del pixel perfect — Café </></title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #c49a1a;
+    --primary-light:  #fdf6e0;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --danger:         #c44a2a;
+    --danger-light:   #fdf0ec;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1a1814;
+    --code-text:      #e8e4de;
+  }
+
+  body { font-family: 'DM Sans', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  .cafe-bar { background:#ffffff; border-bottom:1px solid #e8e4de; padding:0 24px; display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:200; height:45px; }
+  .cafe-bar a { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:#8a8480; text-decoration:none; padding:6px 14px; border:1px solid #e8e4de; border-radius:999px; transition:all 0.15s; }
+  .cafe-bar a:hover { color:#1a1814; border-color:#8a8480; }
+  .cafe-bar span { font-size:13px; color:#8a8480; }
+
+  header { background: #1a1814; color: #f7f4ef; padding: 3rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: '☕'; position: absolute; font-size: 12rem; font-weight: 900; color: rgba(255,255,255,0.04); right: -1rem; top: -2rem; font-family: monospace; line-height: 1; }
+  header h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; font-family: 'Fraunces', serif; }
+  header p { font-size: 1.1rem; opacity: .85; margin-top: .5rem; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 45px; z-index: 100; display: flex; overflow-x: auto; gap: 0; }
+  nav a { flex-shrink: 0; padding: .75rem 1rem; text-decoration: none; color: var(--muted); font-size: .78rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2.5rem; scroll-margin-top:100px; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-size: 1.35rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  .analogy { background: #FFF7ED; border: 1px solid #FDE68A; border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: #92400E; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; color: #78350F; }
+
+  .concept { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p, .tip ul { font-size: .95rem; }
+  .tip ul { padding-left: 1.2rem; }
+
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  .glos { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .glos-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; }
+  .glos-item dt { font-weight: 700; color: var(--primary); font-size: .92rem; margin-bottom: .3rem; }
+  .glos-item dd { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+  .glos-item .emoji { font-size: 1.3rem; display: block; margin-bottom: .3rem; }
+
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: white; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  h2 { font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; color: var(--text); }
+  h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 .5rem; }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: #f0ece6; color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+  strong { font-weight: 700; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); }
+</style>
+</head>
+<body>
+
+<div class="cafe-bar">
+  <a href="../capitulos.html?tab=datoscuriosos">← Volver a Datos Curiosos</a>
+  <span>☕ El mito del pixel perfect</span>
+</div>
+
+<header>
+  <h1>El mito del "pixel perfect"</h1>
+  <p>Por qué cada navegador renderiza distinto</p>
+  <span class="badge">✦ Dato curioso · Historia de la web ✦</span>
+</header>
+
+<nav>
+  <a href="#intro">🎯 Intro</a>
+  <a href="#origen-mito">🖨️ El origen: una expectativa que venía de la imprenta</a>
+  <a href="#por-que-imposible">🔬 Por qué es técnicamente imposible</a>
+  <a href="#responsive">📱 El giro: diseño flexible en vez de exacto</a>
+  <a href="#legado">🏛️ Cómo se piensa el diseño web hoy</a>
+</nav>
+
+<main>
+
+<div class="parte-badge">🧠 Dato curioso — Historia y curiosidades de HTML, CSS y JS</div>
+
+<!-- ═══════════════════════════════════════════
+     INTRO
+═══════════════════════════════════════════ -->
+<section class="module" id="intro">
+  <div class="module-header">
+    <div class="module-icon">🎯</div>
+    <div>
+      <div class="module-title">Introducción — la promesa que la web nunca pudo cumplir del todo</div>
+      <div class="module-sub">"Que se vea exactamente igual en todos lados" era, desde el inicio, un objetivo imposible</div>
+    </div>
+  </div>
+
+  <p>Durante años, muchos clientes y diseñadores exigieron que un sitio web se viera <strong>"pixel perfect"</strong>: exactamente igual, píxel por píxel, en cualquier navegador, sistema operativo o pantalla. Es una expectativa comprensible —viene de otras disciplinas del diseño— pero, aplicada a la web, siempre fue, en el fondo, un mito.</p>
+
+  <div class="concept">
+    <h4>💡 El dato en una frase</h4>
+    <p>El "pixel perfect" es técnicamente imposible en la web porque cada navegador usa su propio motor de renderizado, cada sistema operativo dibuja el texto con reglas distintas de suavizado (anti-aliasing) y cada pantalla tiene una densidad de píxeles diferente. La industria del diseño web fue abandonando esa meta a favor de un enfoque más realista: diseño flexible y consistente, no idéntico píxel por píxel.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     ORIGEN DEL MITO
+═══════════════════════════════════════════ -->
+<section class="module" id="origen-mito">
+  <div class="module-header">
+    <div class="module-icon">🖨️</div>
+    <div>
+      <div class="module-title">El origen: una expectativa que venía de la imprenta</div>
+      <div class="module-sub">Cuando los mockups de Photoshop se trataban como un contrato</div>
+    </div>
+  </div>
+
+  <p>La idea de "pixel perfect" no nació de la web, sino del diseño impreso y del diseño de software de escritorio, donde un archivo final —una revista, un cartel— sí se reproducía de forma prácticamente idéntica en cada copia. Cuando el diseño web se popularizó, muchos diseñadores llegaban de esas disciplinas y trataban sus mockups (diseños estáticos hechos en programas como Photoshop) como si fueran ese mismo tipo de archivo final e inmutable.</p>
+
+  <div class="analogy">
+    <h4>🎭 Analogía: el mismo guion, actores distintos</h4>
+    <p>Pedirle a la web que se vea "pixel perfect" en todos lados es como pedirle a distintas compañías de teatro, en distintos países, que monten la misma obra con exactamente los mismos movimientos, la misma iluminación y el mismo tono de voz, sin margen de interpretación. El HTML y el CSS son el guion — pero cada navegador, sistema operativo y pantalla es una compañía distinta interpretándolo con sus propias herramientas.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     POR QUÉ ES IMPOSIBLE
+═══════════════════════════════════════════ -->
+<section class="module" id="por-que-imposible">
+  <div class="module-header">
+    <div class="module-icon">🔬</div>
+    <div>
+      <div class="module-title">Por qué es técnicamente imposible</div>
+      <div class="module-sub">Cuatro capas distintas, cada una con su propia forma de dibujar</div>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <tr><th>Factor</th><th>Por qué genera diferencias</th></tr>
+    <tr><td><span class="tag">Motor de renderizado</span></td><td>Blink (Chrome), Gecko (Firefox) y WebKit (Safari) interpretan y dibujan el CSS con implementaciones internas distintas, aunque sigan el mismo estándar.</td></tr>
+    <tr><td><span class="tag">Renderizado de fuentes</span></td><td>Windows, macOS y Linux aplican algoritmos de suavizado (anti-aliasing) y "hinting" de tipografía diferentes, cambiando el grosor visual del mismo texto.</td></tr>
+    <tr><td><span class="tag">Densidad de píxeles</span></td><td>Una pantalla "Retina" o de alta densidad reparte los mismos píxeles CSS en más píxeles físicos reales que una pantalla estándar.</td></tr>
+    <tr><td><span class="tag">Preferencias del usuario</span></td><td>Zoom del navegador, tamaño de fuente personalizado o modo oscuro del sistema pueden alterar la apariencia final, fuera del control del diseñador.</td></tr>
+  </table>
+
+  <div class="warn">
+    <h4>⚠️ Ni siquiera el mismo navegador garantiza lo mismo</h4>
+    <p>Dos personas usando el mismo Chrome, pero en Windows y en macOS respectivamente, pueden ver una tipografía con un grosor ligeramente distinto, simplemente porque el sistema operativo —no el navegador— es el que controla cómo se dibuja el texto en pantalla.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     RESPONSIVE
+═══════════════════════════════════════════ -->
+<section class="module" id="responsive">
+  <div class="module-header">
+    <div class="module-icon">📱</div>
+    <div>
+      <div class="module-title">El giro: diseño flexible en vez de exacto</div>
+      <div class="module-sub">2010 — el artículo que le puso nombre al cambio de mentalidad</div>
+    </div>
+  </div>
+
+  <p>En mayo de 2010, el diseñador <strong>Ethan Marcotte</strong> publicó en la revista <em>A List Apart</em> el artículo <em>"Responsive Web Design"</em>, donde propuso una idea que terminó de desplazar al "pixel perfect" como meta: en lugar de diseñar para un tamaño de pantalla fijo, diseñar layouts fluidos, con imágenes flexibles y <em>media queries</em>, que se adaptaran razonablemente bien a cualquier tamaño de pantalla, sin necesidad de verse "idénticos" en todas.</p>
+
+  <div class="tip">
+    <h4>🟢 El cambio de vocabulario que trajo consigo</h4>
+    <ul>
+      <li>De "que se vea igual en todos lados" a "que funcione bien en todos lados".</li>
+      <li>De layouts fijos en píxeles a unidades relativas y flexibles.</li>
+      <li>De probar solo en un navegador "de referencia" a probar la experiencia completa en varios dispositivos reales.</li>
+      <li>Del término "cross-browser identical" al más realista "cross-browser compatible".</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     LEGADO
+═══════════════════════════════════════════ -->
+<section class="module" id="legado">
+  <div class="module-header">
+    <div class="module-icon">🏛️</div>
+    <div>
+      <div class="module-title">Cómo se piensa el diseño web hoy</div>
+      <div class="module-sub">De la perfección imposible a la consistencia razonable</div>
+    </div>
+  </div>
+
+  <dl class="glos">
+    <div class="glos-item">
+      <span class="emoji">🖋️</span>
+      <dt>Hinting de fuentes</dt>
+      <dd>El proceso mediante el cual el sistema operativo ajusta cómo se dibuja una tipografía en pantalla, sobre todo en tamaños pequeños.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🔲</span>
+      <dt>Densidad de píxeles (DPR)</dt>
+      <dd>La relación entre los píxeles físicos de una pantalla y los "píxeles CSS" que usa el navegador para calcular tamaños.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🌊</span>
+      <dt>Diseño fluido</dt>
+      <dd>Un enfoque de layout que usa proporciones relativas en lugar de medidas fijas, para adaptarse a distintos tamaños de pantalla.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">✅</span>
+      <dt>Cross-browser compatible</dt>
+      <dd>El estándar realista que reemplazó al "pixel perfect": que la página funcione bien y se vea coherente, aunque no sea idéntica, en distintos navegadores.</dd>
+    </div>
+  </dl>
+
+  <div class="concept">
+    <h4>💡 Resumen del dato curioso</h4>
+    <p>El "pixel perfect" fue una expectativa heredada del diseño impreso que nunca encajó del todo con la naturaleza de la web: distintos motores de renderizado, sistemas operativos y pantallas siempre iban a dibujar una misma página de forma ligeramente distinta. El diseño responsivo, popularizado por Ethan Marcotte en 2010, ayudó a la industria a reemplazar esa meta imposible por una más realista: que un sitio funcione y se vea bien en cualquier lugar, aunque no sea idéntico píxel por píxel.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Guía El mito del "pixel perfect" · Café &lt;/&gt; · Datos Curiosos
+</footer>
+
+</body>
+</html>

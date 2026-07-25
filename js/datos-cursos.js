@@ -485,17 +485,72 @@ const DATOS_CURIOSOS = [
         badge: 'JS', badgeEstilo: 'background:rgba(200,180,40,0.2);color:#e8d870;border:1px solid rgba(200,180,40,0.3);',
         titulo: 'Por qué JavaScript se llama así', desc: 'Y por qué casi no tiene nada que ver con Java.'
       },
-      { tipo: 'bloqueada', gradiente: 'linear-gradient(135deg,#0e180e 60%,#122012)', badgeEstilo: 'background:rgba(40,180,80,0.2);color:#80e0a0;border:1px solid rgba(40,180,80,0.3);', icono: '⚔️', titulo: 'La guerra de los navegadores', desc: 'Cómo nació la necesidad de estándares web.' },
-      { tipo: 'bloqueada', gradiente: 'linear-gradient(135deg,#0a1820 60%,#0e2030)', badgeEstilo: 'background:rgba(40,140,220,0.2);color:#80c8f0;border:1px solid rgba(40,140,220,0.3);', icono: '🎨', titulo: 'Quién inventó el CSS', desc: 'Y por qué tardó tanto en ser compatible entre navegadores.' },
-      { tipo: 'bloqueada', gradiente: 'linear-gradient(135deg,#1a0f1a 60%,#2a1230)', badgeEstilo: 'background:rgba(230,80,80,0.2);color:#f4a0a0;border:1px solid rgba(230,80,80,0.3);', icono: '😅', titulo: 'El origen de <marquee> y <blink>', desc: 'Etiquetas que la web quiso olvidar.' },
-      { tipo: 'bloqueada', gradiente: 'linear-gradient(135deg,#1a1a08 60%,#282810)', badgeEstilo: 'background:rgba(200,180,40,0.2);color:#e8d870;border:1px solid rgba(200,180,40,0.3);', icono: '🌀', titulo: 'Por qué existen tantos frameworks de JS', desc: 'La famosa "fatiga de JavaScript".' },
-      { tipo: 'bloqueada', gradiente: 'linear-gradient(135deg,#1a1a08 60%,#282810)', badgeEstilo: 'background:rgba(200,180,40,0.2);color:#e8d870;border:1px solid rgba(200,180,40,0.3);', icono: '🟢', titulo: 'Cómo nació Node.js', desc: 'Y por qué cambió todo para JavaScript.' },
-      { tipo: 'bloqueada', gradiente: 'linear-gradient(135deg,#1a0f1a 60%,#2a1230)', badgeEstilo: 'background:rgba(230,80,80,0.2);color:#f4a0a0;border:1px solid rgba(230,80,80,0.3);', icono: '🔤', titulo: 'El caso de la etiqueta <font>', desc: 'Cómo el diseño migró del HTML al CSS.' },
-      { tipo: 'bloqueada', gradiente: 'linear-gradient(135deg,#1a1a08 60%,#282810)', badgeEstilo: 'background:rgba(200,180,40,0.2);color:#e8d870;border:1px solid rgba(200,180,40,0.3);', icono: '📅', titulo: '10 días que crearon JavaScript', desc: 'La historia de Brendan Eich.' },
-      { tipo: 'bloqueada', gradiente: 'linear-gradient(135deg,#1a0f1a 60%,#2a1230)', badgeEstilo: 'background:rgba(230,80,80,0.2);color:#f4a0a0;border:1px solid rgba(230,80,80,0.3);', icono: '🩹', titulo: 'Por qué el navegador "adivina" tu HTML mal escrito', desc: 'El parsing tolerante a errores.' },
-      { tipo: 'bloqueada', gradiente: 'linear-gradient(135deg,#0a1820 60%,#0e2030)', badgeEstilo: 'background:rgba(40,140,220,0.2);color:#80c8f0;border:1px solid rgba(40,140,220,0.3);', icono: '🔍', titulo: 'El mito del "pixel perfect"', desc: 'Por qué cada navegador renderiza distinto.' },
-      { tipo: 'bloqueada', gradiente: 'linear-gradient(135deg,#0e180e 60%,#122012)', badgeEstilo: 'background:rgba(40,180,80,0.2);color:#80e0a0;border:1px solid rgba(40,180,80,0.3);', icono: '🕰️', titulo: 'Cómo era programar web antes de las DevTools', desc: 'Un vistazo al pasado del desarrollo web.' },
-      { tipo: 'bloqueada', gradiente: 'linear-gradient(135deg,#1a1a08 60%,#282810)', badgeEstilo: 'background:rgba(200,180,40,0.2);color:#e8d870;border:1px solid rgba(200,180,40,0.3);', icono: '📉', titulo: 'jQuery: de salvador a "código legado"', desc: 'Su ascenso y su ocaso.' },
+      { 
+        tipo: 'link', href: 'datos-curiosos/guia-guerra-navegadores.html',
+        icono: '⚔️', gradiente: 'linear-gradient(135deg,#0e180e 60%,#122012)', 
+        badge: 'WEB', badgeEstilo: 'background:rgba(40,180,80,0.2);color:#80e0a0;border:1px solid rgba(40,180,80,0.3);',         
+        titulo: 'La guerra de los navegadores', desc: 'Cómo nació la necesidad de estándares web.' 
+      },
+      { 
+        tipo: 'link', href: 'datos-curiosos/guia-quien-invento-css.html',
+        icono: '🎨', gradiente: 'linear-gradient(135deg,#0a1820 60%,#0e2030)', 
+        badge: 'CSS', badgeEstilo: 'background:rgba(40,140,220,0.2);color:#80c8f0;border:1px solid rgba(40,140,220,0.3);',  
+        titulo: 'Quién inventó el CSS', desc: 'Y por qué tardó tanto en ser compatible entre navegadores.' 
+      },
+      { 
+        tipo: 'link', href: 'datos-curiosos/guia-etiquetas-olvidadas.html',
+        icono: '😅', gradiente: 'linear-gradient(135deg,#1a0f1a 60%,#2a1230)', 
+        badge: 'Y', badgeEstilo: 'background:rgba(230,80,80,0.2);color:#f4a0a0;border:1px solid rgba(230,80,80,0.3);',  
+        titulo: 'El origen de <marquee> y <blink>', desc: 'Etiquetas que la web quiso olvidar.' 
+      },
+      { 
+        tipo: 'link', href: 'datos-curiosos/guia-frameworks-js.html',
+        icono: '🌀', gradiente: 'linear-gradient(135deg,#1a1a08 60%,#282810)', 
+        badge: 'FRAMEWORKS', badgeEstilo: 'background:rgba(200,180,40,0.2);color:#e8d870;border:1px solid rgba(200,180,40,0.3);',  
+        titulo: 'Por qué existen tantos frameworks de JS', desc: 'La famosa "fatiga de JavaScript".' 
+      },
+      { 
+        tipo: 'link', href: 'datos-curiosos/guia-node-js.html',
+        icono: '🟢', gradiente: 'linear-gradient(135deg,#1a1a08 60%,#282810)', 
+        badge: 'NODO', badgeEstilo: 'background:rgba(200,180,40,0.2);color:#e8d870;border:1px solid rgba(200,180,40,0.3);',  
+        titulo: 'Cómo nació Node.js', desc: 'Y por qué cambió todo para JavaScript.' 
+      },
+      { 
+        tipo: 'link', href: 'datos-curiosos/guia-caso-etiqueta-table.html',
+        icono: '🔤', gradiente: 'linear-gradient(135deg,#1a0f1a 60%,#2a1230)', 
+        badge: 'ETIQUETA', badgeEstilo: 'background:rgba(230,80,80,0.2);color:#f4a0a0;border:1px solid rgba(230,80,80,0.3);', 
+        titulo: 'El caso de la etiqueta <font>', desc: 'Cómo el diseño migró del HTML al CSS.' 
+      },
+      { 
+        tipo: 'link', href: 'datos-curiosos/guia-diez-dias-javascript.html',
+        icono: '📅', gradiente: 'linear-gradient(135deg,#1a1a08 60%,#282810)', 
+        badge: 'JS', badgeEstilo: 'background:rgba(200,180,40,0.2);color:#e8d870;border:1px solid rgba(200,180,40,0.3);', 
+        titulo: '10 días que crearon JavaScript', desc: 'La historia de Brendan Eich.' 
+      },
+      { 
+        tipo: 'link', href: 'datos-curiosos/guia-html-mal-escrito.html',
+        icono: '🩹', gradiente: 'linear-gradient(135deg,#1a0f1a 60%,#2a1230)', 
+        badge: 'HTML', badgeEstilo: 'background:rgba(230,80,80,0.2);color:#f4a0a0;border:1px solid rgba(230,80,80,0.3);', 
+        titulo: 'Por qué el navegador "adivina" tu HTML mal escrito', desc: 'El parsing tolerante a errores.' 
+      },
+      { 
+        tipo: 'link', href: 'datos-curiosos/guia-mito-pixel-perfect.html',
+        icono: '🔍', gradiente: 'linear-gradient(135deg,#0a1820 60%,#0e2030)', 
+        badge: 'PIXEL', badgeEstilo: 'background:rgba(40,140,220,0.2);color:#80c8f0;border:1px solid rgba(40,140,220,0.3);', 
+        titulo: 'El mito del "pixel perfect"', desc: 'Por qué cada navegador renderiza distinto.' 
+      },
+      { 
+        tipo: 'bloqueada', href: 'datos-curiosos/guia-mito-pixel-perfect.html',
+        icono: '🕰️', gradiente: 'linear-gradient(135deg,#0e180e 60%,#122012)', 
+        badge: 'WEB', badgeEstilo: 'background:rgba(40,180,80,0.2);color:#80e0a0;border:1px solid rgba(40,180,80,0.3);', 
+        titulo: 'Cómo era programar web antes de las DevTools', desc: 'Un vistazo al pasado del desarrollo web.' 
+      },
+      {
+         tipo: 'bloqueada', href: 'datos-curiosos/guia-mito-pixel-perfect.html',
+         icono: '📉', gradiente: 'linear-gradient(135deg,#1a1a08 60%,#282810)', 
+         badge: 'jQuery', badgeEstilo: 'background:rgba(200,180,40,0.2);color:#e8d870;border:1px solid rgba(200,180,40,0.3);',  
+         titulo: 'jQuery: de salvador a "código legado"', desc: 'Su ascenso y su ocaso.' 
+        },
       { tipo: 'soon', icono: '➕', titulo: 'Agregar dato curioso', desc: 'Cuando escribas una guía nueva, agrega la tarjeta aquí siguiendo el mismo patrón.' }
     ]
   }

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía La guerra de los navegadores — Café </></title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #c49a1a;
+    --primary-light:  #fdf6e0;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --danger:         #c44a2a;
+    --danger-light:   #fdf0ec;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1a1814;
+    --code-text:      #e8e4de;
+  }
+
+  body { font-family: 'DM Sans', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  .cafe-bar { background:#ffffff; border-bottom:1px solid #e8e4de; padding:0 24px; display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:200; height:45px; }
+  .cafe-bar a { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:#8a8480; text-decoration:none; padding:6px 14px; border:1px solid #e8e4de; border-radius:999px; transition:all 0.15s; }
+  .cafe-bar a:hover { color:#1a1814; border-color:#8a8480; }
+  .cafe-bar span { font-size:13px; color:#8a8480; }
+
+  header { background: #1a1814; color: #f7f4ef; padding: 3rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: '☕'; position: absolute; font-size: 12rem; font-weight: 900; color: rgba(255,255,255,0.04); right: -1rem; top: -2rem; font-family: monospace; line-height: 1; }
+  header h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; font-family: 'Fraunces', serif; }
+  header p { font-size: 1.1rem; opacity: .85; margin-top: .5rem; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 45px; z-index: 100; display: flex; overflow-x: auto; gap: 0; }
+  nav a { flex-shrink: 0; padding: .75rem 1rem; text-decoration: none; color: var(--muted); font-size: .78rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2.5rem; scroll-margin-top:100px; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-size: 1.35rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  .analogy { background: #FFF7ED; border: 1px solid #FDE68A; border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: #92400E; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; color: #78350F; }
+
+  .concept { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p, .tip ul { font-size: .95rem; }
+  .tip ul { padding-left: 1.2rem; }
+
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  .glos { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .glos-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; }
+  .glos-item dt { font-weight: 700; color: var(--primary); font-size: .92rem; margin-bottom: .3rem; }
+  .glos-item dd { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+  .glos-item .emoji { font-size: 1.3rem; display: block; margin-bottom: .3rem; }
+
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: white; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  h2 { font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; color: var(--text); }
+  h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 .5rem; }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: #f0ece6; color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+  strong { font-weight: 700; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); }
+</style>
+</head>
+<body>
+
+<div class="cafe-bar">
+  <a href="../capitulos.html?tab=datoscuriosos">← Volver a Datos Curiosos</a>
+  <span>☕ La guerra de los navegadores</span>
+</div>
+
+<header>
+  <h1>La guerra de los navegadores</h1>
+  <p>Cómo nació la necesidad de estándares web</p>
+  <span class="badge">✦ Dato curioso · Historia de la web ✦</span>
+</header>
+
+<nav>
+  <a href="#intro">🎯 Intro</a>
+  <a href="#primera-guerra">⚔️ Netscape vs Internet Explorer</a>
+  <a href="#tacticas">🪟 La jugada de Microsoft</a>
+  <a href="#firefox">🦊 El renacer: Mozilla y Firefox</a>
+  <a href="#segunda-guerra">🌐 Llega Chrome</a>
+  <a href="#legado">🏛️ El legado: los estándares web</a>
+</nav>
+
+<main>
+
+<div class="parte-badge">🧠 Dato curioso — Historia y curiosidades de HTML, CSS y JS</div>
+
+<!-- ═══════════════════════════════════════════
+     INTRO
+═══════════════════════════════════════════ -->
+<section class="module" id="intro">
+  <div class="module-header">
+    <div class="module-icon">🎯</div>
+    <div>
+      <div class="module-title">Introducción — cuando cada navegador inventaba sus propias reglas</div>
+      <div class="module-sub">La guerra que casi rompe la web en pedazos</div>
+    </div>
+  </div>
+
+  <p>Hoy es normal que una página web se vea prácticamente igual en Chrome, Firefox, Safari o Edge. Eso no siempre fue así. Durante más de una década, distintas empresas pelearon por dominar el navegador que usaba la gente, y cada una añadía funciones propias, incompatibles entre sí, solo para ganar terreno. A esa época se le conoce como <strong>la guerra de los navegadores</strong>.</p>
+
+  <div class="concept">
+    <h4>💡 El dato en una frase</h4>
+    <p>La guerra de los navegadores fue una serie de disputas comerciales y técnicas —principalmente Netscape contra Microsoft primero, y después Mozilla y Google contra Microsoft— que fragmentó tanto la web que terminó obligando a la industria a ponerse de acuerdo en estándares comunes.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PRIMERA GUERRA: NETSCAPE VS IE
+═══════════════════════════════════════════ -->
+<section class="module" id="primera-guerra">
+  <div class="module-header">
+    <div class="module-icon">⚔️</div>
+    <div>
+      <div class="module-title">La primera guerra: Netscape contra Internet Explorer</div>
+      <div class="module-sub">1995-1998 — de casi un monopolio a una caída libre</div>
+    </div>
+  </div>
+
+  <p><strong>Netscape Navigator</strong>, lanzado en 1994, dominaba el mercado de navegadores casi por completo a mediados de los años 90 —se estima que llegó a tener más del 80% de uso—. Microsoft, que había subestimado el potencial de internet, lanzó su respuesta en 1995: <strong>Internet Explorer</strong>, basado en un código con licencia de Spyglass Mosaic.</p>
+
+  <div class="analogy">
+    <h4>🏃 Analogía: la carrera de las funciones nuevas</h4>
+    <p>Imagina dos restaurantes compitiendo por clientes, pero en lugar de mejorar la comida, cada uno empieza a inventar su propio idioma de menú que solo sus meseros entienden. Así compitieron Netscape y Microsoft: en vez de ponerse de acuerdo en cómo debía funcionar el HTML, cada uno agregaba etiquetas y funciones exclusivas para que las páginas "se vieran mejor" solo en su navegador.</p>
+  </div>
+
+  <p>Internet Explorer venía instalado de forma gratuita en Windows, mientras que Netscape se vendía. Esa diferencia —regalar el navegador integrado al sistema operativo más usado del mundo— fue la ventaja decisiva que Microsoft explotó durante el resto de la década.</p>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     LA JUGADA DE MICROSOFT
+═══════════════════════════════════════════ -->
+<section class="module" id="tacticas">
+  <div class="module-header">
+    <div class="module-icon">🪟</div>
+    <div>
+      <div class="module-title">La jugada de Microsoft: integrar, regalar, dominar</div>
+      <div class="module-sub">Cómo Internet Explorer pasó de 3ra opción a estándar de facto</div>
+    </div>
+  </div>
+
+  <p>La estrategia de Microsoft se basó en tres movimientos:</p>
+
+  <table class="tbl">
+    <tr><th>Movimiento</th><th>Qué significó</th></tr>
+    <tr><td><span class="tag">Integración con Windows</span></td><td>Desde Windows 95 OSR2 e Internet Explorer 4, el navegador se integró al sistema operativo, por lo que casi todos los usuarios de Windows ya lo tenían sin instalar nada.</td></tr>
+    <tr><td><span class="tag">Gratuidad total</span></td><td>Mientras Netscape cobraba licencias, Microsoft regaló Internet Explorer, financiado por las ganancias de Windows.</td></tr>
+    <tr><td><span class="tag">Acuerdos con fabricantes</span></td><td>Microsoft negoció con fabricantes de computadoras para que IE viniera preinstalado como navegador predeterminado.</td></tr>
+  </table>
+
+  <p>Esta estrategia llevó a un caso antimonopolio histórico: <strong>Estados Unidos contra Microsoft (1998-2001)</strong>, donde el Departamento de Justicia de EE. UU. argumentó que la empresa había usado su posición dominante en sistemas operativos para aplastar a la competencia en navegadores de forma anticompetitiva.</p>
+
+  <div class="warn">
+    <h4>⚠️ El resultado para Netscape</h4>
+    <p>Para el año 2002, la cuota de mercado de Netscape había caído a menos del 4%, mientras que Internet Explorer llegó a superar el 90%. Netscape fue comprada por AOL en 1998 y, aunque el navegador siguió existiendo unos años más, nunca recuperó su posición dominante.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     EL RENACER: MOZILLA Y FIREFOX
+═══════════════════════════════════════════ -->
+<section class="module" id="firefox">
+  <div class="module-header">
+    <div class="module-icon">🦊</div>
+    <div>
+      <div class="module-title">El renacer: de las cenizas de Netscape nace Mozilla</div>
+      <div class="module-sub">Código abierto como estrategia de supervivencia</div>
+    </div>
+  </div>
+
+  <p>Antes de desaparecer, Netscape tomó una decisión que cambiaría el rumbo de la web: en 1998 liberó el código fuente de su navegador como proyecto de <strong>código abierto</strong>, dando origen a la <strong>Mozilla Organization</strong> (más tarde Mozilla Foundation, en 2003).</p>
+
+  <p>De ese proyecto surgió, tras varios años de reescritura, <strong>Firefox</strong>, lanzado oficialmente en 2004. A diferencia de Internet Explorer, Firefox se ganó a los usuarios técnicos por su mejor cumplimiento de estándares web, su sistema de extensiones y su enfoque en la seguridad, en un momento en que IE 6 acumulaba críticas por vulnerabilidades sin resolver.</p>
+
+  <div class="tip">
+    <h4>🟢 Por qué Firefox sí logró frenar a Internet Explorer</h4>
+    <ul>
+      <li>Llegó cuando Internet Explorer llevaba años casi sin actualizarse (IE6 dominó de 2001 a 2006 con pocos cambios).</li>
+      <li>Se distribuyó activamente mediante campañas comunitarias, no integrado a un sistema operativo.</li>
+      <li>Priorizó el cumplimiento de estándares del W3C en vez de funciones propietarias.</li>
+    </ul>
+  </div>
+
+  <p>Para 2009, Firefox había alcanzado alrededor de un 30% de cuota de mercado en algunos análisis, la primera vez desde Netscape que un navegador alternativo lograba una porción tan significativa frente a Microsoft.</p>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     SEGUNDA GUERRA: LLEGA CHROME
+═══════════════════════════════════════════ -->
+<section class="module" id="segunda-guerra">
+  <div class="module-header">
+    <div class="module-icon">🌐</div>
+    <div>
+      <div class="module-title">La segunda guerra: Google entra a la cancha</div>
+      <div class="module-sub">2008 en adelante — Chrome cambia las reglas otra vez</div>
+    </div>
+  </div>
+
+  <p>En septiembre de 2008, Google lanzó <strong>Chrome</strong>, construido sobre el motor de renderizado <strong>WebKit</strong> (el mismo linaje que usaba Safari) y con un motor de JavaScript propio, <strong>V8</strong>, diseñado para ejecutar código mucho más rápido que sus competidores de la época.</p>
+
+  <div class="analogy">
+    <h4>🏎️ Analogía: el auto nuevo con motor turbo</h4>
+    <p>Si Internet Explorer era el auto que venía de fábrica con la casa y Firefox el que la gente elegía por confianza, Chrome llegó como el modelo con el motor claramente más potente: procesos separados por pestaña (para que una pestaña trabada no tumbara el navegador entero) y un intérprete de JavaScript notablemente más rápido.</p>
+  </div>
+
+  <p>Chrome se benefició además de la posición de Google como motor de búsqueda dominante, promocionando su navegador directamente en la página de resultados de búsqueda más visitada del mundo. Para 2012, Chrome ya superaba a Internet Explorer como navegador más usado a nivel global, y hoy mantiene una posición dominante en la mayoría de las mediciones de cuota de mercado.</p>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     LEGADO: LOS ESTÁNDARES WEB
+═══════════════════════════════════════════ -->
+<section class="module" id="legado">
+  <div class="module-header">
+    <div class="module-icon">🏛️</div>
+    <div>
+      <div class="module-title">El verdadero legado: por qué hoy hay estándares</div>
+      <div class="module-sub">De la fragmentación al consenso</div>
+    </div>
+  </div>
+
+  <dl class="glos">
+    <div class="glos-item">
+      <span class="emoji">📜</span>
+      <dt>W3C</dt>
+      <dd>El World Wide Web Consortium, fundado en 1994 por Tim Berners-Lee, ganó relevancia como árbitro neutral para definir cómo debían funcionar HTML y CSS, en lugar de dejarlo a decisiones unilaterales de cada empresa.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🧩</span>
+      <dt>WHATWG</dt>
+      <dd>Grupo fundado en 2004 por ingenieros de Mozilla, Apple y Opera, frustrados con el rumbo del W3C en ese momento. Impulsó el desarrollo de HTML5 como una especificación viva, escrita pensando en cómo la usaban los navegadores reales.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🔀</span>
+      <dt>Renderizado inconsistente</dt>
+      <dd>Durante la primera guerra, una misma página podía verse rota en un navegador y bien en otro, obligando a los desarrolladores a escribir código distinto para cada uno.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">✅</span>
+      <dt>"Acid tests"</dt>
+      <dd>Pruebas como Acid2 y Acid3, creadas por el Web Standards Project, se usaron públicamente para presionar a los fabricantes de navegadores a cumplir mejor con los estándares.</dd>
+    </div>
+  </dl>
+
+  <div class="warn">
+    <h4>⚠️ Lo que costó no tener estándares</h4>
+    <p>Durante años, los desarrolladores tuvieron que escribir código específico para cada navegador (hacks de CSS, detección de navegador en JavaScript) solo para lograr que una misma página funcionara de forma parecida en todos. Ese trabajo extra —y la frustración que generaba— fue uno de los motores que impulsó a la industria a exigir estándares comunes.</p>
+  </div>
+
+  <div class="concept">
+    <h4>💡 Resumen del dato curioso</h4>
+    <p>La guerra de los navegadores empezó como una disputa comercial entre Netscape y Microsoft en los años 90, se reavivó con la llegada de Firefox y luego Chrome en la década de 2000, y dejó como saldo positivo algo que hoy damos por sentado: organismos como el W3C y el WHATWG trabajando para que HTML, CSS y JavaScript funcionen de forma parecida sin importar qué navegador uses.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Guía La guerra de los navegadores · Café &lt;/&gt; · Datos Curiosos
+</footer>
+
+</body>
+</html>

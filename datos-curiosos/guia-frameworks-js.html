@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía Por qué existen tantos frameworks de JS — Café </></title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #c49a1a;
+    --primary-light:  #fdf6e0;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --danger:         #c44a2a;
+    --danger-light:   #fdf0ec;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1a1814;
+    --code-text:      #e8e4de;
+  }
+
+  body { font-family: 'DM Sans', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  .cafe-bar { background:#ffffff; border-bottom:1px solid #e8e4de; padding:0 24px; display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:200; height:45px; }
+  .cafe-bar a { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:#8a8480; text-decoration:none; padding:6px 14px; border:1px solid #e8e4de; border-radius:999px; transition:all 0.15s; }
+  .cafe-bar a:hover { color:#1a1814; border-color:#8a8480; }
+  .cafe-bar span { font-size:13px; color:#8a8480; }
+
+  header { background: #1a1814; color: #f7f4ef; padding: 3rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: '☕'; position: absolute; font-size: 12rem; font-weight: 900; color: rgba(255,255,255,0.04); right: -1rem; top: -2rem; font-family: monospace; line-height: 1; }
+  header h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; font-family: 'Fraunces', serif; }
+  header p { font-size: 1.1rem; opacity: .85; margin-top: .5rem; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 45px; z-index: 100; display: flex; overflow-x: auto; gap: 0; }
+  nav a { flex-shrink: 0; padding: .75rem 1rem; text-decoration: none; color: var(--muted); font-size: .78rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2.5rem; scroll-margin-top:100px; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-size: 1.35rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  .analogy { background: #FFF7ED; border: 1px solid #FDE68A; border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: #92400E; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; color: #78350F; }
+
+  .concept { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p, .tip ul { font-size: .95rem; }
+  .tip ul { padding-left: 1.2rem; }
+
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  .glos { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .glos-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; }
+  .glos-item dt { font-weight: 700; color: var(--primary); font-size: .92rem; margin-bottom: .3rem; }
+  .glos-item dd { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+  .glos-item .emoji { font-size: 1.3rem; display: block; margin-bottom: .3rem; }
+
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: white; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  h2 { font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; color: var(--text); }
+  h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 .5rem; }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: #f0ece6; color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+  strong { font-weight: 700; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); }
+</style>
+</head>
+<body>
+
+<div class="cafe-bar">
+  <a href="../capitulos.html?tab=datoscuriosos">← Volver a Datos Curiosos</a>
+  <span>☕ Por qué existen tantos frameworks de JS</span>
+</div>
+
+<header>
+  <h1>Por qué existen tantos frameworks de JS</h1>
+  <p>La famosa "fatiga de JavaScript"</p>
+  <span class="badge">✦ Dato curioso · Historia de la web ✦</span>
+</header>
+
+<nav>
+  <a href="#intro">🎯 Intro</a>
+  <a href="#jquery">🧰 jQuery: el problema que todos tenían</a>
+  <a href="#explosion-spa">💥 La explosión de las SPA</a>
+  <a href="#react-vue">⚛️ React, Vue, y la carrera por reinventar la rueda</a>
+  <a href="#fatiga">😩 La "fatiga de JavaScript"</a>
+  <a href="#legado">🧭 Por qué sigue pasando hoy</a>
+</nav>
+
+<main>
+
+<div class="parte-badge">🧠 Dato curioso — Historia y curiosidades de HTML, CSS y JS</div>
+
+<!-- ═══════════════════════════════════════════
+     INTRO
+═══════════════════════════════════════════ -->
+<section class="module" id="intro">
+  <div class="module-header">
+    <div class="module-icon">🎯</div>
+    <div>
+      <div class="module-title">Introducción — un ecosistema que nunca deja de moverse</div>
+      <div class="module-sub">React, Vue, Angular, Svelte, Solid... ¿y por qué tantos?</div>
+    </div>
+  </div>
+
+  <p>Si empiezas a investigar cómo construir un sitio web hoy, es fácil sentirte abrumado por la cantidad de nombres: React, Vue, Angular, Svelte, Solid, Ember, Preact... Esta sensación es tan común que hasta tiene nombre propio en la comunidad de desarrollo: <strong>"JavaScript fatigue"</strong> (fatiga de JavaScript).</p>
+
+  <div class="concept">
+    <h4>💡 El dato en una frase</h4>
+    <p>Existen tantos frameworks de JavaScript porque el ecosistema es de código abierto, tiene una barrera de entrada relativamente baja para crear herramientas nuevas, y cada framework surgió resolviendo un problema específico de su época —desde manipular el DOM más fácil hasta construir aplicaciones enteras dentro del navegador.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     JQUERY
+═══════════════════════════════════════════ -->
+<section class="module" id="jquery">
+  <div class="module-header">
+    <div class="module-icon">🧰</div>
+    <div>
+      <div class="module-title">jQuery: el problema que todos tenían</div>
+      <div class="module-sub">2006 — cuando manipular el DOM era una pesadilla de compatibilidad</div>
+    </div>
+  </div>
+
+  <p>Antes de que existieran los frameworks modernos, ya existía un problema muy real: cada navegador implementaba el DOM y los eventos de JavaScript de forma distinta, así que hacer algo tan simple como seleccionar un elemento y cambiarle una clase requería código diferente según el navegador. En 2006, <strong>John Resig</strong> lanzó <strong>jQuery</strong> para resolver justo eso: una sola API que funcionara igual en todos los navegadores.</p>
+
+  <div class="analogy">
+    <h4>🔌 Analogía: el adaptador universal</h4>
+    <p>jQuery fue como esos adaptadores de corriente universales para viajar: no cambiaba lo que había del otro lado del enchufe (el navegador), pero te evitaba tener que cargar un adaptador distinto para cada país. Con una sola línea de jQuery lograbas algo que, sin él, te podía tomar varias líneas distintas según el navegador del usuario.</p>
+  </div>
+
+  <p>jQuery se volvió, por años, la librería de JavaScript más usada del planeta. Pero solo resolvía manipulación del DOM — no ayudaba a organizar aplicaciones grandes, con muchos estados y componentes interactuando entre sí. Ese fue el siguiente problema que la comunidad empezó a atacar.</p>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     EXPLOSIÓN SPA
+═══════════════════════════════════════════ -->
+<section class="module" id="explosion-spa">
+  <div class="module-header">
+    <div class="module-icon">💥</div>
+    <div>
+      <div class="module-title">La explosión de las aplicaciones de una sola página (SPA)</div>
+      <div class="module-sub">2010-2013 — cuando la web dejó de ser solo documentos</div>
+    </div>
+  </div>
+
+  <p>A inicios de la década de 2010, sitios como Gmail y Facebook demostraron que un navegador podía comportarse casi como una aplicación de escritorio, cargando datos sin recargar la página completa. Esa idea —<strong>Single Page Application (SPA)</strong>— disparó la necesidad de herramientas más completas que jQuery.</p>
+
+  <table class="tbl">
+    <tr><th>Framework</th><th>Año</th><th>Empresa / autor</th></tr>
+    <tr><td><span class="tag">Backbone.js</span></td><td>2010</td><td>Jeremy Ashkenas</td></tr>
+    <tr><td><span class="tag">AngularJS</span></td><td>2010</td><td>Google</td></tr>
+    <tr><td><span class="tag">Ember.js</span></td><td>2011</td><td>Yehuda Katz</td></tr>
+    <tr><td><span class="tag">React</span></td><td>2013</td><td>Facebook (Jordan Walke)</td></tr>
+    <tr><td><span class="tag">Vue.js</span></td><td>2014</td><td>Evan You</td></tr>
+  </table>
+
+  <p>Cada uno resolvía el problema de organizar aplicaciones grandes con una filosofía distinta: AngularJS traía un framework completo con muchas decisiones ya tomadas; React introdujo el concepto de componentes reutilizables y un DOM virtual para actualizar la pantalla de forma más eficiente; Vue buscó un punto intermedio, más fácil de adoptar poco a poco.</p>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     REACT, VUE Y LA CARRERA
+═══════════════════════════════════════════ -->
+<section class="module" id="react-vue">
+  <div class="module-header">
+    <div class="module-icon">⚛️</div>
+    <div>
+      <div class="module-title">React, Vue, y la carrera por reinventar la rueda</div>
+      <div class="module-sub">El auge del ecosistema npm aceleró todo</div>
+    </div>
+  </div>
+
+  <p>Cuando React demostró que el patrón de componentes y el DOM virtual funcionaban bien, muchos desarrolladores intentaron aplicar la misma idea con variaciones propias: mejor rendimiento, menos código repetitivo (boilerplate), o una curva de aprendizaje distinta. A esto se sumó el crecimiento de <strong>npm</strong>, el gestor de paquetes de Node.js, que hizo trivial publicar y compartir una librería nueva con el resto del mundo.</p>
+
+  <div class="tip">
+    <h4>🟢 Por qué era tan fácil crear "uno más"</h4>
+    <ul>
+      <li>Publicar un paquete en npm no requiere aprobación de nadie, cualquiera puede hacerlo.</li>
+      <li>La comunidad de código abierto recompensaba (con estrellas en GitHub, atención en redes) a quien resolviera un problema de forma más elegante, aunque fuera marginal.</li>
+      <li>Cada nueva generación de herramientas de construcción (Grunt, Gulp, Webpack, Vite) también generaba su propia ola de frameworks compatibles con ella.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     FATIGA DE JAVASCRIPT
+═══════════════════════════════════════════ -->
+<section class="module" id="fatiga">
+  <div class="module-header">
+    <div class="module-icon">😩</div>
+    <div>
+      <div class="module-title">La "fatiga de JavaScript" se vuelve un término oficial</div>
+      <div class="module-sub">2016 — cuando la propia comunidad empezó a quejarse en voz alta</div>
+    </div>
+  </div>
+
+  <p>Alrededor de 2016, el término <strong>"JavaScript fatigue"</strong> se popularizó en la comunidad de desarrollo, en buena parte gracias a artículos y publicaciones que describían la frustración de tener que aprender un stack completo nuevo —framework, herramienta de build, gestor de estado, librería de routing— cada vez que empezabas un proyecto, porque el "estándar de facto" del momento cambiaba con mucha frecuencia.</p>
+
+  <div class="warn">
+    <h4>⚠️ No es solo percepción</h4>
+    <p>Entre 2010 y 2016, la cantidad de herramientas nuevas de JavaScript publicadas en npm creció de forma exponencial. Aprender "JavaScript moderno" en ese periodo implicaba, en la práctica, elegir entre docenas de combinaciones posibles de framework, bundler y gestor de estado, sin que existiera todavía un camino claramente dominante.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     POR QUÉ SIGUE PASANDO
+═══════════════════════════════════════════ -->
+<section class="module" id="legado">
+  <div class="module-header">
+    <div class="module-icon">🧭</div>
+    <div>
+      <div class="module-title">Por qué sigue pasando hoy</div>
+      <div class="module-sub">Menos caos que en 2016, pero la máquina de crear frameworks no se detuvo</div>
+    </div>
+  </div>
+
+  <dl class="glos">
+    <div class="glos-item">
+      <span class="emoji">📦</span>
+      <dt>npm</dt>
+      <dd>El gestor de paquetes de Node.js, que permite a cualquiera publicar y compartir código JavaScript reutilizable con enorme facilidad.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🌳</span>
+      <dt>DOM virtual</dt>
+      <dd>Una representación en memoria de la interfaz que React popularizó, para calcular de forma eficiente qué partes de la pantalla realmente necesitan actualizarse.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🏗️</span>
+      <dt>Bundler / herramienta de build</dt>
+      <dd>Software (como Webpack o Vite) que empaqueta y optimiza el código de un proyecto para que el navegador lo pueda cargar de forma eficiente.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🔁</span>
+      <dt>Ciclo de innovación</dt>
+      <dd>El patrón repetido de que una idea nueva (componentes, DOM virtual, compilación en build-time) se vuelve popular y genera una nueva ronda de frameworks que la exploran desde distintos ángulos.</dd>
+    </div>
+  </dl>
+
+  <div class="concept">
+    <h4>💡 Resumen del dato curioso</h4>
+    <p>Los frameworks de JavaScript se multiplicaron porque el ecosistema es abierto, publicar herramientas nuevas es fácil, y cada generación de proyectos —jQuery, luego las primeras SPA, luego React y sus alternativas— resolvía un problema real de su momento. La "fatiga de JavaScript" no es solo una queja: refleja un ecosistema que, a diferencia de HTML o CSS, no depende de un único organismo de estandarización, sino de la comunidad decidiendo colectivamente, proyecto por proyecto, qué herramienta usar.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Guía Por qué existen tantos frameworks de JS · Café &lt;/&gt; · Datos Curiosos
+</footer>
+
+</body>
+</html>
