@@ -1,185 +1,9 @@
 /* ============================================
    CAFÉ </> · GUÍA DE APRENDIZAJE
    script.js — Lógica, PWA e interactividad
+   Usa TEMAS, definido en datos-cursos.js
+   (cárgalo antes que este archivo en el HTML)
    ============================================ */
-
-// ============================================
-// DATOS — Temas y capítulos
-// Para agregar contenido solo modifica aquí
-// ============================================
-
-const TEMAS = [
-  {
-    id:     'inicio',
-    numero: '00',
-    titulo: 'Antes de Empezar',
-    desc:   'Conceptos, vocabulario y lógica — todo lo que necesitas entender antes de escribir tu primera línea de código.',
-    bloqueado: false,
-    capitulos: [
-      {
-        id:        'cap00-conceptos',
-        numero:    '00',
-        titulo:    'Antes de empezar',
-        desc:      'Qué es programar, qué son HTML, CSS y JavaScript, cómo funciona el navegador y la lógica básica.',
-        lang:      'gen',
-        archivo:   'capitulos/cap00-conceptos.html',
-        lecciones: ['💡 ¿Qué es programar?', '🗣️ Lenguajes', '🏷️ HTML', '🎨 CSS', '⚙️ JS', '🌐 Navegador', '✏️ Editor', '🐛 Errores', '🧠 Lógica', '🏗️ Front/Back', '🤝 Cliente/Servidor', '🔌 API', '⌨️ Terminal', '📸 Git', '🗄️ BD', '🧩 Frameworks', '📖 Glosario']
-      }
-    ]
-  },
-  {
-    id:     'fundamentos',
-    numero: '01',
-    titulo: 'Fundamentos Web',
-    desc:   'Las bases de HTML, CSS y JavaScript — todo lo que necesitas para leer y entender cualquier página web.',
-    bloqueado: false,
-    capitulos: [
-      {
-        id:        'cap01-html',
-        numero:    '01',
-        titulo:    'Los bloques de construcción',
-        desc:      'Etiquetas, elementos y atributos — el vocabulario base de toda página web.',
-        lang:      'html',
-        archivo:   'capitulos/cap01-html.html',
-        lecciones: ['🏷️ Etiqueta', '🪆 Elemento', '📋 Atributo', '🏠 Anidamiento']
-      },
-      {
-        id:        'cap02-javascript',
-        numero:    '02',
-        titulo:    'El cerebro de la página',
-        desc:      'Variables, funciones, eventos y el DOM.',
-        lang:      'js',
-        archivo:   'capitulos/cap02-javascript.html',
-        lecciones: ['📦 Variable', '📋 Función', '🔔 Evento', '🗺️ DOM']
-      },
-      {
-        id:        'cap03-css',
-        numero:    '03',
-        titulo:    'El estilo de la página',
-        desc:      'Selectores, colores, tipografía, Box Model, Flexbox, variables y responsive.',
-        lang:      'css',
-        archivo:   'capitulos/cap03-css.html',
-        lecciones: ['🎨 CSS', '🎯 Selectores', '🖌️ Propiedades', '📦 Box Model', '↔️ Flexbox', '🔧 Variables', '📱 Responsive', '🌊 Cascada']
-      },
-      {
-        id:        'cap04-control',
-        numero:    '04',
-        titulo:    'Estructuras de control',
-        desc:      'if/else, bucles y operadores — cómo el código toma decisiones y repite tareas.',
-        lang:      'js',
-        archivo:   'capitulos/cap04-control.html',
-        lecciones: ['✅ Booleanos', '⚖️ Comparación', '🔗 Lógicos', '🔀 if/else', '🪜 else if', '🎛️ switch', '🔁 for', '⏳ while', '📋 forEach']
-      },
-      {
-        id:        'cap05-datos',
-        numero:    '05',
-        titulo:    'Arreglos y Objetos',
-        desc:      'Cómo guardar y organizar colecciones de datos — la base de cualquier app real.',
-        lang:      'js',
-        archivo:   'capitulos/cap05-datos.html',
-        lecciones: ['📚 Arreglos', '🔑 Acceso', '🛠️ Métodos', '🗃️ Objetos', '📌 Propiedades', '🪆 Anidados']
-      }
-    ]
-  },
-  {
-    id:     'intermedio',
-    numero: '02',
-    titulo: 'Nivel Intermedio',
-    desc:   'Funciones avanzadas, manipulación del DOM en profundidad, formularios, validaciones y comunicación con servidores.',
-    bloqueado: false,
-    capitulos: [
-      {
-        id:        'cap06-funciones',
-        numero:    '06',
-        titulo:    'Funciones avanzadas',
-        desc:      'Arrow functions, callbacks, scope, closures — cómo el código se organiza en piezas reutilizables.',
-        lang:      'js',
-        archivo:   'capitulos/cap06-funciones.html',
-        lecciones: ['➡️ Arrow fn', '🔄 Callback', '📦 Scope', '🔒 Closure'],
-        bloqueado: false
-      },
-      {
-        id:        'cap07-dom',
-        numero:    '07',
-        titulo:    'DOM en profundidad',
-        desc:      'Crear, eliminar y modificar elementos en la página desde JavaScript.',
-        lang:      'js',
-        archivo:   'capitulos/cap07-dom.html',
-        lecciones: ['➕ Crear nodos', '✂️ Eliminar', '🔍 Buscar', '📋 Clonar'],
-        bloqueado: false
-      },
-      {
-        id:        'cap08-formularios',
-        numero:    '08',
-        titulo:    'Formularios y validaciones',
-        desc:      'Cómo recolectar, validar y enviar datos que el usuario escribe.',
-        lang:      'js',
-        archivo:   'capitulos/cap08-formularios.html',
-        lecciones: ['📝 Inputs', '✅ Validar', '🚫 Errores', '📤 Enviar'],
-        bloqueado: false
-      },
-      {
-        id:        'cap09-async',
-        numero:    '09',
-        titulo:    'Código asíncrono',
-        desc:      'Promises, async/await — cómo JavaScript espera sin bloquear todo lo demás.',
-        lang:      'js',
-        archivo:   'capitulos/cap09-async.html',
-        lecciones: ['⏳ Síncrono', '🔀 Asíncrono', '🤝 Promise', '⏱️ async/await'],
-        bloqueado: false
-      },
-      {
-        id:        'cap10-almacenamiento',
-        numero:    '10',
-        titulo:    'Almacenamiento local',
-        desc:      'localStorage y sessionStorage — guardar datos en el navegador sin necesitar un servidor.',
-        lang:      'js',
-        archivo:   'capitulos/cap10-almacenamiento.html',
-        lecciones: ['💾 localStorage', '🗑️ Eliminar', '📋 JSON', '🔄 Sincronizar'],
-        bloqueado: false
-      }
-    ]
-  },
-  {
-    id:     'proyectos',
-    numero: '03',
-    titulo: 'Proyectos Reales',
-    desc:   'Construir apps completas, conectar con APIs externas, bases de datos y despliegue.',
-    bloqueado: false,
-    capitulos: [
-      {
-        id:        'cap11-api',
-        numero:    '11',
-        titulo:    'Conexión con APIs',
-        desc:      'Cómo tu app habla con servidores externos y consume datos reales.',
-        lang:      'js',
-        archivo:   'capitulos/cap11-api.html',
-        lecciones: ['🌐 fetch', '📡 JSON', '⏳ async/await', '🛡️ Errores'],
-        bloqueado: false
-      },
-      {
-        id:        'cap12-firebase',
-        numero:    '12',
-        titulo:    'Base de datos en la nube',
-        desc:      'Firebase y Firestore — almacenar datos en la nube y sincronizarlos en tiempo real.',
-        lang:      'js',
-        archivo:   'capitulos/cap12-firebase.html',
-        lecciones: ['🔥 Firebase', '💾 Firestore', '🔐 Auth', '📡 Tiempo real'],
-        bloqueado: false
-      },
-      {
-        id:        'cap13-herramientas',
-        numero:    '13',
-        titulo:    'Herramientas del Desarrollador',
-        desc:      'VS Code, extensiones, Live Server, DevTools y flujo de trabajo diario — el kit completo del desarrollador.',
-        lang:      'gen',
-        archivo:   'capitulos/cap13-herramientas.html',
-        lecciones: ['✏️ VS Code', '🧩 Extensiones', '🔴 Live Server', '🔍 DevTools', '⌨️ Consola', '🏗️ Inspector', '🌐 Network', '⚡ Atajos', '🔄 Flujo diario'],
-        bloqueado: false
-      }
-    ]
-  }
-]
 
 // ============================================
 // FUNCIÓN: Construir biblioteca de capítulos
@@ -253,7 +77,7 @@ function construirBiblioteca() {
       soon.innerHTML = `
         <div class="misguias-card-soon-icon">➕</div>
         <h4>Próximo capítulo</h4>
-        <p>Agrega un nuevo objeto en <code>TEMAS</code> dentro de <code>script.js</code> y aparece aquí automáticamente.</p>
+        <p>Agrega un nuevo objeto en <code>TEMAS</code> dentro de <code>datos-cursos.js</code> y aparece aquí automáticamente.</p>
       `
       grid.appendChild(soon)
     }
@@ -261,7 +85,153 @@ function construirBiblioteca() {
 }
 
 // ============================================
-// FUNCIÓN: Stats en la portada
+// FUNCIÓN: Construir panel "Mis Guías"
+// Solo se ejecuta en capitulos.html
+// Lee GUIAS desde datos-cursos.js
+// ============================================
+
+function construirGuias() {
+  const contenedor = document.getElementById('guiasContainer')
+  if (!contenedor) return
+
+  GUIAS.forEach(grupo => {
+    const bloque = document.createElement('div')
+    bloque.className = 'guias-grupo'
+
+    bloque.innerHTML = `
+      <p class="guias-grupo-label">${grupo.grupo}</p>
+      <div class="misguias-grid"></div>
+    `
+    contenedor.appendChild(bloque)
+
+    const grid = bloque.querySelector('.misguias-grid')
+
+    grupo.items.forEach(item => {
+      if (item.tipo === 'soon') {
+        const soon = document.createElement('div')
+        soon.className = 'misguias-card-soon'
+        soon.innerHTML = `
+          <div class="misguias-card-soon-icon">${item.icono}</div>
+          <h4>${item.titulo}</h4>
+          <p>${item.desc}</p>
+        `
+        grid.appendChild(soon)
+        return
+      }
+
+      const pills = item.stats.map(s => `<span class="misguias-stat">${s}</span>`).join('')
+
+      const card = document.createElement('a')
+      card.className = 'misguias-card-main'
+      card.href = item.href
+      card.innerHTML = `
+        <div class="misguias-card-thumb" style="background:${item.gradiente};">
+          <div class="misguias-card-icon">${item.icono}</div>
+          <span class="misguias-card-badge" style="${item.badgeEstilo}">${item.badge}</span>
+        </div>
+        <div class="misguias-card-body">
+          <h3 class="misguias-card-titulo">${item.titulo}</h3>
+          <p class="misguias-card-desc">${item.desc}</p>
+          <div class="misguias-card-stats">${pills}</div>
+        </div>
+        <div class="misguias-card-cta"><span>Ver guía</span><div class="arrow">→</div></div>
+      `
+      grid.appendChild(card)
+    })
+  })
+}
+
+// ============================================
+// HELPER: Crear una tarjeta (link / bloqueada / soon)
+// Usado por todos los paneles nuevos de abajo.
+// tipo "link"      → tarjeta normal con href
+// tipo "bloqueada" → tarjeta con candado, sin href
+// tipo "soon"      → placeholder "próximamente"
+// ============================================
+
+function crearTarjetaGuia(item) {
+  if (item.tipo === 'soon') {
+    const soon = document.createElement('div')
+    soon.className = 'misguias-card-soon'
+    soon.innerHTML = `
+      <div class="misguias-card-soon-icon">${item.icono || '➕'}</div>
+      <h4>${item.titulo}</h4>
+      <p>${item.desc}</p>
+    `
+    return soon
+  }
+
+  const bloqueada = item.tipo === 'bloqueada'
+  const el = document.createElement(bloqueada ? 'div' : 'a')
+  el.className = 'misguias-card-main' + (bloqueada ? ' misguias-card-bloqueada' : '')
+  if (!bloqueada) el.href = item.href
+
+  const thumbStyle = item.gradiente   ? ` style="background:${item.gradiente};"` : ''
+  const badgeStyle = item.badgeEstilo ? ` style="${item.badgeEstilo}"` : ''
+  const badgeTexto = bloqueada ? '🔒 PRÓXIMAMENTE' : item.badge
+  const stats = (item.stats && item.stats.length)
+    ? `<div class="misguias-card-stats">${item.stats.map(s => `<span class="misguias-stat">${s}</span>`).join('')}</div>`
+    : ''
+  const cta = bloqueada
+    ? `<div class="misguias-card-cta"><span>Próximamente</span></div>`
+    : `<div class="misguias-card-cta"><span>${item.cta || 'Ver guía'}</span><div class="arrow">→</div></div>`
+
+  el.innerHTML = `
+    <div class="misguias-card-thumb"${thumbStyle}>
+      <div class="misguias-card-icon">${item.icono}</div>
+      <span class="misguias-card-badge"${badgeStyle}>${badgeTexto}</span>
+    </div>
+    <div class="misguias-card-body">
+      <h3 class="misguias-card-titulo">${item.titulo}</h3>
+      <p class="misguias-card-desc">${item.desc}</p>
+      ${stats}
+    </div>
+    ${cta}
+  `
+  return el
+}
+
+// Llena un contenedor .misguias-grid con una lista plana de tarjetas
+function pintarGridPlano(contenedorId, items) {
+  const grid = document.getElementById(contenedorId)
+  if (!grid) return
+  items.forEach(item => grid.appendChild(crearTarjetaGuia(item)))
+}
+
+// Llena un contenedor con varios grupos (label + grid cada uno)
+function pintarGrupos(contenedorId, grupos) {
+  const contenedor = document.getElementById(contenedorId)
+  if (!contenedor) return
+  grupos.forEach(grupo => {
+    const bloque = document.createElement('div')
+    bloque.className = 'guias-grupo'
+    bloque.innerHTML = `<p class="guias-grupo-label">${grupo.grupo}</p><div class="misguias-grid"></div>`
+    contenedor.appendChild(bloque)
+    const grid = bloque.querySelector('.misguias-grid')
+    grupo.items.forEach(item => grid.appendChild(crearTarjetaGuia(item)))
+  })
+}
+
+// ============================================
+// FUNCIONES: Construir cada panel restante
+// Cada una revisa que su contenedor exista antes
+// de dibujar, así que es seguro llamarlas todas
+// aunque la página no tenga ese panel.
+// ============================================
+
+function construirEjercicios()    { pintarGrupos('ejerciciosContainer', EJERCICIOS) }
+function construirPractica()      { pintarGridPlano('practicaContainer', PRACTICA) }
+function construirVideos()        { pintarGridPlano('videosContainer', VIDEOS) }
+function construirAdicionales()   { pintarGrupos('adicionalesContainer', ADICIONALES) }
+function construirDatosCuriosos() { pintarGrupos('datosCuriososContainer', DATOS_CURIOSOS) }
+function construirGlosario() {
+  pintarGridPlano('glosarioAccesosContainer', GLOSARIO_ACCESOS)
+  pintarGrupos('glosarioGruposContainer', GLOSARIO_GRUPOS)
+}
+function construirConsola()  { pintarGridPlano('consolaContainer', CONSOLA) }
+function construirProgresoAcceso() { pintarGridPlano('progresoAccesoContainer', PROGRESO) }
+
+
 // ============================================
 
 function llenarStats() {
@@ -416,14 +386,47 @@ function iniciarBannerInstalacion() {
 }
 
 // ============================================
+// FUNCIÓN: Menú hamburguesa del header
+// ============================================
+
+function iniciarMenuHeader() {
+  const hamburger = document.getElementById('navHamburger')
+  const nav       = document.getElementById('siteNav')
+  if (!hamburger || !nav) return
+
+  hamburger.addEventListener('click', () => {
+    hamburger.classList.toggle('open')
+    nav.classList.toggle('open')
+  })
+
+  // Cerrar al hacer click en un enlace
+  nav.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => {
+      hamburger.classList.remove('open')
+      nav.classList.remove('open')
+    })
+  })
+}
+
+// ============================================
 // INICIO
 // ============================================
 
 document.addEventListener('DOMContentLoaded', () => {
   llenarStats()
   construirBiblioteca()
+  construirGuias()
+  construirEjercicios()
+  construirPractica()
+  construirVideos()
+  construirAdicionales()
+  construirDatosCuriosos()
+  construirGlosario()
+  construirConsola()
+  construirProgresoAcceso()
   iniciarObservador()
   iniciarMenuMovil()
+  iniciarMenuHeader()
   iniciarBannerInstalacion()
   registrarSW()
 })

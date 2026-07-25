@@ -481,7 +481,7 @@
   <!-- HEADER -->
   <div class="page-header">
     <div class="page-header-inner">
-      <a href="../capitulos.html" class="back-link">← Volver a Café &lt;/&gt;</a>
+      <a href="../capitulos.html?tab=progreso" class="back-link">← Volver a Café &lt;/&gt;</a>
       <span class="page-header-title">📊 Mi Progreso</span>
     </div>
   </div>
@@ -493,6 +493,31 @@
       <span class="hero-badge">📊 MI PROGRESO</span>
       <h1>Tu avance en Café &lt;/&gt;</h1>
       <p>Marca lo que ya completaste y lleva el registro de tu racha de estudio. Todo se guarda en tu navegador automáticamente.</p>
+    </div>
+
+    <!-- LOGIN (enlace por correo, sin contraseña) -->
+    <div id="loginBox" class="progreso-global" style="margin-bottom:20px;">
+      <div class="progreso-global-header">
+        <span class="progreso-global-titulo">🔒 Inicia sesión para guardar tu progreso</span>
+      </div>
+      <p style="font-size:13px; color:var(--ink2, #6e6762); margin-bottom:16px; line-height:1.6;">
+        Escribe tu correo y te enviamos un enlace. Al abrirlo, quedas conectado — sin contraseña.
+      </p>
+      <div style="display:flex; flex-direction:column; gap:10px; max-width:340px;">
+        <input id="loginEmail" type="email" placeholder="correo@ejemplo.com"
+          style="font-family:var(--font-body); font-size:14px; padding:10px 14px; border:1px solid var(--border,#e8e3db); border-radius:8px;">
+        <p id="loginError" style="font-size:12px; color:#c44a2a; display:none;"></p>
+        <p id="loginOk" style="font-size:12px; color:#2a7a2a; display:none;"></p>
+        <button id="btnEnviarEnlace" onclick="enviarEnlace()" class="racha-btn" style="padding:10px 16px; font-size:13px; width:fit-content;">Enviarme el enlace de acceso</button>
+      </div>
+    </div>
+
+    <!-- Contenido de progreso, oculto hasta iniciar sesión -->
+    <div id="appContent" style="display:none;">
+
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; flex-wrap:wrap; gap:8px;">
+      <span style="font-size:13px; color:var(--ink2, #6e6762);">Sesión: <strong id="usuarioEmail"></strong> <span id="syncEstado" style="font-family:var(--font-code, 'DM Mono', monospace); font-size:11px; color:var(--ink3, #9e9388);"></span></span>
+      <button onclick="cerrarSesion()" class="btn-reset" style="padding:8px 14px; font-size:12px;">Cerrar sesión</button>
     </div>
 
     <!-- MENSAJE MOTIVACIONAL -->
@@ -583,8 +608,30 @@
       <button class="btn-reset" onclick="confirmarReset()">🗑️ Reiniciar todo mi progreso</button>
     </div>
 
+    </div><!-- /appContent -->
+
   </div>
 
+
+  <!-- ============================================
+       FIREBASE — Sincronización con la cuenta del usuario
+       ============================================ -->
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyAjNUAY81r5rUfwlslE_d9fHsJxZFptvf4",
+      authDomain: "cafecodigo-276ba.firebaseapp.com",
+      projectId: "cafecodigo-276ba",
+      storageBucket: "cafecodigo-276ba.firebasestorage.app",
+      messagingSenderId: "924422990613",
+      appId: "1:924422990613:web:a7beafb991146549f2571c"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+  </script>
 
   <!-- Carga script.js del proyecto para leer CAPITULOS, EJERCICIOS y PRACTICA automáticamente -->
   <script src="../js/script.js"></script>
@@ -661,6 +708,7 @@
     }
     function guardar(data) {
       localStorage.setItem(KEY, JSON.stringify(data))
+      subirANube()
     }
     function cargarRacha() {
       try { return JSON.parse(localStorage.getItem(KEY_RACHA)) || { dias: [], racha: 0 } }
@@ -668,7 +716,141 @@
     }
     function guardarRacha(data) {
       localStorage.setItem(KEY_RACHA, JSON.stringify(data))
+      subirANube()
     }
+
+    /* ============================================
+       AUTENTICACIÓN (enlace por correo, sin contraseña)
+       ============================================ */
+    const KEY_EMAIL_PENDIENTE = 'cafe_email_pendiente_v1'
+
+    function mostrarErrorLogin(msg) {
+      const el = document.getElementById('loginError')
+      document.getElementById('loginOk').style.display = 'none'
+      el.textContent = msg
+      el.style.display = 'block'
+    }
+
+    function mostrarOkLogin(msg) {
+      const el = document.getElementById('loginOk')
+      document.getElementById('loginError').style.display = 'none'
+      el.textContent = msg
+      el.style.display = 'block'
+    }
+
+    function traducirErrorAuth(err) {
+      const map = {
+        'auth/invalid-email': 'Correo inválido.',
+        'auth/missing-email': 'Escribe tu correo primero.',
+      }
+      return map[err.code] || ('Ocurrió un error: ' + err.message)
+    }
+
+    function enviarEnlace() {
+      const email = document.getElementById('loginEmail').value.trim()
+      document.getElementById('loginError').style.display = 'none'
+      document.getElementById('loginOk').style.display = 'none'
+      if (!email) { mostrarErrorLogin('Escribe tu correo primero.'); return }
+
+      const actionCodeSettings = {
+        url: window.location.href.split('?')[0],
+        handleCodeInApp: true
+      }
+
+      const btn = document.getElementById('btnEnviarEnlace')
+      btn.disabled = true
+      btn.textContent = 'Enviando…'
+
+      auth.sendSignInLinkToEmail(email, actionCodeSettings)
+        .then(() => {
+          localStorage.setItem(KEY_EMAIL_PENDIENTE, email)
+          mostrarOkLogin('Listo — revisa tu correo y abre el enlace desde este mismo navegador.')
+          btn.textContent = 'Enlace enviado ✓'
+        })
+        .catch(err => {
+          mostrarErrorLogin(traducirErrorAuth(err))
+          btn.disabled = false
+          btn.textContent = 'Enviarme el enlace de acceso'
+        })
+    }
+
+    function cerrarSesion() {
+      auth.signOut()
+    }
+
+    /* Si la página se abrió desde el enlace del correo, completa el inicio de sesión */
+    function revisarEnlaceDeAcceso() {
+      if (!auth.isSignInWithEmailLink(window.location.href)) return
+      let email = localStorage.getItem(KEY_EMAIL_PENDIENTE)
+      if (!email) {
+        email = window.prompt('Confirma el correo al que te enviamos el enlace:')
+      }
+      if (!email) return
+      auth.signInWithEmailLink(email, window.location.href)
+        .then(() => {
+          localStorage.removeItem(KEY_EMAIL_PENDIENTE)
+          history.replaceState(null, '', window.location.pathname)
+        })
+        .catch(err => mostrarErrorLogin(traducirErrorAuth(err)))
+    }
+    revisarEnlaceDeAcceso()
+
+    /* ============================================
+       SINCRONIZACIÓN CON FIREBASE (ligada a la cuenta)
+       ============================================ */
+    let subidaPendiente = null
+    function subirANube() {
+      const usuario = auth.currentUser
+      if (!usuario) return
+      const estado = document.getElementById('syncEstado')
+      if (estado) estado.textContent = 'guardando…'
+      clearTimeout(subidaPendiente)
+      subidaPendiente = setTimeout(() => {
+        db.collection('progresos').doc(usuario.uid).set({
+          progreso: cargar(),
+          racha: cargarRacha(),
+          actualizado: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true })
+          .then(() => { if (estado) estado.textContent = '· ✓ sincronizado' })
+          .catch(err => {
+            console.error('Error al guardar en Firebase:', err)
+            if (estado) estado.textContent = '· ⚠️ sin conexión, guardado local'
+          })
+      }, 500)
+    }
+
+    function descargarDeNube(uid) {
+      const estado = document.getElementById('syncEstado')
+      if (estado) estado.textContent = '· cargando…'
+      return db.collection('progresos').doc(uid).get()
+        .then(doc => {
+          if (doc.exists) {
+            const d = doc.data()
+            if (d.progreso) localStorage.setItem(KEY, JSON.stringify(d.progreso))
+            if (d.racha)    localStorage.setItem(KEY_RACHA, JSON.stringify(d.racha))
+          }
+          if (estado) estado.textContent = '· ✓ sincronizado'
+        })
+        .catch(err => {
+          console.error('Error al leer de Firebase:', err)
+          if (estado) estado.textContent = '· ⚠️ sin conexión'
+        })
+    }
+
+    /* Reacciona a inicio/cierre de sesión */
+    auth.onAuthStateChanged(usuario => {
+      const loginBox = document.getElementById('loginBox')
+      const appContent = document.getElementById('appContent')
+      if (usuario) {
+        loginBox.style.display = 'none'
+        appContent.style.display = 'block'
+        document.getElementById('usuarioEmail').textContent = usuario.email
+        descargarDeNube(usuario.uid).then(() => renderTodo())
+      } else {
+        loginBox.style.display = 'block'
+        appContent.style.display = 'none'
+      }
+    })
 
     /* ============================================
        RENDER — CAPÍTULOS
