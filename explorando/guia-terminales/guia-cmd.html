@@ -29,8 +29,8 @@
   header p { font-size:1.1rem; opacity:.7; margin-top:.5rem; }
   header .badge { display:inline-block; background:rgba(26,122,26,.3); border:1px solid rgba(26,122,26,.6); color:#4ec94e; border-radius:20px; padding:4px 14px; font-size:.8rem; margin-top:.75rem; font-weight:600; }
 
-  nav { background:#1a1814; border-bottom:1px solid #333; position:sticky; top:45px; z-index:100; display:flex; overflow-x:auto; }
-  nav::-webkit-scrollbar { display:none; }
+  nav { background:#1a1814; border-bottom:1px solid #333; position:sticky; top:45px; z-index:100; display:flex; overflow-x:auto; cursor:grab; }
+  
   nav a { flex-shrink:0; padding:.65rem .9rem; text-decoration:none; color:#888; font-size:.78rem; font-weight:500; border-bottom:2px solid transparent; transition:color .2s,border-color .2s; white-space:nowrap; }
   nav a:hover { color:#4ec94e; border-bottom-color:#4ec94e; }
 
@@ -1269,6 +1269,38 @@
 <footer>
   Guía CMD desde Cero · Café &lt;/&gt; · Hugo 2025
 </footer>
+
+<script>
+/* ─── SCROLL HORIZONTAL DEL NAV CON RUEDA Y ARRASTRE ─── */
+(function () {
+  var nav = document.querySelector('nav');
+  if (!nav) return;
+
+  nav.addEventListener('wheel', function (e) {
+    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+      e.preventDefault();
+      nav.scrollLeft += e.deltaY;
+    }
+  }, { passive: false });
+
+  var arrastrando = false, inicioX = 0, scrollInicio = 0;
+  nav.addEventListener('mousedown', function (e) {
+    arrastrando = true;
+    inicioX = e.pageX;
+    scrollInicio = nav.scrollLeft;
+    nav.style.cursor = 'grabbing';
+  });
+  window.addEventListener('mouseup', function () {
+    arrastrando = false;
+    nav.style.cursor = '';
+  });
+  window.addEventListener('mousemove', function (e) {
+    if (!arrastrando) return;
+    e.preventDefault();
+    nav.scrollLeft = scrollInicio - (e.pageX - inicioX);
+  });
+})();
+</script>
 
 </body>
 </html>
