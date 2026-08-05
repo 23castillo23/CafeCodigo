@@ -204,6 +204,17 @@ const GUIAS = [
         stats:      ['Parte A · HTML avanzado', 'Parte C · CSS avanzado', 'Parte E · Flexbox', 'Parte G · Grid']
       },
       {
+        tipo:       'link',
+        href:       'guia-holamundo-html/holamundo-html-parte-A.html',
+        icono:      '📺',
+        gradiente:  'linear-gradient(135deg, #1a1408 60%, #241c08)',
+        badge:      'REPASO HTML',
+        badgeEstilo:'background:rgba(232,93,47,0.2);color:#fab387;border:1px solid rgba(232,93,47,0.3);',
+        titulo:     'Repaso HTML — HolaMundo',
+        desc:       'Repaso rápido de HTML desde otro punto de vista: etiquetas, estructura mínima y atajos de VS Code.',
+        stats:      ['Parte A · Etiquetas y estructura']
+      },
+      {
         tipo:   'soon',
         icono:  '➕',
         titulo: 'Próxima guía HTML/CSS',
@@ -246,6 +257,17 @@ const GUIAS = [
         titulo:     'VS Code desde Cero',
         desc:       'Instalación, configuración, extensiones imprescindibles, atajos y flujo de trabajo diario con VS Code.',
         stats:      ['Instalación', 'Extensiones', 'Atajos clave']
+      },
+      {
+        tipo:       'link',
+        href:       'guia-linux-terminal/guia-linux-parte-A.html',
+        icono:      '🐧',
+        gradiente:  'linear-gradient(135deg, #0a1a12 60%, #0e2418)',
+        badge:      'TERMINAL',
+        badgeEstilo:'background:rgba(46,204,113,0.2);color:#7ee8a8;border:1px solid rgba(46,204,113,0.3);',
+        titulo:     'Linux en la Terminal',
+        desc:       'Distribuciones, sistema de archivos, rutas absolutas y relativas, y los atajos esenciales de la terminal.',
+        stats:      ['Parte A · Terminal y rutas']
       },
       {
         tipo:   'soon',

@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Repaso HTML — HolaMundo · Parte A</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #e85d2f;
+    --primary-light:  #fdf0ec;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1e1e2e;
+    --code-text:      #cdd6f4;
+  }
+
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  /* ── TOPBAR ── */
+  .topbar { background: #fff; border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; gap: 14px; position: sticky; top: 0; z-index: 200; height: 46px; }
+  .topbar a { font-size: 13px; color: var(--muted); text-decoration: none; padding: 5px 13px; border: 1px solid var(--border); border-radius: 999px; transition: all .15s; }
+  .topbar a:hover { color: var(--text); border-color: var(--muted); }
+  .topbar span { font-size: 13px; color: var(--muted); }
+
+  /* ── HEADER ── */
+  header { background: #1e1e2e; color: #cdd6f4; padding: 2.75rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: 'HTML'; position: absolute; font-size: 12rem; font-weight: 900; color: rgba(255,255,255,.04); right: -1rem; top: -2rem; font-family: monospace; line-height: 1; }
+  header .curso-badge { display: inline-flex; align-items: center; gap: .5rem; background: rgba(232,93,47,.2); border: 1px solid rgba(232,93,47,.4); border-radius: 20px; padding: 3px 14px; font-size: .75rem; font-weight: 700; color: #fab387; margin-bottom: .75rem; }
+  header h1 { font-size: 2.2rem; font-weight: 800; letter-spacing: -.5px; color: #cdd6f4; }
+  header p  { font-size: 1rem; opacity: .7; margin-top: .4rem; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); border-radius: 20px; padding: 3px 13px; font-size: .75rem; margin-top: .65rem; }
+
+  /* ── PARTES NAV ── */
+  .partes-nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 46px; z-index: 110; display: flex; align-items: center; height: 38px; padding: 0 1rem; }
+  .partes-nav-prev, .partes-nav-next { flex-shrink: 0; display: flex; align-items: center; padding: 0 .75rem; height: 100%; text-decoration: none; color: var(--muted); font-size: .78rem; font-weight: 500; border-right: 1px solid var(--border); transition: color .15s; white-space: nowrap; }
+  .partes-nav-next { border-right: none; border-left: 1px solid var(--border); }
+  .partes-nav-prev:hover, .partes-nav-next:hover { color: var(--primary); }
+  .partes-nav-list { flex: 1; display: flex; align-items: center; justify-content: center; gap: .2rem; overflow-x: auto; padding: 0 .5rem; }
+  .partes-nav-list::-webkit-scrollbar { display: none; }
+  .partes-nav-list a { flex-shrink: 0; padding: 2px 10px; border-radius: 20px; text-decoration: none; font-size: .73rem; font-weight: 600; color: var(--muted); transition: color .15s, background .15s; }
+  .partes-nav-list a:hover { color: var(--text); background: var(--bg); }
+  .partes-nav-list a.activa { background: var(--primary-light); color: var(--primary); }
+
+  /* ── SECTION NAV ── */
+  nav.sec-nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 84px; z-index: 100; display: flex; overflow-x: auto; }
+  nav.sec-nav a { flex-shrink: 0; padding: .7rem 1rem; text-decoration: none; color: var(--muted); font-size: .82rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav.sec-nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  /* ── MAIN ── */
+  main { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: white; border-radius: 20px; padding: 5px 16px; font-size: .8rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  /* ── MÓDULOS ── */
+  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.75rem; margin-bottom: 2rem; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.6rem; flex-shrink: 0; }
+  .module-title { font-size: 1.2rem; font-weight: 700; }
+  .module-sub { font-size: .83rem; color: var(--muted); margin-top: 2px; }
+
+  /* ── CALLOUTS ── */
+  .callout { border-radius: 0 10px 10px 0; padding: 1rem 1.2rem; margin: 1rem 0; }
+  .callout h4 { font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .35rem; }
+  .callout p, .callout ul { font-size: .93rem; }
+  .callout ul { padding-left: 1.2rem; }
+  .callout li { margin-bottom: .3rem; }
+
+  .callout.tip    { background: var(--secondary-light); border-left: 4px solid var(--secondary); }
+  .callout.tip h4 { color: var(--secondary); }
+  .callout.note   { background: var(--primary-light);   border-left: 4px solid var(--primary); }
+  .callout.note h4{ color: var(--primary); }
+  .callout.info   { background: var(--accent-light);    border-left: 4px solid var(--accent); }
+  .callout.info h4{ color: var(--accent); }
+
+  /* ── CÓDIGO ── */
+  .code-wrap { position: relative; margin: .9rem 0; }
+  .code-block { background: var(--code-bg); color: var(--code-text); border-radius: 10px; padding: 1.2rem 1.4rem; font-family: 'DM Mono', monospace; font-size: .87rem; line-height: 1.9; overflow-x: auto; white-space: pre; }
+  .lang-tag { position: absolute; top: .55rem; right: .75rem; background: rgba(255,255,255,.08); color: rgba(255,255,255,.4); font-size: .65rem; padding: 2px 8px; border-radius: 4px; font-family: sans-serif; font-weight: 700; }
+
+  /* Colores del syntax */
+  .ht { color: #89B4FA; }   /* tag */
+  .ha { color: #CBA6F7; }   /* atributo */
+  .hv { color: #A6E3A1; }   /* valor */
+  .hc { color: #585B70; font-style: italic; } /* comentario */
+  .hs { color: #F9E2AF; }   /* string */
+  .hk { color: #FAB387; }   /* keyword */
+
+  /* ── PREVIEW ── */
+  .preview { border: 2px dashed var(--border); border-radius: 10px; padding: 1.25rem; margin: .9rem 0; background: #fff; position: relative; }
+  .preview::before { content: '🖥 Resultado en el navegador'; position: absolute; top: -11px; left: 14px; background: #fff; font-size: .72rem; color: var(--muted); padding: 0 6px; }
+
+  /* ── COMPARATIVA DOS COLUMNAS ── */
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+  @media (max-width: 600px) { .compare { grid-template-columns: 1fr; } }
+  .compare-box { border-radius: 10px; padding: 1rem; border: 1px solid var(--border); }
+  .compare-box.bad  { background: #fff0f0; border-left: 4px solid #EF4444; }
+  .compare-box.good { background: var(--secondary-light); border-left: 4px solid var(--secondary); }
+  .compare-box .cb-label { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: .5rem; }
+  .compare-box.bad  .cb-label { color: #EF4444; }
+  .compare-box.good .cb-label { color: var(--secondary); }
+
+  /* ── TABLA ── */
+  .tbl { width: 100%; border-collapse: collapse; margin: .9rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .6rem 1rem; text-align: left; font-weight: 700; }
+  .tbl td { padding: .6rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .82rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  /* ── EJERCICIO ── */
+  .ejercicio { background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 12px; padding: 1.4rem; margin: 1.5rem 0; }
+  .ej-header { display: flex; align-items: center; gap: .6rem; margin-bottom: .85rem; font-weight: 700; color: #78350F; flex-wrap: wrap; }
+  .ej-badge { background: var(--accent); color: #fff; font-size: .67rem; padding: 2px 9px; border-radius: 20px; font-weight: 700; text-transform: uppercase; }
+  .ejercicio ol { padding-left: 1.35rem; }
+  .ejercicio ol li { margin-bottom: .55rem; font-size: .93rem; }
+  .ejercicio p { font-size: .93rem; margin-bottom: .5rem; }
+
+  h2 { font-size: 1.15rem; font-weight: 700; margin: 1.5rem 0 .6rem; }
+  h3 { font-size: .97rem; font-weight: 700; margin: 1.1rem 0 .4rem; }
+  p  { margin-bottom: .75rem; }
+  ul, ol { padding-left: 1.35rem; margin-bottom: .75rem; }
+  li { margin-bottom: .35rem; font-size: .95rem; }
+  code { font-family: 'DM Mono', monospace; background: #f0ece6; color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .88em; }
+  strong { font-weight: 700; }
+
+  /* ── STEPS VISUALES ── */
+  .steps-visual { display: flex; flex-direction: column; gap: .6rem; margin: .9rem 0; }
+  .step-item { display: flex; gap: .85rem; align-items: flex-start; }
+  .step-num { background: var(--primary); color: white; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .75rem; font-weight: 700; flex-shrink: 0; margin-top: .15rem; }
+  .step-content { flex: 1; font-size: .93rem; }
+  .step-content strong { display: block; margin-bottom: .15rem; }
+
+  /* ── ESTRUCTURA VISUAL ── */
+  .html-anatomy { background: #1e1e2e; border-radius: 12px; padding: 1.25rem 1.5rem; font-family: 'DM Mono', monospace; font-size: .87rem; line-height: 2.4; margin: .9rem 0; }
+  .ana-tag  { color: #89B4FA; }
+  .ana-attr { color: #CBA6F7; }
+  .ana-val  { color: #A6E3A1; }
+  .ana-txt  { color: #cdd6f4; }
+  .ana-lbl  { display: inline-block; background: var(--primary); color: white; font-size: .65rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 8px; font-weight: 700; }
+  .ana-lbl2 { display: inline-block; background: var(--secondary); color: white; font-size: .65rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 8px; font-weight: 700; }
+  .ana-lbl3 { display: inline-block; background: var(--accent); color: white; font-size: .65rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 8px; font-weight: 700; }
+
+  /* ── DATO RÁPIDO ── */
+  .quick-fact { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: .85rem 1.1rem; margin: .75rem 0; display: flex; gap: .75rem; align-items: flex-start; font-size: .92rem; }
+  .qf-icon { font-size: 1.3rem; flex-shrink: 0; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .83rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <a href="../capitulos.html?tab=guias">← Café &lt;/&gt;</a>
+  <span>☕ Repaso HTML · HolaMundo · Parte A</span>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="curso-badge">📺 HolaMundo — Aprende HTML ahora · 0:00 – 11:23</div>
+  <h1>Repaso HTML — Parte A</h1>
+  <p>Qué es HTML, configurar VS Code, primer proyecto y estructura base</p>
+  <span class="badge">✦ Repaso rápido desde otro punto de vista ✦</span>
+</header>
+
+<!-- PARTES NAV -->
+<div class="partes-nav">
+  <a class="partes-nav-prev" href="#">←</a>
+  <div class="partes-nav-list">
+    <a href="holamundo-html-parte-A.html" class="activa">A ✦</a>
+    <a href="holamundo-html-parte-B.html">B</a>
+    <a href="holamundo-html-parte-C.html">C</a>
+    <a href="holamundo-html-parte-D.html">D</a>
+    <a href="holamundo-html-parte-E.html">E</a>
+  </div>
+  <a class="partes-nav-next" href="holamundo-html-parte-B.html">B →</a>
+</div>
+
+<!-- SECCIÓN NAV -->
+<nav class="sec-nav">
+  <a href="#que-es">🌐 ¿Qué es HTML?</a>
+  <a href="#vscode">🛠 VS Code</a>
+  <a href="#proyecto">📁 Primer proyecto</a>
+  <a href="#estructura">🏗 Estructura base</a>
+  <a href="#ejercicio">✏️ Ejercicio</a>
+</nav>
+
+<main>
+<div class="parte-badge">📦 Parte A — HolaMundo · 0:00 – 11:23</div>
+
+
+<!-- ════════════════════════════════════
+     ¿QUÉ ES HTML?
+════════════════════════════════════ -->
+<section class="module" id="que-es">
+  <div class="module-header">
+    <div class="module-icon">🌐</div>
+    <div>
+      <div class="module-title">¿Qué es HTML?</div>
+      <div class="module-sub">El lenguaje con el que está construida toda la web</div>
+    </div>
+  </div>
+
+  <p><strong>HTML</strong> significa <strong>HyperText Markup Language</strong> — Lenguaje de Marcado de Hipertexto. No es un lenguaje de programación: es un lenguaje de <em>estructura</em>. Le dice al navegador qué hay en la página y cómo organizarlo.</p>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.85rem;margin:1rem 0">
+    <div class="quick-fact">
+      <span class="qf-icon">🦴</span>
+      <div><strong>HTML = Esqueleto</strong><br>Da la estructura y el contenido de la página.</div>
+    </div>
+    <div class="quick-fact">
+      <span class="qf-icon">🎨</span>
+      <div><strong>CSS = Piel y ropa</strong><br>Le da el estilo visual al esqueleto.</div>
+    </div>
+    <div class="quick-fact">
+      <span class="qf-icon">💪</span>
+      <div><strong>JavaScript = Músculos</strong><br>Le da movimiento e interactividad.</div>
+    </div>
+  </div>
+
+  <div class="callout info">
+    <h4>💡 Lo que dice HolaMundo</h4>
+    <p>Nicolás lo explica así: HTML define <em>qué</em> es cada cosa (esto es un título, esto es un párrafo, esto es una imagen). CSS define <em>cómo se ve</em> cada cosa. Sin HTML no hay página web posible.</p>
+  </div>
+
+  <h2>¿Cómo funciona una página web?</h2>
+  <div class="steps-visual">
+    <div class="step-item">
+      <div class="step-num">1</div>
+      <div class="step-content"><strong>Escribes HTML en un archivo .html</strong> con tu editor de texto (VS Code)</div>
+    </div>
+    <div class="step-item">
+      <div class="step-num">2</div>
+      <div class="step-content"><strong>El navegador lee ese archivo</strong> (Chrome, Firefox, Safari…)</div>
+    </div>
+    <div class="step-item">
+      <div class="step-num">3</div>
+      <div class="step-content"><strong>El navegador interpreta las etiquetas</strong> y muestra el resultado visual en pantalla</div>
+    </div>
+    <div class="step-item">
+      <div class="step-num">4</div>
+      <div class="step-content"><strong>Tú ves la página web</strong> — eso es todo lo que hay detrás de cualquier sitio web</div>
+    </div>
+  </div>
+
+  <h2>Las etiquetas — el concepto fundamental</h2>
+  <p>HTML trabaja con <strong>etiquetas</strong>. Una etiqueta es una instrucción entre <code>&lt;</code> y <code>&gt;</code>. La mayoría vienen en pares: una de apertura y una de cierre.</p>
+
+  <div class="code-wrap">
+    <div class="code-block"><span class="hc">&lt;!-- Etiqueta con apertura y cierre --&gt;</span>
+<span class="ht">&lt;etiqueta&gt;</span> contenido aquí <span class="ht">&lt;/etiqueta&gt;</span>
+
+<span class="hc">&lt;!-- Ejemplos reales --&gt;</span>
+<span class="ht">&lt;h1&gt;</span>Esto es un título<span class="ht">&lt;/h1&gt;</span>
+<span class="ht">&lt;p&gt;</span>Esto es un párrafo<span class="ht">&lt;/p&gt;</span>
+
+<span class="hc">&lt;!-- Etiquetas que se cierran solas (auto-cierre) --&gt;</span>
+<span class="ht">&lt;img</span> <span class="ha">src</span>=<span class="hs">"foto.jpg"</span> <span class="ht">/&gt;</span>
+<span class="ht">&lt;br</span> <span class="ht">/&gt;</span>
+<span class="ht">&lt;input</span> <span class="ht">/&gt;</span></div>
+    <div class="lang-tag">HTML</div>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Parte de la etiqueta</th><th>Ejemplo</th><th>Qué hace</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">Etiqueta apertura</span></td><td><code>&lt;p&gt;</code></td><td>Marca el inicio del elemento</td></tr>
+      <tr><td><span class="tag">Contenido</span></td><td><code>Hola mundo</code></td><td>Lo que el usuario verá</td></tr>
+      <tr><td><span class="tag">Etiqueta cierre</span></td><td><code>&lt;/p&gt;</code></td><td>Marca el fin del elemento (lleva la /)</td></tr>
+      <tr><td><span class="tag">Atributo</span></td><td><code>src="foto.jpg"</code></td><td>Información extra dentro de la etiqueta</td></tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- ════════════════════════════════════
+     VS CODE
+════════════════════════════════════ -->
+<section class="module" id="vscode">
+  <div class="module-header">
+    <div class="module-icon">🛠️</div>
+    <div>
+      <div class="module-title">Instalando VS Code — El editor de código</div>
+      <div class="module-sub">La herramienta que usan la mayoría de desarrolladores web</div>
+    </div>
+  </div>
+
+  <p>Para escribir HTML necesitas un editor de texto. El más popular en el mundo (y el que usa HolaMundo) es <strong>Visual Studio Code</strong> — es gratuito y tiene todo lo que necesitas.</p>
+
+  <div class="steps-visual">
+    <div class="step-item">
+      <div class="step-num">1</div>
+      <div class="step-content"><strong>Descarga VS Code</strong> desde <code>code.visualstudio.com</code> — elige tu sistema operativo (Windows, Mac o Linux)</div>
+    </div>
+    <div class="step-item">
+      <div class="step-num">2</div>
+      <div class="step-content"><strong>Instálalo</strong> con las opciones por defecto</div>
+    </div>
+    <div class="step-item">
+      <div class="step-num">3</div>
+      <div class="step-content"><strong>Instala la extensión "Live Server"</strong> — te permite ver los cambios en el navegador en tiempo real sin recargar manualmente</div>
+    </div>
+  </div>
+
+  <div class="callout tip">
+    <h4>🟢 Extensión esencial: Live Server</h4>
+    <p>En VS Code → panel de extensiones (ícono de 4 cuadros a la izquierda) → busca "Live Server" de Ritwick Dey → instalar. Con esto haces clic derecho en tu archivo HTML → "Open with Live Server" y se abre en el navegador actualizándose solo cada vez que guardas.</p>
+  </div>
+
+  <h2>Atajos de VS Code que usarás desde el primer día</h2>
+  <table class="tbl">
+    <thead><tr><th>Atajo</th><th>Qué hace</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">Ctrl + S</span></td><td>Guardar el archivo (hazlo constantemente)</td></tr>
+      <tr><td><span class="tag">!</span> + Tab</td><td>Genera la estructura HTML base completa (Emmet)</td></tr>
+      <tr><td><span class="tag">Alt + Shift + F</span></td><td>Formatear/indentar el código automáticamente</td></tr>
+      <tr><td><span class="tag">Ctrl + /</span></td><td>Comentar/descomentar la línea seleccionada</td></tr>
+      <tr><td><span class="tag">Ctrl + Z</span></td><td>Deshacer el último cambio</td></tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- ════════════════════════════════════
+     PRIMER PROYECTO
+════════════════════════════════════ -->
+<section class="module" id="proyecto">
+  <div class="module-header">
+    <div class="module-icon">📁</div>
+    <div>
+      <div class="module-title">Creando el primer proyecto</div>
+      <div class="module-sub">Carpeta, archivo index.html y abrirlo en el navegador</div>
+    </div>
+  </div>
+
+  <p>Un proyecto web es simplemente una <strong>carpeta</strong> con archivos dentro. El archivo principal siempre se llama <code>index.html</code> — es el nombre que los navegadores y servidores buscan por defecto.</p>
+
+  <div class="steps-visual">
+    <div class="step-item">
+      <div class="step-num">1</div>
+      <div class="step-content"><strong>Crea una carpeta</strong> en tu escritorio o donde quieras. Nómbrala algo como <code>mi-primera-web</code> (sin espacios, en minúsculas)</div>
+    </div>
+    <div class="step-item">
+      <div class="step-num">2</div>
+      <div class="step-content"><strong>Abre VS Code</strong> → Archivo → Abrir carpeta → selecciona tu carpeta</div>
+    </div>
+    <div class="step-item">
+      <div class="step-num">3</div>
+      <div class="step-content"><strong>Crea un nuevo archivo</strong> dentro de la carpeta y nómbralo <code>index.html</code></div>
+    </div>
+    <div class="step-item">
+      <div class="step-num">4</div>
+      <div class="step-content"><strong>Escribe algo de HTML</strong>, guarda con <code>Ctrl+S</code>, y ábrelo con Live Server o arrastrándolo al navegador</div>
+    </div>
+  </div>
+
+  <div class="callout note">
+    <h4>⚠️ ¿Por qué index.html?</h4>
+    <p>Cuando alguien entra a una web (por ejemplo <code>google.com</code>), el servidor busca automáticamente un archivo llamado <code>index.html</code>. Si lo llamas diferente, el servidor no lo encontrará. Siempre <code>index.html</code> como página principal.</p>
+  </div>
+
+  <div class="callout tip">
+    <h4>🟢 Nombres de archivos y carpetas — reglas de oro</h4>
+    <ul>
+      <li>Todo en <strong>minúsculas</strong>: <code>mi-pagina.html</code> no <code>MiPagina.html</code></li>
+      <li><strong>Sin espacios</strong>: usa guion (<code>-</code>) en vez de espacio</li>
+      <li><strong>Sin acentos ni ñ</strong>: <code>pagina.html</code> no <code>página.html</code></li>
+      <li>La extensión siempre <code>.html</code></li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════
+     ESTRUCTURA BASE
+════════════════════════════════════ -->
+<section class="module" id="estructura">
+  <div class="module-header">
+    <div class="module-icon">🏗️</div>
+    <div>
+      <div class="module-title">Primeros pasos — La estructura base del HTML</div>
+      <div class="module-sub">El esqueleto mínimo que todo archivo HTML debe tener</div>
+    </div>
+  </div>
+
+  <p>Todo archivo HTML válido tiene la misma estructura base. En VS Code puedes generarla automáticamente escribiendo <code>!</code> y presionando <strong>Tab</strong> (es un atajo de Emmet).</p>
+
+  <h2>La estructura mínima</h2>
+
+  <div class="html-anatomy">
+<span class="ana-tag">&lt;!DOCTYPE html&gt;</span><span class="ana-lbl">Declaración — "esto es HTML5"</span>
+<span class="ana-tag">&lt;html</span> <span class="ana-attr">lang</span>=<span class="ana-val">"es"</span><span class="ana-tag">&gt;</span><span class="ana-lbl2">Raíz — contiene TODO</span>
+
+  <span class="ana-tag">&lt;head&gt;</span><span class="ana-lbl3">Cabeza — info para el navegador (no visible)</span>
+    <span class="ana-tag">&lt;meta</span> <span class="ana-attr">charset</span>=<span class="ana-val">"UTF-8"</span><span class="ana-tag">&gt;</span>
+    <span class="ana-tag">&lt;title&gt;</span><span class="ana-txt">Mi primera web</span><span class="ana-tag">&lt;/title&gt;</span>
+  <span class="ana-tag">&lt;/head&gt;</span>
+
+  <span class="ana-tag">&lt;body&gt;</span><span class="ana-lbl">Cuerpo — todo lo que el usuario VE</span>
+    <span class="ana-txt">Aquí va tu contenido...</span>
+  <span class="ana-tag">&lt;/body&gt;</span>
+
+<span class="ana-tag">&lt;/html&gt;</span>
+  </div>
+
+  <h2>¿Qué hace cada parte?</h2>
+  <table class="tbl">
+    <thead><tr><th>Etiqueta</th><th>Qué es</th><th>Detalles</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">&lt;!DOCTYPE html&gt;</span></td><td>Declaración del tipo de documento</td><td>Le dice al navegador que use HTML5. Siempre va en la primera línea. No es una etiqueta HTML propiamente, es una instrucción.</td></tr>
+      <tr><td><span class="tag">&lt;html&gt;</span></td><td>Elemento raíz</td><td>Contiene absolutamente todo el documento. El atributo <code>lang="es"</code> indica el idioma (importante para accesibilidad y SEO).</td></tr>
+      <tr><td><span class="tag">&lt;head&gt;</span></td><td>Cabecera del documento</td><td>Contiene información para el navegador que el usuario NO ve directamente: charset, título, links a CSS, metadatos.</td></tr>
+      <tr><td><span class="tag">&lt;meta charset&gt;</span></td><td>Codificación de caracteres</td><td>Con UTF-8 puedes usar acentos, ñ y cualquier carácter especial sin problemas. Siempre ponla.</td></tr>
+      <tr><td><span class="tag">&lt;title&gt;</span></td><td>Título de la pestaña</td><td>Lo que aparece en la pestaña del navegador y en los resultados de Google. Debe ser descriptivo.</td></tr>
+      <tr><td><span class="tag">&lt;body&gt;</span></td><td>Cuerpo del documento</td><td>TODO lo que el usuario ve en la página va aquí: textos, imágenes, botones, formularios, todo.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>El código generado por el atajo ! + Tab en VS Code</h2>
+
+  <div class="code-wrap">
+    <div class="code-block"><span class="hc">&lt;!-- Escribe ! y presiona Tab en VS Code --&gt;</span>
+<span class="hc">&lt;!-- Resultado: --&gt;</span>
+
+<span class="ht">&lt;!DOCTYPE html&gt;</span>
+<span class="ht">&lt;html</span> <span class="ha">lang</span>=<span class="hs">"en"</span><span class="ht">&gt;</span>
+<span class="ht">&lt;head&gt;</span>
+    <span class="ht">&lt;meta</span> <span class="ha">charset</span>=<span class="hs">"UTF-8"</span><span class="ht">&gt;</span>
+    <span class="ht">&lt;meta</span> <span class="ha">name</span>=<span class="hs">"viewport"</span> <span class="ha">content</span>=<span class="hs">"width=device-width, initial-scale=1.0"</span><span class="ht">&gt;</span>
+    <span class="ht">&lt;title&gt;</span>Document<span class="ht">&lt;/title&gt;</span>
+<span class="ht">&lt;/head&gt;</span>
+<span class="ht">&lt;body&gt;</span>
+
+<span class="ht">&lt;/body&gt;</span>
+<span class="ht">&lt;/html&gt;</span>
+
+<span class="hc">&lt;!-- Cambia lang="en" por lang="es" si tu web es en español --&gt;</span>
+<span class="hc">&lt;!-- Cambia "Document" en title por el nombre real de tu página --&gt;</span></div>
+    <div class="lang-tag">HTML</div>
+  </div>
+
+  <div class="preview">
+    <p style="font-size:.85rem;color:#8a8480;margin-bottom:.4rem">Lo que el usuario ve en el navegador con esta estructura vacía:</p>
+    <div style="background:#fff;border:1px solid #e8e4de;border-radius:6px;padding:.5rem">
+      <div style="background:#f0f0f0;border-radius:4px 4px 0 0;padding:.3rem .7rem;font-size:.72rem;color:#666;display:flex;gap:.4rem;align-items:center">
+        <span style="background:#ff5f57;width:8px;height:8px;border-radius:50%"></span>
+        <span style="background:#ffbd2e;width:8px;height:8px;border-radius:50%"></span>
+        <span style="background:#28c840;width:8px;height:8px;border-radius:50%"></span>
+        <span style="margin-left:.4rem">Document — lo que pusiste en &lt;title&gt;</span>
+      </div>
+      <div style="padding:1.5rem;min-height:60px;font-size:.9rem;color:#333">
+        (página vacía — el body está vacío, pero la estructura es válida)
+      </div>
+    </div>
+  </div>
+
+  <div class="callout tip">
+    <h4>🟢 La regla de la indentación</h4>
+    <p>Todo lo que va dentro de una etiqueta debe tener un nivel más de sangría (Tab). Las etiquetas anidadas son más fáciles de leer y menos propensas a errores cuando están bien indentadas. VS Code con <strong>Alt+Shift+F</strong> lo hace automático.</p>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════
+     EJERCICIO
+════════════════════════════════════ -->
+<section class="module" id="ejercicio">
+  <div class="module-header">
+    <div class="module-icon">✏️</div>
+    <div>
+      <div class="module-title">Ejercicio — Tu primera página HTML</div>
+      <div class="module-sub">Pon en práctica todo lo de la Parte A</div>
+    </div>
+  </div>
+
+  <div class="ejercicio">
+    <div class="ej-header">✏️ Ejercicio Parte A — Primera página <span class="ej-badge">Principiante</span></div>
+    <ol>
+      <li>Crea una carpeta llamada <code>repaso-html</code> en tu escritorio.</li>
+      <li>Ábrela con VS Code (<strong>Archivo → Abrir carpeta</strong>).</li>
+      <li>Crea el archivo <code>index.html</code> dentro de la carpeta.</li>
+      <li>Usa el atajo <strong>! + Tab</strong> para generar la estructura base.</li>
+      <li>Cambia <code>lang="en"</code> por <code>lang="es"</code>.</li>
+      <li>Cambia el título por <strong>"Mi primera página web"</strong>.</li>
+      <li>Dentro del <code>&lt;body&gt;</code> escribe: <code>&lt;h1&gt;¡Hola Mundo!&lt;/h1&gt;</code></li>
+      <li>Guarda con <strong>Ctrl+S</strong> y ábrelo con Live Server.</li>
+      <li>Verifica que en la pestaña del navegador aparezca "Mi primera página web" y en la página aparezca el texto en grande.</li>
+    </ol>
+    <p style="margin-top:.75rem"><strong>Bonus:</strong> Agrega debajo del h1 un párrafo con <code>&lt;p&gt;</code> que diga tu nombre y qué estás aprendiendo.</p>
+  </div>
+
+  <div class="callout tip">
+    <h4>🟢 Lo que aprendiste en la Parte A</h4>
+    <ul>
+      <li>HTML es el lenguaje de estructura de la web — no es programación, es marcado</li>
+      <li>HTML usa etiquetas entre <code>&lt;</code> y <code>&gt;</code>, la mayoría con apertura y cierre</li>
+      <li>VS Code + Live Server = tu entorno de trabajo</li>
+      <li>Todo archivo HTML empieza con <code>&lt;!DOCTYPE html&gt;</code></li>
+      <li>La estructura base: html → head (invisible) + body (visible)</li>
+      <li><code>&lt;meta charset="UTF-8"&gt;</code> para soporte de acentos y ñ</li>
+      <li><code>&lt;title&gt;</code> es lo que aparece en la pestaña del navegador</li>
+      <li>Todo lo que el usuario ve va dentro del <code>&lt;body&gt;</code></li>
+      <li>El archivo principal siempre se llama <code>index.html</code></li>
+    </ul>
+  </div>
+
+  <div class="callout info">
+    <h4>💡 ¿Qué sigue? — Parte B</h4>
+    <p>En la Parte B veremos las primeras etiquetas de contenido: <strong>DOCTYPE en detalle, etiquetas html/head/body/title con profundidad, títulos (h1–h6) y párrafos</strong>. El momento en que tu página empieza a tener contenido real. Del 12:18 al 20:20 del video.</p>
+  </div>
+</section>
+</main>
+
+<footer>
+  Repaso HTML · HolaMundo · Parte A · Basado en "Aprende HTML ahora!" de HolaMundo · Hugo 2025
+</footer>
+
+</body>
+</html>

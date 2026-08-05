@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Repaso HTML — HolaMundo · Parte D</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #e85d2f;
+    --primary-light:  #fdf0ec;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1e1e2e;
+  }
+
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  .topbar { background: #fff; border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; gap: 14px; position: sticky; top: 0; z-index: 200; height: 46px; }
+  .topbar a { font-size: 13px; color: var(--muted); text-decoration: none; padding: 5px 13px; border: 1px solid var(--border); border-radius: 999px; transition: all .15s; }
+  .topbar a:hover { color: var(--text); border-color: var(--muted); }
+  .topbar span { font-size: 13px; color: var(--muted); }
+
+  header { background: #1e1e2e; color: #cdd6f4; padding: 2.75rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: 'HTML'; position: absolute; font-size: 12rem; font-weight: 900; color: rgba(255,255,255,.04); right: -1rem; top: -2rem; font-family: monospace; line-height: 1; }
+  header .curso-badge { display: inline-flex; align-items: center; gap: .5rem; background: rgba(232,93,47,.2); border: 1px solid rgba(232,93,47,.4); border-radius: 20px; padding: 3px 14px; font-size: .75rem; font-weight: 700; color: #fab387; margin-bottom: .75rem; }
+  header h1 { font-size: 2.2rem; font-weight: 800; letter-spacing: -.5px; color: #cdd6f4; }
+  header p  { font-size: 1rem; opacity: .7; margin-top: .4rem; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); border-radius: 20px; padding: 3px 13px; font-size: .75rem; margin-top: .65rem; }
+
+  .partes-nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 46px; z-index: 110; display: flex; align-items: center; height: 38px; padding: 0 1rem; }
+  .partes-nav-prev, .partes-nav-next { flex-shrink: 0; display: flex; align-items: center; padding: 0 .75rem; height: 100%; text-decoration: none; color: var(--muted); font-size: .78rem; font-weight: 500; border-right: 1px solid var(--border); transition: color .15s; white-space: nowrap; }
+  .partes-nav-next { border-right: none; border-left: 1px solid var(--border); }
+  .partes-nav-prev:hover, .partes-nav-next:hover { color: var(--primary); }
+  .partes-nav-list { flex: 1; display: flex; align-items: center; justify-content: center; gap: .2rem; overflow-x: auto; padding: 0 .5rem; }
+  .partes-nav-list::-webkit-scrollbar { display: none; }
+  .partes-nav-list a { flex-shrink: 0; padding: 2px 10px; border-radius: 20px; text-decoration: none; font-size: .73rem; font-weight: 600; color: var(--muted); transition: color .15s, background .15s; }
+  .partes-nav-list a:hover { color: var(--text); background: var(--bg); }
+  .partes-nav-list a.activa { background: var(--primary-light); color: var(--primary); }
+
+  nav.sec-nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 84px; z-index: 100; display: flex; overflow-x: auto; }
+  nav.sec-nav a { flex-shrink: 0; padding: .7rem 1rem; text-decoration: none; color: var(--muted); font-size: .82rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav.sec-nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: white; border-radius: 20px; padding: 5px 16px; font-size: .8rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.75rem; margin-bottom: 2rem; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.6rem; flex-shrink: 0; }
+  .module-title { font-size: 1.2rem; font-weight: 700; }
+  .module-sub { font-size: .83rem; color: var(--muted); margin-top: 2px; }
+
+  .callout { border-radius: 0 10px 10px 0; padding: 1rem 1.2rem; margin: 1rem 0; }
+  .callout h4 { font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .35rem; }
+  .callout p, .callout ul { font-size: .93rem; }
+  .callout ul { padding-left: 1.2rem; }
+  .callout li { margin-bottom: .3rem; }
+  .callout.tip  { background: var(--secondary-light); border-left: 4px solid var(--secondary); }
+  .callout.tip h4 { color: var(--secondary); }
+  .callout.note { background: var(--primary-light); border-left: 4px solid var(--primary); }
+  .callout.note h4 { color: var(--primary); }
+  .callout.info { background: var(--accent-light); border-left: 4px solid var(--accent); }
+  .callout.info h4 { color: var(--accent); }
+
+  .code-wrap { position: relative; margin: .9rem 0; }
+  .code-block { background: var(--code-bg); color: #cdd6f4; border-radius: 10px; padding: 1.2rem 1.4rem; font-family: 'DM Mono', monospace; font-size: .87rem; line-height: 1.9; overflow-x: auto; white-space: pre; }
+  .lang-tag { position: absolute; top: .55rem; right: .75rem; background: rgba(255,255,255,.08); color: rgba(255,255,255,.4); font-size: .65rem; padding: 2px 8px; border-radius: 4px; font-family: sans-serif; font-weight: 700; }
+  .ht { color: #89B4FA; }
+  .ha { color: #CBA6F7; }
+  .hs { color: #F9E2AF; }
+  .hc { color: #585B70; font-style: italic; }
+  .hv { color: #A6E3A1; }
+
+  .preview { border: 2px dashed var(--border); border-radius: 10px; padding: 1.25rem; margin: .9rem 0; background: #fff; position: relative; }
+  .preview::before { content: '🖥 Resultado en el navegador'; position: absolute; top: -11px; left: 14px; background: #fff; font-size: .72rem; color: var(--muted); padding: 0 6px; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: .9rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .6rem 1rem; text-align: left; font-weight: 700; }
+  .tbl td { padding: .6rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .82rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  .ejercicio { background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 12px; padding: 1.4rem; margin: 1.5rem 0; }
+  .ej-header { display: flex; align-items: center; gap: .6rem; margin-bottom: .85rem; font-weight: 700; color: #78350F; flex-wrap: wrap; }
+  .ej-badge { background: var(--accent); color: #fff; font-size: .67rem; padding: 2px 9px; border-radius: 20px; font-weight: 700; text-transform: uppercase; }
+  .ejercicio ol { padding-left: 1.35rem; }
+  .ejercicio ol li { margin-bottom: .55rem; font-size: .93rem; }
+  .ejercicio p { font-size: .93rem; margin-bottom: .5rem; }
+
+  h2 { font-size: 1.15rem; font-weight: 700; margin: 1.5rem 0 .6rem; }
+  h3 { font-size: .97rem; font-weight: 700; margin: 1.1rem 0 .4rem; }
+  p  { margin-bottom: .75rem; }
+  ul, ol { padding-left: 1.35rem; margin-bottom: .75rem; }
+  li { margin-bottom: .35rem; font-size: .95rem; }
+  code { font-family: 'DM Mono', monospace; background: #f0ece6; color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .88em; }
+  strong { font-weight: 700; }
+
+  /* ── DEMOS DE FORMULARIO ── */
+  .form-demo { display: flex; flex-direction: column; gap: .65rem; max-width: 380px; }
+  .form-demo label { font-size: .85rem; font-weight: 600; display: block; margin-bottom: .2rem; }
+  .form-demo input[type="text"],
+  .form-demo input[type="email"],
+  .form-demo input[type="password"],
+  .form-demo input[type="number"],
+  .form-demo textarea,
+  .form-demo select {
+    width: 100%; padding: .5rem .75rem; border: 1px solid var(--border);
+    border-radius: 7px; font-family: inherit; font-size: .88rem;
+    background: var(--bg); transition: border-color .2s;
+  }
+  .form-demo input:focus, .form-demo textarea:focus, .form-demo select:focus {
+    outline: none; border-color: var(--primary);
+  }
+  .form-demo textarea { height: 80px; resize: vertical; }
+  .form-demo .radio-group, .form-demo .check-group { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .form-demo .radio-group label, .form-demo .check-group label { font-weight: 400; display: flex; align-items: center; gap: .3rem; }
+
+  /* ── DEMOS DE BOTONES ── */
+  .btn-demo { display: flex; flex-wrap: wrap; gap: .65rem; margin: .75rem 0; align-items: center; }
+  .btn-demo button { padding: .45rem 1.1rem; border-radius: 7px; font-family: inherit; font-size: .88rem; cursor: pointer; font-weight: 600; transition: all .2s; }
+  .btn-primary { background: var(--primary); color: white; border: none; }
+  .btn-primary:hover { opacity: .9; }
+  .btn-secondary { background: white; color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { border-color: var(--text); }
+  .btn-danger { background: #EF4444; color: white; border: none; }
+  .btn-ghost { background: transparent; color: var(--primary); border: 1px solid var(--primary); }
+  .btn-disabled { background: var(--bg); color: var(--muted); border: 1px solid var(--border); cursor: not-allowed; }
+
+  /* ── DEMO TABLA ── */
+  .tabla-demo { width: 100%; border-collapse: collapse; font-size: .88rem; }
+  .tabla-demo th { background: #1e1e2e; color: #cdd6f4; padding: .55rem .9rem; text-align: left; }
+  .tabla-demo td { padding: .55rem .9rem; border-bottom: 1px solid var(--border); }
+  .tabla-demo tr:hover td { background: var(--primary-light); }
+  .tabla-demo tfoot td { background: var(--bg); font-weight: 700; font-size: .82rem; color: var(--muted); }
+
+  /* ── INPUT TYPES GRID ── */
+  .input-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: .65rem; margin: .75rem 0; }
+  .input-card { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: .75rem; }
+  .input-card .ic-type { font-family: 'DM Mono', monospace; font-size: .75rem; font-weight: 700; color: var(--primary); margin-bottom: .3rem; }
+  .input-card .ic-desc { font-size: .8rem; color: var(--muted); margin-bottom: .4rem; }
+  .input-card input { width: 100%; padding: .35rem .6rem; border: 1px solid var(--border); border-radius: 5px; font-family: inherit; font-size: .82rem; background: white; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .83rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="../capitulos.html?tab=guias">← Café &lt;/&gt;</a>
+  <span>☕ Repaso HTML · HolaMundo · Parte D</span>
+</div>
+
+<header>
+  <div class="curso-badge">📺 HolaMundo — Aprende HTML ahora · 35:31 – 1:01:17</div>
+  <h1>Repaso HTML — Parte D</h1>
+  <p>Formularios, botones, listas y tablas</p>
+  <span class="badge">✦ Repaso rápido desde otro punto de vista ✦</span>
+</header>
+
+<div class="partes-nav">
+  <a class="partes-nav-prev" href="holamundo-html-parte-C.html">← C</a>
+  <div class="partes-nav-list">
+    <a href="holamundo-html-parte-A.html">A</a>
+    <a href="holamundo-html-parte-B.html">B</a>
+    <a href="holamundo-html-parte-C.html">C</a>
+    <a href="holamundo-html-parte-D.html" class="activa">D ✦</a>
+    <a href="holamundo-html-parte-E.html">E</a>
+  </div>
+  <a class="partes-nav-next" href="holamundo-html-parte-E.html">E →</a>
+</div>
+
+<nav class="sec-nav">
+  <a href="#formularios">📋 Formularios</a>
+  <a href="#inputs">⌨️ Inputs</a>
+  <a href="#botones">🔘 Botones</a>
+  <a href="#listas">📝 Listas</a>
+  <a href="#tablas">📊 Tablas</a>
+  <a href="#ejercicio">✏️ Ejercicio</a>
+</nav>
+
+<main>
+<div class="parte-badge">📦 Parte D — HolaMundo · 35:31 – 1:01:17</div>
+
+
+<!-- ════════════════════════════════════
+     FORMULARIOS
+════════════════════════════════════ -->
+<section class="module" id="formularios">
+  <div class="module-header">
+    <div class="module-icon">📋</div>
+    <div>
+      <div class="module-title">&lt;form&gt; — Formularios</div>
+      <div class="module-sub">El contenedor que agrupa todos los campos de un formulario</div>
+    </div>
+  </div>
+
+  <p>Un formulario es el mecanismo principal para que el usuario envíe datos al servidor: login, registro, contacto, búsqueda, checkout. La etiqueta <code>&lt;form&gt;</code> es el contenedor que agrupa todos los campos.</p>
+
+  <div class="code-wrap">
+    <div class="code-block"><span class="hc">&lt;!-- Estructura básica de un formulario --&gt;</span>
+<span class="ht">&lt;form</span> <span class="ha">action</span>=<span class="hs">"/enviar"</span> <span class="ha">method</span>=<span class="hs">"POST"</span><span class="ht">&gt;</span>
+
+  <span class="hc">&lt;!-- Etiqueta vinculada al input --&gt;</span>
+  <span class="ht">&lt;label</span> <span class="ha">for</span>=<span class="hs">"nombre"</span><span class="ht">&gt;</span>Tu nombre:<span class="ht">&lt;/label&gt;</span>
+  <span class="ht">&lt;input</span> <span class="ha">type</span>=<span class="hs">"text"</span> <span class="ha">id</span>=<span class="hs">"nombre"</span> <span class="ha">name</span>=<span class="hs">"nombre"</span><span class="ht">&gt;</span>
+
+  <span class="ht">&lt;label</span> <span class="ha">for</span>=<span class="hs">"email"</span><span class="ht">&gt;</span>Tu email:<span class="ht">&lt;/label&gt;</span>
+  <span class="ht">&lt;input</span> <span class="ha">type</span>=<span class="hs">"email"</span> <span class="ha">id</span>=<span class="hs">"email"</span> <span class="ha">name</span>=<span class="hs">"email"</span><span class="ht">&gt;</span>
+
+  <span class="ht">&lt;button</span> <span class="ha">type</span>=<span class="hs">"submit"</span><span class="ht">&gt;</span>Enviar<span class="ht">&lt;/button&gt;</span>
+
+<span class="ht">&lt;/form&gt;</span></div>
+    <div class="lang-tag">HTML</div>
+  </div>
+
+  <h2>Atributos del &lt;form&gt;</h2>
+  <table class="tbl">
+    <thead><tr><th>Atributo</th><th>Qué hace</th><th>Valores comunes</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">action</span></td><td>La URL a donde se envían los datos al hacer submit</td><td><code>"/login"</code>, <code>"procesar.php"</code></td></tr>
+      <tr><td><span class="tag">method</span></td><td>Cómo se envían los datos</td><td><code>GET</code> (en la URL) / <code>POST</code> (en el cuerpo, más seguro)</td></tr>
+      <tr><td><span class="tag">novalidate</span></td><td>Desactiva la validación nativa del navegador</td><td>Para usar validación personalizada con JS</td></tr>
+    </tbody>
+  </table>
+
+  <h2>La etiqueta &lt;label&gt; — siempre vinculada al input</h2>
+
+  <div class="code-wrap">
+    <div class="code-block"><span class="hc">&lt;!-- Método 1: for en label + id en input (el más común) --&gt;</span>
+<span class="ht">&lt;label</span> <span class="ha">for</span>=<span class="hs">"usuario"</span><span class="ht">&gt;</span>Nombre de usuario:<span class="ht">&lt;/label&gt;</span>
+<span class="ht">&lt;input</span> <span class="ha">type</span>=<span class="hs">"text"</span> <span class="ha">id</span>=<span class="hs">"usuario"</span> <span class="ha">name</span>=<span class="hs">"usuario"</span><span class="ht">&gt;</span>
+<span class="hc">&lt;!-- El for y el id deben ser IGUALES para que se vinculen --&gt;</span>
+<span class="hc">&lt;!-- Ventaja: al hacer clic en el label, se enfoca el input --&gt;</span>
+
+<span class="hc">&lt;!-- Método 2: input dentro del label --&gt;</span>
+<span class="ht">&lt;label&gt;</span>
+  Nombre de usuario:
+  <span class="ht">&lt;input</span> <span class="ha">type</span>=<span class="hs">"text"</span> <span class="ha">name</span>=<span class="hs">"usuario"</span><span class="ht">&gt;</span>
+<span class="ht">&lt;/label&gt;</span></div>
+    <div class="lang-tag">HTML</div>
+  </div>
+
+  <div class="callout note">
+    <h4>⚠️ Siempre vincula el label al input</h4>
+    <p>Un input sin label es inaccesible para usuarios de lectores de pantalla. Además, el clic en el label enfoca el input, mejorando la experiencia del usuario — especialmente en checkboxes y radios donde el área de clic pequeña es difícil de usar.</p>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════
+     TIPOS DE INPUT
+════════════════════════════════════ -->
+<section class="module" id="inputs">
+  <div class="module-header">
+    <div class="module-icon">⌨️</div>
+    <div>
+      <div class="module-title">Tipos de &lt;input&gt; — El campo que cambia de forma</div>
+      <div class="module-sub">Un solo elemento HTML con más de 20 tipos diferentes</div>
+    </div>
+  </div>
+
+  <p>La etiqueta <code>&lt;input&gt;</code> es de auto-cierre y cambia completamente de comportamiento según el valor del atributo <code>type</code>. Cada tipo tiene validación y teclado móvil optimizado.</p>
+
+  <div class="input-grid">
+    <div class="input-card">
+      <div class="ic-type">type="text"</div>
+      <div class="ic-desc">Texto libre de una línea</div>
+      <input type="text" placeholder="Escribe aquí...">
+    </div>
+    <div class="input-card">
+      <div class="ic-type">type="email"</div>
+      <div class="ic-desc">Valida formato de email</div>
+      <input type="email" placeholder="tu@email.com">
+    </div>
+    <div class="input-card">
+      <div class="ic-type">type="password"</div>
+      <div class="ic-desc">Oculta los caracteres</div>
+      <input type="password" placeholder="••••••••">
+    </div>
+    <div class="input-card">
+      <div class="ic-type">type="number"</div>
+      <div class="ic-desc">Solo números, con flechas</div>
+      <input type="number" placeholder="0" min="0" max="100">
+    </div>
+    <div class="input-card">
+      <div class="ic-type">type="date"</div>
+      <div class="ic-desc">Selector de fecha</div>
+      <input type="date">
+    </div>
+    <div class="input-card">
+      <div class="ic-type">type="color"</div>
+      <div class="ic-desc">Selector de color</div>
+      <input type="color" value="#e85d2f" style="width:100%;height:34px;padding:2px;cursor:pointer">
+    </div>
+    <div class="input-card">
+      <div class="ic-type">type="range"</div>
+      <div class="ic-desc">Deslizador de valor</div>
+      <input type="range" min="0" max="100" value="50" style="width:100%">
+    </div>
+    <div class="input-card">
+      <div class="ic-type">type="search"</div>
+      <div class="ic-desc">Campo de búsqueda (con X para borrar)</div>
+      <input type="search" placeholder="Buscar...">
+    </div>
+  </div>
+
+  <h2>Inputs especiales: checkbox, radio y select</h2>
+
+  <div class="code-wrap">
+    <div class="code-block"><span class="hc">&lt;!-- CHECKBOX: opciones múltiples (pueden seleccionarse varias) --&gt;</span>
+<span class="ht">&lt;input</span> <span class="ha">type</span>=<span class="hs">"checkbox"</span> <span class="ha">id</span>=<span class="hs">"html"</span> <span class="ha">name</span>=<span class="hs">"skills"</span> <span class="ha">value</span>=<span class="hs">"html"</span><span class="ht">&gt;</span>
+<span class="ht">&lt;label</span> <span class="ha">for</span>=<span class="hs">"html"</span><span class="ht">&gt;</span>HTML<span class="ht">&lt;/label&gt;</span>
+
+<span class="ht">&lt;input</span> <span class="ha">type</span>=<span class="hs">"checkbox"</span> <span class="ha">id</span>=<span class="hs">"css"</span> <span class="ha">name</span>=<span class="hs">"skills"</span> <span class="ha">value</span>=<span class="hs">"css"</span> <span class="ha">checked</span><span class="ht">&gt;</span>
+<span class="ht">&lt;label</span> <span class="ha">for</span>=<span class="hs">"css"</span><span class="ht">&gt;</span>CSS (marcado por defecto)<span class="ht">&lt;/label&gt;</span>
+
+<span class="hc">&lt;!-- RADIO: opciones únicas (solo se puede elegir una) --&gt;</span>
+<span class="hc">&lt;!-- Mismo name para que sean mutuamente excluyentes --&gt;</span>
+<span class="ht">&lt;input</span> <span class="ha">type</span>=<span class="hs">"radio"</span> <span class="ha">id</span>=<span class="hs">"basico"</span> <span class="ha">name</span>=<span class="hs">"nivel"</span> <span class="ha">value</span>=<span class="hs">"basico"</span><span class="ht">&gt;</span>
+<span class="ht">&lt;label</span> <span class="ha">for</span>=<span class="hs">"basico"</span><span class="ht">&gt;</span>Básico<span class="ht">&lt;/label&gt;</span>
+
+<span class="ht">&lt;input</span> <span class="ha">type</span>=<span class="hs">"radio"</span> <span class="ha">id</span>=<span class="hs">"avanzado"</span> <span class="ha">name</span>=<span class="hs">"nivel"</span> <span class="ha">value</span>=<span class="hs">"avanzado"</span><span class="ht">&gt;</span>
+<span class="ht">&lt;label</span> <span class="ha">for</span>=<span class="hs">"avanzado"</span><span class="ht">&gt;</span>Avanzado<span class="ht">&lt;/label&gt;</span>
+
+<span class="hc">&lt;!-- SELECT: lista desplegable --&gt;</span>
+<span class="ht">&lt;select</span> <span class="ha">name</span>=<span class="hs">"pais"</span> <span class="ha">id</span>=<span class="hs">"pais"</span><span class="ht">&gt;</span>
+  <span class="ht">&lt;option</span> <span class="ha">value</span>=<span class="hs">""</span><span class="ht">&gt;</span>-- Selecciona tu país --<span class="ht">&lt;/option&gt;</span>
+  <span class="ht">&lt;option</span> <span class="ha">value</span>=<span class="hs">"mx"</span><span class="ht">&gt;</span>México<span class="ht">&lt;/option&gt;</span>
+  <span class="ht">&lt;option</span> <span class="ha">value</span>=<span class="hs">"ar"</span> <span class="ha">selected</span><span class="ht">&gt;</span>Argentina (seleccionado)<span class="ht">&lt;/option&gt;</span>
+  <span class="ht">&lt;option</span> <span class="ha">value</span>=<span class="hs">"co"</span><span class="ht">&gt;</span>Colombia<span class="ht">&lt;/option&gt;</span>
+<span class="ht">&lt;/select&gt;</span>
+
+<span class="hc">&lt;!-- TEXTAREA: texto largo de varias líneas --&gt;</span>
+<span class="ht">&lt;textarea</span> <span class="ha">name</span>=<span class="hs">"mensaje"</span> <span class="ha">id</span>=<span class="hs">"mensaje"</span> <span class="ha">rows</span>=<span class="hs">"4"</span> <span class="ha">cols</span>=<span class="hs">"40"</span><span class="ht">&gt;</span>
+  Texto inicial opcional
+<span class="ht">&lt;/textarea&gt;</span></div>
+    <div class="lang-tag">HTML</div>
+  </div>
+
+  <div class="preview">
+    <div class="form-demo">
+      <div>
+        <label style="font-size:.85rem;font-weight:600;display:block;margin-bottom:.4rem">Tus habilidades (checkbox):</label>
+        <div class="check-group">
+          <label><input type="checkbox" checked> HTML</label>
+          <label><input type="checkbox" checked> CSS</label>
+          <label><input type="checkbox"> JavaScript</label>
+        </div>
+      </div>
+      <div>
+        <label style="font-size:.85rem;font-weight:600;display:block;margin-bottom:.4rem">Tu nivel (radio):</label>
+        <div class="radio-group">
+          <label><input type="radio" name="nivel"> Básico</label>
+          <label><input type="radio" name="nivel" checked> Intermedio</label>
+          <label><input type="radio" name="nivel"> Avanzado</label>
+        </div>
+      </div>
+      <div>
+        <label for="pais-demo" style="font-size:.85rem;font-weight:600;display:block;margin-bottom:.2rem">País:</label>
+        <select id="pais-demo">
+          <option value="">-- Selecciona --</option>
+          <option value="mx" selected>México</option>
+          <option value="ar">Argentina</option>
+          <option value="co">Colombia</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:.85rem;font-weight:600;display:block;margin-bottom:.2rem">Mensaje:</label>
+        <textarea placeholder="Escribe tu mensaje aquí..."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <h2>Atributos útiles en los inputs</h2>
+  <table class="tbl">
+    <thead><tr><th>Atributo</th><th>Qué hace</th><th>Ejemplo</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">placeholder</span></td><td>Texto de ayuda dentro del campo (desaparece al escribir)</td><td><code>placeholder="tu@email.com"</code></td></tr>
+      <tr><td><span class="tag">required</span></td><td>El campo es obligatorio — el formulario no se envía si está vacío</td><td><code>required</code></td></tr>
+      <tr><td><span class="tag">disabled</span></td><td>El campo está desactivado — no se puede editar ni enviar</td><td><code>disabled</code></td></tr>
+      <tr><td><span class="tag">readonly</span></td><td>Se puede ver pero no editar. Sí se envía en el formulario.</td><td><code>readonly</code></td></tr>
+      <tr><td><span class="tag">value</span></td><td>Valor inicial o predeterminado del campo</td><td><code>value="Hugo"</code></td></tr>
+      <tr><td><span class="tag">min / max</span></td><td>Valores mínimo y máximo para campos numéricos y de fecha</td><td><code>min="1" max="100"</code></td></tr>
+      <tr><td><span class="tag">maxlength</span></td><td>Número máximo de caracteres que se pueden escribir</td><td><code>maxlength="50"</code></td></tr>
+      <tr><td><span class="tag">autofocus</span></td><td>El campo recibe el foco automáticamente al cargar la página</td><td><code>autofocus</code></td></tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- ════════════════════════════════════
+     BOTONES
+════════════════════════════════════ -->
+<section class="module" id="botones">
+  <div class="module-header">
+    <div class="module-icon">🔘</div>
+    <div>
+      <div class="module-title">&lt;button&gt; — Botones</div>
+      <div class="module-sub">El elemento interactivo más común de la web</div>
+    </div>
+  </div>
+
+  <p>La etiqueta <code>&lt;button&gt;</code> crea un botón en el que el usuario puede hacer clic. A diferencia de <code>&lt;input type="button"&gt;</code>, el <code>&lt;button&gt;</code> puede contener HTML dentro (íconos, imágenes, texto con estilos).</p>
+
+  <div class="code-wrap">
+    <div class="code-block"><span class="hc">&lt;!-- type="submit": envía el formulario (por defecto dentro de un form) --&gt;</span>
+<span class="ht">&lt;button</span> <span class="ha">type</span>=<span class="hs">"submit"</span><span class="ht">&gt;</span>Enviar formulario<span class="ht">&lt;/button&gt;</span>
+
+<span class="hc">&lt;!-- type="button": acción personalizada con JavaScript --&gt;</span>
+<span class="ht">&lt;button</span> <span class="ha">type</span>=<span class="hs">"button"</span><span class="ht">&gt;</span>Haz clic aquí<span class="ht">&lt;/button&gt;</span>
+
+<span class="hc">&lt;!-- type="reset": limpia todos los campos del formulario --&gt;</span>
+<span class="ht">&lt;button</span> <span class="ha">type</span>=<span class="hs">"reset"</span><span class="ht">&gt;</span>Limpiar formulario<span class="ht">&lt;/button&gt;</span>
+
+<span class="hc">&lt;!-- Botón desactivado --&gt;</span>
+<span class="ht">&lt;button</span> <span class="ha">type</span>=<span class="hs">"button"</span> <span class="ha">disabled</span><span class="ht">&gt;</span>No disponible<span class="ht">&lt;/button&gt;</span>
+
+<span class="hc">&lt;!-- Botón con ícono (HTML dentro del button) --&gt;</span>
+<span class="ht">&lt;button</span> <span class="ha">type</span>=<span class="hs">"button"</span><span class="ht">&gt;</span>
+  ❤️ Me gusta
+<span class="ht">&lt;/button&gt;</span>
+
+<span class="hc">&lt;!-- IMPORTANTE: sin CSS, el botón tiene estilos del navegador --&gt;</span>
+<span class="hc">&lt;!-- Con CSS puedes darle cualquier apariencia --&gt;</span></div>
+    <div class="lang-tag">HTML</div>
+  </div>
+
+  <div class="preview">
+    <p style="font-size:.82rem;color:var(--muted);margin-bottom:.65rem">Con estilos CSS aplicados:</p>
+    <div class="btn-demo">
+      <button class="btn-primary">Enviar</button>
+      <button class="btn-secondary">Cancelar</button>
+      <button class="btn-danger">Eliminar</button>
+      <button class="btn-ghost">Ver más</button>
+      <button class="btn-disabled" disabled>No disponible</button>
+      <button class="btn-primary">❤️ Me gusta</button>
+    </div>
+  </div>
+
+  <div class="callout tip">
+    <h4>🟢 Siempre especifica el type en los botones</h4>
+    <p>Dentro de un <code>&lt;form&gt;</code>, un botón sin <code>type</code> se comporta como <code>type="submit"</code> por defecto — puede enviar el formulario accidentalmente. Siempre escribe el type explícitamente: <code>type="button"</code> para acciones JS, <code>type="submit"</code> para enviar.</p>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════
+     LISTAS
+════════════════════════════════════ -->
+<section class="module" id="listas">
+  <div class="module-header">
+    <div class="module-icon">📝</div>
+    <div>
+      <div class="module-title">Listas — ul, ol y dl</div>
+      <div class="module-sub">Tres tipos de listas para tres situaciones distintas</div>
+    </div>
+  </div>
+
+  <p>HTML tiene tres tipos de listas. Cada elemento de la lista va dentro de una etiqueta <code>&lt;li&gt;</code> (list item) y las listas pueden anidarse unas dentro de otras.</p>
+
+  <div class="code-wrap">
+    <div class="code-block"><span class="hc">&lt;!-- LISTA NO ORDENADA (unordered list) — con viñetas --&gt;</span>
+<span class="hc">&lt;!-- Para elementos sin orden específico --&gt;</span>
+<span class="ht">&lt;ul&gt;</span>
+  <span class="ht">&lt;li&gt;</span>HTML<span class="ht">&lt;/li&gt;</span>
+  <span class="ht">&lt;li&gt;</span>CSS<span class="ht">&lt;/li&gt;</span>
+  <span class="ht">&lt;li&gt;</span>JavaScript<span class="ht">&lt;/li&gt;</span>
+<span class="ht">&lt;/ul&gt;</span>
+
+<span class="hc">&lt;!-- LISTA ORDENADA (ordered list) — con números --&gt;</span>
+<span class="hc">&lt;!-- Para pasos, rankings, instrucciones secuenciales --&gt;</span>
+<span class="ht">&lt;ol&gt;</span>
+  <span class="ht">&lt;li&gt;</span>Instala VS Code<span class="ht">&lt;/li&gt;</span>
+  <span class="ht">&lt;li&gt;</span>Crea index.html<span class="ht">&lt;/li&gt;</span>
+  <span class="ht">&lt;li&gt;</span>Escribe tu HTML<span class="ht">&lt;/li&gt;</span>
+<span class="ht">&lt;/ol&gt;</span>
+
+<span class="hc">&lt;!-- LISTA ANIDADA: lista dentro de otra lista --&gt;</span>
+<span class="ht">&lt;ul&gt;</span>
+  <span class="ht">&lt;li&gt;</span>Frontend
+    <span class="ht">&lt;ul&gt;</span>
+      <span class="ht">&lt;li&gt;</span>HTML<span class="ht">&lt;/li&gt;</span>
+      <span class="ht">&lt;li&gt;</span>CSS<span class="ht">&lt;/li&gt;</span>
+    <span class="ht">&lt;/ul&gt;</span>
+  <span class="ht">&lt;/li&gt;</span>
+  <span class="ht">&lt;li&gt;</span>Backend<span class="ht">&lt;/li&gt;</span>
+<span class="ht">&lt;/ul&gt;</span>
+
+<span class="hc">&lt;!-- LISTA DE DEFINICIÓN: término + descripción --&gt;</span>
+<span class="ht">&lt;dl&gt;</span>
+  <span class="ht">&lt;dt&gt;</span>HTML<span class="ht">&lt;/dt&gt;</span>
+  <span class="ht">&lt;dd&gt;</span>HyperText Markup Language — el lenguaje de la web<span class="ht">&lt;/dd&gt;</span>
+  <span class="ht">&lt;dt&gt;</span>CSS<span class="ht">&lt;/dt&gt;</span>
+  <span class="ht">&lt;dd&gt;</span>Cascading Style Sheets — los estilos visuales<span class="ht">&lt;/dd&gt;</span>
+<span class="ht">&lt;/dl&gt;</span></div>
+    <div class="lang-tag">HTML</div>
+  </div>
+
+  <div class="preview">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.25rem">
+      <div>
+        <p style="font-size:.75rem;font-weight:700;color:var(--muted);margin-bottom:.4rem">UL — sin orden</p>
+        <ul style="padding-left:1.2rem;font-size:.88rem">
+          <li>HTML</li>
+          <li>CSS</li>
+          <li>JavaScript</li>
+        </ul>
+      </div>
+      <div>
+        <p style="font-size:.75rem;font-weight:700;color:var(--muted);margin-bottom:.4rem">OL — con números</p>
+        <ol style="padding-left:1.2rem;font-size:.88rem">
+          <li>Instala VS Code</li>
+          <li>Crea index.html</li>
+          <li>Escribe HTML</li>
+        </ol>
+      </div>
+      <div>
+        <p style="font-size:.75rem;font-weight:700;color:var(--muted);margin-bottom:.4rem">DL — definiciones</p>
+        <dl style="font-size:.88rem">
+          <dt style="font-weight:700">HTML</dt>
+          <dd style="margin-left:.75rem;color:var(--muted)">Lenguaje de marcado</dd>
+          <dt style="font-weight:700">CSS</dt>
+          <dd style="margin-left:.75rem;color:var(--muted)">Hojas de estilo</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout tip">
+    <h4>🟢 Las listas tienen muchos usos con CSS</h4>
+    <p>Los navbars de las webs son casi siempre un <code>&lt;ul&gt;</code> con <code>&lt;li&gt;</code> y links dentro. Con CSS puedes quitarle las viñetas (<code>list-style: none</code>), ponerlos en fila (<code>display: flex</code>) y darles cualquier apariencia. La etiqueta es semántica, la apariencia es CSS.</p>
+  </div>
+
+  <h2>Atributos de &lt;ol&gt;</h2>
+  <div class="code-wrap">
+    <div class="code-block"><span class="hc">&lt;!-- Empezar desde un número diferente --&gt;</span>
+<span class="ht">&lt;ol</span> <span class="ha">start</span>=<span class="hs">"5"</span><span class="ht">&gt;</span>
+  <span class="ht">&lt;li&gt;</span>Este será el 5<span class="ht">&lt;/li&gt;</span>
+  <span class="ht">&lt;li&gt;</span>Este será el 6<span class="ht">&lt;/li&gt;</span>
+<span class="ht">&lt;/ol&gt;</span>
+
+<span class="hc">&lt;!-- Orden inverso --&gt;</span>
+<span class="ht">&lt;ol</span> <span class="ha">reversed</span><span class="ht">&gt;</span>
+  <span class="ht">&lt;li&gt;</span>Tercer lugar<span class="ht">&lt;/li&gt;</span>
+  <span class="ht">&lt;li&gt;</span>Segundo lugar<span class="ht">&lt;/li&gt;</span>
+  <span class="ht">&lt;li&gt;</span>Primer lugar<span class="ht">&lt;/li&gt;</span>
+<span class="ht">&lt;/ol&gt;</span>
+
+<span class="hc">&lt;!-- Tipo de numeración --&gt;</span>
+<span class="ht">&lt;ol</span> <span class="ha">type</span>=<span class="hs">"A"</span><span class="ht">&gt;</span>  <span class="hc">&lt;!-- A, B, C... --&gt;</span>
+<span class="ht">&lt;ol</span> <span class="ha">type</span>=<span class="hs">"i"</span><span class="ht">&gt;</span>  <span class="hc">&lt;!-- i, ii, iii... --&gt;</span>
+<span class="ht">&lt;ol</span> <span class="ha">type</span>=<span class="hs">"1"</span><span class="ht">&gt;</span>  <span class="hc">&lt;!-- 1, 2, 3... (por defecto) --&gt;</span></div>
+    <div class="lang-tag">HTML</div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════
+     TABLAS
+════════════════════════════════════ -->
+<section class="module" id="tablas">
+  <div class="module-header">
+    <div class="module-icon">📊</div>
+    <div>
+      <div class="module-title">Tablas — &lt;table&gt;</div>
+      <div class="module-sub">Para datos tabulares: filas, columnas, cabeceras y pie</div>
+    </div>
+  </div>
+
+  <p>Las tablas HTML son para mostrar <strong>datos en formato de filas y columnas</strong> — como una hoja de cálculo. La estructura tiene varias etiquetas que trabajan juntas.</p>
+
+  <div class="code-wrap">
+    <div class="code-block"><span class="ht">&lt;table&gt;</span>
+
+  <span class="hc">&lt;!-- thead: cabecera de la tabla --&gt;</span>
+  <span class="ht">&lt;thead&gt;</span>
+    <span class="ht">&lt;tr&gt;</span>  <span class="hc">&lt;!-- tr = table row (fila) --&gt;</span>
+      <span class="ht">&lt;th&gt;</span>Jugador<span class="ht">&lt;/th&gt;</span>   <span class="hc">&lt;!-- th = table header (celda de cabecera) --&gt;</span>
+      <span class="ht">&lt;th&gt;</span>Equipo<span class="ht">&lt;/th&gt;</span>
+      <span class="ht">&lt;th&gt;</span>Goles<span class="ht">&lt;/th&gt;</span>
+    <span class="ht">&lt;/tr&gt;</span>
+  <span class="ht">&lt;/thead&gt;</span>
+
+  <span class="hc">&lt;!-- tbody: cuerpo de la tabla --&gt;</span>
+  <span class="ht">&lt;tbody&gt;</span>
+    <span class="ht">&lt;tr&gt;</span>
+      <span class="ht">&lt;td&gt;</span>Haaland<span class="ht">&lt;/td&gt;</span>   <span class="hc">&lt;!-- td = table data (celda de datos) --&gt;</span>
+      <span class="ht">&lt;td&gt;</span>Man City<span class="ht">&lt;/td&gt;</span>
+      <span class="ht">&lt;td&gt;</span>36<span class="ht">&lt;/td&gt;</span>
+    <span class="ht">&lt;/tr&gt;</span>
+    <span class="ht">&lt;tr&gt;</span>
+      <span class="ht">&lt;td&gt;</span>Mbappé<span class="ht">&lt;/td&gt;</span>
+      <span class="ht">&lt;td&gt;</span>Real Madrid<span class="ht">&lt;/td&gt;</span>
+      <span class="ht">&lt;td&gt;</span>28<span class="ht">&lt;/td&gt;</span>
+    <span class="ht">&lt;/tr&gt;</span>
+  <span class="ht">&lt;/tbody&gt;</span>
+
+  <span class="hc">&lt;!-- tfoot: pie de tabla --&gt;</span>
+  <span class="ht">&lt;tfoot&gt;</span>
+    <span class="ht">&lt;tr&gt;</span>
+      <span class="ht">&lt;td</span> <span class="ha">colspan</span>=<span class="hs">"2"</span><span class="ht">&gt;</span>Total goles<span class="ht">&lt;/td&gt;</span>   <span class="hc">&lt;!-- colspan: celda que ocupa 2 columnas --&gt;</span>
+      <span class="ht">&lt;td&gt;</span>64<span class="ht">&lt;/td&gt;</span>
+    <span class="ht">&lt;/tr&gt;</span>
+  <span class="ht">&lt;/tfoot&gt;</span>
+
+<span class="ht">&lt;/table&gt;</span></div>
+    <div class="lang-tag">HTML</div>
+  </div>
+
+  <div class="preview">
+    <table class="tabla-demo">
+      <thead>
+        <tr>
+          <th>Jugador</th>
+          <th>Equipo</th>
+          <th>Goles</th>
+          <th>Asistencias</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Haaland</td>
+          <td>Man City</td>
+          <td>36</td>
+          <td>8</td>
+        </tr>
+        <tr>
+          <td>Mbappé</td>
+          <td>Real Madrid</td>
+          <td>28</td>
+          <td>12</td>
+        </tr>
+        <tr>
+          <td>Lewandowski</td>
+          <td>Barcelona</td>
+          <td>24</td>
+          <td>9</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="2">Total goles temporada</td>
+          <td>88</td>
+          <td>29</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <h2>Las etiquetas de la tabla</h2>
+  <table class="tbl">
+    <thead><tr><th>Etiqueta</th><th>Qué es</th><th>Nota</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">&lt;table&gt;</span></td><td>Contenedor de toda la tabla</td><td>Raíz — todo va dentro</td></tr>
+      <tr><td><span class="tag">&lt;thead&gt;</span></td><td>Cabecera — la fila de títulos</td><td>Opcional pero recomendado</td></tr>
+      <tr><td><span class="tag">&lt;tbody&gt;</span></td><td>Cuerpo — los datos principales</td><td>Puede haber varios tbody</td></tr>
+      <tr><td><span class="tag">&lt;tfoot&gt;</span></td><td>Pie — totales o resúmenes</td><td>Opcional</td></tr>
+      <tr><td><span class="tag">&lt;tr&gt;</span></td><td>Table Row — una fila</td><td>Va dentro de thead, tbody o tfoot</td></tr>
+      <tr><td><span class="tag">&lt;th&gt;</span></td><td>Table Header — celda de cabecera</td><td>En negrita y centrado por defecto</td></tr>
+      <tr><td><span class="tag">&lt;td&gt;</span></td><td>Table Data — celda de datos</td><td>El contenido real</td></tr>
+      <tr><td><span class="tag">colspan="N"</span></td><td>La celda ocupa N columnas</td><td>Como merge horizontal en Excel</td></tr>
+      <tr><td><span class="tag">rowspan="N"</span></td><td>La celda ocupa N filas</td><td>Como merge vertical en Excel</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout note">
+    <h4>⚠️ Tablas solo para datos tabulares</h4>
+    <p>Un error histórico muy común fue usar tablas para hacer el layout (la estructura) de las páginas web. <strong>No hagas esto.</strong> Las tablas son solo para datos que tienen sentido en filas y columnas (como una tabla de precios, una lista de partidos o un horario). Para el layout, usa CSS Flexbox o Grid.</p>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════
+     EJERCICIO
+════════════════════════════════════ -->
+<section class="module" id="ejercicio">
+  <div class="module-header">
+    <div class="module-icon">✏️</div>
+    <div>
+      <div class="module-title">Ejercicio — Formulario de registro y tabla de datos</div>
+      <div class="module-sub">Aplica todo lo de la Parte D en una página nueva</div>
+    </div>
+  </div>
+
+  <div class="ejercicio">
+    <div class="ej-header">✏️ Ejercicio Parte D — Formulario y tabla <span class="ej-badge">Intermedio</span></div>
+    <p>Crea un archivo <code>formulario.html</code> dentro de tu proyecto con lo siguiente:</p>
+    <ol>
+      <li>
+        <strong>Formulario de contacto</strong> con al menos:
+        <ul style="margin-top:.3rem">
+          <li>Campo de texto para el nombre (<code>required</code> y <code>placeholder</code>)</li>
+          <li>Campo de email</li>
+          <li>Un select para elegir el tema del mensaje (Consulta, Soporte, Otro)</li>
+          <li>Checkbox "Acepto los términos y condiciones"</li>
+          <li>Textarea para el mensaje</li>
+          <li>Botón submit "Enviar mensaje"</li>
+          <li>Botón reset "Limpiar" (tipo reset)</li>
+        </ul>
+      </li>
+      <li>
+        <strong>Lista de tecnologías que estás aprendiendo</strong>:
+        <ul style="margin-top:.3rem">
+          <li>Una <code>&lt;ul&gt;</code> con tus lenguajes y herramientas</li>
+          <li>Una <code>&lt;ol&gt;</code> con los 5 temas que quieres aprender en orden de prioridad</li>
+        </ul>
+      </li>
+      <li>
+        <strong>Tabla de tu progreso</strong> con columnas: Tema, Estado, Nivel. Mínimo 5 filas con los temas que has visto. Incluye <code>&lt;thead&gt;</code>, <code>&lt;tbody&gt;</code> y un <code>&lt;tfoot&gt;</code> con un total.
+      </li>
+    </ol>
+    <p style="margin-top:.75rem"><strong>Bonus:</strong> Agrega un link desde tu <code>index.html</code> que lleve a este <code>formulario.html</code>, y otro link desde <code>formulario.html</code> que regrese al inicio.</p>
+  </div>
+
+  <div class="callout tip">
+    <h4>🟢 Resumen de la Parte D</h4>
+    <ul>
+      <li><code>&lt;form action method&gt;</code> — el contenedor del formulario. POST para datos sensibles.</li>
+      <li><code>&lt;label for="id"&gt;</code> — siempre vinculada al input. Mejora accesibilidad y usabilidad.</li>
+      <li><code>&lt;input type="..."&gt;</code> — auto-cierre. El type cambia todo: text, email, password, number, date, checkbox, radio.</li>
+      <li><code>&lt;select&gt; + &lt;option&gt;</code> — lista desplegable. <code>selected</code> para el valor por defecto.</li>
+      <li><code>&lt;textarea&gt;</code> — texto largo multilínea. No es auto-cierre.</li>
+      <li>Atributos útiles: placeholder, required, disabled, readonly, value, min, max, maxlength, autofocus.</li>
+      <li><code>&lt;button type="submit|button|reset"&gt;</code> — siempre especifica el type.</li>
+      <li><code>&lt;ul&gt;</code> — lista con viñetas, sin orden específico.</li>
+      <li><code>&lt;ol&gt;</code> — lista numerada, para pasos o ranking. Atributos: start, reversed, type.</li>
+      <li><code>&lt;li&gt;</code> — item de lista. Va dentro de ul u ol.</li>
+      <li><code>&lt;dl&gt; + &lt;dt&gt; + &lt;dd&gt;</code> — lista de definiciones: término + descripción.</li>
+      <li>Tablas: table → thead/tbody/tfoot → tr → th/td. colspan y rowspan para combinar celdas.</li>
+      <li>Las tablas son solo para datos tabulares, nunca para layout de página.</li>
+    </ul>
+  </div>
+
+  <div class="callout info">
+    <h4>💡 ¿Qué sigue? — Parte E (la última)</h4>
+    <p>En la Parte E cerramos el curso: <strong>crear un blog completo con HTML, etiqueta div, atributos id y class, y revisitando los links</strong>. Del 1:11:34 al 1:33:01 del video — donde se junta todo lo aprendido en un proyecto real.</p>
+  </div>
+</section>
+</main>
+
+<footer>
+  Repaso HTML · HolaMundo · Parte D · Basado en "Aprende HTML ahora!" de HolaMundo · Hugo 2025
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía Linux · Parte A</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #2ecc71;
+    --primary-dark:   #1a9e52;
+    --primary-light:  #eafaf1;
+    --secondary:      #3498db;
+    --secondary-light:#ebf5fb;
+    --accent:         #e67e22;
+    --accent-light:   #fef5ec;
+    --danger:         #e74c3c;
+    --danger-light:   #fdedec;
+    --bg:             #0d1117;
+    --bg2:            #161b22;
+    --bg3:            #21262d;
+    --surface:        #1c2128;
+    --text:           #e6edf3;
+    --muted:          #7d8590;
+    --border:         #30363d;
+    --code-bg:        #0d1117;
+    --green:          #3fb950;
+    --yellow:         #d29922;
+    --blue:           #58a6ff;
+    --purple:         #bc8cff;
+    --red:            #f85149;
+    --orange:         #ffa657;
+  }
+
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  /* ── TOPBAR ── */
+  .topbar { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; gap: 14px; position: sticky; top: 0; z-index: 200; height: 46px; }
+  .topbar a { font-size: 13px; color: var(--muted); text-decoration: none; padding: 5px 13px; border: 1px solid var(--border); border-radius: 999px; transition: all .15s; }
+  .topbar a:hover { color: var(--text); border-color: var(--muted); }
+  .topbar span { font-size: 13px; color: var(--muted); }
+
+  /* ── HEADER ── */
+  header { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 2.5rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: '$'; position: absolute; font-size: 16rem; font-weight: 900; color: rgba(46,204,113,.04); right: 0; top: -2rem; font-family: monospace; line-height: 1; }
+  header .curso-badge { display: inline-flex; align-items: center; gap: .5rem; background: rgba(46,204,113,.15); border: 1px solid rgba(46,204,113,.3); border-radius: 20px; padding: 3px 14px; font-size: .75rem; font-weight: 700; color: var(--green); margin-bottom: .75rem; }
+  header h1 { font-size: 2.2rem; font-weight: 800; letter-spacing: -.5px; color: var(--text); }
+  header h1 span { color: var(--primary); }
+  header p  { font-size: 1rem; color: var(--muted); margin-top: .4rem; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.06); border: 1px solid var(--border); border-radius: 20px; padding: 3px 13px; font-size: .75rem; margin-top: .65rem; color: var(--muted); }
+
+  /* ── PARTES NAV ── */
+  .partes-nav { background: var(--bg2); border-bottom: 1px solid var(--border); position: sticky; top: 46px; z-index: 110; display: flex; align-items: center; height: 38px; padding: 0 1rem; }
+  .partes-nav-prev, .partes-nav-next { flex-shrink: 0; display: flex; align-items: center; padding: 0 .75rem; height: 100%; text-decoration: none; color: var(--muted); font-size: .78rem; font-weight: 500; border-right: 1px solid var(--border); transition: color .15s; white-space: nowrap; }
+  .partes-nav-next { border-right: none; border-left: 1px solid var(--border); }
+  .partes-nav-prev:hover, .partes-nav-next:hover { color: var(--primary); }
+  .partes-nav-list { flex: 1; display: flex; align-items: center; justify-content: center; gap: .2rem; }
+  .partes-nav-list a { padding: 2px 10px; border-radius: 20px; text-decoration: none; font-size: .73rem; font-weight: 600; color: var(--muted); transition: color .15s, background .15s; }
+  .partes-nav-list a:hover { color: var(--text); background: var(--bg3); }
+  .partes-nav-list a.activa { background: rgba(46,204,113,.15); color: var(--green); }
+
+  /* ── SEC NAV ── */
+  nav.sec-nav { background: var(--bg2); border-bottom: 1px solid var(--border); position: sticky; top: 84px; z-index: 100; display: flex; overflow-x: auto; }
+  nav.sec-nav::-webkit-scrollbar { display: none; }
+  nav.sec-nav a { flex-shrink: 0; padding: .65rem 1rem; text-decoration: none; color: var(--muted); font-size: .82rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav.sec-nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  /* ── MAIN ── */
+  main { max-width: 940px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary-dark); color: white; border-radius: 20px; padding: 5px 16px; font-size: .8rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  /* ── MÓDULOS ── */
+  .module { background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; padding: 1.75rem; margin-bottom: 2rem; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.6rem; flex-shrink: 0; }
+  .module-title { font-size: 1.2rem; font-weight: 700; color: var(--text); }
+  .module-sub { font-size: .83rem; color: var(--muted); margin-top: 2px; }
+
+  /* ── TERMINAL ── */
+  .terminal { background: var(--code-bg); border: 1px solid var(--border); border-radius: 10px; margin: .9rem 0; overflow: hidden; }
+  .terminal-bar { background: var(--bg3); padding: .45rem .85rem; display: flex; align-items: center; gap: .4rem; border-bottom: 1px solid var(--border); }
+  .tb-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .tb-red { background: #ff5f57; }
+  .tb-yellow { background: #ffbd2e; }
+  .tb-green { background: #28c840; }
+  .tb-title { margin-left: .5rem; font-size: .72rem; color: var(--muted); font-family: 'DM Mono', monospace; }
+  .terminal-body { padding: 1.1rem 1.3rem; font-family: 'DM Mono', monospace; font-size: .87rem; line-height: 2; }
+  .t-prompt { color: var(--green); }
+  .t-cmd    { color: var(--text); }
+  .t-flag   { color: var(--orange); }
+  .t-arg    { color: var(--blue); }
+  .t-out    { color: var(--muted); display: block; }
+  .t-comment{ color: #3d4a3d; font-style: italic; display: block; }
+  .t-path   { color: var(--purple); }
+  .t-err    { color: var(--red); display: block; }
+
+  /* ── CALLOUTS ── */
+  .callout { border-radius: 0 10px 10px 0; padding: 1rem 1.2rem; margin: 1rem 0; }
+  .callout h4 { font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .35rem; }
+  .callout p, .callout ul { font-size: .93rem; }
+  .callout ul { padding-left: 1.2rem; }
+  .callout li { margin-bottom: .3rem; }
+  .callout.tip  { background: rgba(46,204,113,.08); border-left: 4px solid var(--green); }
+  .callout.tip h4 { color: var(--green); }
+  .callout.note { background: rgba(248,81,73,.08); border-left: 4px solid var(--red); }
+  .callout.note h4 { color: var(--red); }
+  .callout.info { background: rgba(88,166,255,.08); border-left: 4px solid var(--blue); }
+  .callout.info h4 { color: var(--blue); }
+  .callout.warn { background: rgba(210,153,34,.08); border-left: 4px solid var(--yellow); }
+  .callout.warn h4 { color: var(--yellow); }
+
+  /* ── TABLA ── */
+  .tbl { width: 100%; border-collapse: collapse; margin: .9rem 0; font-size: .9rem; }
+  .tbl th { background: var(--bg3); color: var(--green); padding: .6rem 1rem; text-align: left; font-weight: 700; border-bottom: 1px solid var(--border); }
+  .tbl td { padding: .6rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl td:first-child { font-family: 'DM Mono', monospace; font-size: .85rem; color: var(--orange); white-space: nowrap; }
+  .tbl tr:hover td { background: var(--bg3); }
+
+  /* ── CMD CARD ── */
+  .cmd-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: .85rem; margin: .9rem 0; }
+  .cmd-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; border-left: 3px solid var(--green); }
+  .cmd-card .cc-cmd  { font-family: 'DM Mono', monospace; font-size: .95rem; font-weight: 700; color: var(--orange); margin-bottom: .25rem; }
+  .cmd-card .cc-full { font-size: .72rem; color: var(--muted); margin-bottom: .45rem; font-style: italic; }
+  .cmd-card .cc-desc { font-size: .86rem; color: var(--text); margin-bottom: .5rem; }
+  .cmd-card .cc-ex   { font-family: 'DM Mono', monospace; font-size: .78rem; color: var(--blue); background: var(--code-bg); padding: .3rem .6rem; border-radius: 5px; display: block; }
+
+  /* ── ÁRBOL ── */
+  .tree { background: var(--code-bg); border: 1px solid var(--border); border-radius: 10px; padding: 1.1rem 1.3rem; font-family: 'DM Mono', monospace; font-size: .87rem; line-height: 2; }
+  .tr-dir  { color: var(--blue); font-weight: 700; }
+  .tr-file { color: var(--text); }
+  .tr-link { color: var(--purple); }
+  .tr-note { color: var(--muted); font-style: italic; }
+
+  /* ── EJERCICIO ── */
+  .ejercicio { background: rgba(210,153,34,.07); border: 1px solid rgba(210,153,34,.3); border-radius: 12px; padding: 1.4rem; margin: 1.5rem 0; }
+  .ej-header { display: flex; align-items: center; gap: .6rem; margin-bottom: .85rem; font-weight: 700; color: var(--yellow); flex-wrap: wrap; }
+  .ej-badge { background: var(--accent); color: #fff; font-size: .67rem; padding: 2px 9px; border-radius: 20px; font-weight: 700; text-transform: uppercase; }
+  .ejercicio ol { padding-left: 1.35rem; }
+  .ejercicio ol li { margin-bottom: .55rem; font-size: .93rem; }
+
+  /* ── COMPARATIVA ── */
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+  @media (max-width: 600px) { .compare { grid-template-columns: 1fr; } }
+  .compare-box { border-radius: 10px; padding: 1rem; border: 1px solid var(--border); background: var(--bg3); }
+  .compare-box .cb-label { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: .5rem; }
+  .compare-box.linux .cb-label { color: var(--green); }
+  .compare-box.win   .cb-label { color: var(--blue); }
+
+  h2 { font-size: 1.15rem; font-weight: 700; margin: 1.5rem 0 .6rem; color: var(--text); }
+  h3 { font-size: .97rem; font-weight: 700; margin: 1.1rem 0 .4rem; color: var(--text); }
+  p  { margin-bottom: .75rem; color: var(--text); }
+  ul, ol { padding-left: 1.35rem; margin-bottom: .75rem; }
+  li { margin-bottom: .35rem; font-size: .95rem; }
+  code { font-family: 'DM Mono', monospace; background: var(--bg3); color: var(--orange); padding: 1px 6px; border-radius: 4px; font-size: .88em; border: 1px solid var(--border); }
+  strong { font-weight: 700; }
+
+  .tag { display: inline-block; background: rgba(46,204,113,.15); color: var(--green); font-family: 'DM Mono', monospace; font-size: .82rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  /* ── QUICK FACT ── */
+  .quick-fact { background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: .85rem 1.1rem; margin: .75rem 0; display: flex; gap: .75rem; align-items: flex-start; font-size: .92rem; }
+  .qf-icon { font-size: 1.3rem; flex-shrink: 0; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .83rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg2); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="../capitulos.html?tab=guias">← Café &lt;/&gt;</a>
+  <span>🐧 Guía Linux · Parte A</span>
+</div>
+
+<header>
+  <div class="curso-badge">🐧 Curso Linux completo · 0:00 – 38:18</div>
+  <h1>Linux en la <span>Terminal</span></h1>
+  <p>Introducción, sistema de archivos, la shell y comandos básicos</p>
+  <span class="badge">✦ Parte A de 4 ✦</span>
+</header>
+
+<div class="partes-nav">
+  <a class="partes-nav-prev" href="#">←</a>
+  <div class="partes-nav-list">
+    <a href="guia-linux-parte-A.html" class="activa">A</a>
+    <a href="guia-linux-parte-B.html">B</a>
+    <a href="guia-linux-parte-C.html">C</a>
+    <a href="guia-linux-parte-D.html">D</a>
+  </div>
+  <a class="partes-nav-next" href="guia-linux-parte-B.html">B →</a>
+</div>
+
+<nav class="sec-nav">
+  <a href="#intro">🐧 Introducción</a>
+  <a href="#archivos">📁 Sistema de archivos</a>
+  <a href="#shell">🖥 La Shell</a>
+  <a href="#navegacion">🧭 Navegación</a>
+  <a href="#archivos-dirs">📂 Archivos y dirs</a>
+  <a href="#info">🔍 Info y búsqueda</a>
+  <a href="#ejercicio">✏️ Ejercicio</a>
+</nav>
+
+<main>
+<div class="parte-badge">📦 Parte A · 0:00 – 38:18</div>
+
+
+<!-- ══════════════════════════════════
+     INTRODUCCIÓN A LINUX
+══════════════════════════════════ -->
+<section class="module" id="intro">
+  <div class="module-header">
+    <div class="module-icon">🐧</div>
+    <div>
+      <div class="module-title">Introducción a Linux</div>
+      <div class="module-sub">Qué es, por qué aprenderlo y dónde se usa</div>
+    </div>
+  </div>
+
+  <p>Linux es un <strong>sistema operativo de código abierto</strong> basado en Unix. Es el sistema que corre en la gran mayoría de servidores del mundo, en Android, en la nube (AWS, GCP, Azure) y en supercomputadoras. Como desarrollador web, vas a trabajar con Linux tarde o temprano.</p>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.75rem;margin:1rem 0">
+    <div class="quick-fact">
+      <span class="qf-icon">🌐</span>
+      <div><strong>~90% de los servidores web</strong><br>corren Linux (Apache, Nginx, etc.)</div>
+    </div>
+    <div class="quick-fact">
+      <span class="qf-icon">☁️</span>
+      <div><strong>Toda la nube</strong><br>AWS, GCP, Azure: Linux por defecto</div>
+    </div>
+    <div class="quick-fact">
+      <span class="qf-icon">📱</span>
+      <div><strong>Android</strong><br>Está basado en el kernel de Linux</div>
+    </div>
+    <div class="quick-fact">
+      <span class="qf-icon">🔓</span>
+      <div><strong>Código abierto</strong><br>Gratis, modificable, miles de distros</div>
+    </div>
+  </div>
+
+  <h2>Distribuciones (distros) más populares</h2>
+  <table class="tbl">
+    <thead><tr><th>Distro</th><th>Uso típico</th><th>Paquetes</th></tr></thead>
+    <tbody>
+      <tr><td>Ubuntu</td><td>La más popular para principiantes y servidores</td><td>apt</td></tr>
+      <tr><td>Debian</td><td>Estabilidad extrema, base de Ubuntu</td><td>apt</td></tr>
+      <tr><td>Fedora</td><td>Bleeding edge, impulsada por Red Hat</td><td>dnf</td></tr>
+      <tr><td>CentOS / RHEL</td><td>Servidores empresariales</td><td>yum / dnf</td></tr>
+      <tr><td>Arch Linux</td><td>Usuarios avanzados — instala solo lo que quieres</td><td>pacman</td></tr>
+      <tr><td>Kali Linux</td><td>Ciberseguridad y pentesting</td><td>apt</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout tip">
+    <h4>🟢 ¿Cuál aprender primero?</h4>
+    <p><strong>Ubuntu</strong> es la recomendación para empezar. Tiene la comunidad más grande, más tutoriales, y los comandos son iguales en todas las distros basadas en Debian. Lo que aprendes en Ubuntu funciona en los servidores más comunes del mundo real.</p>
+  </div>
+
+  <h2>Linux vs Windows — la mentalidad diferente</h2>
+  <div class="compare">
+    <div class="compare-box linux">
+      <div class="cb-label">🐧 Linux</div>
+      <ul style="list-style:none;padding:0;font-size:.88rem">
+        <li>✦ Todo es un archivo (incluso los dispositivos)</li>
+        <li>✦ La terminal es el centro de todo</li>
+        <li>✦ Minúsculas y mayúsculas importan (<code>File</code> ≠ <code>file</code>)</li>
+        <li>✦ Rutas con / (diagonal)</li>
+        <li>✦ Sin extensiones obligatorias</li>
+      </ul>
+    </div>
+    <div class="compare-box win">
+      <div class="cb-label">🪟 Windows</div>
+      <ul style="list-style:none;padding:0;font-size:.88rem">
+        <li>✦ Interfaz gráfica como centro</li>
+        <li>✦ CMD/PowerShell son secundarios</li>
+        <li>✦ No distingue mayúsculas (<code>File</code> = <code>file</code>)</li>
+        <li>✦ Rutas con \ (contrabarra)</li>
+        <li>✦ Extensiones obligatorias (.exe, .txt)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     SISTEMA DE ARCHIVOS
+══════════════════════════════════ -->
+<section class="module" id="archivos">
+  <div class="module-header">
+    <div class="module-icon">📁</div>
+    <div>
+      <div class="module-title">Sistema de Archivos de Linux</div>
+      <div class="module-sub">Todo parte de / — la raíz del sistema</div>
+    </div>
+  </div>
+
+  <p>En Linux <strong>no hay letras de disco</strong> (C:, D:). Todo el sistema de archivos parte de un único punto raíz llamado <code>/</code> (slash). A partir de ahí todo es una carpeta o un archivo.</p>
+
+  <div class="tree">
+<span class="tr-dir">/</span>                          <span class="tr-note"># raíz — todo parte de aquí</span>
+├── <span class="tr-dir">bin/</span>                    <span class="tr-note"># binarios esenciales: ls, cp, mv, bash</span>
+├── <span class="tr-dir">boot/</span>                   <span class="tr-note"># archivos del arranque del sistema</span>
+├── <span class="tr-dir">dev/</span>                    <span class="tr-note"># dispositivos (disco, teclado, mouse)</span>
+├── <span class="tr-dir">etc/</span>                    <span class="tr-note"># configuración del sistema y programas</span>
+├── <span class="tr-dir">home/</span>                   <span class="tr-note"># carpetas personales de usuarios</span>
+│   ├── <span class="tr-dir">hugo/</span>               <span class="tr-note"># tu carpeta home — aquí vive tu trabajo</span>
+│   └── <span class="tr-dir">otro-usuario/</span>
+├── <span class="tr-dir">lib/</span>                    <span class="tr-note"># librerías compartidas del sistema</span>
+├── <span class="tr-dir">media/</span>                  <span class="tr-note"># USB, discos externos montados</span>
+├── <span class="tr-dir">opt/</span>                    <span class="tr-note"># software opcional instalado manualmente</span>
+├── <span class="tr-dir">proc/</span>                   <span class="tr-note"># info de procesos en tiempo real</span>
+├── <span class="tr-dir">root/</span>                   <span class="tr-note"># home del superusuario (root)</span>
+├── <span class="tr-dir">tmp/</span>                    <span class="tr-note"># archivos temporales (se borran al reiniciar)</span>
+├── <span class="tr-dir">usr/</span>                    <span class="tr-note"># programas y utilidades del usuario</span>
+│   └── <span class="tr-dir">bin/</span>                <span class="tr-note"># la mayoría de programas instalados van aquí</span>
+└── <span class="tr-dir">var/</span>                    <span class="tr-note"># datos variables: logs, bases de datos, emails</span>
+  </div>
+
+  <h2>Rutas absolutas vs relativas</h2>
+  <table class="tbl">
+    <thead><tr><th>Tipo</th><th>Ejemplo</th><th>Cuándo usarla</th></tr></thead>
+    <tbody>
+      <tr><td>Absoluta</td><td><code>/home/hugo/proyectos/index.html</code></td><td>Parte siempre desde /. Funciona desde cualquier lugar.</td></tr>
+      <tr><td>Relativa</td><td><code>proyectos/index.html</code></td><td>Parte desde donde estás ahora. Más corta y práctica.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Atajos de ruta esenciales</h2>
+  <div class="cmd-grid">
+    <div class="cmd-card">
+      <div class="cc-cmd">~</div>
+      <div class="cc-desc">Tu carpeta home. Equivale a <code>/home/tu-usuario</code></div>
+      <span class="cc-ex">cd ~  →  va a /home/hugo</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cc-cmd">.</div>
+      <div class="cc-desc">El directorio actual (donde estás ahora)</div>
+      <span class="cc-ex">./script.sh  →  ejecuta script aquí</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cc-cmd">..</div>
+      <div class="cc-desc">El directorio padre (un nivel arriba)</div>
+      <span class="cc-ex">cd ..  →  sube un nivel</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cc-cmd">-</div>
+      <div class="cc-desc">El directorio anterior (el último donde estuviste)</div>
+      <span class="cc-ex">cd -  →  vuelve al directorio anterior</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     LA SHELL
+══════════════════════════════════ -->
+<section class="module" id="shell">
+  <div class="module-header">
+    <div class="module-icon">🖥️</div>
+    <div>
+      <div class="module-title">La Shell — El intérprete de comandos</div>
+      <div class="module-sub">El programa que traduce lo que escribes en acciones del sistema</div>
+    </div>
+  </div>
+
+  <p>La <strong>shell</strong> es el programa que recibe los comandos que escribes, los interpreta y le dice al sistema operativo qué hacer. La terminal es la ventana; la shell es el programa que corre dentro de ella.</p>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="tb-dot tb-red"></div><div class="tb-dot tb-yellow"></div><div class="tb-dot tb-green"></div>
+      <span class="tb-title">bash — hugo@ubuntu: ~</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-comment"># El prompt: lo que aparece antes de que escribas</span>
+<span class="t-prompt">hugo@ubuntu:~$</span> <span class="t-comment">← esto es el prompt</span>
+<span class="t-comment">#  │      │   │ └─ $ = usuario normal  # = root (admin)</span>
+<span class="t-comment">#  │      │   └─── ~ = directorio actual (home)</span>
+<span class="t-comment">#  │      └─────── nombre del equipo (hostname)</span>
+<span class="t-comment">#  └────────────── tu nombre de usuario</span>
+
+<span class="t-prompt">hugo@ubuntu:~$</span> <span class="t-cmd">echo</span> <span class="t-arg">"Hola Linux"</span>
+<span class="t-out">Hola Linux</span>
+    </div>
+  </div>
+
+  <h2>Shells más comunes</h2>
+  <table class="tbl">
+    <thead><tr><th>Shell</th><th>Descripción</th><th>Cuándo la usas</th></tr></thead>
+    <tbody>
+      <tr><td>bash</td><td>Bourne Again SHell — la más común y estándar</td><td>Por defecto en Ubuntu y la mayoría de distros</td></tr>
+      <tr><td>zsh</td><td>Shell extendida con autocompletado y plugins (Oh My Zsh)</td><td>Por defecto en macOS, muy popular entre devs</td></tr>
+      <tr><td>sh</td><td>Shell original de Unix — básica pero portable</td><td>Scripts que deben funcionar en cualquier sistema</td></tr>
+      <tr><td>fish</td><td>Shell amigable con sintaxis colorida y sugerencias</td><td>Usuarios que quieren una experiencia más moderna</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout tip">
+    <h4>🟢 ¿Cómo saber qué shell estás usando?</h4>
+    <p>Escribe <code>echo $SHELL</code> y el sistema te dirá cuál es tu shell activa. Por ejemplo: <code>/bin/bash</code> o <code>/usr/bin/zsh</code>.</p>
+  </div>
+
+  <h2>Cómo funciona un comando</h2>
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="tb-dot tb-red"></div><div class="tb-dot tb-yellow"></div><div class="tb-dot tb-green"></div>
+      <span class="tb-title">anatomía de un comando</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-comment"># Estructura:  comando  [opciones/flags]  [argumentos]</span>
+
+<span class="t-prompt">$</span> <span class="t-cmd">ls</span> <span class="t-flag">-la</span> <span class="t-arg">/home/hugo</span>
+<span class="t-comment">#  │    │      └─── argumento: a qué se aplica el comando</span>
+<span class="t-comment">#  │    └────────── flags: modifican el comportamiento</span>
+<span class="t-comment">#  └─────────────── el comando en sí</span>
+
+<span class="t-prompt">$</span> <span class="t-cmd">cp</span> <span class="t-flag">-r</span> <span class="t-arg">origen/</span> <span class="t-arg">destino/</span>
+<span class="t-comment">#       │   └──────── dos argumentos: de dónde y a dónde</span>
+<span class="t-comment">#       └──────────── flag -r = recursivo (copia carpetas)</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     COMANDOS DE NAVEGACIÓN
+══════════════════════════════════ -->
+<section class="module" id="navegacion">
+  <div class="module-header">
+    <div class="module-icon">🧭</div>
+    <div>
+      <div class="module-title">Comandos básicos — Navegación</div>
+      <div class="module-sub">Moverte por el sistema de archivos desde la terminal</div>
+    </div>
+  </div>
+
+  <div class="cmd-grid">
+    <div class="cmd-card">
+      <div class="cc-cmd">pwd</div>
+      <div class="cc-full">Print Working Directory</div>
+      <div class="cc-desc">Muestra en qué directorio estás ahora mismo</div>
+      <span class="cc-ex">$ pwd  →  /home/hugo/proyectos</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cc-cmd">cd</div>
+      <div class="cc-full">Change Directory</div>
+      <div class="cc-desc">Cambia al directorio indicado</div>
+      <span class="cc-ex">$ cd Documentos/</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cc-cmd">ls</div>
+      <div class="cc-full">LiSt</div>
+      <div class="cc-desc">Lista el contenido del directorio actual</div>
+      <span class="cc-ex">$ ls  /  $ ls -la  /  $ ls /home</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cc-cmd">tree</div>
+      <div class="cc-full">Tree</div>
+      <div class="cc-desc">Muestra el árbol de directorios visualmente</div>
+      <span class="cc-ex">$ tree  /  $ tree -L 2 (solo 2 niveles)</span>
+    </div>
+  </div>
+
+  <h2>El comando ls en detalle — el más usado</h2>
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="tb-dot tb-red"></div><div class="tb-dot tb-yellow"></div><div class="tb-dot tb-green"></div>
+      <span class="tb-title">ls y sus opciones</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-prompt">$</span> <span class="t-cmd">ls</span>
+<span class="t-out">Documentos  Descargas  Escritorio  proyectos  foto.jpg</span>
+
+<span class="t-prompt">$</span> <span class="t-cmd">ls</span> <span class="t-flag">-l</span>          <span class="t-comment"># formato largo: permisos, tamaño, fecha</span>
+<span class="t-out">drwxr-xr-x 2 hugo hugo 4096 jun 15 10:30 Documentos</span>
+<span class="t-out">-rw-r--r-- 1 hugo hugo 2048 jun 14 09:15 foto.jpg</span>
+
+<span class="t-prompt">$</span> <span class="t-cmd">ls</span> <span class="t-flag">-a</span>          <span class="t-comment"># muestra archivos ocultos (empiezan con .)</span>
+<span class="t-out">.  ..  .bashrc  .config  Documentos  proyectos</span>
+
+<span class="t-prompt">$</span> <span class="t-cmd">ls</span> <span class="t-flag">-la</span>         <span class="t-comment"># combina -l y -a (el más completo)</span>
+<span class="t-out">drwxr-xr-x  8 hugo hugo 4096 jun 15 10:30 .</span>
+<span class="t-out">drwxr-xr-x 32 root root 4096 jun 10 08:00 ..</span>
+<span class="t-out">-rw-r--r--  1 hugo hugo  220 jun  1 12:00 .bashrc</span>
+<span class="t-out">drwxr-xr-x  2 hugo hugo 4096 jun 15 10:30 Documentos</span>
+
+<span class="t-prompt">$</span> <span class="t-cmd">ls</span> <span class="t-flag">-lh</span>         <span class="t-comment"># -h = human readable (KB, MB, GB en vez de bytes)</span>
+<span class="t-out">-rw-r--r-- 1 hugo hugo 2.0K jun 14 foto.jpg</span>
+
+<span class="t-prompt">$</span> <span class="t-cmd">ls</span> <span class="t-flag">-lt</span>         <span class="t-comment"># ordena por fecha de modificación (más reciente primero)</span>
+
+<span class="t-prompt">$</span> <span class="t-cmd">ls</span> <span class="t-arg">/var/log</span>    <span class="t-comment"># lista contenido de otra carpeta sin ir a ella</span>
+    </div>
+  </div>
+
+  <h2>El comando cd en detalle</h2>
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="tb-dot tb-red"></div><div class="tb-dot tb-yellow"></div><div class="tb-dot tb-green"></div>
+      <span class="tb-title">cd y sus variantes</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-prompt">$</span> <span class="t-cmd">cd</span> <span class="t-path">Documentos</span>          <span class="t-comment"># entra a Documentos (ruta relativa)</span>
+<span class="t-prompt">$</span> <span class="t-cmd">cd</span> <span class="t-path">/var/log</span>            <span class="t-comment"># va directo a /var/log (ruta absoluta)</span>
+<span class="t-prompt">$</span> <span class="t-cmd">cd</span> <span class="t-path">~</span>                   <span class="t-comment"># va a tu home sin importar dónde estés</span>
+<span class="t-prompt">$</span> <span class="t-cmd">cd</span>                      <span class="t-comment"># sin argumento = igual que cd ~</span>
+<span class="t-prompt">$</span> <span class="t-cmd">cd</span> <span class="t-path">..</span>                  <span class="t-comment"># sube un nivel (al directorio padre)</span>
+<span class="t-prompt">$</span> <span class="t-cmd">cd</span> <span class="t-path">../..</span>               <span class="t-comment"># sube dos niveles</span>
+<span class="t-prompt">$</span> <span class="t-cmd">cd</span> <span class="t-path">-</span>                   <span class="t-comment"># vuelve al directorio anterior</span>
+<span class="t-prompt">$</span> <span class="t-cmd">cd</span> <span class="t-path">"Mi carpeta"</span>        <span class="t-comment"># comillas si el nombre tiene espacios</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     ARCHIVOS Y DIRECTORIOS
+══════════════════════════════════ -->
+<section class="module" id="archivos-dirs">
+  <div class="module-header">
+    <div class="module-icon">📂</div>
+    <div>
+      <div class="module-title">Crear, copiar, mover y borrar</div>
+      <div class="module-sub">Las operaciones fundamentales sobre archivos y directorios</div>
+    </div>
+  </div>
+
+  <div class="cmd-grid">
+    <div class="cmd-card">
+      <div class="cc-cmd">mkdir</div>
+      <div class="cc-full">MaKe DIRectory</div>
+      <div class="cc-desc">Crea uno o varios directorios</div>
+      <span class="cc-ex">$ mkdir proyectos  /  $ mkdir -p a/b/c</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cc-cmd">touch</div>
+      <div class="cc-full">Touch</div>
+      <div class="cc-desc">Crea un archivo vacío o actualiza su fecha</div>
+      <span class="cc-ex">$ touch index.html  /  $ touch a.txt b.txt</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cc-cmd">cp</div>
+      <div class="cc-full">CoPy</div>
+      <div class="cc-desc">Copia archivos o directorios</div>
+      <span class="cc-ex">$ cp origen.txt destino.txt</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cc-cmd">mv</div>
+      <div class="cc-full">MoVe</div>
+      <div class="cc-desc">Mueve o renombra archivos y directorios</div>
+      <span class="cc-ex">$ mv viejo.txt nuevo.txt</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cc-cmd">rm</div>
+      <div class="cc-full">ReMove</div>
+      <div class="cc-desc">Elimina archivos o directorios (¡sin papelera!)</div>
+      <span class="cc-ex">$ rm archivo.txt  /  $ rm -rf carpeta/</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cc-cmd">rmdir</div>
+      <div class="cc-full">ReMove DIRectory</div>
+      <div class="cc-desc">Elimina directorios vacíos únicamente</div>
+      <span class="cc-ex">$ rmdir carpeta-vacia/</span>
+    </div>
+  </div>
+
+  <h2>Estos comandos en acción</h2>
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="tb-dot tb-red"></div><div class="tb-dot tb-yellow"></div><div class="tb-dot tb-green"></div>
+      <span class="tb-title">mkdir, touch, cp, mv, rm</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-comment"># CREAR</span>
+<span class="t-prompt">$</span> <span class="t-cmd">mkdir</span> <span class="t-arg">mi-proyecto</span>              <span class="t-comment"># crea carpeta</span>
+<span class="t-prompt">$</span> <span class="t-cmd">mkdir</span> <span class="t-flag">-p</span> <span class="t-arg">src/css/components</span>    <span class="t-comment"># crea árbol completo de una vez</span>
+<span class="t-prompt">$</span> <span class="t-cmd">touch</span> <span class="t-arg">index.html style.css app.js</span> <span class="t-comment"># crea 3 archivos vacíos</span>
+
+<span class="t-comment"># COPIAR</span>
+<span class="t-prompt">$</span> <span class="t-cmd">cp</span> <span class="t-arg">index.html</span> <span class="t-arg">backup.html</span>       <span class="t-comment"># copia archivo</span>
+<span class="t-prompt">$</span> <span class="t-cmd">cp</span> <span class="t-flag">-r</span> <span class="t-arg">src/</span> <span class="t-arg">src-backup/</span>         <span class="t-comment"># -r para copiar carpetas</span>
+<span class="t-prompt">$</span> <span class="t-cmd">cp</span> <span class="t-arg">*.html</span> <span class="t-arg">backup/</span>              <span class="t-comment"># copia todos los .html a backup/</span>
+
+<span class="t-comment"># MOVER / RENOMBRAR</span>
+<span class="t-prompt">$</span> <span class="t-cmd">mv</span> <span class="t-arg">viejo.txt</span> <span class="t-arg">nuevo.txt</span>         <span class="t-comment"># renombra</span>
+<span class="t-prompt">$</span> <span class="t-cmd">mv</span> <span class="t-arg">index.html</span> <span class="t-arg">src/</span>             <span class="t-comment"># mueve a la carpeta src/</span>
+<span class="t-prompt">$</span> <span class="t-cmd">mv</span> <span class="t-arg">carpeta/</span> <span class="t-arg">otro-lugar/</span>        <span class="t-comment"># mueve carpeta entera</span>
+
+<span class="t-comment"># ELIMINAR</span>
+<span class="t-prompt">$</span> <span class="t-cmd">rm</span> <span class="t-arg">archivo.txt</span>                <span class="t-comment"># elimina archivo</span>
+<span class="t-prompt">$</span> <span class="t-cmd">rm</span> <span class="t-flag">-r</span> <span class="t-arg">carpeta/</span>               <span class="t-comment"># elimina carpeta y su contenido</span>
+<span class="t-prompt">$</span> <span class="t-cmd">rm</span> <span class="t-flag">-rf</span> <span class="t-arg">carpeta/</span>              <span class="t-comment"># -f fuerza sin pedir confirmación</span>
+<span class="t-prompt">$</span> <span class="t-cmd">rm</span> <span class="t-arg">*.log</span>                     <span class="t-comment"># elimina todos los archivos .log</span>
+    </div>
+  </div>
+
+  <div class="callout note">
+    <h4>⚠️ rm -rf no tiene marcha atrás</h4>
+    <p>En Linux <strong>no hay papelera de reciclaje</strong> en la terminal. El comando <code>rm -rf</code> elimina archivos permanentemente sin preguntar. Siempre verifica dos veces antes de ejecutarlo — especialmente con rutas que contengan variables o comodines. El famoso <code>rm -rf /</code> borraría todo el sistema.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     INFO Y BÚSQUEDA
+══════════════════════════════════ -->
+<section class="module" id="info">
+  <div class="module-header">
+    <div class="module-icon">🔍</div>
+    <div>
+      <div class="module-title">Comandos de información y búsqueda</div>
+      <div class="module-sub">Encontrar archivos, ver contenido y obtener ayuda</div>
+    </div>
+  </div>
+
+  <div class="cmd-grid">
+    <div class="cmd-card">
+      <div class="cc-cmd">file</div>
+      <div class="cc-full">File type</div>
+      <div class="cc-desc">Dice qué tipo de archivo es (sin depender de extensión)</div>
+      <span class="cc-ex">$ file foto.jpg  →  JPEG image data</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cc-cmd">stat</div>
+      <div class="cc-full">STATus</div>
+      <div class="cc-desc">Muestra metadatos completos de un archivo</div>
+      <span class="cc-ex">$ stat index.html</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cc-cmd">find</div>
+      <div class="cc-full">Find</div>
+      <div class="cc-desc">Busca archivos por nombre, tipo, tamaño, fecha…</div>
+      <span class="cc-ex">$ find . -name "*.html"</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cc-cmd">locate</div>
+      <div class="cc-full">Locate</div>
+      <div class="cc-desc">Búsqueda rápida usando base de datos del sistema</div>
+      <span class="cc-ex">$ locate archivo.txt</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cc-cmd">which</div>
+      <div class="cc-full">Which</div>
+      <div class="cc-desc">Muestra la ruta del ejecutable de un comando</div>
+      <span class="cc-ex">$ which node  →  /usr/bin/node</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cc-cmd">man</div>
+      <div class="cc-full">MANual</div>
+      <div class="cc-desc">Manual completo de cualquier comando</div>
+      <span class="cc-ex">$ man ls  (q para salir)</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cc-cmd">--help</div>
+      <div class="cc-full">Help flag</div>
+      <div class="cc-desc">Ayuda rápida de cualquier comando</div>
+      <span class="cc-ex">$ ls --help  /  $ cp --help</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cc-cmd">type</div>
+      <div class="cc-full">Type</div>
+      <div class="cc-desc">Dice si un comando es builtin, alias, función o ejecutable</div>
+      <span class="cc-ex">$ type cd  →  cd is a shell builtin</span>
+    </div>
+  </div>
+
+  <h2>find — el más poderoso</h2>
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="tb-dot tb-red"></div><div class="tb-dot tb-yellow"></div><div class="tb-dot tb-green"></div>
+      <span class="tb-title">find en acción</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-comment"># Buscar por nombre</span>
+<span class="t-prompt">$</span> <span class="t-cmd">find</span> <span class="t-arg">.</span> <span class="t-flag">-name</span> <span class="t-arg">"index.html"</span>       <span class="t-comment"># busca en . (aquí) por nombre exacto</span>
+<span class="t-prompt">$</span> <span class="t-cmd">find</span> <span class="t-arg">/home</span> <span class="t-flag">-name</span> <span class="t-arg">"*.js"</span>         <span class="t-comment"># todos los .js en /home</span>
+<span class="t-prompt">$</span> <span class="t-cmd">find</span> <span class="t-arg">.</span> <span class="t-flag">-iname</span> <span class="t-arg">"*.HTML"</span>           <span class="t-comment"># -iname ignora mayúsculas/minúsculas</span>
+
+<span class="t-comment"># Buscar por tipo</span>
+<span class="t-prompt">$</span> <span class="t-cmd">find</span> <span class="t-arg">.</span> <span class="t-flag">-type f</span>                    <span class="t-comment"># solo archivos (f = file)</span>
+<span class="t-prompt">$</span> <span class="t-cmd">find</span> <span class="t-arg">.</span> <span class="t-flag">-type d</span>                    <span class="t-comment"># solo directorios (d = directory)</span>
+
+<span class="t-comment"># Buscar por tamaño</span>
+<span class="t-prompt">$</span> <span class="t-cmd">find</span> <span class="t-arg">.</span> <span class="t-flag">-size</span> <span class="t-arg">+1M</span>                 <span class="t-comment"># archivos mayores a 1 megabyte</span>
+<span class="t-prompt">$</span> <span class="t-cmd">find</span> <span class="t-arg">.</span> <span class="t-flag">-size</span> <span class="t-arg">-10k</span>                <span class="t-comment"># archivos menores a 10 kilobytes</span>
+
+<span class="t-comment"># Buscar y ejecutar acción</span>
+<span class="t-prompt">$</span> <span class="t-cmd">find</span> <span class="t-arg">.</span> <span class="t-flag">-name</span> <span class="t-arg">"*.log"</span> <span class="t-flag">-delete</span>    <span class="t-comment"># busca y elimina todos los .log</span>
+    </div>
+  </div>
+
+  <h2>Otros comandos de información útiles</h2>
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="tb-dot tb-red"></div><div class="tb-dot tb-yellow"></div><div class="tb-dot tb-green"></div>
+      <span class="tb-title">info del sistema</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-prompt">$</span> <span class="t-cmd">whoami</span>                <span class="t-comment"># muestra tu nombre de usuario</span>
+<span class="t-out">hugo</span>
+
+<span class="t-prompt">$</span> <span class="t-cmd">hostname</span>              <span class="t-comment"># nombre del equipo</span>
+<span class="t-out">ubuntu-desktop</span>
+
+<span class="t-prompt">$</span> <span class="t-cmd">uname</span> <span class="t-flag">-a</span>              <span class="t-comment"># info completa del sistema operativo y kernel</span>
+<span class="t-out">Linux ubuntu 5.15.0-91-generic #101 SMP x86_64 GNU/Linux</span>
+
+<span class="t-prompt">$</span> <span class="t-cmd">date</span>                  <span class="t-comment"># fecha y hora actual</span>
+<span class="t-out">lun jun 15 10:30:00 CST 2025</span>
+
+<span class="t-prompt">$</span> <span class="t-cmd">df</span> <span class="t-flag">-h</span>                 <span class="t-comment"># espacio en disco (human readable)</span>
+<span class="t-out">Filesystem      Size  Used Avail Use% Mounted on</span>
+<span class="t-out">/dev/sda1        50G   12G   36G  25% /</span>
+
+<span class="t-prompt">$</span> <span class="t-cmd">du</span> <span class="t-flag">-sh</span> <span class="t-arg">*</span>             <span class="t-comment"># tamaño de cada carpeta/archivo en el dir actual</span>
+<span class="t-out">4.2M    Documentos</span>
+<span class="t-out">128K    index.html</span>
+
+<span class="t-prompt">$</span> <span class="t-cmd">free</span> <span class="t-flag">-h</span>               <span class="t-comment"># memoria RAM disponible y usada</span>
+<span class="t-out">              total   used   free</span>
+<span class="t-out">Mem:          7.7Gi  3.1Gi  4.6Gi</span>
+
+<span class="t-prompt">$</span> <span class="t-cmd">clear</span>                 <span class="t-comment"># limpia la pantalla (también Ctrl+L)</span>
+<span class="t-prompt">$</span> <span class="t-cmd">history</span>               <span class="t-comment"># muestra los últimos comandos ejecutados</span>
+<span class="t-prompt">$</span> <span class="t-cmd">echo</span> <span class="t-arg">"Hola mundo"</span>       <span class="t-comment"># imprime texto en la terminal</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     EJERCICIO
+══════════════════════════════════ -->
+<section class="module" id="ejercicio">
+  <div class="module-header">
+    <div class="module-icon">✏️</div>
+    <div>
+      <div class="module-title">Ejercicio — Explorar y construir en la terminal</div>
+      <div class="module-sub">Practica los comandos de la Parte A en secuencia</div>
+    </div>
+  </div>
+
+  <div class="ejercicio">
+    <div class="ej-header">✏️ Ejercicio Parte A <span class="ej-badge">Principiante</span></div>
+    <p>Abre tu terminal y ejecuta los siguientes pasos <strong>en orden</strong>:</p>
+    <ol>
+      <li>Ejecuta <code>pwd</code> para saber dónde estás. Después <code>whoami</code> y <code>uname -a</code>.</li>
+      <li>Ve a tu home con <code>cd ~</code> y lista su contenido con <code>ls -la</code>.</li>
+      <li>Crea esta estructura de carpetas de una sola vez:<br>
+        <code>mkdir -p practica-linux/src/css practica-linux/src/js practica-linux/docs</code></li>
+      <li>Entra a <code>practica-linux/</code> con <code>cd practica-linux</code> y verifica con <code>pwd</code>.</li>
+      <li>Crea estos archivos vacíos: <code>touch index.html README.md</code></li>
+      <li>Crea un archivo en subcarpeta: <code>touch src/css/style.css src/js/app.js</code></li>
+      <li>Lista todo el árbol con <code>ls -la</code> y si tienes tree instalado: <code>tree</code></li>
+      <li>Copia el README: <code>cp README.md docs/README-backup.md</code></li>
+      <li>Renombra index.html: <code>mv index.html home.html</code></li>
+      <li>Busca todos los archivos .html dentro del proyecto: <code>find . -name "*.html"</code></li>
+      <li>Consulta el manual de <code>ls</code>: <code>man ls</code> (presiona <code>q</code> para salir)</li>
+      <li>Limpia la pantalla con <code>clear</code> y mira tu historial con <code>history</code></li>
+    </ol>
+  </div>
+
+  <div class="callout tip">
+    <h4>🟢 Resumen de la Parte A</h4>
+    <ul>
+      <li>Linux: sistema de código abierto, base de servidores y la nube. Todo parte de <code>/</code></li>
+      <li>Carpetas clave: <code>/home</code> (usuarios), <code>/etc</code> (configs), <code>/var</code> (logs), <code>/tmp</code> (temporales)</li>
+      <li>Rutas: absolutas (desde <code>/</code>) y relativas (desde donde estás). Atajos: <code>~</code>, <code>.</code>, <code>..</code>, <code>-</code></li>
+      <li>La shell interpreta los comandos. El prompt muestra: usuario@host:directorio$</li>
+      <li>Estructura: <code>comando [flags] [argumentos]</code></li>
+      <li><code>pwd</code> — dónde estás · <code>ls -la</code> — lista detallada · <code>cd</code> — cambia directorio</li>
+      <li><code>mkdir -p</code> — crea árbol · <code>touch</code> — crea archivo vacío</li>
+      <li><code>cp -r</code> — copia (con carpetas) · <code>mv</code> — mueve/renombra · <code>rm -rf</code> — elimina sin papelera</li>
+      <li><code>find . -name "*.html"</code> — busca archivos · <code>man comando</code> — ayuda completa</li>
+      <li><code>whoami</code>, <code>uname -a</code>, <code>df -h</code>, <code>free -h</code> — información del sistema</li>
+    </ul>
+  </div>
+
+  <div class="callout info">
+    <h4>💡 ¿Qué sigue? — Parte B</h4>
+    <p>En la Parte B entramos en los editores y comandos de lectura: <strong>cat, less, nano, vi, qué son exactamente los comandos y los alias</strong>. Del 38:18 al 1:11:52 del video.</p>
+  </div>
+</section>
+</main>
+
+<footer>
+  Guía Linux · Parte A · Basado en curso de Linux completo · Café &lt;/&gt; · Hugo 2025
+</footer>
+
+</body>
+</html>

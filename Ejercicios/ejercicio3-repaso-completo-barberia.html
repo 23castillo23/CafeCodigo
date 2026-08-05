@@ -392,6 +392,26 @@
       <tr><td><span class="tag">selector selector</span></td><td>Solo los que estén anidados dentro del primero</td><td>Cuando quieres afectar solo el contenido de un bloque específico, sin crear una clase nueva.</td></tr>
     </tbody>
   </table>
+
+  <div class="concept">
+    <h4>💡 Una etiqueta puede tener id Y class al mismo tiempo</h4>
+    <p>Sí, se puede — de hecho es muy común, y no hay conflicto porque <code>id</code> y <code>class</code> son dos atributos completamente independientes. Cualquier etiqueta HTML acepta ambos a la vez (y de hecho puede tener varias clases, no solo una). No le "hace caso" a uno y al otro no: <strong>aplica los dos</strong>.</p>
+  </div>
+
+  <div class="tip">
+    <h4>¿Por qué tienen trabajos distintos?</h4>
+    <p>Fíjate en el ejemplo de la Parte 2 más adelante: <code>&lt;section id="inicio" class="hero"&gt;</code>. Aquí <code>id</code> y <code>class</code> ni siquiera comparten nombre, porque cada uno resuelve un problema diferente:</p>
+    <ul>
+      <li><strong><code>id="inicio"</code></strong> — es el nombre único que usa el enlace <code>&lt;a href="#inicio"&gt;</code> del menú para saltar hasta aquí. Su trabajo es ser un "ancla" identificable, no darle estilo. Por eso debe ser único en toda la página: si hubiera dos <code>id="inicio"</code>, el navegador no sabría a cuál saltar.</li>
+      <li><strong><code>class="hero"</code></strong> — es el gancho que usa el CSS (<code>.hero { ... }</code>) para pintar el fondo negro, centrar el texto, etc. Su trabajo es darle estilo, y por eso SÍ podría repetirse en otras etiquetas si quisieras que se vieran igual.</li>
+    </ul>
+    <p style="margin-top:.6rem">En resumen: usa <code>id</code> cuando necesitas señalar UN elemento único (para un enlace ancla, o para JavaScript), y <code>class</code> cuando le vas a dar estilo (se repita o no). Muchas veces un mismo elemento necesita las dos cosas a la vez, como en este caso.</p>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ ¿Y si ambos definieran el mismo estilo?</h4>
+    <p>Aquí no pasa porque <code>#inicio</code> no tiene ninguna regla CSS propia — solo se usa como ancla. Pero si <em>sí</em> existiera un <code>#inicio { color: red; }</code> Y un <code>.hero { color: blue; }</code> compitiendo por la misma propiedad en el mismo elemento, ganaría el <code>#id</code>: es más "específico" que una clase, sin importar cuál esté escrito después en el archivo. Esa es la misma regla de especificidad que ya viste con <code>span</code> vs <code>p</code>.</p>
+  </div>
 </section>
 
 <!-- ══════════════════════════
@@ -421,6 +441,21 @@
   <span class="cc">&lt;!-- todo el contenido va aquí --&gt;</span>
 <span class="ct">&lt;/body&gt;</span>
 <span class="ct">&lt;/html&gt;</span></div>
+
+  <p>Antes de seguir, declara en <code>styles.css</code> las variables de color que vas a usar en <strong>todo</strong> el sitio (el resto de la guía ya asume que existen):</p>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">:root</span> {
+  <span class="ca">--negro</span>: <span class="cn">#1c1a17</span>;
+  <span class="ca">--dorado</span>: <span class="cn">#c9a227</span>;
+  <span class="ca">--crema</span>: <span class="cn">#f7f2e7</span>;
+  <span class="ca">--gris</span>: <span class="cn">#54504a</span>;
+  <span class="ca">--borde</span>: <span class="cn">#e6ddc8</span>;
+}</div>
+
+  <div class="warn">
+    <h4>⚠️ Ojo</h4>
+    <p>Sin este bloque, cualquier <code>var(--negro)</code> o <code>var(--dorado)</code> que escribas más adelante no falla ni marca error — simplemente no pinta nada, porque la variable no existe. Por eso "no se notaba" que faltaba.</p>
+  </div>
 
   <table class="tbl">
     <thead><tr><th>Línea</th><th>Qué hace</th></tr></thead>
@@ -533,6 +568,32 @@
       <tr><td><span class="tag">display: inline-block;</span></td><td>Un <code>&lt;a&gt;</code> normal es "en línea" e ignora <code>padding</code> vertical y <code>width/height</code>. <code>inline-block</code> le permite comportarse como bloque (aceptar padding completo) sin dejar de fluir en línea con el texto.</td></tr>
     </tbody>
   </table>
+
+  <div class="concept">
+    <h4>💡 Ojo con el espacio: dos formas distintas de combinar selectores</h4>
+    <p>En este bloque de CSS aparecen dos formas de "pegarle" algo a una clase que parecen iguales pero significan cosas muy distintas. Ninguna de las dos crea una clase nueva llamada "hero p" o "btn-principal hover" — el espacio (o su ausencia) es lo que cambia el significado.</p>
+  </div>
+
+  <div class="tip">
+    <h4>1️⃣ SIN espacio → pseudo-clase (mismo elemento, otro estado)</h4>
+    <p><code>.btn-principal:hover</code> se lee como una sola palabra: "el elemento con class <code>btn-principal</code>, pero solo en el estado <code>:hover</code> (mouse encima)". No es una clase distinta ni un elemento distinto — es <strong>el mismo</strong> <code>&lt;a class="btn-principal"&gt;</code>, nada más que le estás diciendo "cuando el mouse esté encima, usa estas reglas en vez de las normales".</p>
+    <span class="ejemplo" style="display:block;font-family:'DM Mono',monospace;font-size:.85rem;background:var(--code-bg);color:var(--code-text);padding:.6rem .8rem;border-radius:6px;margin-top:.5rem">.btn-principal        →  el botón, siempre
+.btn-principal:hover  →  el MISMO botón, solo mientras el mouse está encima</span>
+    <p style="margin-top:.6rem">Otros estados comunes que se pegan igual, sin espacio: <code>:focus</code> (cuando el elemento está seleccionado con teclado), <code>:active</code> (mientras se hace clic), <code>:last-child</code> (posición dentro de sus hermanos).</p>
+  </div>
+
+  <div class="tip">
+    <h4>2️⃣ CON espacio → selector descendiente (busca DENTRO de otro elemento)</h4>
+    <p><code>.nav-links a</code> y <code>.hero p</code> tienen un espacio entre las dos palabras, y ese espacio significa "busca el segundo selector, pero solo si está anidado dentro del primero". No existe una clase llamada <code>nav-links a</code> ni <code>hero p</code> en ningún lado del HTML — son <strong>dos selectores separados</strong> combinados en una sola regla.</p>
+    <span class="ejemplo" style="display:block;font-family:'DM Mono',monospace;font-size:.85rem;background:var(--code-bg);color:var(--code-text);padding:.6rem .8rem;border-radius:6px;margin-top:.5rem">.nav-links a  →  todo &lt;a&gt; que esté DENTRO de algo con class="nav-links"
+.hero p       →  todo &lt;p&gt; que esté DENTRO de algo con class="hero"</span>
+    <p style="margin-top:.6rem">Revisa el HTML de esta misma Parte 2: el <code>&lt;ul class="nav-links"&gt;</code> contiene varios <code>&lt;li&gt;&lt;a&gt;...&lt;/a&gt;&lt;/li&gt;</code> — esos <code>&lt;a&gt;</code> son los que recibe <code>.nav-links a</code>. Y la <code>&lt;section class="hero"&gt;</code> contiene un <code>&lt;p&gt;</code> con el texto descriptivo — ese es el que recibe <code>.hero p</code>. Si hubiera OTRO <code>&lt;p&gt;</code> en cualquier otra parte de la página que no estuviera dentro de <code>.hero</code>, esa regla NO lo tocaría.</p>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ Cómo no confundirlas</h4>
+    <p>Pregúntate: ¿hay un espacio en blanco entre las dos partes? <strong>Sin espacio</strong> (<code>.clase:pseudo-clase</code>) = mismo elemento, otro estado. <strong>Con espacio</strong> (<code>.clase-padre elemento-hijo</code>) = dos elementos distintos, uno dentro del otro. Un espacio de más o de menos cambia completamente el significado, y CSS no avisa del error — simplemente el estilo no se aplica donde esperabas.</p>
+  </div>
 </section>
 
 <!-- ══════════════════════════
@@ -830,6 +891,12 @@
       <span class="nivel nivel-a">🔴 Avanzado</span>
       <h4>Reto 3 — Barbero destacado</h4>
       <p>Agrega una sección "Nuestro equipo" con 2 <code>&lt;article&gt;</code> (nombre + especialidad). Al primero agrégale clase extra <code>"top"</code> y en CSS <code>.barbero.top</code> con <code>border: 2px solid var(--dorado)</code> y una etiqueta "★ Más solicitado" con <code>&lt;span&gt;</code>.</p>
+      <div class="tip" style="margin-top:.75rem">
+        <h4>💡 Un tercer patrón: dos clases pegadas, SIN espacio</h4>
+        <p><code>.barbero.top</code> es distinto a los dos casos de la Parte 2: aquí no hay <code>:</code> (no es pseudo-clase) ni espacio (no es descendiente). Dos selectores de clase pegados directamente significan "el elemento que tiene AMBAS clases a la vez". En el HTML se ve así:</p>
+        <span class="ejemplo" style="display:block;font-family:'DM Mono',monospace;font-size:.85rem;background:var(--code-bg);color:var(--code-text);padding:.6rem .8rem;border-radius:6px;margin:.5rem 0">&lt;article class="barbero top"&gt;...&lt;/article&gt;</span>
+        <p>En el HTML, las dos clases van juntas dentro del mismo atributo <code>class</code>, separadas por un espacio. En el CSS, en cambio, van pegadas sin espacio: <code>.barbero.top { ... }</code>. Si le pusieras un espacio en el CSS (<code>.barbero .top</code>) estarías pidiendo "un elemento con class <code>top</code> que esté DENTRO de otro con class <code>barbero</code>" — que es un selector completamente distinto y aquí no aplicaría a nada.</p>
+      </div>
     </div>
   </div>
 

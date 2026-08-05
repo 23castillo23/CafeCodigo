@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Repaso HTML — HolaMundo · Parte B</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #e85d2f;
+    --primary-light:  #fdf0ec;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1e1e2e;
+    --code-text:      #cdd6f4;
+  }
+
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  .topbar { background: #fff; border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; gap: 14px; position: sticky; top: 0; z-index: 200; height: 46px; }
+  .topbar a { font-size: 13px; color: var(--muted); text-decoration: none; padding: 5px 13px; border: 1px solid var(--border); border-radius: 999px; transition: all .15s; }
+  .topbar a:hover { color: var(--text); border-color: var(--muted); }
+  .topbar span { font-size: 13px; color: var(--muted); }
+
+  header { background: #1e1e2e; color: #cdd6f4; padding: 2.75rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: 'HTML'; position: absolute; font-size: 12rem; font-weight: 900; color: rgba(255,255,255,.04); right: -1rem; top: -2rem; font-family: monospace; line-height: 1; }
+  header .curso-badge { display: inline-flex; align-items: center; gap: .5rem; background: rgba(232,93,47,.2); border: 1px solid rgba(232,93,47,.4); border-radius: 20px; padding: 3px 14px; font-size: .75rem; font-weight: 700; color: #fab387; margin-bottom: .75rem; }
+  header h1 { font-size: 2.2rem; font-weight: 800; letter-spacing: -.5px; color: #cdd6f4; }
+  header p  { font-size: 1rem; opacity: .7; margin-top: .4rem; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); border-radius: 20px; padding: 3px 13px; font-size: .75rem; margin-top: .65rem; }
+
+  .partes-nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 46px; z-index: 110; display: flex; align-items: center; height: 38px; padding: 0 1rem; }
+  .partes-nav-prev, .partes-nav-next { flex-shrink: 0; display: flex; align-items: center; padding: 0 .75rem; height: 100%; text-decoration: none; color: var(--muted); font-size: .78rem; font-weight: 500; border-right: 1px solid var(--border); transition: color .15s; white-space: nowrap; }
+  .partes-nav-next { border-right: none; border-left: 1px solid var(--border); }
+  .partes-nav-prev:hover, .partes-nav-next:hover { color: var(--primary); }
+  .partes-nav-list { flex: 1; display: flex; align-items: center; justify-content: center; gap: .2rem; overflow-x: auto; padding: 0 .5rem; }
+  .partes-nav-list::-webkit-scrollbar { display: none; }
+  .partes-nav-list a { flex-shrink: 0; padding: 2px 10px; border-radius: 20px; text-decoration: none; font-size: .73rem; font-weight: 600; color: var(--muted); transition: color .15s, background .15s; }
+  .partes-nav-list a:hover { color: var(--text); background: var(--bg); }
+  .partes-nav-list a.activa { background: var(--primary-light); color: var(--primary); }
+
+  nav.sec-nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 84px; z-index: 100; display: flex; overflow-x: auto; }
+  nav.sec-nav a { flex-shrink: 0; padding: .7rem 1rem; text-decoration: none; color: var(--muted); font-size: .82rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav.sec-nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: white; border-radius: 20px; padding: 5px 16px; font-size: .8rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.75rem; margin-bottom: 2rem; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.6rem; flex-shrink: 0; }
+  .module-title { font-size: 1.2rem; font-weight: 700; }
+  .module-sub { font-size: .83rem; color: var(--muted); margin-top: 2px; }
+
+  .callout { border-radius: 0 10px 10px 0; padding: 1rem 1.2rem; margin: 1rem 0; }
+  .callout h4 { font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .35rem; }
+  .callout p, .callout ul { font-size: .93rem; }
+  .callout ul { padding-left: 1.2rem; }
+  .callout li { margin-bottom: .3rem; }
+  .callout.tip    { background: var(--secondary-light); border-left: 4px solid var(--secondary); }
+  .callout.tip h4 { color: var(--secondary); }
+  .callout.note   { background: var(--primary-light);   border-left: 4px solid var(--primary); }
+  .callout.note h4{ color: var(--primary); }
+  .callout.info   { background: var(--accent-light);    border-left: 4px solid var(--accent); }
+  .callout.info h4{ color: var(--accent); }
+
+  .code-wrap { position: relative; margin: .9rem 0; }
+  .code-block { background: var(--code-bg); color: var(--code-text); border-radius: 10px; padding: 1.2rem 1.4rem; font-family: 'DM Mono', monospace; font-size: .87rem; line-height: 1.9; overflow-x: auto; white-space: pre; }
+  .lang-tag { position: absolute; top: .55rem; right: .75rem; background: rgba(255,255,255,.08); color: rgba(255,255,255,.4); font-size: .65rem; padding: 2px 8px; border-radius: 4px; font-family: sans-serif; font-weight: 700; }
+  .ht { color: #89B4FA; }
+  .ha { color: #CBA6F7; }
+  .hv { color: #A6E3A1; }
+  .hc { color: #585B70; font-style: italic; }
+  .hs { color: #F9E2AF; }
+  .hk { color: #FAB387; }
+
+  .preview { border: 2px dashed var(--border); border-radius: 10px; padding: 1.25rem; margin: .9rem 0; background: #fff; position: relative; }
+  .preview::before { content: '🖥 Resultado en el navegador'; position: absolute; top: -11px; left: 14px; background: #fff; font-size: .72rem; color: var(--muted); padding: 0 6px; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: .9rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .6rem 1rem; text-align: left; font-weight: 700; }
+  .tbl td { padding: .6rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .82rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  .ejercicio { background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 12px; padding: 1.4rem; margin: 1.5rem 0; }
+  .ej-header { display: flex; align-items: center; gap: .6rem; margin-bottom: .85rem; font-weight: 700; color: #78350F; flex-wrap: wrap; }
+  .ej-badge { background: var(--accent); color: #fff; font-size: .67rem; padding: 2px 9px; border-radius: 20px; font-weight: 700; text-transform: uppercase; }
+  .ejercicio ol { padding-left: 1.35rem; }
+  .ejercicio ol li { margin-bottom: .55rem; font-size: .93rem; }
+  .ejercicio p { font-size: .93rem; margin-bottom: .5rem; }
+
+  h2 { font-size: 1.15rem; font-weight: 700; margin: 1.5rem 0 .6rem; }
+  h3 { font-size: .97rem; font-weight: 700; margin: 1.1rem 0 .4rem; }
+  p  { margin-bottom: .75rem; }
+  ul, ol { padding-left: 1.35rem; margin-bottom: .75rem; }
+  li { margin-bottom: .35rem; font-size: .95rem; }
+  code { font-family: 'DM Mono', monospace; background: #f0ece6; color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .88em; }
+  strong { font-weight: 700; }
+
+  /* ── DEMO HEADINGS ── */
+  .heading-demo { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; margin: .75rem 0; }
+  .heading-demo .hd-row { display: flex; align-items: baseline; gap: 1rem; padding: .35rem 0; border-bottom: 1px solid var(--border); }
+  .heading-demo .hd-row:last-child { border-bottom: none; }
+  .heading-demo .hd-tag  { font-family: 'DM Mono', monospace; font-size: .75rem; color: var(--primary); background: var(--primary-light); padding: 2px 7px; border-radius: 4px; flex-shrink: 0; width: 36px; text-align: center; }
+  .heading-demo .hd-text { color: var(--text); font-weight: 700; }
+  .hd-h1 { font-size: 2rem; }
+  .hd-h2 { font-size: 1.5rem; }
+  .hd-h3 { font-size: 1.17rem; }
+  .hd-h4 { font-size: 1rem; }
+  .hd-h5 { font-size: .83rem; }
+  .hd-h6 { font-size: .67rem; color: var(--muted) !important; }
+  .hd-size { font-size: .72rem; color: var(--muted); font-family: monospace; margin-left: auto; }
+
+  /* ── QUICK FACT ── */
+  .quick-fact { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: .85rem 1.1rem; margin: .75rem 0; display: flex; gap: .75rem; align-items: flex-start; font-size: .92rem; }
+  .qf-icon { font-size: 1.3rem; flex-shrink: 0; }
+
+  /* ── ANATOMY ── */
+  .html-anatomy { background: #1e1e2e; border-radius: 12px; padding: 1.25rem 1.5rem; font-family: 'DM Mono', monospace; font-size: .87rem; line-height: 2.4; margin: .9rem 0; }
+  .ana-tag  { color: #89B4FA; }
+  .ana-attr { color: #CBA6F7; }
+  .ana-val  { color: #A6E3A1; }
+  .ana-txt  { color: #cdd6f4; }
+  .ana-com  { color: #585B70; font-style: italic; }
+  .ana-lbl  { display: inline-block; background: var(--primary); color: white; font-size: .65rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 8px; font-weight: 700; }
+  .ana-lbl2 { display: inline-block; background: var(--secondary); color: white; font-size: .65rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 8px; font-weight: 700; }
+  .ana-lbl3 { display: inline-block; background: var(--accent); color: white; font-size: .65rem; padding: 1px 8px; border-radius: 20px; font-family: sans-serif; vertical-align: middle; margin-left: 8px; font-weight: 700; }
+
+  /* ── COMPARATIVA ── */
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+  @media (max-width: 600px) { .compare { grid-template-columns: 1fr; } }
+  .compare-box { border-radius: 10px; padding: 1rem; border: 1px solid var(--border); }
+  .compare-box.bad  { background: #fff0f0; border-left: 4px solid #EF4444; }
+  .compare-box.good { background: var(--secondary-light); border-left: 4px solid var(--secondary); }
+  .compare-box .cb-label { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: .5rem; }
+  .compare-box.bad  .cb-label { color: #EF4444; }
+  .compare-box.good .cb-label { color: var(--secondary); }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .83rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="../capitulos.html?tab=guias">← Café &lt;/&gt;</a>
+  <span>☕ Repaso HTML · HolaMundo · Parte B</span>
+</div>
+
+<header>
+  <div class="curso-badge">📺 HolaMundo — Aprende HTML ahora · 12:18 – 20:20</div>
+  <h1>Repaso HTML — Parte B</h1>
+  <p>DOCTYPE, etiquetas html / head / body / title, títulos h1–h6 y párrafos</p>
+  <span class="badge">✦ Repaso rápido desde otro punto de vista ✦</span>
+</header>
+
+<div class="partes-nav">
+  <a class="partes-nav-prev" href="holamundo-html-parte-A.html">← A</a>
+  <div class="partes-nav-list">
+    <a href="holamundo-html-parte-A.html">A</a>
+    <a href="holamundo-html-parte-B.html" class="activa">B ✦</a>
+    <a href="holamundo-html-parte-C.html">C</a>
+    <a href="holamundo-html-parte-D.html">D</a>
+    <a href="holamundo-html-parte-E.html">E</a>
+  </div>
+  <a class="partes-nav-next" href="holamundo-html-parte-C.html">C →</a>
+</div>
+
+<nav class="sec-nav">
+  <a href="#doctype">📄 DOCTYPE</a>
+  <a href="#html-tag">🌐 &lt;html&gt;</a>
+  <a href="#head">🧠 &lt;head&gt;</a>
+  <a href="#body">👁 &lt;body&gt;</a>
+  <a href="#title">🏷 &lt;title&gt;</a>
+  <a href="#headings">📐 Títulos h1–h6</a>
+  <a href="#parrafos">📝 Párrafos</a>
+  <a href="#ejercicio">✏️ Ejercicio</a>
+</nav>
+
+<main>
+<div class="parte-badge">📦 Parte B — HolaMundo · 12:18 – 20:20</div>
+
+
+<!-- ════════════════════════════════════
+     DOCTYPE
+════════════════════════════════════ -->
+<section class="module" id="doctype">
+  <div class="module-header">
+    <div class="module-icon">📄</div>
+    <div>
+      <div class="module-title">DOCTYPE — La primera línea de todo archivo HTML</div>
+      <div class="module-sub">Le avisa al navegador qué versión de HTML estás usando</div>
+    </div>
+  </div>
+
+  <p>El <code>&lt;!DOCTYPE html&gt;</code> siempre va en la <strong>primera línea</strong> del archivo, antes de cualquier otra cosa. No es una etiqueta HTML, es una <strong>declaración</strong> que le dice al navegador: "este archivo es HTML5, renderízalo correctamente".</p>
+
+  <div class="code-wrap">
+    <div class="code-block"><span class="hc">&lt;!-- Primera línea obligatoria de todo archivo HTML --&gt;</span>
+<span class="ht">&lt;!DOCTYPE html&gt;</span>
+
+<span class="hc">&lt;!-- No lleva etiqueta de cierre --&gt;</span>
+<span class="hc">&lt;!-- No distingue mayúsculas (pero la forma estándar es minúsculas) --&gt;</span>
+<span class="hc">&lt;!-- En HTML5 es simplemente "html" — en versiones anteriores era más largo --&gt;</span></div>
+    <div class="lang-tag">HTML</div>
+  </div>
+
+  <div class="compare">
+    <div class="compare-box bad">
+      <div class="cb-label">❌ HTML antiguo (antes de HTML5)</div>
+      <code style="font-size:.75rem;word-break:break-all">&lt;!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd"&gt;</code>
+      <p style="font-size:.82rem;margin-top:.5rem;color:#666">Largo, difícil de recordar y diferente según la versión</p>
+    </div>
+    <div class="compare-box good">
+      <div class="cb-label">✅ HTML5 (lo que usamos hoy)</div>
+      <code style="font-size:.9rem">&lt;!DOCTYPE html&gt;</code>
+      <p style="font-size:.82rem;margin-top:.5rem">Simple, corto y fácil de recordar. HTML5 es el estándar actual.</p>
+    </div>
+  </div>
+
+  <div class="quick-fact">
+    <span class="qf-icon">💡</span>
+    <div>Si olvidas el DOCTYPE, el navegador entra en "quirks mode" (modo de compatibilidad antigua) y puede renderizar tu página de forma incorrecta. Siempre ponla.</div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════
+     ETIQUETA HTML
+════════════════════════════════════ -->
+<section class="module" id="html-tag">
+  <div class="module-header">
+    <div class="module-icon">🌐</div>
+    <div>
+      <div class="module-title">&lt;html&gt; — El elemento raíz</div>
+      <div class="module-sub">El contenedor que envuelve absolutamente todo el documento</div>
+    </div>
+  </div>
+
+  <p>Después del DOCTYPE viene <code>&lt;html&gt;</code> — es el elemento raíz que contiene todo lo demás. El atributo más importante que lleva es <code>lang</code>, que indica el idioma del contenido.</p>
+
+  <div class="code-wrap">
+    <div class="code-block"><span class="hc">&lt;!-- El atributo lang es importante para accesibilidad y SEO --&gt;</span>
+<span class="ht">&lt;html</span> <span class="ha">lang</span>=<span class="hs">"es"</span><span class="ht">&gt;</span>        <span class="hc">&lt;!-- Español --&gt;</span>
+<span class="ht">&lt;html</span> <span class="ha">lang</span>=<span class="hs">"en"</span><span class="ht">&gt;</span>        <span class="hc">&lt;!-- Inglés --&gt;</span>
+<span class="ht">&lt;html</span> <span class="ha">lang</span>=<span class="hs">"es-MX"</span><span class="ht">&gt;</span>     <span class="hc">&lt;!-- Español de México --&gt;</span>
+<span class="ht">&lt;html</span> <span class="ha">lang</span>=<span class="hs">"pt-BR"</span><span class="ht">&gt;</span>     <span class="hc">&lt;!-- Portugués de Brasil --&gt;</span></div>
+    <div class="lang-tag">HTML</div>
+  </div>
+
+  <div class="callout tip">
+    <h4>🟢 ¿Por qué importa el atributo lang?</h4>
+    <ul>
+      <li>Los <strong>lectores de pantalla</strong> lo usan para pronunciar el texto correctamente</li>
+      <li><strong>Google</strong> lo usa para saber en qué idioma está la página</li>
+      <li>El navegador puede ofrecer <strong>traducción automática</strong> basada en este atributo</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════
+     HEAD
+════════════════════════════════════ -->
+<section class="module" id="head">
+  <div class="module-header">
+    <div class="module-icon">🧠</div>
+    <div>
+      <div class="module-title">&lt;head&gt; — La cabeza del documento</div>
+      <div class="module-sub">Información para el navegador que el usuario NO ve directamente</div>
+    </div>
+  </div>
+
+  <p>El <code>&lt;head&gt;</code> es como las instrucciones traseras de un libro — el usuario no las lee, pero son esenciales para que todo funcione. Aquí va la configuración de la página.</p>
+
+  <div class="html-anatomy">
+<span class="ana-tag">&lt;head&gt;</span>
+
+  <span class="ana-tag">&lt;meta</span> <span class="ana-attr">charset</span>=<span class="ana-val">"UTF-8"</span><span class="ana-tag">&gt;</span><span class="ana-lbl">Codificación — permite acentos y ñ</span>
+
+  <span class="ana-tag">&lt;meta</span> <span class="ana-attr">name</span>=<span class="ana-val">"viewport"</span>
+        <span class="ana-attr">content</span>=<span class="ana-val">"width=device-width, initial-scale=1.0"</span><span class="ana-tag">&gt;</span><span class="ana-lbl2">Responsive en móviles</span>
+
+  <span class="ana-tag">&lt;title&gt;</span><span class="ana-txt">Mi página</span><span class="ana-tag">&lt;/title&gt;</span><span class="ana-lbl3">Texto de la pestaña del navegador</span>
+
+  <span class="ana-tag">&lt;link</span> <span class="ana-attr">rel</span>=<span class="ana-val">"stylesheet"</span> <span class="ana-attr">href</span>=<span class="ana-val">"style.css"</span><span class="ana-tag">&gt;</span><span class="ana-lbl">Enlaza el archivo CSS</span>
+
+<span class="ana-tag">&lt;/head&gt;</span>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Etiqueta / atributo</th><th>Qué hace</th><th>¿Obligatorio?</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">&lt;meta charset="UTF-8"&gt;</span></td><td>Define la codificación de caracteres. UTF-8 soporta acentos, ñ, emojis y cualquier idioma.</td><td>Sí, siempre</td></tr>
+      <tr><td><span class="tag">&lt;meta name="viewport"&gt;</span></td><td>Hace que la página se vea bien en móviles y tablets. Sin esto todo se ve muy pequeño en celular.</td><td>Sí, siempre</td></tr>
+      <tr><td><span class="tag">&lt;title&gt;</span></td><td>Texto que aparece en la pestaña del navegador y en los resultados de Google.</td><td>Sí, siempre</td></tr>
+      <tr><td><span class="tag">&lt;link rel="stylesheet"&gt;</span></td><td>Conecta un archivo CSS externo para dar estilos a la página.</td><td>Cuando uses CSS externo</td></tr>
+      <tr><td><span class="tag">&lt;meta name="description"&gt;</span></td><td>Descripción que Google muestra bajo el título en los resultados de búsqueda.</td><td>Recomendado para SEO</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout note">
+    <h4>⚠️ Importante</h4>
+    <p>Todo lo que está en el <code>&lt;head&gt;</code> es invisible para el usuario en la página. Si pones texto dentro del head, no aparecerá. El contenido visible siempre va en el <code>&lt;body&gt;</code>.</p>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════
+     BODY
+════════════════════════════════════ -->
+<section class="module" id="body">
+  <div class="module-header">
+    <div class="module-icon">👁️</div>
+    <div>
+      <div class="module-title">&lt;body&gt; — El cuerpo visible de la página</div>
+      <div class="module-sub">Todo lo que el usuario ve va aquí — sin excepción</div>
+    </div>
+  </div>
+
+  <p>El <code>&lt;body&gt;</code> es donde vive todo el contenido visible: textos, imágenes, botones, formularios, links, videos… absolutamente todo lo que el usuario puede ver e interactuar.</p>
+
+  <div class="code-wrap">
+    <div class="code-block"><span class="ht">&lt;body&gt;</span>
+
+  <span class="hc">&lt;!-- Todo esto es visible en el navegador --&gt;</span>
+
+  <span class="ht">&lt;h1&gt;</span>Título principal<span class="ht">&lt;/h1&gt;</span>
+  <span class="ht">&lt;p&gt;</span>Un párrafo de texto<span class="ht">&lt;/p&gt;</span>
+  <span class="ht">&lt;img</span> <span class="ha">src</span>=<span class="hs">"foto.jpg"</span> <span class="ha">alt</span>=<span class="hs">"descripción"</span><span class="ht">&gt;</span>
+  <span class="ht">&lt;a</span> <span class="ha">href</span>=<span class="hs">"https://google.com"</span><span class="ht">&gt;</span>Ir a Google<span class="ht">&lt;/a&gt;</span>
+
+<span class="ht">&lt;/body&gt;</span></div>
+    <div class="lang-tag">HTML</div>
+  </div>
+
+  <div class="preview">
+    <h1 style="font-size:1.5rem;font-weight:900;margin-bottom:.4rem">Título principal</h1>
+    <p style="margin-bottom:.4rem;font-size:.9rem">Un párrafo de texto</p>
+    <div style="width:60px;height:40px;background:var(--primary-light);border:1px solid var(--border);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:.7rem;color:var(--muted);margin-bottom:.4rem">📷 img</div>
+    <a href="#" style="color:#0066cc;font-size:.9rem">Ir a Google</a>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════
+     TITLE
+════════════════════════════════════ -->
+<section class="module" id="title">
+  <div class="module-header">
+    <div class="module-icon">🏷️</div>
+    <div>
+      <div class="module-title">&lt;title&gt; — El nombre de la pestaña</div>
+      <div class="module-sub">Lo que aparece en la pestaña del navegador y en Google</div>
+    </div>
+  </div>
+
+  <p>La etiqueta <code>&lt;title&gt;</code> va dentro del <code>&lt;head&gt;</code> y define el texto que aparece en la pestaña del navegador. También es lo que Google muestra como título en los resultados de búsqueda.</p>
+
+  <div class="code-wrap">
+    <div class="code-block"><span class="ht">&lt;head&gt;</span>
+  <span class="ht">&lt;title&gt;</span>Mi primera web — Hugo<span class="ht">&lt;/title&gt;</span>
+<span class="ht">&lt;/head&gt;</span></div>
+    <div class="lang-tag">HTML</div>
+  </div>
+
+  <div class="preview">
+    <p style="font-size:.8rem;color:var(--muted);margin-bottom:.5rem">Así se ve en la pestaña del navegador:</p>
+    <div style="background:#f0f0f0;border-radius:8px 8px 0 0;display:inline-flex;align-items:center;gap:.4rem;padding:.35rem .9rem;font-size:.78rem;border:1px solid #ddd;border-bottom:none">
+      <span>🌐</span>
+      <span style="font-weight:600">Mi primera web — Hugo</span>
+      <span style="color:#999;margin-left:.3rem">✕</span>
+    </div>
+    <div style="background:white;border:1px solid #ddd;padding:1rem;border-radius:0 8px 8px 8px;font-size:.85rem;color:#666">contenido de la página…</div>
+  </div>
+
+  <div class="callout tip">
+    <h4>🟢 Buenas prácticas para el title</h4>
+    <ul>
+      <li>Describe claramente qué es la página — no uses solo "Inicio" o "index"</li>
+      <li>Máximo 60 caracteres para que no se corte en Google</li>
+      <li>Patrón común: <code>Nombre de la página — Nombre del sitio</code></li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════
+     HEADINGS h1–h6
+════════════════════════════════════ -->
+<section class="module" id="headings">
+  <div class="module-header">
+    <div class="module-icon">📐</div>
+    <div>
+      <div class="module-title">Títulos h1–h6 — La jerarquía del contenido</div>
+      <div class="module-sub">Seis niveles de encabezado para organizar la información</div>
+    </div>
+  </div>
+
+  <p>HTML tiene 6 niveles de títulos, del <code>&lt;h1&gt;</code> al <code>&lt;h6&gt;</code>. El número indica la jerarquía: h1 es el más importante y grande, h6 el menos importante y pequeño. Los usa el navegador, los lectores de pantalla y Google para entender la estructura del contenido.</p>
+
+  <div class="code-wrap">
+    <div class="code-block"><span class="ht">&lt;h1&gt;</span>Título principal — solo uno por página<span class="ht">&lt;/h1&gt;</span>
+<span class="ht">&lt;h2&gt;</span>Sección principal<span class="ht">&lt;/h2&gt;</span>
+<span class="ht">&lt;h3&gt;</span>Subsección<span class="ht">&lt;/h3&gt;</span>
+<span class="ht">&lt;h4&gt;</span>Subsección de nivel 4<span class="ht">&lt;/h4&gt;</span>
+<span class="ht">&lt;h5&gt;</span>Subsección de nivel 5<span class="ht">&lt;/h5&gt;</span>
+<span class="ht">&lt;h6&gt;</span>Subsección de nivel 6<span class="ht">&lt;/h6&gt;</span></div>
+    <div class="lang-tag">HTML</div>
+  </div>
+
+  <div class="preview">
+    <div class="heading-demo">
+      <div class="hd-row">
+        <span class="hd-tag">h1</span>
+        <span class="hd-text hd-h1">Chanchito Felipe</span>
+        <span class="hd-size">~32px</span>
+      </div>
+      <div class="hd-row">
+        <span class="hd-tag">h2</span>
+        <span class="hd-text hd-h2">Chanchito Felipe</span>
+        <span class="hd-size">~24px</span>
+      </div>
+      <div class="hd-row">
+        <span class="hd-tag">h3</span>
+        <span class="hd-text hd-h3">Chanchito Felipe</span>
+        <span class="hd-size">~18.7px</span>
+      </div>
+      <div class="hd-row">
+        <span class="hd-tag">h4</span>
+        <span class="hd-text hd-h4">Chanchito Felipe</span>
+        <span class="hd-size">~16px</span>
+      </div>
+      <div class="hd-row">
+        <span class="hd-tag">h5</span>
+        <span class="hd-text hd-h5">Chanchito Felipe</span>
+        <span class="hd-size">~13.3px</span>
+      </div>
+      <div class="hd-row">
+        <span class="hd-tag">h6</span>
+        <span class="hd-text hd-h6">Chanchito Felipe</span>
+        <span class="hd-size">~10.7px</span>
+      </div>
+    </div>
+    <p style="font-size:.78rem;color:var(--muted);margin-top:.4rem">Estos son los tamaños por defecto del navegador. Con CSS puedes cambiarlos a lo que quieras.</p>
+  </div>
+
+  <h2>Reglas importantes de los headings</h2>
+  <div class="compare">
+    <div class="compare-box bad">
+      <div class="cb-label">❌ Mal uso</div>
+      <div class="code-block" style="font-size:.78rem;margin:0;white-space:pre"><span class="hc">&lt;!-- Dos h1 en la misma página --&gt;</span>
+<span class="ht">&lt;h1&gt;</span>Mi Blog<span class="ht">&lt;/h1&gt;</span>
+<span class="ht">&lt;h1&gt;</span>Sobre mí<span class="ht">&lt;/h1&gt;</span>
+
+<span class="hc">&lt;!-- Saltar niveles --&gt;</span>
+<span class="ht">&lt;h1&gt;</span>Título<span class="ht">&lt;/h1&gt;</span>
+<span class="ht">&lt;h4&gt;</span>Subtítulo<span class="ht">&lt;/h4&gt;</span></div>
+    </div>
+    <div class="compare-box good">
+      <div class="cb-label">✅ Buen uso</div>
+      <div class="code-block" style="font-size:.78rem;margin:0;white-space:pre"><span class="hc">&lt;!-- Un solo h1 --&gt;</span>
+<span class="ht">&lt;h1&gt;</span>Mi Blog<span class="ht">&lt;/h1&gt;</span>
+
+<span class="hc">&lt;!-- Jerarquía ordenada --&gt;</span>
+<span class="ht">&lt;h2&gt;</span>Sobre mí<span class="ht">&lt;/h2&gt;</span>
+<span class="ht">&lt;h3&gt;</span>Mi historia<span class="ht">&lt;/h3&gt;</span>
+<span class="ht">&lt;h3&gt;</span>Mis hobbies<span class="ht">&lt;/h3&gt;</span></div>
+    </div>
+  </div>
+
+  <div class="callout note">
+    <h4>⚠️ La regla del h1</h4>
+    <p>Solo debe haber <strong>un h1 por página</strong>. Es el título principal — como el título de un libro. El resto del contenido se organiza con h2, h3, etc. Tener varios h1 confunde a Google y a los lectores de pantalla.</p>
+  </div>
+
+  <div class="callout tip">
+    <h4>🟢 Los headings no son para hacer texto grande</h4>
+    <p>Un error muy común de principiantes es usar <code>&lt;h3&gt;</code> solo porque quieren texto de cierto tamaño. <strong>Los headings son semánticos</strong> — indican jerarquía de contenido, no tamaño visual. Para cambiar el tamaño del texto usa CSS. Usa los headings según su significado en la estructura del contenido.</p>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════
+     PÁRRAFOS
+════════════════════════════════════ -->
+<section class="module" id="parrafos">
+  <div class="module-header">
+    <div class="module-icon">📝</div>
+    <div>
+      <div class="module-title">&lt;p&gt; — Párrafos de texto</div>
+      <div class="module-sub">La etiqueta más usada para mostrar texto en la web</div>
+    </div>
+  </div>
+
+  <p>La etiqueta <code>&lt;p&gt;</code> define un párrafo de texto. El navegador automáticamente agrega un espacio arriba y abajo de cada párrafo para separarlos visualmente.</p>
+
+  <div class="code-wrap">
+    <div class="code-block"><span class="ht">&lt;p&gt;</span>Chanchito feliz está muy feliz.<span class="ht">&lt;/p&gt;</span>
+<span class="ht">&lt;p&gt;</span>Chanchito triste está muy triste.<span class="ht">&lt;/p&gt;</span>
+
+<span class="hc">&lt;!-- Cada &lt;p&gt; crea un bloque separado --&gt;</span>
+<span class="hc">&lt;!-- El navegador agrega margen arriba y abajo automáticamente --&gt;</span></div>
+    <div class="lang-tag">HTML</div>
+  </div>
+
+  <div class="preview">
+    <p style="margin-bottom:.75rem">Chanchito feliz está muy feliz.</p>
+    <p>Chanchito triste está muy triste.</p>
+  </div>
+
+  <h2>El comportamiento del texto en HTML — algo que sorprende</h2>
+  <p>En HTML, los <strong>espacios en blanco y los saltos de línea en el código no se respetan</strong> en el navegador. Puedes escribir el texto en varias líneas en tu editor, pero el navegador lo junta todo en una sola línea.</p>
+
+  <div class="compare">
+    <div class="compare-box bad">
+      <div class="cb-label">❌ Lo que escribes en el código</div>
+      <div class="code-block" style="font-size:.78rem;margin:0;white-space:pre"><span class="ht">&lt;p&gt;</span>
+  Este texto tiene
+  muchos saltos
+  de línea
+  en el código.
+<span class="ht">&lt;/p&gt;</span></div>
+    </div>
+    <div class="compare-box good">
+      <div class="cb-label">✅ Lo que el navegador muestra</div>
+      <div style="background:white;border-radius:6px;padding:.75rem;font-size:.85rem">
+        Este texto tiene muchos saltos de línea en el código.
+        <p style="font-size:.75rem;color:var(--muted);margin-top:.4rem">El navegador ignora los saltos de línea del código y junta todo</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout note">
+    <h4>⚠️ Si quieres un salto de línea dentro de un párrafo</h4>
+    <p>Usa la etiqueta <code>&lt;br&gt;</code> (break). Pero úsala con moderación — para saltos de línea dentro de un mismo bloque de contenido (como una dirección o un poema), no para crear separación entre párrafos. Para eso, usa dos etiquetas <code>&lt;p&gt;</code> separadas.</p>
+  </div>
+
+  <h2>Resumen visual — la estructura completa hasta aquí</h2>
+
+  <div class="html-anatomy">
+<span class="ana-tag">&lt;!DOCTYPE html&gt;</span>
+<span class="ana-tag">&lt;html</span> <span class="ana-attr">lang</span>=<span class="ana-val">"es"</span><span class="ana-tag">&gt;</span>
+
+  <span class="ana-tag">&lt;head&gt;</span>                             <span class="ana-com">&lt;!-- invisible para el usuario --&gt;</span>
+    <span class="ana-tag">&lt;meta</span> <span class="ana-attr">charset</span>=<span class="ana-val">"UTF-8"</span><span class="ana-tag">&gt;</span>
+    <span class="ana-tag">&lt;meta</span> <span class="ana-attr">name</span>=<span class="ana-val">"viewport"</span> <span class="ana-attr">content</span>=<span class="ana-val">"width=device-width, initial-scale=1.0"</span><span class="ana-tag">&gt;</span>
+    <span class="ana-tag">&lt;title&gt;</span><span class="ana-txt">Mi primera web</span><span class="ana-tag">&lt;/title&gt;</span>
+  <span class="ana-tag">&lt;/head&gt;</span>
+
+  <span class="ana-tag">&lt;body&gt;</span>                             <span class="ana-com">&lt;!-- todo lo que el usuario VE --&gt;</span>
+
+    <span class="ana-tag">&lt;h1&gt;</span><span class="ana-txt">Chanchito Felipe</span><span class="ana-tag">&lt;/h1&gt;</span>         <span class="ana-com">&lt;!-- solo un h1 --&gt;</span>
+    <span class="ana-tag">&lt;h2&gt;</span><span class="ana-txt">Su historia</span><span class="ana-tag">&lt;/h2&gt;</span>
+    <span class="ana-tag">&lt;p&gt;</span><span class="ana-txt">Chanchito feliz está muy feliz.</span><span class="ana-tag">&lt;/p&gt;</span>
+    <span class="ana-tag">&lt;p&gt;</span><span class="ana-txt">Chanchito triste está muy triste.</span><span class="ana-tag">&lt;/p&gt;</span>
+
+  <span class="ana-tag">&lt;/body&gt;</span>
+
+<span class="ana-tag">&lt;/html&gt;</span>
+  </div>
+
+  <div class="preview">
+    <h1 style="font-size:1.6rem;font-weight:900;margin-bottom:.3rem">Chanchito Felipe</h1>
+    <h2 style="font-size:1.15rem;font-weight:700;margin-bottom:.5rem">Su historia</h2>
+    <p style="margin-bottom:.4rem;font-size:.9rem">Chanchito feliz está muy feliz.</p>
+    <p style="font-size:.9rem">Chanchito triste está muy triste.</p>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════
+     EJERCICIO
+════════════════════════════════════ -->
+<section class="module" id="ejercicio">
+  <div class="module-header">
+    <div class="module-icon">✏️</div>
+    <div>
+      <div class="module-title">Ejercicio — Página sobre ti con estructura completa</div>
+      <div class="module-sub">Aplica DOCTYPE, head, body, headings y párrafos</div>
+    </div>
+  </div>
+
+  <div class="ejercicio">
+    <div class="ej-header">✏️ Ejercicio Parte B — Página personal <span class="ej-badge">Principiante</span></div>
+    <p>Abre tu archivo <code>index.html</code> del ejercicio anterior y reemplaza el contenido del body con lo siguiente:</p>
+    <ol>
+      <li>Un <code>&lt;h1&gt;</code> con tu nombre completo.</li>
+      <li>Un <code>&lt;h2&gt;</code> que diga "Sobre mí".</li>
+      <li>Un <code>&lt;p&gt;</code> con 2–3 oraciones describiéndote.</li>
+      <li>Un <code>&lt;h2&gt;</code> que diga "Lo que estoy aprendiendo".</li>
+      <li>Un <code>&lt;p&gt;</code> que diga qué estás aprendiendo (HTML, CSS, JS…).</li>
+      <li>Un <code>&lt;h2&gt;</code> que diga "Mis metas".</li>
+      <li>Mínimo 2 <code>&lt;p&gt;</code> con tus metas de programación.</li>
+      <li>Verifica que el <code>&lt;title&gt;</code> diga tu nombre, no "Document".</li>
+      <li>Verifica que <code>lang="es"</code> esté en la etiqueta <code>&lt;html&gt;</code>.</li>
+    </ol>
+    <p style="margin-top:.75rem"><strong>Bonus:</strong> Agrega un <code>&lt;h3&gt;</code> dentro de alguna sección para practicar la jerarquía de headings.</p>
+  </div>
+
+  <div class="callout tip">
+    <h4>🟢 Resumen de la Parte B</h4>
+    <ul>
+      <li><code>&lt;!DOCTYPE html&gt;</code> — primera línea, declara HTML5, sin cierre</li>
+      <li><code>&lt;html lang="es"&gt;</code> — elemento raíz, el idioma importa</li>
+      <li><code>&lt;head&gt;</code> — configuración invisible: charset, viewport, title</li>
+      <li><code>&lt;meta charset="UTF-8"&gt;</code> — para acentos y ñ, siempre</li>
+      <li><code>&lt;meta name="viewport"&gt;</code> — imprescindible para móviles</li>
+      <li><code>&lt;title&gt;</code> — nombre en la pestaña y en Google, max 60 chars</li>
+      <li><code>&lt;body&gt;</code> — todo lo visible va aquí, sin excepción</li>
+      <li><code>&lt;h1&gt;</code> al <code>&lt;h6&gt;</code> — jerarquía de títulos, solo un h1 por página</li>
+      <li><code>&lt;p&gt;</code> — párrafo de texto, el navegador agrega espacio arriba y abajo</li>
+      <li>Los saltos de línea del código no se respetan en el navegador</li>
+    </ul>
+  </div>
+
+  <div class="callout info">
+    <h4>💡 ¿Qué sigue? — Parte C</h4>
+    <p>En la Parte C vemos las etiquetas de formato inline: <strong>línea horizontal, comentarios, etiqueta span, salto de línea, hipervínculos e imágenes</strong>. Del 21:40 al 29:37 del video — el momento en que la página empieza a tener links y fotos.</p>
+  </div>
+</section>
+</main>
+
+<footer>
+  Repaso HTML · HolaMundo · Parte B · Basado en "Aprende HTML ahora!" de HolaMundo · Hugo 2025
+</footer>
+
+</body>
+</html>

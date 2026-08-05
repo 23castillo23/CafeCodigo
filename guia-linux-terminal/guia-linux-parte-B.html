@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía Linux · Parte B</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #2ecc71;
+    --primary-dark:   #1a9e52;
+    --primary-light:  #eafaf1;
+    --secondary:      #3498db;
+    --accent:         #e67e22;
+    --bg:             #0d1117;
+    --bg2:            #161b22;
+    --bg3:            #21262d;
+    --surface:        #1c2128;
+    --text:           #e6edf3;
+    --muted:          #7d8590;
+    --border:         #30363d;
+    --code-bg:        #0d1117;
+    --green:          #3fb950;
+    --yellow:         #d29922;
+    --blue:           #58a6ff;
+    --purple:         #bc8cff;
+    --red:            #f85149;
+    --orange:         #ffa657;
+    --cyan:           #39d353;
+  }
+
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  .topbar { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; gap: 14px; position: sticky; top: 0; z-index: 200; height: 46px; }
+  .topbar a { font-size: 13px; color: var(--muted); text-decoration: none; padding: 5px 13px; border: 1px solid var(--border); border-radius: 999px; transition: all .15s; }
+  .topbar a:hover { color: var(--text); border-color: var(--muted); }
+  .topbar span { font-size: 13px; color: var(--muted); }
+
+  header { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 2.5rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: '$'; position: absolute; font-size: 16rem; font-weight: 900; color: rgba(46,204,113,.04); right: 0; top: -2rem; font-family: monospace; line-height: 1; }
+  header .curso-badge { display: inline-flex; align-items: center; gap: .5rem; background: rgba(46,204,113,.15); border: 1px solid rgba(46,204,113,.3); border-radius: 20px; padding: 3px 14px; font-size: .75rem; font-weight: 700; color: var(--green); margin-bottom: .75rem; }
+  header h1 { font-size: 2.2rem; font-weight: 800; letter-spacing: -.5px; color: var(--text); }
+  header h1 span { color: var(--primary); }
+  header p  { font-size: 1rem; color: var(--muted); margin-top: .4rem; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.06); border: 1px solid var(--border); border-radius: 20px; padding: 3px 13px; font-size: .75rem; margin-top: .65rem; color: var(--muted); }
+
+  .partes-nav { background: var(--bg2); border-bottom: 1px solid var(--border); position: sticky; top: 46px; z-index: 110; display: flex; align-items: center; height: 38px; padding: 0 1rem; }
+  .partes-nav-prev, .partes-nav-next { flex-shrink: 0; display: flex; align-items: center; padding: 0 .75rem; height: 100%; text-decoration: none; color: var(--muted); font-size: .78rem; font-weight: 500; border-right: 1px solid var(--border); transition: color .15s; white-space: nowrap; }
+  .partes-nav-next { border-right: none; border-left: 1px solid var(--border); }
+  .partes-nav-prev:hover, .partes-nav-next:hover { color: var(--primary); }
+  .partes-nav-list { flex: 1; display: flex; align-items: center; justify-content: center; gap: .2rem; }
+  .partes-nav-list a { padding: 2px 10px; border-radius: 20px; text-decoration: none; font-size: .73rem; font-weight: 600; color: var(--muted); transition: color .15s, background .15s; }
+  .partes-nav-list a:hover { color: var(--text); background: var(--bg3); }
+  .partes-nav-list a.activa { background: rgba(46,204,113,.15); color: var(--green); }
+
+  nav.sec-nav { background: var(--bg2); border-bottom: 1px solid var(--border); position: sticky; top: 84px; z-index: 100; display: flex; overflow-x: auto; }
+  nav.sec-nav::-webkit-scrollbar { display: none; }
+  nav.sec-nav a { flex-shrink: 0; padding: .65rem 1rem; text-decoration: none; color: var(--muted); font-size: .82rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav.sec-nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 940px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary-dark); color: white; border-radius: 20px; padding: 5px 16px; font-size: .8rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  .module { background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; padding: 1.75rem; margin-bottom: 2rem; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.6rem; flex-shrink: 0; }
+  .module-title { font-size: 1.2rem; font-weight: 700; }
+  .module-sub { font-size: .83rem; color: var(--muted); margin-top: 2px; }
+
+  /* ── TERMINAL ── */
+  .terminal { background: var(--code-bg); border: 1px solid var(--border); border-radius: 10px; margin: .9rem 0; overflow: hidden; }
+  .terminal-bar { background: var(--bg3); padding: .45rem .85rem; display: flex; align-items: center; gap: .4rem; border-bottom: 1px solid var(--border); }
+  .tb-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .tb-red { background: #ff5f57; } .tb-yellow { background: #ffbd2e; } .tb-green { background: #28c840; }
+  .tb-title { margin-left: .5rem; font-size: .72rem; color: var(--muted); font-family: 'DM Mono', monospace; }
+  .terminal-body { padding: 1.1rem 1.3rem; font-family: 'DM Mono', monospace; font-size: .87rem; line-height: 2; }
+  .t-prompt  { color: var(--green); }
+  .t-cmd     { color: var(--text); }
+  .t-flag    { color: var(--orange); }
+  .t-arg     { color: var(--blue); }
+  .t-out     { color: var(--muted); display: block; }
+  .t-comment { color: #3d4a3d; font-style: italic; display: block; }
+  .t-path    { color: var(--purple); }
+  .t-err     { color: var(--red); display: block; }
+  .t-key     { color: var(--yellow); }
+  .t-ins     { color: var(--cyan); }
+
+  /* ── EDITOR SIMULADO ── */
+  .editor-sim { border-radius: 10px; overflow: hidden; margin: .9rem 0; border: 1px solid var(--border); }
+  .editor-bar { padding: .45rem .85rem; display: flex; align-items: center; gap: .4rem; border-bottom: 1px solid var(--border); font-family: 'DM Mono', monospace; font-size: .72rem; color: var(--muted); justify-content: space-between; }
+  .editor-body { padding: 1rem 1.2rem; font-family: 'DM Mono', monospace; font-size: .85rem; line-height: 1.9; min-height: 80px; }
+  .ed-nano { background: #001f00; }
+  .ed-nano .editor-bar { background: #003300; border-bottom-color: #005500; color: #00bb00; }
+  .ed-nano .editor-body { color: #ccffcc; }
+  .ed-nano .ed-status { background: #003300; color: #00dd00; padding: .3rem 1.2rem; font-size: .75rem; font-family: 'DM Mono', monospace; }
+  .ed-nano .ed-shortcuts { background: #002200; color: #009900; padding: .35rem 1.2rem; font-size: .72rem; font-family: 'DM Mono', monospace; display: flex; flex-wrap: wrap; gap: .5rem; }
+  .ed-vi { background: #0a0a1a; }
+  .ed-vi .editor-bar { background: #111125; border-bottom-color: #222244; color: #6666aa; }
+  .ed-vi .editor-body { color: #ccccee; }
+  .ed-vi .ed-status { background: #111125; color: #5555ff; padding: .3rem 1.2rem; font-size: .75rem; font-family: 'DM Mono', monospace; }
+  .vi-lnum { color: #333355; margin-right: .75rem; user-select: none; }
+  .vi-kw   { color: #cc99ff; }
+  .vi-str  { color: #99ff99; }
+  .vi-com  { color: #555577; font-style: italic; }
+
+  /* ── CALLOUTS ── */
+  .callout { border-radius: 0 10px 10px 0; padding: 1rem 1.2rem; margin: 1rem 0; }
+  .callout h4 { font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .35rem; }
+  .callout p, .callout ul { font-size: .93rem; }
+  .callout ul { padding-left: 1.2rem; }
+  .callout li { margin-bottom: .3rem; }
+  .callout.tip  { background: rgba(46,204,113,.08); border-left: 4px solid var(--green); }
+  .callout.tip h4 { color: var(--green); }
+  .callout.note { background: rgba(248,81,73,.08); border-left: 4px solid var(--red); }
+  .callout.note h4 { color: var(--red); }
+  .callout.info { background: rgba(88,166,255,.08); border-left: 4px solid var(--blue); }
+  .callout.info h4 { color: var(--blue); }
+  .callout.warn { background: rgba(210,153,34,.08); border-left: 4px solid var(--yellow); }
+  .callout.warn h4 { color: var(--yellow); }
+
+  /* ── TABLA ── */
+  .tbl { width: 100%; border-collapse: collapse; margin: .9rem 0; font-size: .9rem; }
+  .tbl th { background: var(--bg3); color: var(--green); padding: .6rem 1rem; text-align: left; font-weight: 700; border-bottom: 1px solid var(--border); }
+  .tbl td { padding: .6rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl td:first-child { font-family: 'DM Mono', monospace; font-size: .85rem; color: var(--orange); white-space: nowrap; }
+  .tbl tr:hover td { background: var(--bg3); }
+
+  /* ── CMD CARD ── */
+  .cmd-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: .85rem; margin: .9rem 0; }
+  .cmd-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; border-left: 3px solid var(--green); }
+  .cmd-card .cc-cmd  { font-family: 'DM Mono', monospace; font-size: .95rem; font-weight: 700; color: var(--orange); margin-bottom: .25rem; }
+  .cmd-card .cc-full { font-size: .72rem; color: var(--muted); margin-bottom: .45rem; font-style: italic; }
+  .cmd-card .cc-desc { font-size: .86rem; color: var(--text); margin-bottom: .5rem; }
+  .cmd-card .cc-ex   { font-family: 'DM Mono', monospace; font-size: .78rem; color: var(--blue); background: var(--code-bg); padding: .3rem .6rem; border-radius: 5px; display: block; }
+
+  /* ── SHORTCUT TABLE ── */
+  .sc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap: .6rem; margin: .75rem 0; }
+  .sc-row { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: .55rem .85rem; display: flex; align-items: center; gap: .7rem; }
+  .sc-key { font-family: 'DM Mono', monospace; font-size: .78rem; font-weight: 700; color: var(--yellow); background: rgba(210,153,34,.12); padding: 2px 8px; border-radius: 4px; white-space: nowrap; flex-shrink: 0; }
+  .sc-desc { font-size: .83rem; color: var(--text); }
+
+  /* ── EJERCICIO ── */
+  .ejercicio { background: rgba(210,153,34,.07); border: 1px solid rgba(210,153,34,.3); border-radius: 12px; padding: 1.4rem; margin: 1.5rem 0; }
+  .ej-header { display: flex; align-items: center; gap: .6rem; margin-bottom: .85rem; font-weight: 700; color: var(--yellow); flex-wrap: wrap; }
+  .ej-badge { background: var(--accent); color: #fff; font-size: .67rem; padding: 2px 9px; border-radius: 20px; font-weight: 700; text-transform: uppercase; }
+  .ejercicio ol { padding-left: 1.35rem; }
+  .ejercicio ol li { margin-bottom: .55rem; font-size: .93rem; }
+
+  /* ── TIPO COMANDO VISUAL ── */
+  .tipo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: .75rem; margin: .85rem 0; }
+  .tipo-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: .9rem 1rem; }
+  .tipo-card .tc-type { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: .3rem; }
+  .tipo-card .tc-ex   { font-family: 'DM Mono', monospace; font-size: .82rem; color: var(--orange); margin-bottom: .3rem; }
+  .tipo-card .tc-desc { font-size: .82rem; color: var(--muted); }
+
+  h2 { font-size: 1.15rem; font-weight: 700; margin: 1.5rem 0 .6rem; }
+  h3 { font-size: .97rem; font-weight: 700; margin: 1.1rem 0 .4rem; }
+  p  { margin-bottom: .75rem; }
+  ul, ol { padding-left: 1.35rem; margin-bottom: .75rem; }
+  li { margin-bottom: .35rem; font-size: .95rem; }
+  code { font-family: 'DM Mono', monospace; background: var(--bg3); color: var(--orange); padding: 1px 6px; border-radius: 4px; font-size: .88em; border: 1px solid var(--border); }
+  strong { font-weight: 700; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .83rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg2); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="../capitulos.html?tab=guias">← Café &lt;/&gt;</a>
+  <span>🐧 Guía Linux · Parte B</span>
+</div>
+
+<header>
+  <div class="curso-badge">🐧 Curso Linux completo · 38:18 – 1:11:52</div>
+  <h1>Linux en la <span>Terminal</span></h1>
+  <p>cat, less, nano, vi, qué son los comandos y alias</p>
+  <span class="badge">✦ Parte B de 4 ✦</span>
+</header>
+
+<div class="partes-nav">
+  <a class="partes-nav-prev" href="guia-linux-parte-A.html">← A</a>
+  <div class="partes-nav-list">
+    <a href="guia-linux-parte-A.html">A</a>
+    <a href="guia-linux-parte-B.html" class="activa">B</a>
+    <a href="guia-linux-parte-C.html">C</a>
+    <a href="guia-linux-parte-D.html">D</a>
+  </div>
+  <a class="partes-nav-next" href="guia-linux-parte-C.html">C →</a>
+</div>
+
+<nav class="sec-nav">
+  <a href="#cat">🐱 cat</a>
+  <a href="#less">📜 less</a>
+  <a href="#nano">✏️ nano</a>
+  <a href="#vi">⚡ vi / vim</a>
+  <a href="#que-son">🔬 ¿Qué son?</a>
+  <a href="#alias">🏷 Alias</a>
+  <a href="#ejercicio">✏️ Ejercicio</a>
+</nav>
+
+<main>
+<div class="parte-badge">📦 Parte B · 38:18 – 1:11:52</div>
+
+
+<!-- ══════════════════════════════════
+     CAT Y LESS
+══════════════════════════════════ -->
+<section class="module" id="cat">
+  <div class="module-header">
+    <div class="module-icon">🐱</div>
+    <div>
+      <div class="module-title">Comando cat — Leer y concatenar archivos</div>
+      <div class="module-sub">38:18 — El comando más directo para ver el contenido de un archivo</div>
+    </div>
+  </div>
+
+  <p><code>cat</code> (conCATenate) lee el contenido de uno o varios archivos y lo imprime en la terminal. Es perfecto para archivos cortos. Para archivos largos, usa <code>less</code>.</p>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="tb-dot tb-red"></div><div class="tb-dot tb-yellow"></div><div class="tb-dot tb-green"></div>
+      <span class="tb-title">cat en acción</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-comment"># VER contenido de un archivo</span>
+<span class="t-prompt">$</span> <span class="t-cmd">cat</span> <span class="t-arg">index.html</span>
+<span class="t-out">&lt;!DOCTYPE html&gt;</span>
+<span class="t-out">&lt;html lang="es"&gt;</span>
+<span class="t-out">  &lt;head&gt;...&lt;/head&gt;</span>
+<span class="t-out">&lt;/html&gt;</span>
+
+<span class="t-comment"># VER con números de línea</span>
+<span class="t-prompt">$</span> <span class="t-cmd">cat</span> <span class="t-flag">-n</span> <span class="t-arg">index.html</span>
+<span class="t-out">     1	&lt;!DOCTYPE html&gt;</span>
+<span class="t-out">     2	&lt;html lang="es"&gt;</span>
+
+<span class="t-comment"># VER varios archivos seguidos</span>
+<span class="t-prompt">$</span> <span class="t-cmd">cat</span> <span class="t-arg">archivo1.txt</span> <span class="t-arg">archivo2.txt</span>
+
+<span class="t-comment"># CREAR un archivo escribiendo en la terminal</span>
+<span class="t-comment"># (Ctrl+D para terminar)</span>
+<span class="t-prompt">$</span> <span class="t-cmd">cat</span> <span class="t-flag">&gt;</span> <span class="t-arg">notas.txt</span>
+<span class="t-ins">Esto es una nota</span>
+<span class="t-ins">que escribo directamente</span>
+<span class="t-ins">^D</span>
+
+<span class="t-comment"># CONCATENAR archivos en uno nuevo</span>
+<span class="t-prompt">$</span> <span class="t-cmd">cat</span> <span class="t-arg">parte1.txt</span> <span class="t-arg">parte2.txt</span> <span class="t-flag">&gt;</span> <span class="t-arg">completo.txt</span>
+
+<span class="t-comment"># AGREGAR contenido al final de un archivo (sin sobreescribir)</span>
+<span class="t-prompt">$</span> <span class="t-cmd">cat</span> <span class="t-arg">extra.txt</span> <span class="t-flag">&gt;&gt;</span> <span class="t-arg">completo.txt</span>
+
+<span class="t-comment"># VER fin de línea y tabulaciones ocultas</span>
+<span class="t-prompt">$</span> <span class="t-cmd">cat</span> <span class="t-flag">-A</span> <span class="t-arg">archivo.txt</span>
+    </div>
+  </div>
+
+  <div class="callout tip">
+    <h4>🟢 &gt; vs &gt;&gt; — la diferencia crítica</h4>
+    <ul>
+      <li><code>&gt;</code> — <strong>redirige y sobreescribe</strong>. Si el archivo existe, borra su contenido y escribe de nuevo.</li>
+      <li><code>&gt;&gt;</code> — <strong>agrega al final</strong>. Si el archivo existe, conserva el contenido y añade al final.</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     LESS
+══════════════════════════════════ -->
+<section class="module" id="less">
+  <div class="module-header">
+    <div class="module-icon">📜</div>
+    <div>
+      <div class="module-title">Comando less — Leer archivos largos con navegación</div>
+      <div class="module-sub">38:18 — El paginador que todo desarrollador usa para logs y archivos grandes</div>
+    </div>
+  </div>
+
+  <p><code>less</code> abre un archivo en modo de lectura interactiva — puedes desplazarte hacia arriba y abajo sin cargar todo en pantalla. Es el comando estándar para leer logs y archivos largos. "less is more" — es mejor que el antiguo comando <code>more</code>.</p>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="tb-dot tb-red"></div><div class="tb-dot tb-yellow"></div><div class="tb-dot tb-green"></div>
+      <span class="tb-title">less</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-prompt">$</span> <span class="t-cmd">less</span> <span class="t-arg">archivo-largo.txt</span>
+<span class="t-prompt">$</span> <span class="t-cmd">less</span> <span class="t-arg">/var/log/syslog</span>       <span class="t-comment"># log del sistema</span>
+<span class="t-prompt">$</span> <span class="t-cmd">less</span> <span class="t-flag">-N</span> <span class="t-arg">archivo.txt</span>        <span class="t-comment"># con números de línea</span>
+    </div>
+  </div>
+
+  <h2>Controles dentro de less</h2>
+  <div class="sc-grid">
+    <div class="sc-row"><span class="sc-key">q</span><span class="sc-desc">Salir de less (el más importante)</span></div>
+    <div class="sc-row"><span class="sc-key">↑ / ↓</span><span class="sc-desc">Desplazarse línea a línea</span></div>
+    <div class="sc-row"><span class="sc-key">Space / b</span><span class="sc-desc">Página siguiente / página anterior</span></div>
+    <div class="sc-row"><span class="sc-key">g</span><span class="sc-desc">Ir al inicio del archivo</span></div>
+    <div class="sc-row"><span class="sc-key">G</span><span class="sc-desc">Ir al final del archivo</span></div>
+    <div class="sc-row"><span class="sc-key">/texto</span><span class="sc-desc">Buscar texto hacia adelante</span></div>
+    <div class="sc-row"><span class="sc-key">?texto</span><span class="sc-desc">Buscar texto hacia atrás</span></div>
+    <div class="sc-row"><span class="sc-key">n</span><span class="sc-desc">Siguiente coincidencia de la búsqueda</span></div>
+    <div class="sc-row"><span class="sc-key">N</span><span class="sc-desc">Coincidencia anterior de la búsqueda</span></div>
+    <div class="sc-row"><span class="sc-key">F</span><span class="sc-desc">Seguir el archivo en tiempo real (como tail -f)</span></div>
+  </div>
+
+  <h2>head y tail — alternativas para ver partes de un archivo</h2>
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="tb-dot tb-red"></div><div class="tb-dot tb-yellow"></div><div class="tb-dot tb-green"></div>
+      <span class="tb-title">head y tail</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-comment"># head: muestra las primeras líneas</span>
+<span class="t-prompt">$</span> <span class="t-cmd">head</span> <span class="t-arg">archivo.txt</span>           <span class="t-comment"># primeras 10 líneas (por defecto)</span>
+<span class="t-prompt">$</span> <span class="t-cmd">head</span> <span class="t-flag">-n 20</span> <span class="t-arg">archivo.txt</span>    <span class="t-comment"># primeras 20 líneas</span>
+<span class="t-prompt">$</span> <span class="t-cmd">head</span> <span class="t-flag">-5</span> <span class="t-arg">archivo.txt</span>       <span class="t-comment"># primeras 5 (forma corta)</span>
+
+<span class="t-comment"># tail: muestra las últimas líneas</span>
+<span class="t-prompt">$</span> <span class="t-cmd">tail</span> <span class="t-arg">archivo.txt</span>           <span class="t-comment"># últimas 10 líneas</span>
+<span class="t-prompt">$</span> <span class="t-cmd">tail</span> <span class="t-flag">-n 20</span> <span class="t-arg">archivo.txt</span>    <span class="t-comment"># últimas 20 líneas</span>
+
+<span class="t-comment"># tail -f: SIGUE el archivo en tiempo real (logs en vivo)</span>
+<span class="t-prompt">$</span> <span class="t-cmd">tail</span> <span class="t-flag">-f</span> <span class="t-arg">/var/log/syslog</span>   <span class="t-comment"># muestra nuevas líneas conforme aparecen</span>
+<span class="t-comment"># Ctrl+C para detener</span>
+    </div>
+  </div>
+
+  <div class="callout tip">
+    <h4>🟢 tail -f es el comando que más usarás en el trabajo</h4>
+    <p>Cuando depuras una aplicación en un servidor, <code>tail -f /var/log/tu-app.log</code> te muestra los errores y eventos en tiempo real mientras la app está corriendo. Es indispensable para debugging en producción.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     NANO
+══════════════════════════════════ -->
+<section class="module" id="nano">
+  <div class="module-header">
+    <div class="module-icon">✏️</div>
+    <div>
+      <div class="module-title">Editor nano — El editor amigable de la terminal</div>
+      <div class="module-sub">44:40 — Editar archivos directamente en la terminal, sin complicaciones</div>
+    </div>
+  </div>
+
+  <p><code>nano</code> es un editor de texto que vive dentro de la terminal. Es simple e intuitivo — todos los atajos se muestran en pantalla. Es el editor recomendado para principiantes y para ediciones rápidas en servidores.</p>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="tb-dot tb-red"></div><div class="tb-dot tb-yellow"></div><div class="tb-dot tb-green"></div>
+      <span class="tb-title">abrir nano</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-prompt">$</span> <span class="t-cmd">nano</span> <span class="t-arg">archivo.txt</span>       <span class="t-comment"># abre o crea el archivo</span>
+<span class="t-prompt">$</span> <span class="t-cmd">nano</span> <span class="t-flag">+20</span> <span class="t-arg">archivo.txt</span>   <span class="t-comment"># abre en la línea 20</span>
+<span class="t-prompt">$</span> <span class="t-cmd">nano</span> <span class="t-flag">-l</span> <span class="t-arg">archivo.txt</span>    <span class="t-comment"># muestra números de línea</span>
+    </div>
+  </div>
+
+  <h2>Así se ve nano por dentro</h2>
+  <div class="editor-sim ed-nano">
+    <div class="editor-bar">
+      <span>GNU nano 6.2</span>
+      <span>archivo.txt</span>
+      <span>Modificado</span>
+    </div>
+    <div class="editor-body">
+      Este es el contenido de mi archivo.<br>
+      Puedo escribir aquí directamente.<br>
+      Las flechas del teclado me mueven.<br>
+      <br>
+      No necesito aprender comandos especiales.<br>
+      Los atajos se muestran abajo ↓
+    </div>
+    <div class="ed-status">[ Línea 1/5, Col 1/37 ]     [ Leer 5 líneas ]</div>
+    <div class="ed-shortcuts">
+      <span>^G Ayuda</span>
+      <span>^X Salir</span>
+      <span>^O Guardar</span>
+      <span>^W Buscar</span>
+      <span>^K Cortar línea</span>
+      <span>^U Pegar</span>
+      <span>^C Posición</span>
+      <span>^\ Reemplazar</span>
+    </div>
+  </div>
+
+  <h2>Atajos esenciales de nano</h2>
+  <p style="font-size:.85rem;color:var(--muted)">El símbolo <code>^</code> significa <strong>Ctrl</strong>. Por ejemplo, <code>^X</code> = Ctrl+X.</p>
+
+  <div class="sc-grid">
+    <div class="sc-row"><span class="sc-key">^X</span><span class="sc-desc">Salir (pregunta si guardar si hay cambios)</span></div>
+    <div class="sc-row"><span class="sc-key">^O</span><span class="sc-desc">Guardar el archivo (WriteOut)</span></div>
+    <div class="sc-row"><span class="sc-key">^W</span><span class="sc-desc">Buscar texto (Where is)</span></div>
+    <div class="sc-row"><span class="sc-key">^\</span><span class="sc-desc">Buscar y reemplazar</span></div>
+    <div class="sc-row"><span class="sc-key">^K</span><span class="sc-desc">Cortar la línea actual (Cut)</span></div>
+    <div class="sc-row"><span class="sc-key">^U</span><span class="sc-desc">Pegar la línea cortada (Uncut)</span></div>
+    <div class="sc-row"><span class="sc-key">^A</span><span class="sc-desc">Ir al inicio de la línea</span></div>
+    <div class="sc-row"><span class="sc-key">^E</span><span class="sc-desc">Ir al final de la línea</span></div>
+    <div class="sc-row"><span class="sc-key">^C</span><span class="sc-desc">Ver número de línea y columna actuales</span></div>
+    <div class="sc-row"><span class="sc-key">^G</span><span class="sc-desc">Ayuda completa (Get help)</span></div>
+    <div class="sc-row"><span class="sc-key">Alt+U</span><span class="sc-desc">Deshacer (Undo)</span></div>
+    <div class="sc-row"><span class="sc-key">Alt+E</span><span class="sc-desc">Rehacer (Redo)</span></div>
+  </div>
+
+  <div class="callout tip">
+    <h4>🟢 Flujo típico en nano</h4>
+    <p>Abres con <code>nano archivo.txt</code> → escribes/editas → <strong>Ctrl+O</strong> para guardar → Enter para confirmar el nombre → <strong>Ctrl+X</strong> para salir. Eso es todo lo que necesitas para el 90% de los casos.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     VI / VIM
+══════════════════════════════════ -->
+<section class="module" id="vi">
+  <div class="module-header">
+    <div class="module-icon">⚡</div>
+    <div>
+      <div class="module-title">Editor vi / vim — El editor modal de la terminal</div>
+      <div class="module-sub">50:08 — El más poderoso y el más temido. Una vez que lo dominas, no hay nada igual.</div>
+    </div>
+  </div>
+
+  <p><code>vi</code> está instalado en absolutamente todos los sistemas Unix/Linux — es el editor de emergencia que siempre va a estar disponible cuando conectas a un servidor. <code>vim</code> (Vi IMproved) es su versión mejorada con más funciones. La diferencia con nano: vi tiene <strong>modos</strong>.</p>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="tb-dot tb-red"></div><div class="tb-dot tb-yellow"></div><div class="tb-dot tb-green"></div>
+      <span class="tb-title">abrir vi / vim</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-prompt">$</span> <span class="t-cmd">vi</span> <span class="t-arg">archivo.txt</span>     <span class="t-comment"># abre con vi</span>
+<span class="t-prompt">$</span> <span class="t-cmd">vim</span> <span class="t-arg">archivo.txt</span>    <span class="t-comment"># abre con vim (recomendado)</span>
+<span class="t-prompt">$</span> <span class="t-cmd">vim</span> <span class="t-flag">+20</span> <span class="t-arg">archivo.txt</span> <span class="t-comment"># abre en la línea 20</span>
+    </div>
+  </div>
+
+  <h2>Los modos de vi — la clave de todo</h2>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:.75rem;margin:.85rem 0">
+    <div style="background:rgba(248,81,73,.08);border:1px solid rgba(248,81,73,.3);border-radius:10px;padding:.9rem">
+      <p style="font-weight:700;color:var(--red);margin-bottom:.3rem">NORMAL (por defecto)</p>
+      <p style="font-size:.85rem;color:var(--muted)">Al abrir vi entras aquí. No puedes escribir texto. Es para navegar y ejecutar comandos. Presiona <code>Esc</code> para volver aquí.</p>
+    </div>
+    <div style="background:rgba(46,204,113,.08);border:1px solid rgba(46,204,113,.3);border-radius:10px;padding:.9rem">
+      <p style="font-weight:700;color:var(--green);margin-bottom:.3rem">INSERT (escritura)</p>
+      <p style="font-size:.85rem;color:var(--muted)">Aquí puedes escribir texto. Entras presionando <code>i</code>, <code>a</code>, <code>o</code> u otras teclas desde el modo Normal. Ves <code>-- INSERT --</code> abajo.</p>
+    </div>
+    <div style="background:rgba(88,166,255,.08);border:1px solid rgba(88,166,255,.3);border-radius:10px;padding:.9rem">
+      <p style="font-weight:700;color:var(--blue);margin-bottom:.3rem">COMMAND (comandos)</p>
+      <p style="font-size:.85rem;color:var(--muted)">Para guardar, salir, buscar y más. Entras desde Normal presionando <code>:</code>. Los comandos aparecen abajo.</p>
+    </div>
+  </div>
+
+  <h2>Así se ve vim por dentro</h2>
+  <div class="editor-sim ed-vi">
+    <div class="editor-bar">
+      <span style="color:#5555ff">VIM — archivo.txt</span>
+      <span>1,1 — Todo</span>
+    </div>
+    <div class="editor-body">
+      <span class="vi-lnum">1</span><span class="vi-kw">function</span> <span>saludar</span>() {<br>
+      <span class="vi-lnum">2</span>  <span class="vi-kw">const</span> msg = <span class="vi-str">"Hola desde vi"</span>;<br>
+      <span class="vi-lnum">3</span>  console.log(msg);<br>
+      <span class="vi-lnum">4</span>}<br>
+      <span class="vi-lnum">5</span><span class="vi-com">// Modo NORMAL — no puedes escribir</span><br>
+      <span class="vi-lnum">6</span><span class="vi-com">// Presiona i para entrar en modo INSERT</span>
+    </div>
+    <div class="ed-status">-- NORMAL --&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1,1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Todo</div>
+  </div>
+
+  <h2>Los comandos que sí necesitas saber</h2>
+
+  <h3>Para entrar en modo INSERT (escribir)</h3>
+  <div class="sc-grid">
+    <div class="sc-row"><span class="sc-key">i</span><span class="sc-desc">Insert — escribe antes del cursor</span></div>
+    <div class="sc-row"><span class="sc-key">a</span><span class="sc-desc">Append — escribe después del cursor</span></div>
+    <div class="sc-row"><span class="sc-key">o</span><span class="sc-desc">Open — abre línea nueva abajo y escribe</span></div>
+    <div class="sc-row"><span class="sc-key">O</span><span class="sc-desc">Open — abre línea nueva arriba y escribe</span></div>
+    <div class="sc-row"><span class="sc-key">I</span><span class="sc-desc">Insert al inicio de la línea</span></div>
+    <div class="sc-row"><span class="sc-key">A</span><span class="sc-desc">Append al final de la línea</span></div>
+  </div>
+
+  <h3 style="margin-top:1rem">Navegar en modo NORMAL</h3>
+  <div class="sc-grid">
+    <div class="sc-row"><span class="sc-key">h j k l</span><span class="sc-desc">← ↓ ↑ → (las flechas también funcionan)</span></div>
+    <div class="sc-row"><span class="sc-key">gg</span><span class="sc-desc">Ir al inicio del archivo</span></div>
+    <div class="sc-row"><span class="sc-key">G</span><span class="sc-desc">Ir al final del archivo</span></div>
+    <div class="sc-row"><span class="sc-key">:20</span><span class="sc-desc">Ir a la línea 20</span></div>
+    <div class="sc-row"><span class="sc-key">w</span><span class="sc-desc">Avanzar una palabra</span></div>
+    <div class="sc-row"><span class="sc-key">b</span><span class="sc-desc">Retroceder una palabra</span></div>
+    <div class="sc-row"><span class="sc-key">0</span><span class="sc-desc">Ir al inicio de la línea</span></div>
+    <div class="sc-row"><span class="sc-key">$</span><span class="sc-desc">Ir al final de la línea</span></div>
+  </div>
+
+  <h3 style="margin-top:1rem">Editar en modo NORMAL</h3>
+  <div class="sc-grid">
+    <div class="sc-row"><span class="sc-key">dd</span><span class="sc-desc">Cortar/eliminar la línea actual</span></div>
+    <div class="sc-row"><span class="sc-key">yy</span><span class="sc-desc">Copiar la línea actual (yank)</span></div>
+    <div class="sc-row"><span class="sc-key">p</span><span class="sc-desc">Pegar después del cursor</span></div>
+    <div class="sc-row"><span class="sc-key">u</span><span class="sc-desc">Deshacer (undo)</span></div>
+    <div class="sc-row"><span class="sc-key">Ctrl+R</span><span class="sc-desc">Rehacer (redo)</span></div>
+    <div class="sc-row"><span class="sc-key">x</span><span class="sc-desc">Eliminar el carácter bajo el cursor</span></div>
+    <div class="sc-row"><span class="sc-key">/texto</span><span class="sc-desc">Buscar texto. n = siguiente, N = anterior</span></div>
+    <div class="sc-row"><span class="sc-key">.</span><span class="sc-desc">Repetir el último cambio</span></div>
+  </div>
+
+  <h3 style="margin-top:1rem">Comandos de GUARDADO Y SALIDA (modo Command con :)</h3>
+  <div class="sc-grid">
+    <div class="sc-row"><span class="sc-key">:w</span><span class="sc-desc">Guardar (write)</span></div>
+    <div class="sc-row"><span class="sc-key">:q</span><span class="sc-desc">Salir (quit) — solo si no hay cambios</span></div>
+    <div class="sc-row"><span class="sc-key">:wq</span><span class="sc-desc">Guardar y salir (el más usado)</span></div>
+    <div class="sc-row"><span class="sc-key">:q!</span><span class="sc-desc">Salir SIN guardar (forzado)</span></div>
+    <div class="sc-row"><span class="sc-key">:wq!</span><span class="sc-desc">Guardar y salir forzado (si el archivo es readonly)</span></div>
+    <div class="sc-row"><span class="sc-key">ZZ</span><span class="sc-desc">Guardar y salir (atajo sin los dos puntos)</span></div>
+  </div>
+
+  <div class="callout warn">
+    <h4>⚡ El chiste de "cómo salir de vi"</h4>
+    <p>Es uno de los chistes más famosos en programación — miles de personas quedan atrapados en vi sin poder salir. La respuesta: presiona <code>Esc</code> para asegurarte de estar en modo Normal, luego escribe <code>:q!</code> y Enter para salir sin guardar, o <code>:wq</code> para guardar y salir.</p>
+  </div>
+
+  <div class="callout tip">
+    <h4>🟢 ¿Cuándo aprender vim en serio?</h4>
+    <p>Para tareas básicas en servidor, nano es suficiente. Aprende vim cuando quieras un editor ultrarrápido para tu trabajo diario. Con los plugins adecuados (NeoVim + configuración) supera en velocidad a cualquier IDE. Muchos desarrolladores senior editan exclusivamente en vim.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     ¿QUÉ SON LOS COMANDOS?
+══════════════════════════════════ -->
+<section class="module" id="que-son">
+  <div class="module-header">
+    <div class="module-icon">🔬</div>
+    <div>
+      <div class="module-title">¿Qué son exactamente los comandos?</div>
+      <div class="module-sub">58:08 — Los 4 tipos de comandos que existen en Linux</div>
+    </div>
+  </div>
+
+  <p>Cuando escribes un comando en la terminal, la shell necesita saber qué tipo de cosa es ese comando para poder ejecutarlo. Hay exactamente <strong>4 tipos</strong>.</p>
+
+  <div class="tipo-grid">
+    <div class="tipo-card">
+      <div class="tc-type" style="color:var(--green)">1. Ejecutables</div>
+      <div class="tc-ex">ls, cp, git, node, python</div>
+      <div class="tc-desc">Programas compilados o scripts que están en el disco, normalmente en <code>/usr/bin</code> o <code>/bin</code>. La shell los busca en las rutas del <code>PATH</code>.</div>
+    </div>
+    <div class="tipo-card">
+      <div class="tc-type" style="color:var(--blue)">2. Builtins de la shell</div>
+      <div class="tc-ex">cd, echo, pwd, export, source</div>
+      <div class="tc-desc">Comandos que viven dentro de la propia shell (bash, zsh). No son programas externos — son parte del intérprete. Por eso <code>cd</code> no tiene un archivo en <code>/bin</code>.</div>
+    </div>
+    <div class="tipo-card">
+      <div class="tc-type" style="color:var(--orange)">3. Funciones de shell</div>
+      <div class="tc-ex">funciones definidas en .bashrc</div>
+      <div class="tc-desc">Bloques de código que defines tú mismo en archivos de configuración como <code>~/.bashrc</code>. Funcionan como comandos pero son tuyas.</div>
+    </div>
+    <div class="tipo-card">
+      <div class="tc-type" style="color:var(--purple)">4. Alias</div>
+      <div class="tc-ex">ll, gs, la (los que definas)</div>
+      <div class="tc-desc">Atajos — palabras cortas que la shell reemplaza por comandos más largos antes de ejecutarlos. Son los más útiles para productividad.</div>
+    </div>
+  </div>
+
+  <h2>El comando type — descubre qué tipo es cada comando</h2>
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="tb-dot tb-red"></div><div class="tb-dot tb-yellow"></div><div class="tb-dot tb-green"></div>
+      <span class="tb-title">type en acción</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-prompt">$</span> <span class="t-cmd">type</span> <span class="t-arg">ls</span>
+<span class="t-out">ls is /usr/bin/ls</span>                <span class="t-comment"># ejecutable en /usr/bin</span>
+
+<span class="t-prompt">$</span> <span class="t-cmd">type</span> <span class="t-arg">cd</span>
+<span class="t-out">cd is a shell builtin</span>            <span class="t-comment"># builtin de bash</span>
+
+<span class="t-prompt">$</span> <span class="t-cmd">type</span> <span class="t-arg">ll</span>
+<span class="t-out">ll is aliased to `ls -alF'</span>       <span class="t-comment"># alias</span>
+
+<span class="t-prompt">$</span> <span class="t-cmd">type</span> <span class="t-arg">node</span>
+<span class="t-out">node is /usr/bin/node</span>            <span class="t-comment"># ejecutable</span>
+
+<span class="t-prompt">$</span> <span class="t-cmd">which</span> <span class="t-arg">python3</span>
+<span class="t-out">/usr/bin/python3</span>                 <span class="t-comment"># ruta exacta del ejecutable</span>
+    </div>
+  </div>
+
+  <h2>El PATH — cómo la shell encuentra los comandos</h2>
+  <p>El <code>PATH</code> es una variable de entorno que contiene una lista de directorios donde la shell busca ejecutables. Cuando escribes <code>node</code>, la shell busca en cada carpeta del PATH hasta encontrarlo.</p>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="tb-dot tb-red"></div><div class="tb-dot tb-yellow"></div><div class="tb-dot tb-green"></div>
+      <span class="tb-title">el PATH</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-comment"># Ver el PATH actual</span>
+<span class="t-prompt">$</span> <span class="t-cmd">echo</span> <span class="t-arg">$PATH</span>
+<span class="t-out">/usr/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/games</span>
+
+<span class="t-comment"># Agregar una carpeta al PATH temporalmente</span>
+<span class="t-prompt">$</span> <span class="t-cmd">export</span> <span class="t-arg">PATH="$PATH:/mi-carpeta/bin"</span>
+
+<span class="t-comment"># Para hacerlo permanente, agrégalo en ~/.bashrc</span>
+<span class="t-prompt">$</span> <span class="t-cmd">echo</span> <span class="t-arg">'export PATH="$PATH:/mi-carpeta/bin"'</span> <span class="t-flag">&gt;&gt;</span> <span class="t-arg">~/.bashrc</span>
+<span class="t-prompt">$</span> <span class="t-cmd">source</span> <span class="t-arg">~/.bashrc</span>   <span class="t-comment"># recarga la configuración sin reiniciar</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     ALIAS
+══════════════════════════════════ -->
+<section class="module" id="alias">
+  <div class="module-header">
+    <div class="module-icon">🏷️</div>
+    <div>
+      <div class="module-title">Los Alias — Tus propios comandos cortos</div>
+      <div class="module-sub">1:08:59 — Crea atajos para los comandos que más usas</div>
+    </div>
+  </div>
+
+  <p>Un <strong>alias</strong> es un nombre corto que defines tú para reemplazar un comando largo. La shell lo sustituye automáticamente antes de ejecutar. Son una de las formas más simples de mejorar tu productividad en la terminal.</p>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="tb-dot tb-red"></div><div class="tb-dot tb-yellow"></div><div class="tb-dot tb-green"></div>
+      <span class="tb-title">crear y usar alias</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-comment"># Crear un alias temporal (dura hasta que cierras la terminal)</span>
+<span class="t-prompt">$</span> <span class="t-cmd">alias</span> <span class="t-arg">ll='ls -la'</span>
+<span class="t-prompt">$</span> <span class="t-cmd">alias</span> <span class="t-arg">gs='git status'</span>
+<span class="t-prompt">$</span> <span class="t-cmd">alias</span> <span class="t-arg">..='cd ..'</span>
+<span class="t-prompt">$</span> <span class="t-cmd">alias</span> <span class="t-arg">cls='clear'</span>
+
+<span class="t-comment"># Ahora los puedes usar</span>
+<span class="t-prompt">$</span> <span class="t-cmd">ll</span>                   <span class="t-comment"># ejecuta ls -la</span>
+<span class="t-out">drwxr-xr-x 5 hugo hugo 4096 jun 15 10:30 .</span>
+<span class="t-out">-rw-r--r-- 1 hugo hugo  220 jun  1 12:00 .bashrc</span>
+
+<span class="t-comment"># Ver todos los alias activos</span>
+<span class="t-prompt">$</span> <span class="t-cmd">alias</span>
+<span class="t-out">alias ll='ls -la'</span>
+<span class="t-out">alias gs='git status'</span>
+<span class="t-out">alias ..='cd ..'</span>
+
+<span class="t-comment"># Ver qué hace un alias específico</span>
+<span class="t-prompt">$</span> <span class="t-cmd">alias</span> <span class="t-arg">ll</span>
+<span class="t-out">alias ll='ls -la'</span>
+
+<span class="t-comment"># Eliminar un alias</span>
+<span class="t-prompt">$</span> <span class="t-cmd">unalias</span> <span class="t-arg">ll</span>
+    </div>
+  </div>
+
+  <h2>Hacer los alias permanentes — el archivo .bashrc</h2>
+  <p>Los alias creados en la terminal desaparecen al cerrarla. Para que persistan entre sesiones debes guardarlos en el archivo de configuración de tu shell: <code>~/.bashrc</code> (bash) o <code>~/.zshrc</code> (zsh).</p>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="tb-dot tb-red"></div><div class="tb-dot tb-yellow"></div><div class="tb-dot tb-green"></div>
+      <span class="tb-title">editar ~/.bashrc para alias permanentes</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-comment"># Abre el archivo de configuración con nano</span>
+<span class="t-prompt">$</span> <span class="t-cmd">nano</span> <span class="t-arg">~/.bashrc</span>
+
+<span class="t-comment"># Al final del archivo, agrega tu sección de alias:</span>
+<span class="t-ins"># --- Mis alias personales ---</span>
+<span class="t-ins">alias ll='ls -la'</span>
+<span class="t-ins">alias la='ls -a'</span>
+<span class="t-ins">alias ..='cd ..'</span>
+<span class="t-ins">alias ...='cd ../..'</span>
+<span class="t-ins">alias cls='clear'</span>
+<span class="t-ins">alias gs='git status'</span>
+<span class="t-ins">alias ga='git add .'</span>
+<span class="t-ins">alias gc='git commit -m'</span>
+<span class="t-ins">alias gp='git push'</span>
+<span class="t-ins">alias py='python3'</span>
+<span class="t-ins">alias update='sudo apt update && sudo apt upgrade -y'</span>
+
+<span class="t-comment"># Guarda con Ctrl+O, Enter, Ctrl+X</span>
+<span class="t-comment"># Recarga la configuración SIN cerrar la terminal</span>
+<span class="t-prompt">$</span> <span class="t-cmd">source</span> <span class="t-arg">~/.bashrc</span>
+
+<span class="t-comment"># Verifica que funcionan</span>
+<span class="t-prompt">$</span> <span class="t-cmd">ll</span>
+    </div>
+  </div>
+
+  <h2>Alias útiles para desarrollo web</h2>
+  <div class="cmd-grid">
+    <div class="cmd-card" style="border-left-color:var(--orange)">
+      <div class="cc-cmd">alias serve='python3 -m http.server'</div>
+      <div class="cc-desc">Levanta un servidor HTTP local en la carpeta actual</div>
+      <span class="cc-ex">$ serve 3000  →  localhost:3000</span>
+    </div>
+    <div class="cmd-card" style="border-left-color:var(--blue)">
+      <div class="cc-cmd">alias myip='curl ifconfig.me'</div>
+      <div class="cc-desc">Muestra tu IP pública desde la terminal</div>
+      <span class="cc-ex">$ myip  →  201.x.x.x</span>
+    </div>
+    <div class="cmd-card" style="border-left-color:var(--purple)">
+      <div class="cc-cmd">alias ports='ss -tuln'</div>
+      <div class="cc-desc">Lista todos los puertos abiertos en el sistema</div>
+      <span class="cc-ex">$ ports</span>
+    </div>
+    <div class="cmd-card" style="border-left-color:var(--green)">
+      <div class="cc-cmd">alias reload='source ~/.bashrc'</div>
+      <div class="cc-desc">Recarga la configuración de bash rápidamente</div>
+      <span class="cc-ex">$ reload</span>
+    </div>
+  </div>
+
+  <div class="callout tip">
+    <h4>🟢 Reglas para buenos alias</h4>
+    <ul>
+      <li>Nombres cortos (2–4 caracteres) y fáciles de recordar</li>
+      <li>No sobreescribas comandos existentes (no hagas <code>alias ls='rm'</code>)</li>
+      <li>Agrúpalos por tema en tu <code>.bashrc</code> con comentarios</li>
+      <li>Comparte tu <code>.bashrc</code> en GitHub — así lo tienes en cualquier máquina</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     EJERCICIO
+══════════════════════════════════ -->
+<section class="module" id="ejercicio">
+  <div class="module-header">
+    <div class="module-icon">✏️</div>
+    <div>
+      <div class="module-title">Ejercicio — Editar, leer y personalizar la terminal</div>
+      <div class="module-sub">Practica todo lo de la Parte B</div>
+    </div>
+  </div>
+
+  <div class="ejercicio">
+    <div class="ej-header">✏️ Ejercicio Parte B <span class="ej-badge">Intermedio</span></div>
+    <ol>
+      <li>Crea un archivo con cat: <code>cat &gt; lista-compras.txt</code>, escribe 5 frutas, termina con Ctrl+D.</li>
+      <li>Muestra el archivo con: <code>cat lista-compras.txt</code> y luego con <code>cat -n lista-compras.txt</code>.</li>
+      <li>Agrega 2 frutas más al final sin borrar: <code>cat &gt;&gt; lista-compras.txt</code></li>
+      <li>Abre el archivo con <code>less lista-compras.txt</code>, navega con flechas, busca con <code>/manza</code>, sal con <code>q</code>.</li>
+      <li>Abre el archivo con <code>nano lista-compras.txt</code>, cambia algo, guarda con Ctrl+O y sal con Ctrl+X.</li>
+      <li>Ahora el desafío de vi: <code>vi lista-compras.txt</code> → presiona <code>i</code> → escribe algo → <code>Esc</code> → <code>:wq</code></li>
+      <li>Descubre qué tipo son estos comandos: <code>type ls</code>, <code>type cd</code>, <code>type which</code></li>
+      <li>Abre tu <code>~/.bashrc</code> con nano y agrega estos alias al final:
+        <ul style="margin-top:.3rem;font-family:monospace;font-size:.88rem">
+          <li>alias ll='ls -la'</li>
+          <li>alias ..='cd ..'</li>
+          <li>alias cls='clear'</li>
+          <li>alias gs='git status'</li>
+        </ul>
+      </li>
+      <li>Recarga con <code>source ~/.bashrc</code> y prueba que <code>ll</code> funcione.</li>
+      <li>Ejecuta <code>alias</code> sin argumentos para ver todos los alias activos.</li>
+    </ol>
+  </div>
+
+  <div class="callout tip">
+    <h4>🟢 Resumen de la Parte B</h4>
+    <ul>
+      <li><code>cat archivo</code> — muestra contenido. <code>cat -n</code> con números. <code>&gt;</code> sobreescribe, <code>&gt;&gt;</code> agrega.</li>
+      <li><code>less archivo</code> — lectura paginada. q=salir, /=buscar, G=final, g=inicio, F=seguir en vivo.</li>
+      <li><code>head -n N</code> / <code>tail -n N</code> — primeras/últimas N líneas. <code>tail -f</code> sigue el archivo en tiempo real.</li>
+      <li><strong>nano</strong>: editor simple. ^O guardar, ^X salir, ^W buscar. Los atajos se muestran en pantalla.</li>
+      <li><strong>vi/vim</strong>: 3 modos — Normal (Esc), Insert (i/a/o), Command (:). Guardar: :w. Salir: :q. Ambos: :wq. Forzar: :q!</li>
+      <li>4 tipos de comandos: ejecutables, builtins, funciones y alias. Usa <code>type</code> para saber cuál es cuál.</li>
+      <li>El <code>PATH</code> es donde la shell busca ejecutables. Agrégale rutas en <code>~/.bashrc</code>.</li>
+      <li><code>alias nombre='comando'</code> — crea atajo temporal. Guarda en <code>~/.bashrc</code> para permanente.</li>
+      <li><code>source ~/.bashrc</code> — recarga la configuración sin cerrar la terminal.</li>
+    </ul>
+  </div>
+
+  <div class="callout info">
+    <h4>💡 ¿Qué sigue? — Parte C</h4>
+    <p>En la Parte C aprendemos las herramientas más poderosas de la terminal: <strong>canalizaciones (pipes), comodines, expansiones, cancelar expansiones y trucos de teclado</strong>. Del 1:11:52 al 1:52:50 del video — donde la terminal empieza a sentirse como superpoder.</p>
+  </div>
+</section>
+</main>
+
+<footer>
+  Guía Linux · Parte B · Basado en curso de Linux completo · Café &lt;/&gt; · Hugo 2025
+</footer>
+
+</body>
+</html>

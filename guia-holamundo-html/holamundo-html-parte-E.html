@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Repaso HTML — HolaMundo · Parte E</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #e85d2f;
+    --primary-light:  #fdf0ec;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1e1e2e;
+  }
+
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  .topbar { background: #fff; border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; gap: 14px; position: sticky; top: 0; z-index: 200; height: 46px; }
+  .topbar a { font-size: 13px; color: var(--muted); text-decoration: none; padding: 5px 13px; border: 1px solid var(--border); border-radius: 999px; transition: all .15s; }
+  .topbar a:hover { color: var(--text); border-color: var(--muted); }
+  .topbar span { font-size: 13px; color: var(--muted); }
+
+  header { background: #1e1e2e; color: #cdd6f4; padding: 2.75rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: 'HTML'; position: absolute; font-size: 12rem; font-weight: 900; color: rgba(255,255,255,.04); right: -1rem; top: -2rem; font-family: monospace; line-height: 1; }
+  header .curso-badge { display: inline-flex; align-items: center; gap: .5rem; background: rgba(232,93,47,.2); border: 1px solid rgba(232,93,47,.4); border-radius: 20px; padding: 3px 14px; font-size: .75rem; font-weight: 700; color: #fab387; margin-bottom: .75rem; }
+  header h1 { font-size: 2.2rem; font-weight: 800; letter-spacing: -.5px; color: #cdd6f4; }
+  header p  { font-size: 1rem; opacity: .7; margin-top: .4rem; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); border-radius: 20px; padding: 3px 13px; font-size: .75rem; margin-top: .65rem; }
+  header .final-badge { display: inline-block; background: rgba(26,122,90,.3); border: 1px solid rgba(26,122,90,.5); border-radius: 20px; padding: 3px 13px; font-size: .75rem; margin-top: .4rem; color: #A6E3A1; }
+
+  .partes-nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 46px; z-index: 110; display: flex; align-items: center; height: 38px; padding: 0 1rem; }
+  .partes-nav-prev, .partes-nav-next { flex-shrink: 0; display: flex; align-items: center; padding: 0 .75rem; height: 100%; text-decoration: none; color: var(--muted); font-size: .78rem; font-weight: 500; border-right: 1px solid var(--border); transition: color .15s; white-space: nowrap; }
+  .partes-nav-next { border-right: none; border-left: 1px solid var(--border); }
+  .partes-nav-prev:hover, .partes-nav-next:hover { color: var(--primary); }
+  .partes-nav-list { flex: 1; display: flex; align-items: center; justify-content: center; gap: .2rem; overflow-x: auto; padding: 0 .5rem; }
+  .partes-nav-list::-webkit-scrollbar { display: none; }
+  .partes-nav-list a { flex-shrink: 0; padding: 2px 10px; border-radius: 20px; text-decoration: none; font-size: .73rem; font-weight: 600; color: var(--muted); transition: color .15s, background .15s; }
+  .partes-nav-list a:hover { color: var(--text); background: var(--bg); }
+  .partes-nav-list a.activa { background: var(--secondary-light); color: var(--secondary); }
+
+  nav.sec-nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 84px; z-index: 100; display: flex; overflow-x: auto; }
+  nav.sec-nav a { flex-shrink: 0; padding: .7rem 1rem; text-decoration: none; color: var(--muted); font-size: .82rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav.sec-nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--secondary); color: white; border-radius: 20px; padding: 5px 16px; font-size: .8rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.75rem; margin-bottom: 2rem; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.6rem; flex-shrink: 0; }
+  .module-title { font-size: 1.2rem; font-weight: 700; }
+  .module-sub { font-size: .83rem; color: var(--muted); margin-top: 2px; }
+
+  .callout { border-radius: 0 10px 10px 0; padding: 1rem 1.2rem; margin: 1rem 0; }
+  .callout h4 { font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .35rem; }
+  .callout p, .callout ul { font-size: .93rem; }
+  .callout ul { padding-left: 1.2rem; }
+  .callout li { margin-bottom: .3rem; }
+  .callout.tip  { background: var(--secondary-light); border-left: 4px solid var(--secondary); }
+  .callout.tip h4 { color: var(--secondary); }
+  .callout.note { background: var(--primary-light); border-left: 4px solid var(--primary); }
+  .callout.note h4 { color: var(--primary); }
+  .callout.info { background: var(--accent-light); border-left: 4px solid var(--accent); }
+  .callout.info h4 { color: var(--accent); }
+
+  .code-wrap { position: relative; margin: .9rem 0; }
+  .code-block { background: var(--code-bg); color: #cdd6f4; border-radius: 10px; padding: 1.2rem 1.4rem; font-family: 'DM Mono', monospace; font-size: .87rem; line-height: 1.9; overflow-x: auto; white-space: pre; }
+  .lang-tag { position: absolute; top: .55rem; right: .75rem; background: rgba(255,255,255,.08); color: rgba(255,255,255,.4); font-size: .65rem; padding: 2px 8px; border-radius: 4px; font-family: sans-serif; font-weight: 700; }
+  .ht { color: #89B4FA; }
+  .ha { color: #CBA6F7; }
+  .hs { color: #F9E2AF; }
+  .hc { color: #585B70; font-style: italic; }
+  .hv { color: #A6E3A1; }
+
+  .preview { border: 2px dashed var(--border); border-radius: 10px; padding: 1.25rem; margin: .9rem 0; background: #fff; position: relative; }
+  .preview::before { content: '🖥 Resultado en el navegador'; position: absolute; top: -11px; left: 14px; background: #fff; font-size: .72rem; color: var(--muted); padding: 0 6px; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: .9rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .6rem 1rem; text-align: left; font-weight: 700; }
+  .tbl td { padding: .6rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .82rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  .ejercicio { background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 12px; padding: 1.4rem; margin: 1.5rem 0; }
+  .ej-header { display: flex; align-items: center; gap: .6rem; margin-bottom: .85rem; font-weight: 700; color: #78350F; flex-wrap: wrap; }
+  .ej-badge { background: var(--accent); color: #fff; font-size: .67rem; padding: 2px 9px; border-radius: 20px; font-weight: 700; text-transform: uppercase; }
+
+  h2 { font-size: 1.15rem; font-weight: 700; margin: 1.5rem 0 .6rem; }
+  h3 { font-size: .97rem; font-weight: 700; margin: 1.1rem 0 .4rem; }
+  p  { margin-bottom: .75rem; }
+  ul, ol { padding-left: 1.35rem; margin-bottom: .75rem; }
+  li { margin-bottom: .35rem; font-size: .95rem; }
+  code { font-family: 'DM Mono', monospace; background: #f0ece6; color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .88em; }
+  strong { font-weight: 700; }
+
+  /* ── DEMO BLOG ── */
+  .blog-demo { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; font-size: .85rem; }
+  .blog-demo-nav { background: #1e1e2e; color: white; padding: .6rem 1rem; display: flex; justify-content: space-between; align-items: center; }
+  .blog-demo-nav .bd-logo { font-weight: 800; font-size: .9rem; }
+  .blog-demo-nav .bd-links { display: flex; gap: 1rem; font-size: .78rem; opacity: .7; }
+  .blog-demo-body { display: grid; grid-template-columns: 1fr 200px; gap: 0; }
+  @media (max-width: 580px) { .blog-demo-body { grid-template-columns: 1fr; } }
+  .blog-demo-main { padding: 1rem; }
+  .blog-demo-article { background: white; border: 1px solid var(--border); border-radius: 8px; padding: .85rem; margin-bottom: .6rem; }
+  .blog-demo-article h3 { font-size: .88rem; font-weight: 700; margin-bottom: .25rem; }
+  .blog-demo-article p  { font-size: .78rem; color: var(--muted); margin: 0; }
+  .blog-demo-article .bd-meta { font-size: .7rem; color: var(--primary); margin-bottom: .2rem; font-weight: 600; }
+  .blog-demo-sidebar { background: var(--primary-light); padding: .85rem; border-left: 1px solid var(--border); }
+  .blog-demo-sidebar h4 { font-size: .8rem; font-weight: 700; color: var(--primary); margin-bottom: .5rem; text-transform: uppercase; letter-spacing: .05em; }
+  .blog-demo-sidebar ul { list-style: none; padding: 0; }
+  .blog-demo-sidebar ul li { font-size: .78rem; padding: .25rem 0; border-bottom: 1px solid var(--border); }
+  .blog-demo-sidebar ul li:last-child { border-bottom: none; }
+  .blog-demo-footer { background: #1e1e2e; color: rgba(255,255,255,.5); padding: .5rem 1rem; font-size: .72rem; text-align: center; }
+
+  /* ── VISUALIZADOR div vs span ── */
+  .boxes-demo { display: flex; flex-direction: column; gap: .4rem; margin: .75rem 0; font-size: .82rem; }
+  .box-block { background: var(--primary-light); border: 2px solid var(--primary); border-radius: 6px; padding: .5rem .75rem; display: block; }
+  .box-inline-wrap { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: .5rem .75rem; line-height: 2; }
+
+  /* ── SELECTOR VISUALIZER ── */
+  .sel-demo { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem; margin: .75rem 0; font-size: .85rem; }
+  .sel-demo .sd-row { display: flex; align-items: center; gap: .75rem; padding: .35rem 0; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  .sel-demo .sd-row:last-child { border-bottom: none; }
+  .sd-selector { font-family: 'DM Mono', monospace; font-size: .78rem; font-weight: 700; color: var(--primary); background: var(--primary-light); padding: 2px 8px; border-radius: 4px; flex-shrink: 0; min-width: 120px; }
+  .sd-desc { font-size: .83rem; flex: 1; }
+  .sd-ex { font-size: .78rem; color: var(--muted); font-family: monospace; }
+
+  /* ── BANNER FINAL ── */
+  .final-banner {
+    background: linear-gradient(135deg, #1e1e2e 0%, #1a7a5a 100%);
+    border-radius: 14px; padding: 2rem; text-align: center; color: white; margin-top: 1rem;
+    position: relative; overflow: hidden;
+  }
+  .final-banner::before { content: '🎓'; position: absolute; font-size: 6rem; right: -1rem; top: -1rem; opacity: .08; }
+  .final-banner h2 { font-size: 1.4rem; margin-bottom: .5rem; color: white; }
+  .final-banner p  { opacity: .8; font-size: .93rem; margin-bottom: 1rem; }
+  .chips { display: flex; flex-wrap: wrap; gap: .4rem; justify-content: center; margin-top: .85rem; }
+  .chip { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2); border-radius: 20px; padding: 3px 12px; font-size: .75rem; font-weight: 600; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .83rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="../capitulos.html?tab=guias">← Café &lt;/&gt;</a>
+  <span>☕ Repaso HTML · HolaMundo · Parte E · Final</span>
+</div>
+
+<header>
+  <div class="curso-badge">📺 HolaMundo — Aprende HTML ahora · 1:11:34 – 1:33:01</div>
+  <h1>Repaso HTML — Parte E</h1>
+  <p>Blog con HTML, etiqueta div, atributos id y class, links revisitados</p>
+  <span class="badge">✦ Repaso rápido desde otro punto de vista ✦</span>
+  <br>
+  <span class="final-badge">✅ Parte final del repaso — ¡Completaste el curso!</span>
+</header>
+
+<div class="partes-nav">
+  <a class="partes-nav-prev" href="holamundo-html-parte-D.html">← D</a>
+  <div class="partes-nav-list">
+    <a href="holamundo-html-parte-A.html">A</a>
+    <a href="holamundo-html-parte-B.html">B</a>
+    <a href="holamundo-html-parte-C.html">C</a>
+    <a href="holamundo-html-parte-D.html">D</a>
+    <a href="holamundo-html-parte-E.html" class="activa">E ✦</a>
+  </div>
+  <a class="partes-nav-next" href="holamundo-html-parte-A.html">A →</a>
+</div>
+
+<nav class="sec-nav">
+  <a href="#blog">📰 Blog con HTML</a>
+  <a href="#div">📦 &lt;div&gt;</a>
+  <a href="#id-class">🏷 id y class</a>
+  <a href="#semantica">🧱 Semántica</a>
+  <a href="#links-revisited">🔗 Links revisitados</a>
+  <a href="#ejercicio">✏️ Proyecto Final</a>
+</nav>
+
+<main>
+<div class="parte-badge">📦 Parte E · Final — HolaMundo · 1:11:34 – 1:33:01</div>
+
+
+<!-- ════════════════════════════════════
+     BLOG CON HTML
+════════════════════════════════════ -->
+<section class="module" id="blog">
+  <div class="module-header">
+    <div class="module-icon">📰</div>
+    <div>
+      <div class="module-title">Creamos un blog con HTML</div>
+      <div class="module-sub">Juntando todo lo aprendido en un proyecto real</div>
+    </div>
+  </div>
+
+  <p>HolaMundo termina el curso construyendo un blog completo con HTML puro. La idea es simple: un sitio con navbar, artículos, sidebar y footer — todo con las etiquetas que ya conoces más el <code>&lt;div&gt;</code> para agrupar secciones.</p>
+
+  <div class="preview">
+    <p style="font-size:.78rem;color:var(--muted);margin-bottom:.6rem">Wireframe del blog que se construye en el video:</p>
+    <div class="blog-demo">
+      <div class="blog-demo-nav">
+        <span class="bd-logo">📝 Mi Blog</span>
+        <div class="bd-links">
+          <span>Inicio</span>
+          <span>Artículos</span>
+          <span>Contacto</span>
+        </div>
+      </div>
+      <div class="blog-demo-body">
+        <div class="blog-demo-main">
+          <div class="blog-demo-article">
+            <div class="bd-meta">HTML · 15 jun 2025</div>
+            <h3>Mi primer post sobre HTML</h3>
+            <p>HTML es el lenguaje base de la web. En este artículo te cuento cómo empecé a aprender...</p>
+          </div>
+          <div class="blog-demo-article">
+            <div class="bd-meta">CSS · 18 jun 2025</div>
+            <h3>Aprendiendo CSS desde cero</h3>
+            <p>Después de HTML, el siguiente paso fue CSS. Las primeras propiedades que aprendí fueron...</p>
+          </div>
+          <div class="blog-demo-article">
+            <div class="bd-meta">JavaScript · 22 jun 2025</div>
+            <h3>JavaScript: mis primeras funciones</h3>
+            <p>JavaScript le da vida a las páginas web. Aquí mi experiencia con las primeras funciones...</p>
+          </div>
+        </div>
+        <div class="blog-demo-sidebar">
+          <h4>Categorías</h4>
+          <ul>
+            <li>HTML (3)</li>
+            <li>CSS (2)</li>
+            <li>JavaScript (1)</li>
+          </ul>
+          <h4 style="margin-top:.75rem">Sobre mí</h4>
+          <p style="font-size:.75rem;color:var(--muted);margin-top:.3rem">Desarrollador web en formación. Aquí comparto mi aprendizaje.</p>
+        </div>
+      </div>
+      <div class="blog-demo-footer">© 2025 Mi Blog · Hecho con HTML puro</div>
+    </div>
+  </div>
+
+  <h2>La estructura HTML del blog</h2>
+
+  <div class="code-wrap">
+    <div class="code-block"><span class="ht">&lt;!DOCTYPE html&gt;</span>
+<span class="ht">&lt;html</span> <span class="ha">lang</span>=<span class="hs">"es"</span><span class="ht">&gt;</span>
+<span class="ht">&lt;head&gt;</span>
+  <span class="ht">&lt;meta</span> <span class="ha">charset</span>=<span class="hs">"UTF-8"</span><span class="ht">&gt;</span>
+  <span class="ht">&lt;meta</span> <span class="ha">name</span>=<span class="hs">"viewport"</span> <span class="ha">content</span>=<span class="hs">"width=device-width, initial-scale=1.0"</span><span class="ht">&gt;</span>
+  <span class="ht">&lt;title&gt;</span>Mi Blog de Programación<span class="ht">&lt;/title&gt;</span>
+<span class="ht">&lt;/head&gt;</span>
+<span class="ht">&lt;body&gt;</span>
+
+  <span class="hc">&lt;!-- NAVBAR --&gt;</span>
+  <span class="ht">&lt;div</span> <span class="ha">id</span>=<span class="hs">"navbar"</span><span class="ht">&gt;</span>
+    <span class="ht">&lt;h2&gt;</span>Mi Blog<span class="ht">&lt;/h2&gt;</span>
+    <span class="ht">&lt;ul&gt;</span>
+      <span class="ht">&lt;li&gt;&lt;a</span> <span class="ha">href</span>=<span class="hs">"index.html"</span><span class="ht">&gt;</span>Inicio<span class="ht">&lt;/a&gt;&lt;/li&gt;</span>
+      <span class="ht">&lt;li&gt;&lt;a</span> <span class="ha">href</span>=<span class="hs">"articulos.html"</span><span class="ht">&gt;</span>Artículos<span class="ht">&lt;/a&gt;&lt;/li&gt;</span>
+      <span class="ht">&lt;li&gt;&lt;a</span> <span class="ha">href</span>=<span class="hs">"contacto.html"</span><span class="ht">&gt;</span>Contacto<span class="ht">&lt;/a&gt;&lt;/li&gt;</span>
+    <span class="ht">&lt;/ul&gt;</span>
+  <span class="ht">&lt;/div&gt;</span>
+
+  <span class="hc">&lt;!-- CONTENIDO PRINCIPAL --&gt;</span>
+  <span class="ht">&lt;div</span> <span class="ha">id</span>=<span class="hs">"contenido"</span><span class="ht">&gt;</span>
+
+    <span class="hc">&lt;!-- ARTÍCULOS --&gt;</span>
+    <span class="ht">&lt;div</span> <span class="ha">id</span>=<span class="hs">"articulos"</span><span class="ht">&gt;</span>
+      <span class="ht">&lt;div</span> <span class="ha">class</span>=<span class="hs">"articulo"</span><span class="ht">&gt;</span>
+        <span class="ht">&lt;h2&gt;</span>Mi primer post<span class="ht">&lt;/h2&gt;</span>
+        <span class="ht">&lt;p</span> <span class="ha">class</span>=<span class="hs">"fecha"</span><span class="ht">&gt;</span>15 de junio, 2025<span class="ht">&lt;/p&gt;</span>
+        <span class="ht">&lt;p&gt;</span>Contenido del artículo...<span class="ht">&lt;/p&gt;</span>
+        <span class="ht">&lt;a</span> <span class="ha">href</span>=<span class="hs">"post1.html"</span><span class="ht">&gt;</span>Leer más →<span class="ht">&lt;/a&gt;</span>
+      <span class="ht">&lt;/div&gt;</span>
+
+      <span class="ht">&lt;div</span> <span class="ha">class</span>=<span class="hs">"articulo"</span><span class="ht">&gt;</span>
+        <span class="ht">&lt;h2&gt;</span>Aprendiendo CSS<span class="ht">&lt;/h2&gt;</span>
+        <span class="ht">&lt;p</span> <span class="ha">class</span>=<span class="hs">"fecha"</span><span class="ht">&gt;</span>18 de junio, 2025<span class="ht">&lt;/p&gt;</span>
+        <span class="ht">&lt;p&gt;</span>Contenido del artículo...<span class="ht">&lt;/p&gt;</span>
+        <span class="ht">&lt;a</span> <span class="ha">href</span>=<span class="hs">"post2.html"</span><span class="ht">&gt;</span>Leer más →<span class="ht">&lt;/a&gt;</span>
+      <span class="ht">&lt;/div&gt;</span>
+    <span class="ht">&lt;/div&gt;</span>
+
+    <span class="hc">&lt;!-- SIDEBAR --&gt;</span>
+    <span class="ht">&lt;div</span> <span class="ha">id</span>=<span class="hs">"sidebar"</span><span class="ht">&gt;</span>
+      <span class="ht">&lt;h3&gt;</span>Categorías<span class="ht">&lt;/h3&gt;</span>
+      <span class="ht">&lt;ul&gt;</span>
+        <span class="ht">&lt;li&gt;&lt;a</span> <span class="ha">href</span>=<span class="hs">"#"</span><span class="ht">&gt;</span>HTML (3)<span class="ht">&lt;/a&gt;&lt;/li&gt;</span>
+        <span class="ht">&lt;li&gt;&lt;a</span> <span class="ha">href</span>=<span class="hs">"#"</span><span class="ht">&gt;</span>CSS (2)<span class="ht">&lt;/a&gt;&lt;/li&gt;</span>
+      <span class="ht">&lt;/ul&gt;</span>
+    <span class="ht">&lt;/div&gt;</span>
+
+  <span class="ht">&lt;/div&gt;</span>
+
+  <span class="hc">&lt;!-- FOOTER --&gt;</span>
+  <span class="ht">&lt;div</span> <span class="ha">id</span>=<span class="hs">"footer"</span><span class="ht">&gt;</span>
+    <span class="ht">&lt;p&gt;</span>© 2025 Mi Blog · Hecho con HTML<span class="ht">&lt;/p&gt;</span>
+  <span class="ht">&lt;/div&gt;</span>
+
+<span class="ht">&lt;/body&gt;</span>
+<span class="ht">&lt;/html&gt;</span></div>
+    <div class="lang-tag">HTML</div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════
+     DIV
+════════════════════════════════════ -->
+<section class="module" id="div">
+  <div class="module-header">
+    <div class="module-icon">📦</div>
+    <div>
+      <div class="module-title">&lt;div&gt; — El contenedor genérico</div>
+      <div class="module-sub">La caja invisible que agrupa y organiza elementos</div>
+    </div>
+  </div>
+
+  <p>El <code>&lt;div&gt;</code> (division) es un contenedor genérico de bloque. No tiene ningún significado semántico ni estilo visual propio — es una caja invisible. Su único propósito es <strong>agrupar elementos</strong> para poder aplicarles CSS o manipularlos con JavaScript.</p>
+
+  <div class="code-wrap">
+    <div class="code-block"><span class="hc">&lt;!-- div solo: invisible, no hace nada visualmente --&gt;</span>
+<span class="ht">&lt;div&gt;</span>
+  <span class="ht">&lt;h2&gt;</span>Título del artículo<span class="ht">&lt;/h2&gt;</span>
+  <span class="ht">&lt;p&gt;</span>Contenido del artículo...<span class="ht">&lt;/p&gt;</span>
+  <span class="ht">&lt;a</span> <span class="ha">href</span>=<span class="hs">"#"</span><span class="ht">&gt;</span>Leer más<span class="ht">&lt;/a&gt;</span>
+<span class="ht">&lt;/div&gt;</span>
+<span class="hc">&lt;!-- El div agrupa h2 + p + a como "una sola unidad" --&gt;</span>
+<span class="hc">&lt;!-- Con CSS puedo darle fondo, borde, margen a TODO el grupo --&gt;</span>
+
+<span class="hc">&lt;!-- Es diferente a span: div es block, span es inline --&gt;</span>
+<span class="ht">&lt;p&gt;</span>Texto con una <span class="ht">&lt;span&gt;</span>palabra marcada<span class="ht">&lt;/span&gt;</span> inline.<span class="ht">&lt;/p&gt;</span></div>
+    <div class="lang-tag">HTML</div>
+  </div>
+
+  <div class="preview">
+    <p style="font-size:.82rem;color:var(--muted);margin-bottom:.6rem">div sin CSS vs div con CSS aplicado:</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+      <div>
+        <p style="font-size:.72rem;font-weight:700;color:var(--muted);margin-bottom:.3rem">Sin CSS — invisible</p>
+        <div>
+          <h3 style="font-size:.9rem;font-weight:700">Artículo #1</h3>
+          <p style="font-size:.82rem;color:var(--muted)">Contenido del artículo aquí.</p>
+          <a href="#" style="font-size:.82rem;color:var(--primary)">Leer más →</a>
+        </div>
+      </div>
+      <div>
+        <p style="font-size:.72rem;font-weight:700;color:var(--muted);margin-bottom:.3rem">Con CSS — visible y estilizado</p>
+        <div style="border:1px solid var(--border);border-radius:8px;padding:.85rem;background:var(--bg)">
+          <h3 style="font-size:.9rem;font-weight:700">Artículo #1</h3>
+          <p style="font-size:.82rem;color:var(--muted)">Contenido del artículo aquí.</p>
+          <a href="#" style="font-size:.82rem;color:var(--primary)">Leer más →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout tip">
+    <h4>🟢 div + id o class = el dúo más útil de HTML</h4>
+    <p>Un div solo no hace nada. Un div con una clase o un id se convierte en el punto de entrada para CSS y JavaScript. La combinación <code>&lt;div class="articulo"&gt;</code> + regla CSS <code>.articulo { ... }</code> es el patrón más repetido en el desarrollo web real.</p>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════
+     ID Y CLASS
+════════════════════════════════════ -->
+<section class="module" id="id-class">
+  <div class="module-header">
+    <div class="module-icon">🏷️</div>
+    <div>
+      <div class="module-title">Atributos id y class — Identificar y agrupar elementos</div>
+      <div class="module-sub">Los puentes entre HTML y CSS / JavaScript</div>
+    </div>
+  </div>
+
+  <p>Los atributos <code>id</code> y <code>class</code> son la forma de darle un nombre a los elementos HTML para poder referenciarlos desde CSS o JavaScript. Son los más usados de todos los atributos HTML.</p>
+
+  <div class="code-wrap">
+    <div class="code-block"><span class="hc">&lt;!-- id: identificador ÚNICO — solo un elemento puede tener ese id --&gt;</span>
+<span class="ht">&lt;div</span> <span class="ha">id</span>=<span class="hs">"navbar"</span><span class="ht">&gt;</span>...<span class="ht">&lt;/div&gt;</span>
+<span class="ht">&lt;div</span> <span class="ha">id</span>=<span class="hs">"footer"</span><span class="ht">&gt;</span>...<span class="ht">&lt;/div&gt;</span>
+<span class="hc">&lt;!-- En CSS: #navbar { ... }  En JS: document.getElementById("navbar") --&gt;</span>
+
+<span class="hc">&lt;!-- class: nombre reutilizable — muchos elementos pueden tener la misma clase --&gt;</span>
+<span class="ht">&lt;div</span> <span class="ha">class</span>=<span class="hs">"articulo"</span><span class="ht">&gt;</span>Artículo 1<span class="ht">&lt;/div&gt;</span>
+<span class="ht">&lt;div</span> <span class="ha">class</span>=<span class="hs">"articulo"</span><span class="ht">&gt;</span>Artículo 2<span class="ht">&lt;/div&gt;</span>
+<span class="ht">&lt;div</span> <span class="ha">class</span>=<span class="hs">"articulo"</span><span class="ht">&gt;</span>Artículo 3<span class="ht">&lt;/div&gt;</span>
+<span class="hc">&lt;!-- En CSS: .articulo { ... }  Aplica a los 3 elementos a la vez --&gt;</span>
+
+<span class="hc">&lt;!-- Un elemento puede tener múltiples clases separadas por espacio --&gt;</span>
+<span class="ht">&lt;div</span> <span class="ha">class</span>=<span class="hs">"articulo destacado reciente"</span><span class="ht">&gt;</span>...<span class="ht">&lt;/div&gt;</span>
+<span class="hc">&lt;!-- Tiene 3 clases: "articulo", "destacado" y "reciente" --&gt;</span>
+
+<span class="hc">&lt;!-- id y class juntos --&gt;</span>
+<span class="ht">&lt;div</span> <span class="ha">id</span>=<span class="hs">"primer-post"</span> <span class="ha">class</span>=<span class="hs">"articulo destacado"</span><span class="ht">&gt;</span>...<span class="ht">&lt;/div&gt;</span></div>
+    <div class="lang-tag">HTML</div>
+  </div>
+
+  <h2>id vs class — cuándo usar cuál</h2>
+
+  <table class="tbl">
+    <thead><tr><th></th><th>id</th><th>class</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Unicidad</strong></td><td>Único en la página — solo un elemento puede tener ese id</td><td>Reutilizable — todos los elementos con la misma clase se estilizan igual</td></tr>
+      <tr><td><strong>Selector CSS</strong></td><td><code>#nombre</code> (con #)</td><td><code>.nombre</code> (con punto)</td></tr>
+      <tr><td><strong>En JavaScript</strong></td><td><code>getElementById("nombre")</code></td><td><code>getElementsByClassName("nombre")</code></td></tr>
+      <tr><td><strong>Anclas</strong></td><td><code>&lt;a href="#seccion"&gt;</code> navega a <code>id="seccion"</code></td><td>No se puede usar como ancla</td></tr>
+      <tr><td><strong>Uso típico</strong></td><td>Secciones únicas: navbar, footer, hero, sidebar</td><td>Componentes repetidos: cards, botones, badges, artículos</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout tip">
+    <h4>🟢 En la práctica moderna: usa class casi siempre</h4>
+    <p>En proyectos reales, los desarrolladores usan <strong>class</strong> para casi todo el CSS. El <code>id</code> se reserva principalmente para anclas de navegación y para cuando JavaScript necesita referenciar un elemento único. Esto es porque los selectores de clase son más flexibles y reutilizables.</p>
+  </div>
+
+  <h2>Cómo se conectan HTML y CSS</h2>
+
+  <div class="code-wrap">
+    <div class="code-block"><span class="hc">&lt;!-- HTML: defines la estructura y das nombres --&gt;</span>
+<span class="ht">&lt;div</span> <span class="ha">class</span>=<span class="hs">"articulo"</span><span class="ht">&gt;</span>
+  <span class="ht">&lt;h2&gt;</span>Mi primer post<span class="ht">&lt;/h2&gt;</span>
+  <span class="ht">&lt;p</span> <span class="ha">class</span>=<span class="hs">"fecha"</span><span class="ht">&gt;</span>15 de junio<span class="ht">&lt;/p&gt;</span>
+<span class="ht">&lt;/div&gt;</span>
+
+<span class="hc">/* CSS: usas los nombres para aplicar estilos */</span>
+<span class="hc">/* .articulo apunta a todos los elementos con class="articulo" */</span>
+<span class="hv">.articulo</span> {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+<span class="hc">/* .fecha apunta a elementos con class="fecha" */</span>
+<span class="hv">.fecha</span> {
+  color: gray;
+  font-size: 0.85rem;
+}
+
+<span class="hc">/* #navbar apunta al elemento con id="navbar" */</span>
+<span class="hv">#navbar</span> {
+  background: black;
+  color: white;
+  padding: 1rem;
+}</div>
+    <div class="lang-tag">HTML + CSS</div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════
+     ETIQUETAS SEMÁNTICAS
+════════════════════════════════════ -->
+<section class="module" id="semantica">
+  <div class="module-header">
+    <div class="module-icon">🧱</div>
+    <div>
+      <div class="module-title">Etiquetas semánticas — La evolución del div</div>
+      <div class="module-sub">HTML5 introdujo etiquetas con significado propio para reemplazar al div</div>
+    </div>
+  </div>
+
+  <p>Aunque el blog de HolaMundo usa <code>&lt;div&gt;</code> para todo, HTML5 introdujo etiquetas <strong>semánticas</strong> que hacen exactamente lo mismo que un div pero con un significado claro. El navegador y Google las entienden mejor.</p>
+
+  <div class="code-wrap">
+    <div class="code-block"><span class="hc">&lt;!-- Con divs (como en el video de HolaMundo) --&gt;</span>
+<span class="ht">&lt;div</span> <span class="ha">id</span>=<span class="hs">"navbar"</span><span class="ht">&gt;</span>...<span class="ht">&lt;/div&gt;</span>
+<span class="ht">&lt;div</span> <span class="ha">id</span>=<span class="hs">"contenido"</span><span class="ht">&gt;</span>
+  <span class="ht">&lt;div</span> <span class="ha">id</span>=<span class="hs">"articulos"</span><span class="ht">&gt;</span>...<span class="ht">&lt;/div&gt;</span>
+  <span class="ht">&lt;div</span> <span class="ha">id</span>=<span class="hs">"sidebar"</span><span class="ht">&gt;</span>...<span class="ht">&lt;/div&gt;</span>
+<span class="ht">&lt;/div&gt;</span>
+<span class="ht">&lt;div</span> <span class="ha">id</span>=<span class="hs">"footer"</span><span class="ht">&gt;</span>...<span class="ht">&lt;/div&gt;</span>
+
+<span class="hc">&lt;!-- Con etiquetas semánticas (la forma moderna) --&gt;</span>
+<span class="hc">&lt;!-- Misma estructura, más significado para buscadores y accesibilidad --&gt;</span>
+<span class="ht">&lt;nav&gt;</span>...<span class="ht">&lt;/nav&gt;</span>
+<span class="ht">&lt;main&gt;</span>
+  <span class="ht">&lt;section&gt;</span>...<span class="ht">&lt;/section&gt;</span>
+  <span class="ht">&lt;aside&gt;</span>...<span class="ht">&lt;/aside&gt;</span>
+<span class="ht">&lt;/main&gt;</span>
+<span class="ht">&lt;footer&gt;</span>...<span class="ht">&lt;/footer&gt;</span></div>
+    <div class="lang-tag">HTML</div>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Etiqueta semántica</th><th>Reemplaza a</th><th>Cuándo usarla</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">&lt;header&gt;</span></td><td><code>&lt;div id="header"&gt;</code></td><td>Cabecera de la página o de una sección</td></tr>
+      <tr><td><span class="tag">&lt;nav&gt;</span></td><td><code>&lt;div id="navbar"&gt;</code></td><td>Menú de navegación principal</td></tr>
+      <tr><td><span class="tag">&lt;main&gt;</span></td><td><code>&lt;div id="contenido"&gt;</code></td><td>El contenido principal — solo uno por página</td></tr>
+      <tr><td><span class="tag">&lt;section&gt;</span></td><td><code>&lt;div class="seccion"&gt;</code></td><td>Una sección temática del contenido</td></tr>
+      <tr><td><span class="tag">&lt;article&gt;</span></td><td><code>&lt;div class="articulo"&gt;</code></td><td>Contenido independiente: post, noticia, comentario</td></tr>
+      <tr><td><span class="tag">&lt;aside&gt;</span></td><td><code>&lt;div id="sidebar"&gt;</code></td><td>Contenido secundario, relacionado pero no principal</td></tr>
+      <tr><td><span class="tag">&lt;footer&gt;</span></td><td><code>&lt;div id="footer"&gt;</code></td><td>Pie de la página o de una sección</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout tip">
+    <h4>🟢 ¿div o etiqueta semántica?</h4>
+    <p>Usa la etiqueta semántica cuando existe una que describe lo que contiene. Usa <code>&lt;div&gt;</code> cuando solo necesitas un contenedor sin significado especial — por ejemplo, para agrupar elementos a los que quieres aplicar CSS sin que el grupo en sí signifique algo concreto.</p>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════
+     LINKS REVISITADOS
+════════════════════════════════════ -->
+<section class="module" id="links-revisited">
+  <div class="module-header">
+    <div class="module-icon">🔗</div>
+    <div>
+      <div class="module-title">Links revisitados — Trucos y patrones avanzados</div>
+      <div class="module-sub">Lo que HolaMundo explica al final del curso sobre los vínculos</div>
+    </div>
+  </div>
+
+  <p>HolaMundo cierra el curso revisando los links con más profundidad — especialmente cómo usarlos para navegar entre las páginas del blog y cómo usar el <code>#</code> para anclas dentro de la misma página.</p>
+
+  <div class="code-wrap">
+    <div class="code-block"><span class="hc">&lt;!-- NAVEGACIÓN ENTRE PÁGINAS DEL BLOG --&gt;</span>
+
+<span class="hc">&lt;!-- Desde index.html --&gt;</span>
+<span class="ht">&lt;a</span> <span class="ha">href</span>=<span class="hs">"contacto.html"</span><span class="ht">&gt;</span>Ir a Contacto<span class="ht">&lt;/a&gt;</span>
+
+<span class="hc">&lt;!-- Desde una subcarpeta (posts/post1.html) volver al inicio --&gt;</span>
+<span class="ht">&lt;a</span> <span class="ha">href</span>=<span class="hs">"../index.html"</span><span class="ht">&gt;</span>← Volver al inicio<span class="ht">&lt;/a&gt;</span>
+
+<span class="hc">&lt;!-- ANCLAS: navegar a secciones de la misma página --&gt;</span>
+
+<span class="hc">&lt;!-- El link (puede estar en la navbar) --&gt;</span>
+<span class="ht">&lt;a</span> <span class="ha">href</span>=<span class="hs">"#sobre-mi"</span><span class="ht">&gt;</span>Sobre mí<span class="ht">&lt;/a&gt;</span>
+<span class="ht">&lt;a</span> <span class="ha">href</span>=<span class="hs">"#contacto"</span><span class="ht">&gt;</span>Contacto<span class="ht">&lt;/a&gt;</span>
+
+<span class="hc">&lt;!-- El destino (más abajo en la misma página) --&gt;</span>
+<span class="ht">&lt;div</span> <span class="ha">id</span>=<span class="hs">"sobre-mi"</span><span class="ht">&gt;</span>
+  <span class="ht">&lt;h2&gt;</span>Sobre mí<span class="ht">&lt;/h2&gt;</span>
+  ...
+<span class="ht">&lt;/div&gt;</span>
+
+<span class="ht">&lt;div</span> <span class="ha">id</span>=<span class="hs">"contacto"</span><span class="ht">&gt;</span>
+  <span class="ht">&lt;h2&gt;</span>Contacto<span class="ht">&lt;/h2&gt;</span>
+  ...
+<span class="ht">&lt;/div&gt;</span>
+
+<span class="hc">&lt;!-- Link que no va a ningún lado todavía (placeholder) --&gt;</span>
+<span class="ht">&lt;a</span> <span class="ha">href</span>=<span class="hs">"#"</span><span class="ht">&gt;</span>Próximamente<span class="ht">&lt;/a&gt;</span>
+
+<span class="hc">&lt;!-- Link a otra página + ancla específica --&gt;</span>
+<span class="ht">&lt;a</span> <span class="ha">href</span>=<span class="hs">"about.html#historia"</span><span class="ht">&gt;</span>Ver mi historia<span class="ht">&lt;/a&gt;</span>
+<span class="hc">&lt;!-- Abre about.html y hace scroll hasta id="historia" --&gt;</span></div>
+    <div class="lang-tag">HTML</div>
+  </div>
+
+  <div class="sel-demo">
+    <div style="font-size:.78rem;font-weight:700;color:var(--muted);margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.05em">Tipos de href — resumen visual</div>
+    <div class="sd-row">
+      <span class="sd-selector">href="pagina.html"</span>
+      <span class="sd-desc">Navega a otra página en el mismo sitio (ruta relativa)</span>
+    </div>
+    <div class="sd-row">
+      <span class="sd-selector">href="../index.html"</span>
+      <span class="sd-desc">Sube un nivel de carpeta y va a index.html</span>
+    </div>
+    <div class="sd-row">
+      <span class="sd-selector">href="https://..."</span>
+      <span class="sd-desc">Enlace a otro sitio web (ruta absoluta)</span>
+    </div>
+    <div class="sd-row">
+      <span class="sd-selector">href="#seccion"</span>
+      <span class="sd-desc">Salta a un elemento con ese id en la misma página</span>
+    </div>
+    <div class="sd-row">
+      <span class="sd-selector">href="#"</span>
+      <span class="sd-desc">Placeholder — no va a ningún lado, recarga la página</span>
+    </div>
+    <div class="sd-row">
+      <span class="sd-selector">href="mailto:x@y.com"</span>
+      <span class="sd-desc">Abre el cliente de correo del usuario</span>
+    </div>
+    <div class="sd-row">
+      <span class="sd-selector">href="tel:+52..."</span>
+      <span class="sd-desc">En móvil, marca el número directamente</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════
+     PROYECTO FINAL
+════════════════════════════════════ -->
+<section class="module" id="ejercicio">
+  <div class="module-header">
+    <div class="module-icon">🏁</div>
+    <div>
+      <div class="module-title">Proyecto Final — Tu propio blog personal</div>
+      <div class="module-sub">Aplica todo lo del curso en un proyecto completo real</div>
+    </div>
+  </div>
+
+  <div class="ejercicio">
+    <div class="ej-header">🏁 Proyecto Final — Blog personal con HTML puro <span class="ej-badge">Proyecto</span></div>
+
+    <p>Crea una carpeta <code>mi-blog</code> con la siguiente estructura y contenido:</p>
+
+    <p style="margin-top:.5rem"><strong>Archivos a crear:</strong></p>
+    <ul style="font-family:monospace;font-size:.88rem;margin-bottom:.75rem">
+      <li>mi-blog/</li>
+      <li>&nbsp;&nbsp;index.html (página principal)</li>
+      <li>&nbsp;&nbsp;sobre-mi.html</li>
+      <li>&nbsp;&nbsp;contacto.html</li>
+      <li>&nbsp;&nbsp;img/ (carpeta con tu foto y otras imágenes)</li>
+    </ul>
+
+    <p><strong>index.html debe tener:</strong></p>
+    <ol>
+      <li>Estructura base completa (DOCTYPE, html, head, body)</li>
+      <li>Un <code>&lt;nav&gt;</code> o <code>&lt;div id="navbar"&gt;</code> con links a las 3 páginas</li>
+      <li>Un <code>&lt;main&gt;</code> o <code>&lt;div id="contenido"&gt;</code> con mínimo 3 artículos usando <code>class="articulo"</code> en cada uno</li>
+      <li>Cada artículo con: h2 del título, párrafo de fecha con <code>class="fecha"</code>, párrafo de contenido, link "Leer más →"</li>
+      <li>Un <code>&lt;aside&gt;</code> o sidebar con categorías como lista <code>&lt;ul&gt;</code></li>
+      <li>Un <code>&lt;footer&gt;</code> con tu nombre y el año</li>
+    </ol>
+
+    <p style="margin-top:.75rem"><strong>sobre-mi.html debe tener:</strong></p>
+    <ol>
+      <li>La misma navbar que index.html (para mantener consistencia)</li>
+      <li>Tu foto con <code>&lt;img&gt;</code>, alt descriptivo y width definido</li>
+      <li>Tu nombre en un <code>&lt;h1&gt;</code></li>
+      <li>Párrafos sobre ti, lo que estudias y tus metas</li>
+      <li>Una lista de tus habilidades con <code>&lt;ul&gt;</code></li>
+      <li>Link de regreso a inicio: <code>&lt;a href="index.html"&gt;← Inicio&lt;/a&gt;</code></li>
+    </ol>
+
+    <p style="margin-top:.75rem"><strong>contacto.html debe tener:</strong></p>
+    <ol>
+      <li>La misma navbar</li>
+      <li>Un formulario completo: nombre, email, asunto (select), mensaje (textarea), checkbox de términos, botón enviar</li>
+      <li>Tus redes sociales como links con <code>target="_blank"</code></li>
+      <li>Tu email como link <code>mailto:</code></li>
+    </ol>
+
+    <p style="margin-top:.75rem"><strong>Bonus:</strong> Agrega anclas en index.html para que el link "Artículos" del navbar baje directamente a la sección de artículos usando <code>href="#articulos"</code> e <code>id="articulos"</code>.</p>
+  </div>
+
+
+  <!-- RESUMEN FINAL DEL REPASO -->
+  <div class="callout tip">
+    <h4>🟢 Resumen de la Parte E</h4>
+    <ul>
+      <li><strong>Blog con HTML:</strong> navbar + contenido + sidebar + footer — todo con etiquetas ya conocidas</li>
+      <li><code>&lt;div&gt;</code> — contenedor genérico de bloque, sin significado propio. Solo agrupa elementos para CSS/JS</li>
+      <li><code>id</code> — identificador único. Solo uno por página. CSS: <code>#id</code>. Anclas: <code>href="#id"</code></li>
+      <li><code>class</code> — reutilizable. Muchos elementos pueden tener la misma clase. CSS: <code>.clase</code></li>
+      <li>Un elemento puede tener varias clases: <code>class="articulo destacado"</code></li>
+      <li>Etiquetas semánticas: <code>&lt;nav&gt;</code>, <code>&lt;main&gt;</code>, <code>&lt;section&gt;</code>, <code>&lt;article&gt;</code>, <code>&lt;aside&gt;</code>, <code>&lt;header&gt;</code>, <code>&lt;footer&gt;</code></li>
+      <li>Links revisitados: rutas relativas, anclas <code>#id</code>, link a otra página + ancla <code>pagina.html#seccion</code></li>
+      <li><code>href="#"</code> — placeholder que no va a ningún lado (recarga la página)</li>
+    </ul>
+  </div>
+
+
+  <!-- BANNER FINAL DEL REPASO COMPLETO -->
+  <div class="final-banner">
+    <h2>🎓 ¡Completaste el repaso de HolaMundo!</h2>
+    <p>Revisaste el curso "Aprende HTML ahora" completo desde otro punto de vista.<br>Junto con la guía de Soy Dalto, ahora tienes dos perspectivas sólidas del mismo tema.</p>
+
+    <div class="chips">
+      <span class="chip">¿Qué es HTML? ✓</span>
+      <span class="chip">VS Code ✓</span>
+      <span class="chip">Estructura base ✓</span>
+      <span class="chip">DOCTYPE ✓</span>
+      <span class="chip">head / body ✓</span>
+      <span class="chip">Títulos ✓</span>
+      <span class="chip">Párrafos ✓</span>
+      <span class="chip">hr / comentarios ✓</span>
+      <span class="chip">span / br ✓</span>
+      <span class="chip">Links ✓</span>
+      <span class="chip">Imágenes ✓</span>
+      <span class="chip">Formularios ✓</span>
+      <span class="chip">Botones ✓</span>
+      <span class="chip">Listas ✓</span>
+      <span class="chip">Tablas ✓</span>
+      <span class="chip">div ✓</span>
+      <span class="chip">id y class ✓</span>
+      <span class="chip">Semántica ✓</span>
+      <span class="chip">Blog completo ✓</span>
+    </div>
+
+    <p style="margin-top:1.25rem;font-size:.88rem;opacity:.7">El siguiente paso: CSS para darle estilo a todo esto.<br>Ya tienes la guía completa de Soy Dalto (Partes A–J) para ese camino.</p>
+  </div>
+</section>
+</main>
+
+<footer>
+  Repaso HTML · HolaMundo · Parte E · Final · Basado en "Aprende HTML ahora!" de HolaMundo · Hugo 2025
+</footer>
+
+</body>
+</html>

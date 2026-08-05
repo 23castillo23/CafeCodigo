@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Repaso HTML — HolaMundo · Parte C</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #e85d2f;
+    --primary-light:  #fdf0ec;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1e1e2e;
+  }
+
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  .topbar { background: #fff; border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; gap: 14px; position: sticky; top: 0; z-index: 200; height: 46px; }
+  .topbar a { font-size: 13px; color: var(--muted); text-decoration: none; padding: 5px 13px; border: 1px solid var(--border); border-radius: 999px; transition: all .15s; }
+  .topbar a:hover { color: var(--text); border-color: var(--muted); }
+  .topbar span { font-size: 13px; color: var(--muted); }
+
+  header { background: #1e1e2e; color: #cdd6f4; padding: 2.75rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: 'HTML'; position: absolute; font-size: 12rem; font-weight: 900; color: rgba(255,255,255,.04); right: -1rem; top: -2rem; font-family: monospace; line-height: 1; }
+  header .curso-badge { display: inline-flex; align-items: center; gap: .5rem; background: rgba(232,93,47,.2); border: 1px solid rgba(232,93,47,.4); border-radius: 20px; padding: 3px 14px; font-size: .75rem; font-weight: 700; color: #fab387; margin-bottom: .75rem; }
+  header h1 { font-size: 2.2rem; font-weight: 800; letter-spacing: -.5px; color: #cdd6f4; }
+  header p  { font-size: 1rem; opacity: .7; margin-top: .4rem; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); border-radius: 20px; padding: 3px 13px; font-size: .75rem; margin-top: .65rem; }
+
+  .partes-nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 46px; z-index: 110; display: flex; align-items: center; height: 38px; padding: 0 1rem; }
+  .partes-nav-prev, .partes-nav-next { flex-shrink: 0; display: flex; align-items: center; padding: 0 .75rem; height: 100%; text-decoration: none; color: var(--muted); font-size: .78rem; font-weight: 500; border-right: 1px solid var(--border); transition: color .15s; white-space: nowrap; }
+  .partes-nav-next { border-right: none; border-left: 1px solid var(--border); }
+  .partes-nav-prev:hover, .partes-nav-next:hover { color: var(--primary); }
+  .partes-nav-list { flex: 1; display: flex; align-items: center; justify-content: center; gap: .2rem; overflow-x: auto; padding: 0 .5rem; }
+  .partes-nav-list::-webkit-scrollbar { display: none; }
+  .partes-nav-list a { flex-shrink: 0; padding: 2px 10px; border-radius: 20px; text-decoration: none; font-size: .73rem; font-weight: 600; color: var(--muted); transition: color .15s, background .15s; }
+  .partes-nav-list a:hover { color: var(--text); background: var(--bg); }
+  .partes-nav-list a.activa { background: var(--primary-light); color: var(--primary); }
+
+  nav.sec-nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 84px; z-index: 100; display: flex; overflow-x: auto; }
+  nav.sec-nav a { flex-shrink: 0; padding: .7rem 1rem; text-decoration: none; color: var(--muted); font-size: .82rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav.sec-nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: white; border-radius: 20px; padding: 5px 16px; font-size: .8rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.75rem; margin-bottom: 2rem; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.6rem; flex-shrink: 0; }
+  .module-title { font-size: 1.2rem; font-weight: 700; }
+  .module-sub { font-size: .83rem; color: var(--muted); margin-top: 2px; }
+
+  .callout { border-radius: 0 10px 10px 0; padding: 1rem 1.2rem; margin: 1rem 0; }
+  .callout h4 { font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .35rem; }
+  .callout p, .callout ul { font-size: .93rem; }
+  .callout ul { padding-left: 1.2rem; }
+  .callout li { margin-bottom: .3rem; }
+  .callout.tip  { background: var(--secondary-light); border-left: 4px solid var(--secondary); }
+  .callout.tip h4 { color: var(--secondary); }
+  .callout.note { background: var(--primary-light); border-left: 4px solid var(--primary); }
+  .callout.note h4 { color: var(--primary); }
+  .callout.info { background: var(--accent-light); border-left: 4px solid var(--accent); }
+  .callout.info h4 { color: var(--accent); }
+
+  .code-wrap { position: relative; margin: .9rem 0; }
+  .code-block { background: var(--code-bg); color: #cdd6f4; border-radius: 10px; padding: 1.2rem 1.4rem; font-family: 'DM Mono', monospace; font-size: .87rem; line-height: 1.9; overflow-x: auto; white-space: pre; }
+  .lang-tag { position: absolute; top: .55rem; right: .75rem; background: rgba(255,255,255,.08); color: rgba(255,255,255,.4); font-size: .65rem; padding: 2px 8px; border-radius: 4px; font-family: sans-serif; font-weight: 700; }
+  .ht { color: #89B4FA; }
+  .ha { color: #CBA6F7; }
+  .hs { color: #F9E2AF; }
+  .hc { color: #585B70; font-style: italic; }
+  .hk { color: #FAB387; }
+  .hv { color: #A6E3A1; }
+
+  .preview { border: 2px dashed var(--border); border-radius: 10px; padding: 1.25rem; margin: .9rem 0; background: #fff; position: relative; }
+  .preview::before { content: '🖥 Resultado en el navegador'; position: absolute; top: -11px; left: 14px; background: #fff; font-size: .72rem; color: var(--muted); padding: 0 6px; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: .9rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .6rem 1rem; text-align: left; font-weight: 700; }
+  .tbl td { padding: .6rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .82rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  .ejercicio { background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 12px; padding: 1.4rem; margin: 1.5rem 0; }
+  .ej-header { display: flex; align-items: center; gap: .6rem; margin-bottom: .85rem; font-weight: 700; color: #78350F; flex-wrap: wrap; }
+  .ej-badge { background: var(--accent); color: #fff; font-size: .67rem; padding: 2px 9px; border-radius: 20px; font-weight: 700; text-transform: uppercase; }
+  .ejercicio ol { padding-left: 1.35rem; }
+  .ejercicio ol li { margin-bottom: .55rem; font-size: .93rem; }
+  .ejercicio p { font-size: .93rem; margin-bottom: .5rem; }
+
+  h2 { font-size: 1.15rem; font-weight: 700; margin: 1.5rem 0 .6rem; }
+  h3 { font-size: .97rem; font-weight: 700; margin: 1.1rem 0 .4rem; }
+  p  { margin-bottom: .75rem; }
+  ul, ol { padding-left: 1.35rem; margin-bottom: .75rem; }
+  li { margin-bottom: .35rem; font-size: .95rem; }
+  code { font-family: 'DM Mono', monospace; background: #f0ece6; color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .88em; }
+  strong { font-weight: 700; }
+
+  /* ── DEMOS ESPECÍFICOS ── */
+
+  /* span demo */
+  .span-demo { font-size: 1rem; line-height: 2; }
+  .span-azul  { color: blue; }
+  .span-rojo  { color: var(--primary); font-weight: 700; }
+  .span-grande{ font-size: 1.3rem; }
+
+  /* link demo */
+  .link-demo { display: flex; flex-direction: column; gap: .6rem; }
+  .link-demo a { font-size: .92rem; }
+  .link-externo  { color: #0066cc; }
+  .link-interno  { color: var(--secondary); }
+  .link-nueva    { color: #7C3AED; }
+  .link-descarga { color: var(--accent); }
+
+  /* imagen demo */
+  .img-placeholder {
+    background: linear-gradient(135deg, var(--primary-light), var(--accent-light));
+    border: 1px solid var(--border); border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: .3rem;
+    font-size: .78rem; color: var(--muted);
+  }
+  .img-placeholder .img-icon { font-size: 2rem; }
+
+  /* atributos tabla de links */
+  .attr-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: .75rem; margin: .85rem 0; }
+  .attr-card { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: .85rem; }
+  .attr-card .ac-tag  { font-family: 'DM Mono', monospace; font-size: .78rem; font-weight: 700; color: var(--primary); background: var(--primary-light); padding: 2px 7px; border-radius: 4px; display: inline-block; margin-bottom: .35rem; }
+  .attr-card .ac-desc { font-size: .85rem; color: var(--text); }
+  .attr-card .ac-ex   { font-size: .78rem; color: var(--muted); margin-top: .25rem; font-family: monospace; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .83rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="../capitulos.html?tab=guias">← Café &lt;/&gt;</a>
+  <span>☕ Repaso HTML · HolaMundo · Parte C</span>
+</div>
+
+<header>
+  <div class="curso-badge">📺 HolaMundo — Aprende HTML ahora · 21:40 – 29:37</div>
+  <h1>Repaso HTML — Parte C</h1>
+  <p>Línea horizontal, comentarios, span, salto de línea, hipervínculos e imágenes</p>
+  <span class="badge">✦ Repaso rápido desde otro punto de vista ✦</span>
+</header>
+
+<div class="partes-nav">
+  <a class="partes-nav-prev" href="holamundo-html-parte-B.html">← B</a>
+  <div class="partes-nav-list">
+    <a href="holamundo-html-parte-A.html">A</a>
+    <a href="holamundo-html-parte-B.html">B</a>
+    <a href="holamundo-html-parte-C.html" class="activa">C ✦</a>
+    <a href="holamundo-html-parte-D.html">D</a>
+    <a href="holamundo-html-parte-E.html">E</a>
+  </div>
+  <a class="partes-nav-next" href="holamundo-html-parte-D.html">D →</a>
+</div>
+
+<nav class="sec-nav">
+  <a href="#hr">➖ &lt;hr&gt;</a>
+  <a href="#comentarios">💬 Comentarios</a>
+  <a href="#span">🏷 &lt;span&gt;</a>
+  <a href="#br">↵ &lt;br&gt;</a>
+  <a href="#links">🔗 Links</a>
+  <a href="#imagenes">🖼 Imágenes</a>
+  <a href="#ejercicio">✏️ Ejercicio</a>
+</nav>
+
+<main>
+<div class="parte-badge">📦 Parte C — HolaMundo · 21:40 – 29:37</div>
+
+
+<!-- ════════════════════════════════════
+     HR — LÍNEA HORIZONTAL
+════════════════════════════════════ -->
+<section class="module" id="hr">
+  <div class="module-header">
+    <div class="module-icon">➖</div>
+    <div>
+      <div class="module-title">&lt;hr&gt; — Línea horizontal separadora</div>
+      <div class="module-sub">Divide visualmente secciones de contenido</div>
+    </div>
+  </div>
+
+  <p>La etiqueta <code>&lt;hr&gt;</code> (Horizontal Rule) dibuja una línea horizontal que separa secciones de contenido. Es una etiqueta de auto-cierre — no necesita etiqueta de cierre.</p>
+
+  <div class="code-wrap">
+    <div class="code-block"><span class="ht">&lt;p&gt;</span>Primera sección de contenido.<span class="ht">&lt;/p&gt;</span>
+
+<span class="ht">&lt;hr&gt;</span>   <span class="hc">&lt;!-- Línea separadora — sin etiqueta de cierre --&gt;</span>
+
+<span class="ht">&lt;p&gt;</span>Segunda sección de contenido.<span class="ht">&lt;/p&gt;</span></div>
+    <div class="lang-tag">HTML</div>
+  </div>
+
+  <div class="preview">
+    <p style="margin-bottom:.75rem;font-size:.9rem">Primera sección de contenido.</p>
+    <hr style="border:none;border-top:1px solid #e8e4de;margin:.5rem 0">
+    <p style="margin-top:.75rem;font-size:.9rem">Segunda sección de contenido.</p>
+  </div>
+
+  <div class="callout tip">
+    <h4>🟢 hr es semántico, no solo visual</h4>
+    <p>Aunque visualmente es una línea, semánticamente indica un <strong>cambio de tema</strong> en el contenido. Los lectores de pantalla lo anuncian como una separación. Para hacer líneas decorativas con CSS usa <code>border</code> en lugar de <code>&lt;hr&gt;</code>.</p>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════
+     COMENTARIOS
+════════════════════════════════════ -->
+<section class="module" id="comentarios">
+  <div class="module-header">
+    <div class="module-icon">💬</div>
+    <div>
+      <div class="module-title">Comentarios — Notas en el código que nadie ve</div>
+      <div class="module-sub">Texto invisible para el usuario, visible solo en el código fuente</div>
+    </div>
+  </div>
+
+  <p>Los comentarios son texto que escribes en el código HTML pero que el navegador <strong>ignora completamente</strong>. Solo tú (y otros desarrolladores) los ven al ver el código fuente. Son útiles para explicar qué hace una sección, dejar notas, o desactivar código temporalmente.</p>
+
+  <div class="code-wrap">
+    <div class="code-block"><span class="hc">&lt;!-- Esto es un comentario — el navegador no lo muestra --&gt;</span>
+
+<span class="ht">&lt;h1&gt;</span>Título visible<span class="ht">&lt;/h1&gt;</span>
+
+<span class="hc">&lt;!-- TODO: agregar imagen aquí después --&gt;</span>
+
+<span class="hc">&lt;!-- 
+  Los comentarios pueden
+  ocupar varias líneas
+--&gt;</span>
+
+<span class="hc">&lt;!-- &lt;p&gt;Este párrafo está desactivado temporalmente&lt;/p&gt; --&gt;</span></div>
+    <div class="lang-tag">HTML</div>
+  </div>
+
+  <div class="preview">
+    <p style="font-size:.9rem">Título visible</p>
+    <p style="font-size:.8rem;color:var(--muted);margin-top:.5rem">(Los comentarios no aparecen aquí — solo en el código fuente)</p>
+  </div>
+
+  <div class="callout note">
+    <h4>⚠️ Los comentarios NO son seguros para información privada</h4>
+    <p>Aunque el usuario no los ve en la pantalla, cualquiera puede verlos haciendo clic derecho → "Ver código fuente". Nunca pongas contraseñas, tokens o información sensible en comentarios HTML.</p>
+  </div>
+
+  <div class="callout tip">
+    <h4>🟢 Atajo en VS Code</h4>
+    <p>Selecciona el texto que quieres comentar y presiona <strong>Ctrl + /</strong> (Windows/Linux) o <strong>Cmd + /</strong> (Mac). VS Code agrega o quita los comentarios automáticamente.</p>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════
+     SPAN
+════════════════════════════════════ -->
+<section class="module" id="span">
+  <div class="module-header">
+    <div class="module-icon">🏷️</div>
+    <div>
+      <div class="module-title">&lt;span&gt; — Marcar partes de texto inline</div>
+      <div class="module-sub">El contenedor invisible para aplicar estilos a palabras específicas</div>
+    </div>
+  </div>
+
+  <p><code>&lt;span&gt;</code> es un contenedor <strong>inline</strong> sin estilo propio — no hace nada visible por sí solo. Su utilidad es envolver palabras o frases específicas dentro de un texto para poder aplicarles estilos CSS o identificarlas con JavaScript.</p>
+
+  <div class="code-wrap">
+    <div class="code-block"><span class="hc">&lt;!-- Sin span: no puedo darle color solo a una palabra --&gt;</span>
+<span class="ht">&lt;p&gt;</span>Este texto es normal y no tiene color especial.<span class="ht">&lt;/p&gt;</span>
+
+<span class="hc">&lt;!-- Con span: puedo aplicar CSS a palabras específicas --&gt;</span>
+<span class="ht">&lt;p&gt;</span>
+  Este texto es <span class="ht">&lt;span</span> <span class="ha">style</span>=<span class="hs">"color: blue"</span><span class="ht">&gt;</span>azul<span class="ht">&lt;/span&gt;</span>
+  y esto es <span class="ht">&lt;span</span> <span class="ha">style</span>=<span class="hs">"color: red; font-weight: bold"</span><span class="ht">&gt;</span>rojo y negrita<span class="ht">&lt;/span&gt;</span>.
+<span class="ht">&lt;/p&gt;</span>
+
+<span class="hc">&lt;!-- Con clase CSS (la forma correcta en proyectos reales) --&gt;</span>
+<span class="ht">&lt;p&gt;</span>
+  El precio es <span class="ht">&lt;span</span> <span class="ha">class</span>=<span class="hs">"precio-destacado"</span><span class="ht">&gt;</span>$99 MXN<span class="ht">&lt;/span&gt;</span>.
+<span class="ht">&lt;/p&gt;</span></div>
+    <div class="lang-tag">HTML</div>
+  </div>
+
+  <div class="preview">
+    <p class="span-demo">
+      Este texto es <span class="span-azul">azul</span>
+      y esto es <span class="span-rojo">rojo y negrita</span>.
+    </p>
+    <p class="span-demo" style="margin-top:.5rem">
+      El precio es <span style="color:var(--secondary);font-weight:700">$99 MXN</span>.
+    </p>
+  </div>
+
+  <h2>span vs div — la diferencia clave</h2>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:.75rem 0">
+    <div style="background:var(--primary-light);border-radius:10px;padding:1rem;border:1px solid var(--border)">
+      <p style="font-weight:700;color:var(--primary);margin-bottom:.4rem">&lt;span&gt; — Inline</p>
+      <p style="font-size:.88rem">Va dentro de un párrafo o texto. No rompe el flujo del texto — todo sigue en la misma línea.</p>
+      <p style="font-size:.82rem;color:var(--muted);margin-top:.35rem">Para: palabras, frases, íconos dentro de texto</p>
+    </div>
+    <div style="background:var(--secondary-light);border-radius:10px;padding:1rem;border:1px solid var(--border)">
+      <p style="font-weight:700;color:var(--secondary);margin-bottom:.4rem">&lt;div&gt; — Block</p>
+      <p style="font-size:.88rem">Crea un bloque nuevo que ocupa todo el ancho disponible. Rompe el flujo — lo siguiente va en la siguiente línea.</p>
+      <p style="font-size:.82rem;color:var(--muted);margin-top:.35rem">Para: secciones, contenedores, grupos de elementos</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════
+     BR — SALTO DE LÍNEA
+════════════════════════════════════ -->
+<section class="module" id="br">
+  <div class="module-header">
+    <div class="module-icon">↵</div>
+    <div>
+      <div class="module-title">&lt;br&gt; — Salto de línea</div>
+      <div class="module-sub">Fuerza un salto de línea dentro de un bloque de texto</div>
+    </div>
+  </div>
+
+  <p><code>&lt;br&gt;</code> (break) fuerza un salto de línea en el punto donde se coloca. Es de auto-cierre. Úsalo cuando el salto de línea es parte del contenido (una dirección, un poema), no para crear espacio entre elementos.</p>
+
+  <div class="code-wrap">
+    <div class="code-block"><span class="hc">&lt;!-- Caso de uso correcto: dirección donde los saltos importan --&gt;</span>
+<span class="ht">&lt;p&gt;</span>
+  Calle Falsa 123<span class="ht">&lt;br&gt;</span>
+  Colonia Centro<span class="ht">&lt;br&gt;</span>
+  Orizaba, Veracruz<span class="ht">&lt;br&gt;</span>
+  México
+<span class="ht">&lt;/p&gt;</span>
+
+<span class="hc">&lt;!-- Caso de uso correcto: poema o letra de canción --&gt;</span>
+<span class="ht">&lt;p&gt;</span>
+  En el principio era el código,<span class="ht">&lt;br&gt;</span>
+  y el código estaba con HTML,<span class="ht">&lt;br&gt;</span>
+  y el HTML era la web.
+<span class="ht">&lt;/p&gt;</span>
+
+<span class="hc">&lt;!-- ❌ Mal uso: usar &lt;br&gt; para separar párrafos --&gt;</span>
+<span class="ht">&lt;p&gt;</span>Primer párrafo.<span class="ht">&lt;/p&gt;</span>
+<span class="ht">&lt;br&gt;&lt;br&gt;</span>  <span class="hc">&lt;!-- MAL — usa otro &lt;p&gt; en su lugar --&gt;</span>
+<span class="ht">&lt;p&gt;</span>Segundo párrafo.<span class="ht">&lt;/p&gt;</span></div>
+    <div class="lang-tag">HTML</div>
+  </div>
+
+  <div class="preview">
+    <p style="font-size:.9rem">
+      Calle Falsa 123<br>
+      Colonia Centro<br>
+      Orizaba, Veracruz<br>
+      México
+    </p>
+  </div>
+
+  <div class="callout note">
+    <h4>⚠️ No abuses del &lt;br&gt;</h4>
+    <p>Un error común es usar <code>&lt;br&gt;&lt;br&gt;</code> para crear espacio entre párrafos. La forma correcta es usar dos etiquetas <code>&lt;p&gt;</code> separadas — el navegador les agrega espacio automáticamente, y con CSS tienes control total sobre ese espacio.</p>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════
+     HIPERVÍNCULOS
+════════════════════════════════════ -->
+<section class="module" id="links">
+  <div class="module-header">
+    <div class="module-icon">🔗</div>
+    <div>
+      <div class="module-title">&lt;a&gt; — Hipervínculos</div>
+      <div class="module-sub">La etiqueta que conecta páginas — el corazón de la web</div>
+    </div>
+  </div>
+
+  <p>La etiqueta <code>&lt;a&gt;</code> (anchor) crea un hipervínculo — un texto o elemento en el que el usuario puede hacer clic para ir a otro lugar. El atributo <strong>href</strong> (Hypertext REFerence) define el destino.</p>
+
+  <div class="code-wrap">
+    <div class="code-block"><span class="hc">&lt;!-- Enlace externo: URL completa --&gt;</span>
+<span class="ht">&lt;a</span> <span class="ha">href</span>=<span class="hs">"https://www.google.com"</span><span class="ht">&gt;</span>Ir a Google<span class="ht">&lt;/a&gt;</span>
+
+<span class="hc">&lt;!-- Enlace interno: ruta relativa a otro archivo --&gt;</span>
+<span class="ht">&lt;a</span> <span class="ha">href</span>=<span class="hs">"contacto.html"</span><span class="ht">&gt;</span>Página de contacto<span class="ht">&lt;/a&gt;</span>
+<span class="ht">&lt;a</span> <span class="ha">href</span>=<span class="hs">"../index.html"</span><span class="ht">&gt;</span>Volver al inicio<span class="ht">&lt;/a&gt;</span>
+
+<span class="hc">&lt;!-- Abrir en nueva pestaña --&gt;</span>
+<span class="ht">&lt;a</span> <span class="ha">href</span>=<span class="hs">"https://github.com"</span> <span class="ha">target</span>=<span class="hs">"_blank"</span> <span class="ha">rel</span>=<span class="hs">"noopener noreferrer"</span><span class="ht">&gt;</span>
+  Mi GitHub
+<span class="ht">&lt;/a&gt;</span>
+
+<span class="hc">&lt;!-- Descargar un archivo --&gt;</span>
+<span class="ht">&lt;a</span> <span class="ha">href</span>=<span class="hs">"cv.pdf"</span> <span class="ha">download</span><span class="ht">&gt;</span>Descargar mi CV<span class="ht">&lt;/a&gt;</span>
+
+<span class="hc">&lt;!-- Ancla: saltar a una sección de la misma página --&gt;</span>
+<span class="ht">&lt;a</span> <span class="ha">href</span>=<span class="hs">"#contacto"</span><span class="ht">&gt;</span>Ir a Contacto<span class="ht">&lt;/a&gt;</span>
+<span class="hc">&lt;!-- El destino: --&gt;</span>
+<span class="ht">&lt;section</span> <span class="ha">id</span>=<span class="hs">"contacto"</span><span class="ht">&gt;</span>...<span class="ht">&lt;/section&gt;</span>
+
+<span class="hc">&lt;!-- Link de email --&gt;</span>
+<span class="ht">&lt;a</span> <span class="ha">href</span>=<span class="hs">"mailto:hugo@email.com"</span><span class="ht">&gt;</span>Envíame un email<span class="ht">&lt;/a&gt;</span>
+
+<span class="hc">&lt;!-- Link de teléfono --&gt;</span>
+<span class="ht">&lt;a</span> <span class="ha">href</span>=<span class="hs">"tel:+527201234567"</span><span class="ht">&gt;</span>Llámame<span class="ht">&lt;/a&gt;</span></div>
+    <div class="lang-tag">HTML</div>
+  </div>
+
+  <div class="preview">
+    <div class="link-demo">
+      <a href="#" class="link-externo">Ir a Google (enlace externo)</a>
+      <a href="#" class="link-interno">Página de contacto (enlace interno)</a>
+      <a href="#" class="link-nueva">Mi GitHub (abre en nueva pestaña)</a>
+      <a href="#" class="link-descarga">Descargar mi CV (download)</a>
+    </div>
+  </div>
+
+  <h2>Los atributos más importantes de &lt;a&gt;</h2>
+
+  <div class="attr-grid">
+    <div class="attr-card">
+      <span class="ac-tag">href</span>
+      <div class="ac-desc">El destino del enlace. URL completa, ruta relativa, ancla o protocolo especial.</div>
+      <div class="ac-ex">href="https://..." / href="pagina.html" / href="#seccion"</div>
+    </div>
+    <div class="attr-card">
+      <span class="ac-tag">target="_blank"</span>
+      <div class="ac-desc">Abre el enlace en una nueva pestaña del navegador.</div>
+      <div class="ac-ex">Siempre acompañar con rel="noopener noreferrer"</div>
+    </div>
+    <div class="attr-card">
+      <span class="ac-tag">rel="noopener"</span>
+      <div class="ac-desc">Seguridad: evita que la página destino pueda acceder a tu página cuando se abre en nueva pestaña.</div>
+      <div class="ac-ex">Obligatorio con target="_blank"</div>
+    </div>
+    <div class="attr-card">
+      <span class="ac-tag">download</span>
+      <div class="ac-desc">En vez de navegar al archivo, lo descarga. Funciona con PDFs, imágenes, etc.</div>
+      <div class="ac-ex">download / download="nombre-archivo.pdf"</div>
+    </div>
+  </div>
+
+  <h2>Rutas relativas vs absolutas</h2>
+
+  <div class="code-wrap">
+    <div class="code-block"><span class="hc">&lt;!-- RUTA ABSOLUTA: URL completa incluyendo el protocolo --&gt;</span>
+<span class="ht">&lt;a</span> <span class="ha">href</span>=<span class="hs">"https://www.google.com/maps"</span><span class="ht">&gt;</span>Google Maps<span class="ht">&lt;/a&gt;</span>
+
+<span class="hc">&lt;!-- RUTA RELATIVA: desde la ubicación del archivo actual --&gt;</span>
+<span class="hc">&lt;!-- Si estás en index.html y quieres ir a: --&gt;</span>
+
+<span class="ht">&lt;a</span> <span class="ha">href</span>=<span class="hs">"contacto.html"</span><span class="ht">&gt;</span>contacto.html en la misma carpeta<span class="ht">&lt;/a&gt;</span>
+<span class="ht">&lt;a</span> <span class="ha">href</span>=<span class="hs">"paginas/about.html"</span><span class="ht">&gt;</span>about.html en subcarpeta<span class="ht">&lt;/a&gt;</span>
+<span class="ht">&lt;a</span> <span class="ha">href</span>=<span class="hs">"../index.html"</span><span class="ht">&gt;</span>index.html en la carpeta padre (../ = subir un nivel)<span class="ht">&lt;/a&gt;</span></div>
+    <div class="lang-tag">HTML</div>
+  </div>
+
+  <div class="callout tip">
+    <h4>🟢 Cuándo usar ruta relativa vs absoluta</h4>
+    <ul>
+      <li><strong>Ruta relativa:</strong> para links dentro de tu mismo proyecto (entre páginas de tu web). Si mueves el proyecto a otro servidor, siguen funcionando.</li>
+      <li><strong>Ruta absoluta:</strong> para links a otras páginas web externas. Siempre con <code>https://</code>.</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════
+     IMÁGENES
+════════════════════════════════════ -->
+<section class="module" id="imagenes">
+  <div class="module-header">
+    <div class="module-icon">🖼️</div>
+    <div>
+      <div class="module-title">&lt;img&gt; — Imágenes</div>
+      <div class="module-sub">Mostrar imágenes en la página — auto-cierre, src y alt obligatorios</div>
+    </div>
+  </div>
+
+  <p>La etiqueta <code>&lt;img&gt;</code> inserta una imagen en la página. Es de <strong>auto-cierre</strong> — no tiene etiqueta de cierre. Sus dos atributos más importantes son <code>src</code> (la ruta de la imagen) y <code>alt</code> (descripción de la imagen).</p>
+
+  <div class="code-wrap">
+    <div class="code-block"><span class="hc">&lt;!-- Imagen local (en tu proyecto) --&gt;</span>
+<span class="ht">&lt;img</span> <span class="ha">src</span>=<span class="hs">"img/coffee.png"</span> <span class="ha">alt</span>=<span class="hs">"Taza de café humeante"</span><span class="ht">&gt;</span>
+
+<span class="hc">&lt;!-- Imagen desde internet (URL externa) --&gt;</span>
+<span class="ht">&lt;img</span> <span class="ha">src</span>=<span class="hs">"https://via.placeholder.com/400x300"</span> <span class="ha">alt</span>=<span class="hs">"Imagen de ejemplo"</span><span class="ht">&gt;</span>
+
+<span class="hc">&lt;!-- Con tamaño definido --&gt;</span>
+<span class="ht">&lt;img</span>
+  <span class="ha">src</span>=<span class="hs">"img/coffee.png"</span>
+  <span class="ha">alt</span>=<span class="hs">"Café de la mañana"</span>
+  <span class="ha">width</span>=<span class="hs">"400"</span>
+  <span class="ha">height</span>=<span class="hs">"300"</span>
+<span class="ht">&gt;</span>
+
+<span class="hc">&lt;!-- Imagen como enlace: &lt;img&gt; dentro de &lt;a&gt; --&gt;</span>
+<span class="ht">&lt;a</span> <span class="ha">href</span>=<span class="hs">"https://google.com"</span><span class="ht">&gt;</span>
+  <span class="ht">&lt;img</span> <span class="ha">src</span>=<span class="hs">"img/logo.png"</span> <span class="ha">alt</span>=<span class="hs">"Logo — ir al inicio"</span><span class="ht">&gt;</span>
+<span class="ht">&lt;/a&gt;</span></div>
+    <div class="lang-tag">HTML</div>
+  </div>
+
+  <div class="preview">
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-start">
+      <div>
+        <p style="font-size:.72rem;color:var(--muted);margin-bottom:.3rem">Imagen con tamaño definido:</p>
+        <div class="img-placeholder" style="width:140px;height:105px">
+          <span class="img-icon">☕</span>
+          <span>coffee.png</span>
+        </div>
+      </div>
+      <div>
+        <p style="font-size:.72rem;color:var(--muted);margin-bottom:.3rem">Si la imagen no carga, muestra el alt:</p>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:.5rem;font-size:.82rem;display:flex;align-items:center;gap:.4rem;height:60px">
+          <span>🖼</span> Taza de café humeante
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2>El atributo alt — no es opcional</h2>
+
+  <table class="tbl">
+    <thead><tr><th>Situación</th><th>Qué escribir en alt</th></tr></thead>
+    <tbody>
+      <tr><td>Imagen con información importante</td><td>Descripción clara: <code>"Gráfica de barras mostrando ventas de enero a junio"</code></td></tr>
+      <tr><td>Imagen decorativa (solo visual)</td><td>Alt vacío: <code>alt=""</code> — el lector de pantalla la ignora</td></tr>
+      <tr><td>Imagen que es un enlace</td><td>Describe el destino: <code>"Logo — ir a la página de inicio"</code></td></tr>
+      <tr><td>Imagen que es un botón</td><td>Describe la acción: <code>"Botón de buscar"</code></td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout note">
+    <h4>⚠️ Nunca omitas el alt</h4>
+    <p>El atributo <code>alt</code> es obligatorio en todas las imágenes. Sin él, los lectores de pantalla leen el nombre del archivo (horrible experiencia) y Google no puede indexar la imagen. Si la imagen es solo decorativa, usa <code>alt=""</code> vacío — nunca omitas el atributo.</p>
+  </div>
+
+  <h2>Formatos de imagen para la web</h2>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.75rem;margin:.85rem 0">
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.85rem;text-align:center">
+      <p style="font-weight:700;color:var(--primary);margin-bottom:.3rem">.jpg / .jpeg</p>
+      <p style="font-size:.82rem;color:var(--muted)">Fotos. Compresión alta, no soporta transparencia.</p>
+    </div>
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.85rem;text-align:center">
+      <p style="font-weight:700;color:var(--secondary);margin-bottom:.3rem">.png</p>
+      <p style="font-size:.82rem;color:var(--muted)">Imágenes con transparencia. Logos, iconos, ilustraciones.</p>
+    </div>
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.85rem;text-align:center">
+      <p style="font-weight:700;color:var(--accent);margin-bottom:.3rem">.webp</p>
+      <p style="font-size:.82rem;color:var(--muted)">Moderno, pesa menos que jpg y png. El más recomendado hoy.</p>
+    </div>
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.85rem;text-align:center">
+      <p style="font-weight:700;color:#7C3AED;margin-bottom:.3rem">.svg</p>
+      <p style="font-size:.82rem;color:var(--muted)">Vectorial: escala sin perder calidad. Perfecto para logos e iconos.</p>
+    </div>
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.85rem;text-align:center">
+      <p style="font-weight:700;color:#0891B2;margin-bottom:.3rem">.gif</p>
+      <p style="font-size:.82rem;color:var(--muted)">Imágenes animadas. Hoy se prefiere video MP4 o WebP animado.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════
+     EJERCICIO
+════════════════════════════════════ -->
+<section class="module" id="ejercicio">
+  <div class="module-header">
+    <div class="module-icon">✏️</div>
+    <div>
+      <div class="module-title">Ejercicio — Página personal con links e imágenes</div>
+      <div class="module-sub">Aplica todo lo de la Parte C en tu página del ejercicio anterior</div>
+    </div>
+  </div>
+
+  <div class="ejercicio">
+    <div class="ej-header">✏️ Ejercicio Parte C — Links e imágenes <span class="ej-badge">Principiante</span></div>
+    <p>Sigue construyendo tu <code>index.html</code> del ejercicio anterior. Agrega lo siguiente:</p>
+    <ol>
+      <li>Una <code>&lt;hr&gt;</code> para separar la sección "Sobre mí" de "Lo que estoy aprendiendo".</li>
+      <li>Un comentario encima de cada sección: <code>&lt;!-- SECCIÓN: Sobre mí --&gt;</code></li>
+      <li>En uno de tus párrafos, usa <code>&lt;span style="color:..."&gt;</code> para destacar una palabra con color.</li>
+      <li>Agrega una dirección o cualquier texto que necesite saltos de línea usando <code>&lt;br&gt;</code>.</li>
+      <li>Agrega al menos 3 links:
+        <ul style="margin-top:.3rem">
+          <li>Uno externo a un sitio que uses (YouTube, GitHub, etc.)</li>
+          <li>Uno que abra en nueva pestaña con <code>target="_blank"</code> y <code>rel="noopener noreferrer"</code></li>
+          <li>Uno de correo con <code>mailto:</code></li>
+        </ul>
+      </li>
+      <li>Crea una carpeta <code>img</code> dentro de tu proyecto y guarda ahí una imagen (puede ser cualquier foto tuya o de lo que quieras).</li>
+      <li>Muestra esa imagen en la página con <code>&lt;img src="img/tu-foto.jpg" alt="descripción"&gt;</code>.</li>
+      <li>Agrega <code>width="300"</code> a la imagen para que no ocupe toda la pantalla.</li>
+    </ol>
+    <p style="margin-top:.75rem"><strong>Bonus:</strong> Envuelve tu imagen en un <code>&lt;a&gt;</code> para que al hacer clic en ella lleve al usuario a tu perfil de GitHub o red social.</p>
+  </div>
+
+  <div class="callout tip">
+    <h4>🟢 Resumen de la Parte C</h4>
+    <ul>
+      <li><code>&lt;hr&gt;</code> — línea horizontal separadora, auto-cierre, semántica de cambio de tema</li>
+      <li><code>&lt;!-- comentario --&gt;</code> — invisible para el usuario, visible en código fuente. Atajo: Ctrl+/</li>
+      <li><code>&lt;span&gt;</code> — contenedor inline sin estilo propio, para aplicar CSS a palabras específicas</li>
+      <li><code>&lt;br&gt;</code> — salto de línea, auto-cierre. Úsalo solo cuando el salto es parte del contenido</li>
+      <li><code>&lt;a href="..."&gt;</code> — hipervínculo. href puede ser URL, ruta relativa, ancla, mailto o tel</li>
+      <li><code>target="_blank"</code> + <code>rel="noopener noreferrer"</code> — para abrir en nueva pestaña de forma segura</li>
+      <li><code>download</code> — para que el link descargue el archivo en vez de abrirlo</li>
+      <li><code>&lt;img src="..." alt="..."&gt;</code> — imagen, auto-cierre. src=ruta, alt=descripción obligatoria</li>
+      <li>Formatos: jpg (fotos), png (transparencia), webp (moderno y ligero), svg (vectorial), gif (animado)</li>
+    </ul>
+  </div>
+
+  <div class="callout info">
+    <h4>💡 ¿Qué sigue? — Parte D</h4>
+    <p>En la Parte D vemos las etiquetas más importantes para construir formularios e interfaces: <strong>formularios, botones, listas y tablas</strong>. Del 35:31 al 1:01:17 del video — la parte donde aprendes a crear páginas con las que el usuario puede interactuar.</p>
+  </div>
+</section>
+</main>
+
+<footer>
+  Repaso HTML · HolaMundo · Parte C · Basado en "Aprende HTML ahora!" de HolaMundo · Hugo 2025
+</footer>
+
+</body>
+</html>
