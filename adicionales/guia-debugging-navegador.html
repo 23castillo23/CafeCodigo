@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Guía Formularios Avanzados — Café </></title>
+<title>Guía Debugging en el navegador — Café </></title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -156,17 +156,12 @@
   .code-block .tag2 { color: #e08a5a; }
   .code-block .num { color: #7fb8e0; }
   .code-block .kw { color: #d88ae0; }
+  .code-block .out { color: #6fbf9f; }
 
   .exercise { background: var(--bg); border: 1px dashed var(--primary); border-radius: 10px; padding: 1.1rem 1.25rem; margin: 1rem 0; }
   .exercise h4 { color: var(--primary); font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .5rem; }
 
-  /* Demo en vivo: reflow */
-  .demo-live { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin: 1rem 0; text-align: center; }
-  .demo-live button { padding: .6rem 1.2rem; border-radius: 8px; border: none; background: var(--primary); color: #1a1814; font-weight: 700; cursor: pointer; font-family: inherit; font-size: .85rem; margin: 0 .3rem; }
-  .demo-live button:hover { background: var(--secondary); }
-  .demo-out { margin-top: 1rem; font-family: 'DM Mono', monospace; font-size: .82rem; color: var(--muted); min-height: 24px; }
-  .demo-list { list-style:none; display:flex; flex-wrap:wrap; gap:.4rem; justify-content:center; margin-top: 1rem; min-height: 40px; }
-  .demo-list li { background: var(--primary-light); color: var(--primary); border-radius: 6px; padding: .3rem .7rem; font-family:'DM Mono',monospace; font-size:.78rem; }
+  .kbd { display:inline-block; background: var(--surface); border:1px solid var(--border); border-bottom-width:2px; border-radius:5px; padding: 1px 7px; font-family:'DM Mono',monospace; font-size:.82em; font-weight:600; color: var(--text); }
 
   footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); transition: background .25s ease, border-color .25s ease; }
 </style>
@@ -175,7 +170,7 @@
 
 <div class="cafe-bar">
   <a href="../capitulos.html?tab=adicionales">← Volver a Adicionales</a>
-  <span class="crumb">📝 Formularios Avanzados</span>
+  <span class="crumb">☕ Debugging en el navegador</span>
   <div class="spacer"></div>
   <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
     <span class="icon" id="themeIcon">🌙</span>
@@ -184,22 +179,23 @@
 </div>
 
 <header>
-  <h1>Formularios Avanzados</h1>
-  <p>Validación nativa, patrones y los atributos que casi nadie usa</p>
-  <span class="badge">✦ Guía adicional · HTML ✦</span>
+  <h1>Debugging en el navegador</h1>
+  <p>DevTools, breakpoints y consola avanzada</p>
+  <span class="badge">🧩 Guía adicional · Fuera de la ruta principal</span>
 </header>
 
 <nav>
   <a href="#intro">🎯 Intro</a>
-  <a href="#validacion-nativa">✅ Validación nativa</a>
-  <a href="#atributos">🧩 Atributos poco usados</a>
-  <a href="#pseudo-clases">🎨 Pseudo-clases</a>
-  <a href="#js-api">⚙️ Constraint API</a>
+  <a href="#console-avanzada">🖥️ Más allá de console.log</a>
+  <a href="#breakpoints">⏸️ Breakpoints de verdad</a>
+  <a href="#panel-elementos">🔍 El panel Elements</a>
+  <a href="#panel-network">🌐 El panel Network</a>
+  <a href="#ejercicios">🏋️ Ejercicios</a>
 </nav>
 
 <main>
 
-<div class="parte-badge">📝 Guía adicional — HTML, CSS y JavaScript</div>
+<div class="parte-badge">🧩 Guía adicional — HTML, CSS y JavaScript</div>
 
 <!-- ═══════════════════════════════════════════
      INTRO
@@ -208,228 +204,208 @@
   <div class="module-header">
     <div class="module-icon">🎯</div>
     <div>
-      <div class="module-title">Introducción — más allá del &lt;input&gt; básico</div>
-      <div class="module-sub">Por qué un formulario "bien hecho" no necesita casi JavaScript</div>
+      <div class="module-title">Introducción — hay mucho más que console.log</div>
+      <div class="module-sub">Las DevTools son, probablemente, la herramienta más subutilizada del desarrollo web</div>
     </div>
   </div>
 
-  <p>Ya sabes crear un <code>&lt;form&gt;</code> con <code>&lt;input&gt;</code> y un botón de enviar. Esta guía va un paso más allá: cómo hacer que el propio navegador valide los datos por ti, sin escribir una sola línea de JavaScript para los casos más comunes — y cómo tomar el control con JS solo cuando de verdad lo necesitas.</p>
+  <p>Como se cuenta en la guía de historia sobre "Cómo era programar web antes de las DevTools", estas herramientas tardaron años en existir. Hoy vienen integradas gratis en cualquier navegador moderno — pero la mayoría de la gente solo usa una fracción mínima de lo que ofrecen.</p>
 
   <div class="concept">
-    <h4>💡 Lo que vas a aprender</h4>
-    <p>La validación nativa de HTML5 (<code>required</code>, <code>pattern</code>, tipos de <code>input</code>), atributos que mejoran mucho la experiencia y casi nadie conoce, cómo diseñar los estados de error con CSS puro, y cómo personalizar los mensajes de error con la Constraint Validation API de JavaScript.</p>
+    <h4>💡 La idea central</h4>
+    <p>Depurar con <code>console.log</code> funciona, pero es lento: agregas la línea, recargas, lees, borras la línea, repites. Las DevTools ofrecen herramientas para <strong>pausar</strong> la ejecución exactamente donde quieres, inspeccionar el estado completo del programa en ese instante, y hasta modificar valores en vivo sin tocar tu código fuente.</p>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Cómo abrirlas</h4>
+    <p>Presiona <span class="kbd">F12</span>, o <span class="kbd">Ctrl</span> + <span class="kbd">Shift</span> + <span class="kbd">I</span> (Windows/Linux), o <span class="kbd">Cmd</span> + <span class="kbd">Option</span> + <span class="kbd">I</span> (Mac). También puedes hacer clic derecho sobre cualquier elemento de la página y elegir "Inspeccionar".</p>
   </div>
 </section>
 
 <!-- ═══════════════════════════════════════════
-     VALIDACIÓN NATIVA
+     CONSOLE AVANZADA
 ═══════════════════════════════════════════ -->
-<section class="module" id="validacion-nativa">
+<section class="module" id="console-avanzada">
   <div class="module-header">
-    <div class="module-icon">✅</div>
+    <div class="module-icon">🖥️</div>
     <div>
-      <div class="module-title">Validación nativa de HTML5</div>
-      <div class="module-sub">El navegador ya sabe validar — solo hay que decirle las reglas</div>
+      <div class="module-title">Más allá de console.log</div>
+      <div class="module-sub">El objeto console tiene más de una docena de métodos útiles</div>
     </div>
   </div>
 
-  <p>Antes de escribir JavaScript para "revisar" que un campo esté bien lleno, recuerda que HTML ya trae un sistema de validación integrado. Se activa solo con atributos.</p>
+  <div class="code-block">
+console.table([
+  { nombre: <span class="str">'Ana'</span>, edad: <span class="num">28</span> },
+  { nombre: <span class="str">'Luis'</span>, edad: <span class="num">34</span> }
+]);
+<span class="cm">// Muestra los datos como una tabla real, no como texto plano</span>
 
-  <div class="code-block"><span class="lang">HTML</span><span class="ct">&lt;form&gt;</span>
-  <span class="ct">&lt;label&gt;</span>Correo: <span class="ct">&lt;/label&gt;</span>
-  <span class="ct">&lt;input</span> <span class="ca">type</span>=<span class="cs">"email"</span> <span class="ca">required</span> <span class="ca">placeholder</span>=<span class="cs">"tucorreo@ejemplo.com"</span><span class="ct">&gt;</span>
+console.group(<span class="str">'Validación de formulario'</span>);
+console.log(<span class="str">'Email válido'</span>);
+console.log(<span class="str">'Contraseña muy corta'</span>);
+console.groupEnd();
+<span class="cm">// Agrupa mensajes relacionados, colapsables en el panel</span>
 
-  <span class="ct">&lt;label&gt;</span>Edad: <span class="ct">&lt;/label&gt;</span>
-  <span class="ct">&lt;input</span> <span class="ca">type</span>=<span class="cs">"number"</span> <span class="ca">min</span>=<span class="cs">"18"</span> <span class="ca">max</span>=<span class="cs">"99"</span> <span class="ca">required</span><span class="ct">&gt;</span>
+console.time(<span class="str">'procesar'</span>);
+<span class="cm">// ...código que quieres medir...</span>
+console.timeEnd(<span class="str">'procesar'</span>);
+<span class="cm">// procesar: 42.31ms</span>
 
-  <span class="ct">&lt;button&gt;</span>Enviar<span class="ct">&lt;/button&gt;</span>
-<span class="ct">&lt;/form&gt;</span>
-</div>
+console.trace();
+<span class="cm">// Muestra la pila de llamadas completa hasta este punto</span>
 
-  <p>Con solo <code>type="email"</code> y <code>required</code>, el navegador ya rechaza correos mal escritos y campos vacíos — sin una línea de JavaScript.</p>
+console.assert(usuario.edad &gt;= <span class="num">18</span>, <span class="str">'El usuario debería ser mayor de edad'</span>);
+<span class="cm">// Solo imprime el mensaje si la condición es FALSA</span>
+  </div>
 
   <table class="tbl">
-    <tr><th>Atributo</th><th>Qué hace</th></tr>
-    <tr><td><span class="tag">required</span></td><td>El campo no puede quedar vacío.</td></tr>
-    <tr><td><span class="tag">min / max</span></td><td>Rango permitido para números y fechas.</td></tr>
-    <tr><td><span class="tag">minlength / maxlength</span></td><td>Rango permitido de caracteres en texto.</td></tr>
-    <tr><td><span class="tag">type="email"</span></td><td>Exige el formato de un correo válido.</td></tr>
-    <tr><td><span class="tag">pattern</span></td><td>Exige que el valor cumpla una expresión regular.</td></tr>
+    <tr><th>Método</th><th>Para qué sirve</th></tr>
+    <tr><td><span class="tag">console.table()</span></td><td>Muestra arreglos de objetos como una tabla ordenada.</td></tr>
+    <tr><td><span class="tag">console.warn() / console.error()</span></td><td>Igual que <code>log()</code>, pero con color e ícono de advertencia/error para que resalten.</td></tr>
+    <tr><td><span class="tag">console.group() / groupEnd()</span></td><td>Agrupa mensajes relacionados en un bloque colapsable.</td></tr>
+    <tr><td><span class="tag">console.time() / timeEnd()</span></td><td>Mide cuánto tiempo tarda un bloque de código en ejecutarse.</td></tr>
+    <tr><td><span class="tag">console.assert()</span></td><td>Solo imprime si la condición dada es falsa — útil para validar suposiciones sin llenar la consola de ruido.</td></tr>
+  </table>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     BREAKPOINTS
+═══════════════════════════════════════════ -->
+<section class="module" id="breakpoints">
+  <div class="module-header">
+    <div class="module-icon">⏸️</div>
+    <div>
+      <div class="module-title">Breakpoints de verdad</div>
+      <div class="module-sub">Pausar la ejecución sin escribir ni una línea de código</div>
+    </div>
+  </div>
+
+  <p>Un <strong>breakpoint</strong> pausa la ejecución de JavaScript exactamente en la línea que elijas, permitiéndote inspeccionar el valor de cada variable en ese momento exacto — algo que <code>console.log</code> nunca puede mostrarte con la misma precisión.</p>
+
+  <table class="tbl">
+    <tr><th>Cómo ponerlo</th><th>Dónde</th></tr>
+    <tr><td>Clic en el número de línea</td><td>Panel <strong>Sources</strong> — pausa siempre que se llegue a esa línea.</td></tr>
+    <tr><td>Palabra clave <code>debugger;</code></td><td>Directo en tu código — pausa ahí, pero solo si las DevTools están abiertas.</td></tr>
+    <tr><td>Clic derecho sobre un elemento → "Break on..."</td><td>Panel <strong>Elements</strong> — pausa cuando ese elemento del DOM cambia.</td></tr>
+    <tr><td>Breakpoint condicional (clic derecho en el número de línea)</td><td>Panel <strong>Sources</strong> — pausa solo si una condición que tú escribes es verdadera.</td></tr>
   </table>
 
-  <div class="analogy">
-    <h4>🚪 Analogía: el portero del club</h4>
-    <p>La validación nativa es como un portero en la puerta: revisa que cumplas las reglas básicas (identificación, código de vestimenta) antes de dejarte pasar. No necesitas contratar a alguien más adentro (JavaScript) para revisar lo mismo otra vez — el portero ya filtró lo obvio.</p>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════════
-     ATRIBUTOS POCO USADOS
-═══════════════════════════════════════════ -->
-<section class="module" id="atributos">
-  <div class="module-header">
-    <div class="module-icon">🧩</div>
-    <div>
-      <div class="module-title">Atributos poco usados (pero muy útiles)</div>
-      <div class="module-sub">Pequeños detalles que mejoran mucho la experiencia</div>
-    </div>
-  </div>
-
-  <dl class="glos">
-    <div class="glos-item">
-      <span class="emoji">🔤</span>
-      <dt>pattern</dt>
-      <dd>Valida el valor contra una expresión regular. Ej: <code>pattern="[0-9]{5}"</code> exige exactamente 5 dígitos.</dd>
-    </div>
-    <div class="glos-item">
-      <span class="emoji">📋</span>
-      <dt>list + datalist</dt>
-      <dd>Convierte un input de texto en un autocompletado con sugerencias, sin JavaScript ni librerías externas.</dd>
-    </div>
-    <div class="glos-item">
-      <span class="emoji">⌨️</span>
-      <dt>inputmode</dt>
-      <dd>Le dice al teclado del celular qué mostrar: <code>inputmode="numeric"</code> abre el teclado numérico aunque el input siga siendo de texto.</dd>
-    </div>
-    <div class="glos-item">
-      <span class="emoji">🚫</span>
-      <dt>novalidate</dt>
-      <dd>Atributo del <code>&lt;form&gt;</code> que desactiva la validación nativa por completo, para cuando quieres controlarla 100% con JavaScript.</dd>
-    </div>
-    <div class="glos-item">
-      <span class="emoji">🔁</span>
-      <dt>autocomplete</dt>
-      <dd>Le dice al navegador qué tipo de dato es (<code>autocomplete="email"</code>, <code>"tel"</code>, <code>"cc-number"</code>) para autocompletar mejor.</dd>
-    </div>
-  </dl>
-
-  <h2>Ejemplo: datalist para autocompletado</h2>
-  <div class="code-block"><span class="lang">HTML</span><span class="ct">&lt;input</span> <span class="ca">list</span>=<span class="cs">"lenguajes"</span> <span class="ca">name</span>=<span class="cs">"lenguaje"</span><span class="ct">&gt;</span>
-<span class="ct">&lt;datalist</span> <span class="ca">id</span>=<span class="cs">"lenguajes"</span><span class="ct">&gt;</span>
-  <span class="ct">&lt;option</span> <span class="ca">value</span>=<span class="cs">"HTML"</span><span class="ct">&gt;</span>
-  <span class="ct">&lt;option</span> <span class="ca">value</span>=<span class="cs">"CSS"</span><span class="ct">&gt;</span>
-  <span class="ct">&lt;option</span> <span class="ca">value</span>=<span class="cs">"JavaScript"</span><span class="ct">&gt;</span>
-<span class="ct">&lt;/datalist&gt;</span>
-</div>
-</section>
-
-<!-- ═══════════════════════════════════════════
-     PSEUDO-CLASES
-═══════════════════════════════════════════ -->
-<section class="module" id="pseudo-clases">
-  <div class="module-header">
-    <div class="module-icon">🎨</div>
-    <div>
-      <div class="module-title">Estilizar la validación con CSS</div>
-      <div class="module-sub">El navegador ya sabe si el campo es válido — solo hay que pintarlo</div>
-    </div>
-  </div>
-
-  <p>Cuando un campo tiene reglas de validación, el navegador le agrega automáticamente un estado que puedes usar en CSS, sin ninguna clase manual.</p>
-
-  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* Campo válido */</span>
-<span class="cn">input</span><span class="cv">:valid</span> {
-  <span class="cp">border-color</span>: <span class="cv">green</span>;
+  <div class="code-block">
+function calcularDescuento(precio, porcentaje) {
+  <span class="kw">debugger</span>;  <span class="cm">// la ejecución se detiene aquí si las DevTools están abiertas</span>
+  <span class="kw">return</span> precio - (precio * porcentaje / <span class="num">100</span>);
 }
-
-<span class="cc">/* Campo inválido, pero solo cuando el usuario ya interactuó */</span>
-<span class="cn">input</span><span class="cv">:invalid</span><span class="cv">:not</span>(<span class="cv">:placeholder-shown</span>) {
-  <span class="cp">border-color</span>: <span class="cv">crimson</span>;
-}
-
-<span class="cc">/* Foco visible por teclado, no por mouse */</span>
-<span class="cn">input</span><span class="cv">:focus-visible</span> {
-  <span class="cp">outline</span>: <span class="cv">2px</span> <span class="cv">solid</span> <span class="cv">dodgerblue</span>;
-}
-</div>
+  </div>
 
   <div class="tip">
-    <h4>🟢 El truco de :not(:placeholder-shown)</h4>
-    <p>Usar solo <code>:invalid</code> pinta de rojo el campo desde que carga la página, antes de que el usuario escriba nada — se ve agresivo. Combinarlo con <code>:not(:placeholder-shown)</code> hace que el rojo aparezca solo después de que el usuario empezó a escribir y lo dejó incompleto o mal.</p>
+    <h4>🟢 Una vez pausado, tienes control total</h4>
+    <ul>
+      <li><span class="kbd">F10</span> — ejecuta la línea actual y pasa a la siguiente ("step over").</li>
+      <li><span class="kbd">F11</span> — entra dentro de la función que se está llamando ("step into").</li>
+      <li><span class="kbd">Shift</span> + <span class="kbd">F11</span> — sale de la función actual ("step out").</li>
+      <li><span class="kbd">F8</span> — reanuda la ejecución normal hasta el siguiente breakpoint.</li>
+    </ul>
   </div>
-</section>
-
-<!-- ═══════════════════════════════════════════
-     CONSTRAINT VALIDATION API
-═══════════════════════════════════════════ -->
-<section class="module" id="js-api">
-  <div class="module-header">
-    <div class="module-icon">⚙️</div>
-    <div>
-      <div class="module-title">Mensajes personalizados con JavaScript</div>
-      <div class="module-sub">Constraint Validation API — cuando el mensaje del navegador no alcanza</div>
-    </div>
-  </div>
-
-  <p>El mensaje de error que muestra el navegador por defecto ("Rellena este campo") no se puede traducir ni personalizar solo con HTML. Para eso existe la Constraint Validation API.</p>
-
-  <div class="code-block"><span class="lang">JavaScript</span><span class="cc">const input = document.querySelector('#usuario')</span>
-
-<span class="ct">input</span>.<span class="cn">addEventListener</span>(<span class="cs">'invalid'</span>, () <span class="ca">=&gt;</span> {
-  <span class="ct">input</span>.<span class="cn">setCustomValidity</span>(<span class="cs">'Escribe un nombre de usuario válido'</span>)
-})
-
-<span class="ct">input</span>.<span class="cn">addEventListener</span>(<span class="cs">'input'</span>, () <span class="ca">=&gt;</span> {
-  <span class="cc">// Limpiar el mensaje personalizado en cuanto el usuario corrige</span>
-  <span class="ct">input</span>.<span class="cn">setCustomValidity</span>(<span class="cs">''</span>)
-})
-</div>
 
   <div class="warn">
-    <h4>⚠️ No olvides limpiar el mensaje</h4>
-    <p>Si llamas a <code>setCustomValidity()</code> con un texto y nunca lo vuelves a limpiar con <code>setCustomValidity('')</code>, el campo queda inválido para siempre, aunque el usuario lo corrija. Siempre limpia el mensaje en el evento <code>input</code>.</p>
+    <h4>⚠️ No olvides quitar los debugger;</h4>
+    <p>A diferencia de <code>console.log</code> (que solo "ensucia" la consola), un <code>debugger;</code> olvidado literalmente <strong>pausa la ejecución</strong> para cualquier usuario que tenga las DevTools abiertas — vale la pena revisar tu código antes de publicarlo.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PANEL ELEMENTS
+═══════════════════════════════════════════ -->
+<section class="module" id="panel-elementos">
+  <div class="module-header">
+    <div class="module-icon">🔍</div>
+    <div>
+      <div class="module-title">El panel Elements</div>
+      <div class="module-sub">Editar HTML y CSS en vivo, sin tocar tu archivo</div>
+    </div>
   </div>
 
+  <p>El panel <strong>Elements</strong> muestra el DOM tal como está <strong>ahora mismo</strong> — incluyendo cambios hechos por JavaScript, no el HTML original del archivo. Puedes hacer doble clic sobre cualquier texto, atributo o valor de CSS y editarlo directamente para probar ideas sin tocar tu código fuente.</p>
+
+  <table class="tbl">
+    <tr><th>Función</th><th>Cómo usarla</th></tr>
+    <tr><td><span class="tag">Editar CSS en vivo</span></td><td>En el panel de estilos, haz clic sobre cualquier valor y cámbialo — verás el resultado al instante.</td></tr>
+    <tr><td><span class="tag">Forzar estado (:hover, :focus)</span></td><td>Botón ":hov" en el panel de estilos — útil para depurar estilos que solo aparecen en esos estados.</td></tr>
+    <tr><td><span class="tag">$0 en la consola</span></td><td>Referencia al último elemento seleccionado en Elements — puedes manipularlo directo desde Console.</td></tr>
+    <tr><td><span class="tag">Panel Computed</span></td><td>Muestra el valor final de cada propiedad CSS después de aplicar toda la cascada — útil para saber "por qué" un estilo ganó.</td></tr>
+  </table>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PANEL NETWORK
+═══════════════════════════════════════════ -->
+<section class="module" id="panel-network">
+  <div class="module-header">
+    <div class="module-icon">🌐</div>
+    <div>
+      <div class="module-title">El panel Network</div>
+      <div class="module-sub">Todo lo que tu página pide o descarga, en un solo lugar</div>
+    </div>
+  </div>
+
+  <p>El panel <strong>Network</strong> registra cada petición que hace tu página: archivos, imágenes, peticiones <code>fetch()</code>. Es la primera parada cuando algo relacionado con una API "no está funcionando", como se explica en la guía de "Fetch API y promesas".</p>
+
+  <table class="tbl">
+    <tr><th>Columna / función</th><th>Qué te dice</th></tr>
+    <tr><td><span class="tag">Status</span></td><td>El código HTTP de respuesta (200 = éxito, 404 = no encontrado, 500 = error del servidor).</td></tr>
+    <tr><td><span class="tag">Response</span></td><td>El contenido exacto que devolvió el servidor — útil para ver si el JSON viene con el formato esperado.</td></tr>
+    <tr><td><span class="tag">Headers</span></td><td>Las cabeceras enviadas y recibidas — útil para depurar problemas de CORS o autenticación.</td></tr>
+    <tr><td><span class="tag">Throttling</span></td><td>Simula una conexión lenta (3G, por ejemplo) para probar cómo se comporta tu página con mala señal.</td></tr>
+    <tr><td><span class="tag">Preserve log</span></td><td>Mantiene el historial de peticiones aunque la página navegue a otra URL o se recargue.</td></tr>
+  </table>
+
   <div class="tip">
-    <h4>🟢 Resumen de la guía</h4>
-    <ul>
-      <li><strong>Validación nativa:</strong> <code>required</code>, <code>min/max</code>, <code>pattern</code>, tipos de <code>input</code>.</li>
-      <li><strong>Atributos útiles:</strong> <code>datalist</code>, <code>inputmode</code>, <code>autocomplete</code>, <code>novalidate</code>.</li>
-      <li><strong>CSS:</strong> <code>:valid</code>, <code>:invalid</code>, <code>:focus-visible</code>, <code>:not(:placeholder-shown)</code>.</li>
-      <li><strong>JavaScript:</strong> Constraint Validation API para mensajes personalizados.</li>
-    </ul>
+    <h4>🟢 El filtro "Fetch/XHR"</h4>
+    <p>Si solo te interesan las peticiones que hace tu propio JavaScript (no imágenes, CSS o fuentes), usa el filtro "Fetch/XHR" en la parte superior del panel Network para quitar todo el ruido visual y ver solo lo relevante.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     EJERCICIOS
+═══════════════════════════════════════════ -->
+<section class="module" id="ejercicios">
+  <div class="module-header">
+    <div class="module-icon">🏋️</div>
+    <div>
+      <div class="module-title">Ejercicios</div>
+      <div class="module-sub">Para practicar lo que acabas de leer</div>
+    </div>
+  </div>
+
+  <div class="exercise">
+    <h4>Ejercicio 1 — Reemplaza tus console.log</h4>
+    <p>Toma un proyecto tuyo con varios <code>console.log</code> sueltos y reemplázalos por <code>console.table()</code> (para arreglos de objetos) o <code>console.group()</code> (para mensajes relacionados).</p>
+  </div>
+
+  <div class="exercise">
+    <h4>Ejercicio 2 — Tu primer breakpoint</h4>
+    <p>Agrega un <code>debugger;</code> dentro de una función tuya, ábrela con las DevTools abiertas, y usa <span class="kbd">F10</span> para avanzar línea por línea observando cómo cambian tus variables.</p>
+  </div>
+
+  <div class="exercise">
+    <h4>Ejercicio 3 — Investiga una petición real</h4>
+    <p>Abre el panel Network en cualquier sitio web, recarga la página, y encuentra una petición <code>fetch</code> o XHR. Revisa su Status, sus Headers y su Response.</p>
+  </div>
+
+  <div class="concept">
+    <h4>💡 Para llevarte de esta guía</h4>
+    <p>Las DevTools van mucho más allá de <code>console.log</code>: la consola tiene métodos especializados (<code>table</code>, <code>group</code>, <code>time</code>), los breakpoints te dan control total sobre la ejecución sin modificar tu código, el panel Elements te deja experimentar con CSS en vivo, y el panel Network es tu primera parada para cualquier problema relacionado con peticiones al servidor.</p>
   </div>
 </section>
 
 </main>
 
 <footer>
-  Guía Formularios Avanzados · Café &lt;/&gt; · Guías Adicionales
+  Guía Debugging en el navegador · Café &lt;/&gt; · Guías adicionales
 </footer>
+
 <script>
-  function demoFragment() {
-    var lista = document.getElementById('demoLista');
-    var t0 = performance.now();
-    var frag = document.createDocumentFragment();
-    for (var i = 0; i < 300; i++) {
-      var li = document.createElement('li');
-      li.textContent = i;
-      frag.appendChild(li);
-    }
-    lista.appendChild(frag);
-    var t1 = performance.now();
-    document.getElementById('demoTiempo').textContent =
-      'Con DocumentFragment: ' + (t1 - t0).toFixed(2) + ' ms (una sola inserción real al DOM)';
-  }
-
-  function demoDirecto() {
-    var lista = document.getElementById('demoLista');
-    var t0 = performance.now();
-    for (var i = 0; i < 300; i++) {
-      var li = document.createElement('li');
-      li.textContent = i;
-      lista.appendChild(li); // inserción directa, una por una
-    }
-    var t1 = performance.now();
-    document.getElementById('demoTiempo').textContent =
-      'Insertando directo: ' + (t1 - t0).toFixed(2) + ' ms (300 inserciones reales al DOM)';
-  }
-
-  function demoLimpiar() {
-    document.getElementById('demoLista').innerHTML = '';
-    document.getElementById('demoTiempo').textContent = '';
-  }
-
   (function() {
     var root = document.documentElement;
     var icon = document.getElementById('themeIcon');

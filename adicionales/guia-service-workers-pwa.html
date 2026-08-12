@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía Service Workers y PWA — Café </></title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #c49a1a;
+    --primary-light:  #fdf6e0;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --danger:         #c44a2a;
+    --danger-light:   #fdf0ec;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1a1814;
+    --code-text:      #e8e4de;
+
+    color-scheme: light;
+  }
+
+  :root[data-theme="dark"] {
+    --primary:        #e0b52e;
+    --primary-light:  #2b2410;
+    --secondary:      #3fcf9e;
+    --secondary-light:#0f2a22;
+    --accent:         #e0912e;
+    --accent-light:   #2e2110;
+    --danger:         #e07a5a;
+    --danger-light:   #2e1712;
+    --bg:             #14120f;
+    --surface:        #1e1b17;
+    --text:           #f0ece5;
+    --muted:          #a39d93;
+    --border:         #332e27;
+    --code-bg:        #0c0a08;
+    --code-text:      #e8e4de;
+
+    color-scheme: dark;
+  }
+
+  body {
+    font-family: 'DM Sans', 'Segoe UI', sans-serif;
+    background: var(--bg); color: var(--text);
+    line-height: 1.7; font-size: 16px;
+    transition: background .25s ease, color .25s ease;
+  }
+
+  .cafe-bar {
+    background: var(--surface); border-bottom:1px solid var(--border);
+    padding:0 24px; display:flex; align-items:center; gap:14px;
+    position:sticky; top:0; z-index:200; height:45px;
+    transition: background .25s ease, border-color .25s ease;
+  }
+  .cafe-bar a { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--muted); text-decoration:none; padding:6px 14px; border:1px solid var(--border); border-radius:999px; transition:all 0.15s; }
+  .cafe-bar a:hover { color:var(--text); border-color:var(--muted); }
+  .cafe-bar span.crumb { font-size:13px; color:var(--muted); }
+  .cafe-bar .spacer { flex: 1; }
+
+  .theme-toggle {
+    display:inline-flex; align-items:center; gap:8px;
+    background: var(--bg); border:1px solid var(--border); color: var(--text);
+    border-radius:999px; padding:6px 14px 6px 10px; font-size:13px; font-weight:500;
+    cursor:pointer; transition: all .2s ease; font-family: inherit;
+  }
+  .theme-toggle:hover { border-color: var(--primary); color: var(--primary); }
+  .theme-toggle .icon { font-size: 15px; line-height:1; }
+
+  header {
+    background: #1a1814; color: #f7f4ef; padding: 3rem 2rem 2rem;
+    text-align: center; position: relative; overflow: hidden;
+  }
+  header::before { content: '☕'; position: absolute; font-size: 12rem; font-weight: 900; color: rgba(255,255,255,0.04); right: -1rem; top: -2rem; font-family: monospace; line-height: 1; }
+  header h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; font-family: 'Fraunces', serif; }
+  header p { font-size: 1.1rem; opacity: .85; margin-top: .5rem; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  nav {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    position: sticky; top: 45px; z-index: 100; display: flex; overflow-x: auto; gap: 0;
+    transition: background .25s ease, border-color .25s ease;
+  }
+  nav a { flex-shrink: 0; padding: .75rem 1rem; text-decoration: none; color: var(--muted); font-size: .78rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .module {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+    padding: 2rem; margin-bottom: 2.5rem; scroll-margin-top:100px;
+    transition: background .25s ease, border-color .25s ease;
+  }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-size: 1.35rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  .analogy { background: var(--accent-light); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: var(--accent); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; }
+
+  .concept { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p, .tip ul { font-size: .95rem; }
+  .tip ul { padding-left: 1.2rem; }
+
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  .glos { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .glos-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; }
+  .glos-item dt { font-weight: 700; color: var(--primary); font-size: .92rem; margin-bottom: .3rem; }
+  .glos-item dd { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+  .glos-item .emoji { font-size: 1.3rem; display: block; margin-bottom: .3rem; }
+
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: #1a1814; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  h2 { font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; color: var(--text); }
+  h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 .5rem; }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: var(--primary-light); color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+  strong { font-weight: 700; }
+
+  .code-block {
+    background: var(--code-bg); color: var(--code-text); border-radius: 10px;
+    padding: 1rem 1.25rem; font-family: 'DM Mono', monospace; font-size: .84rem;
+    overflow-x: auto; margin: 1rem 0; line-height: 1.65;
+  }
+  .code-block .cm { color: #8a8480; }
+  .code-block .attr { color: #e0b52e; }
+  .code-block .str { color: #7fd8a8; }
+  .code-block .tag2 { color: #e08a5a; }
+  .code-block .num { color: #7fb8e0; }
+  .code-block .kw { color: #d88ae0; }
+
+  .exercise { background: var(--bg); border: 1px dashed var(--primary); border-radius: 10px; padding: 1.1rem 1.25rem; margin: 1rem 0; }
+  .exercise h4 { color: var(--primary); font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .5rem; }
+
+  /* Diagrama ciclo de vida del service worker */
+  .lifecycle { display:flex; align-items:center; justify-content:center; gap:.5rem; flex-wrap:wrap; margin: 1.2rem 0; }
+  .lc-step { background: var(--primary-light); border:1px solid var(--primary); color: var(--primary); border-radius: 8px; padding: .6rem 1rem; font-family:'DM Mono',monospace; font-size:.8rem; font-weight:700; text-align:center; }
+  .lc-arrow { color: var(--muted); font-size: 1.1rem; }
+
+  /* Estrategias de caché */
+  .strategy-diagram { display:flex; flex-direction:column; gap:.5rem; margin: 1rem 0; }
+  .strategy-flow { display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; font-size:.82rem; }
+  .strategy-node { background: var(--bg); border:1px solid var(--border); border-radius:7px; padding:.4rem .8rem; font-family:'DM Mono',monospace; }
+  .strategy-node.cache { border-color: var(--secondary); color: var(--secondary); }
+  .strategy-node.network { border-color: var(--danger); color: var(--danger); }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); transition: background .25s ease, border-color .25s ease; }
+</style>
+</head>
+<body>
+
+<div class="cafe-bar">
+  <a href="../capitulos.html?tab=adicionales">← Volver a Adicionales</a>
+  <span class="crumb">☕ Service Workers y PWA</span>
+  <div class="spacer"></div>
+  <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+    <span class="icon" id="themeIcon">🌙</span>
+    <span id="themeLabel">Modo oscuro</span>
+  </button>
+</div>
+
+<header>
+  <h1>Service Workers y PWA</h1>
+  <p>Básicos de offline-first</p>
+  <span class="badge">🧩 Guía adicional · Fuera de la ruta principal</span>
+</header>
+
+<nav>
+  <a href="#intro">🎯 Intro</a>
+  <a href="#que-es-sw">⚙️ Qué es un Service Worker</a>
+  <a href="#ciclo-vida">🔄 Ciclo de vida</a>
+  <a href="#cache-api">📦 Cache API</a>
+  <a href="#estrategias">🧭 Estrategias de caché</a>
+  <a href="#manifest">📱 El manifest.json</a>
+  <a href="#ejercicios">🏋️ Ejercicios</a>
+</nav>
+
+<main>
+
+<div class="parte-badge">🧩 Guía adicional — HTML, CSS y JavaScript</div>
+
+<!-- ═══════════════════════════════════════════
+     INTRO
+═══════════════════════════════════════════ -->
+<section class="module" id="intro">
+  <div class="module-header">
+    <div class="module-icon">🎯</div>
+    <div>
+      <div class="module-title">Introducción — un sitio web que sigue funcionando sin internet</div>
+      <div class="module-sub">La tecnología detrás de las Progressive Web Apps (PWA)</div>
+    </div>
+  </div>
+
+  <p>Una <strong>PWA</strong> (Progressive Web App) es un sitio web que puede comportarse como una aplicación instalable: funciona sin conexión, se agrega a la pantalla de inicio, y puede enviar notificaciones — todo construido con HTML, CSS y JavaScript, sin necesitar las tiendas de aplicaciones. La pieza central que hace esto posible es el <strong>Service Worker</strong>.</p>
+
+  <div class="concept">
+    <h4>💡 La idea central</h4>
+    <p>Un Service Worker es un script que el navegador ejecuta <strong>por separado</strong> de tu página, actuando como un intermediario (proxy) entre tu sitio y la red. Puede interceptar cada petición de red que hace tu página y decidir: responder con algo guardado en caché, ir a buscarlo a internet, o una combinación de ambos.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     QUÉ ES UN SERVICE WORKER
+═══════════════════════════════════════════ -->
+<section class="module" id="que-es-sw">
+  <div class="module-header">
+    <div class="module-icon">⚙️</div>
+    <div>
+      <div class="module-title">Qué es un Service Worker</div>
+      <div class="module-sub">Un script con vida propia, separado de tu página</div>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <h4>🚪 Analogía: el portero del edificio</h4>
+    <p>Un Service Worker es como el portero de un edificio de oficinas: toda visita (petición de red) pasa primero por él. El portero puede dejarte pasar directo (ir a la red), decirte "espera, tengo una copia de eso guardada aquí mismo" (responder desde caché), o incluso decirte "no hay servicio ahora mismo, pero aquí tienes una versión guardada de todos modos" (funcionar offline).</p>
+  </div>
+
+  <table class="tbl">
+    <tr><th>Característica</th><th>Detalle</th></tr>
+    <tr><td><span class="tag">Corre en un hilo separado</span></td><td>No tiene acceso directo al DOM y no bloquea la interfaz de tu página.</td></tr>
+    <tr><td><span class="tag">Sigue vivo sin la pestaña abierta</span></td><td>Puede seguir ejecutándose (por ejemplo, para notificaciones push) aunque hayas cerrado la pestaña.</td></tr>
+    <tr><td><span class="tag">Requiere HTTPS</span></td><td>Por seguridad, solo funciona en sitios servidos por HTTPS (excepto en <code>localhost</code>, para desarrollo).</td></tr>
+    <tr><td><span class="tag">Se instala una sola vez</span></td><td>Una vez registrado, persiste entre visitas hasta que se actualice o desinstale explícitamente.</td></tr>
+  </table>
+
+  <div class="code-block">
+<span class="cm">// En tu app.js — registrar el Service Worker</span>
+<span class="kw">if</span> (<span class="str">'serviceWorker'</span> <span class="kw">in</span> navigator) {
+  navigator.serviceWorker.register(<span class="str">'/sw.js'</span>)
+    .then(() =&gt; console.log(<span class="str">'Service Worker registrado'</span>))
+    .catch(error =&gt; console.error(<span class="str">'Error al registrar:'</span>, error));
+}
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     CICLO DE VIDA
+═══════════════════════════════════════════ -->
+<section class="module" id="ciclo-vida">
+  <div class="module-header">
+    <div class="module-icon">🔄</div>
+    <div>
+      <div class="module-title">Ciclo de vida</div>
+      <div class="module-sub">Instalar, activar, y solo entonces controlar</div>
+    </div>
+  </div>
+
+  <div class="lifecycle">
+    <div class="lc-step">register()</div>
+    <div class="lc-arrow">→</div>
+    <div class="lc-step">install</div>
+    <div class="lc-arrow">→</div>
+    <div class="lc-step">activate</div>
+    <div class="lc-arrow">→</div>
+    <div class="lc-step">fetch<br><span style="font-weight:400;font-size:.85em;">(intercepta peticiones)</span></div>
+  </div>
+
+  <div class="code-block">
+<span class="cm">// sw.js — el archivo del propio Service Worker</span>
+<span class="kw">const</span> CACHE_NAME = <span class="str">'cafe-codigo-v1'</span>;
+
+self.addEventListener(<span class="str">'install'</span>, (evento) =&gt; {
+  evento.waitUntil(
+    caches.open(CACHE_NAME).then(cache =&gt; {
+      <span class="kw">return</span> cache.addAll([
+        <span class="str">'/'</span>,
+        <span class="str">'/estilos.css'</span>,
+        <span class="str">'/app.js'</span>
+      ]);
+    })
+  );
+});
+
+self.addEventListener(<span class="str">'activate'</span>, (evento) =&gt; {
+  console.log(<span class="str">'Service Worker activado'</span>);
+});
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ El primer registro NO controla la página que lo registró</h4>
+    <p>La primera vez que un Service Worker se instala, la página que provocó el registro sigue cargando de forma normal, sin pasar por él — solo empieza a controlar peticiones desde la <strong>siguiente</strong> carga de página. Esto evita comportamientos inesperados en la primera visita.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     CACHE API
+═══════════════════════════════════════════ -->
+<section class="module" id="cache-api">
+  <div class="module-header">
+    <div class="module-icon">📦</div>
+    <div>
+      <div class="module-title">Cache API</div>
+      <div class="module-sub">Un almacén de respuestas HTTP completas, no solo texto</div>
+    </div>
+  </div>
+
+  <p>A diferencia de <code>localStorage</code> (que solo guarda texto), la <strong>Cache API</strong> almacena objetos <code>Request</code>/<code>Response</code> completos — el equivalente a guardar copias reales de páginas, imágenes o archivos, no solo datos.</p>
+
+  <div class="code-block">
+self.addEventListener(<span class="str">'fetch'</span>, (evento) =&gt; {
+  evento.respondWith(
+    caches.match(evento.request).then(respuestaCache =&gt; {
+      <span class="cm">// Si está en caché, úsala. Si no, ve a la red.</span>
+      <span class="kw">return</span> respuestaCache || fetch(evento.request);
+    })
+  );
+});
+  </div>
+
+  <p>El evento <code>fetch</code> se dispara para <strong>cada</strong> petición que hace la página (HTML, CSS, JS, imágenes, llamadas a API) mientras el Service Worker está activo — y <code>evento.respondWith()</code> es lo que te permite decidir qué responder en su lugar.</p>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     ESTRATEGIAS
+═══════════════════════════════════════════ -->
+<section class="module" id="estrategias">
+  <div class="module-header">
+    <div class="module-icon">🧭</div>
+    <div>
+      <div class="module-title">Estrategias de caché</div>
+      <div class="module-sub">No todo el contenido debería cachearse de la misma forma</div>
+    </div>
+  </div>
+
+  <div class="strategy-diagram">
+    <div class="strategy-flow">
+      <strong style="min-width:150px;">Cache First</strong>
+      <div class="strategy-node cache">Caché</div> <span>→ si no está →</span> <div class="strategy-node network">Red</div>
+    </div>
+    <div class="strategy-flow">
+      <strong style="min-width:150px;">Network First</strong>
+      <div class="strategy-node network">Red</div> <span>→ si falla →</span> <div class="strategy-node cache">Caché</div>
+    </div>
+    <div class="strategy-flow">
+      <strong style="min-width:150px;">Stale-While-Revalidate</strong>
+      <div class="strategy-node cache">Caché (responde YA)</div> <span>+ en paralelo →</span> <div class="strategy-node network">Red (actualiza para después)</div>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <tr><th>Estrategia</th><th>Mejor para</th></tr>
+    <tr><td><span class="tag">Cache First</span></td><td>Recursos que casi nunca cambian: fuentes, íconos, CSS/JS con versión en el nombre del archivo.</td></tr>
+    <tr><td><span class="tag">Network First</span></td><td>Contenido que debe estar actualizado si hay conexión, pero puede mostrar una versión vieja si no la hay: noticias, precios.</td></tr>
+    <tr><td><span class="tag">Stale-While-Revalidate</span></td><td>Un balance entre velocidad y frescura: responde rápido con lo que ya tienes, y actualiza la caché en segundo plano para la próxima vez.</td></tr>
+  </table>
+
+  <div class="tip">
+    <h4>🟢 No existe una estrategia "correcta" universal</h4>
+    <p>La mejor estrategia depende de cada tipo de recurso dentro del mismo sitio — es común combinar varias en un mismo Service Worker, según la ruta o el tipo de archivo que se esté pidiendo.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     MANIFEST
+═══════════════════════════════════════════ -->
+<section class="module" id="manifest">
+  <div class="module-header">
+    <div class="module-icon">📱</div>
+    <div>
+      <div class="module-title">El manifest.json</div>
+      <div class="module-sub">Lo que convierte "un sitio con Service Worker" en "algo instalable"</div>
+    </div>
+  </div>
+
+  <p>El Service Worker resuelve el funcionamiento offline, pero para que el navegador ofrezca "Instalar aplicación" (agregarla a la pantalla de inicio, con ícono propio), también se necesita un archivo <strong>manifest.json</strong> enlazado desde el HTML.</p>
+
+  <div class="code-block">
+<span class="cm">// manifest.json</span>
+{
+  <span class="attr">"name"</span>: <span class="str">"Café &lt;/&gt;"</span>,
+  <span class="attr">"short_name"</span>: <span class="str">"Café"</span>,
+  <span class="attr">"start_url"</span>: <span class="str">"/"</span>,
+  <span class="attr">"display"</span>: <span class="str">"standalone"</span>,
+  <span class="attr">"background_color"</span>: <span class="str">"#1a1814"</span>,
+  <span class="attr">"theme_color"</span>: <span class="str">"#c49a1a"</span>,
+  <span class="attr">"icons"</span>: [
+    { <span class="attr">"src"</span>: <span class="str">"/icono-192.png"</span>, <span class="attr">"sizes"</span>: <span class="str">"192x192"</span>, <span class="attr">"type"</span>: <span class="str">"image/png"</span> },
+    { <span class="attr">"src"</span>: <span class="str">"/icono-512.png"</span>, <span class="attr">"sizes"</span>: <span class="str">"512x512"</span>, <span class="attr">"type"</span>: <span class="str">"image/png"</span> }
+  ]
+}
+  </div>
+
+  <div class="code-block">
+&lt;<span class="tag2">link</span> <span class="attr">rel</span>=<span class="str">"manifest"</span> <span class="attr">href</span>=<span class="str">"/manifest.json"</span>&gt;
+  </div>
+
+  <dl class="glos">
+    <div class="glos-item">
+      <span class="emoji">🖥️</span>
+      <dt>display: "standalone"</dt>
+      <dd>Hace que la app se vea sin la barra de direcciones del navegador, como una app nativa.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🎨</span>
+      <dt>theme_color</dt>
+      <dd>Colorea la barra de estado del sistema operativo (en móviles) para que combine con tu marca.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🖼️</span>
+      <dt>icons</dt>
+      <dd>Los íconos que se usan en la pantalla de inicio del dispositivo tras la instalación.</dd>
+    </div>
+  </dl>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     EJERCICIOS
+═══════════════════════════════════════════ -->
+<section class="module" id="ejercicios">
+  <div class="module-header">
+    <div class="module-icon">🏋️</div>
+    <div>
+      <div class="module-title">Ejercicios</div>
+      <div class="module-sub">Para practicar lo que acabas de leer</div>
+    </div>
+  </div>
+
+  <div class="exercise">
+    <h4>Ejercicio 1 — Registra tu primer Service Worker</h4>
+    <p>Crea un <code>sw.js</code> vacío (solo con un <code>console.log('activo')</code> en el evento <code>activate</code>) y regístralo desde tu <code>app.js</code>. Verifica en el panel Application de las DevTools que aparezca como activo.</p>
+  </div>
+
+  <div class="exercise">
+    <h4>Ejercicio 2 — Cachea tu página principal</h4>
+    <p>En el evento <code>install</code>, guarda tu <code>index.html</code>, tu CSS y tu JS en caché. Desconéctate de internet (o usa "Offline" en el panel Network de DevTools) y recarga la página — debería seguir funcionando.</p>
+  </div>
+
+  <div class="exercise">
+    <h4>Ejercicio 3 — Crea un manifest.json</h4>
+    <p>Escribe tu propio <code>manifest.json</code> con nombre, colores e íconos, enlázalo desde tu HTML, y comprueba en Chrome que aparece la opción de "Instalar" en la barra de direcciones.</p>
+  </div>
+
+  <div class="concept">
+    <h4>💡 Para llevarte de esta guía</h4>
+    <p>Un Service Worker es un proxy programable entre tu página y la red, que junto con la Cache API permite decidir exactamente cómo responder a cada petición — incluso sin conexión. El <code>manifest.json</code> es lo que completa la experiencia, permitiendo que el navegador ofrezca instalar tu sitio como si fuera una aplicación nativa.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Guía Service Workers y PWA · Café &lt;/&gt; · Guías adicionales
+</footer>
+
+<script>
+  (function() {
+    var root = document.documentElement;
+    var icon = document.getElementById('themeIcon');
+    var label = document.getElementById('themeLabel');
+    var STORAGE_KEY = 'cafe-codigo-theme';
+
+    function applyTheme(theme) {
+      if (theme === 'dark') {
+        root.setAttribute('data-theme', 'dark');
+        icon.textContent = '☀️';
+        label.textContent = 'Modo claro';
+      } else {
+        root.removeAttribute('data-theme');
+        icon.textContent = '🌙';
+        label.textContent = 'Modo oscuro';
+      }
+    }
+
+    var saved = null;
+    try { saved = localStorage.getItem(STORAGE_KEY); } catch (e) {}
+
+    if (saved) {
+      applyTheme(saved);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      applyTheme('dark');
+    }
+
+    window.toggleTheme = function() {
+      var isDark = root.getAttribute('data-theme') === 'dark';
+      var next = isDark ? 'light' : 'dark';
+      applyTheme(next);
+      try { localStorage.setItem(STORAGE_KEY, next); } catch (e) {}
+    };
+  })();
+</script>
+
+</body>
+</html>

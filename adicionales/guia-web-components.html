@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía Web Components — Café </></title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #c49a1a;
+    --primary-light:  #fdf6e0;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --danger:         #c44a2a;
+    --danger-light:   #fdf0ec;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1a1814;
+    --code-text:      #e8e4de;
+
+    color-scheme: light;
+  }
+
+  :root[data-theme="dark"] {
+    --primary:        #e0b52e;
+    --primary-light:  #2b2410;
+    --secondary:      #3fcf9e;
+    --secondary-light:#0f2a22;
+    --accent:         #e0912e;
+    --accent-light:   #2e2110;
+    --danger:         #e07a5a;
+    --danger-light:   #2e1712;
+    --bg:             #14120f;
+    --surface:        #1e1b17;
+    --text:           #f0ece5;
+    --muted:          #a39d93;
+    --border:         #332e27;
+    --code-bg:        #0c0a08;
+    --code-text:      #e8e4de;
+
+    color-scheme: dark;
+  }
+
+  body {
+    font-family: 'DM Sans', 'Segoe UI', sans-serif;
+    background: var(--bg); color: var(--text);
+    line-height: 1.7; font-size: 16px;
+    transition: background .25s ease, color .25s ease;
+  }
+
+  .cafe-bar {
+    background: var(--surface); border-bottom:1px solid var(--border);
+    padding:0 24px; display:flex; align-items:center; gap:14px;
+    position:sticky; top:0; z-index:200; height:45px;
+    transition: background .25s ease, border-color .25s ease;
+  }
+  .cafe-bar a { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--muted); text-decoration:none; padding:6px 14px; border:1px solid var(--border); border-radius:999px; transition:all 0.15s; }
+  .cafe-bar a:hover { color:var(--text); border-color:var(--muted); }
+  .cafe-bar span.crumb { font-size:13px; color:var(--muted); }
+  .cafe-bar .spacer { flex: 1; }
+
+  .theme-toggle {
+    display:inline-flex; align-items:center; gap:8px;
+    background: var(--bg); border:1px solid var(--border); color: var(--text);
+    border-radius:999px; padding:6px 14px 6px 10px; font-size:13px; font-weight:500;
+    cursor:pointer; transition: all .2s ease; font-family: inherit;
+  }
+  .theme-toggle:hover { border-color: var(--primary); color: var(--primary); }
+  .theme-toggle .icon { font-size: 15px; line-height:1; }
+
+  header {
+    background: #1a1814; color: #f7f4ef; padding: 3rem 2rem 2rem;
+    text-align: center; position: relative; overflow: hidden;
+  }
+  header::before { content: '☕'; position: absolute; font-size: 12rem; font-weight: 900; color: rgba(255,255,255,0.04); right: -1rem; top: -2rem; font-family: monospace; line-height: 1; }
+  header h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; font-family: 'Fraunces', serif; }
+  header p { font-size: 1.1rem; opacity: .85; margin-top: .5rem; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  nav {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    position: sticky; top: 45px; z-index: 100; display: flex; overflow-x: auto; gap: 0;
+    transition: background .25s ease, border-color .25s ease;
+  }
+  nav a { flex-shrink: 0; padding: .75rem 1rem; text-decoration: none; color: var(--muted); font-size: .78rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .module {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+    padding: 2rem; margin-bottom: 2.5rem; scroll-margin-top:100px;
+    transition: background .25s ease, border-color .25s ease;
+  }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-size: 1.35rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  .analogy { background: var(--accent-light); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: var(--accent); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; }
+
+  .concept { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p, .tip ul { font-size: .95rem; }
+  .tip ul { padding-left: 1.2rem; }
+
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  .glos { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .glos-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; }
+  .glos-item dt { font-weight: 700; color: var(--primary); font-size: .92rem; margin-bottom: .3rem; }
+  .glos-item dd { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+  .glos-item .emoji { font-size: 1.3rem; display: block; margin-bottom: .3rem; }
+
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: #1a1814; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  h2 { font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; color: var(--text); }
+  h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 .5rem; }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: var(--primary-light); color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+  strong { font-weight: 700; }
+
+  .code-block {
+    background: var(--code-bg); color: var(--code-text); border-radius: 10px;
+    padding: 1rem 1.25rem; font-family: 'DM Mono', monospace; font-size: .84rem;
+    overflow-x: auto; margin: 1rem 0; line-height: 1.65;
+  }
+  .code-block .cm { color: #8a8480; }
+  .code-block .attr { color: #e0b52e; }
+  .code-block .str { color: #7fd8a8; }
+  .code-block .tag2 { color: #e08a5a; }
+  .code-block .num { color: #7fb8e0; }
+  .code-block .kw { color: #d88ae0; }
+
+  .exercise { background: var(--bg); border: 1px dashed var(--primary); border-radius: 10px; padding: 1.1rem 1.25rem; margin: 1rem 0; }
+  .exercise h4 { color: var(--primary); font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .5rem; }
+
+  /* Demo en vivo de un web component real */
+  .demo-live { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin: 1rem 0; text-align: center; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); transition: background .25s ease, border-color .25s ease; }
+</style>
+</head>
+<body>
+
+<div class="cafe-bar">
+  <a href="../capitulos.html?tab=adicionales">← Volver a Adicionales</a>
+  <span class="crumb">☕ Web Components</span>
+  <div class="spacer"></div>
+  <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+    <span class="icon" id="themeIcon">🌙</span>
+    <span id="themeLabel">Modo oscuro</span>
+  </button>
+</div>
+
+<header>
+  <h1>Web Components</h1>
+  <p>Custom elements y Shadow DOM</p>
+  <span class="badge">🧩 Guía adicional · Fuera de la ruta principal</span>
+</header>
+
+<nav>
+  <a href="#intro">🎯 Intro</a>
+  <a href="#custom-elements">🏷️ Custom Elements</a>
+  <a href="#shadow-dom">🌑 Shadow DOM</a>
+  <a href="#template">📋 &lt;template&gt; y slots</a>
+  <a href="#ejemplo-completo">🎁 Ejemplo completo, funcionando</a>
+  <a href="#cuando-usarlos">🧭 Cuándo tienen sentido</a>
+  <a href="#ejercicios">🏋️ Ejercicios</a>
+</nav>
+
+<main>
+
+<div class="parte-badge">🧩 Guía adicional — HTML, CSS y JavaScript</div>
+
+<!-- ═══════════════════════════════════════════
+     INTRO
+═══════════════════════════════════════════ -->
+<section class="module" id="intro">
+  <div class="module-header">
+    <div class="module-icon">🎯</div>
+    <div>
+      <div class="module-title">Introducción — crear tus propias etiquetas HTML</div>
+      <div class="module-sub">Sin necesitar React, Vue ni ningún framework</div>
+    </div>
+  </div>
+
+  <p><strong>Web Components</strong> es un conjunto de estándares nativos del navegador que permite crear elementos HTML completamente nuevos y reutilizables —con su propia lógica, estilos encapsulados y estructura interna— sin depender de ningún framework externo.</p>
+
+  <div class="concept">
+    <h4>💡 La idea central</h4>
+    <p>Web Components se apoya en tres tecnologías que trabajan juntas: <strong>Custom Elements</strong> (definir etiquetas nuevas), <strong>Shadow DOM</strong> (encapsular estilos y estructura) y <strong>&lt;template&gt;</strong> (definir contenido reutilizable). Juntas, permiten construir algo parecido a un "componente" de React, pero usando solo APIs nativas del navegador.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     CUSTOM ELEMENTS
+═══════════════════════════════════════════ -->
+<section class="module" id="custom-elements">
+  <div class="module-header">
+    <div class="module-icon">🏷️</div>
+    <div>
+      <div class="module-title">Custom Elements</div>
+      <div class="module-sub">Definir tu propia etiqueta HTML con class y customElements.define()</div>
+    </div>
+  </div>
+
+  <div class="code-block">
+<span class="kw">class</span> TarjetaSaludo <span class="kw">extends</span> HTMLElement {
+  connectedCallback() {
+    <span class="kw">this</span>.innerHTML = <span class="str">`&lt;p&gt;¡Hola desde un elemento personalizado! 👋&lt;/p&gt;`</span>;
+  }
+}
+
+customElements.define(<span class="str">'tarjeta-saludo'</span>, TarjetaSaludo);
+  </div>
+
+  <div class="code-block">
+&lt;<span class="tag2">tarjeta-saludo</span>&gt;&lt;/<span class="tag2">tarjeta-saludo</span>&gt;
+<span class="cm">&lt;!-- El navegador la reconoce como una etiqueta HTML real --&gt;</span>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ El nombre siempre necesita un guion</h4>
+    <p>Las especificaciones exigen que el nombre de un elemento personalizado contenga al menos un guion (<code>tarjeta-saludo</code>, no <code>tarjetasaludo</code>). Esto evita cualquier conflicto futuro con nombres de etiquetas HTML estándar, que nunca usan guiones.</p>
+  </div>
+
+  <table class="tbl">
+    <tr><th>Método del ciclo de vida</th><th>Cuándo se ejecuta</th></tr>
+    <tr><td><span class="tag">connectedCallback</span></td><td>Cuando el elemento se inserta en el DOM.</td></tr>
+    <tr><td><span class="tag">disconnectedCallback</span></td><td>Cuando el elemento se elimina del DOM.</td></tr>
+    <tr><td><span class="tag">attributeChangedCallback</span></td><td>Cuando cambia un atributo observado del elemento.</td></tr>
+  </table>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     SHADOW DOM
+═══════════════════════════════════════════ -->
+<section class="module" id="shadow-dom">
+  <div class="module-header">
+    <div class="module-icon">🌑</div>
+    <div>
+      <div class="module-title">Shadow DOM</div>
+      <div class="module-sub">Estilos que no se filtran hacia afuera ni hacia adentro</div>
+    </div>
+  </div>
+
+  <p>El <strong>Shadow DOM</strong> le da a un elemento su propio "sub-árbol" del DOM, aislado del resto de la página. El CSS que escribas dentro de él no afecta al resto del sitio, y el CSS del resto del sitio no afecta lo que hay dentro — una encapsulación real, sin necesitar convenciones de nombres como BEM para evitar choques de clases.</p>
+
+  <div class="analogy">
+    <h4>🏠 Analogía: la casa con reglas propias</h4>
+    <p>El DOM normal es como un vecindario abierto, donde el ruido de una casa (el CSS) se escucha en todas las demás. El Shadow DOM es como construir una casa completamente insonorizada: lo que pasa adentro (tus estilos) se queda adentro, y lo que pasa afuera no se filtra hacia adentro tampoco.</p>
+  </div>
+
+  <div class="code-block">
+<span class="kw">class</span> TarjetaAislada <span class="kw">extends</span> HTMLElement {
+  constructor() {
+    <span class="kw">super</span>();
+    <span class="kw">const</span> shadow = <span class="kw">this</span>.attachShadow({ mode: <span class="str">'open'</span> });
+    shadow.innerHTML = <span class="str">`
+      &lt;style&gt;
+        p { color: hotpink; font-weight: bold; }
+      &lt;/style&gt;
+      &lt;p&gt;Este estilo NO se filtra al resto de la página&lt;/p&gt;
+    `</span>;
+  }
+}
+
+customElements.define(<span class="str">'tarjeta-aislada'</span>, TarjetaAislada);
+  </div>
+
+  <div class="tip">
+    <h4>🟢 mode: 'open' vs. 'closed'</h4>
+    <p><code>{ mode: 'open' }</code> permite acceder al Shadow DOM desde JavaScript externo (<code>elemento.shadowRoot</code>). Con <code>{ mode: 'closed' }</code>, ese acceso queda bloqueado desde afuera — en la práctica, la gran mayoría de los componentes usan <code>'open'</code>.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     TEMPLATE Y SLOTS
+═══════════════════════════════════════════ -->
+<section class="module" id="template">
+  <div class="module-header">
+    <div class="module-icon">📋</div>
+    <div>
+      <div class="module-title">&lt;template&gt; y slots</div>
+      <div class="module-sub">Contenido reutilizable, con huecos que el usuario del componente puede llenar</div>
+    </div>
+  </div>
+
+  <p>La etiqueta <code>&lt;template&gt;</code> define un fragmento de HTML que el navegador <strong>no renderiza</strong> hasta que se clona explícitamente por JavaScript. Los <code>&lt;slot&gt;</code> dentro de un Shadow DOM son "huecos" donde se inserta el contenido que el usuario del componente puso entre las etiquetas del elemento.</p>
+
+  <div class="code-block">
+&lt;<span class="tag2">template</span> <span class="attr">id</span>=<span class="str">"tarjeta-tpl"</span>&gt;
+  &lt;<span class="tag2">style</span>&gt;
+    .caja { border: 2px solid orange; border-radius: 8px; padding: 1rem; }
+  &lt;/<span class="tag2">style</span>&gt;
+  &lt;<span class="tag2">div</span> <span class="attr">class</span>=<span class="str">"caja"</span>&gt;
+    &lt;<span class="tag2">slot</span>&gt;&lt;/<span class="tag2">slot</span>&gt;  <span class="cm">&lt;!-- aquí se inserta el contenido del usuario --&gt;</span>
+  &lt;/<span class="tag2">div</span>&gt;
+&lt;/<span class="tag2">template</span>&gt;
+  </div>
+
+  <div class="code-block">
+<span class="cm">// Uso desde el HTML:</span>
+&lt;<span class="tag2">tarjeta-con-slot</span>&gt;
+  ¡Este texto llena el slot!
+&lt;/<span class="tag2">tarjeta-con-slot</span>&gt;
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     EJEMPLO COMPLETO
+═══════════════════════════════════════════ -->
+<section class="module" id="ejemplo-completo">
+  <div class="module-header">
+    <div class="module-icon">🎁</div>
+    <div>
+      <div class="module-title">Ejemplo completo, funcionando</div>
+      <div class="module-sub">Un contador con estado propio, encapsulado</div>
+    </div>
+  </div>
+
+  <p>Este componente está corriendo de verdad en esta página — cada clic incrementa su propio contador interno:</p>
+
+  <div class="demo-live">
+    <mi-contador></mi-contador>
+  </div>
+
+  <div class="code-block">
+<span class="kw">class</span> MiContador <span class="kw">extends</span> HTMLElement {
+  constructor() {
+    <span class="kw">super</span>();
+    <span class="kw">this</span>.count = <span class="num">0</span>;
+    <span class="kw">this</span>.attachShadow({ mode: <span class="str">'open'</span> });
+  }
+
+  connectedCallback() {
+    <span class="kw">this</span>.render();
+    <span class="kw">this</span>.shadowRoot.querySelector(<span class="str">'button'</span>)
+      .addEventListener(<span class="str">'click'</span>, () =&gt; {
+        <span class="kw">this</span>.count++;
+        <span class="kw">this</span>.render();
+      });
+  }
+
+  render() {
+    <span class="kw">this</span>.shadowRoot.innerHTML = <span class="str">`
+      &lt;style&gt;
+        button { padding: .6rem 1.2rem; border-radius: 8px; border: none;
+                 background: #c49a1a; color: #1a1814; font-weight: 700; cursor: pointer; }
+      &lt;/style&gt;
+      &lt;button&gt;Clics: ${<span class="kw">this</span>.count}&lt;/button&gt;
+    `</span>;
+  }
+}
+
+customElements.define(<span class="str">'mi-contador'</span>, MiContador);
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     CUÁNDO USARLOS
+═══════════════════════════════════════════ -->
+<section class="module" id="cuando-usarlos">
+  <div class="module-header">
+    <div class="module-icon">🧭</div>
+    <div>
+      <div class="module-title">Cuándo tienen sentido (y cuándo no)</div>
+      <div class="module-sub">No reemplazan a React o Vue en todos los casos</div>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <tr><th>Buen caso de uso</th><th>Cuándo mejor usar un framework</th></tr>
+    <tr><td>Un widget reutilizable entre proyectos distintos (que quizás no todos usan el mismo framework).</td><td>Una aplicación grande con mucho estado compartido entre muchos componentes.</td></tr>
+    <tr><td>Una librería de componentes de diseño (design system) usada por varios equipos.</td><td>Proyectos que ya usan un framework y se benefician de su ecosistema de herramientas.</td></tr>
+    <tr><td>Un solo widget embebido en un sitio que no es tuyo (como un chat de soporte).</td><td>Interfaces con routing complejo, manejo de formularios avanzado, etc.</td></tr>
+  </table>
+
+  <div class="tip">
+    <h4>🟢 La ventaja que ningún framework puede igualar</h4>
+    <p>Un Web Component, una vez definido, funciona exactamente igual en cualquier proyecto — sin importar si el resto del sitio usa React, Vue, Angular o HTML plano. Es la única forma de crear un componente verdaderamente "agnóstico de framework".</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     EJERCICIOS
+═══════════════════════════════════════════ -->
+<section class="module" id="ejercicios">
+  <div class="module-header">
+    <div class="module-icon">🏋️</div>
+    <div>
+      <div class="module-title">Ejercicios</div>
+      <div class="module-sub">Para practicar lo que acabas de leer</div>
+    </div>
+  </div>
+
+  <div class="exercise">
+    <h4>Ejercicio 1 — Tu primer custom element</h4>
+    <p>Crea un elemento <code>&lt;fecha-hoy&gt;</code> que, al insertarse en la página, muestre la fecha actual formateada.</p>
+  </div>
+
+  <div class="exercise">
+    <h4>Ejercicio 2 — Agrégale Shadow DOM</h4>
+    <p>Toma el componente anterior y dale su propio Shadow DOM con estilos internos (color, tipografía) que no afecten al resto de tu página.</p>
+  </div>
+
+  <div class="exercise">
+    <h4>Ejercicio 3 — Un slot con contenido del usuario</h4>
+    <p>Crea un componente <code>&lt;caja-alerta&gt;</code> con un <code>&lt;slot&gt;</code> dentro, de forma que puedas escribir <code>&lt;caja-alerta&gt;Texto de aviso&lt;/caja-alerta&gt;</code> y el texto aparezca dentro de una caja con estilo propio.</p>
+  </div>
+
+  <div class="concept">
+    <h4>💡 Para llevarte de esta guía</h4>
+    <p>Web Components te da tres herramientas nativas —Custom Elements, Shadow DOM y &lt;template&gt;— para crear tus propias etiquetas HTML reutilizables, con estilos verdaderamente encapsulados, sin depender de ningún framework. Son especialmente útiles para widgets que necesitan funcionar en cualquier proyecto, sin importar qué tecnología use el resto del sitio.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Guía Web Components · Café &lt;/&gt; · Guías adicionales
+</footer>
+
+<script>
+  // Componente en vivo usado en la sección de ejemplo
+  class MiContador extends HTMLElement {
+    constructor() {
+      super();
+      this.count = 0;
+      this.attachShadow({ mode: 'open' });
+    }
+    connectedCallback() {
+      this.render();
+      this.shadowRoot.querySelector('button')
+        .addEventListener('click', () => {
+          this.count++;
+          this.render();
+        });
+    }
+    render() {
+      this.shadowRoot.innerHTML = `
+        <style>
+          button { padding: .6rem 1.2rem; border-radius: 8px; border: none;
+                   background: #c49a1a; color: #1a1814; font-weight: 700; cursor: pointer;
+                   font-family: 'DM Sans', sans-serif; font-size: .9rem; }
+          button:hover { background: #b07010; }
+        </style>
+        <button>Clics: ${this.count}</button>
+      `;
+    }
+  }
+  customElements.define('mi-contador', MiContador);
+
+  (function() {
+    var root = document.documentElement;
+    var icon = document.getElementById('themeIcon');
+    var label = document.getElementById('themeLabel');
+    var STORAGE_KEY = 'cafe-codigo-theme';
+
+    function applyTheme(theme) {
+      if (theme === 'dark') {
+        root.setAttribute('data-theme', 'dark');
+        icon.textContent = '☀️';
+        label.textContent = 'Modo claro';
+      } else {
+        root.removeAttribute('data-theme');
+        icon.textContent = '🌙';
+        label.textContent = 'Modo oscuro';
+      }
+    }
+
+    var saved = null;
+    try { saved = localStorage.getItem(STORAGE_KEY); } catch (e) {}
+
+    if (saved) {
+      applyTheme(saved);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      applyTheme('dark');
+    }
+
+    window.toggleTheme = function() {
+      var isDark = root.getAttribute('data-theme') === 'dark';
+      var next = isDark ? 'light' : 'dark';
+      applyTheme(next);
+      try { localStorage.setItem(STORAGE_KEY, next); } catch (e) {}
+    };
+  })();
+</script>
+
+</body>
+</html>

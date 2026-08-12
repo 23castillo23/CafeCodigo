@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Guía Formularios Avanzados — Café </></title>
+<title>Guía CSS Variables (custom properties) — Café </></title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -160,13 +160,18 @@
   .exercise { background: var(--bg); border: 1px dashed var(--primary); border-radius: 10px; padding: 1.1rem 1.25rem; margin: 1rem 0; }
   .exercise h4 { color: var(--primary); font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .5rem; }
 
-  /* Demo en vivo: reflow */
-  .demo-live { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin: 1rem 0; text-align: center; }
-  .demo-live button { padding: .6rem 1.2rem; border-radius: 8px; border: none; background: var(--primary); color: #1a1814; font-weight: 700; cursor: pointer; font-family: inherit; font-size: .85rem; margin: 0 .3rem; }
-  .demo-live button:hover { background: var(--secondary); }
-  .demo-out { margin-top: 1rem; font-family: 'DM Mono', monospace; font-size: .82rem; color: var(--muted); min-height: 24px; }
-  .demo-list { list-style:none; display:flex; flex-wrap:wrap; gap:.4rem; justify-content:center; margin-top: 1rem; min-height: 40px; }
-  .demo-list li { background: var(--primary-light); color: var(--primary); border-radius: 6px; padding: .3rem .7rem; font-family:'DM Mono',monospace; font-size:.78rem; }
+  /* Demo en vivo: theming dinámico con custom properties */
+  .demo-live { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin: 1rem 0; }
+  .demo-swatches { display:flex; gap:.6rem; justify-content:center; margin-bottom: 1.2rem; flex-wrap:wrap; }
+  .demo-swatch { width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--surface); cursor: pointer; box-shadow: 0 0 0 1px var(--border); }
+  .demo-swatch:hover { transform: scale(1.15); }
+  .demo-card {
+    --card-color: #c49a1a;
+    background: var(--surface); border: 2px solid var(--card-color); border-radius: 12px;
+    padding: 1.2rem; text-align:center; max-width: 260px; margin: 0 auto; transition: border-color .3s ease;
+  }
+  .demo-card .demo-dot { width: 40px; height: 40px; border-radius: 50%; background: var(--card-color); margin: 0 auto .6rem; transition: background .3s ease; }
+  .demo-card strong { color: var(--card-color); font-family:'DM Mono',monospace; font-size:.82rem; transition: color .3s ease; }
 
   footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); transition: background .25s ease, border-color .25s ease; }
 </style>
@@ -175,7 +180,7 @@
 
 <div class="cafe-bar">
   <a href="../capitulos.html?tab=adicionales">← Volver a Adicionales</a>
-  <span class="crumb">📝 Formularios Avanzados</span>
+  <span class="crumb">☕ CSS Variables (custom properties)</span>
   <div class="spacer"></div>
   <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
     <span class="icon" id="themeIcon">🌙</span>
@@ -184,22 +189,23 @@
 </div>
 
 <header>
-  <h1>Formularios Avanzados</h1>
-  <p>Validación nativa, patrones y los atributos que casi nadie usa</p>
-  <span class="badge">✦ Guía adicional · HTML ✦</span>
+  <h1>CSS Variables (custom properties)</h1>
+  <p>Theming dinámico sin preprocesadores</p>
+  <span class="badge">🧩 Guía adicional · Fuera de la ruta principal</span>
 </header>
 
 <nav>
   <a href="#intro">🎯 Intro</a>
-  <a href="#validacion-nativa">✅ Validación nativa</a>
-  <a href="#atributos">🧩 Atributos poco usados</a>
-  <a href="#pseudo-clases">🎨 Pseudo-clases</a>
-  <a href="#js-api">⚙️ Constraint API</a>
+  <a href="#sintaxis-basica">🔤 Sintaxis básica</a>
+  <a href="#alcance">🌳 Alcance: :root vs. local</a>
+  <a href="#vs-sass">⚖️ vs. variables de Sass</a>
+  <a href="#theming-vivo">🎨 Theming en vivo, con JS</a>
+  <a href="#ejercicios">🏋️ Ejercicios</a>
 </nav>
 
 <main>
 
-<div class="parte-badge">📝 Guía adicional — HTML, CSS y JavaScript</div>
+<div class="parte-badge">🧩 Guía adicional — HTML, CSS y JavaScript</div>
 
 <!-- ═══════════════════════════════════════════
      INTRO
@@ -208,226 +214,210 @@
   <div class="module-header">
     <div class="module-icon">🎯</div>
     <div>
-      <div class="module-title">Introducción — más allá del &lt;input&gt; básico</div>
-      <div class="module-sub">Por qué un formulario "bien hecho" no necesita casi JavaScript</div>
+      <div class="module-title">Introducción — variables reales, dentro del propio CSS</div>
+      <div class="module-sub">Nada de compilación, nada de build step</div>
     </div>
   </div>
 
-  <p>Ya sabes crear un <code>&lt;form&gt;</code> con <code>&lt;input&gt;</code> y un botón de enviar. Esta guía va un paso más allá: cómo hacer que el propio navegador valide los datos por ti, sin escribir una sola línea de JavaScript para los casos más comunes — y cómo tomar el control con JS solo cuando de verdad lo necesitas.</p>
+  <p>Las <strong>custom properties</strong> (comúnmente llamadas "CSS variables") permiten definir valores reutilizables directamente en CSS, sin necesitar un preprocesador como Sass. De hecho, este mismo sitio las usa para el botón de tema oscuro que acabas de probar arriba.</p>
 
   <div class="concept">
-    <h4>💡 Lo que vas a aprender</h4>
-    <p>La validación nativa de HTML5 (<code>required</code>, <code>pattern</code>, tipos de <code>input</code>), atributos que mejoran mucho la experiencia y casi nadie conoce, cómo diseñar los estados de error con CSS puro, y cómo personalizar los mensajes de error con la Constraint Validation API de JavaScript.</p>
+    <h4>💡 La diferencia clave frente a Sass</h4>
+    <p>Las variables de Sass se resuelven al <strong>compilar</strong> — una vez que el CSS llega al navegador, ya son solo valores fijos, como si nunca hubieran sido variables. Las custom properties de CSS existen en <strong>tiempo real</strong> dentro del navegador: pueden leerse y modificarse con JavaScript, y cambian instantáneamente todo lo que dependa de ellas.</p>
   </div>
 </section>
 
 <!-- ═══════════════════════════════════════════
-     VALIDACIÓN NATIVA
+     SINTAXIS BÁSICA
 ═══════════════════════════════════════════ -->
-<section class="module" id="validacion-nativa">
+<section class="module" id="sintaxis-basica">
   <div class="module-header">
-    <div class="module-icon">✅</div>
+    <div class="module-icon">🔤</div>
     <div>
-      <div class="module-title">Validación nativa de HTML5</div>
-      <div class="module-sub">El navegador ya sabe validar — solo hay que decirle las reglas</div>
+      <div class="module-title">Sintaxis básica</div>
+      <div class="module-sub">Dos guiones al declarar, var() al usar</div>
     </div>
   </div>
 
-  <p>Antes de escribir JavaScript para "revisar" que un campo esté bien lleno, recuerda que HTML ya trae un sistema de validación integrado. Se activa solo con atributos.</p>
+  <div class="code-block">
+:root {
+  <span class="attr">--color-primario</span>: <span class="str">#c49a1a</span>;
+  <span class="attr">--espaciado-base</span>: <span class="num">1rem</span>;
+}
 
-  <div class="code-block"><span class="lang">HTML</span><span class="ct">&lt;form&gt;</span>
-  <span class="ct">&lt;label&gt;</span>Correo: <span class="ct">&lt;/label&gt;</span>
-  <span class="ct">&lt;input</span> <span class="ca">type</span>=<span class="cs">"email"</span> <span class="ca">required</span> <span class="ca">placeholder</span>=<span class="cs">"tucorreo@ejemplo.com"</span><span class="ct">&gt;</span>
-
-  <span class="ct">&lt;label&gt;</span>Edad: <span class="ct">&lt;/label&gt;</span>
-  <span class="ct">&lt;input</span> <span class="ca">type</span>=<span class="cs">"number"</span> <span class="ca">min</span>=<span class="cs">"18"</span> <span class="ca">max</span>=<span class="cs">"99"</span> <span class="ca">required</span><span class="ct">&gt;</span>
-
-  <span class="ct">&lt;button&gt;</span>Enviar<span class="ct">&lt;/button&gt;</span>
-<span class="ct">&lt;/form&gt;</span>
-</div>
-
-  <p>Con solo <code>type="email"</code> y <code>required</code>, el navegador ya rechaza correos mal escritos y campos vacíos — sin una línea de JavaScript.</p>
+.boton {
+  <span class="attr">background</span>: var(<span class="attr">--color-primario</span>);
+  <span class="attr">padding</span>: var(<span class="attr">--espaciado-base</span>) calc(var(<span class="attr">--espaciado-base</span>) * <span class="num">2</span>);
+}
+  </div>
 
   <table class="tbl">
-    <tr><th>Atributo</th><th>Qué hace</th></tr>
-    <tr><td><span class="tag">required</span></td><td>El campo no puede quedar vacío.</td></tr>
-    <tr><td><span class="tag">min / max</span></td><td>Rango permitido para números y fechas.</td></tr>
-    <tr><td><span class="tag">minlength / maxlength</span></td><td>Rango permitido de caracteres en texto.</td></tr>
-    <tr><td><span class="tag">type="email"</span></td><td>Exige el formato de un correo válido.</td></tr>
-    <tr><td><span class="tag">pattern</span></td><td>Exige que el valor cumpla una expresión regular.</td></tr>
+    <tr><th>Parte</th><th>Qué hace</th></tr>
+    <tr><td><span class="tag">--nombre</span></td><td>Declara una variable. El doble guion es obligatorio.</td></tr>
+    <tr><td><span class="tag">var(--nombre)</span></td><td>Usa el valor de esa variable en cualquier propiedad CSS.</td></tr>
+    <tr><td><span class="tag">var(--nombre, valor)</span></td><td>Segundo argumento opcional: valor de respaldo si la variable no existe.</td></tr>
   </table>
 
-  <div class="analogy">
-    <h4>🚪 Analogía: el portero del club</h4>
-    <p>La validación nativa es como un portero en la puerta: revisa que cumplas las reglas básicas (identificación, código de vestimenta) antes de dejarte pasar. No necesitas contratar a alguien más adentro (JavaScript) para revisar lo mismo otra vez — el portero ya filtró lo obvio.</p>
+  <div class="code-block">
+<span class="cm">/* Con valor de respaldo (fallback) */</span>
+.tarjeta {
+  <span class="attr">color</span>: var(<span class="attr">--color-texto</span>, <span class="str">#1a1814</span>);
+  <span class="cm">/* Si --color-texto no está definida, usa #1a1814 */</span>
+}
   </div>
 </section>
 
 <!-- ═══════════════════════════════════════════
-     ATRIBUTOS POCO USADOS
+     ALCANCE
 ═══════════════════════════════════════════ -->
-<section class="module" id="atributos">
+<section class="module" id="alcance">
   <div class="module-header">
-    <div class="module-icon">🧩</div>
+    <div class="module-icon">🌳</div>
     <div>
-      <div class="module-title">Atributos poco usados (pero muy útiles)</div>
-      <div class="module-sub">Pequeños detalles que mejoran mucho la experiencia</div>
+      <div class="module-title">Alcance: :root vs. local</div>
+      <div class="module-sub">Las variables CSS respetan la cascada, igual que cualquier otra propiedad</div>
     </div>
   </div>
 
-  <dl class="glos">
-    <div class="glos-item">
-      <span class="emoji">🔤</span>
-      <dt>pattern</dt>
-      <dd>Valida el valor contra una expresión regular. Ej: <code>pattern="[0-9]{5}"</code> exige exactamente 5 dígitos.</dd>
-    </div>
-    <div class="glos-item">
-      <span class="emoji">📋</span>
-      <dt>list + datalist</dt>
-      <dd>Convierte un input de texto en un autocompletado con sugerencias, sin JavaScript ni librerías externas.</dd>
-    </div>
-    <div class="glos-item">
-      <span class="emoji">⌨️</span>
-      <dt>inputmode</dt>
-      <dd>Le dice al teclado del celular qué mostrar: <code>inputmode="numeric"</code> abre el teclado numérico aunque el input siga siendo de texto.</dd>
-    </div>
-    <div class="glos-item">
-      <span class="emoji">🚫</span>
-      <dt>novalidate</dt>
-      <dd>Atributo del <code>&lt;form&gt;</code> que desactiva la validación nativa por completo, para cuando quieres controlarla 100% con JavaScript.</dd>
-    </div>
-    <div class="glos-item">
-      <span class="emoji">🔁</span>
-      <dt>autocomplete</dt>
-      <dd>Le dice al navegador qué tipo de dato es (<code>autocomplete="email"</code>, <code>"tel"</code>, <code>"cc-number"</code>) para autocompletar mejor.</dd>
-    </div>
-  </dl>
+  <p>Una custom property declarada en <code>:root</code> está disponible en toda la página. Pero también puedes declararla dentro de un selector específico, y solo ese elemento (y sus hijos) la verán con ese valor — sobrescribiendo la versión global solo en ese contexto.</p>
 
-  <h2>Ejemplo: datalist para autocompletado</h2>
-  <div class="code-block"><span class="lang">HTML</span><span class="ct">&lt;input</span> <span class="ca">list</span>=<span class="cs">"lenguajes"</span> <span class="ca">name</span>=<span class="cs">"lenguaje"</span><span class="ct">&gt;</span>
-<span class="ct">&lt;datalist</span> <span class="ca">id</span>=<span class="cs">"lenguajes"</span><span class="ct">&gt;</span>
-  <span class="ct">&lt;option</span> <span class="ca">value</span>=<span class="cs">"HTML"</span><span class="ct">&gt;</span>
-  <span class="ct">&lt;option</span> <span class="ca">value</span>=<span class="cs">"CSS"</span><span class="ct">&gt;</span>
-  <span class="ct">&lt;option</span> <span class="ca">value</span>=<span class="cs">"JavaScript"</span><span class="ct">&gt;</span>
-<span class="ct">&lt;/datalist&gt;</span>
-</div>
+  <div class="code-block">
+:root {
+  <span class="attr">--color-acento</span>: <span class="str">blue</span>;   <span class="cm">/* valor global */</span>
+}
+
+.tarjeta-especial {
+  <span class="attr">--color-acento</span>: <span class="str">hotpink</span>; <span class="cm">/* sobrescribe SOLO dentro de este elemento */</span>
+}
+
+.boton {
+  <span class="attr">background</span>: var(<span class="attr">--color-acento</span>);
+  <span class="cm">/* será blue normalmente, pero hotpink dentro de .tarjeta-especial */</span>
+}
+  </div>
+
+  <div class="analogy">
+    <h4>📢 Analogía: el anuncio de la oficina y la nota en tu escritorio</h4>
+    <p>Una variable en <code>:root</code> es como un anuncio general que aplica a toda la oficina. Una variable declarada dentro de un componente específico es como una nota pegada solo en tu escritorio, que anula el anuncio general únicamente para ti — todos los demás siguen la regla general.</p>
+  </div>
 </section>
 
 <!-- ═══════════════════════════════════════════
-     PSEUDO-CLASES
+     VS SASS
 ═══════════════════════════════════════════ -->
-<section class="module" id="pseudo-clases">
+<section class="module" id="vs-sass">
+  <div class="module-header">
+    <div class="module-icon">⚖️</div>
+    <div>
+      <div class="module-title">Custom properties vs. variables de Sass</div>
+      <div class="module-sub">No compiten realmente — cada una brilla en momentos distintos</div>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <tr><th></th><th>Custom properties (CSS)</th><th>Variables de Sass ($variable)</th></tr>
+    <tr><td><span class="tag">Cuándo se resuelven</span></td><td>En tiempo real, en el navegador</td><td>Al compilar, antes de llegar al navegador</td></tr>
+    <tr><td><span class="tag">Se pueden leer/cambiar con JS</span></td><td>Sí, con <code>getComputedStyle</code> y <code>style.setProperty</code></td><td>No — ya son valores fijos en el CSS final</td></tr>
+    <tr><td><span class="tag">Responden a media queries</span></td><td>Sí, se pueden redefinir dentro de un <code>@media</code></td><td>No de forma nativa</td></tr>
+    <tr><td><span class="tag">Necesitan build step</span></td><td>No</td><td>Sí, requieren compilar el Sass a CSS</td></tr>
+    <tr><td><span class="tag">Funciones matemáticas propias</span></td><td>Limitadas (se apoyan en <code>calc()</code>)</td><td>Más completas (bucles, funciones, condicionales)</td></tr>
+  </table>
+
+  <div class="tip">
+    <h4>🟢 En la práctica, muchos proyectos usan ambas</h4>
+    <p>Es común usar variables de Sass para valores que nunca cambian en tiempo real (como una escala tipográfica completa), y custom properties de CSS específicamente para lo que sí necesita cambiar dinámicamente — como un tema claro/oscuro o colores que varían por componente.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     THEMING EN VIVO
+═══════════════════════════════════════════ -->
+<section class="module" id="theming-vivo">
   <div class="module-header">
     <div class="module-icon">🎨</div>
     <div>
-      <div class="module-title">Estilizar la validación con CSS</div>
-      <div class="module-sub">El navegador ya sabe si el campo es válido — solo hay que pintarlo</div>
+      <div class="module-title">Theming en vivo, con JavaScript</div>
+      <div class="module-sub">Justo lo que usa el botón de tema oscuro de esta página</div>
     </div>
   </div>
 
-  <p>Cuando un campo tiene reglas de validación, el navegador le agrega automáticamente un estado que puedes usar en CSS, sin ninguna clase manual.</p>
+  <p>Prueba cambiando el color de esta tarjeta — cada clic actualiza una custom property con JavaScript, y todo lo que depende de ella (el borde, el punto y el texto) cambia instantáneamente:</p>
 
-  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* Campo válido */</span>
-<span class="cn">input</span><span class="cv">:valid</span> {
-  <span class="cp">border-color</span>: <span class="cv">green</span>;
-}
+  <div class="demo-live">
+    <div class="demo-swatches">
+      <div class="demo-swatch" style="background:#c49a1a" onclick="cambiarColorDemo('#c49a1a')"></div>
+      <div class="demo-swatch" style="background:#1a7a5a" onclick="cambiarColorDemo('#1a7a5a')"></div>
+      <div class="demo-swatch" style="background:#c44a2a" onclick="cambiarColorDemo('#c44a2a')"></div>
+      <div class="demo-swatch" style="background:#4a6ac4" onclick="cambiarColorDemo('#4a6ac4')"></div>
+    </div>
+    <div class="demo-card" id="demoCard">
+      <div class="demo-dot"></div>
+      <strong>--card-color: #c49a1a</strong>
+    </div>
+  </div>
 
-<span class="cc">/* Campo inválido, pero solo cuando el usuario ya interactuó */</span>
-<span class="cn">input</span><span class="cv">:invalid</span><span class="cv">:not</span>(<span class="cv">:placeholder-shown</span>) {
-  <span class="cp">border-color</span>: <span class="cv">crimson</span>;
-}
+  <div class="code-block">
+<span class="cm">// JavaScript: leer y modificar custom properties</span>
+<span class="kw">const</span> tarjeta = document.querySelector(<span class="str">'.demo-card'</span>);
 
-<span class="cc">/* Foco visible por teclado, no por mouse */</span>
-<span class="cn">input</span><span class="cv">:focus-visible</span> {
-  <span class="cp">outline</span>: <span class="cv">2px</span> <span class="cv">solid</span> <span class="cv">dodgerblue</span>;
-}
-</div>
+<span class="cm">// Modificar</span>
+tarjeta.style.setProperty(<span class="str">'--card-color'</span>, <span class="str">'#1a7a5a'</span>);
 
-  <div class="tip">
-    <h4>🟢 El truco de :not(:placeholder-shown)</h4>
-    <p>Usar solo <code>:invalid</code> pinta de rojo el campo desde que carga la página, antes de que el usuario escriba nada — se ve agresivo. Combinarlo con <code>:not(:placeholder-shown)</code> hace que el rojo aparezca solo después de que el usuario empezó a escribir y lo dejó incompleto o mal.</p>
+<span class="cm">// Leer el valor actual</span>
+<span class="kw">const</span> valorActual = getComputedStyle(tarjeta)
+  .getPropertyValue(<span class="str">'--card-color'</span>);
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ getPropertyValue() devuelve texto, no siempre lo que esperas</h4>
+    <p>El valor devuelto es una cadena de texto (a veces con espacios extra), no un color parseado o un número. Si necesitas usarlo en cálculos de JavaScript, tendrás que convertirlo o limpiarlo manualmente con <code>.trim()</code> u otras funciones.</p>
   </div>
 </section>
 
 <!-- ═══════════════════════════════════════════
-     CONSTRAINT VALIDATION API
+     EJERCICIOS
 ═══════════════════════════════════════════ -->
-<section class="module" id="js-api">
+<section class="module" id="ejercicios">
   <div class="module-header">
-    <div class="module-icon">⚙️</div>
+    <div class="module-icon">🏋️</div>
     <div>
-      <div class="module-title">Mensajes personalizados con JavaScript</div>
-      <div class="module-sub">Constraint Validation API — cuando el mensaje del navegador no alcanza</div>
+      <div class="module-title">Ejercicios</div>
+      <div class="module-sub">Para practicar lo que acabas de leer</div>
     </div>
   </div>
 
-  <p>El mensaje de error que muestra el navegador por defecto ("Rellena este campo") no se puede traducir ni personalizar solo con HTML. Para eso existe la Constraint Validation API.</p>
-
-  <div class="code-block"><span class="lang">JavaScript</span><span class="cc">const input = document.querySelector('#usuario')</span>
-
-<span class="ct">input</span>.<span class="cn">addEventListener</span>(<span class="cs">'invalid'</span>, () <span class="ca">=&gt;</span> {
-  <span class="ct">input</span>.<span class="cn">setCustomValidity</span>(<span class="cs">'Escribe un nombre de usuario válido'</span>)
-})
-
-<span class="ct">input</span>.<span class="cn">addEventListener</span>(<span class="cs">'input'</span>, () <span class="ca">=&gt;</span> {
-  <span class="cc">// Limpiar el mensaje personalizado en cuanto el usuario corrige</span>
-  <span class="ct">input</span>.<span class="cn">setCustomValidity</span>(<span class="cs">''</span>)
-})
-</div>
-
-  <div class="warn">
-    <h4>⚠️ No olvides limpiar el mensaje</h4>
-    <p>Si llamas a <code>setCustomValidity()</code> con un texto y nunca lo vuelves a limpiar con <code>setCustomValidity('')</code>, el campo queda inválido para siempre, aunque el usuario lo corrija. Siempre limpia el mensaje en el evento <code>input</code>.</p>
+  <div class="exercise">
+    <h4>Ejercicio 1 — Tu primera variable</h4>
+    <p>Declara <code>--espaciado: 1rem</code> en <code>:root</code> y úsala en el <code>padding</code> y <code>margin</code> de tres elementos distintos de una página tuya.</p>
   </div>
 
-  <div class="tip">
-    <h4>🟢 Resumen de la guía</h4>
-    <ul>
-      <li><strong>Validación nativa:</strong> <code>required</code>, <code>min/max</code>, <code>pattern</code>, tipos de <code>input</code>.</li>
-      <li><strong>Atributos útiles:</strong> <code>datalist</code>, <code>inputmode</code>, <code>autocomplete</code>, <code>novalidate</code>.</li>
-      <li><strong>CSS:</strong> <code>:valid</code>, <code>:invalid</code>, <code>:focus-visible</code>, <code>:not(:placeholder-shown)</code>.</li>
-      <li><strong>JavaScript:</strong> Constraint Validation API para mensajes personalizados.</li>
-    </ul>
+  <div class="exercise">
+    <h4>Ejercicio 2 — Sobrescribe localmente</h4>
+    <p>Crea una clase <code>.tarjeta-destacada</code> que redefina <code>--color-acento</code> solo dentro de ella, y comprueba que el resto de la página conserva el valor original.</p>
+  </div>
+
+  <div class="exercise">
+    <h4>Ejercicio 3 — Cambia un color con JS</h4>
+    <p>Crea un botón que, al hacer clic, cambie una custom property de color con <code>style.setProperty()</code>, y verifica que todos los elementos que usan <code>var()</code> con esa variable cambien al instante.</p>
+  </div>
+
+  <div class="concept">
+    <h4>💡 Para llevarte de esta guía</h4>
+    <p>Las custom properties de CSS son variables reales del navegador: respetan la cascada y el alcance como cualquier otra propiedad, y —a diferencia de Sass— pueden leerse y modificarse en tiempo real con JavaScript. Son la base de casi cualquier sistema de theming dinámico moderno, este mismo sitio incluido.</p>
   </div>
 </section>
 
 </main>
 
 <footer>
-  Guía Formularios Avanzados · Café &lt;/&gt; · Guías Adicionales
+  Guía CSS Variables (custom properties) · Café &lt;/&gt; · Guías adicionales
 </footer>
+
 <script>
-  function demoFragment() {
-    var lista = document.getElementById('demoLista');
-    var t0 = performance.now();
-    var frag = document.createDocumentFragment();
-    for (var i = 0; i < 300; i++) {
-      var li = document.createElement('li');
-      li.textContent = i;
-      frag.appendChild(li);
-    }
-    lista.appendChild(frag);
-    var t1 = performance.now();
-    document.getElementById('demoTiempo').textContent =
-      'Con DocumentFragment: ' + (t1 - t0).toFixed(2) + ' ms (una sola inserción real al DOM)';
-  }
-
-  function demoDirecto() {
-    var lista = document.getElementById('demoLista');
-    var t0 = performance.now();
-    for (var i = 0; i < 300; i++) {
-      var li = document.createElement('li');
-      li.textContent = i;
-      lista.appendChild(li); // inserción directa, una por una
-    }
-    var t1 = performance.now();
-    document.getElementById('demoTiempo').textContent =
-      'Insertando directo: ' + (t1 - t0).toFixed(2) + ' ms (300 inserciones reales al DOM)';
-  }
-
-  function demoLimpiar() {
-    document.getElementById('demoLista').innerHTML = '';
-    document.getElementById('demoTiempo').textContent = '';
+  function cambiarColorDemo(color) {
+    var card = document.getElementById('demoCard');
+    card.style.setProperty('--card-color', color);
+    card.querySelector('strong').textContent = '--card-color: ' + color;
   }
 
   (function() {

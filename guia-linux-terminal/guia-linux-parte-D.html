@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía Linux · Parte D</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #2ecc71;
+    --primary-dark:   #1a9e52;
+    --bg:             #0d1117;
+    --bg2:            #161b22;
+    --bg3:            #21262d;
+    --text:           #e6edf3;
+    --muted:          #7d8590;
+    --border:         #30363d;
+    --code-bg:        #0d1117;
+    --green:          #3fb950;
+    --yellow:         #d29922;
+    --blue:           #58a6ff;
+    --purple:         #bc8cff;
+    --red:            #f85149;
+    --orange:         #ffa657;
+    --cyan:           #79c0ff;
+    --accent:         #e67e22;
+  }
+
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  .topbar { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; gap: 14px; position: sticky; top: 0; z-index: 200; height: 46px; }
+  .topbar a { font-size: 13px; color: var(--muted); text-decoration: none; padding: 5px 13px; border: 1px solid var(--border); border-radius: 999px; transition: all .15s; }
+  .topbar a:hover { color: var(--text); border-color: var(--muted); }
+  .topbar span { font-size: 13px; color: var(--muted); }
+
+  header { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 2.5rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: '🔒'; position: absolute; font-size: 14rem; color: rgba(46,204,113,.04); right: 0; top: -1rem; line-height: 1; }
+  header .curso-badge { display: inline-flex; align-items: center; gap: .5rem; background: rgba(46,204,113,.15); border: 1px solid rgba(46,204,113,.3); border-radius: 20px; padding: 3px 14px; font-size: .75rem; font-weight: 700; color: var(--green); margin-bottom: .75rem; }
+  header h1 { font-size: 2.2rem; font-weight: 800; letter-spacing: -.5px; }
+  header h1 span { color: var(--primary); }
+  header p  { font-size: 1rem; color: var(--muted); margin-top: .4rem; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.06); border: 1px solid var(--border); border-radius: 20px; padding: 3px 13px; font-size: .75rem; margin-top: .65rem; color: var(--muted); }
+  header .final-badge { display: inline-block; background: rgba(46,204,113,.2); border: 1px solid rgba(46,204,113,.4); border-radius: 20px; padding: 3px 13px; font-size: .75rem; margin-top: .4rem; color: var(--green); }
+
+  .partes-nav { background: var(--bg2); border-bottom: 1px solid var(--border); position: sticky; top: 46px; z-index: 110; display: flex; align-items: center; height: 38px; padding: 0 1rem; }
+  .partes-nav-prev, .partes-nav-next { flex-shrink: 0; display: flex; align-items: center; padding: 0 .75rem; height: 100%; text-decoration: none; color: var(--muted); font-size: .78rem; font-weight: 500; border-right: 1px solid var(--border); transition: color .15s; white-space: nowrap; }
+  .partes-nav-next { border-right: none; border-left: 1px solid var(--border); }
+  .partes-nav-prev:hover, .partes-nav-next:hover { color: var(--primary); }
+  .partes-nav-list { flex: 1; display: flex; align-items: center; justify-content: center; gap: .2rem; }
+  .partes-nav-list a { padding: 2px 10px; border-radius: 20px; text-decoration: none; font-size: .73rem; font-weight: 600; color: var(--muted); transition: color .15s, background .15s; }
+  .partes-nav-list a:hover { color: var(--text); background: var(--bg3); }
+  .partes-nav-list a.activa { background: rgba(46,204,113,.15); color: var(--green); }
+
+  nav.sec-nav { background: var(--bg2); border-bottom: 1px solid var(--border); position: sticky; top: 84px; z-index: 100; display: flex; overflow-x: auto; }
+  nav.sec-nav::-webkit-scrollbar { display: none; }
+  nav.sec-nav a { flex-shrink: 0; padding: .65rem 1rem; text-decoration: none; color: var(--muted); font-size: .82rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav.sec-nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 940px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary-dark); color: white; border-radius: 20px; padding: 5px 16px; font-size: .8rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  .module { background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; padding: 1.75rem; margin-bottom: 2rem; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.6rem; flex-shrink: 0; }
+  .module-title { font-size: 1.2rem; font-weight: 700; }
+  .module-sub { font-size: .83rem; color: var(--muted); margin-top: 2px; }
+
+  /* ── TERMINAL ── */
+  .terminal { background: var(--code-bg); border: 1px solid var(--border); border-radius: 10px; margin: .9rem 0; overflow: hidden; }
+  .terminal-bar { background: var(--bg3); padding: .45rem .85rem; display: flex; align-items: center; gap: .4rem; border-bottom: 1px solid var(--border); }
+  .tb-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .tb-red { background: #ff5f57; } .tb-yellow { background: #ffbd2e; } .tb-green { background: #28c840; }
+  .tb-title { margin-left: .5rem; font-size: .72rem; color: var(--muted); font-family: 'DM Mono', monospace; }
+  .terminal-body { padding: 1.1rem 1.3rem; font-family: 'DM Mono', monospace; font-size: .87rem; line-height: 2.1; }
+  .t-prompt  { color: var(--green); }
+  .t-root    { color: var(--red); }
+  .t-cmd     { color: var(--text); }
+  .t-flag    { color: var(--orange); }
+  .t-arg     { color: var(--blue); }
+  .t-out     { color: var(--muted); display: block; }
+  .t-comment { color: #3d4a3d; font-style: italic; display: block; }
+  .t-path    { color: var(--purple); }
+  .t-perm    { color: var(--yellow); font-weight: 700; }
+  .t-sig     { color: var(--red); font-weight: 700; }
+  .t-ok      { color: var(--green); display: block; }
+
+  /* ── CALLOUTS ── */
+  .callout { border-radius: 0 10px 10px 0; padding: 1rem 1.2rem; margin: 1rem 0; }
+  .callout h4 { font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .35rem; }
+  .callout p, .callout ul { font-size: .93rem; }
+  .callout ul { padding-left: 1.2rem; }
+  .callout li { margin-bottom: .3rem; }
+  .callout.tip  { background: rgba(46,204,113,.08);  border-left: 4px solid var(--green); }
+  .callout.tip h4 { color: var(--green); }
+  .callout.note { background: rgba(248,81,73,.08);   border-left: 4px solid var(--red); }
+  .callout.note h4 { color: var(--red); }
+  .callout.info { background: rgba(88,166,255,.08);  border-left: 4px solid var(--blue); }
+  .callout.info h4 { color: var(--blue); }
+  .callout.warn { background: rgba(210,153,34,.08);  border-left: 4px solid var(--yellow); }
+  .callout.warn h4 { color: var(--yellow); }
+
+  /* ── TABLA ── */
+  .tbl { width: 100%; border-collapse: collapse; margin: .9rem 0; font-size: .9rem; }
+  .tbl th { background: var(--bg3); color: var(--green); padding: .6rem 1rem; text-align: left; font-weight: 700; border-bottom: 1px solid var(--border); }
+  .tbl td { padding: .6rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl td:first-child { font-family: 'DM Mono', monospace; font-size: .85rem; color: var(--orange); white-space: nowrap; }
+  .tbl tr:hover td { background: var(--bg3); }
+
+  /* ── CMD CARD ── */
+  .cmd-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: .85rem; margin: .9rem 0; }
+  .cmd-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; border-left: 3px solid var(--green); }
+  .cmd-card .cc-cmd  { font-family: 'DM Mono', monospace; font-size: .92rem; font-weight: 700; color: var(--orange); margin-bottom: .25rem; }
+  .cmd-card .cc-full { font-size: .72rem; color: var(--muted); margin-bottom: .4rem; font-style: italic; }
+  .cmd-card .cc-desc { font-size: .86rem; color: var(--text); margin-bottom: .5rem; }
+  .cmd-card .cc-ex   { font-family: 'DM Mono', monospace; font-size: .78rem; color: var(--blue); background: var(--code-bg); padding: .3rem .6rem; border-radius: 5px; display: block; line-height: 1.7; }
+
+  /* ── PERMISOS VISUAL ── */
+  .perm-visual { background: var(--code-bg); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem 1.4rem; font-family: 'DM Mono', monospace; font-size: .88rem; line-height: 2.6; margin: .9rem 0; }
+  .pv-row { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+  .pv-type  { color: var(--blue);   font-weight: 700; }
+  .pv-owner { color: var(--green);  font-weight: 700; }
+  .pv-group { color: var(--yellow); font-weight: 700; }
+  .pv-other { color: var(--orange); font-weight: 700; }
+  .pv-sep   { color: var(--border); }
+  .pv-label { font-size: .68rem; font-family: sans-serif; font-weight: 700; padding: 2px 7px; border-radius: 4px; }
+  .pv-l-type  { background: rgba(88,166,255,.15);  color: var(--blue);   }
+  .pv-l-owner { background: rgba(63,185,80,.15);   color: var(--green);  }
+  .pv-l-group { background: rgba(210,153,34,.15);  color: var(--yellow); }
+  .pv-l-other { background: rgba(255,166,87,.15);  color: var(--orange); }
+
+  /* ── OCTAL GRID ── */
+  .octal-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px,1fr)); gap: .6rem; margin: .75rem 0; }
+  .octal-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: .7rem .9rem; text-align: center; }
+  .oc-num  { font-family: 'DM Mono', monospace; font-size: 1.6rem; font-weight: 900; color: var(--yellow); line-height: 1.2; }
+  .oc-perm { font-family: 'DM Mono', monospace; font-size: .85rem; color: var(--orange); margin: .2rem 0; }
+  .oc-desc { font-size: .75rem; color: var(--muted); }
+
+  /* ── PROCESO VISUAL ── */
+  .proc-row { display: flex; align-items: center; gap: .6rem; padding: .4rem 0; border-bottom: 1px solid var(--border); font-size: .85rem; flex-wrap: wrap; }
+  .proc-row:last-child { border-bottom: none; }
+  .pr-pid   { font-family: 'DM Mono', monospace; color: var(--cyan); font-weight: 700; min-width: 50px; }
+  .pr-user  { color: var(--green); min-width: 60px; }
+  .pr-cpu   { color: var(--yellow); min-width: 40px; }
+  .pr-mem   { color: var(--orange); min-width: 40px; }
+  .pr-cmd   { color: var(--text); font-family: 'DM Mono', monospace; font-size: .8rem; }
+
+  /* ── SEÑALES GRID ── */
+  .sig-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); gap: .6rem; margin: .75rem 0; }
+  .sig-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: .65rem .9rem; }
+  .sc-num  { font-family: 'DM Mono', monospace; font-size: .72rem; color: var(--muted); margin-bottom: .1rem; }
+  .sc-name { font-family: 'DM Mono', monospace; font-size: .9rem; font-weight: 700; color: var(--red); margin-bottom: .2rem; }
+  .sc-desc { font-size: .82rem; color: var(--text); }
+
+  /* ── FINAL BANNER ── */
+  .final-banner { background: linear-gradient(135deg, #0d2818 0%, #1a3a1a 50%, #0d1f2d 100%); border: 1px solid rgba(46,204,113,.3); border-radius: 14px; padding: 2rem; text-align: center; margin-top: 1rem; position: relative; overflow: hidden; }
+  .final-banner::before { content: '🐧'; position: absolute; font-size: 8rem; right: -1rem; top: -1rem; opacity: .06; }
+  .final-banner h2 { font-size: 1.5rem; margin-bottom: .5rem; color: var(--green); }
+  .final-banner p  { color: var(--muted); font-size: .93rem; margin-bottom: .9rem; }
+  .chips { display: flex; flex-wrap: wrap; gap: .4rem; justify-content: center; margin-top: .85rem; }
+  .chip { background: rgba(46,204,113,.1); border: 1px solid rgba(46,204,113,.25); border-radius: 20px; padding: 3px 12px; font-size: .75rem; font-weight: 600; color: var(--green); }
+
+  /* ── EJERCICIO ── */
+  .ejercicio { background: rgba(210,153,34,.07); border: 1px solid rgba(210,153,34,.3); border-radius: 12px; padding: 1.4rem; margin: 1.5rem 0; }
+  .ej-header { display: flex; align-items: center; gap: .6rem; margin-bottom: .85rem; font-weight: 700; color: var(--yellow); flex-wrap: wrap; }
+  .ej-badge { background: var(--accent); color: #fff; font-size: .67rem; padding: 2px 9px; border-radius: 20px; font-weight: 700; text-transform: uppercase; }
+  .ejercicio ol { padding-left: 1.35rem; }
+  .ejercicio ol li { margin-bottom: .55rem; font-size: .93rem; }
+
+  h2 { font-size: 1.15rem; font-weight: 700; margin: 1.5rem 0 .6rem; }
+  h3 { font-size: .97rem; font-weight: 700; margin: 1.1rem 0 .4rem; }
+  p  { margin-bottom: .75rem; }
+  ul, ol { padding-left: 1.35rem; margin-bottom: .75rem; }
+  li { margin-bottom: .35rem; font-size: .95rem; }
+  code { font-family: 'DM Mono', monospace; background: var(--bg3); color: var(--orange); padding: 1px 6px; border-radius: 4px; font-size: .88em; border: 1px solid var(--border); }
+  strong { font-weight: 700; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .83rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg2); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="../index.html">← Café &lt;/&gt;</a>
+  <span>🐧 Guía Linux · Parte D · Final</span>
+</div>
+
+<header>
+  <div class="curso-badge">🐧 Curso Linux completo · 1:52:50 – 2:47:50</div>
+  <h1>Linux en la <span>Terminal</span></h1>
+  <p>Permisos, usuarios, procesos, señales y apagar el sistema</p>
+  <span class="badge">✦ Parte D de 4 — Final ✦</span><br>
+  <span class="final-badge">✅ Última parte del curso</span>
+</header>
+
+<div class="partes-nav">
+  <a class="partes-nav-prev" href="guia-linux-parte-C.html">← C</a>
+  <div class="partes-nav-list">
+    <a href="guia-linux-parte-A.html">A</a>
+    <a href="guia-linux-parte-B.html">B</a>
+    <a href="guia-linux-parte-C.html">C</a>
+    <a href="guia-linux-parte-D.html" class="activa">D ✦</a>
+  </div>
+  <a class="partes-nav-next" href="guia-linux-parte-A.html">A →</a>
+</div>
+
+<nav class="sec-nav">
+  <a href="#permisos">🔒 Permisos</a>
+  <a href="#chmod">⚙️ chmod</a>
+  <a href="#umask">🎭 umask</a>
+  <a href="#especiales">⭐ Especiales</a>
+  <a href="#identidad">👤 Identidad</a>
+  <a href="#chown">🔑 chown</a>
+  <a href="#usuarios">👥 Usuarios</a>
+  <a href="#procesos">⚡ Procesos</a>
+  <a href="#senales">📡 Señales</a>
+  <a href="#apagar">🔌 Apagar</a>
+  <a href="#ejercicio">✏️ Ejercicio</a>
+</nav>
+
+<main>
+<div class="parte-badge">📦 Parte D · Final · 1:52:50 – 2:47:50</div>
+
+
+<!-- ══════════════════════════════════
+     INTRODUCCIÓN A LOS PERMISOS
+══════════════════════════════════ -->
+<section class="module" id="permisos">
+  <div class="module-header">
+    <div class="module-icon">🔒</div>
+    <div>
+      <div class="module-title">Introducción a los Permisos</div>
+      <div class="module-sub">1:52:50 — Cómo Linux controla quién puede hacer qué con cada archivo</div>
+    </div>
+  </div>
+
+  <p>En Linux, <strong>cada archivo y directorio tiene permisos</strong> que controlan quién puede leerlo, modificarlo o ejecutarlo. Es el sistema de seguridad fundamental de Linux y lo que permite que múltiples usuarios compartan un sistema de forma segura.</p>
+
+  <h2>Leer los permisos con ls -l</h2>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="tb-dot tb-red"></div><div class="tb-dot tb-yellow"></div><div class="tb-dot tb-green"></div>
+      <span class="tb-title">ls -l — leer permisos</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-prompt">$</span> <span class="t-cmd">ls -l</span>
+<span class="t-perm">-rwxr-xr--</span> 2 hugo devs 4096 jun 15 10:30 script.sh
+<span class="t-perm">drwxr-xr-x</span> 5 hugo hugo 4096 jun 15 10:30 proyectos/
+<span class="t-perm">-rw-r--r--</span> 1 root root  220 jun  1 12:00 config.txt
+<span class="t-comment"># │          │ │    │    │    fecha          nombre</span>
+<span class="t-comment"># │          │ │    │    └── tamaño en bytes</span>
+<span class="t-comment"># │          │ │    └─────── grupo propietario</span>
+<span class="t-comment"># │          │ └──────────── usuario propietario</span>
+<span class="t-comment"># │          └────────────── número de hard links</span>
+<span class="t-comment"># └───────────────────────── bloque de permisos (10 chars)</span>
+    </div>
+  </div>
+
+  <h2>Anatomía del bloque de permisos</h2>
+
+  <div class="perm-visual">
+    <div class="pv-row">
+      <span class="pv-type">d</span>
+      <span class="pv-owner">rwx</span>
+      <span class="pv-group">r-x</span>
+      <span class="pv-other">r--</span>
+      <span style="margin-left:.5rem;font-size:.8rem;color:var(--muted)">← así se ve en ls -l</span>
+    </div>
+    <div class="pv-row" style="margin-top:.4rem">
+      <span class="pv-label pv-l-type">tipo</span>
+      <span class="pv-label pv-l-owner">propietario (owner)</span>
+      <span class="pv-label pv-l-group">grupo (group)</span>
+      <span class="pv-label pv-l-other">otros (other)</span>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Carácter</th><th>Tipo de archivo</th></tr></thead>
+    <tbody>
+      <tr><td>-</td><td>Archivo normal</td></tr>
+      <tr><td>d</td><td>Directorio</td></tr>
+      <tr><td>l</td><td>Enlace simbólico (symlink)</td></tr>
+      <tr><td>c</td><td>Dispositivo de caracteres</td></tr>
+      <tr><td>b</td><td>Dispositivo de bloques</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Los 3 permisos básicos — rwx</h2>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.75rem;margin:.85rem 0">
+    <div style="background:rgba(63,185,80,.08);border:1px solid rgba(63,185,80,.25);border-radius:10px;padding:.9rem">
+      <p style="font-family:'DM Mono',monospace;font-size:1.4rem;font-weight:900;color:var(--green);margin-bottom:.3rem">r</p>
+      <p style="font-weight:700;margin-bottom:.25rem">Read — Lectura</p>
+      <p style="font-size:.85rem;color:var(--muted)">Archivo: ver su contenido.<br>Directorio: listar su contenido con <code>ls</code>.</p>
+    </div>
+    <div style="background:rgba(210,153,34,.08);border:1px solid rgba(210,153,34,.25);border-radius:10px;padding:.9rem">
+      <p style="font-family:'DM Mono',monospace;font-size:1.4rem;font-weight:900;color:var(--yellow);margin-bottom:.3rem">w</p>
+      <p style="font-weight:700;margin-bottom:.25rem">Write — Escritura</p>
+      <p style="font-size:.85rem;color:var(--muted)">Archivo: modificar su contenido.<br>Directorio: crear y borrar archivos dentro.</p>
+    </div>
+    <div style="background:rgba(248,81,73,.08);border:1px solid rgba(248,81,73,.25);border-radius:10px;padding:.9rem">
+      <p style="font-family:'DM Mono',monospace;font-size:1.4rem;font-weight:900;color:var(--red);margin-bottom:.3rem">x</p>
+      <p style="font-weight:700;margin-bottom:.25rem">Execute — Ejecución</p>
+      <p style="font-size:.85rem;color:var(--muted)">Archivo: ejecutarlo como programa.<br>Directorio: entrar en él con <code>cd</code>.</p>
+    </div>
+  </div>
+
+  <h2>Los 3 grupos de usuarios</h2>
+  <table class="tbl">
+    <thead><tr><th>Grupo</th><th>Quién es</th><th>Posición en el bloque</th></tr></thead>
+    <tbody>
+      <tr><td>owner (u)</td><td>El usuario propietario del archivo</td><td>Caracteres 2–4</td></tr>
+      <tr><td>group (g)</td><td>Los miembros del grupo propietario</td><td>Caracteres 5–7</td></tr>
+      <tr><td>other (o)</td><td>Todos los demás usuarios del sistema</td><td>Caracteres 8–10</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout info">
+    <h4>💡 Ejemplo real: -rwxr-xr--</h4>
+    <ul>
+      <li><strong>-</strong> → es un archivo (no directorio)</li>
+      <li><strong>rwx</strong> → el propietario puede: leer, escribir y ejecutar</li>
+      <li><strong>r-x</strong> → el grupo puede: leer y ejecutar, pero NO escribir</li>
+      <li><strong>r--</strong> → otros solo pueden: leer. No escribir, no ejecutar.</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     CHMOD
+══════════════════════════════════ -->
+<section class="module" id="chmod">
+  <div class="module-header">
+    <div class="module-icon">⚙️</div>
+    <div>
+      <div class="module-title">chmod — Cambiar permisos</div>
+      <div class="module-sub">1:58:48 — El comando para modificar quién puede hacer qué</div>
+    </div>
+  </div>
+
+  <p><code>chmod</code> (CHange MODe) cambia los permisos de archivos y directorios. Tiene dos formas de uso: <strong>simbólica</strong> (letras) y <strong>octal</strong> (números). Ambas hacen lo mismo.</p>
+
+  <h2>Forma simbólica — letras</h2>
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="tb-dot tb-red"></div><div class="tb-dot tb-yellow"></div><div class="tb-dot tb-green"></div>
+      <span class="tb-title">chmod simbólico</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-comment"># Estructura: chmod [quién][operador][permiso] archivo</span>
+<span class="t-comment"># quién:     u=owner, g=group, o=other, a=all (todos)</span>
+<span class="t-comment"># operador:  +=agregar, -=quitar, ==establecer exacto</span>
+<span class="t-comment"># permiso:   r, w, x</span>
+
+<span class="t-comment"># Dar permiso de ejecución al propietario</span>
+<span class="t-prompt">$</span> <span class="t-cmd">chmod</span> <span class="t-perm">u+x</span> <span class="t-arg">script.sh</span>
+
+<span class="t-comment"># Quitar permiso de escritura al grupo</span>
+<span class="t-prompt">$</span> <span class="t-cmd">chmod</span> <span class="t-perm">g-w</span> <span class="t-arg">archivo.txt</span>
+
+<span class="t-comment"># Dar lectura a todos (owner, group, other)</span>
+<span class="t-prompt">$</span> <span class="t-cmd">chmod</span> <span class="t-perm">a+r</span> <span class="t-arg">readme.md</span>
+
+<span class="t-comment"># Quitar todos los permisos a otros</span>
+<span class="t-prompt">$</span> <span class="t-cmd">chmod</span> <span class="t-perm">o-rwx</span> <span class="t-arg">privado.txt</span>
+
+<span class="t-comment"># Establecer permisos exactos para grupo</span>
+<span class="t-prompt">$</span> <span class="t-cmd">chmod</span> <span class="t-perm">g=rx</span> <span class="t-arg">script.sh</span>
+
+<span class="t-comment"># Múltiples cambios a la vez</span>
+<span class="t-prompt">$</span> <span class="t-cmd">chmod</span> <span class="t-perm">u+x,g-w,o-rwx</span> <span class="t-arg">archivo.sh</span>
+
+<span class="t-comment"># Aplicar recursivamente a toda una carpeta</span>
+<span class="t-prompt">$</span> <span class="t-cmd">chmod</span> <span class="t-flag">-R</span> <span class="t-perm">755</span> <span class="t-arg">mi-proyecto/</span>
+    </div>
+  </div>
+
+  <h2>Forma octal — números (la más usada en la práctica)</h2>
+  <p>Cada permiso tiene un valor numérico: <strong>r=4, w=2, x=1</strong>. Se suman los valores para cada grupo. Es la forma que más verás en documentación y tutoriales de servidores.</p>
+
+  <div class="octal-grid">
+    <div class="octal-card"><div class="oc-num">7</div><div class="oc-perm">rwx</div><div class="oc-desc">4+2+1 = todo</div></div>
+    <div class="octal-card"><div class="oc-num">6</div><div class="oc-perm">rw-</div><div class="oc-desc">4+2 = leer y escribir</div></div>
+    <div class="octal-card"><div class="oc-num">5</div><div class="oc-perm">r-x</div><div class="oc-desc">4+1 = leer y ejecutar</div></div>
+    <div class="octal-card"><div class="oc-num">4</div><div class="oc-perm">r--</div><div class="oc-desc">4 = solo leer</div></div>
+    <div class="octal-card"><div class="oc-num">3</div><div class="oc-perm">-wx</div><div class="oc-desc">2+1 = escribir y ejecutar</div></div>
+    <div class="octal-card"><div class="oc-num">2</div><div class="oc-perm">-w-</div><div class="oc-desc">2 = solo escribir</div></div>
+    <div class="octal-card"><div class="oc-num">1</div><div class="oc-perm">--x</div><div class="oc-desc">1 = solo ejecutar</div></div>
+    <div class="octal-card"><div class="oc-num">0</div><div class="oc-perm">---</div><div class="oc-desc">sin permisos</div></div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="tb-dot tb-red"></div><div class="tb-dot tb-yellow"></div><div class="tb-dot tb-green"></div>
+      <span class="tb-title">chmod octal — los más comunes</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-comment"># chmod [owner][group][other] archivo</span>
+
+<span class="t-prompt">$</span> <span class="t-cmd">chmod</span> <span class="t-perm">755</span> <span class="t-arg">script.sh</span>
+<span class="t-comment"># owner: rwx (7) | group: r-x (5) | other: r-x (5)</span>
+<span class="t-comment"># Estándar para scripts y carpetas públicas</span>
+
+<span class="t-prompt">$</span> <span class="t-cmd">chmod</span> <span class="t-perm">644</span> <span class="t-arg">archivo.txt</span>
+<span class="t-comment"># owner: rw- (6) | group: r-- (4) | other: r-- (4)</span>
+<span class="t-comment"># Estándar para archivos de texto y configuración</span>
+
+<span class="t-prompt">$</span> <span class="t-cmd">chmod</span> <span class="t-perm">600</span> <span class="t-arg">clave-privada.pem</span>
+<span class="t-comment"># owner: rw- (6) | group: --- (0) | other: --- (0)</span>
+<span class="t-comment"># Para claves SSH y archivos muy privados</span>
+
+<span class="t-prompt">$</span> <span class="t-cmd">chmod</span> <span class="t-perm">777</span> <span class="t-arg">archivo</span>
+<span class="t-comment"># Todos pueden hacer todo — EVITAR en producción</span>
+
+<span class="t-prompt">$</span> <span class="t-cmd">chmod</span> <span class="t-perm">000</span> <span class="t-arg">archivo</span>
+<span class="t-comment"># Nadie tiene permisos (ni el propietario)</span>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Octal</th><th>Simbólico</th><th>Uso típico</th></tr></thead>
+    <tbody>
+      <tr><td>755</td><td>rwxr-xr-x</td><td>Scripts ejecutables, carpetas de proyecto</td></tr>
+      <tr><td>644</td><td>rw-r--r--</td><td>Archivos de texto, HTML, CSS, imágenes</td></tr>
+      <tr><td>600</td><td>rw-------</td><td>Claves SSH, archivos con contraseñas</td></tr>
+      <tr><td>700</td><td>rwx------</td><td>Scripts privados, solo el propietario</td></tr>
+      <tr><td>664</td><td>rw-rw-r--</td><td>Archivos compartidos con el grupo</td></tr>
+      <tr><td>775</td><td>rwxrwxr-x</td><td>Carpetas compartidas con el grupo</td></tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- ══════════════════════════════════
+     UMASK
+══════════════════════════════════ -->
+<section class="module" id="umask">
+  <div class="module-header">
+    <div class="module-icon">🎭</div>
+    <div>
+      <div class="module-title">umask — La máscara de permisos por defecto</div>
+      <div class="module-sub">2:05:44 — Controla los permisos con los que se crean nuevos archivos</div>
+    </div>
+  </div>
+
+  <p>El <code>umask</code> es una máscara que se resta a los permisos máximos al crear un archivo nuevo. Define cuáles permisos se <strong>eliminan</strong> por defecto. Los archivos se crean con 666 (máximo) y los directorios con 777, y el umask quita los bits que indica.</p>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="tb-dot tb-red"></div><div class="tb-dot tb-yellow"></div><div class="tb-dot tb-green"></div>
+      <span class="tb-title">umask</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-comment"># Ver el umask actual</span>
+<span class="t-prompt">$</span> <span class="t-cmd">umask</span>
+<span class="t-out">0022</span>
+
+<span class="t-comment"># Con umask 022:</span>
+<span class="t-comment"># archivo nuevo:    666 - 022 = 644 (rw-r--r--)</span>
+<span class="t-comment"># directorio nuevo: 777 - 022 = 755 (rwxr-xr-x)</span>
+
+<span class="t-comment"># Ver en formato simbólico</span>
+<span class="t-prompt">$</span> <span class="t-cmd">umask</span> <span class="t-flag">-S</span>
+<span class="t-out">u=rwx,g=rx,o=rx</span>
+
+<span class="t-comment"># Cambiar el umask temporalmente (hasta cerrar la terminal)</span>
+<span class="t-prompt">$</span> <span class="t-cmd">umask</span> <span class="t-perm">077</span>    <span class="t-comment"># solo el propietario tiene acceso a nuevos archivos</span>
+<span class="t-comment"># archivo:    666 - 077 = 600 (rw-------)</span>
+<span class="t-comment"># directorio: 777 - 077 = 700 (rwx------)</span>
+
+<span class="t-comment"># Para hacerlo permanente, agrega en ~/.bashrc:</span>
+<span class="t-comment"># umask 022</span>
+    </div>
+  </div>
+
+  <div class="callout tip">
+    <h4>🟢 El umask más común: 022</h4>
+    <p>La mayoría de sistemas usan <code>umask 022</code> por defecto — crea archivos con 644 y directorios con 755. Es el balance correcto entre seguridad y usabilidad para la mayoría de casos. Solo cambia el umask si tienes una razón específica.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     PERMISOS ESPECIALES
+══════════════════════════════════ -->
+<section class="module" id="especiales">
+  <div class="module-header">
+    <div class="module-icon">⭐</div>
+    <div>
+      <div class="module-title">Permisos especiales — SUID, SGID y Sticky bit</div>
+      <div class="module-sub">2:11:43 — Los permisos avanzados que controlan comportamientos especiales</div>
+    </div>
+  </div>
+
+  <p>Además de rwx, existen tres bits especiales de permisos con comportamientos específicos.</p>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:.85rem;margin:.85rem 0">
+    <div style="background:rgba(248,81,73,.08);border:1px solid rgba(248,81,73,.25);border-radius:10px;padding:1rem">
+      <p style="font-family:'DM Mono',monospace;font-size:.9rem;font-weight:900;color:var(--red);margin-bottom:.3rem">SUID — Set User ID (4xxx)</p>
+      <p style="font-size:.85rem;color:var(--text);margin-bottom:.4rem">El archivo se ejecuta con los permisos del propietario, no del usuario que lo ejecuta.</p>
+      <p style="font-size:.8rem;color:var(--muted)">Ejemplo: <code>passwd</code> necesita escribir en /etc/shadow (solo root puede), pero cualquier usuario puede ejecutarlo gracias al SUID.</p>
+      <p style="font-family:'DM Mono',monospace;font-size:.8rem;color:var(--orange);margin-top:.4rem">Se ve como "s" en la posición x del owner: <strong>-rw<span style="color:var(--red)">s</span>r-xr-x</strong></p>
+    </div>
+    <div style="background:rgba(210,153,34,.08);border:1px solid rgba(210,153,34,.25);border-radius:10px;padding:1rem">
+      <p style="font-family:'DM Mono',monospace;font-size:.9rem;font-weight:900;color:var(--yellow);margin-bottom:.3rem">SGID — Set Group ID (2xxx)</p>
+      <p style="font-size:.85rem;color:var(--text);margin-bottom:.4rem">En archivos: se ejecuta con el grupo del propietario. En directorios: los archivos nuevos heredan el grupo del directorio.</p>
+      <p style="font-size:.8rem;color:var(--muted)">Útil en carpetas compartidas por un equipo — todos los archivos creados pertenecen al mismo grupo.</p>
+      <p style="font-family:'DM Mono',monospace;font-size:.8rem;color:var(--orange);margin-top:.4rem">Se ve como "s" en la posición x del grupo: <strong>-rwxr-<span style="color:var(--yellow)">s</span>r-x</strong></p>
+    </div>
+    <div style="background:rgba(88,166,255,.08);border:1px solid rgba(88,166,255,.25);border-radius:10px;padding:1rem">
+      <p style="font-family:'DM Mono',monospace;font-size:.9rem;font-weight:900;color:var(--blue);margin-bottom:.3rem">Sticky bit (1xxx)</p>
+      <p style="font-size:.85rem;color:var(--text);margin-bottom:.4rem">En un directorio compartido, solo el propietario del archivo puede borrarlo, aunque otros tengan permiso de escritura.</p>
+      <p style="font-size:.8rem;color:var(--muted)">Ejemplo clásico: <code>/tmp</code> — todos pueden crear archivos ahí, pero nadie puede borrar los archivos de otros.</p>
+      <p style="font-family:'DM Mono',monospace;font-size:.8rem;color:var(--orange);margin-top:.4rem">Se ve como "t" en la posición x de others: <strong>drwxrwxrw<span style="color:var(--blue)">t</span></strong></p>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="tb-dot tb-red"></div><div class="tb-dot tb-yellow"></div><div class="tb-dot tb-green"></div>
+      <span class="tb-title">configurar permisos especiales</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-comment"># SUID — el cuarto dígito octal es 4</span>
+<span class="t-prompt">$</span> <span class="t-cmd">chmod</span> <span class="t-perm">4755</span> <span class="t-arg">ejecutable</span>   <span class="t-comment"># -rwsr-xr-x</span>
+
+<span class="t-comment"># SGID — el cuarto dígito es 2</span>
+<span class="t-prompt">$</span> <span class="t-cmd">chmod</span> <span class="t-perm">2775</span> <span class="t-arg">carpeta-equipo/</span>  <span class="t-comment"># drwxrwsr-x</span>
+
+<span class="t-comment"># Sticky bit — el cuarto dígito es 1</span>
+<span class="t-prompt">$</span> <span class="t-cmd">chmod</span> <span class="t-perm">1777</span> <span class="t-arg">carpeta-publica/</span> <span class="t-comment"># drwxrwxrwt</span>
+
+<span class="t-comment"># Verificar que /tmp tiene sticky bit</span>
+<span class="t-prompt">$</span> <span class="t-cmd">ls -ld /tmp</span>
+<span class="t-out">drwxrwxrwt 15 root root 4096 jun 15 /tmp</span>
+<span class="t-comment">#          ^ la t al final = sticky bit activo</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     CAMBIAR DE IDENTIDAD
+══════════════════════════════════ -->
+<section class="module" id="identidad">
+  <div class="module-header">
+    <div class="module-icon">👤</div>
+    <div>
+      <div class="module-title">Cambiar de identidad — su y sudo</div>
+      <div class="module-sub">2:15:31 — Ejecutar comandos como otro usuario o como root</div>
+    </div>
+  </div>
+
+  <p>A veces necesitas ejecutar un comando con más privilegios. <code>sudo</code> y <code>su</code> son los dos mecanismos para hacerlo.</p>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="tb-dot tb-red"></div><div class="tb-dot tb-yellow"></div><div class="tb-dot tb-green"></div>
+      <span class="tb-title">sudo y su</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-comment"># sudo — ejecuta UN comando como root (pide TU contraseña)</span>
+<span class="t-prompt">$</span> <span class="t-cmd">sudo</span> <span class="t-arg">apt update</span>          <span class="t-comment"># actualiza paquetes como root</span>
+<span class="t-prompt">$</span> <span class="t-cmd">sudo</span> <span class="t-arg">nano /etc/hosts</span>    <span class="t-comment"># edita archivo del sistema</span>
+<span class="t-prompt">$</span> <span class="t-cmd">sudo</span> <span class="t-arg">mkdir /var/mi-app</span>  <span class="t-comment"># crea carpeta en área del sistema</span>
+<span class="t-prompt">$</span> <span class="t-cmd">sudo</span> <span class="t-flag">-l</span>                  <span class="t-comment"># lista qué puedes hacer con sudo</span>
+
+<span class="t-comment"># sudo -i — abre una shell de root completa</span>
+<span class="t-prompt">$</span> <span class="t-cmd">sudo</span> <span class="t-flag">-i</span>
+<span class="t-root">root@ubuntu:~#</span>             <span class="t-comment"># ahora eres root (el # indica root)</span>
+<span class="t-root">root@ubuntu:~#</span> <span class="t-cmd">exit</span>        <span class="t-comment"># vuelve a tu usuario</span>
+
+<span class="t-comment"># su — cambia de usuario (pide la contraseña DEL usuario destino)</span>
+<span class="t-prompt">$</span> <span class="t-cmd">su</span> <span class="t-arg">otro-usuario</span>          <span class="t-comment"># cambia a otro-usuario</span>
+<span class="t-prompt">$</span> <span class="t-cmd">su</span> <span class="t-flag">-</span> <span class="t-arg">otro-usuario</span>        <span class="t-comment"># cambia y carga el entorno completo</span>
+<span class="t-prompt">$</span> <span class="t-cmd">su</span>                        <span class="t-comment"># sin usuario = cambiar a root</span>
+<span class="t-prompt">$</span> <span class="t-cmd">exit</span>                      <span class="t-comment"># volver al usuario anterior</span>
+
+<span class="t-comment"># sudo su — forma común de ser root en Ubuntu</span>
+<span class="t-prompt">$</span> <span class="t-cmd">sudo su</span>
+<span class="t-root">root@ubuntu:/home/hugo#</span>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Comando</th><th>Cuándo usarlo</th></tr></thead>
+    <tbody>
+      <tr><td>sudo comando</td><td>Ejecutar un solo comando con privilegios de root</td></tr>
+      <tr><td>sudo -i</td><td>Abrir una sesión completa de root (shell interactiva)</td></tr>
+      <tr><td>su usuario</td><td>Cambiar al usuario especificado (pide su contraseña)</td></tr>
+      <tr><td>su - usuario</td><td>Igual pero carga el entorno completo del usuario destino</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn">
+    <h4>⚡ No trabajes como root por defecto</h4>
+    <p>Hacer todo como root es peligroso — un comando equivocado puede dañar el sistema sin pedir confirmación. Usa <code>sudo</code> solo para los comandos que realmente lo necesitan. El prompt <code>#</code> indica que eres root; <code>$</code> indica usuario normal.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     CHOWN
+══════════════════════════════════ -->
+<section class="module" id="chown">
+  <div class="module-header">
+    <div class="module-icon">🔑</div>
+    <div>
+      <div class="module-title">chown y chgrp — Cambiar propietario y grupo</div>
+      <div class="module-sub">2:20:51 — Cambiar quién es el dueño de un archivo o carpeta</div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="tb-dot tb-red"></div><div class="tb-dot tb-yellow"></div><div class="tb-dot tb-green"></div>
+      <span class="tb-title">chown y chgrp</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-comment"># chown — cambiar propietario</span>
+<span class="t-prompt">$</span> <span class="t-cmd">sudo chown</span> <span class="t-arg">hugo</span> <span class="t-arg">archivo.txt</span>
+<span class="t-comment"># ahora hugo es el propietario de archivo.txt</span>
+
+<span class="t-comment"># chown — cambiar propietario Y grupo a la vez</span>
+<span class="t-prompt">$</span> <span class="t-cmd">sudo chown</span> <span class="t-arg">hugo:devs</span> <span class="t-arg">proyecto/</span>
+<span class="t-comment"># propietario: hugo | grupo: devs</span>
+
+<span class="t-comment"># Cambiar solo el grupo</span>
+<span class="t-prompt">$</span> <span class="t-cmd">sudo chown</span> <span class="t-arg">:devs</span> <span class="t-arg">archivo.txt</span>
+<span class="t-prompt">$</span> <span class="t-cmd">sudo chgrp</span> <span class="t-arg">devs</span> <span class="t-arg">archivo.txt</span>    <span class="t-comment"># equivalente</span>
+
+<span class="t-comment"># Recursivo: cambiar propietario de toda una carpeta</span>
+<span class="t-prompt">$</span> <span class="t-cmd">sudo chown</span> <span class="t-flag">-R</span> <span class="t-arg">hugo:hugo</span> <span class="t-arg">/var/www/mi-web/</span>
+<span class="t-comment"># Útil cuando subes archivos al servidor como root</span>
+<span class="t-comment"># y necesitas que tu usuario pueda editarlos</span>
+
+<span class="t-comment"># Ver propietario actual</span>
+<span class="t-prompt">$</span> <span class="t-cmd">ls -l</span> <span class="t-arg">archivo.txt</span>
+<span class="t-out">-rw-r--r-- 1 hugo devs 220 jun 15 archivo.txt</span>
+<span class="t-comment">#             │    └── grupo</span>
+<span class="t-comment">#             └──────── propietario</span>
+    </div>
+  </div>
+
+  <div class="callout tip">
+    <h4>🟢 Caso de uso real: servidor web</h4>
+    <p>Cuando despliegas una web en un servidor, los archivos suelen necesitar que el servidor web (por ejemplo, <code>www-data</code> en nginx/Apache) pueda leerlos: <code>sudo chown -R www-data:www-data /var/www/html/</code>. Pero si tú también necesitas editar esos archivos: <code>sudo chown -R tu-usuario:www-data /var/www/html/</code> y dale permisos al grupo.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     CREAR USUARIOS
+══════════════════════════════════ -->
+<section class="module" id="usuarios">
+  <div class="module-header">
+    <div class="module-icon">👥</div>
+    <div>
+      <div class="module-title">Crear y gestionar usuarios</div>
+      <div class="module-sub">2:24:33 — Administrar cuentas de usuario en el sistema</div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="tb-dot tb-red"></div><div class="tb-dot tb-yellow"></div><div class="tb-dot tb-green"></div>
+      <span class="tb-title">gestión de usuarios</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-comment"># CREAR usuario</span>
+<span class="t-prompt">$</span> <span class="t-cmd">sudo useradd</span> <span class="t-arg">juan</span>                   <span class="t-comment"># crea usuario básico</span>
+<span class="t-prompt">$</span> <span class="t-cmd">sudo useradd</span> <span class="t-flag">-m -s /bin/bash</span> <span class="t-arg">juan</span>   <span class="t-comment"># con home y bash</span>
+<span class="t-prompt">$</span> <span class="t-cmd">sudo adduser</span> <span class="t-arg">juan</span>                  <span class="t-comment"># forma interactiva (más amigable)</span>
+
+<span class="t-comment"># Establecer/cambiar contraseña</span>
+<span class="t-prompt">$</span> <span class="t-cmd">sudo passwd</span> <span class="t-arg">juan</span>
+
+<span class="t-comment"># MODIFICAR usuario</span>
+<span class="t-prompt">$</span> <span class="t-cmd">sudo usermod</span> <span class="t-flag">-aG sudo</span> <span class="t-arg">juan</span>        <span class="t-comment"># agrega juan al grupo sudo</span>
+<span class="t-prompt">$</span> <span class="t-cmd">sudo usermod</span> <span class="t-flag">-aG devs,docker</span> <span class="t-arg">hugo</span>  <span class="t-comment"># agrega a múltiples grupos</span>
+<span class="t-prompt">$</span> <span class="t-cmd">sudo usermod</span> <span class="t-flag">-l</span> <span class="t-arg">juan-nuevo juan</span>   <span class="t-comment"># cambia el nombre de usuario</span>
+
+<span class="t-comment"># ELIMINAR usuario</span>
+<span class="t-prompt">$</span> <span class="t-cmd">sudo userdel</span> <span class="t-arg">juan</span>                  <span class="t-comment"># elimina el usuario</span>
+<span class="t-prompt">$</span> <span class="t-cmd">sudo userdel</span> <span class="t-flag">-r</span> <span class="t-arg">juan</span>               <span class="t-comment"># elimina usuario Y su carpeta home</span>
+
+<span class="t-comment"># Ver información de usuarios</span>
+<span class="t-prompt">$</span> <span class="t-cmd">id</span> <span class="t-arg">hugo</span>                            <span class="t-comment"># uid, gid y grupos de hugo</span>
+<span class="t-out">uid=1000(hugo) gid=1000(hugo) groups=1000(hugo),27(sudo),999(docker)</span>
+
+<span class="t-prompt">$</span> <span class="t-cmd">cat /etc/passwd</span>                     <span class="t-comment"># lista todos los usuarios del sistema</span>
+<span class="t-prompt">$</span> <span class="t-cmd">who</span>                                 <span class="t-comment"># usuarios conectados ahora</span>
+<span class="t-prompt">$</span> <span class="t-cmd">w</span>                                   <span class="t-comment"># usuarios conectados y qué hacen</span>
+<span class="t-prompt">$</span> <span class="t-cmd">last</span>                                <span class="t-comment"># historial de logins</span>
+
+<span class="t-comment"># Gestión de grupos</span>
+<span class="t-prompt">$</span> <span class="t-cmd">sudo groupadd</span> <span class="t-arg">devs</span>                 <span class="t-comment"># crear grupo</span>
+<span class="t-prompt">$</span> <span class="t-cmd">cat /etc/group</span>                      <span class="t-comment"># ver todos los grupos</span>
+<span class="t-prompt">$</span> <span class="t-cmd">groups</span> <span class="t-arg">hugo</span>                         <span class="t-comment"># grupos a los que pertenece hugo</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     PROCESOS
+══════════════════════════════════ -->
+<section class="module" id="procesos">
+  <div class="module-header">
+    <div class="module-icon">⚡</div>
+    <div>
+      <div class="module-title">Introducción a los Procesos</div>
+      <div class="module-sub">2:27:13 — Ver, controlar y gestionar lo que corre en el sistema</div>
+    </div>
+  </div>
+
+  <p>Un <strong>proceso</strong> es un programa en ejecución. Cada proceso tiene un <strong>PID</strong> (Process ID) único. Linux es multitarea — puede correr miles de procesos al mismo tiempo.</p>
+
+  <h2>Ver procesos — ps y top</h2>
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="tb-dot tb-red"></div><div class="tb-dot tb-yellow"></div><div class="tb-dot tb-green"></div>
+      <span class="tb-title">ps, top y htop</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-comment"># ps — snapshot de procesos en este momento</span>
+<span class="t-prompt">$</span> <span class="t-cmd">ps</span>                       <span class="t-comment"># solo los procesos de tu terminal</span>
+<span class="t-out">  PID TTY          TIME CMD</span>
+<span class="t-out"> 1234 pts/0    00:00:00 bash</span>
+<span class="t-out"> 5678 pts/0    00:00:00 ps</span>
+
+<span class="t-prompt">$</span> <span class="t-cmd">ps aux</span>                   <span class="t-comment"># TODOS los procesos del sistema</span>
+<span class="t-out">USER       PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND</span>
+<span class="t-out">root         1  0.0  0.1  16932  7312 ?        Ss   09:00   0:01 /sbin/init</span>
+<span class="t-out">hugo      1234  0.5  1.2 123456 48000 pts/0   S    10:30   0:02 node server.js</span>
+
+<span class="t-prompt">$</span> <span class="t-cmd">ps aux</span> <span class="t-arg">|</span> <span class="t-cmd">grep</span> <span class="t-arg">node</span>       <span class="t-comment"># filtrar por nombre</span>
+<span class="t-prompt">$</span> <span class="t-cmd">ps</span> <span class="t-flag">-p</span> <span class="t-arg">1234</span>               <span class="t-comment"># proceso con PID específico</span>
+
+<span class="t-comment"># top — monitor en tiempo real (como el Administrador de tareas)</span>
+<span class="t-prompt">$</span> <span class="t-cmd">top</span>                      <span class="t-comment"># se actualiza cada 3 segundos. q para salir</span>
+<span class="t-comment"># Teclas dentro de top: q=salir, k=kill, h=ayuda, M=ordenar por memoria</span>
+
+<span class="t-comment"># htop — versión mejorada y visual de top (instalar: sudo apt install htop)</span>
+<span class="t-prompt">$</span> <span class="t-cmd">htop</span>
+    </div>
+  </div>
+
+  <h2>Procesos en background y foreground</h2>
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="tb-dot tb-red"></div><div class="tb-dot tb-yellow"></div><div class="tb-dot tb-green"></div>
+      <span class="tb-title">foreground, background y jobs</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-comment"># Ejecutar un proceso en BACKGROUND (& al final)</span>
+<span class="t-prompt">$</span> <span class="t-cmd">node server.js</span> <span class="t-arg">&</span>
+<span class="t-out">[1] 12345</span>          <span class="t-comment"># [job number] PID</span>
+
+<span class="t-comment"># Suspender el proceso actual (Ctrl+Z)</span>
+<span class="t-prompt">$</span> <span class="t-cmd">nano archivo.txt</span>
+<span class="t-comment"># ^Z</span>
+<span class="t-out">[1]+  Stopped     nano archivo.txt</span>
+
+<span class="t-comment"># Ver los jobs en background</span>
+<span class="t-prompt">$</span> <span class="t-cmd">jobs</span>
+<span class="t-out">[1]+  Stopped     nano archivo.txt</span>
+<span class="t-out">[2]-  Running     node server.js &</span>
+
+<span class="t-comment"># Traer un job al foreground</span>
+<span class="t-prompt">$</span> <span class="t-cmd">fg</span> <span class="t-arg">%1</span>             <span class="t-comment"># trae el job 1 al frente</span>
+<span class="t-prompt">$</span> <span class="t-cmd">fg</span>                <span class="t-comment"># trae el más reciente</span>
+
+<span class="t-comment"># Mandar job suspendido al background</span>
+<span class="t-prompt">$</span> <span class="t-cmd">bg</span> <span class="t-arg">%1</span>             <span class="t-comment"># reanuda el job 1 en background</span>
+
+<span class="t-comment"># Encontrar el PID de un proceso por nombre</span>
+<span class="t-prompt">$</span> <span class="t-cmd">pgrep</span> <span class="t-arg">node</span>
+<span class="t-out">12345</span>
+<span class="t-prompt">$</span> <span class="t-cmd">pidof</span> <span class="t-arg">nginx</span>
+<span class="t-out">3456 3457 3458</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     SEÑALES
+══════════════════════════════════ -->
+<section class="module" id="senales">
+  <div class="module-header">
+    <div class="module-icon">📡</div>
+    <div>
+      <div class="module-title">Señales — Comunicarse con los procesos</div>
+      <div class="module-sub">2:38:00 — Enviar instrucciones a procesos en ejecución</div>
+    </div>
+  </div>
+
+  <p>Las <strong>señales</strong> son mensajes que el sistema operativo (o tú) envía a un proceso. El proceso puede reaccionar a ellas de diferentes formas: terminar, pausarse, recargar su configuración, etc.</p>
+
+  <h2>Las señales más importantes</h2>
+  <div class="sig-grid">
+    <div class="sig-card"><div class="sc-num">SIGNAL 1</div><div class="sc-name">SIGHUP</div><div class="sc-desc">Hang Up — recarga configuración o termina si no lo maneja</div></div>
+    <div class="sig-card"><div class="sc-num">SIGNAL 2</div><div class="sc-name">SIGINT</div><div class="sc-desc">Interrupt — es el Ctrl+C. Termina el proceso educadamente.</div></div>
+    <div class="sig-card"><div class="sc-num">SIGNAL 9</div><div class="sc-name">SIGKILL</div><div class="sc-desc">Kill — terminación inmediata. El proceso NO puede ignorarla.</div></div>
+    <div class="sig-card"><div class="sc-num">SIGNAL 15</div><div class="sc-name">SIGTERM</div><div class="sc-desc">Terminate — la señal por defecto de kill. El proceso puede limpiarse antes de terminar.</div></div>
+    <div class="sig-card"><div class="sc-num">SIGNAL 19</div><div class="sc-name">SIGSTOP</div><div class="sc-desc">Stop — pausa el proceso. No puede ignorarse. Es el Ctrl+Z del kernel.</div></div>
+    <div class="sig-card"><div class="sc-num">SIGNAL 18</div><div class="sc-name">SIGCONT</div><div class="sc-desc">Continue — reanuda un proceso pausado con SIGSTOP.</div></div>
+  </div>
+
+  <h2>El comando kill — enviar señales</h2>
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="tb-dot tb-red"></div><div class="tb-dot tb-yellow"></div><div class="tb-dot tb-green"></div>
+      <span class="tb-title">kill, killall y pkill</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-comment"># kill — envía una señal a un proceso por PID</span>
+<span class="t-prompt">$</span> <span class="t-cmd">kill</span> <span class="t-arg">12345</span>              <span class="t-comment"># envía SIGTERM (15) al PID 12345</span>
+<span class="t-prompt">$</span> <span class="t-cmd">kill</span> <span class="t-sig">-9</span> <span class="t-arg">12345</span>           <span class="t-comment"># envía SIGKILL (fuerza la terminación)</span>
+<span class="t-prompt">$</span> <span class="t-cmd">kill</span> <span class="t-sig">-SIGTERM</span> <span class="t-arg">12345</span>     <span class="t-comment"># por nombre de señal</span>
+<span class="t-prompt">$</span> <span class="t-cmd">kill</span> <span class="t-sig">-SIGHUP</span> <span class="t-arg">12345</span>      <span class="t-comment"># recarga configuración (nginx, apache...)</span>
+
+<span class="t-comment"># Ver todas las señales disponibles</span>
+<span class="t-prompt">$</span> <span class="t-cmd">kill</span> <span class="t-flag">-l</span>
+
+<span class="t-comment"># killall — termina todos los procesos con ese nombre</span>
+<span class="t-prompt">$</span> <span class="t-cmd">killall</span> <span class="t-arg">node</span>             <span class="t-comment"># mata TODOS los procesos "node"</span>
+<span class="t-prompt">$</span> <span class="t-cmd">killall</span> <span class="t-sig">-9</span> <span class="t-arg">firefox</span>       <span class="t-comment"># fuerza el cierre de todos los firefox</span>
+
+<span class="t-comment"># pkill — como killall pero acepta patrones</span>
+<span class="t-prompt">$</span> <span class="t-cmd">pkill</span> <span class="t-arg">-f</span> <span class="t-arg">"server.js"</span>     <span class="t-comment"># mata el proceso que tenga "server.js" en su comando</span>
+
+<span class="t-comment"># El flujo correcto para terminar un proceso</span>
+<span class="t-prompt">$</span> <span class="t-cmd">kill</span> <span class="t-arg">12345</span>              <span class="t-comment"># 1. SIGTERM — intenta terminar limpiamente</span>
+<span class="t-comment"># espera unos segundos...</span>
+<span class="t-prompt">$</span> <span class="t-cmd">kill</span> <span class="t-sig">-9</span> <span class="t-arg">12345</span>           <span class="t-comment"># 2. SIGKILL — si no respondió, fuerza</span>
+    </div>
+  </div>
+
+  <div class="callout warn">
+    <h4>⚡ SIGTERM antes que SIGKILL</h4>
+    <p>Siempre intenta primero <code>kill PID</code> (SIGTERM) y espera unos segundos. Esto da al proceso la oportunidad de cerrar conexiones, guardar datos y limpiar recursos. El <code>kill -9</code> (SIGKILL) es una terminación brutal — el proceso no puede guardar nada ni limpiar. Úsalo como último recurso cuando el proceso no responde.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     APAGAR EL SISTEMA
+══════════════════════════════════ -->
+<section class="module" id="apagar">
+  <div class="module-header">
+    <div class="module-icon">🔌</div>
+    <div>
+      <div class="module-title">Apagar y reiniciar el sistema</div>
+      <div class="module-sub">2:47:50 — Los comandos correctos para apagar y reiniciar Linux</div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="tb-dot tb-red"></div><div class="tb-dot tb-yellow"></div><div class="tb-dot tb-green"></div>
+      <span class="tb-title">shutdown, reboot y halt</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-comment"># APAGAR ahora mismo</span>
+<span class="t-prompt">$</span> <span class="t-cmd">sudo shutdown -h now</span>        <span class="t-comment"># apaga inmediatamente (-h = halt)</span>
+<span class="t-prompt">$</span> <span class="t-cmd">sudo poweroff</span>               <span class="t-comment"># equivalente</span>
+<span class="t-prompt">$</span> <span class="t-cmd">sudo halt</span>                   <span class="t-comment"># otro equivalente</span>
+
+<span class="t-comment"># REINICIAR ahora mismo</span>
+<span class="t-prompt">$</span> <span class="t-cmd">sudo shutdown -r now</span>        <span class="t-comment"># reinicia inmediatamente (-r = reboot)</span>
+<span class="t-prompt">$</span> <span class="t-cmd">sudo reboot</span>                 <span class="t-comment"># equivalente y más corto</span>
+
+<span class="t-comment"># PROGRAMAR apagado en el futuro</span>
+<span class="t-prompt">$</span> <span class="t-cmd">sudo shutdown -h</span> <span class="t-arg">+30</span>        <span class="t-comment"># apaga en 30 minutos</span>
+<span class="t-prompt">$</span> <span class="t-cmd">sudo shutdown -h</span> <span class="t-arg">22:00</span>      <span class="t-comment"># apaga a las 10 PM</span>
+<span class="t-prompt">$</span> <span class="t-cmd">sudo shutdown -r</span> <span class="t-arg">+5</span>         <span class="t-comment"># reinicia en 5 minutos</span>
+
+<span class="t-comment"># Con mensaje a todos los usuarios conectados</span>
+<span class="t-prompt">$</span> <span class="t-cmd">sudo shutdown -h +15</span> <span class="t-arg">"El servidor se apaga en 15 minutos. Guarda tu trabajo."</span>
+
+<span class="t-comment"># CANCELAR un apagado programado</span>
+<span class="t-prompt">$</span> <span class="t-cmd">sudo shutdown -c</span>            <span class="t-comment"># cancela el shutdown pendiente</span>
+
+<span class="t-comment"># Ver el estado del sistema antes de apagar</span>
+<span class="t-prompt">$</span> <span class="t-cmd">uptime</span>                      <span class="t-comment"># cuánto tiempo lleva encendido</span>
+<span class="t-out">10:30:00 up 5 days, 3:22,  2 users,  load average: 0.15, 0.12, 0.09</span>
+
+<span class="t-prompt">$</span> <span class="t-cmd">w</span>                           <span class="t-comment"># usuarios conectados antes de apagar</span>
+    </div>
+  </div>
+
+  <div class="callout note">
+    <h4>⚠️ En servidores remotos — ten mucho cuidado</h4>
+    <p>Si estás conectado a un servidor remoto vía SSH y ejecutas <code>sudo reboot</code> o <code>sudo shutdown</code>, perderás la conexión SSH y el servidor se apagará o reiniciará. Solo hazlo si sabes que el servidor va a volver a estar disponible. Para actualizaciones sin apagar, mira <code>systemctl restart</code> para servicios específicos.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     EJERCICIO FINAL
+══════════════════════════════════ -->
+<section class="module" id="ejercicio">
+  <div class="module-header">
+    <div class="module-icon">✏️</div>
+    <div>
+      <div class="module-title">Ejercicio Final — Permisos, usuarios y procesos</div>
+      <div class="module-sub">Practica todo lo de la Parte D</div>
+    </div>
+  </div>
+
+  <div class="ejercicio">
+    <div class="ej-header">✏️ Ejercicio Parte D <span class="ej-badge">Avanzado</span></div>
+    <ol>
+      <li>Crea un archivo y un script: <code>touch secreto.txt</code> y <code>touch script.sh</code></li>
+      <li>Lee los permisos actuales: <code>ls -l secreto.txt script.sh</code></li>
+      <li>Haz el script ejecutable: <code>chmod u+x script.sh</code> → verifica con <code>ls -l script.sh</code></li>
+      <li>Cambia secreto.txt a 600 (solo tú puedes leerlo y escribirlo): <code>chmod 600 secreto.txt</code></li>
+      <li>Crea una carpeta compartida con sticky bit: <code>mkdir compartida && chmod 1777 compartida</code> → verifica con <code>ls -ld compartida</code></li>
+      <li>Ve el umask actual: <code>umask</code> y <code>umask -S</code></li>
+      <li>Ve tu información de usuario: <code>id</code> y <code>groups</code></li>
+      <li>Lista los procesos: <code>ps aux | head -15</code> (solo los primeros 15)</li>
+      <li>Filtra tus procesos: <code>ps aux | grep $USER</code></li>
+      <li>Abre nano en background: <code>nano test.txt &</code> → vélo con <code>jobs</code> → tráelo con <code>fg %1</code> → cierra con Ctrl+X</li>
+      <li>Ejecuta <code>sleep 100 &</code> → consigue su PID con <code>jobs -p</code> → mátalo con <code>kill PID</code> → verifica con <code>jobs</code></li>
+      <li>Abre <code>top</code>, observa los procesos 10 segundos y sal con <code>q</code></li>
+    </ol>
+  </div>
+
+  <div class="callout tip">
+    <h4>🟢 Resumen de la Parte D</h4>
+    <ul>
+      <li>Permisos: tipo + owner(rwx) + group(rwx) + other(rwx). Leer con <code>ls -l</code>.</li>
+      <li>r=4, w=2, x=1. Suma los valores para obtener el octal. 755=rwxr-xr-x, 644=rw-r--r--</li>
+      <li><code>chmod</code> simbólico: <code>u+x g-w o=r</code>. Octal: <code>chmod 755 archivo</code>. Recursivo: <code>-R</code></li>
+      <li><code>umask 022</code> → archivos nuevos con 644, directorios con 755</li>
+      <li>Especiales: SUID(4xxx) ejecuta como owner, SGID(2xxx) hereda grupo, Sticky(1xxx) solo el dueño borra</li>
+      <li><code>sudo</code> → un comando como root. <code>sudo -i</code> → shell de root. <code>su usuario</code> → cambiar de usuario</li>
+      <li><code>chown usuario:grupo archivo</code> → cambia propietario. <code>-R</code> para recursivo</li>
+      <li><code>useradd -m -s /bin/bash</code>, <code>passwd</code>, <code>usermod -aG grupo</code>, <code>userdel -r</code></li>
+      <li><code>ps aux</code> → todos los procesos. <code>ps aux | grep nombre</code> → filtrar. <code>top</code> / <code>htop</code> → tiempo real</li>
+      <li>Background: <code>comando &</code>. Jobs: <code>jobs</code>, <code>fg %N</code>, <code>bg %N</code>. Ctrl+Z pausa.</li>
+      <li>Señales: SIGTERM(15)=terminar limpio, SIGKILL(9)=forzar, SIGHUP(1)=recargar</li>
+      <li><code>kill PID</code>, <code>kill -9 PID</code>, <code>killall nombre</code>, <code>pkill -f patrón</code></li>
+      <li><code>sudo shutdown -h now</code>, <code>sudo reboot</code>, <code>sudo shutdown -h +30</code>, <code>sudo shutdown -c</code></li>
+    </ul>
+  </div>
+
+
+  <!-- BANNER FINAL -->
+  <div class="final-banner">
+    <h2>🐧 ¡Guía de Linux completada!</h2>
+    <p>Cubriste el curso completo de ~3 horas en 4 partes.<br>
+    Ahora tienes una base sólida para trabajar en cualquier servidor Linux.</p>
+
+    <div class="chips">
+      <span class="chip">Sistema de archivos ✓</span>
+      <span class="chip">La shell ✓</span>
+      <span class="chip">Navegación ✓</span>
+      <span class="chip">mkdir / touch / cp / mv / rm ✓</span>
+      <span class="chip">find / grep ✓</span>
+      <span class="chip">cat / less / head / tail ✓</span>
+      <span class="chip">nano ✓</span>
+      <span class="chip">vi / vim ✓</span>
+      <span class="chip">Tipos de comandos ✓</span>
+      <span class="chip">PATH ✓</span>
+      <span class="chip">Alias ✓</span>
+      <span class="chip">Pipes | ✓</span>
+      <span class="chip">Redirección &gt; &gt;&gt; ✓</span>
+      <span class="chip">Comodines * ? [] ✓</span>
+      <span class="chip">Expansiones {} $ $() ✓</span>
+      <span class="chip">Quoting ✓</span>
+      <span class="chip">Trucos de teclado ✓</span>
+      <span class="chip">Permisos rwx ✓</span>
+      <span class="chip">chmod ✓</span>
+      <span class="chip">umask ✓</span>
+      <span class="chip">SUID / SGID / Sticky ✓</span>
+      <span class="chip">sudo / su ✓</span>
+      <span class="chip">chown / chgrp ✓</span>
+      <span class="chip">Usuarios y grupos ✓</span>
+      <span class="chip">Procesos ✓</span>
+      <span class="chip">Señales ✓</span>
+      <span class="chip">kill / killall ✓</span>
+      <span class="chip">Apagar el sistema ✓</span>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  Guía Linux · Parte D · Final · Basado en curso de Linux completo · Café &lt;/&gt; · Hugo 2025
+</footer>
+
+</body>
+</html>

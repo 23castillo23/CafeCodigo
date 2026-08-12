@@ -374,6 +374,14 @@ const EJERCICIOS = [
   {
     grupo: '⚙️ JavaScript',
     items: [
+      {
+        tipo: 'link', href: 'Ejercicios/guia-notas-pegajosas.html',
+        icono: '📝', gradiente: 'linear-gradient(135deg, #0a1520 60%, #101c2a)',
+        badge: 'HTML + CSS + JS', badgeEstilo: 'background:rgba(20,120,180,0.25);color:#80c8f0;border:1px solid rgba(20,120,180,0.35);',
+        titulo: '00 · Notas Pegajosas',
+        desc: 'Interfaz de notas para anotar apuntes, y diseño moderno en CSS.',
+        stats: ['Paneles', 'CSS'], cta: 'Ver ejercicio'
+      },
       { tipo: 'soon', icono: '➕', titulo: 'Próximos ejercicios de JavaScript', desc: 'Aquí irán los ejercicios de JS cuando los tengas listos. Agrega la tarjeta igual que las de arriba.' }
     ]
   }
@@ -475,19 +483,71 @@ const ADICIONALES = [
         badge: 'HTML', badgeEstilo: 'background:rgba(230,80,80,0.2);color:#f4a0a0;border:1px solid rgba(230,80,80,0.3);',
         titulo: 'Formularios avanzados', desc: 'Validación nativa, patrones y atributos poco usados.'
       },
-      { tipo: 'bloqueada', gradiente: 'linear-gradient(135deg,#1a0f1a 60%,#2a1230)', badgeEstilo: 'background:rgba(230,80,80,0.2);color:#f4a0a0;border:1px solid rgba(230,80,80,0.3);', icono: '♿', titulo: 'Accesibilidad web (a11y)', desc: 'ARIA, roles y navegación por teclado.' },
-      { tipo: 'bloqueada', gradiente: 'linear-gradient(135deg,#0a1820 60%,#0e2030)', badgeEstilo: 'background:rgba(40,140,220,0.2);color:#80c8f0;border:1px solid rgba(40,140,220,0.3);', icono: '🧩', titulo: 'CSS Grid a fondo', desc: 'Áreas, auto-fit vs auto-fill y layouts complejos.' },
-      { tipo: 'bloqueada', gradiente: 'linear-gradient(135deg,#0a1820 60%,#0e2030)', badgeEstilo: 'background:rgba(40,140,220,0.2);color:#80c8f0;border:1px solid rgba(40,140,220,0.3);', icono: '🎬', titulo: 'Animaciones con CSS', desc: 'Keyframes, transiciones y timing functions.' },
-      { tipo: 'bloqueada', gradiente: 'linear-gradient(135deg,#1a1a08 60%,#282810)', badgeEstilo: 'background:rgba(200,180,40,0.2);color:#e8d870;border:1px solid rgba(200,180,40,0.3);', icono: '🌐', titulo: 'Fetch API y promesas', desc: 'Consumir APIs y manejar errores en JavaScript.' },
-      { tipo: 'bloqueada', gradiente: 'linear-gradient(135deg,#1a1a08 60%,#282810)', badgeEstilo: 'background:rgba(200,180,40,0.2);color:#e8d870;border:1px solid rgba(200,180,40,0.3);', icono: '💾', titulo: 'LocalStorage vs SessionStorage vs Cookies', desc: 'Cuándo usar cada uno para guardar datos.' },
-      { tipo: 'bloqueada', gradiente: 'linear-gradient(135deg,#1a1a08 60%,#282810)', badgeEstilo: 'background:rgba(200,180,40,0.2);color:#e8d870;border:1px solid rgba(200,180,40,0.3);', icono: '🔄', titulo: 'Event loop y asincronía en JS', desc: 'Call stack, microtasks y macrotasks.' },
-      { tipo: 'bloqueada', gradiente: 'linear-gradient(135deg,#0a1820 60%,#0e2030)', badgeEstilo: 'background:rgba(40,140,220,0.2);color:#80c8f0;border:1px solid rgba(40,140,220,0.3);', icono: '📱', titulo: 'Responsive design real', desc: 'Media queries, unidades relativas y mobile-first.' },
-      { tipo: 'bloqueada', gradiente: 'linear-gradient(135deg,#1a1a08 60%,#282810)', badgeEstilo: 'background:rgba(200,180,40,0.2);color:#e8d870;border:1px solid rgba(200,180,40,0.3);', icono: '📦', titulo: 'Módulos de JavaScript (ES Modules)', desc: 'Import/export y organización de código.' },
-      { tipo: 'bloqueada', gradiente: 'linear-gradient(135deg,#1a1a08 60%,#282810)', badgeEstilo: 'background:rgba(200,180,40,0.2);color:#e8d870;border:1px solid rgba(200,180,40,0.3);', icono: '🧱', titulo: 'Web Components', desc: 'Custom elements y Shadow DOM.' },
-      { tipo: 'bloqueada', gradiente: 'linear-gradient(135deg,#1a1a08 60%,#282810)', badgeEstilo: 'background:rgba(200,180,40,0.2);color:#e8d870;border:1px solid rgba(200,180,40,0.3);', icono: '⚡', titulo: 'Manipulación del DOM eficiente', desc: 'Fragmentos y delegación de eventos.' },
-      { tipo: 'bloqueada', gradiente: 'linear-gradient(135deg,#0a1820 60%,#0e2030)', badgeEstilo: 'background:rgba(40,140,220,0.2);color:#80c8f0;border:1px solid rgba(40,140,220,0.3);', icono: '🎨', titulo: 'CSS Variables (custom properties)', desc: 'Theming dinámico sin preprocesadores.' },
-      { tipo: 'bloqueada', gradiente: 'linear-gradient(135deg,#0e180e 60%,#122012)', badgeEstilo: 'background:rgba(40,180,80,0.2);color:#80e0a0;border:1px solid rgba(40,180,80,0.3);', icono: '🐛', titulo: 'Debugging en el navegador', desc: 'DevTools, breakpoints y consola avanzada.' },
-      { tipo: 'bloqueada', gradiente: 'linear-gradient(135deg,#1a1a08 60%,#282810)', badgeEstilo: 'background:rgba(200,180,40,0.2);color:#e8d870;border:1px solid rgba(200,180,40,0.3);', icono: '📲', titulo: 'Service Workers y PWA', desc: 'Básicos de offline-first.' },
+      {
+        tipo: 'link', href: 'adicionales/guia-accesibilidad-web.html',
+        gradiente: 'linear-gradient(135deg,#1a0f1a 60%,#2a1230)', badgeEstilo: 'background:rgba(230,80,80,0.2);color:#f4a0a0;border:1px solid rgba(230,80,80,0.3);',
+        icono: '♿', titulo: 'Accesibilidad web (a11y)', desc: 'ARIA, roles y navegación por teclado.'
+      },
+      {
+        tipo: 'link', href: 'adicionales/guia-css-grid-a-fondo.html',
+        gradiente: 'linear-gradient(135deg,#0a1820 60%,#0e2030)', badgeEstilo: 'background:rgba(40,140,220,0.2);color:#80c8f0;border:1px solid rgba(40,140,220,0.3);',
+        icono: '🧩', titulo: 'CSS Grid a fondo', desc: 'Áreas, auto-fit vs auto-fill y layouts complejos.'
+      },
+      {
+        tipo: 'link', href: 'adicionales/guia-animaciones-css.html',
+        gradiente: 'linear-gradient(135deg,#0a1820 60%,#0e2030)', badgeEstilo: 'background:rgba(40,140,220,0.2);color:#80c8f0;border:1px solid rgba(40,140,220,0.3);',
+        icono: '🎬', titulo: 'Animaciones con CSS', desc: 'Keyframes, transiciones y timing functions.'
+      },
+      {
+        tipo: 'link', href: 'adicionales/guia-fetch-api-promesas.html',
+        gradiente: 'linear-gradient(135deg,#1a1a08 60%,#282810)', badgeEstilo: 'background:rgba(200,180,40,0.2);color:#e8d870;border:1px solid rgba(200,180,40,0.3);',
+        icono: '🌐', titulo: 'Fetch API y promesas', desc: 'Consumir APIs y manejar errores en JavaScript.'
+      },
+      {
+        tipo: 'link', href: 'adicionales/guia-storage-cookies.html',
+        gradiente: 'linear-gradient(135deg,#1a1a08 60%,#282810)', badgeEstilo: 'background:rgba(200,180,40,0.2);color:#e8d870;border:1px solid rgba(200,180,40,0.3);',
+        icono: '💾', titulo: 'LocalStorage vs SessionStorage vs Cookies', desc: 'Cuándo usar cada uno para guardar datos.'
+      },
+      {
+        tipo: 'link', href: 'adicionales/guia-event-loop-asincronia.html',
+        gradiente: 'linear-gradient(135deg,#1a1a08 60%,#282810)', badgeEstilo: 'background:rgba(200,180,40,0.2);color:#e8d870;border:1px solid rgba(200,180,40,0.3);',
+        icono: '🔄', titulo: 'Event loop y asincronía en JS', desc: 'Call stack, microtasks y macrotasks.'
+      },
+      {
+        tipo: 'link', href: 'adicionales/guia-responsive-design-real.html',
+        gradiente: 'linear-gradient(135deg,#0a1820 60%,#0e2030)', badgeEstilo: 'background:rgba(40,140,220,0.2);color:#80c8f0;border:1px solid rgba(40,140,220,0.3);',
+        icono: '📱', titulo: 'Responsive design real', desc: 'Media queries, unidades relativas y mobile-first.'
+      },
+      {
+        tipo: 'link', href: 'adicionales/guia-modulos-javascript.html',
+        gradiente: 'linear-gradient(135deg,#1a1a08 60%,#282810)', badgeEstilo: 'background:rgba(200,180,40,0.2);color:#e8d870;border:1px solid rgba(200,180,40,0.3);',
+        icono: '📦', titulo: 'Módulos de JavaScript (ES Modules)', desc: 'Import/export y organización de código.'
+      },
+      {
+        tipo: 'link', href: 'adicionales/guia-web-components.html',
+        gradiente: 'linear-gradient(135deg,#1a1a08 60%,#282810)', badgeEstilo: 'background:rgba(200,180,40,0.2);color:#e8d870;border:1px solid rgba(200,180,40,0.3);',
+        icono: '🧱', titulo: 'Web Components', desc: 'Custom elements y Shadow DOM.'
+      },
+      {
+        tipo: 'link', href: 'adicionales/guia-dom-eficiente.html',
+        gradiente: 'linear-gradient(135deg,#1a1a08 60%,#282810)', badgeEstilo: 'background:rgba(200,180,40,0.2);color:#e8d870;border:1px solid rgba(200,180,40,0.3);',
+        icono: '⚡', titulo: 'Manipulación del DOM eficiente', desc: 'Fragmentos y delegación de eventos.'
+      },
+      {
+        tipo: 'link', href: 'adicionales/guia-css-variables.html',
+        gradiente: 'linear-gradient(135deg,#0a1820 60%,#0e2030)', badgeEstilo: 'background:rgba(40,140,220,0.2);color:#80c8f0;border:1px solid rgba(40,140,220,0.3);',
+        icono: '🎨', titulo: 'CSS Variables (custom properties)', desc: 'Theming dinámico sin preprocesadores.'
+      },
+      {
+        tipo: 'link', href: 'adicionales/guia-debugging-navegador.html',
+        gradiente: 'linear-gradient(135deg,#0e180e 60%,#122012)', badgeEstilo: 'background:rgba(40,180,80,0.2);color:#80e0a0;border:1px solid rgba(40,180,80,0.3);',
+        icono: '🐛', titulo: 'Debugging en el navegador', desc: 'DevTools, breakpoints y consola avanzada.'
+      },
+      {
+        tipo: 'link', href: 'adicionales/guia-service-workers-pwa.html',
+        gradiente: 'linear-gradient(135deg,#1a1a08 60%,#282810)', badgeEstilo: 'background:rgba(200,180,40,0.2);color:#e8d870;border:1px solid rgba(200,180,40,0.3);',
+        icono: '📲', titulo: 'Service Workers y PWA', desc: 'Básicos de offline-first.'
+      },
       { tipo: 'soon', icono: '➕', titulo: 'Agregar guía adicional', desc: 'Cuando escribas una guía nueva, agrega la tarjeta aquí siguiendo el mismo patrón.' }
     ]
   }
@@ -562,13 +622,13 @@ const DATOS_CURIOSOS = [
         titulo: 'El mito del "pixel perfect"', desc: 'Por qué cada navegador renderiza distinto.' 
       },
       { 
-        tipo: 'bloqueada', href: 'datos-curiosos/guia-mito-pixel-perfect.html',
+        tipo: 'link', href: 'datos-curiosos/guia-mito-pixel-perfect.html',
         icono: '🕰️', gradiente: 'linear-gradient(135deg,#0e180e 60%,#122012)', 
         badge: 'WEB', badgeEstilo: 'background:rgba(40,180,80,0.2);color:#80e0a0;border:1px solid rgba(40,180,80,0.3);', 
         titulo: 'Cómo era programar web antes de las DevTools', desc: 'Un vistazo al pasado del desarrollo web.' 
       },
       {
-         tipo: 'bloqueada', href: 'datos-curiosos/guia-mito-pixel-perfect.html',
+         tipo: 'link', href: 'datos-curiosos/guia-mito-pixel-perfect.html',
          icono: '📉', gradiente: 'linear-gradient(135deg,#1a1a08 60%,#282810)', 
          badge: 'jQuery', badgeEstilo: 'background:rgba(200,180,40,0.2);color:#e8d870;border:1px solid rgba(200,180,40,0.3);',  
          titulo: 'jQuery: de salvador a "código legado"', desc: 'Su ascenso y su ocaso.' 

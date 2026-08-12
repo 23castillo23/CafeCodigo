@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía Linux · Parte C</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #2ecc71;
+    --primary-dark:   #1a9e52;
+    --bg:             #0d1117;
+    --bg2:            #161b22;
+    --bg3:            #21262d;
+    --text:           #e6edf3;
+    --muted:          #7d8590;
+    --border:         #30363d;
+    --code-bg:        #0d1117;
+    --green:          #3fb950;
+    --yellow:         #d29922;
+    --blue:           #58a6ff;
+    --purple:         #bc8cff;
+    --red:            #f85149;
+    --orange:         #ffa657;
+    --cyan:           #79c0ff;
+    --accent:         #e67e22;
+  }
+
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  .topbar { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; gap: 14px; position: sticky; top: 0; z-index: 200; height: 46px; }
+  .topbar a { font-size: 13px; color: var(--muted); text-decoration: none; padding: 5px 13px; border: 1px solid var(--border); border-radius: 999px; transition: all .15s; }
+  .topbar a:hover { color: var(--text); border-color: var(--muted); }
+  .topbar span { font-size: 13px; color: var(--muted); }
+
+  header { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 2.5rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: '|'; position: absolute; font-size: 18rem; font-weight: 900; color: rgba(46,204,113,.04); right: 2rem; top: -3rem; font-family: monospace; line-height: 1; }
+  header .curso-badge { display: inline-flex; align-items: center; gap: .5rem; background: rgba(46,204,113,.15); border: 1px solid rgba(46,204,113,.3); border-radius: 20px; padding: 3px 14px; font-size: .75rem; font-weight: 700; color: var(--green); margin-bottom: .75rem; }
+  header h1 { font-size: 2.2rem; font-weight: 800; letter-spacing: -.5px; }
+  header h1 span { color: var(--primary); }
+  header p  { font-size: 1rem; color: var(--muted); margin-top: .4rem; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.06); border: 1px solid var(--border); border-radius: 20px; padding: 3px 13px; font-size: .75rem; margin-top: .65rem; color: var(--muted); }
+
+  .partes-nav { background: var(--bg2); border-bottom: 1px solid var(--border); position: sticky; top: 46px; z-index: 110; display: flex; align-items: center; height: 38px; padding: 0 1rem; }
+  .partes-nav-prev, .partes-nav-next { flex-shrink: 0; display: flex; align-items: center; padding: 0 .75rem; height: 100%; text-decoration: none; color: var(--muted); font-size: .78rem; font-weight: 500; border-right: 1px solid var(--border); transition: color .15s; white-space: nowrap; }
+  .partes-nav-next { border-right: none; border-left: 1px solid var(--border); }
+  .partes-nav-prev:hover, .partes-nav-next:hover { color: var(--primary); }
+  .partes-nav-list { flex: 1; display: flex; align-items: center; justify-content: center; gap: .2rem; }
+  .partes-nav-list a { padding: 2px 10px; border-radius: 20px; text-decoration: none; font-size: .73rem; font-weight: 600; color: var(--muted); transition: color .15s, background .15s; }
+  .partes-nav-list a:hover { color: var(--text); background: var(--bg3); }
+  .partes-nav-list a.activa { background: rgba(46,204,113,.15); color: var(--green); }
+
+  nav.sec-nav { background: var(--bg2); border-bottom: 1px solid var(--border); position: sticky; top: 84px; z-index: 100; display: flex; overflow-x: auto; }
+  nav.sec-nav::-webkit-scrollbar { display: none; }
+  nav.sec-nav a { flex-shrink: 0; padding: .65rem 1rem; text-decoration: none; color: var(--muted); font-size: .82rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav.sec-nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 940px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary-dark); color: white; border-radius: 20px; padding: 5px 16px; font-size: .8rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  .module { background: var(--bg2); border: 1px solid var(--border); border-radius: 14px; padding: 1.75rem; margin-bottom: 2rem; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.6rem; flex-shrink: 0; }
+  .module-title { font-size: 1.2rem; font-weight: 700; }
+  .module-sub { font-size: .83rem; color: var(--muted); margin-top: 2px; }
+
+  /* ── TERMINAL ── */
+  .terminal { background: var(--code-bg); border: 1px solid var(--border); border-radius: 10px; margin: .9rem 0; overflow: hidden; }
+  .terminal-bar { background: var(--bg3); padding: .45rem .85rem; display: flex; align-items: center; gap: .4rem; border-bottom: 1px solid var(--border); }
+  .tb-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .tb-red { background: #ff5f57; } .tb-yellow { background: #ffbd2e; } .tb-green { background: #28c840; }
+  .tb-title { margin-left: .5rem; font-size: .72rem; color: var(--muted); font-family: 'DM Mono', monospace; }
+  .terminal-body { padding: 1.1rem 1.3rem; font-family: 'DM Mono', monospace; font-size: .87rem; line-height: 2.1; }
+  .t-prompt  { color: var(--green); }
+  .t-cmd     { color: var(--text); }
+  .t-flag    { color: var(--orange); }
+  .t-arg     { color: var(--blue); }
+  .t-out     { color: var(--muted); display: block; }
+  .t-comment { color: #3d4a3d; font-style: italic; display: block; }
+  .t-path    { color: var(--purple); }
+  .t-pipe    { color: var(--yellow); font-weight: 700; }
+  .t-redir   { color: var(--cyan); font-weight: 700; }
+  .t-glob    { color: var(--red); font-weight: 700; }
+  .t-exp     { color: var(--purple); font-weight: 700; }
+  .t-str     { color: var(--green); }
+
+  /* ── CALLOUTS ── */
+  .callout { border-radius: 0 10px 10px 0; padding: 1rem 1.2rem; margin: 1rem 0; }
+  .callout h4 { font-size: .75rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .35rem; }
+  .callout p, .callout ul { font-size: .93rem; }
+  .callout ul { padding-left: 1.2rem; }
+  .callout li { margin-bottom: .3rem; }
+  .callout.tip  { background: rgba(46,204,113,.08);  border-left: 4px solid var(--green); }
+  .callout.tip h4 { color: var(--green); }
+  .callout.note { background: rgba(248,81,73,.08);   border-left: 4px solid var(--red); }
+  .callout.note h4 { color: var(--red); }
+  .callout.info { background: rgba(88,166,255,.08);  border-left: 4px solid var(--blue); }
+  .callout.info h4 { color: var(--blue); }
+  .callout.warn { background: rgba(210,153,34,.08);  border-left: 4px solid var(--yellow); }
+  .callout.warn h4 { color: var(--yellow); }
+
+  /* ── TABLA ── */
+  .tbl { width: 100%; border-collapse: collapse; margin: .9rem 0; font-size: .9rem; }
+  .tbl th { background: var(--bg3); color: var(--green); padding: .6rem 1rem; text-align: left; font-weight: 700; border-bottom: 1px solid var(--border); }
+  .tbl td { padding: .6rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl td:first-child { font-family: 'DM Mono', monospace; font-size: .85rem; color: var(--orange); white-space: nowrap; }
+  .tbl tr:hover td { background: var(--bg3); }
+
+  /* ── CMD CARD ── */
+  .cmd-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: .85rem; margin: .9rem 0; }
+  .cmd-card { background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; border-left: 3px solid var(--green); }
+  .cmd-card .cc-cmd  { font-family: 'DM Mono', monospace; font-size: .92rem; font-weight: 700; color: var(--orange); margin-bottom: .25rem; }
+  .cmd-card .cc-full { font-size: .72rem; color: var(--muted); margin-bottom: .4rem; font-style: italic; }
+  .cmd-card .cc-desc { font-size: .86rem; color: var(--text); margin-bottom: .5rem; }
+  .cmd-card .cc-ex   { font-family: 'DM Mono', monospace; font-size: .78rem; color: var(--blue); background: var(--code-bg); padding: .3rem .6rem; border-radius: 5px; display: block; line-height: 1.7; }
+
+  /* ── PIPE DIAGRAM ── */
+  .pipe-diagram { display: flex; align-items: center; gap: 0; margin: 1rem 0; flex-wrap: wrap; }
+  .pd-box { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: .6rem .9rem; font-family: 'DM Mono', monospace; font-size: .82rem; text-align: center; }
+  .pd-box .pd-cmd  { color: var(--orange); font-weight: 700; }
+  .pd-box .pd-desc { color: var(--muted); font-size: .72rem; margin-top: .2rem; }
+  .pd-arrow { color: var(--yellow); font-size: 1.2rem; padding: 0 .4rem; font-weight: 900; }
+  .pd-pipe  { color: var(--yellow); font-size: 1.1rem; font-family: 'DM Mono', monospace; font-weight: 900; padding: 0 .3rem; }
+
+  /* ── GLOB VISUAL ── */
+  .glob-row { display: flex; gap: 1rem; margin: .5rem 0; align-items: baseline; flex-wrap: wrap; }
+  .glob-pattern { font-family: 'DM Mono', monospace; font-size: .9rem; color: var(--red); background: var(--bg3); padding: 2px 9px; border-radius: 5px; font-weight: 700; flex-shrink: 0; min-width: 120px; }
+  .glob-matches { font-size: .85rem; color: var(--muted); }
+  .glob-match   { color: var(--cyan); font-family: 'DM Mono', monospace; }
+
+  /* ── SHORTCUT ── */
+  .sc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap: .6rem; margin: .75rem 0; }
+  .sc-row { background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: .55rem .85rem; display: flex; align-items: center; gap: .7rem; }
+  .sc-key { font-family: 'DM Mono', monospace; font-size: .78rem; font-weight: 700; color: var(--yellow); background: rgba(210,153,34,.12); padding: 2px 8px; border-radius: 4px; white-space: nowrap; flex-shrink: 0; }
+  .sc-desc { font-size: .83rem; }
+
+  /* ── EJERCICIO ── */
+  .ejercicio { background: rgba(210,153,34,.07); border: 1px solid rgba(210,153,34,.3); border-radius: 12px; padding: 1.4rem; margin: 1.5rem 0; }
+  .ej-header { display: flex; align-items: center; gap: .6rem; margin-bottom: .85rem; font-weight: 700; color: var(--yellow); flex-wrap: wrap; }
+  .ej-badge { background: var(--accent); color: #fff; font-size: .67rem; padding: 2px 9px; border-radius: 20px; font-weight: 700; text-transform: uppercase; }
+  .ejercicio ol { padding-left: 1.35rem; }
+  .ejercicio ol li { margin-bottom: .55rem; font-size: .93rem; }
+
+  h2 { font-size: 1.15rem; font-weight: 700; margin: 1.5rem 0 .6rem; }
+  h3 { font-size: .97rem; font-weight: 700; margin: 1.1rem 0 .4rem; }
+  p  { margin-bottom: .75rem; }
+  ul, ol { padding-left: 1.35rem; margin-bottom: .75rem; }
+  li { margin-bottom: .35rem; font-size: .95rem; }
+  code { font-family: 'DM Mono', monospace; background: var(--bg3); color: var(--orange); padding: 1px 6px; border-radius: 4px; font-size: .88em; border: 1px solid var(--border); }
+  strong { font-weight: 700; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .83rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg2); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="../index.html">← Café &lt;/&gt;</a>
+  <span>🐧 Guía Linux · Parte C</span>
+</div>
+
+<header>
+  <div class="curso-badge">🐧 Curso Linux completo · 1:11:52 – 1:52:50</div>
+  <h1>Linux en la <span>Terminal</span></h1>
+  <p>Canalizaciones, comodines, expansiones y trucos de teclado</p>
+  <span class="badge">✦ Parte C de 4 ✦</span>
+</header>
+
+<div class="partes-nav">
+  <a class="partes-nav-prev" href="guia-linux-parte-B.html">← B</a>
+  <div class="partes-nav-list">
+    <a href="guia-linux-parte-A.html">A</a>
+    <a href="guia-linux-parte-B.html">B</a>
+    <a href="guia-linux-parte-C.html" class="activa">C ✦</a>
+    <a href="guia-linux-parte-D.html">D</a>
+  </div>
+  <a class="partes-nav-next" href="guia-linux-parte-C.html">D →</a>
+</div>
+
+<nav class="sec-nav">
+  <a href="#pipes">🔗 Pipes</a>
+  <a href="#grep">🔍 grep</a>
+  <a href="#redireccion">↪ Redirección</a>
+  <a href="#comodines">🃏 Comodines</a>
+  <a href="#expansiones">🔮 Expansiones</a>
+  <a href="#cancelar">🚫 Cancelar</a>
+  <a href="#teclado">⌨️ Teclado</a>
+  <a href="#ejercicio">✏️ Ejercicio</a>
+</nav>
+
+<main>
+<div class="parte-badge">📦 Parte C · 1:11:52 – 1:52:50</div>
+
+
+<!-- ══════════════════════════════════
+     CANALIZACIONES (PIPES)
+══════════════════════════════════ -->
+<section class="module" id="pipes">
+  <div class="module-header">
+    <div class="module-icon">🔗</div>
+    <div>
+      <div class="module-title">Canalizaciones — Pipes |</div>
+      <div class="module-sub">1:11:52 — Conectar comandos para crear cadenas de procesamiento poderosas</div>
+    </div>
+  </div>
+
+  <p>El pipe <code>|</code> (barra vertical) conecta la salida de un comando con la entrada del siguiente. Es una de las ideas más poderosas de Unix: cada comando hace una cosa pequeña y bien, y los pipes los encadenan para hacer cosas complejas.</p>
+
+  <h2>Cómo fluye la información</h2>
+  <div class="pipe-diagram">
+    <div class="pd-box">
+      <div class="pd-cmd">ls -la</div>
+      <div class="pd-desc">genera listado</div>
+    </div>
+    <div class="pd-pipe">|</div>
+    <div class="pd-box">
+      <div class="pd-cmd">grep ".html"</div>
+      <div class="pd-desc">filtra líneas</div>
+    </div>
+    <div class="pd-pipe">|</div>
+    <div class="pd-box">
+      <div class="pd-cmd">sort</div>
+      <div class="pd-desc">ordena</div>
+    </div>
+    <div class="pd-pipe">|</div>
+    <div class="pd-box">
+      <div class="pd-cmd">head -5</div>
+      <div class="pd-desc">primeros 5</div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="tb-dot tb-red"></div><div class="tb-dot tb-yellow"></div><div class="tb-dot tb-green"></div>
+      <span class="tb-title">pipes en acción</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-comment"># Listar y filtrar solo archivos HTML</span>
+<span class="t-prompt">$</span> <span class="t-cmd">ls</span> <span class="t-pipe">|</span> <span class="t-cmd">grep</span> <span class="t-arg">".html"</span>
+<span class="t-out">index.html</span>
+<span class="t-out">contacto.html</span>
+
+<span class="t-comment"># Contar cuántos archivos hay en la carpeta</span>
+<span class="t-prompt">$</span> <span class="t-cmd">ls</span> <span class="t-pipe">|</span> <span class="t-cmd">wc -l</span>
+<span class="t-out">42</span>
+
+<span class="t-comment"># Ver los procesos y filtrar por nombre</span>
+<span class="t-prompt">$</span> <span class="t-cmd">ps aux</span> <span class="t-pipe">|</span> <span class="t-cmd">grep</span> <span class="t-arg">node</span>
+<span class="t-out">hugo     12345  0.5  1.2  /usr/bin/node server.js</span>
+
+<span class="t-comment"># Ver el historial y buscar un comando específico</span>
+<span class="t-prompt">$</span> <span class="t-cmd">history</span> <span class="t-pipe">|</span> <span class="t-cmd">grep</span> <span class="t-arg">git</span>
+
+<span class="t-comment"># Los 10 archivos más pesados en la carpeta</span>
+<span class="t-prompt">$</span> <span class="t-cmd">du -sh *</span> <span class="t-pipe">|</span> <span class="t-cmd">sort -rh</span> <span class="t-pipe">|</span> <span class="t-cmd">head -10</span>
+
+<span class="t-comment"># Contar líneas de todos los archivos .js</span>
+<span class="t-prompt">$</span> <span class="t-cmd">cat</span> <span class="t-arg">*.js</span> <span class="t-pipe">|</span> <span class="t-cmd">wc -l</span>
+<span class="t-out">1847</span>
+
+<span class="t-comment"># Ver errores del sistema en tiempo real</span>
+<span class="t-prompt">$</span> <span class="t-cmd">tail -f /var/log/syslog</span> <span class="t-pipe">|</span> <span class="t-cmd">grep</span> <span class="t-arg">ERROR</span>
+    </div>
+  </div>
+
+  <h2>Comandos más usados con pipes</h2>
+  <div class="cmd-grid">
+    <div class="cmd-card">
+      <div class="cc-cmd">wc</div>
+      <div class="cc-full">Word Count</div>
+      <div class="cc-desc">Cuenta líneas, palabras o caracteres</div>
+      <span class="cc-ex">ls | wc -l   →  cuenta archivos
+cat file.txt | wc -w  →  cuenta palabras</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cc-cmd">sort</div>
+      <div class="cc-full">Sort</div>
+      <div class="cc-desc">Ordena líneas alfabéticamente o numéricamente</div>
+      <span class="cc-ex">cat nombres.txt | sort
+cat nombres.txt | sort -r  (inverso)</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cc-cmd">uniq</div>
+      <div class="cc-full">Unique</div>
+      <div class="cc-desc">Elimina líneas duplicadas consecutivas</div>
+      <span class="cc-ex">cat lista.txt | sort | uniq
+cat lista.txt | sort | uniq -c  (cuenta)</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cc-cmd">cut</div>
+      <div class="cc-full">Cut</div>
+      <div class="cc-desc">Extrae columnas o caracteres de cada línea</div>
+      <span class="cc-ex">cat data.csv | cut -d',' -f1
+(extrae la primera columna)</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cc-cmd">tr</div>
+      <div class="cc-full">TRanslate</div>
+      <div class="cc-desc">Traduce o elimina caracteres</div>
+      <span class="cc-ex">echo "hola" | tr 'a-z' 'A-Z'
+→  HOLA</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cc-cmd">tee</div>
+      <div class="cc-full">Tee</div>
+      <div class="cc-desc">Divide la salida: va a pantalla Y a un archivo</div>
+      <span class="cc-ex">ls | tee lista.txt
+(muestra en pantalla y guarda)</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     GREP
+══════════════════════════════════ -->
+<section class="module" id="grep">
+  <div class="module-header">
+    <div class="module-icon">🔍</div>
+    <div>
+      <div class="module-title">grep — El comando de búsqueda más poderoso</div>
+      <div class="module-sub">Filtrar líneas que coincidan con un patrón — imprescindible con pipes</div>
+    </div>
+  </div>
+
+  <p><code>grep</code> busca texto dentro de archivos o en la entrada que le llega por pipe. Filtra solo las líneas que contienen el patrón que le dices. Es el compañero inseparable del pipe.</p>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="tb-dot tb-red"></div><div class="tb-dot tb-yellow"></div><div class="tb-dot tb-green"></div>
+      <span class="tb-title">grep — usos fundamentales</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-comment"># Buscar en un archivo</span>
+<span class="t-prompt">$</span> <span class="t-cmd">grep</span> <span class="t-arg">"error"</span> <span class="t-arg">app.log</span>
+<span class="t-out">2025-06-15 10:32:01 ERROR: conexión fallida</span>
+<span class="t-out">2025-06-15 11:05:44 ERROR: timeout en la base de datos</span>
+
+<span class="t-comment"># Ignorar mayúsculas/minúsculas</span>
+<span class="t-prompt">$</span> <span class="t-cmd">grep</span> <span class="t-flag">-i</span> <span class="t-arg">"error"</span> <span class="t-arg">app.log</span>       <span class="t-comment"># encuentra Error, ERROR, error</span>
+
+<span class="t-comment"># Mostrar el número de línea</span>
+<span class="t-prompt">$</span> <span class="t-cmd">grep</span> <span class="t-flag">-n</span> <span class="t-arg">"function"</span> <span class="t-arg">app.js</span>     <span class="t-comment"># muestra: 42:  function saludar()</span>
+
+<span class="t-comment"># Buscar recursivamente en todas las subcarpetas</span>
+<span class="t-prompt">$</span> <span class="t-cmd">grep</span> <span class="t-flag">-r</span> <span class="t-arg">"TODO"</span> <span class="t-arg">./src</span>           <span class="t-comment"># busca en todos los archivos de src/</span>
+
+<span class="t-comment"># Invertir: mostrar líneas que NO contienen el patrón</span>
+<span class="t-prompt">$</span> <span class="t-cmd">grep</span> <span class="t-flag">-v</span> <span class="t-arg">"DEBUG"</span> <span class="t-arg">app.log</span>       <span class="t-comment"># todo excepto las líneas con DEBUG</span>
+
+<span class="t-comment"># Contar cuántas líneas coinciden</span>
+<span class="t-prompt">$</span> <span class="t-cmd">grep</span> <span class="t-flag">-c</span> <span class="t-arg">"error"</span> <span class="t-arg">app.log</span>
+<span class="t-out">2</span>
+
+<span class="t-comment"># Mostrar contexto: 2 líneas antes y después</span>
+<span class="t-prompt">$</span> <span class="t-cmd">grep</span> <span class="t-flag">-C 2</span> <span class="t-arg">"error"</span> <span class="t-arg">app.log</span>
+
+<span class="t-comment"># Con pipe: filtrar salida de otro comando</span>
+<span class="t-prompt">$</span> <span class="t-cmd">ps aux</span> <span class="t-pipe">|</span> <span class="t-cmd">grep</span> <span class="t-arg">nginx</span>
+<span class="t-prompt">$</span> <span class="t-cmd">history</span> <span class="t-pipe">|</span> <span class="t-cmd">grep</span> <span class="t-arg">docker</span>
+<span class="t-prompt">$</span> <span class="t-cmd">cat /etc/hosts</span> <span class="t-pipe">|</span> <span class="t-cmd">grep</span> <span class="t-arg">localhost</span>
+    </div>
+  </div>
+
+  <div class="callout tip">
+    <h4>🟢 grep -r es el buscador de código más rápido</h4>
+    <p>Cuando necesitas encontrar dónde está definida una función o dónde se usa una variable en un proyecto: <code>grep -rn "nombreFuncion" ./src</code>. Te dice el archivo y la línea exacta. Más rápido que buscar en el editor para proyectos grandes.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     REDIRECCIÓN
+══════════════════════════════════ -->
+<section class="module" id="redireccion">
+  <div class="module-header">
+    <div class="module-icon">↪</div>
+    <div>
+      <div class="module-title">Redirección de entrada y salida</div>
+      <div class="module-sub">Controlar de dónde vienen y a dónde van los datos</div>
+    </div>
+  </div>
+
+  <p>Cada proceso en Linux tiene tres canales de comunicación: <strong>stdin</strong> (entrada), <strong>stdout</strong> (salida estándar) y <strong>stderr</strong> (salida de errores). Los operadores de redirección te permiten controlarlos.</p>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="tb-dot tb-red"></div><div class="tb-dot tb-yellow"></div><div class="tb-dot tb-green"></div>
+      <span class="tb-title">redirección completa</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-comment"># stdout (salida normal) → archivo</span>
+<span class="t-prompt">$</span> <span class="t-cmd">ls</span> <span class="t-redir">&gt;</span> <span class="t-arg">lista.txt</span>           <span class="t-comment"># sobreescribe lista.txt</span>
+<span class="t-prompt">$</span> <span class="t-cmd">ls</span> <span class="t-redir">&gt;&gt;</span> <span class="t-arg">lista.txt</span>          <span class="t-comment"># agrega al final de lista.txt</span>
+
+<span class="t-comment"># stderr (errores) → archivo</span>
+<span class="t-prompt">$</span> <span class="t-cmd">ls carpeta-falsa</span> <span class="t-redir">2&gt;</span> <span class="t-arg">errores.txt</span>  <span class="t-comment"># guarda el error, no se muestra en pantalla</span>
+
+<span class="t-comment"># stdout Y stderr → mismo archivo</span>
+<span class="t-prompt">$</span> <span class="t-cmd">comando</span> <span class="t-redir">&gt;</span> <span class="t-arg">todo.txt</span> <span class="t-redir">2&gt;&1</span>          <span class="t-comment"># todo junto en un archivo</span>
+<span class="t-prompt">$</span> <span class="t-cmd">comando</span> <span class="t-redir">&amp;&gt;</span> <span class="t-arg">todo.txt</span>              <span class="t-comment"># forma abreviada (bash moderno)</span>
+
+<span class="t-comment"># stdin (entrada) ← desde archivo</span>
+<span class="t-prompt">$</span> <span class="t-cmd">sort</span> <span class="t-redir">&lt;</span> <span class="t-arg">nombres.txt</span>              <span class="t-comment"># sort lee del archivo en vez de teclado</span>
+
+<span class="t-comment"># /dev/null — el agujero negro de Linux</span>
+<span class="t-prompt">$</span> <span class="t-cmd">comando</span> <span class="t-redir">&gt;</span> <span class="t-arg">/dev/null</span> <span class="t-redir">2&gt;&1</span>         <span class="t-comment"># descarta TODO (stdout y stderr)</span>
+<span class="t-comment"># Útil para ejecutar comandos silenciosos en scripts</span>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Operador</th><th>Qué hace</th></tr></thead>
+    <tbody>
+      <tr><td>&gt;</td><td>Redirige stdout a un archivo (sobreescribe)</td></tr>
+      <tr><td>&gt;&gt;</td><td>Redirige stdout a un archivo (agrega al final)</td></tr>
+      <tr><td>2&gt;</td><td>Redirige stderr (errores) a un archivo</td></tr>
+      <tr><td>2&gt;&gt;</td><td>Agrega stderr al final de un archivo</td></tr>
+      <tr><td>&gt; archivo 2&gt;&1</td><td>Redirige stdout Y stderr al mismo archivo</td></tr>
+      <tr><td>&amp;&gt;</td><td>Shortcut de lo anterior (bash moderno)</td></tr>
+      <tr><td>&lt;</td><td>Lee stdin desde un archivo en vez del teclado</td></tr>
+      <tr><td>/dev/null</td><td>Archivo especial que descarta todo lo que recibe</td></tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- ══════════════════════════════════
+     COMODINES
+══════════════════════════════════ -->
+<section class="module" id="comodines">
+  <div class="module-header">
+    <div class="module-icon">🃏</div>
+    <div>
+      <div class="module-title">Comodines — Wildcards</div>
+      <div class="module-sub">1:27:03 — Patrones para referenciar múltiples archivos a la vez</div>
+    </div>
+  </div>
+
+  <p>Los <strong>comodines</strong> son caracteres especiales que la shell expande antes de ejecutar el comando. Permiten referenciar múltiples archivos con un solo patrón sin tener que escribirlos uno a uno.</p>
+
+  <h2>Los 3 comodines fundamentales</h2>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="tb-dot tb-red"></div><div class="tb-dot tb-yellow"></div><div class="tb-dot tb-green"></div>
+      <span class="tb-title">comodines * ? [ ]</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-comment"># * — cualquier cosa (0 o más caracteres)</span>
+<span class="t-prompt">$</span> <span class="t-cmd">ls</span> <span class="t-glob">*</span>.html           <span class="t-comment"># todos los archivos .html</span>
+<span class="t-out">index.html  contacto.html  about.html</span>
+
+<span class="t-prompt">$</span> <span class="t-cmd">ls</span> img<span class="t-glob">*</span>            <span class="t-comment"># todo lo que empieza con "img"</span>
+<span class="t-out">img  img-backup  img2024</span>
+
+<span class="t-prompt">$</span> <span class="t-cmd">rm</span> <span class="t-glob">*</span>.log           <span class="t-comment"># elimina todos los .log</span>
+<span class="t-prompt">$</span> <span class="t-cmd">cp</span> <span class="t-glob">*</span>.css backup/   <span class="t-comment"># copia todos los .css a backup/</span>
+
+<span class="t-comment"># ? — exactamente un carácter cualquiera</span>
+<span class="t-prompt">$</span> <span class="t-cmd">ls</span> archivo<span class="t-glob">?</span>.txt    <span class="t-comment"># archivo1.txt, archivoa.txt... (1 carácter)</span>
+<span class="t-out">archivo1.txt  archivoa.txt</span>
+
+<span class="t-prompt">$</span> <span class="t-cmd">ls</span> ????<span class="t-glob">.</span>html      <span class="t-comment"># archivos .html con nombre de 4 letras</span>
+<span class="t-out">home.html  main.html</span>
+
+<span class="t-comment"># [ ] — uno de los caracteres dentro de los corchetes</span>
+<span class="t-prompt">$</span> <span class="t-cmd">ls</span> archivo<span class="t-glob">[123]</span>.txt <span class="t-comment"># archivo1.txt, archivo2.txt, archivo3.txt</span>
+<span class="t-out">archivo1.txt  archivo2.txt  archivo3.txt</span>
+
+<span class="t-prompt">$</span> <span class="t-cmd">ls</span> <span class="t-glob">[aeiou]</span><span class="t-glob">*</span>        <span class="t-comment"># archivos que empiezan con vocal</span>
+<span class="t-prompt">$</span> <span class="t-cmd">ls</span> <span class="t-glob">[a-z]</span><span class="t-glob">*</span>          <span class="t-comment"># archivos que empiezan con letra minúscula</span>
+<span class="t-prompt">$</span> <span class="t-cmd">ls</span> <span class="t-glob">[!0-9]</span><span class="t-glob">*</span>         <span class="t-comment"># archivos que NO empiezan con número (! niega)</span>
+    </div>
+  </div>
+
+  <h2>Patrones visuales de los comodines</h2>
+
+  <div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:1.1rem 1.3rem;margin:.75rem 0">
+    <div class="glob-row">
+      <span class="glob-pattern">*.html</span>
+      <span class="glob-matches">→ <span class="glob-match">index.html</span>, <span class="glob-match">about.html</span>, <span class="glob-match">contacto.html</span></span>
+    </div>
+    <div class="glob-row">
+      <span class="glob-pattern">foto?.jpg</span>
+      <span class="glob-matches">→ <span class="glob-match">foto1.jpg</span>, <span class="glob-match">fotoa.jpg</span> (no <span style="color:var(--red)">foto12.jpg</span>)</span>
+    </div>
+    <div class="glob-row">
+      <span class="glob-pattern">img[0-9].png</span>
+      <span class="glob-matches">→ <span class="glob-match">img0.png</span>, <span class="glob-match">img5.png</span>, <span class="glob-match">img9.png</span></span>
+    </div>
+    <div class="glob-row">
+      <span class="glob-pattern">guia-parte-*</span>
+      <span class="glob-matches">→ <span class="glob-match">guia-parte-A.html</span>, <span class="glob-match">guia-parte-B.html</span>, <span class="glob-match">guia-parte-C.html</span></span>
+    </div>
+    <div class="glob-row">
+      <span class="glob-pattern">*[!.html]</span>
+      <span class="glob-matches">→ todo lo que NO termina en .html</span>
+    </div>
+  </div>
+
+  <div class="callout warn">
+    <h4>⚡ Cuidado con rm + comodines</h4>
+    <p>Antes de ejecutar <code>rm *.txt</code>, prueba primero con <code>ls *.txt</code> para ver exactamente qué archivos van a ser afectados. El comodín <code>*</code> a veces coincide con más archivos de los que esperas — y con <code>rm</code> no hay papelera.</p>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     EXPANSIONES
+══════════════════════════════════ -->
+<section class="module" id="expansiones">
+  <div class="module-header">
+    <div class="module-icon">🔮</div>
+    <div>
+      <div class="module-title">Expansiones — Bash expande antes de ejecutar</div>
+      <div class="module-sub">1:31:09 — La shell transforma lo que escribes antes de ejecutarlo</div>
+    </div>
+  </div>
+
+  <p>Las <strong>expansiones</strong> ocurren antes de que la shell ejecute cualquier comando. Bash ve lo que escribiste, lo transforma (expande) y luego ejecuta el resultado. Entender esto explica muchos comportamientos "mágicos" de la terminal.</p>
+
+  <h2>1. Expansión de llaves { } — Brace Expansion</h2>
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="tb-dot tb-red"></div><div class="tb-dot tb-yellow"></div><div class="tb-dot tb-green"></div>
+      <span class="tb-title">expansión de llaves</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-comment"># Genera múltiples strings de una vez</span>
+<span class="t-prompt">$</span> echo <span class="t-exp">{a,b,c}</span>
+<span class="t-out">a b c</span>
+
+<span class="t-prompt">$</span> echo archivo<span class="t-exp">{1,2,3}</span>.txt
+<span class="t-out">archivo1.txt archivo2.txt archivo3.txt</span>
+
+<span class="t-comment"># Crear múltiples archivos de una sola vez</span>
+<span class="t-prompt">$</span> touch <span class="t-exp">{index,about,contacto}</span>.html
+<span class="t-comment"># Crea: index.html  about.html  contacto.html</span>
+
+<span class="t-comment"># Crear estructura de carpetas compleja</span>
+<span class="t-prompt">$</span> mkdir -p proyecto/<span class="t-exp">{src/{css,js,img},docs,tests}</span>
+<span class="t-comment"># Crea: proyecto/src/css  proyecto/src/js  proyecto/src/img</span>
+<span class="t-comment">#       proyecto/docs  proyecto/tests</span>
+
+<span class="t-comment"># Rango numérico</span>
+<span class="t-prompt">$</span> echo <span class="t-exp">{1..5}</span>
+<span class="t-out">1 2 3 4 5</span>
+
+<span class="t-prompt">$</span> echo <span class="t-exp">{01..10}</span>
+<span class="t-out">01 02 03 04 05 06 07 08 09 10</span>
+
+<span class="t-comment"># Rango de letras</span>
+<span class="t-prompt">$</span> echo <span class="t-exp">{a..z}</span>
+<span class="t-out">a b c d e f g h i j k l m n o p q r s t u v w x y z</span>
+
+<span class="t-comment"># Crear 10 archivos de log numerados</span>
+<span class="t-prompt">$</span> touch log-<span class="t-exp">{001..010}</span>.txt
+    </div>
+  </div>
+
+  <h2>2. Expansión de variables $ — Parameter Expansion</h2>
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="tb-dot tb-red"></div><div class="tb-dot tb-yellow"></div><div class="tb-dot tb-green"></div>
+      <span class="tb-title">expansión de variables</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-comment"># Variables de entorno del sistema</span>
+<span class="t-prompt">$</span> echo <span class="t-exp">$HOME</span>         <span class="t-comment"># tu directorio home</span>
+<span class="t-out">/home/hugo</span>
+
+<span class="t-prompt">$</span> echo <span class="t-exp">$USER</span>         <span class="t-comment"># tu nombre de usuario</span>
+<span class="t-out">hugo</span>
+
+<span class="t-prompt">$</span> echo <span class="t-exp">$PWD</span>          <span class="t-comment"># directorio actual (igual que pwd)</span>
+<span class="t-out">/home/hugo/proyectos</span>
+
+<span class="t-prompt">$</span> echo <span class="t-exp">$PATH</span>         <span class="t-comment"># rutas donde la shell busca ejecutables</span>
+<span class="t-prompt">$</span> echo <span class="t-exp">$SHELL</span>        <span class="t-comment"># tu shell activa</span>
+<span class="t-out">/bin/bash</span>
+
+<span class="t-comment"># Crear y usar tus propias variables</span>
+<span class="t-prompt">$</span> NOMBRE="Hugo"
+<span class="t-prompt">$</span> echo "Hola <span class="t-exp">$NOMBRE</span>"
+<span class="t-out">Hola Hugo</span>
+
+<span class="t-prompt">$</span> PROYECTO="/home/hugo/mi-web"
+<span class="t-prompt">$</span> cd <span class="t-exp">$PROYECTO</span>      <span class="t-comment"># usa la variable como ruta</span>
+<span class="t-prompt">$</span> ls <span class="t-exp">$PROYECTO</span>/src
+    </div>
+  </div>
+
+  <h2>3. Sustitución de comandos $( ) — Command Substitution</h2>
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="tb-dot tb-red"></div><div class="tb-dot tb-yellow"></div><div class="tb-dot tb-green"></div>
+      <span class="tb-title">sustitución de comandos</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-comment"># $() ejecuta el comando adentro y usa su resultado</span>
+<span class="t-prompt">$</span> echo "Hoy es <span class="t-exp">$(date)</span>"
+<span class="t-out">Hoy es lun jun 15 10:30:00 CST 2025</span>
+
+<span class="t-prompt">$</span> echo "Estoy en: <span class="t-exp">$(pwd)</span>"
+<span class="t-out">Estoy en: /home/hugo/proyectos</span>
+
+<span class="t-comment"># Guardar resultado en una variable</span>
+<span class="t-prompt">$</span> ARCHIVOS=<span class="t-exp">$(ls | wc -l)</span>
+<span class="t-prompt">$</span> echo "Hay <span class="t-exp">$ARCHIVOS</span> archivos aquí"
+<span class="t-out">Hay 12 archivos aquí</span>
+
+<span class="t-comment"># Usar en nombres de archivo (útil en scripts)</span>
+<span class="t-prompt">$</span> cp backup.sql backup-<span class="t-exp">$(date +%Y%m%d)</span>.sql
+<span class="t-comment"># Crea: backup-20250615.sql</span>
+    </div>
+  </div>
+
+  <h2>4. Expansión aritmética $(( ))</h2>
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="tb-dot tb-red"></div><div class="tb-dot tb-yellow"></div><div class="tb-dot tb-green"></div>
+      <span class="tb-title">aritmética en bash</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-prompt">$</span> echo <span class="t-exp">$((10 + 5))</span>
+<span class="t-out">15</span>
+
+<span class="t-prompt">$</span> echo <span class="t-exp">$((100 / 4))</span>
+<span class="t-out">25</span>
+
+<span class="t-prompt">$</span> PRECIO=150
+<span class="t-prompt">$</span> echo "Con descuento: <span class="t-exp">$((PRECIO * 80 / 100))</span>"
+<span class="t-out">Con descuento: 120</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     CANCELAR EXPANSIONES
+══════════════════════════════════ -->
+<section class="module" id="cancelar">
+  <div class="module-header">
+    <div class="module-icon">🚫</div>
+    <div>
+      <div class="module-title">Cancelar Expansiones — Quoting</div>
+      <div class="module-sub">1:39:01 — Cómo decirle a bash que NO expanda ciertos caracteres</div>
+    </div>
+  </div>
+
+  <p>A veces quieres que la shell trate un carácter especial como texto literal y no como instrucción. Los mecanismos de <strong>quoting</strong> (comillas) controlan exactamente esto.</p>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="tb-dot tb-red"></div><div class="tb-dot tb-yellow"></div><div class="tb-dot tb-green"></div>
+      <span class="tb-title">comillas dobles, simples y backslash</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-comment">############################################</span>
+<span class="t-comment"># COMILLAS DOBLES " " — protegen parcialmente</span>
+<span class="t-comment"># Evitan: * ? {} expansión de palabras</span>
+<span class="t-comment"># Permiten: $VAR $() $(()) (expansiones de variable)</span>
+<span class="t-comment">############################################</span>
+<span class="t-prompt">$</span> NOMBRE="Hugo"
+<span class="t-prompt">$</span> echo <span class="t-str">"Hola $NOMBRE, tienes $(ls | wc -l) archivos"</span>
+<span class="t-out">Hola Hugo, tienes 5 archivos</span>
+
+<span class="t-comment"># Los * no se expanden dentro de comillas dobles</span>
+<span class="t-prompt">$</span> echo <span class="t-str">"*.html"</span>
+<span class="t-out">*.html</span>          <span class="t-comment"># literal, no lista archivos</span>
+
+<span class="t-comment">############################################</span>
+<span class="t-comment"># COMILLAS SIMPLES ' ' — protección total</span>
+<span class="t-comment"># Todo adentro es literal — sin excepciones</span>
+<span class="t-comment">############################################</span>
+<span class="t-prompt">$</span> echo <span class="t-str">'Hola $NOMBRE, tienes $(ls) archivos'</span>
+<span class="t-out">Hola $NOMBRE, tienes $(ls) archivos</span>   <span class="t-comment"># todo literal</span>
+
+<span class="t-comment">############################################</span>
+<span class="t-comment"># BACKSLASH \ — escapa el siguiente carácter</span>
+<span class="t-comment">############################################</span>
+<span class="t-prompt">$</span> echo El precio es \$100
+<span class="t-out">El precio es $100</span>        <span class="t-comment"># el $ no se expande</span>
+
+<span class="t-prompt">$</span> echo Línea1\
+<span class="t-arg">&gt;</span> Línea2                  <span class="t-comment"># \ al final continúa el comando en la línea siguiente</span>
+<span class="t-out">Línea1Línea2</span>
+
+<span class="t-comment"># Útil para comandos muy largos:</span>
+<span class="t-prompt">$</span> curl -X POST \
+<span class="t-arg">&gt;</span>   -H "Content-Type: application/json" \
+<span class="t-arg">&gt;</span>   -d '{"nombre": "Hugo"}' \
+<span class="t-arg">&gt;</span>   https://api.ejemplo.com/datos
+    </div>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Mecanismo</th><th>Qué protege</th><th>Qué permite</th></tr></thead>
+    <tbody>
+      <tr><td>"comillas dobles"</td><td>Espacios, *, ?, {}, división de palabras</td><td>$VAR, $(), $(()) — expansiones de variables</td></tr>
+      <tr><td>'comillas simples'</td><td>TODO — protección absoluta</td><td>Nada — todo es literal</td></tr>
+      <tr><td>\ backslash</td><td>El siguiente carácter único</td><td>Todo lo demás sigue expandiéndose</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout tip">
+    <h4>🟢 Regla práctica</h4>
+    <ul>
+      <li>Usa <strong>comillas dobles</strong> cuando quieras incluir variables en un string: <code>"Hola $NOMBRE"</code></li>
+      <li>Usa <strong>comillas simples</strong> cuando todo deba ser literal: contraseñas, regex, texto con $ o !</li>
+      <li>Usa <strong>backslash</strong> para continuar comandos largos en varias líneas o escapar un carácter puntual</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     TRUCOS DE TECLADO
+══════════════════════════════════ -->
+<section class="module" id="teclado">
+  <div class="module-header">
+    <div class="module-icon">⌨️</div>
+    <div>
+      <div class="module-title">Trucos de teclado — Readline</div>
+      <div class="module-sub">1:45:05 — Los atajos que multiplican tu velocidad en la terminal</div>
+    </div>
+  </div>
+
+  <p>La mayoría de shells usan la librería <strong>Readline</strong> para manejar la entrada de texto. Sus atajos de teclado son los mismos en bash, zsh y muchos otros programas de terminal. Aprenderlos transforma tu flujo de trabajo.</p>
+
+  <h2>Movimiento en la línea de comandos</h2>
+  <div class="sc-grid">
+    <div class="sc-row"><span class="sc-key">Ctrl+A</span><span class="sc-desc">Ir al inicio de la línea</span></div>
+    <div class="sc-row"><span class="sc-key">Ctrl+E</span><span class="sc-desc">Ir al final de la línea</span></div>
+    <div class="sc-row"><span class="sc-key">Alt+F</span><span class="sc-desc">Avanzar una palabra hacia adelante</span></div>
+    <div class="sc-row"><span class="sc-key">Alt+B</span><span class="sc-desc">Retroceder una palabra hacia atrás</span></div>
+    <div class="sc-row"><span class="sc-key">Ctrl+F</span><span class="sc-desc">Avanzar un carácter (→)</span></div>
+    <div class="sc-row"><span class="sc-key">Ctrl+B</span><span class="sc-desc">Retroceder un carácter (←)</span></div>
+  </div>
+
+  <h2>Edición en la línea de comandos</h2>
+  <div class="sc-grid">
+    <div class="sc-row"><span class="sc-key">Ctrl+U</span><span class="sc-desc">Borrar desde el cursor hasta el inicio</span></div>
+    <div class="sc-row"><span class="sc-key">Ctrl+K</span><span class="sc-desc">Borrar desde el cursor hasta el final</span></div>
+    <div class="sc-row"><span class="sc-key">Ctrl+W</span><span class="sc-desc">Borrar la palabra anterior al cursor</span></div>
+    <div class="sc-row"><span class="sc-key">Alt+D</span><span class="sc-desc">Borrar la palabra siguiente al cursor</span></div>
+    <div class="sc-row"><span class="sc-key">Ctrl+Y</span><span class="sc-desc">Pegar lo último que se borró (yank)</span></div>
+    <div class="sc-row"><span class="sc-key">Ctrl+T</span><span class="sc-desc">Intercambiar el carácter actual con el anterior</span></div>
+    <div class="sc-row"><span class="sc-key">Alt+U</span><span class="sc-desc">Poner en MAYÚSCULAS hasta el final de la palabra</span></div>
+    <div class="sc-row"><span class="sc-key">Alt+L</span><span class="sc-desc">Poner en minúsculas hasta el final de la palabra</span></div>
+  </div>
+
+  <h2>Historial de comandos</h2>
+  <div class="sc-grid">
+    <div class="sc-row"><span class="sc-key">↑ / ↓</span><span class="sc-desc">Navegar el historial de comandos</span></div>
+    <div class="sc-row"><span class="sc-key">Ctrl+R</span><span class="sc-desc">Búsqueda incremental en el historial (el más útil)</span></div>
+    <div class="sc-row"><span class="sc-key">Ctrl+P</span><span class="sc-desc">Comando anterior (igual que ↑)</span></div>
+    <div class="sc-row"><span class="sc-key">Ctrl+N</span><span class="sc-desc">Comando siguiente (igual que ↓)</span></div>
+    <div class="sc-row"><span class="sc-key">!!</span><span class="sc-desc">Repite el último comando ejecutado</span></div>
+    <div class="sc-row"><span class="sc-key">!texto</span><span class="sc-desc">Repite el último comando que empieza con "texto"</span></div>
+    <div class="sc-row"><span class="sc-key">!$</span><span class="sc-desc">El último argumento del comando anterior</span></div>
+    <div class="sc-row"><span class="sc-key">Alt+.</span><span class="sc-desc">Inserta el último argumento del comando anterior</span></div>
+  </div>
+
+  <h2>Control de la terminal</h2>
+  <div class="sc-grid">
+    <div class="sc-row"><span class="sc-key">Tab</span><span class="sc-desc">Autocompletar comando, ruta o argumento</span></div>
+    <div class="sc-row"><span class="sc-key">Tab Tab</span><span class="sc-desc">Muestra todas las opciones de autocompletado</span></div>
+    <div class="sc-row"><span class="sc-key">Ctrl+C</span><span class="sc-desc">Interrumpir/cancelar el proceso en ejecución</span></div>
+    <div class="sc-row"><span class="sc-key">Ctrl+Z</span><span class="sc-desc">Suspender el proceso (mandarlo al background)</span></div>
+    <div class="sc-row"><span class="sc-key">Ctrl+D</span><span class="sc-desc">EOF — fin de entrada / cerrar la terminal</span></div>
+    <div class="sc-row"><span class="sc-key">Ctrl+L</span><span class="sc-desc">Limpiar pantalla (igual que clear)</span></div>
+    <div class="sc-row"><span class="sc-key">Ctrl+S</span><span class="sc-desc">Pausar la salida en pantalla</span></div>
+    <div class="sc-row"><span class="sc-key">Ctrl+Q</span><span class="sc-desc">Reanudar la salida (despausa Ctrl+S)</span></div>
+  </div>
+
+  <h2>El truco más poderoso: Ctrl+R para buscar en el historial</h2>
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="tb-dot tb-red"></div><div class="tb-dot tb-yellow"></div><div class="tb-dot tb-green"></div>
+      <span class="tb-title">Ctrl+R — búsqueda en historial</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-comment"># Presiona Ctrl+R y empieza a escribir parte del comando</span>
+<span class="t-comment"># La shell busca en tiempo real en tu historial</span>
+
+(reverse-i-search)`git': <span class="t-cmd">git commit -m "primera versión"</span>
+
+<span class="t-comment"># Ctrl+R de nuevo para ir al resultado anterior</span>
+<span class="t-comment"># Enter para ejecutar el comando encontrado</span>
+<span class="t-comment"># Ctrl+C para cancelar la búsqueda</span>
+<span class="t-comment"># → o Ctrl+E para editar el comando antes de ejecutar</span>
+
+<span class="t-comment"># Truco: sudo !! — repite el último comando con sudo</span>
+<span class="t-prompt">$</span> apt update
+<span class="t-err">E: Could not open lock file... Permission denied</span>
+<span class="t-prompt">$</span> sudo !!
+<span class="t-comment"># Ejecuta: sudo apt update</span>
+
+<span class="t-comment"># Truco: !$ — usa el último argumento</span>
+<span class="t-prompt">$</span> mkdir <span class="t-arg">nueva-carpeta</span>
+<span class="t-prompt">$</span> cd !$              <span class="t-comment"># cd nueva-carpeta</span>
+    </div>
+  </div>
+
+  <div class="callout tip">
+    <h4>🟢 Los 5 atajos que más van a cambiar tu velocidad</h4>
+    <ul>
+      <li><strong>Ctrl+R</strong> — busca cualquier comando en tu historial en tiempo real</li>
+      <li><strong>Ctrl+A / Ctrl+E</strong> — inicio y fin de línea sin usar el ratón</li>
+      <li><strong>Ctrl+U</strong> — borra toda la línea instantáneamente</li>
+      <li><strong>Tab</strong> — autocompletado de rutas y comandos (úsalo siempre)</li>
+      <li><strong>!!</strong> + <strong>sudo !!</strong> — repite el último comando (especialmente útil con sudo)</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════
+     EJERCICIO
+══════════════════════════════════ -->
+<section class="module" id="ejercicio">
+  <div class="module-header">
+    <div class="module-icon">✏️</div>
+    <div>
+      <div class="module-title">Ejercicio — Pipes, comodines y expansiones</div>
+      <div class="module-sub">Pon en práctica todo lo de la Parte C</div>
+    </div>
+  </div>
+
+  <div class="ejercicio">
+    <div class="ej-header">✏️ Ejercicio Parte C <span class="ej-badge">Intermedio</span></div>
+    <ol>
+      <li>Crea esta estructura de golpe con expansión de llaves:<br>
+          <code>mkdir -p practica-c/{html,css,js,img,docs}</code><br>
+          <code>touch practica-c/html/{index,about,contacto}.html</code><br>
+          <code>touch practica-c/css/{style,reset,variables}.css</code><br>
+          <code>touch practica-c/js/{app,utils,api}.js</code>
+      </li>
+      <li>Entra a <code>practica-c/</code> y lista solo los archivos HTML: <code>ls html/*.html</code></li>
+      <li>Cuenta cuántos archivos CSS hay: <code>ls css/ | wc -l</code></li>
+      <li>Busca todos los archivos .js recursivamente: <code>find . -name "*.js"</code></li>
+      <li>Crea un archivo con texto y usa grep: <br>
+          <code>echo -e "error: algo falló\ninfo: todo ok\nerror: timeout\ndebug: iniciando" &gt; log.txt</code><br>
+          Luego: <code>grep "error" log.txt</code> y <code>grep -c "error" log.txt</code>
+      </li>
+      <li>Cuenta líneas en todos los archivos HTML a la vez: <code>cat html/*.html | wc -l</code></li>
+      <li>Guarda la lista de archivos JS en un archivo: <code>ls js/ &gt; lista-js.txt</code></li>
+      <li>Agrega la lista de archivos CSS al mismo archivo: <code>ls css/ &gt;&gt; lista-js.txt</code></li>
+      <li>Práctica de Ctrl+R: ejecuta 5 comandos, luego presiona Ctrl+R y busca uno de ellos.</li>
+      <li>Práctica del historial: ejecuta <code>mkdir test-final</code>, luego <code>cd !$</code></li>
+      <li>Demuestra la diferencia entre comillas: <br>
+          <code>echo "$HOME es mi home"</code> (expande la variable)<br>
+          <code>echo '$HOME es mi home'</code> (literal)
+      </li>
+    </ol>
+  </div>
+
+  <div class="callout tip">
+    <h4>🟢 Resumen de la Parte C</h4>
+    <ul>
+      <li><code>|</code> (pipe) — conecta la salida de un comando a la entrada del siguiente</li>
+      <li>Comandos clave con pipes: <code>grep</code>, <code>wc -l</code>, <code>sort</code>, <code>uniq</code>, <code>cut</code>, <code>tr</code>, <code>tee</code>, <code>head</code>, <code>tail</code></li>
+      <li><code>grep -i -n -r -v -c -C</code> — el filtrador más versátil de la terminal</li>
+      <li>Redirección: <code>&gt;</code> sobreescribe, <code>&gt;&gt;</code> agrega, <code>2&gt;</code> errores, <code>/dev/null</code> descarta</li>
+      <li>Comodines: <code>*</code> cualquier cosa, <code>?</code> un carácter, <code>[abc]</code> uno de esos caracteres</li>
+      <li>Expansión de llaves: <code>{a,b,c}</code> y rangos <code>{1..10}</code> — muy útil para crear múltiples archivos</li>
+      <li>Variables: <code>$VAR</code>, <code>$HOME</code>, <code>$USER</code>, <code>$PWD</code>, <code>$PATH</code>, <code>$SHELL</code></li>
+      <li>Sustitución: <code>$(comando)</code> — usa la salida de un comando como argumento</li>
+      <li>Aritmética: <code>$((expr))</code> — operaciones matemáticas en bash</li>
+      <li>Comillas dobles <code>" "</code>: protegen espacios pero permiten <code>$VAR</code>. Simples <code>' '</code>: todo literal.</li>
+      <li>Atajos clave: <code>Ctrl+R</code> historial, <code>Ctrl+A/E</code> inicio/fin, <code>Ctrl+U</code> borra línea, <code>Tab</code> autocompleta</li>
+    </ul>
+  </div>
+
+  <div class="callout info">
+    <h4>💡 ¿Qué sigue? — Parte D (la última)</h4>
+    <p>La Parte D cubre lo más avanzado: <strong>permisos, chmod, umask, permisos especiales, cambiar de identidad, chown, crear usuarios, procesos, señales y apagar el sistema</strong>. Del 1:52:50 al 2:47:50 — el tema más importante para trabajar en servidores reales.</p>
+  </div>
+</section>
+</main>
+
+<footer>
+  Guía Linux · Parte C · Basado en curso de Linux completo · Café &lt;/&gt; · Hugo 2025
+</footer>
+
+</body>
+</html>

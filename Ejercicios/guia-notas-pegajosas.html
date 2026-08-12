@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Guía — HTML, CSS y JavaScript: construye tu propia app de Notas Pegajosas desde cero.">
+<meta name="author" content="Hugo">
+<title>Guía — Notas Pegajosas | HTML, CSS &amp; JavaScript</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #7c5cd4;
+    --primary-light:  #f2eefb;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --danger:         #c44a2a;
+    --danger-light:   #fdf0ec;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1a1814;
+    --code-text:      #e8e4de;
+  }
+
+  body { font-family: 'DM Sans', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  /* TOPBAR */
+  .topbar { background:#ffffff; border-bottom:1px solid var(--border); padding:0 24px; display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:200; height:45px; flex-wrap: nowrap; }
+  .topbar a { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--muted); text-decoration:none; padding:6px 14px; border:1px solid var(--border); border-radius:999px; transition:all 0.15s; }
+  .topbar a:hover { color:var(--text); border-color:#8a8480; }
+  .topbar a.ej-activo { background:var(--primary); color:#fff; border-color:var(--primary); font-weight:600; }
+  .topbar a.ej-activo:hover { background:var(--primary); color:#fff; border-color:var(--primary); }
+  .topbar-nav { display:flex; align-items:center; gap:8px; overflow-x:auto; min-width:0; flex:1; scrollbar-width:none; -webkit-overflow-scrolling:touch; cursor: grab; }
+  .topbar-nav::-webkit-scrollbar { display:none; }
+  .topbar-nav a { flex-shrink:0; }
+  .topbar-label { flex-shrink:0; }
+  @media (max-width:480px) { .topbar-label, .topbar-sep { display:none; } .topbar a[href*="capitulos"] { flex-shrink:0; padding:6px 10px; } }
+  .topbar span { font-size:13px; color:var(--muted); }
+
+  /* HEADER */
+  header { background: #1a1814; color: #f7f4ef; padding: 3rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: '📌'; position: absolute; font-size: 12rem; right: -1rem; top: -2rem; opacity: .06; line-height: 1; }
+  header .ex-label { display: inline-block; background: var(--primary); color: white; border-radius: 20px; padding: 4px 16px; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 1rem; }
+  header h1 { font-size: 2.4rem; font-weight: 800; letter-spacing: -1px; }
+  header p.sub { font-size: 1.05rem; opacity: .8; margin-top: .5rem; font-style: italic; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  /* NAV */
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 45px; z-index: 100; display: flex; overflow-x: auto; gap: 0; }
+  nav a { flex-shrink: 0; padding: .75rem 1.1rem; text-decoration: none; color: var(--muted); font-size: .82rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  /* MAIN */
+  main { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: white; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  /* MODULE */
+  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2.5rem; scroll-margin-top: 20px; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-size: 1.35rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  /* CALLOUT BOXES */
+  .analogy { background: #FFF7ED; border: 1px solid #FDE68A; border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: #92400E; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; color: #78350F; }
+
+  .concept { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p, .tip ul { font-size: .95rem; }
+  .tip ul { padding-left: 1.2rem; }
+  .tip li { margin-bottom: .3rem; }
+
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  .reto-box { background: #F0F4FF; border: 1px solid #C7D2FE; border-left: 4px solid #4F46E5; border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .reto-box h4 { color: #4338CA; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .reto-box p { font-size: .95rem; }
+
+  /* CODE BLOCKS */
+  .code-block { background: var(--code-bg); color: var(--code-text); border-radius: 10px; padding: 1.25rem 1.5rem; font-family: 'DM Mono', 'Courier New', monospace; font-size: .85rem; line-height: 1.85; overflow-x: auto; margin: 1rem 0; position: relative; white-space: pre; }
+  .code-block .ct { color: #89B4FA; }
+  .code-block .ca { color: #CBA6F7; }
+  .code-block .cv { color: #A6E3A1; }
+  .code-block .cs { color: #F9E2AF; }
+  .code-block .cp { color: #89DCEB; }
+  .code-block .cc { color: #585B70; font-style: italic; }
+  .code-block .cn { color: #FAB387; }
+  .code-block .ck { color: #F38BA8; }
+  .lang { position: absolute; top: .6rem; right: .75rem; background: rgba(255,255,255,.1); color: rgba(255,255,255,.5); font-size: .68rem; padding: 2px 8px; border-radius: 4px; font-family: sans-serif; }
+
+  /* TABLES */
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+
+  /* RETO CARDS */
+  .reto-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin: 1.25rem 0; }
+  .reto-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+  .reto-card .nivel { display: inline-block; font-size: .72rem; font-weight: 700; padding: 2px 10px; border-radius: 20px; margin-bottom: .6rem; text-transform: uppercase; letter-spacing: .06em; }
+  .nivel-f { background: #FEF3C7; color: #92400E; }
+  .nivel-m { background: #FFEDD5; color: #C2410C; }
+  .nivel-a { background: #FEE2E2; color: #B91C1C; }
+  .reto-card h4 { font-size: .95rem; font-weight: 700; margin-bottom: .5rem; }
+  .reto-card p { font-size: .88rem; color: var(--muted); margin-bottom: .5rem; }
+  .reto-card strong { color: var(--text); }
+
+  /* GLOSARIO GRID */
+  .glos { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .glos-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; }
+  .glos-item dt { font-weight: 700; color: var(--primary); font-size: .92rem; margin-bottom: .3rem; }
+  .glos-item dd { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+  .glos-item .emoji { font-size: 1.4rem; display: block; margin-bottom: .4rem; }
+
+  /* RESUMEN CHIPS */
+  .chip { display: inline-block; background: var(--primary-light); color: var(--primary); font-size: .8rem; padding: 3px 12px; border-radius: 20px; font-weight: 600; margin: 3px; font-family: 'DM Mono', monospace; }
+
+  /* CHECKLIST */
+  .check { list-style: none; padding-left: 0; }
+  .check li { position: relative; padding-left: 1.6rem; margin-bottom: .5rem; font-size: .95rem; }
+  .check li::before { content: '☐'; position: absolute; left: 0; color: var(--primary); font-weight: 700; }
+
+  /* TYPOGRAPHY */
+  h2 { font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; color: var(--text); }
+  h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 .5rem; }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: #f0ece6; color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  strong { font-weight: 700; }
+  em { font-style: italic; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <a href="../capitulos.html?tab=ejercicios">← Volver al curso</a>
+  <span class="topbar-sep">|</span>
+  <span class="topbar-label">Ejercicios:</span>
+  <div class="topbar-nav">
+    <a href="ejercicio1-receta-tacos.html">🌮 Ej1</a>
+    <a href="ejercicio2-pagina-negocio.html">🛍 Ej2</a>
+    <a href="ejercicio3-repaso-completo-barberia.html">💈 EjR</a>
+    <a href="ejercicio3-perfil-futbol.html">⚽ Ej3</a>
+    <a href="ejercicio4-pagina-contacto.html">📬 Ej4</a>
+    <a href="ejercicio5-portfolio-responsive.html">📱 Ej5</a>
+    <a href="ejercicio6-dashboard-metricas.html">📊 Ej6</a>
+    <a href="guia-notas-pegajosas.html" class="ej-activo">📌 Notas</a>
+  </div>
+</div>
+
+<header>
+  <div class="ex-label">📌 Proyecto propio</div>
+  <h1>Notas Pegajosas</h1>
+  <p class="sub">Tu propia app de notas, construida desde cero paso a paso</p>
+  <span class="badge">🎯 Arrays y objetos · DOM · Eventos · Flexbox · Animaciones CSS</span>
+</header>
+
+<nav>
+  <a href="#aprenderas">🎓 ¿Qué aprenderás?</a>
+  <a href="#vocabulario">📖 Vocabulario</a>
+  <a href="#archivos">📁 Archivos</a>
+  <a href="#html">🧱 HTML</a>
+  <a href="#css">🎨 CSS</a>
+  <a href="#js">⚙️ JavaScript</a>
+  <a href="#retos">🏆 Retos</a>
+  <a href="#resumen">📋 Resumen</a>
+</nav>
+
+<main>
+
+<div class="parte-badge">📌 Reconstruyendo Notas Pegajosas desde cero — no copies, escribe tú cada bloque</div>
+
+<!-- ══════════════════════════════════
+     QUÉ VAS A APRENDER
+══════════════════════════════════ -->
+<section class="module" id="aprenderas">
+  <div class="module-header">
+    <div class="module-icon">🎓</div>
+    <div>
+      <div class="module-title">¿Qué vas a aprender en este proyecto?</div>
+      <div class="module-sub">Ya sabes HTML/CSS básico (ejercicios 1 y 2). Aquí subimos de nivel con JavaScript real</div>
+    </div>
+  </div>
+
+  <div class="glos">
+    <div class="glos-item">
+      <span class="emoji">📦</span>
+      <dt>Datos</dt>
+      <dd>Arrays y objetos — cómo guardar tus notas como información, no como HTML escrito a mano</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🌳</span>
+      <dt>DOM</dt>
+      <dd><code>createElement</code>, <code>appendChild</code>, <code>innerHTML</code> — cómo JS construye HTML en vivo</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🖱</span>
+      <dt>Eventos</dt>
+      <dd><code>addEventListener</code> — hacer que la página reaccione a clics</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🧩</span>
+      <dt>CSS avanzado</dt>
+      <dd>Variables CSS, <code>@keyframes</code>, <code>flexbox</code>, <code>line-clamp</code></dd>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>💡 Cómo usar esta guía</h4>
+    <p>Cada bloque de código viene con un <strong>reto</strong> antes. Intenta escribirlo tú primero, en tu editor, y compara después. Si no te sale a la primera, no pasa nada — el punto es que lo pienses, no que lo copies.</p>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════
+     VOCABULARIO
+══════════════════════════════════ -->
+<section class="module" id="vocabulario">
+  <div class="module-header">
+    <div class="module-icon">📖</div>
+    <div>
+      <div class="module-title">PARTE 1 — Vocabulario nuevo de JavaScript</div>
+      <div class="module-sub">Estas palabras van a aparecer todo el tiempo, apréndetelas antes de escribir código</div>
+    </div>
+  </div>
+
+  <h2>¿Qué es un Array?</h2>
+  <p>Un <strong>array</strong> es una lista ordenada de datos, escrita entre corchetes <code>[ ]</code> y separada por comas. Piensa en él como una fila de casilleros numerados, donde el primero es el casillero <code>0</code>.</p>
+
+  <div class="code-block"><span class="lang">JS</span><span class="ca">const</span> <span class="cp">materias</span> = <span class="ct">[</span><span class="cs">"Cálculo"</span>, <span class="cs">"Historia"</span>, <span class="cs">"Programación"</span><span class="ct">]</span>;</div>
+
+  <div class="analogy">
+    <h4>🎒 Analogía: los casilleros de un lócker</h4>
+    <p>Un array es como una fila de casilleros numerados en un gimnasio. El casillero 0 tiene tu primer objeto, el casillero 1 el segundo, y así. Para sacar algo, dices el número: <code>materias[0]</code> te da <code>"Cálculo"</code>.</p>
+  </div>
+
+  <hr>
+
+  <h2>¿Qué es un Objeto?</h2>
+  <p>Un <strong>objeto</strong> agrupa varios datos relacionados bajo un nombre, escrito entre llaves <code>{ }</code> con pares <code>propiedad: valor</code>. Es perfecto para describir "una cosa" con varias características.</p>
+
+  <div class="code-block"><span class="lang">JS</span><span class="ca">const</span> <span class="cp">nota</span> = <span class="ct">{</span>
+  <span class="ca">titulo</span>: <span class="cs">"Cálculo I"</span>,
+  <span class="ca">color</span>: <span class="cs">"amarillo"</span>,
+  <span class="ca">emoji</span>: <span class="cs">"📐"</span>
+<span class="ct">}</span>;</div>
+
+  <div class="analogy">
+    <h4>🪪 Analogía: una credencial</h4>
+    <p>Un objeto es como tu credencial de estudiante: tiene varios campos (nombre, matrícula, carrera) todos pegados en una sola tarjeta. Accedes a cada dato con un punto: <code>nota.titulo</code> te da <code>"Cálculo I"</code>.</p>
+  </div>
+
+  <hr>
+
+  <h2>¿Qué es el DOM?</h2>
+  <p>El <strong>DOM</strong> (Document Object Model) es la representación en memoria de tu página HTML, con la que JavaScript puede hablar directamente: crear elementos, borrarlos, cambiarles el texto o el estilo — todo sin recargar la página.</p>
+
+  <div class="concept">
+    <h4>💡 La idea central de este proyecto</h4>
+    <p>En vez de escribir cada nota a mano en el HTML, vas a escribir los <strong>datos</strong> en un array de JavaScript, y una función va a recorrer ese array y construir el HTML de cada nota usando el DOM. Cambiar una nota es editar un objeto, no buscar y editar HTML.</p>
+  </div>
+
+  <hr>
+
+  <h2>¿Qué es un Evento?</h2>
+  <p>Un <strong>evento</strong> es algo que pasa en la página — un clic, pasar el mouse, cambiar el tamaño de la ventana. Con <code>addEventListener</code> le dices a JavaScript "cuando pase esto, ejecuta esta función".</p>
+
+  <div class="code-block"><span class="lang">JS</span><span class="cp">boton</span>.<span class="ca">addEventListener</span>(<span class="cs">"click"</span>, <span class="ck">function</span> () <span class="ct">{</span>
+  <span class="cc">// esto se ejecuta cada vez que hacen clic en boton</span>
+<span class="ct">}</span>);</div>
+</section>
+
+<!-- ══════════════════════════════════
+     ARCHIVOS
+══════════════════════════════════ -->
+<section class="module" id="archivos">
+  <div class="module-header">
+    <div class="module-icon">📁</div>
+    <div>
+      <div class="module-title">PARTE 2 — Organiza tus archivos</div>
+      <div class="module-sub">Igual que en los ejercicios 1 y 2, pero ahora con 3 archivos separados</div>
+    </div>
+  </div>
+
+  <p>Crea una carpeta <code>notas-pegajosas</code> con esta estructura:</p>
+
+  <div class="code-block"><span class="lang">estructura</span>notas-pegajosas/
+├── index.html
+├── css/
+│   └── style.css
+└── js/
+    └── script.js</div>
+
+  <div class="concept">
+    <h4>💡 ¿Por qué separar en carpetas css/ y js/?</h4>
+    <p>Cuando un proyecto crece, tener todo suelto en la raíz se vuelve un caos. Meter los estilos en <code>css/</code> y la lógica en <code>js/</code> es la convención que vas a ver en casi cualquier proyecto profesional.</p>
+  </div>
+
+  <ul class="check">
+    <li>Carpeta <code>notas-pegajosas/</code> creada</li>
+    <li>Subcarpeta <code>css/</code> con <code>style.css</code> vacío</li>
+    <li>Subcarpeta <code>js/</code> con <code>script.js</code> vacío</li>
+    <li><code>index.html</code> en la raíz</li>
+  </ul>
+</section>
+
+<!-- ══════════════════════════════════
+     HTML
+══════════════════════════════════ -->
+<section class="module" id="html">
+  <div class="module-header">
+    <div class="module-icon">🧱</div>
+    <div>
+      <div class="module-title">PARTE 3 — El HTML</div>
+      <div class="module-sub">Un esqueleto muy corto a propósito: casi todo lo va a construir JavaScript</div>
+    </div>
+  </div>
+
+  <h2>Bloque 1 — La base del documento</h2>
+
+  <div class="reto-box">
+    <h4>🧪 Reto</h4>
+    <p>Escribe la estructura mínima de un HTML5: doctype, <code>&lt;html lang="es"&gt;</code>, <code>&lt;head&gt;</code> con charset, viewport y title, enlace a <code>css/style.css</code>, y un <code>&lt;body&gt;</code> vacío.</p>
+  </div>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="ct">&lt;!DOCTYPE html&gt;</span>
+<span class="ct">&lt;html</span> <span class="ca">lang</span>=<span class="cv">"es"</span><span class="ct">&gt;</span>
+<span class="ct">&lt;head&gt;</span>
+  <span class="ct">&lt;meta</span> <span class="ca">charset</span>=<span class="cv">"UTF-8"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;meta</span> <span class="ca">name</span>=<span class="cv">"viewport"</span> <span class="ca">content</span>=<span class="cv">"width=device-width, initial-scale=1.0"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;title&gt;</span><span class="cs">Mis Notas</span><span class="ct">&lt;/title&gt;</span>
+  <span class="ct">&lt;link</span> <span class="ca">rel</span>=<span class="cv">"stylesheet"</span> <span class="ca">href</span>=<span class="cv">"css/style.css"</span><span class="ct">&gt;</span>
+<span class="ct">&lt;/head&gt;</span>
+<span class="ct">&lt;body&gt;</span>
+
+<span class="ct">&lt;/body&gt;</span>
+<span class="ct">&lt;/html&gt;</span></div>
+
+  <div class="concept">
+    <h4>💡 ¿Por qué el link va antes de cerrar head?</h4>
+    <p>El navegador lee de arriba hacia abajo. Poniendo el CSS en <code>&lt;head&gt;</code>, se carga antes de mostrar el contenido — así evitas ese parpadeo feo donde la página aparece sin estilos por medio segundo.</p>
+  </div>
+
+  <hr>
+
+  <h2>Bloque 2 — Encabezado y contenedor vacío</h2>
+
+  <div class="reto-box">
+    <h4>🧪 Reto</h4>
+    <p>Dentro del <code>&lt;body&gt;</code>, agrega un <code>&lt;header&gt;</code> con un <code>&lt;h1&gt;</code> (el título de tu app) y un <code>&lt;button&gt;</code> con <code>id="btn-agregar"</code>. Debajo, agrega un <code>&lt;main&gt;</code> con <code>id="contenedor-notas"</code>, <strong>vacío a propósito</strong>.</p>
+  </div>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="ct">&lt;header&gt;</span>
+  <span class="ct">&lt;h1&gt;</span><span class="cs">📌 Mis materias</span><span class="ct">&lt;/h1&gt;</span>
+  <span class="ct">&lt;button</span> <span class="ca">id</span>=<span class="cv">"btn-agregar"</span><span class="ct">&gt;</span><span class="cs">+ nueva nota</span><span class="ct">&lt;/button&gt;</span>
+<span class="ct">&lt;/header&gt;</span>
+
+<span class="ct">&lt;main</span> <span class="ca">id</span>=<span class="cv">"contenedor-notas"</span><span class="ct">&gt;&lt;/main&gt;</span>
+
+<span class="ct">&lt;script</span> <span class="ca">src</span>=<span class="cv">"js/script.js"</span><span class="ct">&gt;&lt;/script&gt;</span></div>
+
+  <div class="concept">
+    <h4>💡 ¿Por qué el contenedor está vacío?</h4>
+    <p>Porque no vas a escribir las notas a mano. JavaScript va a leer tu array de datos y meter cada nota ahí dentro. Si ves este <code>&lt;main&gt;</code> vacío en el HTML, es correcto — así debe estar.</p>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ El script va al final del body</h4>
+    <p>Si pones <code>&lt;script&gt;</code> en el <code>&lt;head&gt;</code>, JavaScript intentaría buscar el <code>&lt;main&gt;</code> antes de que exista, y fallaría. Ponerlo al final del <code>&lt;body&gt;</code> garantiza que todo el HTML ya está cargado.</p>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════
+     CSS
+══════════════════════════════════ -->
+<section class="module" id="css">
+  <div class="module-header">
+    <div class="module-icon">🎨</div>
+    <div>
+      <div class="module-title">PARTE 4 — El CSS</div>
+      <div class="module-sub">Reset, layout de columnas y el estilo de la tarjeta "post-it"</div>
+    </div>
+  </div>
+
+  <h2>Bloque 1 — Reset y fondo</h2>
+
+  <div class="reto-box">
+    <h4>🧪 Reto</h4>
+    <p>En <code>css/style.css</code>, escribe un reset universal (margin, padding, box-sizing) y el estilo base del <code>body</code> con una tipografía y un color de fondo tipo "corcho".</p>
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">*</span> <span class="ct">{</span>
+  <span class="ca">margin</span>: <span class="cn">0</span>;
+  <span class="ca">padding</span>: <span class="cn">0</span>;
+  <span class="ca">box-sizing</span>: <span class="cn">border-box</span>;
+<span class="ct">}</span>
+
+<span class="cp">body</span> <span class="ct">{</span>
+  <span class="ca">font-family</span>: <span class="cn">'Segoe UI'</span>, sans-serif;
+  <span class="ca">background-color</span>: <span class="cn">#f4f1ea</span>;
+  <span class="ca">min-height</span>: <span class="cn">100vh</span>;
+  <span class="ca">padding</span>: <span class="cn">40px 20px</span>;
+<span class="ct">}</span></div>
+
+  <div class="concept">
+    <h4>💡 ¿Por qué box-sizing: border-box?</h4>
+    <p>Sin esto, el padding y el borde se <strong>suman</strong> al ancho que definas, y calcular tamaños se vuelve un dolor de cabeza. Con <code>border-box</code>, el ancho que pones ya incluye padding y borde — es el estándar en casi todo proyecto moderno.</p>
+  </div>
+
+  <hr>
+
+  <h2>Bloque 2 — El contenedor en columnas (layout tipo muro)</h2>
+
+  <div class="reto-box">
+    <h4>🧪 Reto</h4>
+    <p>Dale a <code>#contenedor-notas</code> un <code>display: flex</code> con <code>gap</code>, y crea una clase <code>.columna</code> que sea también flex, en columna, con su propio <code>gap</code>. Este contenedor no va a tener las notas directas — va a tener 3 columnas, y cada columna va a tener sus notas.</p>
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">#contenedor-notas</span> <span class="ct">{</span>
+  <span class="ca">max-width</span>: <span class="cn">900px</span>;
+  <span class="ca">margin</span>: <span class="cn">0 auto</span>;
+  <span class="ca">display</span>: <span class="cn">flex</span>;
+  <span class="ca">align-items</span>: <span class="cn">flex-start</span>;
+  <span class="ca">gap</span>: <span class="cn">20px</span>;
+<span class="ct">}</span>
+
+<span class="cp">.columna</span> <span class="ct">{</span>
+  <span class="ca">flex</span>: <span class="cn">1</span>;
+  <span class="ca">display</span>: <span class="cn">flex</span>;
+  <span class="ca">flex-direction</span>: <span class="cn">column</span>;
+  <span class="ca">gap</span>: <span class="cn">20px</span>;
+  <span class="ca">min-width</span>: <span class="cn">0</span>;
+<span class="ct">}</span></div>
+
+  <div class="analogy">
+    <h4>🧱 Analogía: 3 pilas de cartas</h4>
+    <p>En vez de repartir las notas en una sola cuadrícula (donde una nota alta deja huecos al lado), piensa en 3 pilas verticales. Cada nota nueva se va a la pila más corta en ese momento, así todas las pilas crecen parejo — como cuando repartes cartas a 3 jugadores intentando que nadie tenga muchas más que otro.</p>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ ¿Por qué no usar CSS Grid o column-count?</h4>
+    <p><code>display: grid</code> estira todas las notas de una fila a la altura de la más alta — deja huecos feos. <code>column-count</code> reparte de arriba hacia abajo en cada columna antes de pasar a la siguiente, no de izquierda a derecha. Ninguno de los dos hace lo que buscas con solo CSS — por eso, más adelante, JavaScript va a decidir en qué columna va cada nota.</p>
+  </div>
+
+  <hr>
+
+  <h2>Bloque 3 — La tarjeta de nota</h2>
+
+  <div class="reto-box">
+    <h4>🧪 Reto</h4>
+    <p>Crea la clase <code>.nota</code> con padding, bordes redondeados, una altura fija de <code>180px</code>, <code>overflow: hidden</code>, sombra suave y <code>cursor: pointer</code>. Usa <code>display: flex; flex-direction: column;</code> para acomodar el título y el texto verticalmente.</p>
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">.nota</span> <span class="ct">{</span>
+  <span class="ca">padding</span>: <span class="cn">18px</span>;
+  <span class="ca">border-radius</span>: <span class="cn">4px</span>;
+  <span class="ca">height</span>: <span class="cn">180px</span>;
+  <span class="ca">overflow</span>: <span class="cn">hidden</span>;
+  <span class="ca">box-shadow</span>: <span class="cn">0 4px 10px rgba(0,0,0,.15)</span>;
+  <span class="ca">display</span>: <span class="cn">flex</span>;
+  <span class="ca">flex-direction</span>: <span class="cn">column</span>;
+  <span class="ca">gap</span>: <span class="cn">8px</span>;
+  <span class="ca">cursor</span>: <span class="cn">pointer</span>;
+  <span class="ca">transform</span>: <span class="cn">rotate(var(--rotacion, 0deg))</span>;
+<span class="ct">}</span></div>
+
+  <div class="concept">
+    <h4>💡 ¿Qué es <code>var(--rotacion, 0deg)</code>?</h4>
+    <p><code>--rotacion</code> es una <strong>variable CSS personalizada</strong>, distinta en cada nota. Aquí no le damos un valor fijo — JavaScript se lo va a asignar a cada tarjeta con un número aleatorio, para el efecto "post-it real" con leve inclinación. El <code>0deg</code> es el valor por defecto, por si alguna nota no la tiene.</p>
+  </div>
+
+  <p>Ahora el <code>:hover</code> — que la nota se enderece y crezca un poco al pasar el mouse:</p>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">.nota:hover</span> <span class="ct">{</span>
+  <span class="ca">transform</span>: <span class="cn">rotate(0deg) scale(1.03)</span>;
+  <span class="ca">box-shadow</span>: <span class="cn">0 8px 16px rgba(0,0,0,.22)</span>;
+  <span class="ca">z-index</span>: <span class="cn">5</span>;
+<span class="ct">}</span></div>
+
+  <hr>
+
+  <h2>Bloque 4 — Recortar texto largo (line-clamp)</h2>
+
+  <div class="reto-box">
+    <h4>🧪 Reto</h4>
+    <p>Dentro de <code>.nota p</code>, usa <code>-webkit-line-clamp</code> para que el texto se corte después de 5 líneas y no rompa el tamaño fijo de la tarjeta.</p>
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">.nota p</span> <span class="ct">{</span>
+  <span class="ca">font-size</span>: <span class="cn">14px</span>;
+  <span class="ca">line-height</span>: <span class="cn">1.4</span>;
+  <span class="ca">white-space</span>: <span class="cn">pre-line</span>;
+  <span class="ca">display</span>: <span class="cn">-webkit-box</span>;
+  <span class="ca">-webkit-line-clamp</span>: <span class="cn">5</span>;
+  <span class="ca">-webkit-box-orient</span>: <span class="cn">vertical</span>;
+  <span class="ca">overflow</span>: <span class="cn">hidden</span>;
+<span class="ct">}</span></div>
+
+  <div class="concept">
+    <h4>💡 ¿Por qué <code>white-space: pre-line</code>?</h4>
+    <p>Por defecto, HTML ignora los saltos de línea del texto. <code>pre-line</code> le dice al navegador "respeta los <code>\n</code> que vengan del texto" — así puedes escribir notas con varias líneas en tu array de JS.</p>
+  </div>
+
+  <hr>
+
+  <h2>Bloque 5 — Nota expandida (clic para ver todo)</h2>
+
+  <div class="reto-box">
+    <h4>🧪 Reto</h4>
+    <p>Crea una clase <code>.nota--expandida</code> que quite la altura fija, y otra regla <code>.nota--expandida p</code> que anule el <code>line-clamp</code> para mostrar el texto completo.</p>
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">.nota--expandida</span> <span class="ct">{</span>
+  <span class="ca">height</span>: <span class="cn">auto</span>;
+  <span class="ca">min-height</span>: <span class="cn">180px</span>;
+  <span class="ca">z-index</span>: <span class="cn">10</span>;
+<span class="ct">}</span>
+
+<span class="cp">.nota--expandida p</span> <span class="ct">{</span>
+  <span class="ca">-webkit-line-clamp</span>: <span class="cn">unset</span>;
+  <span class="ca">display</span>: <span class="cn">block</span>;
+  <span class="ca">overflow</span>: <span class="cn">visible</span>;
+<span class="ct">}</span></div>
+
+  <div class="tip">
+    <h4>💡 Esta clase no hace nada todavía</h4>
+    <p>Aquí solo defines <em>cómo se ve</em> una nota con esa clase. Quién <strong>agrega y quita</strong> la clase al hacer clic es JavaScript — lo vas a conectar en la siguiente parte.</p>
+  </div>
+
+  <hr>
+
+  <h2>Bloque 6 — Colores y animación de entrada</h2>
+
+  <div class="reto-box">
+    <h4>🧪 Reto</h4>
+    <p>Crea al menos 5 clases de color pastel (una por línea, solo <code>background-color</code>). Después, escribe un <code>@keyframes aparecer</code> que anime opacidad y una pequeña traslación/escala al aparecer.</p>
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">.amarillo</span> <span class="ct">{</span> <span class="ca">background-color</span>: <span class="cn">#fdf1a1</span>; <span class="ct">}</span>
+<span class="cp">.verde</span>    <span class="ct">{</span> <span class="ca">background-color</span>: <span class="cn">#c9f2c0</span>; <span class="ct">}</span>
+<span class="cp">.rosa</span>     <span class="ct">{</span> <span class="ca">background-color</span>: <span class="cn">#f9c9dd</span>; <span class="ct">}</span>
+<span class="cp">.celeste</span>  <span class="ct">{</span> <span class="ca">background-color</span>: <span class="cn">#bfe6f7</span>; <span class="ct">}</span>
+<span class="cp">.lila</span>     <span class="ct">{</span> <span class="ca">background-color</span>: <span class="cn">#dcc9f2</span>; <span class="ct">}</span>
+
+<span class="cp">@keyframes aparecer</span> <span class="ct">{</span>
+  <span class="cn">from</span> <span class="ct">{</span>
+    <span class="ca">opacity</span>: <span class="cn">0</span>;
+    <span class="ca">transform</span>: <span class="cn">translateY(15px) rotate(var(--rotacion, 0deg)) scale(.9)</span>;
+  <span class="ct">}</span>
+  <span class="cn">to</span> <span class="ct">{</span>
+    <span class="ca">opacity</span>: <span class="cn">1</span>;
+    <span class="ca">transform</span>: <span class="cn">translateY(0) rotate(var(--rotacion, 0deg)) scale(1)</span>;
+  <span class="ct">}</span>
+<span class="ct">}</span></div>
+
+  <p>Y en <code>.nota</code>, activa esa animación agregando estas 2 líneas:</p>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="ca">opacity</span>: <span class="cn">0</span>;
+<span class="ca">animation</span>: <span class="cn">aparecer .4s ease forwards</span>;</div>
+
+  <div class="concept">
+    <h4>💡 ¿Qué hace <code>forwards</code>?</h4>
+    <p>Sin <code>forwards</code>, al terminar la animación el elemento regresaría a su estado <em>antes</em> de animarse (invisible otra vez). <code>forwards</code> le dice "quédate en el estado final" — visible, en su posición normal.</p>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════ -->
+<section class="module" id="js">
+  <div class="module-header">
+    <div class="module-icon">⚙️</div>
+    <div>
+      <div class="module-title">PARTE 5 — El JavaScript</div>
+      <div class="module-sub">Aquí vive el corazón del proyecto: datos + funciones que dibujan y reaccionan</div>
+    </div>
+  </div>
+
+  <h2>Bloque 1 — El array de datos</h2>
+
+  <div class="reto-box">
+    <h4>🧪 Reto</h4>
+    <p>En <code>js/script.js</code>, crea <code>const notas = [ ]</code> con al menos 4 objetos. Cada uno con <code>titulo</code>, <code>texto</code> y <code>color</code>. Agrega <code>emoji</code> a alguna, para practicar un campo opcional.</p>
+  </div>
+
+  <div class="code-block"><span class="lang">JS</span><span class="ca">const</span> <span class="cp">notas</span> = <span class="ct">[</span>
+  <span class="ct">{</span>
+    <span class="ca">titulo</span>: <span class="cs">"Cálculo I"</span>,
+    <span class="ca">texto</span>: <span class="cs">"Repasar límites."</span>,
+    <span class="ca">color</span>: <span class="cs">"amarillo"</span>,
+    <span class="ca">emoji</span>: <span class="cs">"📐"</span>
+  <span class="ct">}</span>,
+  <span class="ct">{</span>
+    <span class="ca">titulo</span>: <span class="cs">"Historia"</span>,
+    <span class="ca">texto</span>: <span class="cs">"Leer capítulo 5."</span>,
+    <span class="ca">color</span>: <span class="cs">"rosa"</span>
+  <span class="ct">}</span>
+<span class="ct">]</span>;</div>
+
+  <hr>
+
+  <h2>Bloque 2 — Crear una nota en HTML</h2>
+
+  <div class="reto-box">
+    <h4>🧪 Reto</h4>
+    <p>Escribe una función <code>crearElementoNota(nota)</code> que reciba un objeto, cree un <code>&lt;article&gt;</code> con <code>document.createElement</code>, le agregue las clases <code>"nota"</code> y el color, y meta el título y texto con <code>innerHTML</code> usando template literals.</p>
+  </div>
+
+  <div class="code-block"><span class="lang">JS</span><span class="ck">function</span> <span class="cp">crearElementoNota</span>(<span class="ca">nota</span>) <span class="ct">{</span>
+  <span class="ca">const</span> <span class="cp">articulo</span> = document.<span class="ca">createElement</span>(<span class="cs">"article"</span>);
+  articulo.classList.<span class="ca">add</span>(<span class="cs">"nota"</span>, nota.color);
+
+  articulo.innerHTML = <span class="cs">`
+    &lt;h3&gt;${nota.titulo}&lt;/h3&gt;
+    &lt;p&gt;${nota.texto}&lt;/p&gt;
+  `</span>;
+
+  <span class="ck">return</span> articulo;
+<span class="ct">}</span></div>
+
+  <div class="concept">
+    <h4>💡 ¿Qué son las comillas invertidas <code>` `</code>?</h4>
+    <p>Se llaman <strong>template literals</strong>. A diferencia de las comillas normales, te dejan insertar variables directo dentro del texto con <code>${ }</code> — sin tener que concatenar con <code>+</code>. Y también respetan saltos de línea reales.</p>
+  </div>
+
+  <p>Ahora agrega el emoji opcional y una rotación aleatoria antes del <code>return</code>:</p>
+
+  <div class="code-block"><span class="lang">JS</span><span class="cc">// rotación aleatoria entre -3 y 3 grados</span>
+<span class="ca">const</span> <span class="cp">rotacionAleatoria</span> = (Math.random() * 6 - 3).toFixed(1);
+articulo.style.setProperty(<span class="cs">"--rotacion"</span>, rotacionAleatoria + <span class="cs">"deg"</span>);</div>
+
+  <div class="code-block"><span class="lang">JS</span><span class="cc">// dentro del innerHTML, cambia el &lt;h3&gt; por esta línea:</span>
+&lt;h3&gt;${nota.emoji ? nota.emoji + <span class="cs">" "</span> : <span class="cs">""</span>}${nota.titulo}&lt;/h3&gt;</div>
+
+  <div class="analogy">
+    <h4>❓ Analogía: el operador ternario</h4>
+    <p><code>condición ? sivalorEsVerdadero : sivalorEsFalso</code> es un "if" en una sola línea. Aquí dice: "si la nota tiene emoji, pon el emoji y un espacio; si no, no pongas nada". Como un semáforo con solo 2 caminos.</p>
+  </div>
+
+  <hr>
+
+  <h2>Bloque 3 — Dibujar todas las notas en columnas</h2>
+
+  <div class="reto-box">
+    <h4>🧪 Reto</h4>
+    <p>Escribe una función <code>numeroDeColumnas()</code> que devuelva 1, 2 o 3 según el ancho de la ventana. Luego escribe <code>renderizarNotas()</code>: crea esa cantidad de <code>&lt;div class="columna"&gt;</code>, y por cada nota del array, busca la columna con menor altura (<code>offsetHeight</code>) y mete la nota ahí.</p>
+  </div>
+
+  <div class="code-block"><span class="lang">JS</span><span class="ck">function</span> <span class="cp">numeroDeColumnas</span>() <span class="ct">{</span>
+  <span class="ca">const</span> <span class="cp">ancho</span> = window.innerWidth;
+  <span class="ck">if</span> (ancho <= <span class="cn">480</span>) <span class="ck">return</span> <span class="cn">1</span>;
+  <span class="ck">if</span> (ancho <= <span class="cn">700</span>) <span class="ck">return</span> <span class="cn">2</span>;
+  <span class="ck">return</span> <span class="cn">3</span>;
+<span class="ct">}</span>
+
+<span class="ck">function</span> <span class="cp">renderizarNotas</span>() <span class="ct">{</span>
+  <span class="ca">const</span> <span class="cp">contenedor</span> = document.getElementById(<span class="cs">"contenedor-notas"</span>);
+  contenedor.innerHTML = <span class="cs">""</span>;
+
+  <span class="ca">const</span> <span class="cp">columnas</span> = <span class="ct">[]</span>;
+  <span class="ck">for</span> (<span class="ca">let</span> i = <span class="cn">0</span>; i < numeroDeColumnas(); i++) <span class="ct">{</span>
+    <span class="ca">const</span> <span class="cp">columna</span> = document.createElement(<span class="cs">"div"</span>);
+    columna.classList.add(<span class="cs">"columna"</span>);
+    columnas.push(columna);
+    contenedor.appendChild(columna);
+  <span class="ct">}</span>
+
+  notas.forEach(<span class="ck">function</span> (nota, indice) <span class="ct">{</span>
+    <span class="ca">const</span> <span class="cp">elemento</span> = crearElementoNota(nota);
+    elemento.style.animationDelay = (indice * <span class="cn">0.08</span>) + <span class="cs">"s"</span>;
+
+    <span class="ca">let</span> <span class="cp">columnaMasCorta</span> = columnas[<span class="cn">0</span>];
+    columnas.forEach(<span class="ck">function</span> (columna) <span class="ct">{</span>
+      <span class="ck">if</span> (columna.offsetHeight < columnaMasCorta.offsetHeight) <span class="ct">{</span>
+        columnaMasCorta = columna;
+      <span class="ct">}</span>
+    <span class="ct">}</span>);
+
+    columnaMasCorta.appendChild(elemento);
+  <span class="ct">}</span>);
+<span class="ct">}</span></div>
+
+  <div class="concept">
+    <h4>💡 ¿Por qué buscar la columna "más corta" cada vez?</h4>
+    <p><code>offsetHeight</code> te da la altura real en píxeles de un elemento en ese instante. Comparando las 3 columnas antes de cada nota, siempre mandas la próxima nota a la que va más atrasada — así se rellenan parejo, como repartir cartas de una en una al jugador con menos cartas.</p>
+  </div>
+
+  <hr>
+
+  <h2>Bloque 4 — Expandir la nota con un clic</h2>
+
+  <div class="reto-box">
+    <h4>🧪 Reto</h4>
+    <p>Dentro de <code>crearElementoNota</code>, antes del <code>return</code>, agrega un <code>addEventListener("click", ...)</code> que alterne la clase <code>nota--expandida</code>.</p>
+  </div>
+
+  <div class="code-block"><span class="lang">JS</span>articulo.addEventListener(<span class="cs">"click"</span>, <span class="ck">function</span> () <span class="ct">{</span>
+  articulo.classList.toggle(<span class="cs">"nota--expandida"</span>);
+<span class="ct">}</span>);</div>
+
+  <div class="concept">
+    <h4>💡 ¿Qué hace <code>classList.toggle</code>?</h4>
+    <p>Es un interruptor. Si el elemento no tiene esa clase, se la pone; si ya la tiene, se la quita. Por eso un solo clic expande y el siguiente clic la vuelve a encoger — no necesitas dos funciones distintas.</p>
+  </div>
+
+  <hr>
+
+  <h2>Bloque 5 — Botón "+ nueva nota" y arranque</h2>
+
+  <div class="reto-box">
+    <h4>🧪 Reto</h4>
+    <p>Conecta el botón: al hacer clic, agrega un objeto nuevo al array con <code>push()</code> y vuelve a llamar <code>renderizarNotas()</code>. Al final del archivo, llama <code>renderizarNotas()</code> una vez para que las notas aparezcan al cargar, y agrega un listener de <code>resize</code> para reacomodar si cambia el tamaño de ventana.</p>
+  </div>
+
+  <div class="code-block"><span class="lang">JS</span>document.getElementById(<span class="cs">"btn-agregar"</span>).addEventListener(<span class="cs">"click"</span>, <span class="ck">function</span> () <span class="ct">{</span>
+  <span class="ca">const</span> <span class="cp">colores</span> = <span class="ct">[</span><span class="cs">"amarillo"</span>, <span class="cs">"verde"</span>, <span class="cs">"rosa"</span>, <span class="cs">"celeste"</span>, <span class="cs">"lila"</span><span class="ct">]</span>;
+  <span class="ca">const</span> <span class="cp">colorAleatorio</span> = colores[Math.floor(Math.random() * colores.length)];
+
+  notas.push(<span class="ct">{</span>
+    titulo: <span class="cs">"Nueva nota"</span>,
+    texto: <span class="cs">"Escribe aquí..."</span>,
+    color: colorAleatorio
+  <span class="ct">}</span>);
+
+  renderizarNotas();
+<span class="ct">}</span>);
+
+renderizarNotas();
+window.addEventListener(<span class="cs">"resize"</span>, renderizarNotas);</div>
+
+  <div class="tip">
+    <h4>✅ Con esto tu proyecto ya funciona completo</h4>
+    <p>Ábrelo en el navegador. Deberías ver tus notas repartidas en columnas parejas, con colores, poder hacer clic para expandir una nota larga, y que el botón agregue notas nuevas.</p>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════
+     RETOS
+══════════════════════════════════ -->
+<section class="module" id="retos">
+  <div class="module-header">
+    <div class="module-icon">🏆</div>
+    <div>
+      <div class="module-title">PARTE 6 — Retos para subir el nivel</div>
+      <div class="module-sub">Intenta estos sin pedirme el código primero. Trabarte es parte de aprender</div>
+    </div>
+  </div>
+
+  <div class="reto-grid">
+    <div class="reto-card">
+      <span class="nivel nivel-f">🟡 Fácil</span>
+      <h4>Reto 1 — Más colores y emojis</h4>
+      <p>Agrega 3 clases de color pastel nuevas y actualiza el array <code>colores</code> del botón para incluirlas.</p>
+      <p><em>Practicas:</em> reutilizar un patrón que ya conoces, sin ayuda.</p>
+    </div>
+    <div class="reto-card">
+      <span class="nivel nivel-m">🟠 Medio</span>
+      <h4>Reto 2 — Botón para borrar una nota</h4>
+      <p>Dentro de <code>crearElementoNota</code>, agrega un botón de "x" con su propio <code>addEventListener</code> que la quite del array (<code>splice</code>) y vuelva a renderizar. Usa <code>event.stopPropagation()</code> para que el clic en "x" no dispare también el clic de expandir.</p>
+      <p><em>Practicas:</em> múltiples eventos en un mismo elemento y modificar arrays.</p>
+    </div>
+    <div class="reto-card">
+      <span class="nivel nivel-a">🔴 Avanzado</span>
+      <h4>Reto 3 — Guardar en localStorage</h4>
+      <p>Que las notas no se pierdan al recargar: guarda el array con <code>localStorage.setItem</code> (convirtiéndolo a texto con <code>JSON.stringify</code>) cada vez que cambie, y cárgalo al inicio con <code>JSON.parse</code>.</p>
+      <p><em>Practicas:</em> persistencia de datos en el navegador.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════
+     RESUMEN
+══════════════════════════════════ -->
+<section class="module" id="resumen">
+  <div class="module-header">
+    <div class="module-icon">📋</div>
+    <div>
+      <div class="module-title">Resumen: lo que usaste en este proyecto</div>
+      <div class="module-sub">Todo lo nuevo, en un vistazo</div>
+    </div>
+  </div>
+
+  <h2>HTML</h2>
+  <div style="margin-bottom:1rem">
+    <span class="chip">&lt;header&gt;</span>
+    <span class="chip">&lt;main&gt;</span>
+    <span class="chip">&lt;button&gt;</span>
+    <span class="chip">&lt;script src&gt;</span>
+    <span class="chip">id</span>
+  </div>
+
+  <h2>CSS</h2>
+  <div style="margin-bottom:1rem">
+    <span class="chip">box-sizing</span>
+    <span class="chip">display: flex</span>
+    <span class="chip">--variables-css</span>
+    <span class="chip">transform: rotate/scale</span>
+    <span class="chip">@keyframes</span>
+    <span class="chip">animation</span>
+    <span class="chip">-webkit-line-clamp</span>
+    <span class="chip">white-space: pre-line</span>
+    <span class="chip">:hover</span>
+  </div>
+
+  <h2>JavaScript</h2>
+  <div>
+    <span class="chip">array []</span>
+    <span class="chip">objeto {}</span>
+    <span class="chip">const / let</span>
+    <span class="chip">function</span>
+    <span class="chip">document.createElement</span>
+    <span class="chip">classList.add</span>
+    <span class="chip">classList.toggle</span>
+    <span class="chip">innerHTML</span>
+    <span class="chip">template literals `${}`</span>
+    <span class="chip">operador ternario</span>
+    <span class="chip">forEach</span>
+    <span class="chip">addEventListener</span>
+    <span class="chip">appendChild</span>
+    <span class="chip">offsetHeight</span>
+    <span class="chip">push()</span>
+    <span class="chip">window.innerWidth</span>
+  </div>
+
+  <div class="concept" style="margin-top:1.5rem">
+    <h4>💡 ¿Qué sigue?</h4>
+    <p>Con los 3 retos de la parte anterior (borrar, editar y guardar en <code>localStorage</code>) tu proyecto pasa de ser un ejercicio a ser una app real que puedes usar todos los días para tus materias.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Notas Pegajosas · HTML, CSS &amp; JavaScript desde cero · Hugo 2026
+</footer>
+
+<script>
+/* ─── SCROLL HORIZONTAL DE LA BARRA DE EJERCICIOS ─── */
+(function () {
+  var nav = document.querySelector('.topbar-nav');
+  if (!nav) return;
+
+  nav.addEventListener('wheel', function (e) {
+    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+      e.preventDefault();
+      nav.scrollLeft += e.deltaY;
+    }
+  }, { passive: false });
+
+  var arrastrando = false, inicioX = 0, scrollInicio = 0;
+  nav.addEventListener('mousedown', function (e) {
+    arrastrando = true;
+    inicioX = e.pageX;
+    scrollInicio = nav.scrollLeft;
+    nav.style.cursor = 'grabbing';
+  });
+  window.addEventListener('mouseup', function () {
+    arrastrando = false;
+    nav.style.cursor = '';
+  });
+  window.addEventListener('mousemove', function (e) {
+    if (!arrastrando) return;
+    e.preventDefault();
+    nav.scrollLeft = scrollInicio - (e.pageX - inicioX);
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía Responsive design real — Café </></title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #c49a1a;
+    --primary-light:  #fdf6e0;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --danger:         #c44a2a;
+    --danger-light:   #fdf0ec;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1a1814;
+    --code-text:      #e8e4de;
+
+    color-scheme: light;
+  }
+
+  :root[data-theme="dark"] {
+    --primary:        #e0b52e;
+    --primary-light:  #2b2410;
+    --secondary:      #3fcf9e;
+    --secondary-light:#0f2a22;
+    --accent:         #e0912e;
+    --accent-light:   #2e2110;
+    --danger:         #e07a5a;
+    --danger-light:   #2e1712;
+    --bg:             #14120f;
+    --surface:        #1e1b17;
+    --text:           #f0ece5;
+    --muted:          #a39d93;
+    --border:         #332e27;
+    --code-bg:        #0c0a08;
+    --code-text:      #e8e4de;
+
+    color-scheme: dark;
+  }
+
+  body {
+    font-family: 'DM Sans', 'Segoe UI', sans-serif;
+    background: var(--bg); color: var(--text);
+    line-height: 1.7; font-size: 16px;
+    transition: background .25s ease, color .25s ease;
+  }
+
+  .cafe-bar {
+    background: var(--surface); border-bottom:1px solid var(--border);
+    padding:0 24px; display:flex; align-items:center; gap:14px;
+    position:sticky; top:0; z-index:200; height:45px;
+    transition: background .25s ease, border-color .25s ease;
+  }
+  .cafe-bar a { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--muted); text-decoration:none; padding:6px 14px; border:1px solid var(--border); border-radius:999px; transition:all 0.15s; }
+  .cafe-bar a:hover { color:var(--text); border-color:var(--muted); }
+  .cafe-bar span.crumb { font-size:13px; color:var(--muted); }
+  .cafe-bar .spacer { flex: 1; }
+
+  .theme-toggle {
+    display:inline-flex; align-items:center; gap:8px;
+    background: var(--bg); border:1px solid var(--border); color: var(--text);
+    border-radius:999px; padding:6px 14px 6px 10px; font-size:13px; font-weight:500;
+    cursor:pointer; transition: all .2s ease; font-family: inherit;
+  }
+  .theme-toggle:hover { border-color: var(--primary); color: var(--primary); }
+  .theme-toggle .icon { font-size: 15px; line-height:1; }
+
+  header {
+    background: #1a1814; color: #f7f4ef; padding: 3rem 2rem 2rem;
+    text-align: center; position: relative; overflow: hidden;
+  }
+  header::before { content: '☕'; position: absolute; font-size: 12rem; font-weight: 900; color: rgba(255,255,255,0.04); right: -1rem; top: -2rem; font-family: monospace; line-height: 1; }
+  header h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; font-family: 'Fraunces', serif; }
+  header p { font-size: 1.1rem; opacity: .85; margin-top: .5rem; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  nav {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    position: sticky; top: 45px; z-index: 100; display: flex; overflow-x: auto; gap: 0;
+    transition: background .25s ease, border-color .25s ease;
+  }
+  nav a { flex-shrink: 0; padding: .75rem 1rem; text-decoration: none; color: var(--muted); font-size: .78rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .module {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+    padding: 2rem; margin-bottom: 2.5rem; scroll-margin-top:100px;
+    transition: background .25s ease, border-color .25s ease;
+  }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-size: 1.35rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  .analogy { background: var(--accent-light); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: var(--accent); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; }
+
+  .concept { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p, .tip ul { font-size: .95rem; }
+  .tip ul { padding-left: 1.2rem; }
+
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  .glos { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .glos-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; }
+  .glos-item dt { font-weight: 700; color: var(--primary); font-size: .92rem; margin-bottom: .3rem; }
+  .glos-item dd { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+  .glos-item .emoji { font-size: 1.3rem; display: block; margin-bottom: .3rem; }
+
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: #1a1814; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  h2 { font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; color: var(--text); }
+  h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 .5rem; }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: var(--primary-light); color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+  strong { font-weight: 700; }
+
+  .code-block {
+    background: var(--code-bg); color: var(--code-text); border-radius: 10px;
+    padding: 1rem 1.25rem; font-family: 'DM Mono', monospace; font-size: .84rem;
+    overflow-x: auto; margin: 1rem 0; line-height: 1.65;
+  }
+  .code-block .cm { color: #8a8480; }
+  .code-block .attr { color: #e0b52e; }
+  .code-block .str { color: #7fd8a8; }
+  .code-block .tag2 { color: #e08a5a; }
+  .code-block .num { color: #7fb8e0; }
+  .code-block .kw { color: #d88ae0; }
+
+  .exercise { background: var(--bg); border: 1px dashed var(--primary); border-radius: 10px; padding: 1.1rem 1.25rem; margin: 1rem 0; }
+  .exercise h4 { color: var(--primary); font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .5rem; }
+
+  /* Demo de breakpoints */
+  .bp-demo { display:flex; gap:.6rem; margin: 1rem 0; flex-wrap: wrap; }
+  .bp-card {
+    flex:1; min-width: 90px; background: var(--bg); border:1px solid var(--border); border-radius: 10px;
+    padding: 1rem; text-align:center;
+  }
+  .bp-card .bp-icon { font-size: 1.4rem; margin-bottom:.3rem; }
+  .bp-card strong { display:block; font-size:.82rem; color: var(--primary); font-family:'DM Mono',monospace; }
+  .bp-card span { font-size:.72rem; color: var(--muted); }
+
+  /* Demo de unidades relativas: caja que se redimensiona con el viewport simulando clamp */
+  .unit-demo { background: var(--bg); border:1px solid var(--border); border-radius:10px; padding: 1.4rem; margin: 1rem 0; }
+  .unit-demo .box { background: var(--primary); color:#1a1814; font-weight:700; border-radius:8px; padding: .8rem 1rem; font-size: clamp(0.85rem, 2vw + 0.5rem, 1.6rem); text-align:center; font-family:'DM Mono',monospace; }
+  .unit-demo p { text-align:center; font-size:.78rem; color:var(--muted); margin-top:.6rem; margin-bottom:0; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); transition: background .25s ease, border-color .25s ease; }
+</style>
+</head>
+<body>
+
+<div class="cafe-bar">
+  <a href="../capitulos.html?tab=adicionales">← Volver a Adicionales</a>
+  <span class="crumb">☕ Responsive design real</span>
+  <div class="spacer"></div>
+  <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+    <span class="icon" id="themeIcon">🌙</span>
+    <span id="themeLabel">Modo oscuro</span>
+  </button>
+</div>
+
+<header>
+  <h1>Responsive design real</h1>
+  <p>Media queries, unidades relativas y mobile-first</p>
+  <span class="badge">🧩 Guía adicional · Fuera de la ruta principal</span>
+</header>
+
+<nav>
+  <a href="#intro">🎯 Intro</a>
+  <a href="#mobile-first">📱 Mobile-first, no desktop-first</a>
+  <a href="#media-queries">🖥️ Media queries bien usadas</a>
+  <a href="#unidades-relativas">📏 Unidades relativas</a>
+  <a href="#clamp">🎚️ clamp(): responsive sin media queries</a>
+  <a href="#imagenes">🖼️ Imágenes responsivas</a>
+  <a href="#ejercicios">🏋️ Ejercicios</a>
+</nav>
+
+<main>
+
+<div class="parte-badge">🧩 Guía adicional — HTML, CSS y JavaScript</div>
+
+<!-- ═══════════════════════════════════════════
+     INTRO
+═══════════════════════════════════════════ -->
+<section class="module" id="intro">
+  <div class="module-header">
+    <div class="module-icon">🎯</div>
+    <div>
+      <div class="module-title">Introducción — más allá de "le puse una media query"</div>
+      <div class="module-sub">Responsive de verdad es una forma de pensar el diseño, no un parche al final</div>
+    </div>
+  </div>
+
+  <p>Mucha gente cree que "hacer responsive" significa agregar un par de <code>@media</code> al final para que no se rompa en celular. El responsive design real empieza desde el primer día: pensando en unidades flexibles, contenido que se adapta y un orden de prioridades claro entre pantallas.</p>
+
+  <div class="concept">
+    <h4>💡 La idea central</h4>
+    <p>Un sitio verdaderamente responsivo no tiene "una versión para celular y otra para desktop" — tiene un solo diseño fluido que se reorganiza según el espacio disponible, apoyándose en unidades relativas, layouts flexibles (Flexbox/Grid) y media queries solo donde realmente son necesarias.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     MOBILE FIRST
+═══════════════════════════════════════════ -->
+<section class="module" id="mobile-first">
+  <div class="module-header">
+    <div class="module-icon">📱</div>
+    <div>
+      <div class="module-title">Mobile-first, no desktop-first</div>
+      <div class="module-sub">Diseñar de lo simple a lo complejo, no al revés</div>
+    </div>
+  </div>
+
+  <p><strong>Mobile-first</strong> significa escribir tu CSS base pensando primero en la pantalla más pequeña, y usar media queries con <code>min-width</code> para ir <em>agregando</em> complejidad conforme hay más espacio — en lugar de diseñar para desktop y luego usar <code>max-width</code> para ir quitando cosas.</p>
+
+  <div class="analogy">
+    <h4>🧳 Analogía: empacar una maleta de mano contra una de bodega</h4>
+    <p>Diseñar mobile-first es como empacar primero solo lo esencial en una maleta de mano — te obliga a decidir qué es realmente indispensable. Diseñar desktop-first es empacar la maleta grande primero, y luego tratar de decidir, ya tarde, qué sacar para que quepa en la de mano. La primera forma casi siempre produce mejores decisiones de prioridad.</p>
+  </div>
+
+  <div class="code-block">
+<span class="cm">/* Mobile-first: CSS base = versión pequeña */</span>
+.tarjetas {
+  <span class="attr">display</span>: grid;
+  <span class="attr">grid-template-columns</span>: <span class="num">1fr</span>;  <span class="cm">/* una columna por defecto */</span>
+}
+
+<span class="cm">/* Se agrega complejidad conforme crece la pantalla */</span>
+@media (min-width: <span class="num">768px</span>) {
+  .tarjetas { <span class="attr">grid-template-columns</span>: <span class="num">1fr</span> <span class="num">1fr</span>; }
+}
+
+@media (min-width: <span class="num">1024px</span>) {
+  .tarjetas { <span class="attr">grid-template-columns</span>: <span class="num">1fr</span> <span class="num">1fr</span> <span class="num">1fr</span>; }
+}
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Por qué min-width y no max-width</h4>
+    <p>Usar siempre <code>min-width</code> (y nunca <code>max-width</code>) evita que las reglas de distintos breakpoints se peleen entre sí o se sobrescriban de forma confusa. El CSS "crece" de forma predecible, una capa a la vez.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     MEDIA QUERIES
+═══════════════════════════════════════════ -->
+<section class="module" id="media-queries">
+  <div class="module-header">
+    <div class="module-icon">🖥️</div>
+    <div>
+      <div class="module-title">Media queries bien usadas</div>
+      <div class="module-sub">Breakpoints basados en el contenido, no en dispositivos específicos</div>
+    </div>
+  </div>
+
+  <div class="bp-demo">
+    <div class="bp-card"><div class="bp-icon">📱</div><strong>&lt; 480px</strong><span>Móvil pequeño</span></div>
+    <div class="bp-card"><div class="bp-icon">📲</div><strong>≥ 480px</strong><span>Móvil grande</span></div>
+    <div class="bp-card"><div class="bp-icon">📓</div><strong>≥ 768px</strong><span>Tablet</span></div>
+    <div class="bp-card"><div class="bp-icon">💻</div><strong>≥ 1024px</strong><span>Desktop</span></div>
+    <div class="bp-card"><div class="bp-icon">🖥️</div><strong>≥ 1280px</strong><span>Desktop grande</span></div>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ No diseñes para "el iPhone 15" — diseña para tu contenido</h4>
+    <p>Los tamaños de pantalla cambian constantemente (nuevos celulares, nuevos monitores). En vez de fijar breakpoints según un dispositivo específico, cambia el layout en el punto donde tu propio diseño <strong>empieza a verse mal</strong> — reduce el navegador poco a poco y define el breakpoint justo ahí.</p>
+  </div>
+
+  <div class="code-block">
+@media (min-width: <span class="num">768px</span>) <span class="kw">and</span> (max-width: <span class="num">1023px</span>) {
+  <span class="cm">/* Solo para tablets */</span>
+}
+
+@media (orientation: landscape) {
+  <span class="cm">/* Cuando el dispositivo está en horizontal */</span>
+}
+
+@media (prefers-color-scheme: dark) {
+  <span class="cm">/* Cuando el sistema del usuario usa tema oscuro */</span>
+}
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     UNIDADES RELATIVAS
+═══════════════════════════════════════════ -->
+<section class="module" id="unidades-relativas">
+  <div class="module-header">
+    <div class="module-icon">📏</div>
+    <div>
+      <div class="module-title">Unidades relativas</div>
+      <div class="module-sub">px fijo vs. unidades que se adaptan</div>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <tr><th>Unidad</th><th>Relativa a</th><th>Uso típico</th></tr>
+    <tr><td><span class="tag">rem</span></td><td>El tamaño de fuente del elemento raíz (<code>html</code>)</td><td>Tamaños de fuente, espaciados — mantiene proporción con la preferencia de accesibilidad del usuario.</td></tr>
+    <tr><td><span class="tag">em</span></td><td>El tamaño de fuente del elemento padre</td><td>Espaciados que deben escalar junto con el texto de un componente específico.</td></tr>
+    <tr><td><span class="tag">%</span></td><td>El tamaño del contenedor padre</td><td>Anchos flexibles dentro de un layout.</td></tr>
+    <tr><td><span class="tag">vw / vh</span></td><td>El ancho/alto del viewport (pantalla visible)</td><td>Elementos que deben ocupar una proporción de la pantalla completa.</td></tr>
+  </table>
+
+  <div class="warn">
+    <h4>⚠️ El problema de usar solo px para fuentes</h4>
+    <p>Si un usuario configura su navegador para usar un tamaño de fuente base más grande (por accesibilidad, por ejemplo), el texto en <code>px</code> <strong>no responde</strong> a esa preferencia — se queda fijo. El texto en <code>rem</code> sí escala junto con esa configuración, respetando las necesidades del usuario.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     CLAMP
+═══════════════════════════════════════════ -->
+<section class="module" id="clamp">
+  <div class="module-header">
+    <div class="module-icon">🎚️</div>
+    <div>
+      <div class="module-title">clamp(): responsive sin escribir una sola media query</div>
+      <div class="module-sub">Un mínimo, un valor preferido, y un máximo — todo en una línea</div>
+    </div>
+  </div>
+
+  <p>Achica y agranda la ventana de tu navegador para ver este texto escalar suavemente, sin ningún salto brusco:</p>
+
+  <div class="unit-demo">
+    <div class="box">Este texto usa clamp()</div>
+    <p>font-size: clamp(0.85rem, 2vw + 0.5rem, 1.6rem)</p>
+  </div>
+
+  <div class="code-block">
+h1 {
+  <span class="attr">font-size</span>: clamp(<span class="num">1.5rem</span>, <span class="num">4vw</span>, <span class="num">3rem</span>);
+}
+<span class="cm">/* mínimo: 1.5rem — nunca más pequeño, aunque la pantalla sea diminuta */</span>
+<span class="cm">/* preferido: 4vw — crece de forma fluida con el ancho de pantalla */</span>
+<span class="cm">/* máximo: 3rem — nunca más grande, aunque la pantalla sea gigante */</span>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Por qué clamp() está reemplazando tantas media queries</h4>
+    <p><code>clamp(mínimo, preferido, máximo)</code> permite que un tamaño de fuente, un padding o un ancho escalen de forma continua entre dos límites, sin los "saltos" abruptos típicos de las media queries tradicionales — el navegador interpola el valor en cada tamaño de pantalla intermedio.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     IMÁGENES RESPONSIVAS
+═══════════════════════════════════════════ -->
+<section class="module" id="imagenes">
+  <div class="module-header">
+    <div class="module-icon">🖼️</div>
+    <div>
+      <div class="module-title">Imágenes responsivas</div>
+      <div class="module-sub">No basta con poner max-width: 100%</div>
+    </div>
+  </div>
+
+  <div class="code-block">
+&lt;<span class="tag2">img</span>
+  <span class="attr">src</span>=<span class="str">"foto-800.jpg"</span>
+  <span class="attr">srcset</span>=<span class="str">"foto-400.jpg 400w, foto-800.jpg 800w, foto-1200.jpg 1200w"</span>
+  <span class="attr">sizes</span>=<span class="str">"(max-width: 600px) 100vw, 50vw"</span>
+  <span class="attr">alt</span>=<span class="str">"Descripción de la foto"</span>
+&gt;
+  </div>
+
+  <p>El atributo <code>srcset</code> le da al navegador varias versiones de la misma imagen en distintos tamaños, y <code>sizes</code> le indica qué tan ancha se mostrará esa imagen en distintos escenarios. El navegador elige automáticamente la versión más adecuada según el tamaño de pantalla y la densidad de píxeles del dispositivo — descargando menos datos en pantallas pequeñas.</p>
+
+  <table class="tbl">
+    <tr><th>Técnica</th><th>Qué resuelve</th></tr>
+    <tr><td><span class="tag">max-width: 100%</span></td><td>Evita que una imagen se desborde de su contenedor — lo básico, pero no suficiente por sí solo.</td></tr>
+    <tr><td><span class="tag">srcset / sizes</span></td><td>Sirve la imagen del tamaño adecuado según pantalla, ahorrando datos.</td></tr>
+    <tr><td><span class="tag">object-fit: cover</span></td><td>Recorta una imagen para llenar su contenedor sin deformarse, sin importar su proporción original.</td></tr>
+  </table>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     EJERCICIOS
+═══════════════════════════════════════════ -->
+<section class="module" id="ejercicios">
+  <div class="module-header">
+    <div class="module-icon">🏋️</div>
+    <div>
+      <div class="module-title">Ejercicios</div>
+      <div class="module-sub">Para practicar lo que acabas de leer</div>
+    </div>
+  </div>
+
+  <div class="exercise">
+    <h4>Ejercicio 1 — Convierte a mobile-first</h4>
+    <p>Toma un layout que tengas hecho con <code>max-width</code> y reescríbelo usando solo <code>min-width</code>, empezando por el estilo base para pantallas pequeñas.</p>
+  </div>
+
+  <div class="exercise">
+    <h4>Ejercicio 2 — Un título con clamp()</h4>
+    <p>Reemplaza un <code>font-size</code> fijo en un <code>&lt;h1&gt;</code> por <code>clamp(1.5rem, 5vw, 3.5rem)</code>, y observa cómo escala al redimensionar la ventana.</p>
+  </div>
+
+  <div class="exercise">
+    <h4>Ejercicio 3 — srcset real</h4>
+    <p>Toma una imagen de tu proyecto, genera dos versiones más pequeñas, y arma un <code>srcset</code> con las tres versiones más el atributo <code>sizes</code> correspondiente.</p>
+  </div>
+
+  <div class="concept">
+    <h4>💡 Para llevarte de esta guía</h4>
+    <p>Responsive real es diseñar mobile-first, apoyarte en unidades relativas (<code>rem</code>, <code>%</code>, <code>vw</code>) y <code>clamp()</code> para reducir la cantidad de media queries que necesitas, y servir imágenes del tamaño correcto con <code>srcset</code>. Las media queries siguen siendo útiles, pero deberían ser el último recurso, no el primero.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Guía Responsive design real · Café &lt;/&gt; · Guías adicionales
+</footer>
+
+<script>
+  (function() {
+    var root = document.documentElement;
+    var icon = document.getElementById('themeIcon');
+    var label = document.getElementById('themeLabel');
+    var STORAGE_KEY = 'cafe-codigo-theme';
+
+    function applyTheme(theme) {
+      if (theme === 'dark') {
+        root.setAttribute('data-theme', 'dark');
+        icon.textContent = '☀️';
+        label.textContent = 'Modo claro';
+      } else {
+        root.removeAttribute('data-theme');
+        icon.textContent = '🌙';
+        label.textContent = 'Modo oscuro';
+      }
+    }
+
+    var saved = null;
+    try { saved = localStorage.getItem(STORAGE_KEY); } catch (e) {}
+
+    if (saved) {
+      applyTheme(saved);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      applyTheme('dark');
+    }
+
+    window.toggleTheme = function() {
+      var isDark = root.getAttribute('data-theme') === 'dark';
+      var next = isDark ? 'light' : 'dark';
+      applyTheme(next);
+      try { localStorage.setItem(STORAGE_KEY, next); } catch (e) {}
+    };
+  })();
+</script>
+
+</body>
+</html>

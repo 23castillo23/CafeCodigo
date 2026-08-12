@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Guía Formularios Avanzados — Café </></title>
+<title>Guía Manipulación del DOM eficiente — Café </></title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -175,7 +175,7 @@
 
 <div class="cafe-bar">
   <a href="../capitulos.html?tab=adicionales">← Volver a Adicionales</a>
-  <span class="crumb">📝 Formularios Avanzados</span>
+  <span class="crumb">☕ Manipulación del DOM eficiente</span>
   <div class="spacer"></div>
   <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
     <span class="icon" id="themeIcon">🌙</span>
@@ -184,22 +184,23 @@
 </div>
 
 <header>
-  <h1>Formularios Avanzados</h1>
-  <p>Validación nativa, patrones y los atributos que casi nadie usa</p>
-  <span class="badge">✦ Guía adicional · HTML ✦</span>
+  <h1>Manipulación del DOM eficiente</h1>
+  <p>Fragmentos y delegación de eventos</p>
+  <span class="badge">🧩 Guía adicional · Fuera de la ruta principal</span>
 </header>
 
 <nav>
   <a href="#intro">🎯 Intro</a>
-  <a href="#validacion-nativa">✅ Validación nativa</a>
-  <a href="#atributos">🧩 Atributos poco usados</a>
-  <a href="#pseudo-clases">🎨 Pseudo-clases</a>
-  <a href="#js-api">⚙️ Constraint API</a>
+  <a href="#reflow-repaint">🔄 Reflow y repaint</a>
+  <a href="#document-fragment">📦 DocumentFragment</a>
+  <a href="#delegacion-eventos">🎯 Delegación de eventos</a>
+  <a href="#batch-updates">📚 Agrupar lecturas y escrituras</a>
+  <a href="#ejercicios">🏋️ Ejercicios</a>
 </nav>
 
 <main>
 
-<div class="parte-badge">📝 Guía adicional — HTML, CSS y JavaScript</div>
+<div class="parte-badge">🧩 Guía adicional — HTML, CSS y JavaScript</div>
 
 <!-- ═══════════════════════════════════════════
      INTRO
@@ -208,194 +209,211 @@
   <div class="module-header">
     <div class="module-icon">🎯</div>
     <div>
-      <div class="module-title">Introducción — más allá del &lt;input&gt; básico</div>
-      <div class="module-sub">Por qué un formulario "bien hecho" no necesita casi JavaScript</div>
+      <div class="module-title">Introducción — el DOM es más lento de lo que parece</div>
+      <div class="module-sub">Por qué "funciona" no siempre significa "funciona bien"</div>
     </div>
   </div>
 
-  <p>Ya sabes crear un <code>&lt;form&gt;</code> con <code>&lt;input&gt;</code> y un botón de enviar. Esta guía va un paso más allá: cómo hacer que el propio navegador valide los datos por ti, sin escribir una sola línea de JavaScript para los casos más comunes — y cómo tomar el control con JS solo cuando de verdad lo necesitas.</p>
+  <p>Es fácil escribir código que manipula el DOM y que "funciona" en pruebas pequeñas, pero que se vuelve notablemente lento con listas grandes o interacciones frecuentes. La razón casi siempre es la misma: cada cambio al DOM puede obligar al navegador a recalcular estilos y posiciones — un trabajo que no es gratis.</p>
 
   <div class="concept">
-    <h4>💡 Lo que vas a aprender</h4>
-    <p>La validación nativa de HTML5 (<code>required</code>, <code>pattern</code>, tipos de <code>input</code>), atributos que mejoran mucho la experiencia y casi nadie conoce, cómo diseñar los estados de error con CSS puro, y cómo personalizar los mensajes de error con la Constraint Validation API de JavaScript.</p>
+    <h4>💡 La idea central</h4>
+    <p>El DOM no es una simple estructura de datos en memoria — es una API conectada directamente al motor de renderizado del navegador. Cada lectura o escritura puede disparar trabajo adicional invisible. Escribir DOM eficiente significa minimizar cuántas veces provocas ese trabajo, no cuántas líneas de código escribes.</p>
   </div>
 </section>
 
 <!-- ═══════════════════════════════════════════
-     VALIDACIÓN NATIVA
+     REFLOW Y REPAINT
 ═══════════════════════════════════════════ -->
-<section class="module" id="validacion-nativa">
+<section class="module" id="reflow-repaint">
   <div class="module-header">
-    <div class="module-icon">✅</div>
+    <div class="module-icon">🔄</div>
     <div>
-      <div class="module-title">Validación nativa de HTML5</div>
-      <div class="module-sub">El navegador ya sabe validar — solo hay que decirle las reglas</div>
+      <div class="module-title">Reflow y repaint: los dos costos ocultos</div>
+      <div class="module-sub">No todos los cambios al DOM cuestan lo mismo</div>
     </div>
   </div>
 
-  <p>Antes de escribir JavaScript para "revisar" que un campo esté bien lleno, recuerda que HTML ya trae un sistema de validación integrado. Se activa solo con atributos.</p>
-
-  <div class="code-block"><span class="lang">HTML</span><span class="ct">&lt;form&gt;</span>
-  <span class="ct">&lt;label&gt;</span>Correo: <span class="ct">&lt;/label&gt;</span>
-  <span class="ct">&lt;input</span> <span class="ca">type</span>=<span class="cs">"email"</span> <span class="ca">required</span> <span class="ca">placeholder</span>=<span class="cs">"tucorreo@ejemplo.com"</span><span class="ct">&gt;</span>
-
-  <span class="ct">&lt;label&gt;</span>Edad: <span class="ct">&lt;/label&gt;</span>
-  <span class="ct">&lt;input</span> <span class="ca">type</span>=<span class="cs">"number"</span> <span class="ca">min</span>=<span class="cs">"18"</span> <span class="ca">max</span>=<span class="cs">"99"</span> <span class="ca">required</span><span class="ct">&gt;</span>
-
-  <span class="ct">&lt;button&gt;</span>Enviar<span class="ct">&lt;/button&gt;</span>
-<span class="ct">&lt;/form&gt;</span>
-</div>
-
-  <p>Con solo <code>type="email"</code> y <code>required</code>, el navegador ya rechaza correos mal escritos y campos vacíos — sin una línea de JavaScript.</p>
-
   <table class="tbl">
-    <tr><th>Atributo</th><th>Qué hace</th></tr>
-    <tr><td><span class="tag">required</span></td><td>El campo no puede quedar vacío.</td></tr>
-    <tr><td><span class="tag">min / max</span></td><td>Rango permitido para números y fechas.</td></tr>
-    <tr><td><span class="tag">minlength / maxlength</span></td><td>Rango permitido de caracteres en texto.</td></tr>
-    <tr><td><span class="tag">type="email"</span></td><td>Exige el formato de un correo válido.</td></tr>
-    <tr><td><span class="tag">pattern</span></td><td>Exige que el valor cumpla una expresión regular.</td></tr>
+    <tr><th>Tipo de cambio</th><th>Qué provoca</th><th>Costo</th></tr>
+    <tr><td><span class="tag">Reflow (layout)</span></td><td>Cambiar tamaño, posición o estructura (agregar/quitar elementos, cambiar <code>width</code>).</td><td>Alto — recalcula posiciones de potencialmente toda la página.</td></tr>
+    <tr><td><span class="tag">Repaint</span></td><td>Cambiar apariencia sin afectar layout (<code>color</code>, <code>background</code>).</td><td>Medio — repinta píxeles, sin recalcular posiciones.</td></tr>
+    <tr><td><span class="tag">Composite</span></td><td><code>transform</code>, <code>opacity</code>.</td><td>Bajo — se maneja en la GPU, sin tocar layout ni pintura.</td></tr>
   </table>
 
   <div class="analogy">
-    <h4>🚪 Analogía: el portero del club</h4>
-    <p>La validación nativa es como un portero en la puerta: revisa que cumplas las reglas básicas (identificación, código de vestimenta) antes de dejarte pasar. No necesitas contratar a alguien más adentro (JavaScript) para revisar lo mismo otra vez — el portero ya filtró lo obvio.</p>
+    <h4>🏗️ Analogía: mover un mueble contra pintar una pared</h4>
+    <p>Un reflow es como mover un mueble grande en una casa ya amueblada: puede obligarte a reacomodar todo lo demás para que quepa. Un repaint es como pintar una pared de otro color: no hay que mover nada, solo cambia la apariencia. Un cambio con <code>transform</code> es como poner un cuadro flotante frente a la pared, sin tocarla en absoluto — el más barato de los tres.</p>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ Leer y escribir intercalado es el peor patrón</h4>
+    <p>Alternar entre leer una propiedad que depende del layout (como <code>elemento.offsetHeight</code>) y escribir estilos, dentro de un bucle, fuerza al navegador a recalcular el layout en cada iteración en lugar de una sola vez — un problema conocido como <strong>"layout thrashing"</strong>.</p>
   </div>
 </section>
 
 <!-- ═══════════════════════════════════════════
-     ATRIBUTOS POCO USADOS
+     DOCUMENT FRAGMENT
 ═══════════════════════════════════════════ -->
-<section class="module" id="atributos">
+<section class="module" id="document-fragment">
   <div class="module-header">
-    <div class="module-icon">🧩</div>
+    <div class="module-icon">📦</div>
     <div>
-      <div class="module-title">Atributos poco usados (pero muy útiles)</div>
-      <div class="module-sub">Pequeños detalles que mejoran mucho la experiencia</div>
+      <div class="module-title">DocumentFragment: construir fuera, insertar una sola vez</div>
+      <div class="module-sub">Evita insertar al DOM real dentro de un bucle</div>
     </div>
   </div>
+
+  <div class="code-block">
+<span class="cm">// ❌ Ineficiente: modifica el DOM real 100 veces</span>
+<span class="kw">for</span> (<span class="kw">let</span> i = <span class="num">0</span>; i &lt; <span class="num">100</span>; i++) {
+  <span class="kw">const</span> li = document.createElement(<span class="str">'li'</span>);
+  li.textContent = <span class="str">`Elemento ${i}`</span>;
+  lista.appendChild(li);  <span class="cm">// posible reflow en cada vuelta</span>
+}
+
+<span class="cm">// ✅ Eficiente: construye todo en memoria, inserta una sola vez</span>
+<span class="kw">const</span> fragmento = document.createDocumentFragment();
+
+<span class="kw">for</span> (<span class="kw">let</span> i = <span class="num">0</span>; i &lt; <span class="num">100</span>; i++) {
+  <span class="kw">const</span> li = document.createElement(<span class="str">'li'</span>);
+  li.textContent = <span class="str">`Elemento ${i}`</span>;
+  fragmento.appendChild(li);  <span class="cm">// esto NO toca el DOM real todavía</span>
+}
+
+lista.appendChild(fragmento);  <span class="cm">// un solo reflow, al final</span>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Prueba la diferencia en vivo</h4>
+    <p>Este botón agrega 300 elementos usando <code>DocumentFragment</code> (una sola inserción real al DOM), y este otro los agrega uno por uno directo a la lista — observa cómo ambos terminan viéndose igual, pero el segundo hace 300 veces más trabajo interno del navegador.</p>
+  </div>
+
+  <div class="demo-live">
+    <button onclick="demoFragment()">Agregar 300 con Fragment</button>
+    <button onclick="demoDirecto()">Agregar 300 directo</button>
+    <button onclick="demoLimpiar()">Limpiar</button>
+    <div class="demo-out" id="demoTiempo"></div>
+    <ul class="demo-list" id="demoLista"></ul>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     DELEGACIÓN DE EVENTOS
+═══════════════════════════════════════════ -->
+<section class="module" id="delegacion-eventos">
+  <div class="module-header">
+    <div class="module-icon">🎯</div>
+    <div>
+      <div class="module-title">Delegación de eventos</div>
+      <div class="module-sub">Un solo listener en vez de cientos</div>
+    </div>
+  </div>
+
+  <p>Agregar un <code>addEventListener</code> individual a cada elemento de una lista larga consume memoria y tiempo de configuración innecesarios. La <strong>delegación de eventos</strong> aprovecha que los eventos "burbujean" (se propagan) hacia arriba en el DOM, permitiendo escuchar en un solo elemento padre.</p>
+
+  <div class="code-block">
+<span class="cm">// ❌ Ineficiente: un listener por cada &lt;li&gt;</span>
+document.querySelectorAll(<span class="str">'li'</span>).forEach(li =&gt; {
+  li.addEventListener(<span class="str">'click'</span>, () =&gt; console.log(li.textContent));
+});
+
+<span class="cm">// ✅ Eficiente: UN listener en el contenedor padre</span>
+lista.addEventListener(<span class="str">'click'</span>, (evento) =&gt; {
+  <span class="kw">if</span> (evento.target.tagName === <span class="str">'LI'</span>) {
+    console.log(evento.target.textContent);
+  }
+});
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Ventaja extra: funciona con elementos agregados después</h4>
+    <p>Como el listener vive en el contenedor padre (que ya existe), cualquier <code>&lt;li&gt;</code> que agregues <strong>después</strong> —incluso dinámicamente— también dispara el evento correctamente, sin necesitar agregarle un listener nuevo cada vez.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     BATCH UPDATES
+═══════════════════════════════════════════ -->
+<section class="module" id="batch-updates">
+  <div class="module-header">
+    <div class="module-icon">📚</div>
+    <div>
+      <div class="module-title">Agrupar lecturas y escrituras</div>
+      <div class="module-sub">Separa "leer" de "escribir" en fases distintas</div>
+    </div>
+  </div>
+
+  <div class="code-block">
+<span class="cm">// ❌ Ineficiente: alterna lectura y escritura, provoca layout thrashing</span>
+cajas.forEach(caja =&gt; {
+  <span class="kw">const</span> altura = caja.offsetHeight;   <span class="cm">// LEE (fuerza layout)</span>
+  caja.style.height = altura * <span class="num">2</span> + <span class="str">'px'</span>;  <span class="cm">// ESCRIBE</span>
+});
+
+<span class="cm">// ✅ Eficiente: primero lee TODO, luego escribe TODO</span>
+<span class="kw">const</span> alturas = cajas.map(caja =&gt; caja.offsetHeight);  <span class="cm">// una sola fase de lectura</span>
+
+cajas.forEach((caja, i) =&gt; {
+  caja.style.height = alturas[i] * <span class="num">2</span> + <span class="str">'px'</span>;   <span class="cm">// una sola fase de escritura</span>
+});
+  </div>
+
+  <p>Al separar todas las lecturas en un bloque y todas las escrituras en otro, el navegador solo necesita recalcular el layout una vez para todo el conjunto, en vez de una vez por cada elemento del bucle.</p>
 
   <dl class="glos">
     <div class="glos-item">
-      <span class="emoji">🔤</span>
-      <dt>pattern</dt>
-      <dd>Valida el valor contra una expresión regular. Ej: <code>pattern="[0-9]{5}"</code> exige exactamente 5 dígitos.</dd>
+      <span class="emoji">📖</span>
+      <dt>Propiedades que fuerzan layout al leerse</dt>
+      <dd><code>offsetHeight</code>, <code>offsetWidth</code>, <code>getBoundingClientRect()</code>, <code>scrollTop</code>, entre otras — todas obligan al navegador a calcular el layout actual antes de responder.</dd>
     </div>
     <div class="glos-item">
-      <span class="emoji">📋</span>
-      <dt>list + datalist</dt>
-      <dd>Convierte un input de texto en un autocompletado con sugerencias, sin JavaScript ni librerías externas.</dd>
-    </div>
-    <div class="glos-item">
-      <span class="emoji">⌨️</span>
-      <dt>inputmode</dt>
-      <dd>Le dice al teclado del celular qué mostrar: <code>inputmode="numeric"</code> abre el teclado numérico aunque el input siga siendo de texto.</dd>
-    </div>
-    <div class="glos-item">
-      <span class="emoji">🚫</span>
-      <dt>novalidate</dt>
-      <dd>Atributo del <code>&lt;form&gt;</code> que desactiva la validación nativa por completo, para cuando quieres controlarla 100% con JavaScript.</dd>
-    </div>
-    <div class="glos-item">
-      <span class="emoji">🔁</span>
-      <dt>autocomplete</dt>
-      <dd>Le dice al navegador qué tipo de dato es (<code>autocomplete="email"</code>, <code>"tel"</code>, <code>"cc-number"</code>) para autocompletar mejor.</dd>
+      <span class="emoji">✍️</span>
+      <dt>Cambios que "ensucian" el layout</dt>
+      <dd>Modificar <code>style</code>, agregar/quitar clases o elementos, cambiar <code>innerHTML</code> — marcan el layout como desactualizado.</dd>
     </div>
   </dl>
-
-  <h2>Ejemplo: datalist para autocompletado</h2>
-  <div class="code-block"><span class="lang">HTML</span><span class="ct">&lt;input</span> <span class="ca">list</span>=<span class="cs">"lenguajes"</span> <span class="ca">name</span>=<span class="cs">"lenguaje"</span><span class="ct">&gt;</span>
-<span class="ct">&lt;datalist</span> <span class="ca">id</span>=<span class="cs">"lenguajes"</span><span class="ct">&gt;</span>
-  <span class="ct">&lt;option</span> <span class="ca">value</span>=<span class="cs">"HTML"</span><span class="ct">&gt;</span>
-  <span class="ct">&lt;option</span> <span class="ca">value</span>=<span class="cs">"CSS"</span><span class="ct">&gt;</span>
-  <span class="ct">&lt;option</span> <span class="ca">value</span>=<span class="cs">"JavaScript"</span><span class="ct">&gt;</span>
-<span class="ct">&lt;/datalist&gt;</span>
-</div>
 </section>
 
 <!-- ═══════════════════════════════════════════
-     PSEUDO-CLASES
+     EJERCICIOS
 ═══════════════════════════════════════════ -->
-<section class="module" id="pseudo-clases">
+<section class="module" id="ejercicios">
   <div class="module-header">
-    <div class="module-icon">🎨</div>
+    <div class="module-icon">🏋️</div>
     <div>
-      <div class="module-title">Estilizar la validación con CSS</div>
-      <div class="module-sub">El navegador ya sabe si el campo es válido — solo hay que pintarlo</div>
+      <div class="module-title">Ejercicios</div>
+      <div class="module-sub">Para practicar lo que acabas de leer</div>
     </div>
   </div>
 
-  <p>Cuando un campo tiene reglas de validación, el navegador le agrega automáticamente un estado que puedes usar en CSS, sin ninguna clase manual.</p>
-
-  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* Campo válido */</span>
-<span class="cn">input</span><span class="cv">:valid</span> {
-  <span class="cp">border-color</span>: <span class="cv">green</span>;
-}
-
-<span class="cc">/* Campo inválido, pero solo cuando el usuario ya interactuó */</span>
-<span class="cn">input</span><span class="cv">:invalid</span><span class="cv">:not</span>(<span class="cv">:placeholder-shown</span>) {
-  <span class="cp">border-color</span>: <span class="cv">crimson</span>;
-}
-
-<span class="cc">/* Foco visible por teclado, no por mouse */</span>
-<span class="cn">input</span><span class="cv">:focus-visible</span> {
-  <span class="cp">outline</span>: <span class="cv">2px</span> <span class="cv">solid</span> <span class="cv">dodgerblue</span>;
-}
-</div>
-
-  <div class="tip">
-    <h4>🟢 El truco de :not(:placeholder-shown)</h4>
-    <p>Usar solo <code>:invalid</code> pinta de rojo el campo desde que carga la página, antes de que el usuario escriba nada — se ve agresivo. Combinarlo con <code>:not(:placeholder-shown)</code> hace que el rojo aparezca solo después de que el usuario empezó a escribir y lo dejó incompleto o mal.</p>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════════
-     CONSTRAINT VALIDATION API
-═══════════════════════════════════════════ -->
-<section class="module" id="js-api">
-  <div class="module-header">
-    <div class="module-icon">⚙️</div>
-    <div>
-      <div class="module-title">Mensajes personalizados con JavaScript</div>
-      <div class="module-sub">Constraint Validation API — cuando el mensaje del navegador no alcanza</div>
-    </div>
+  <div class="exercise">
+    <h4>Ejercicio 1 — Usa un fragmento</h4>
+    <p>Toma un bucle que inserte 50 elementos directo a una lista con <code>appendChild</code> uno por uno, y reescríbelo usando <code>DocumentFragment</code> para que solo haya una inserción real al DOM.</p>
   </div>
 
-  <p>El mensaje de error que muestra el navegador por defecto ("Rellena este campo") no se puede traducir ni personalizar solo con HTML. Para eso existe la Constraint Validation API.</p>
-
-  <div class="code-block"><span class="lang">JavaScript</span><span class="cc">const input = document.querySelector('#usuario')</span>
-
-<span class="ct">input</span>.<span class="cn">addEventListener</span>(<span class="cs">'invalid'</span>, () <span class="ca">=&gt;</span> {
-  <span class="ct">input</span>.<span class="cn">setCustomValidity</span>(<span class="cs">'Escribe un nombre de usuario válido'</span>)
-})
-
-<span class="ct">input</span>.<span class="cn">addEventListener</span>(<span class="cs">'input'</span>, () <span class="ca">=&gt;</span> {
-  <span class="cc">// Limpiar el mensaje personalizado en cuanto el usuario corrige</span>
-  <span class="ct">input</span>.<span class="cn">setCustomValidity</span>(<span class="cs">''</span>)
-})
-</div>
-
-  <div class="warn">
-    <h4>⚠️ No olvides limpiar el mensaje</h4>
-    <p>Si llamas a <code>setCustomValidity()</code> con un texto y nunca lo vuelves a limpiar con <code>setCustomValidity('')</code>, el campo queda inválido para siempre, aunque el usuario lo corrija. Siempre limpia el mensaje en el evento <code>input</code>.</p>
+  <div class="exercise">
+    <h4>Ejercicio 2 — Delega un click</h4>
+    <p>Crea una lista de 10 elementos con un solo <code>addEventListener('click')</code> en el <code>&lt;ul&gt;</code> padre, que identifique cuál <code>&lt;li&gt;</code> fue clickeado usando <code>evento.target</code>.</p>
   </div>
 
-  <div class="tip">
-    <h4>🟢 Resumen de la guía</h4>
-    <ul>
-      <li><strong>Validación nativa:</strong> <code>required</code>, <code>min/max</code>, <code>pattern</code>, tipos de <code>input</code>.</li>
-      <li><strong>Atributos útiles:</strong> <code>datalist</code>, <code>inputmode</code>, <code>autocomplete</code>, <code>novalidate</code>.</li>
-      <li><strong>CSS:</strong> <code>:valid</code>, <code>:invalid</code>, <code>:focus-visible</code>, <code>:not(:placeholder-shown)</code>.</li>
-      <li><strong>JavaScript:</strong> Constraint Validation API para mensajes personalizados.</li>
-    </ul>
+  <div class="exercise">
+    <h4>Ejercicio 3 — Encuentra el layout thrashing</h4>
+    <p>Escribe un bucle que alterne <code>offsetWidth</code> (lectura) con cambios de <code>style.width</code> (escritura) sobre 20 elementos. Luego reescríbelo separando la fase de lectura de la de escritura.</p>
+  </div>
+
+  <div class="concept">
+    <h4>💡 Para llevarte de esta guía</h4>
+    <p>El DOM es rápido si lo tratas con cuidado: agrupa inserciones con <code>DocumentFragment</code>, usa delegación de eventos en vez de un listener por elemento, y separa tus lecturas de tus escrituras para evitar layout thrashing. Ninguna de estas técnicas cambia lo que tu código hace — solo cuántas veces obligas al navegador a recalcular las cosas.</p>
   </div>
 </section>
 
 </main>
 
 <footer>
-  Guía Formularios Avanzados · Café &lt;/&gt; · Guías Adicionales
+  Guía Manipulación del DOM eficiente · Café &lt;/&gt; · Guías adicionales
 </footer>
+
 <script>
   function demoFragment() {
     var lista = document.getElementById('demoLista');

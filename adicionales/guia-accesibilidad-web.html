@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía Accesibilidad web (a11y) — Café </></title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #c49a1a;
+    --primary-light:  #fdf6e0;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --danger:         #c44a2a;
+    --danger-light:   #fdf0ec;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1a1814;
+    --code-text:      #e8e4de;
+
+    color-scheme: light;
+  }
+
+  /* ══════════════ TEMA OSCURO ══════════════ */
+  :root[data-theme="dark"] {
+    --primary:        #e0b52e;
+    --primary-light:  #2b2410;
+    --secondary:      #3fcf9e;
+    --secondary-light:#0f2a22;
+    --accent:         #e0912e;
+    --accent-light:   #2e2110;
+    --danger:         #e07a5a;
+    --danger-light:   #2e1712;
+    --bg:             #14120f;
+    --surface:        #1e1b17;
+    --text:           #f0ece5;
+    --muted:          #a39d93;
+    --border:         #332e27;
+    --code-bg:        #0c0a08;
+    --code-text:      #e8e4de;
+
+    color-scheme: dark;
+  }
+
+  body {
+    font-family: 'DM Sans', 'Segoe UI', sans-serif;
+    background: var(--bg); color: var(--text);
+    line-height: 1.7; font-size: 16px;
+    transition: background .25s ease, color .25s ease;
+  }
+
+  .cafe-bar {
+    background: var(--surface); border-bottom:1px solid var(--border);
+    padding:0 24px; display:flex; align-items:center; gap:14px;
+    position:sticky; top:0; z-index:200; height:45px;
+    transition: background .25s ease, border-color .25s ease;
+  }
+  .cafe-bar a { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--muted); text-decoration:none; padding:6px 14px; border:1px solid var(--border); border-radius:999px; transition:all 0.15s; }
+  .cafe-bar a:hover { color:var(--text); border-color:var(--muted); }
+  .cafe-bar span.crumb { font-size:13px; color:var(--muted); }
+  .cafe-bar .spacer { flex: 1; }
+
+  .theme-toggle {
+    display:inline-flex; align-items:center; gap:8px;
+    background: var(--bg); border:1px solid var(--border); color: var(--text);
+    border-radius:999px; padding:6px 14px 6px 10px; font-size:13px; font-weight:500;
+    cursor:pointer; transition: all .2s ease; font-family: inherit;
+  }
+  .theme-toggle:hover { border-color: var(--primary); color: var(--primary); }
+  .theme-toggle .icon { font-size: 15px; line-height:1; }
+
+  header {
+    background: #1a1814; color: #f7f4ef; padding: 3rem 2rem 2rem;
+    text-align: center; position: relative; overflow: hidden;
+  }
+  header::before { content: '☕'; position: absolute; font-size: 12rem; font-weight: 900; color: rgba(255,255,255,0.04); right: -1rem; top: -2rem; font-family: monospace; line-height: 1; }
+  header h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; font-family: 'Fraunces', serif; }
+  header p { font-size: 1.1rem; opacity: .85; margin-top: .5rem; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  nav {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    position: sticky; top: 45px; z-index: 100; display: flex; overflow-x: auto; gap: 0;
+    transition: background .25s ease, border-color .25s ease;
+  }
+  nav a { flex-shrink: 0; padding: .75rem 1rem; text-decoration: none; color: var(--muted); font-size: .78rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .module {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+    padding: 2rem; margin-bottom: 2.5rem; scroll-margin-top:100px;
+    transition: background .25s ease, border-color .25s ease;
+  }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-size: 1.35rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  .analogy { background: var(--accent-light); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: var(--accent); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; }
+
+  .concept { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p, .tip ul { font-size: .95rem; }
+  .tip ul { padding-left: 1.2rem; }
+
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  .glos { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .glos-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; }
+  .glos-item dt { font-weight: 700; color: var(--primary); font-size: .92rem; margin-bottom: .3rem; }
+  .glos-item dd { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+  .glos-item .emoji { font-size: 1.3rem; display: block; margin-bottom: .3rem; }
+
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: #1a1814; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  h2 { font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; color: var(--text); }
+  h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 .5rem; }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: var(--primary-light); color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+  strong { font-weight: 700; }
+
+  .code-block {
+    background: var(--code-bg); color: var(--code-text); border-radius: 10px;
+    padding: 1rem 1.25rem; font-family: 'DM Mono', monospace; font-size: .84rem;
+    overflow-x: auto; margin: 1rem 0; line-height: 1.65;
+  }
+  .code-block .cm { color: #8a8480; }
+  .code-block .attr { color: #e0b52e; }
+  .code-block .str { color: #7fd8a8; }
+  .code-block .tag2 { color: #e08a5a; }
+
+  .exercise { background: var(--bg); border: 1px dashed var(--primary); border-radius: 10px; padding: 1.1rem 1.25rem; margin: 1rem 0; }
+  .exercise h4 { color: var(--primary); font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .5rem; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); transition: background .25s ease, border-color .25s ease; }
+</style>
+</head>
+<body>
+
+<div class="cafe-bar">
+  <a href="../capitulos.html?tab=adicionales">← Volver a Adicionales</a>
+  <span class="crumb">☕ Accesibilidad web (a11y)</span>
+  <div class="spacer"></div>
+  <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+    <span class="icon" id="themeIcon">🌙</span>
+    <span id="themeLabel">Modo oscuro</span>
+  </button>
+</div>
+
+<header>
+  <h1>Accesibilidad web (a11y)</h1>
+  <p>ARIA, roles y navegación por teclado</p>
+  <span class="badge">🧩 Guía adicional · Fuera de la ruta principal</span>
+</header>
+
+<nav>
+  <a href="#intro">🎯 Intro</a>
+  <a href="#que-es-aria">🏷️ Qué es ARIA</a>
+  <a href="#roles-landmarks">🗺️ Roles y landmarks</a>
+  <a href="#teclado">⌨️ Navegación por teclado</a>
+  <a href="#buenas-practicas">✅ Buenas prácticas rápidas</a>
+  <a href="#herramientas">🔧 Herramientas para probar</a>
+  <a href="#ejercicios">🏋️ Ejercicios</a>
+</nav>
+
+<main>
+
+<div class="parte-badge">🧩 Guía adicional — HTML, CSS y JavaScript</div>
+
+<!-- ═══════════════════════════════════════════
+     INTRO
+═══════════════════════════════════════════ -->
+<section class="module" id="intro">
+  <div class="module-header">
+    <div class="module-icon">🎯</div>
+    <div>
+      <div class="module-title">Introducción — construir para todos, no solo para quien ve bien y usa mouse</div>
+      <div class="module-sub">Qué es la accesibilidad web y por qué no es "opcional"</div>
+    </div>
+  </div>
+
+  <p>La <strong>accesibilidad web</strong> (abreviada como <strong>a11y</strong> — la "11" cuenta las letras entre la "a" y la "y" de "accessibility") es el conjunto de prácticas que aseguran que una página funcione para personas con distintas capacidades: gente que usa lectores de pantalla, que navega solo con teclado, que tiene baja visión, o que usa un switch en lugar de un mouse.</p>
+
+  <div class="concept">
+    <h4>💡 La idea central</h4>
+    <p>Una página accesible no es una página "extra" para un grupo pequeño de usuarios — es una página construida sobre una base sólida de HTML semántico, donde cada elemento cumple el rol que dice cumplir. Cuando esa base es sólida, la mayoría de la accesibilidad viene gratis; ARIA existe para los casos donde el HTML nativo no alcanza.</p>
+  </div>
+
+  <div class="analogy">
+    <h4>🛗 Analogía: la rampa junto a la escalera</h4>
+    <p>Una rampa de acceso no es solo para personas en silla de ruedas: también la usa quien lleva un carrito, una maleta o un coche de bebé. La accesibilidad web funciona igual: subtítulos que ayudan a alguien sordo también ayudan a quien mira un video sin sonido en el transporte público. Diseñar accesible casi siempre termina beneficiando a más personas de las que imaginabas al empezar.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     QUÉ ES ARIA
+═══════════════════════════════════════════ -->
+<section class="module" id="que-es-aria">
+  <div class="module-header">
+    <div class="module-icon">🏷️</div>
+    <div>
+      <div class="module-title">Qué es ARIA</div>
+      <div class="module-sub">Accessible Rich Internet Applications</div>
+    </div>
+  </div>
+
+  <p><strong>ARIA</strong> es un conjunto de atributos HTML que le dan información adicional a las tecnologías de asistencia (como lectores de pantalla) sobre elementos cuyo propósito no es evidente solo con HTML estándar — típicamente, componentes interactivos personalizados hechos con <code>&lt;div&gt;</code> o <code>&lt;span&gt;</code>.</p>
+
+  <div class="warn">
+    <h4>⚠️ La primera regla de ARIA: "no uses ARIA"</h4>
+    <p>Así lo dice literalmente la especificación oficial. Si existe una etiqueta HTML nativa que ya hace lo que necesitas —<code>&lt;button&gt;</code>, <code>&lt;nav&gt;</code>, <code>&lt;input&gt;</code>— úsala en vez de recrear su comportamiento con <code>&lt;div&gt;</code> y atributos ARIA. El HTML nativo ya trae accesibilidad, foco por teclado y semántica integrados; ARIA solo debería aparecer cuando construyes algo que el HTML no cubre.</p>
+  </div>
+
+  <p>Dicho esto, hay atributos ARIA muy comunes que sí vale la pena conocer:</p>
+
+  <div class="code-block">
+&lt;<span class="tag2">button</span> <span class="attr">aria-label</span>=<span class="str">"Cerrar ventana"</span>&gt;✕&lt;/<span class="tag2">button</span>&gt;
+<span class="cm">&lt;!-- Le da nombre accesible a un botón que solo tiene un ícono --&gt;</span>
+
+&lt;<span class="tag2">div</span> <span class="attr">role</span>=<span class="str">"alert"</span>&gt;
+  El formulario tiene errores.
+&lt;/<span class="tag2">div</span>&gt;
+<span class="cm">&lt;!-- Anuncia el mensaje de inmediato al lector de pantalla --&gt;</span>
+
+&lt;<span class="tag2">input</span> <span class="attr">aria-invalid</span>=<span class="str">"true"</span> <span class="attr">aria-describedby</span>=<span class="str">"err-email"</span>&gt;
+&lt;<span class="tag2">span</span> <span class="attr">id</span>=<span class="str">"err-email"</span>&gt;Correo inválido&lt;/<span class="tag2">span</span>&gt;
+<span class="cm">&lt;!-- Conecta un campo con su mensaje de error --&gt;</span>
+  </div>
+
+  <table class="tbl">
+    <tr><th>Atributo</th><th>Para qué sirve</th></tr>
+    <tr><td><span class="tag">aria-label</span></td><td>Da un nombre accesible a un elemento cuando no hay texto visible que lo describa.</td></tr>
+    <tr><td><span class="tag">aria-hidden</span></td><td>Oculta un elemento decorativo (como un ícono) de los lectores de pantalla.</td></tr>
+    <tr><td><span class="tag">aria-expanded</span></td><td>Indica si un menú, acordeón o desplegable está abierto o cerrado.</td></tr>
+    <tr><td><span class="tag">aria-live</span></td><td>Anuncia cambios dinámicos de contenido sin que el usuario tenga que buscar qué cambió.</td></tr>
+  </table>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     ROLES Y LANDMARKS
+═══════════════════════════════════════════ -->
+<section class="module" id="roles-landmarks">
+  <div class="module-header">
+    <div class="module-icon">🗺️</div>
+    <div>
+      <div class="module-title">Roles y landmarks: el mapa de la página</div>
+      <div class="module-sub">Cómo alguien que no ve la pantalla "ve" la estructura</div>
+    </div>
+  </div>
+
+  <p>Las personas que usan lectores de pantalla suelen navegar saltando entre regiones de la página, en vez de leerla de arriba a abajo. Las etiquetas HTML semánticas ya definen <strong>landmarks</strong> (puntos de referencia) automáticamente, sin necesitar ningún atributo ARIA extra.</p>
+
+  <div class="code-block">
+&lt;<span class="tag2">header</span>&gt;...&lt;/<span class="tag2">header</span>&gt;   <span class="cm">role="banner" implícito</span>
+&lt;<span class="tag2">nav</span>&gt;...&lt;/<span class="tag2">nav</span>&gt;         <span class="cm">role="navigation" implícito</span>
+&lt;<span class="tag2">main</span>&gt;...&lt;/<span class="tag2">main</span>&gt;       <span class="cm">role="main" implícito</span>
+&lt;<span class="tag2">aside</span>&gt;...&lt;/<span class="tag2">aside</span>&gt;     <span class="cm">role="complementary" implícito</span>
+&lt;<span class="tag2">footer</span>&gt;...&lt;/<span class="tag2">footer</span>&gt;   <span class="cm">role="contentinfo" implícito</span>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Por qué esto importa tanto</h4>
+    <ul>
+      <li>Un lector de pantalla puede anunciar "hay 4 regiones: banner, navegación, principal, pie de página" y dejar que el usuario salte directo a la que le interese.</li>
+      <li>Si en cambio todo está hecho con <code>&lt;div&gt;</code>, no existe ese mapa — el usuario tiene que escuchar la página completa de corrido.</li>
+      <li>Usar <code>&lt;h1&gt;</code>-<code>&lt;h6&gt;</code> en orden lógico (sin saltarte niveles) le da al lector de pantalla otra forma rápida de navegar, saltando de encabezado en encabezado.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     NAVEGACIÓN POR TECLADO
+═══════════════════════════════════════════ -->
+<section class="module" id="teclado">
+  <div class="module-header">
+    <div class="module-icon">⌨️</div>
+    <div>
+      <div class="module-title">Navegación por teclado</div>
+      <div class="module-sub">Si no puedes usar tu sitio solo con Tab, alguien no podrá usarlo del todo</div>
+    </div>
+  </div>
+
+  <p>Mucha gente no usa mouse: por preferencia, por alguna discapacidad motriz, o porque usa un switch o un dispositivo de asistencia. Para esas personas, la tecla <code>Tab</code> (y <code>Shift + Tab</code> para retroceder) es la forma principal de moverse por la página.</p>
+
+  <table class="tbl">
+    <tr><th>Tecla</th><th>Qué debería pasar</th></tr>
+    <tr><td><span class="tag">Tab</span></td><td>Mover el foco al siguiente elemento interactivo (enlace, botón, campo de formulario).</td></tr>
+    <tr><td><span class="tag">Shift + Tab</span></td><td>Mover el foco al elemento interactivo anterior.</td></tr>
+    <tr><td><span class="tag">Enter / Espacio</span></td><td>Activar un botón o enlace enfocado.</td></tr>
+    <tr><td><span class="tag">Esc</span></td><td>Cerrar un modal o menú desplegable abierto.</td></tr>
+  </table>
+
+  <div class="warn">
+    <h4>⚠️ El error más común: quitar el "focus visible"</h4>
+    <p>Es muy frecuente ver CSS como <code>*:focus { outline: none; }</code> aplicado para "limpiar" el diseño. El problema es que ese contorno (outline) es la única señal visual de dónde está el foco del teclado — quitarlo sin reemplazarlo por algo igual de visible deja a cualquier persona que navega por teclado completamente perdida en la página.</p>
+  </div>
+
+  <div class="code-block">
+<span class="cm">/* Mal: elimina la señal de foco sin reemplazo */</span>
+button:focus { outline: none; }
+
+<span class="cm">/* Bien: reemplaza el outline por un estilo propio, igual de visible */</span>
+button:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+}
+  </div>
+
+  <p>Otro elemento clave son los <strong>"skip links"</strong> (enlaces para saltar), un enlace oculto al inicio de la página que aparece al presionar Tab y permite saltar directo al contenido principal, sin tener que pasar tabulando por todo el menú de navegación en cada visita.</p>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     BUENAS PRÁCTICAS
+═══════════════════════════════════════════ -->
+<section class="module" id="buenas-practicas">
+  <div class="module-header">
+    <div class="module-icon">✅</div>
+    <div>
+      <div class="module-title">Buenas prácticas rápidas</div>
+      <div class="module-sub">Lo que más impacto tiene con menos esfuerzo</div>
+    </div>
+  </div>
+
+  <dl class="glos">
+    <div class="glos-item">
+      <span class="emoji">🖼️</span>
+      <dt>alt en imágenes</dt>
+      <dd>Todo <code>&lt;img&gt;</code> con contenido informativo necesita un <code>alt</code> descriptivo. Si es puramente decorativa, usa <code>alt=""</code> para que el lector de pantalla la ignore.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🏷️</span>
+      <dt>label en formularios</dt>
+      <dd>Cada <code>&lt;input&gt;</code> necesita un <code>&lt;label&gt;</code> asociado (con <code>for</code>/<code>id</code>), no solo un placeholder que desaparece al escribir.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🎨</span>
+      <dt>Contraste de color</dt>
+      <dd>El texto necesita suficiente contraste contra su fondo — WCAG recomienda al menos 4.5:1 para texto normal.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🔘</span>
+      <dt>button vs. div con onclick</dt>
+      <dd>Un <code>&lt;div onclick="..."&gt;</code> no recibe foco de teclado ni se activa con Enter por sí solo — un <code>&lt;button&gt;</code> sí, gratis.</dd>
+    </div>
+  </dl>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     HERRAMIENTAS
+═══════════════════════════════════════════ -->
+<section class="module" id="herramientas">
+  <div class="module-header">
+    <div class="module-icon">🔧</div>
+    <div>
+      <div class="module-title">Herramientas para probar accesibilidad</div>
+      <div class="module-sub">No hace falta adivinar — se puede auditar</div>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <tr><th>Herramienta</th><th>Qué revisa</th></tr>
+    <tr><td><span class="tag">Lighthouse</span></td><td>Integrado en Chrome DevTools; da una puntuación de accesibilidad con problemas específicos señalados.</td></tr>
+    <tr><td><span class="tag">axe DevTools</span></td><td>Extensión de navegador que analiza el DOM en vivo y señala violaciones de accesibilidad con enlaces a la regla WCAG correspondiente.</td></tr>
+    <tr><td><span class="tag">Lector de pantalla real</span></td><td>NVDA (Windows, gratuito) o VoiceOver (integrado en macOS/iOS) — la prueba más honesta es navegar tu propio sitio con los ojos cerrados.</td></tr>
+    <tr><td><span class="tag">Solo teclado</span></td><td>Desconecta el mouse por diez minutos y trata de completar una tarea clave de tu sitio usando solo Tab, Enter y Esc.</td></tr>
+  </table>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     EJERCICIOS
+═══════════════════════════════════════════ -->
+<section class="module" id="ejercicios">
+  <div class="module-header">
+    <div class="module-icon">🏋️</div>
+    <div>
+      <div class="module-title">Ejercicios</div>
+      <div class="module-sub">Para practicar lo que acabas de leer</div>
+    </div>
+  </div>
+
+  <div class="exercise">
+    <h4>Ejercicio 1 — Solo Tab</h4>
+    <p>Escoge cualquier página que hayas construido en este curso. Guarda el mouse y navega usando solo <code>Tab</code>, <code>Shift+Tab</code> y <code>Enter</code>. Anota cada punto donde te "pierdas" o no sepas dónde está el foco.</p>
+  </div>
+
+  <div class="exercise">
+    <h4>Ejercicio 2 — Etiqueta ese botón</h4>
+    <p>Busca en tu código algún ícono clickeable sin texto (una "X" para cerrar, una lupa de búsqueda). Agrégale un <code>aria-label</code> descriptivo, como <code>aria-label="Cerrar ventana"</code>.</p>
+  </div>
+
+  <div class="exercise">
+    <h4>Ejercicio 3 — Audita con Lighthouse</h4>
+    <p>Abre las DevTools de Chrome (<code>F12</code>), ve a la pestaña "Lighthouse", corre un análisis de accesibilidad sobre una página tuya, y corrige al menos dos de los problemas que reporte.</p>
+  </div>
+
+  <div class="concept">
+    <h4>💡 Para llevarte de esta guía</h4>
+    <p>La accesibilidad no es una capa que se agrega al final — la mayor parte se resuelve simplemente usando HTML semántico correctamente (<code>&lt;button&gt;</code>, <code>&lt;nav&gt;</code>, <code>&lt;label&gt;</code>) y probando que tu sitio funcione sin mouse. ARIA es la herramienta de refuerzo para los casos que el HTML nativo no cubre, no el punto de partida.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Guía Accesibilidad web (a11y) · Café &lt;/&gt; · Guías adicionales
+</footer>
+
+<script>
+  (function() {
+    var root = document.documentElement;
+    var icon = document.getElementById('themeIcon');
+    var label = document.getElementById('themeLabel');
+    var STORAGE_KEY = 'cafe-codigo-theme';
+
+    function applyTheme(theme) {
+      if (theme === 'dark') {
+        root.setAttribute('data-theme', 'dark');
+        icon.textContent = '☀️';
+        label.textContent = 'Modo claro';
+      } else {
+        root.removeAttribute('data-theme');
+        icon.textContent = '🌙';
+        label.textContent = 'Modo oscuro';
+      }
+    }
+
+    var saved = null;
+    try { saved = localStorage.getItem(STORAGE_KEY); } catch (e) {}
+
+    if (saved) {
+      applyTheme(saved);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      applyTheme('dark');
+    }
+
+    window.toggleTheme = function() {
+      var isDark = root.getAttribute('data-theme') === 'dark';
+      var next = isDark ? 'light' : 'dark';
+      applyTheme(next);
+      try { localStorage.setItem(STORAGE_KEY, next); } catch (e) {}
+    };
+  })();
+</script>
+
+</body>
+</html>

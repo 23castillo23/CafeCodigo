@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía Cómo era programar web antes de las DevTools — Café </></title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #c49a1a;
+    --primary-light:  #fdf6e0;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --danger:         #c44a2a;
+    --danger-light:   #fdf0ec;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1a1814;
+    --code-text:      #e8e4de;
+  }
+
+  body { font-family: 'DM Sans', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  .cafe-bar { background:#ffffff; border-bottom:1px solid #e8e4de; padding:0 24px; display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:200; height:45px; }
+  .cafe-bar a { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:#8a8480; text-decoration:none; padding:6px 14px; border:1px solid #e8e4de; border-radius:999px; transition:all 0.15s; }
+  .cafe-bar a:hover { color:#1a1814; border-color:#8a8480; }
+  .cafe-bar span { font-size:13px; color:#8a8480; }
+
+  header { background: #1a1814; color: #f7f4ef; padding: 3rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: '☕'; position: absolute; font-size: 12rem; font-weight: 900; color: rgba(255,255,255,0.04); right: -1rem; top: -2rem; font-family: monospace; line-height: 1; }
+  header h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; font-family: 'Fraunces', serif; }
+  header p { font-size: 1.1rem; opacity: .85; margin-top: .5rem; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 45px; z-index: 100; display: flex; overflow-x: auto; gap: 0; }
+  nav a { flex-shrink: 0; padding: .75rem 1rem; text-decoration: none; color: var(--muted); font-size: .78rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2.5rem; scroll-margin-top:100px; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-size: 1.35rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  .analogy { background: #FFF7ED; border: 1px solid #FDE68A; border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: #92400E; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; color: #78350F; }
+
+  .concept { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p, .tip ul { font-size: .95rem; }
+  .tip ul { padding-left: 1.2rem; }
+
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  .glos { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .glos-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; }
+  .glos-item dt { font-weight: 700; color: var(--primary); font-size: .92rem; margin-bottom: .3rem; }
+  .glos-item dd { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+  .glos-item .emoji { font-size: 1.3rem; display: block; margin-bottom: .3rem; }
+
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: white; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  h2 { font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; color: var(--text); }
+  h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 .5rem; }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: #f0ece6; color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+  strong { font-weight: 700; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); }
+</style>
+</head>
+<body>
+
+<div class="cafe-bar">
+  <a href="../capitulos.html?tab=datoscuriosos">← Volver a Datos Curiosos</a>
+  <span>☕ Programar web antes de las DevTools</span>
+</div>
+
+<header>
+  <h1>Cómo era programar web antes de las DevTools</h1>
+  <p>Un vistazo al pasado del desarrollo web</p>
+  <span class="badge">✦ Dato curioso · Historia de la web ✦</span>
+</header>
+
+<nav>
+  <a href="#intro">🎯 Intro</a>
+  <a href="#alert-debugging">🪧 Depurar a punta de alert()</a>
+  <a href="#view-source">👀 "Ver código fuente" como única ventana</a>
+  <a href="#firebug">🐞 Firebug: el parteaguas de 2006</a>
+  <a href="#llegada-devtools">🛠️ Cuando cada navegador quiso las suyas</a>
+  <a href="#legado">🏛️ Lo que dejaron esos años</a>
+</nav>
+
+<main>
+
+<div class="parte-badge">🧠 Dato curioso — Historia y curiosidades de HTML, CSS y JS</div>
+
+<!-- ═══════════════════════════════════════════
+     INTRO
+═══════════════════════════════════════════ -->
+<section class="module" id="intro">
+  <div class="module-header">
+    <div class="module-icon">🎯</div>
+    <div>
+      <div class="module-title">Introducción — programar a ciegas, literalmente</div>
+      <div class="module-sub">Antes de F12, depurar una página era casi un acto de fe</div>
+    </div>
+  </div>
+
+  <p>Hoy, presionar <code>F12</code> o clic derecho → "Inspeccionar" es un reflejo casi automático para cualquier persona que trabaja con HTML, CSS o JavaScript. Pero esa comodidad es relativamente reciente. Durante los primeros diez años de la web, los desarrolladores no tenían ninguna herramienta integrada para inspeccionar el DOM, ver los estilos aplicados o depurar código JavaScript en tiempo real.</p>
+
+  <div class="concept">
+    <h4>💡 El dato en una frase</h4>
+    <p>Antes de que existieran herramientas de desarrollador integradas en los navegadores, depurar una página web dependía de trucos improvisados como ventanas de <code>alert()</code>, revisar manualmente el "código fuente" estático, y —a partir de 2006— la extensión <strong>Firebug</strong> para Firefox, que fue la primera herramienta ampliamente adoptada capaz de inspeccionar y modificar una página en vivo.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     ALERT DEBUGGING
+═══════════════════════════════════════════ -->
+<section class="module" id="alert-debugging">
+  <div class="module-header">
+    <div class="module-icon">🪧</div>
+    <div>
+      <div class="module-title">Depurar a punta de alert()</div>
+      <div class="module-sub">La consola de depuración de todos, mucho antes de que existiera "la consola"</div>
+    </div>
+  </div>
+
+  <p>Sin una consola de JavaScript real, la forma más común de saber qué estaba pasando dentro del código era insertar llamadas a <code>alert()</code> en puntos estratégicos, para que el navegador mostrara una ventana emergente con el valor de una variable o un mensaje de "llegué hasta aquí".</p>
+
+  <div class="analogy">
+    <h4>🔦 Analogía: explorar una cueva con cerillos</h4>
+    <p>Depurar con <code>alert()</code> era como explorar una cueva oscura encendiendo un cerillo a la vez: cada <code>alert()</code> te mostraba un destello de información en un punto exacto, pero tenías que apagarlo (cerrar la ventana) antes de poder seguir avanzando, y no había forma de ver el mapa completo de la cueva de una sola vez.</p>
+  </div>
+
+  <p>El problema era doble: cada <code>alert()</code> pausaba por completo la ejecución del script hasta que alguien cerraba la ventana manualmente, y había que acordarse de quitar todos esos mensajes antes de publicar el sitio — olvidar uno significaba que los usuarios reales verían ventanas de depuración en producción.</p>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     VER CÓDIGO FUENTE
+═══════════════════════════════════════════ -->
+<section class="module" id="view-source">
+  <div class="module-header">
+    <div class="module-icon">👀</div>
+    <div>
+      <div class="module-title">"Ver código fuente" como única ventana al HTML</div>
+      <div class="module-sub">Una foto fija, no una vista en vivo</div>
+    </div>
+  </div>
+
+  <p>La opción de menú "Ver código fuente de la página" (View Source), presente desde los primeros navegadores, permitía ver el HTML tal como había llegado del servidor. Pero tenía una limitación enorme: mostraba el HTML <strong>original</strong>, no el estado actual del DOM después de que JavaScript lo hubiera modificado — algo cada vez más común conforme las páginas se volvían más dinámicas.</p>
+
+  <table class="tbl">
+    <tr><th>Herramienta disponible</th><th>Qué podía hacer</th><th>Qué NO podía hacer</th></tr>
+    <tr><td><span class="tag">Ver código fuente</span></td><td>Mostrar el HTML original recibido del servidor.</td><td>Reflejar cambios hechos por JavaScript después de cargar la página.</td></tr>
+    <tr><td><span class="tag">alert()</span></td><td>Mostrar el valor de una variable en un momento puntual.</td><td>Explorar el estado completo del programa o pausar sin interrumpir la página.</td></tr>
+    <tr><td><span class="tag">Editores de texto</span></td><td>Escribir y editar HTML/CSS/JS manualmente.</td><td>Mostrar errores de sintaxis o de ejecución en tiempo real.</td></tr>
+  </table>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     FIREBUG
+═══════════════════════════════════════════ -->
+<section class="module" id="firebug">
+  <div class="module-header">
+    <div class="module-icon">🐞</div>
+    <div>
+      <div class="module-title">Firebug: el parteaguas de 2006</div>
+      <div class="module-sub">La primera herramienta que realmente cambió las reglas del juego</div>
+    </div>
+  </div>
+
+  <p>En 2006, <strong>Joe Hewitt</strong> lanzó <strong>Firebug</strong>, una extensión para Firefox que por primera vez ofrecía, de forma integrada y accesible, la posibilidad de inspeccionar el DOM en vivo, ver y editar estilos CSS aplicados en tiempo real, y contar con una consola de JavaScript real donde ejecutar código y ver errores.</p>
+
+  <div class="tip">
+    <h4>🟢 Por qué Firebug se sintió revolucionario</h4>
+    <ul>
+      <li>Permitía hacer clic sobre cualquier elemento visual y ver exactamente qué CSS lo afectaba.</li>
+      <li>Se podían editar estilos directamente en el navegador y ver el cambio al instante, sin tocar el archivo original.</li>
+      <li>Incluía un depurador de JavaScript con puntos de interrupción (breakpoints), algo antes reservado a entornos de desarrollo de escritorio.</li>
+    </ul>
+  </div>
+
+  <p>Firebug se volvió, durante varios años, una herramienta casi obligatoria para cualquier desarrollador web serio, y influyó directamente en el diseño de las herramientas de desarrollador que vendrían después en otros navegadores.</p>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     LLEGADA DE DEVTOOLS
+═══════════════════════════════════════════ -->
+<section class="module" id="llegada-devtools">
+  <div class="module-header">
+    <div class="module-icon">🛠️</div>
+    <div>
+      <div class="module-title">Cuando cada navegador quiso las suyas</div>
+      <div class="module-sub">De una extensión opcional a una función integrada de fábrica</div>
+    </div>
+  </div>
+
+  <p>El éxito de Firebug demostró que este tipo de herramientas era indispensable, y los fabricantes de navegadores empezaron a integrar sus propias versiones directamente en el producto, sin necesidad de instalar nada aparte. Safari incorporó su <strong>Web Inspector</strong>, y cuando Google lanzó Chrome en 2008, incluyó desde el inicio sus propias <strong>Chrome DevTools</strong>, basadas en ese mismo Web Inspector de WebKit.</p>
+
+  <div class="warn">
+    <h4>⚠️ El precio de tener que instalar una extensión</h4>
+    <p>Antes de que las herramientas vinieran integradas, un desarrollador dependía de que su navegador tuviera una extensión compatible disponible — y de que el usuario final, obviamente, no la necesitara para nada, porque estas herramientas eran solo para quien construía la página, no para quien la visitaba.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     LEGADO
+═══════════════════════════════════════════ -->
+<section class="module" id="legado">
+  <div class="module-header">
+    <div class="module-icon">🏛️</div>
+    <div>
+      <div class="module-title">Lo que dejaron esos años</div>
+      <div class="module-sub">De trucos improvisados a un estándar de la profesión</div>
+    </div>
+  </div>
+
+  <dl class="glos">
+    <div class="glos-item">
+      <span class="emoji">🐞</span>
+      <dt>Firebug</dt>
+      <dd>Extensión para Firefox lanzada en 2006 por Joe Hewitt, pionera en inspección de DOM, edición de CSS en vivo y depuración de JavaScript.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🔍</span>
+      <dt>Web Inspector</dt>
+      <dd>Las herramientas de desarrollador integradas en el motor WebKit, base de las que usan hoy Safari y, originalmente, Chrome.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🖥️</span>
+      <dt>Consola de JavaScript</dt>
+      <dd>Un panel para ejecutar código en tiempo real y ver mensajes de error, algo que antes solo existía de forma improvisada con <code>alert()</code>.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">⏸️</span>
+      <dt>Breakpoint (punto de interrupción)</dt>
+      <dd>Un punto que el desarrollador marca en el código para pausar la ejecución ahí y examinar el estado del programa, sin tener que insertar código de depuración manualmente.</dd>
+    </div>
+  </dl>
+
+  <div class="concept">
+    <h4>💡 Resumen del dato curioso</h4>
+    <p>Antes de las herramientas de desarrollador modernas, depurar una página web dependía de trucos improvisados: ventanas de <code>alert()</code>, la opción estática de "ver código fuente" y mucha paciencia. Firebug, lanzado en 2006 para Firefox, fue la primera herramienta en ofrecer una experiencia real de inspección y depuración en vivo, y su éxito llevó a que Safari y Chrome integraran sus propias herramientas directamente en el navegador — convirtiendo lo que antes era un lujo de unos pocos en un estándar que hoy cualquier desarrollador da por hecho.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Guía Cómo era programar web antes de las DevTools · Café &lt;/&gt; · Datos Curiosos
+</footer>
+
+</body>
+</html>

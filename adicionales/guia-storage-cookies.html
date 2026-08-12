@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía LocalStorage vs SessionStorage vs Cookies — Café </></title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #c49a1a;
+    --primary-light:  #fdf6e0;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --danger:         #c44a2a;
+    --danger-light:   #fdf0ec;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1a1814;
+    --code-text:      #e8e4de;
+
+    color-scheme: light;
+  }
+
+  :root[data-theme="dark"] {
+    --primary:        #e0b52e;
+    --primary-light:  #2b2410;
+    --secondary:      #3fcf9e;
+    --secondary-light:#0f2a22;
+    --accent:         #e0912e;
+    --accent-light:   #2e2110;
+    --danger:         #e07a5a;
+    --danger-light:   #2e1712;
+    --bg:             #14120f;
+    --surface:        #1e1b17;
+    --text:           #f0ece5;
+    --muted:          #a39d93;
+    --border:         #332e27;
+    --code-bg:        #0c0a08;
+    --code-text:      #e8e4de;
+
+    color-scheme: dark;
+  }
+
+  body {
+    font-family: 'DM Sans', 'Segoe UI', sans-serif;
+    background: var(--bg); color: var(--text);
+    line-height: 1.7; font-size: 16px;
+    transition: background .25s ease, color .25s ease;
+  }
+
+  .cafe-bar {
+    background: var(--surface); border-bottom:1px solid var(--border);
+    padding:0 24px; display:flex; align-items:center; gap:14px;
+    position:sticky; top:0; z-index:200; height:45px;
+    transition: background .25s ease, border-color .25s ease;
+  }
+  .cafe-bar a { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--muted); text-decoration:none; padding:6px 14px; border:1px solid var(--border); border-radius:999px; transition:all 0.15s; }
+  .cafe-bar a:hover { color:var(--text); border-color:var(--muted); }
+  .cafe-bar span.crumb { font-size:13px; color:var(--muted); }
+  .cafe-bar .spacer { flex: 1; }
+
+  .theme-toggle {
+    display:inline-flex; align-items:center; gap:8px;
+    background: var(--bg); border:1px solid var(--border); color: var(--text);
+    border-radius:999px; padding:6px 14px 6px 10px; font-size:13px; font-weight:500;
+    cursor:pointer; transition: all .2s ease; font-family: inherit;
+  }
+  .theme-toggle:hover { border-color: var(--primary); color: var(--primary); }
+  .theme-toggle .icon { font-size: 15px; line-height:1; }
+
+  header {
+    background: #1a1814; color: #f7f4ef; padding: 3rem 2rem 2rem;
+    text-align: center; position: relative; overflow: hidden;
+  }
+  header::before { content: '☕'; position: absolute; font-size: 12rem; font-weight: 900; color: rgba(255,255,255,0.04); right: -1rem; top: -2rem; font-family: monospace; line-height: 1; }
+  header h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; font-family: 'Fraunces', serif; }
+  header p { font-size: 1.1rem; opacity: .85; margin-top: .5rem; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  nav {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    position: sticky; top: 45px; z-index: 100; display: flex; overflow-x: auto; gap: 0;
+    transition: background .25s ease, border-color .25s ease;
+  }
+  nav a { flex-shrink: 0; padding: .75rem 1rem; text-decoration: none; color: var(--muted); font-size: .78rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .module {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+    padding: 2rem; margin-bottom: 2.5rem; scroll-margin-top:100px;
+    transition: background .25s ease, border-color .25s ease;
+  }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-size: 1.35rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  .analogy { background: var(--accent-light); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: var(--accent); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; }
+
+  .concept { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p, .tip ul { font-size: .95rem; }
+  .tip ul { padding-left: 1.2rem; }
+
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  .glos { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .glos-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; }
+  .glos-item dt { font-weight: 700; color: var(--primary); font-size: .92rem; margin-bottom: .3rem; }
+  .glos-item dd { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+  .glos-item .emoji { font-size: 1.3rem; display: block; margin-bottom: .3rem; }
+
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: #1a1814; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  h2 { font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; color: var(--text); }
+  h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 .5rem; }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: var(--primary-light); color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+  strong { font-weight: 700; }
+
+  .code-block {
+    background: var(--code-bg); color: var(--code-text); border-radius: 10px;
+    padding: 1rem 1.25rem; font-family: 'DM Mono', monospace; font-size: .84rem;
+    overflow-x: auto; margin: 1rem 0; line-height: 1.65;
+  }
+  .code-block .cm { color: #8a8480; }
+  .code-block .attr { color: #e0b52e; }
+  .code-block .str { color: #7fd8a8; }
+  .code-block .tag2 { color: #e08a5a; }
+  .code-block .num { color: #7fb8e0; }
+  .code-block .kw { color: #d88ae0; }
+
+  .exercise { background: var(--bg); border: 1px dashed var(--primary); border-radius: 10px; padding: 1.1rem 1.25rem; margin: 1rem 0; }
+  .exercise h4 { color: var(--primary); font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .5rem; }
+
+  /* Comparativa visual de "vida" de cada almacenamiento */
+  .lifespan-row { display:flex; align-items:center; gap: .8rem; margin: .7rem 0; font-size: .85rem; }
+  .lifespan-label { width: 140px; flex-shrink:0; font-weight:600; font-family:'DM Mono',monospace; font-size:.8rem; }
+  .lifespan-bar { flex:1; height: 14px; border-radius: 7px; background: var(--bg); border:1px solid var(--border); position:relative; overflow:hidden; }
+  .lifespan-fill { height:100%; border-radius: 7px; }
+  .fill-session { width: 22%; background: var(--danger); }
+  .fill-local { width: 100%; background: var(--secondary); }
+  .fill-cookie { width: 55%; background: var(--primary); }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); transition: background .25s ease, border-color .25s ease; }
+</style>
+</head>
+<body>
+
+<div class="cafe-bar">
+  <a href="../capitulos.html?tab=adicionales">← Volver a Adicionales</a>
+  <span class="crumb">☕ LocalStorage vs SessionStorage vs Cookies</span>
+  <div class="spacer"></div>
+  <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+    <span class="icon" id="themeIcon">🌙</span>
+    <span id="themeLabel">Modo oscuro</span>
+  </button>
+</div>
+
+<header>
+  <h1>LocalStorage vs SessionStorage vs Cookies</h1>
+  <p>Cuándo usar cada uno para guardar datos</p>
+  <span class="badge">🧩 Guía adicional · Fuera de la ruta principal</span>
+</header>
+
+<nav>
+  <a href="#intro">🎯 Intro</a>
+  <a href="#localstorage">💾 localStorage</a>
+  <a href="#sessionstorage">🗂️ sessionStorage</a>
+  <a href="#cookies">🍪 Cookies</a>
+  <a href="#comparativa">⚖️ Comparativa lado a lado</a>
+  <a href="#cuando-usar">🧭 Cuál usar en cada caso</a>
+  <a href="#ejercicios">🏋️ Ejercicios</a>
+</nav>
+
+<main>
+
+<div class="parte-badge">🧩 Guía adicional — HTML, CSS y JavaScript</div>
+
+<!-- ═══════════════════════════════════════════
+     INTRO
+═══════════════════════════════════════════ -->
+<section class="module" id="intro">
+  <div class="module-header">
+    <div class="module-icon">🎯</div>
+    <div>
+      <div class="module-title">Introducción — tres formas de que el navegador "recuerde" algo</div>
+      <div class="module-sub">Mismo objetivo general, comportamientos muy distintos</div>
+    </div>
+  </div>
+
+  <p>Cuando una página necesita recordar información entre visitas —el idioma preferido, si el usuario inició sesión, los artículos de un carrito de compras— tiene tres herramientas principales para guardar esos datos en el navegador: <strong>localStorage</strong>, <strong>sessionStorage</strong> y <strong>cookies</strong>. Las tres cumplen un propósito parecido, pero con reglas muy distintas de duración, tamaño y quién puede leerlas.</p>
+
+  <div class="concept">
+    <h4>💡 La diferencia que más importa</h4>
+    <p>La pregunta clave para elegir entre las tres casi siempre es: <strong>¿cuánto tiempo necesito que sobrevivan estos datos, y necesita el servidor enterarse de ellos automáticamente en cada petición?</strong></p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     LOCALSTORAGE
+═══════════════════════════════════════════ -->
+<section class="module" id="localstorage">
+  <div class="module-header">
+    <div class="module-icon">💾</div>
+    <div>
+      <div class="module-title">localStorage</div>
+      <div class="module-sub">Persiste para siempre, hasta que alguien lo borre</div>
+    </div>
+  </div>
+
+  <p><code>localStorage</code> guarda datos sin fecha de expiración: siguen ahí después de cerrar la pestaña, cerrar el navegador por completo, o incluso reiniciar la computadora. Solo desaparecen si el usuario los borra manualmente (o tu código lo hace).</p>
+
+  <div class="code-block">
+<span class="cm">// Guardar</span>
+localStorage.setItem(<span class="str">'tema'</span>, <span class="str">'oscuro'</span>);
+
+<span class="cm">// Leer</span>
+<span class="kw">const</span> tema = localStorage.getItem(<span class="str">'tema'</span>);  <span class="cm">// 'oscuro'</span>
+
+<span class="cm">// Borrar una clave específica</span>
+localStorage.removeItem(<span class="str">'tema'</span>);
+
+<span class="cm">// Borrar todo</span>
+localStorage.clear();
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ Solo guarda texto (strings)</h4>
+    <p>localStorage únicamente almacena cadenas de texto. Para guardar un objeto o arreglo, hay que convertirlo con <code>JSON.stringify()</code> al guardar, y con <code>JSON.parse()</code> al leerlo de vuelta.</p>
+  </div>
+
+  <div class="code-block">
+<span class="kw">const</span> carrito = [{ producto: <span class="str">'Café'</span>, cantidad: <span class="num">2</span> }];
+
+localStorage.setItem(<span class="str">'carrito'</span>, JSON.stringify(carrito));
+
+<span class="kw">const</span> carritoGuardado = JSON.parse(localStorage.getItem(<span class="str">'carrito'</span>));
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     SESSIONSTORAGE
+═══════════════════════════════════════════ -->
+<section class="module" id="sessionstorage">
+  <div class="module-header">
+    <div class="module-icon">🗂️</div>
+    <div>
+      <div class="module-title">sessionStorage</div>
+      <div class="module-sub">La misma API, pero con memoria de corto plazo</div>
+    </div>
+  </div>
+
+  <p><code>sessionStorage</code> comparte exactamente la misma API que <code>localStorage</code> (<code>setItem</code>, <code>getItem</code>, <code>removeItem</code>, <code>clear</code>), pero con una diferencia clave de comportamiento: los datos se borran automáticamente al cerrar la pestaña o el navegador.</p>
+
+  <div class="analogy">
+    <h4>📝 Analogía: el post-it contra el archivero</h4>
+    <p><code>sessionStorage</code> es como un post-it pegado en tu escritorio: útil mientras trabajas en algo, pero se tira al final del día. <code>localStorage</code> es como un archivero: lo que guardas ahí sigue existiendo mañana, la próxima semana, y el próximo mes, hasta que tú decidas sacarlo.</p>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Cada pestaña tiene su propio sessionStorage</h4>
+    <p>Si abres el mismo sitio en dos pestañas distintas, cada una tiene su propio <code>sessionStorage</code> independiente, aunque sea exactamente la misma URL. Esto lo hace ideal para datos temporales de un solo flujo, como el progreso de un formulario de varios pasos.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     COOKIES
+═══════════════════════════════════════════ -->
+<section class="module" id="cookies">
+  <div class="module-header">
+    <div class="module-icon">🍪</div>
+    <div>
+      <div class="module-title">Cookies</div>
+      <div class="module-sub">La opción más antigua — y la única que viaja al servidor sola</div>
+    </div>
+  </div>
+
+  <p>Las cookies son la forma más antigua de almacenamiento en el navegador, con una característica que las diferencia por completo de las otras dos: se envían <strong>automáticamente</strong> al servidor en cada petición HTTP hacia ese dominio, sin que tengas que hacer nada extra en tu código.</p>
+
+  <div class="code-block">
+<span class="cm">// Crear una cookie con JavaScript (existe, pero rara vez se usa así)</span>
+document.cookie = <span class="str">"idioma=es; max-age=2592000; path=/"</span>;
+
+<span class="cm">// Leer todas las cookies (viene como un solo string, hay que parsearlo)</span>
+console.log(document.cookie);
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ En la práctica, casi nadie maneja cookies "a mano" con JS</h4>
+    <p>La API nativa de <code>document.cookie</code> es incómoda de usar (todo llega como un solo string que hay que separar manualmente). En proyectos reales, las cookies importantes —como las de sesión de login— casi siempre las crea y gestiona el <strong>servidor</strong>, con la cabecera HTTP <code>Set-Cookie</code>, no JavaScript en el navegador.</p>
+  </div>
+
+  <table class="tbl">
+    <tr><th>Atributo de cookie</th><th>Qué controla</th></tr>
+    <tr><td><span class="tag">max-age / expires</span></td><td>Cuánto tiempo vive la cookie antes de borrarse sola.</td></tr>
+    <tr><td><span class="tag">HttpOnly</span></td><td>Impide que JavaScript la lea, protegiendo cookies de sesión sensibles contra ataques.</td></tr>
+    <tr><td><span class="tag">Secure</span></td><td>Solo se envía por HTTPS, nunca por conexiones sin cifrar.</td></tr>
+    <tr><td><span class="tag">SameSite</span></td><td>Controla si la cookie se envía en peticiones que vienen de otros sitios (protección contra ciertos ataques).</td></tr>
+  </table>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     COMPARATIVA
+═══════════════════════════════════════════ -->
+<section class="module" id="comparativa">
+  <div class="module-header">
+    <div class="module-icon">⚖️</div>
+    <div>
+      <div class="module-title">Comparativa lado a lado</div>
+      <div class="module-sub">Duración aproximada de cada uno</div>
+    </div>
+  </div>
+
+  <div class="lifespan-row">
+    <div class="lifespan-label">sessionStorage</div>
+    <div class="lifespan-bar"><div class="lifespan-fill fill-session"></div></div>
+    <div style="font-size:.75rem; color:var(--muted); width:110px;">hasta cerrar pestaña</div>
+  </div>
+  <div class="lifespan-row">
+    <div class="lifespan-label">Cookie (con expiración)</div>
+    <div class="lifespan-bar"><div class="lifespan-fill fill-cookie"></div></div>
+    <div style="font-size:.75rem; color:var(--muted); width:110px;">días a meses</div>
+  </div>
+  <div class="lifespan-row">
+    <div class="lifespan-label">localStorage</div>
+    <div class="lifespan-bar"><div class="lifespan-fill fill-local"></div></div>
+    <div style="font-size:.75rem; color:var(--muted); width:110px;">indefinido</div>
+  </div>
+
+  <table class="tbl" style="margin-top:1.2rem;">
+    <tr><th></th><th>localStorage</th><th>sessionStorage</th><th>Cookies</th></tr>
+    <tr><td><span class="tag">Duración</span></td><td>Indefinida</td><td>Hasta cerrar la pestaña</td><td>La que tú definas (o de sesión)</td></tr>
+    <tr><td><span class="tag">Tamaño aprox.</span></td><td>~5-10 MB</td><td>~5-10 MB</td><td>~4 KB</td></tr>
+    <tr><td><span class="tag">¿Viaja al servidor?</span></td><td>No, nunca</td><td>No, nunca</td><td>Sí, en cada petición</td></tr>
+    <tr><td><span class="tag">Acceso</span></td><td>Solo JavaScript</td><td>Solo JavaScript</td><td>JavaScript y servidor</td></tr>
+    <tr><td><span class="tag">Compartido entre pestañas</span></td><td>Sí</td><td>No (cada pestaña, su copia)</td><td>Sí</td></tr>
+  </table>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     CUÁNDO USAR
+═══════════════════════════════════════════ -->
+<section class="module" id="cuando-usar">
+  <div class="module-header">
+    <div class="module-icon">🧭</div>
+    <div>
+      <div class="module-title">Cuál usar en cada caso</div>
+      <div class="module-sub">Ejemplos concretos para no dudar la próxima vez</div>
+    </div>
+  </div>
+
+  <dl class="glos">
+    <div class="glos-item">
+      <span class="emoji">🎨</span>
+      <dt>Preferencia de tema (claro/oscuro)</dt>
+      <dd><strong>localStorage</strong> — no cambia entre pestañas y debe recordarse indefinidamente, sin que el servidor necesite saberlo.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">📋</span>
+      <dt>Progreso de un formulario largo</dt>
+      <dd><strong>sessionStorage</strong> — solo importa mientras dura esa visita; no tiene sentido que sobreviva a que cierres el navegador.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🔐</span>
+      <dt>Sesión de login</dt>
+      <dd><strong>Cookie</strong> (idealmente <code>HttpOnly</code>) — el servidor necesita recibirla automáticamente en cada petición para saber quién eres.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🛒</span>
+      <dt>Carrito de compras persistente</dt>
+      <dd><strong>localStorage</strong> — el usuario espera encontrarlo igual aunque cierre y regrese días después.</dd>
+    </div>
+  </dl>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     EJERCICIOS
+═══════════════════════════════════════════ -->
+<section class="module" id="ejercicios">
+  <div class="module-header">
+    <div class="module-icon">🏋️</div>
+    <div>
+      <div class="module-title">Ejercicios</div>
+      <div class="module-sub">Para practicar lo que acabas de leer</div>
+    </div>
+  </div>
+
+  <div class="exercise">
+    <h4>Ejercicio 1 — Contador persistente</h4>
+    <p>Crea un botón que aumente un contador guardado en <code>localStorage</code>. Recarga la página y verifica que el número siga ahí.</p>
+  </div>
+
+  <div class="exercise">
+    <h4>Ejercicio 2 — Compara la duración</h4>
+    <p>Guarda un valor en <code>sessionStorage</code> y otro en <code>localStorage</code>. Cierra la pestaña (no todo el navegador) y vuelve a abrir el sitio. ¿Cuál de los dos sigue ahí?</p>
+  </div>
+
+  <div class="exercise">
+    <h4>Ejercicio 3 — Objeto completo</h4>
+    <p>Guarda un objeto con varias propiedades (nombre, preferencias, etc.) en <code>localStorage</code> usando <code>JSON.stringify()</code>, y recupéralo con <code>JSON.parse()</code>, mostrando cada propiedad por separado en consola.</p>
+  </div>
+
+  <div class="concept">
+    <h4>💡 Para llevarte de esta guía</h4>
+    <p>Si el servidor necesita conocer el dato automáticamente en cada petición (como una sesión de login), usa cookies. Si es solo para esta visita, sessionStorage. Si debe sobrevivir indefinidamente y solo lo necesita el navegador, localStorage. Las tres resuelven "recordar algo" — la diferencia está en quién necesita leerlo y por cuánto tiempo.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Guía LocalStorage vs SessionStorage vs Cookies · Café &lt;/&gt; · Guías adicionales
+</footer>
+
+<script>
+  (function() {
+    var root = document.documentElement;
+    var icon = document.getElementById('themeIcon');
+    var label = document.getElementById('themeLabel');
+    var STORAGE_KEY = 'cafe-codigo-theme';
+
+    function applyTheme(theme) {
+      if (theme === 'dark') {
+        root.setAttribute('data-theme', 'dark');
+        icon.textContent = '☀️';
+        label.textContent = 'Modo claro';
+      } else {
+        root.removeAttribute('data-theme');
+        icon.textContent = '🌙';
+        label.textContent = 'Modo oscuro';
+      }
+    }
+
+    var saved = null;
+    try { saved = localStorage.getItem(STORAGE_KEY); } catch (e) {}
+
+    if (saved) {
+      applyTheme(saved);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      applyTheme('dark');
+    }
+
+    window.toggleTheme = function() {
+      var isDark = root.getAttribute('data-theme') === 'dark';
+      var next = isDark ? 'light' : 'dark';
+      applyTheme(next);
+      try { localStorage.setItem(STORAGE_KEY, next); } catch (e) {}
+    };
+  })();
+</script>
+
+</body>
+</html>

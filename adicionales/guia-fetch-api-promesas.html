@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Guía Formularios Avanzados — Café </></title>
+<title>Guía Fetch API y promesas — Café </></title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -160,13 +160,13 @@
   .exercise { background: var(--bg); border: 1px dashed var(--primary); border-radius: 10px; padding: 1.1rem 1.25rem; margin: 1rem 0; }
   .exercise h4 { color: var(--primary); font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .5rem; }
 
-  /* Demo en vivo: reflow */
-  .demo-live { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin: 1rem 0; text-align: center; }
-  .demo-live button { padding: .6rem 1.2rem; border-radius: 8px; border: none; background: var(--primary); color: #1a1814; font-weight: 700; cursor: pointer; font-family: inherit; font-size: .85rem; margin: 0 .3rem; }
-  .demo-live button:hover { background: var(--secondary); }
-  .demo-out { margin-top: 1rem; font-family: 'DM Mono', monospace; font-size: .82rem; color: var(--muted); min-height: 24px; }
-  .demo-list { list-style:none; display:flex; flex-wrap:wrap; gap:.4rem; justify-content:center; margin-top: 1rem; min-height: 40px; }
-  .demo-list li { background: var(--primary-light); color: var(--primary); border-radius: 6px; padding: .3rem .7rem; font-family:'DM Mono',monospace; font-size:.78rem; }
+  /* Diagrama de estados de una promesa */
+  .promise-states { display:flex; align-items:center; justify-content:center; gap: .5rem; flex-wrap: wrap; margin: 1.2rem 0; }
+  .promise-states .state { padding: .7rem 1.1rem; border-radius: 8px; font-family:'DM Mono',monospace; font-size:.82rem; font-weight:700; border:1px solid var(--border); }
+  .promise-states .pending { background: var(--bg); color: var(--muted); }
+  .promise-states .fulfilled { background: var(--secondary-light); color: var(--secondary); border-color: var(--secondary); }
+  .promise-states .rejected { background: var(--danger-light); color: var(--danger); border-color: var(--danger); }
+  .promise-states .arrow { color: var(--muted); font-size: 1.1rem; }
 
   footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); transition: background .25s ease, border-color .25s ease; }
 </style>
@@ -175,7 +175,7 @@
 
 <div class="cafe-bar">
   <a href="../capitulos.html?tab=adicionales">← Volver a Adicionales</a>
-  <span class="crumb">📝 Formularios Avanzados</span>
+  <span class="crumb">☕ Fetch API y promesas</span>
   <div class="spacer"></div>
   <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
     <span class="icon" id="themeIcon">🌙</span>
@@ -184,22 +184,24 @@
 </div>
 
 <header>
-  <h1>Formularios Avanzados</h1>
-  <p>Validación nativa, patrones y los atributos que casi nadie usa</p>
-  <span class="badge">✦ Guía adicional · HTML ✦</span>
+  <h1>Fetch API y promesas</h1>
+  <p>Consumir APIs y manejar errores en JavaScript</p>
+  <span class="badge">🧩 Guía adicional · Fuera de la ruta principal</span>
 </header>
 
 <nav>
   <a href="#intro">🎯 Intro</a>
-  <a href="#validacion-nativa">✅ Validación nativa</a>
-  <a href="#atributos">🧩 Atributos poco usados</a>
-  <a href="#pseudo-clases">🎨 Pseudo-clases</a>
-  <a href="#js-api">⚙️ Constraint API</a>
+  <a href="#que-es-promesa">🎟️ Qué es una promesa</a>
+  <a href="#fetch-basico">🌐 fetch() paso a paso</a>
+  <a href="#async-await">✨ async/await: la forma moderna</a>
+  <a href="#manejo-errores">🚨 Manejo de errores</a>
+  <a href="#promise-all">🔀 Peticiones en paralelo</a>
+  <a href="#ejercicios">🏋️ Ejercicios</a>
 </nav>
 
 <main>
 
-<div class="parte-badge">📝 Guía adicional — HTML, CSS y JavaScript</div>
+<div class="parte-badge">🧩 Guía adicional — HTML, CSS y JavaScript</div>
 
 <!-- ═══════════════════════════════════════════
      INTRO
@@ -208,228 +210,228 @@
   <div class="module-header">
     <div class="module-icon">🎯</div>
     <div>
-      <div class="module-title">Introducción — más allá del &lt;input&gt; básico</div>
-      <div class="module-sub">Por qué un formulario "bien hecho" no necesita casi JavaScript</div>
+      <div class="module-title">Introducción — pedirle datos a un servidor sin congelar la página</div>
+      <div class="module-sub">La base de casi cualquier app web moderna</div>
     </div>
   </div>
 
-  <p>Ya sabes crear un <code>&lt;form&gt;</code> con <code>&lt;input&gt;</code> y un botón de enviar. Esta guía va un paso más allá: cómo hacer que el propio navegador valide los datos por ti, sin escribir una sola línea de JavaScript para los casos más comunes — y cómo tomar el control con JS solo cuando de verdad lo necesitas.</p>
+  <p>Casi ninguna aplicación web real trabaja solo con datos que ya tiene: necesita pedirle información a un servidor —una API de clima, una base de datos de productos, un backend propio— y mostrarla en pantalla. La <strong>Fetch API</strong> es la forma estándar y moderna de hacer esas peticiones en JavaScript, y trabaja de la mano con las <strong>promesas</strong>.</p>
 
   <div class="concept">
-    <h4>💡 Lo que vas a aprender</h4>
-    <p>La validación nativa de HTML5 (<code>required</code>, <code>pattern</code>, tipos de <code>input</code>), atributos que mejoran mucho la experiencia y casi nadie conoce, cómo diseñar los estados de error con CSS puro, y cómo personalizar los mensajes de error con la Constraint Validation API de JavaScript.</p>
+    <h4>💡 La idea central</h4>
+    <p>Una petición de red tarda un tiempo indeterminado en responder. JavaScript no se queda "congelado" esperando: sigue ejecutando el resto del código, y usa una <strong>promesa</strong> como recibo que representa "aquí llegará un resultado, tarde o temprano" — para bien (los datos) o para mal (un error).</p>
   </div>
 </section>
 
 <!-- ═══════════════════════════════════════════
-     VALIDACIÓN NATIVA
+     QUÉ ES UNA PROMESA
 ═══════════════════════════════════════════ -->
-<section class="module" id="validacion-nativa">
+<section class="module" id="que-es-promesa">
   <div class="module-header">
-    <div class="module-icon">✅</div>
+    <div class="module-icon">🎟️</div>
     <div>
-      <div class="module-title">Validación nativa de HTML5</div>
-      <div class="module-sub">El navegador ya sabe validar — solo hay que decirle las reglas</div>
+      <div class="module-title">Qué es una promesa</div>
+      <div class="module-sub">Un objeto con tres posibles estados</div>
     </div>
   </div>
-
-  <p>Antes de escribir JavaScript para "revisar" que un campo esté bien lleno, recuerda que HTML ya trae un sistema de validación integrado. Se activa solo con atributos.</p>
-
-  <div class="code-block"><span class="lang">HTML</span><span class="ct">&lt;form&gt;</span>
-  <span class="ct">&lt;label&gt;</span>Correo: <span class="ct">&lt;/label&gt;</span>
-  <span class="ct">&lt;input</span> <span class="ca">type</span>=<span class="cs">"email"</span> <span class="ca">required</span> <span class="ca">placeholder</span>=<span class="cs">"tucorreo@ejemplo.com"</span><span class="ct">&gt;</span>
-
-  <span class="ct">&lt;label&gt;</span>Edad: <span class="ct">&lt;/label&gt;</span>
-  <span class="ct">&lt;input</span> <span class="ca">type</span>=<span class="cs">"number"</span> <span class="ca">min</span>=<span class="cs">"18"</span> <span class="ca">max</span>=<span class="cs">"99"</span> <span class="ca">required</span><span class="ct">&gt;</span>
-
-  <span class="ct">&lt;button&gt;</span>Enviar<span class="ct">&lt;/button&gt;</span>
-<span class="ct">&lt;/form&gt;</span>
-</div>
-
-  <p>Con solo <code>type="email"</code> y <code>required</code>, el navegador ya rechaza correos mal escritos y campos vacíos — sin una línea de JavaScript.</p>
-
-  <table class="tbl">
-    <tr><th>Atributo</th><th>Qué hace</th></tr>
-    <tr><td><span class="tag">required</span></td><td>El campo no puede quedar vacío.</td></tr>
-    <tr><td><span class="tag">min / max</span></td><td>Rango permitido para números y fechas.</td></tr>
-    <tr><td><span class="tag">minlength / maxlength</span></td><td>Rango permitido de caracteres en texto.</td></tr>
-    <tr><td><span class="tag">type="email"</span></td><td>Exige el formato de un correo válido.</td></tr>
-    <tr><td><span class="tag">pattern</span></td><td>Exige que el valor cumpla una expresión regular.</td></tr>
-  </table>
 
   <div class="analogy">
-    <h4>🚪 Analogía: el portero del club</h4>
-    <p>La validación nativa es como un portero en la puerta: revisa que cumplas las reglas básicas (identificación, código de vestimenta) antes de dejarte pasar. No necesitas contratar a alguien más adentro (JavaScript) para revisar lo mismo otra vez — el portero ya filtró lo obvio.</p>
+    <h4>🎫 Analogía: el boleto del restaurante</h4>
+    <p>Cuando pides comida para llevar, te dan un número de orden. Ese número no es la comida —es una promesa de que la comida llegará—. Mientras esperas, puedes hacer otras cosas. Cuando te llaman, pasa una de dos cosas: te entregan tu pedido (promesa cumplida) o te avisan que se acabó el platillo que pediste (promesa rechazada). Una promesa de JavaScript funciona exactamente igual.</p>
   </div>
+
+  <div class="promise-states">
+    <div class="state pending">pending<br><span style="font-weight:400;font-size:.75em;">(esperando)</span></div>
+    <div class="arrow">→</div>
+    <div class="state fulfilled">fulfilled<br><span style="font-weight:400;font-size:.75em;">(resuelta)</span></div>
+  </div>
+  <div class="promise-states" style="margin-top:-.6rem;">
+    <div class="state pending" style="visibility:hidden;">pending</div>
+    <div class="arrow" style="visibility:hidden;">→</div>
+    <div class="state rejected">rejected<br><span style="font-weight:400;font-size:.75em;">(rechazada)</span></div>
+  </div>
+
+  <p>Toda promesa nace en estado <code>pending</code> y termina en exactamente uno de los otros dos estados, nunca en ambos, y nunca puede volver a cambiar una vez resuelta.</p>
 </section>
 
 <!-- ═══════════════════════════════════════════
-     ATRIBUTOS POCO USADOS
+     FETCH BÁSICO
 ═══════════════════════════════════════════ -->
-<section class="module" id="atributos">
+<section class="module" id="fetch-basico">
   <div class="module-header">
-    <div class="module-icon">🧩</div>
+    <div class="module-icon">🌐</div>
     <div>
-      <div class="module-title">Atributos poco usados (pero muy útiles)</div>
-      <div class="module-sub">Pequeños detalles que mejoran mucho la experiencia</div>
+      <div class="module-title">fetch() paso a paso</div>
+      <div class="module-sub">La forma clásica, encadenando .then()</div>
     </div>
   </div>
 
-  <dl class="glos">
-    <div class="glos-item">
-      <span class="emoji">🔤</span>
-      <dt>pattern</dt>
-      <dd>Valida el valor contra una expresión regular. Ej: <code>pattern="[0-9]{5}"</code> exige exactamente 5 dígitos.</dd>
-    </div>
-    <div class="glos-item">
-      <span class="emoji">📋</span>
-      <dt>list + datalist</dt>
-      <dd>Convierte un input de texto en un autocompletado con sugerencias, sin JavaScript ni librerías externas.</dd>
-    </div>
-    <div class="glos-item">
-      <span class="emoji">⌨️</span>
-      <dt>inputmode</dt>
-      <dd>Le dice al teclado del celular qué mostrar: <code>inputmode="numeric"</code> abre el teclado numérico aunque el input siga siendo de texto.</dd>
-    </div>
-    <div class="glos-item">
-      <span class="emoji">🚫</span>
-      <dt>novalidate</dt>
-      <dd>Atributo del <code>&lt;form&gt;</code> que desactiva la validación nativa por completo, para cuando quieres controlarla 100% con JavaScript.</dd>
-    </div>
-    <div class="glos-item">
-      <span class="emoji">🔁</span>
-      <dt>autocomplete</dt>
-      <dd>Le dice al navegador qué tipo de dato es (<code>autocomplete="email"</code>, <code>"tel"</code>, <code>"cc-number"</code>) para autocompletar mejor.</dd>
-    </div>
-  </dl>
-
-  <h2>Ejemplo: datalist para autocompletado</h2>
-  <div class="code-block"><span class="lang">HTML</span><span class="ct">&lt;input</span> <span class="ca">list</span>=<span class="cs">"lenguajes"</span> <span class="ca">name</span>=<span class="cs">"lenguaje"</span><span class="ct">&gt;</span>
-<span class="ct">&lt;datalist</span> <span class="ca">id</span>=<span class="cs">"lenguajes"</span><span class="ct">&gt;</span>
-  <span class="ct">&lt;option</span> <span class="ca">value</span>=<span class="cs">"HTML"</span><span class="ct">&gt;</span>
-  <span class="ct">&lt;option</span> <span class="ca">value</span>=<span class="cs">"CSS"</span><span class="ct">&gt;</span>
-  <span class="ct">&lt;option</span> <span class="ca">value</span>=<span class="cs">"JavaScript"</span><span class="ct">&gt;</span>
-<span class="ct">&lt;/datalist&gt;</span>
-</div>
-</section>
-
-<!-- ═══════════════════════════════════════════
-     PSEUDO-CLASES
-═══════════════════════════════════════════ -->
-<section class="module" id="pseudo-clases">
-  <div class="module-header">
-    <div class="module-icon">🎨</div>
-    <div>
-      <div class="module-title">Estilizar la validación con CSS</div>
-      <div class="module-sub">El navegador ya sabe si el campo es válido — solo hay que pintarlo</div>
-    </div>
+  <div class="code-block">
+fetch(<span class="str">'https://api.ejemplo.com/usuarios'</span>)
+  .then(<span class="kw">respuesta</span> =&gt; respuesta.json())   <span class="cm">// convierte el body a JSON</span>
+  .then(<span class="kw">datos</span> =&gt; {
+    console.log(datos);
+  })
+  .catch(<span class="kw">error</span> =&gt; {
+    console.error(<span class="str">'Algo salió mal:'</span>, error);
+  });
   </div>
 
-  <p>Cuando un campo tiene reglas de validación, el navegador le agrega automáticamente un estado que puedes usar en CSS, sin ninguna clase manual.</p>
-
-  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* Campo válido */</span>
-<span class="cn">input</span><span class="cv">:valid</span> {
-  <span class="cp">border-color</span>: <span class="cv">green</span>;
-}
-
-<span class="cc">/* Campo inválido, pero solo cuando el usuario ya interactuó */</span>
-<span class="cn">input</span><span class="cv">:invalid</span><span class="cv">:not</span>(<span class="cv">:placeholder-shown</span>) {
-  <span class="cp">border-color</span>: <span class="cv">crimson</span>;
-}
-
-<span class="cc">/* Foco visible por teclado, no por mouse */</span>
-<span class="cn">input</span><span class="cv">:focus-visible</span> {
-  <span class="cp">outline</span>: <span class="cv">2px</span> <span class="cv">solid</span> <span class="cv">dodgerblue</span>;
-}
-</div>
-
-  <div class="tip">
-    <h4>🟢 El truco de :not(:placeholder-shown)</h4>
-    <p>Usar solo <code>:invalid</code> pinta de rojo el campo desde que carga la página, antes de que el usuario escriba nada — se ve agresivo. Combinarlo con <code>:not(:placeholder-shown)</code> hace que el rojo aparezca solo después de que el usuario empezó a escribir y lo dejó incompleto o mal.</p>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════════
-     CONSTRAINT VALIDATION API
-═══════════════════════════════════════════ -->
-<section class="module" id="js-api">
-  <div class="module-header">
-    <div class="module-icon">⚙️</div>
-    <div>
-      <div class="module-title">Mensajes personalizados con JavaScript</div>
-      <div class="module-sub">Constraint Validation API — cuando el mensaje del navegador no alcanza</div>
-    </div>
-  </div>
-
-  <p>El mensaje de error que muestra el navegador por defecto ("Rellena este campo") no se puede traducir ni personalizar solo con HTML. Para eso existe la Constraint Validation API.</p>
-
-  <div class="code-block"><span class="lang">JavaScript</span><span class="cc">const input = document.querySelector('#usuario')</span>
-
-<span class="ct">input</span>.<span class="cn">addEventListener</span>(<span class="cs">'invalid'</span>, () <span class="ca">=&gt;</span> {
-  <span class="ct">input</span>.<span class="cn">setCustomValidity</span>(<span class="cs">'Escribe un nombre de usuario válido'</span>)
-})
-
-<span class="ct">input</span>.<span class="cn">addEventListener</span>(<span class="cs">'input'</span>, () <span class="ca">=&gt;</span> {
-  <span class="cc">// Limpiar el mensaje personalizado en cuanto el usuario corrige</span>
-  <span class="ct">input</span>.<span class="cn">setCustomValidity</span>(<span class="cs">''</span>)
-})
-</div>
+  <p><code>fetch()</code> devuelve una promesa que se resuelve con un objeto <code>Response</code> — pero ese objeto todavía no es tus datos, es un contenedor. Por eso el primer <code>.then()</code> casi siempre llama a <code>.json()</code> (u otro método como <code>.text()</code>), que a su vez devuelve <em>otra</em> promesa con los datos ya listos para usar.</p>
 
   <div class="warn">
-    <h4>⚠️ No olvides limpiar el mensaje</h4>
-    <p>Si llamas a <code>setCustomValidity()</code> con un texto y nunca lo vuelves a limpiar con <code>setCustomValidity('')</code>, el campo queda inválido para siempre, aunque el usuario lo corrija. Siempre limpia el mensaje en el evento <code>input</code>.</p>
+    <h4>⚠️ El error que casi todo mundo comete al inicio</h4>
+    <p><code>fetch()</code> <strong>no rechaza la promesa</strong> ante errores HTTP como 404 o 500 — solo la rechaza si hay un problema de red (sin conexión, dominio inexistente). Hay que revisar manualmente <code>respuesta.ok</code> o <code>respuesta.status</code> para detectar esos casos, como se muestra más abajo.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     ASYNC/AWAIT
+═══════════════════════════════════════════ -->
+<section class="module" id="async-await">
+  <div class="module-header">
+    <div class="module-icon">✨</div>
+    <div>
+      <div class="module-title">async/await: la forma moderna</div>
+      <div class="module-sub">Código asíncrono que se lee como si fuera síncrono</div>
+    </div>
   </div>
 
+  <p><code>async</code>/<code>await</code> es "azúcar sintáctica" sobre las promesas: no reemplaza nada por debajo, pero permite escribir el mismo código de forma mucho más lineal y fácil de leer.</p>
+
+  <div class="code-block">
+<span class="kw">async</span> function obtenerUsuarios() {
+  <span class="kw">const</span> respuesta = <span class="kw">await</span> fetch(<span class="str">'https://api.ejemplo.com/usuarios'</span>);
+  <span class="kw">const</span> datos = <span class="kw">await</span> respuesta.json();
+  console.log(datos);
+}
+
+obtenerUsuarios();
+  </div>
+
+  <table class="tbl">
+    <tr><th>.then() encadenado</th><th>async/await</th></tr>
+    <tr><td>Requiere anidar o encadenar callbacks.</td><td>Se lee de arriba a abajo, como código normal.</td></tr>
+    <tr><td>Los errores se manejan con <code>.catch()</code>.</td><td>Los errores se manejan con <code>try/catch</code>, igual que en código síncrono.</td></tr>
+    <tr><td><code>await</code> solo puede usarse dentro de una función <code>async</code>.</td><td>Necesita declarar <code>async</code> antes de <code>function</code>.</td></tr>
+  </table>
+
   <div class="tip">
-    <h4>🟢 Resumen de la guía</h4>
-    <ul>
-      <li><strong>Validación nativa:</strong> <code>required</code>, <code>min/max</code>, <code>pattern</code>, tipos de <code>input</code>.</li>
-      <li><strong>Atributos útiles:</strong> <code>datalist</code>, <code>inputmode</code>, <code>autocomplete</code>, <code>novalidate</code>.</li>
-      <li><strong>CSS:</strong> <code>:valid</code>, <code>:invalid</code>, <code>:focus-visible</code>, <code>:not(:placeholder-shown)</code>.</li>
-      <li><strong>JavaScript:</strong> Constraint Validation API para mensajes personalizados.</li>
-    </ul>
+    <h4>🟢 Dato clave: await no bloquea el navegador</h4>
+    <p>Aunque <code>await</code> "pausa" la función hasta que la promesa se resuelve, el resto de la página sigue respondiendo — solo se pausa la ejecución de esa función específica, no el navegador completo.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     MANEJO DE ERRORES
+═══════════════════════════════════════════ -->
+<section class="module" id="manejo-errores">
+  <div class="module-header">
+    <div class="module-icon">🚨</div>
+    <div>
+      <div class="module-title">Manejo de errores</div>
+      <div class="module-sub">Cubriendo tanto errores de red como errores HTTP</div>
+    </div>
+  </div>
+
+  <div class="code-block">
+<span class="kw">async</span> function obtenerUsuarios() {
+  <span class="kw">try</span> {
+    <span class="kw">const</span> respuesta = <span class="kw">await</span> fetch(<span class="str">'https://api.ejemplo.com/usuarios'</span>);
+
+    <span class="kw">if</span> (!respuesta.ok) {
+      <span class="kw">throw</span> <span class="kw">new</span> Error(<span class="str">`Error HTTP: ${respuesta.status}`</span>);
+    }
+
+    <span class="kw">const</span> datos = <span class="kw">await</span> respuesta.json();
+    <span class="kw">return</span> datos;
+
+  } <span class="kw">catch</span> (error) {
+    console.error(<span class="str">'No se pudo obtener a los usuarios:'</span>, error.message);
+    <span class="cm">// aquí podrías mostrar un mensaje al usuario</span>
+  }
+}
+  </div>
+
+  <p>Un <code>try/catch</code> bien hecho para <code>fetch()</code> debe cubrir <strong>dos</strong> tipos de fallo distintos: errores de red (sin conexión, dominio caído — estos sí rechazan la promesa automáticamente) y errores HTTP (404, 500 — que hay que detectar manualmente revisando <code>respuesta.ok</code>).</p>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     PROMISE.ALL
+═══════════════════════════════════════════ -->
+<section class="module" id="promise-all">
+  <div class="module-header">
+    <div class="module-icon">🔀</div>
+    <div>
+      <div class="module-title">Peticiones en paralelo con Promise.all()</div>
+      <div class="module-sub">Cuando necesitas varias respuestas al mismo tiempo, no una tras otra</div>
+    </div>
+  </div>
+
+  <div class="code-block">
+<span class="kw">async</span> function cargarTodo() {
+  <span class="kw">const</span> [usuarios, productos] = <span class="kw">await</span> Promise.all([
+    fetch(<span class="str">'/api/usuarios'</span>).then(r =&gt; r.json()),
+    fetch(<span class="str">'/api/productos'</span>).then(r =&gt; r.json())
+  ]);
+
+  console.log(usuarios, productos);
+}
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ Un await tras otro es más lento de lo necesario</h4>
+    <p>Si escribes dos <code>await fetch(...)</code> seguidos sin <code>Promise.all()</code>, la segunda petición ni siquiera empieza hasta que la primera termine por completo — desperdiciando tiempo cuando ambas peticiones no dependen entre sí. <code>Promise.all()</code> las lanza a todas al mismo tiempo y espera a que todas terminen.</p>
+  </div>
+
+  <table class="tbl">
+    <tr><th>Método</th><th>Comportamiento</th></tr>
+    <tr><td><span class="tag">Promise.all()</span></td><td>Espera a todas; si UNA falla, rechaza todo el conjunto de inmediato.</td></tr>
+    <tr><td><span class="tag">Promise.allSettled()</span></td><td>Espera a todas y siempre resuelve, indicando cuáles tuvieron éxito y cuáles fallaron.</td></tr>
+    <tr><td><span class="tag">Promise.race()</span></td><td>Se resuelve o rechaza tan pronto como la <em>primera</em> promesa del grupo termine.</td></tr>
+  </table>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     EJERCICIOS
+═══════════════════════════════════════════ -->
+<section class="module" id="ejercicios">
+  <div class="module-header">
+    <div class="module-icon">🏋️</div>
+    <div>
+      <div class="module-title">Ejercicios</div>
+      <div class="module-sub">Para practicar lo que acabas de leer</div>
+    </div>
+  </div>
+
+  <div class="exercise">
+    <h4>Ejercicio 1 — Tu primer fetch</h4>
+    <p>Usa <code>fetch('https://jsonplaceholder.typicode.com/users')</code> para traer una lista de usuarios de prueba y muéstralos en la consola usando <code>async/await</code>.</p>
+  </div>
+
+  <div class="exercise">
+    <h4>Ejercicio 2 — Maneja el error</h4>
+    <p>Modifica tu código anterior para pedir una URL que no existe (agrega letras random al final) y verifica que tu <code>try/catch</code> capture el error correctamente sin romper la página.</p>
+  </div>
+
+  <div class="exercise">
+    <h4>Ejercicio 3 — Dos peticiones en paralelo</h4>
+    <p>Usa <code>Promise.all()</code> para pedir al mismo tiempo <code>/users</code> y <code>/posts</code> de <code>jsonplaceholder.typicode.com</code>, y muestra cuántos elementos trajo cada una.</p>
+  </div>
+
+  <div class="concept">
+    <h4>💡 Para llevarte de esta guía</h4>
+    <p>Las promesas son el mecanismo, <code>fetch()</code> es la herramienta, y <code>async/await</code> es la forma más legible de usarlas juntas. Recuerda siempre revisar <code>respuesta.ok</code> — <code>fetch()</code> no te avisa solo de los errores HTTP — y usa <code>Promise.all()</code> quien necesite varias peticiones que no dependen entre sí.</p>
   </div>
 </section>
 
 </main>
 
 <footer>
-  Guía Formularios Avanzados · Café &lt;/&gt; · Guías Adicionales
+  Guía Fetch API y promesas · Café &lt;/&gt; · Guías adicionales
 </footer>
+
 <script>
-  function demoFragment() {
-    var lista = document.getElementById('demoLista');
-    var t0 = performance.now();
-    var frag = document.createDocumentFragment();
-    for (var i = 0; i < 300; i++) {
-      var li = document.createElement('li');
-      li.textContent = i;
-      frag.appendChild(li);
-    }
-    lista.appendChild(frag);
-    var t1 = performance.now();
-    document.getElementById('demoTiempo').textContent =
-      'Con DocumentFragment: ' + (t1 - t0).toFixed(2) + ' ms (una sola inserción real al DOM)';
-  }
-
-  function demoDirecto() {
-    var lista = document.getElementById('demoLista');
-    var t0 = performance.now();
-    for (var i = 0; i < 300; i++) {
-      var li = document.createElement('li');
-      li.textContent = i;
-      lista.appendChild(li); // inserción directa, una por una
-    }
-    var t1 = performance.now();
-    document.getElementById('demoTiempo').textContent =
-      'Insertando directo: ' + (t1 - t0).toFixed(2) + ' ms (300 inserciones reales al DOM)';
-  }
-
-  function demoLimpiar() {
-    document.getElementById('demoLista').innerHTML = '';
-    document.getElementById('demoTiempo').textContent = '';
-  }
-
   (function() {
     var root = document.documentElement;
     var icon = document.getElementById('themeIcon');

@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía Animaciones con CSS — Café </></title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #c49a1a;
+    --primary-light:  #fdf6e0;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --danger:         #c44a2a;
+    --danger-light:   #fdf0ec;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1a1814;
+    --code-text:      #e8e4de;
+
+    color-scheme: light;
+  }
+
+  :root[data-theme="dark"] {
+    --primary:        #e0b52e;
+    --primary-light:  #2b2410;
+    --secondary:      #3fcf9e;
+    --secondary-light:#0f2a22;
+    --accent:         #e0912e;
+    --accent-light:   #2e2110;
+    --danger:         #e07a5a;
+    --danger-light:   #2e1712;
+    --bg:             #14120f;
+    --surface:        #1e1b17;
+    --text:           #f0ece5;
+    --muted:          #a39d93;
+    --border:         #332e27;
+    --code-bg:        #0c0a08;
+    --code-text:      #e8e4de;
+
+    color-scheme: dark;
+  }
+
+  body {
+    font-family: 'DM Sans', 'Segoe UI', sans-serif;
+    background: var(--bg); color: var(--text);
+    line-height: 1.7; font-size: 16px;
+    transition: background .25s ease, color .25s ease;
+  }
+
+  .cafe-bar {
+    background: var(--surface); border-bottom:1px solid var(--border);
+    padding:0 24px; display:flex; align-items:center; gap:14px;
+    position:sticky; top:0; z-index:200; height:45px;
+    transition: background .25s ease, border-color .25s ease;
+  }
+  .cafe-bar a { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--muted); text-decoration:none; padding:6px 14px; border:1px solid var(--border); border-radius:999px; transition:all 0.15s; }
+  .cafe-bar a:hover { color:var(--text); border-color:var(--muted); }
+  .cafe-bar span.crumb { font-size:13px; color:var(--muted); }
+  .cafe-bar .spacer { flex: 1; }
+
+  .theme-toggle {
+    display:inline-flex; align-items:center; gap:8px;
+    background: var(--bg); border:1px solid var(--border); color: var(--text);
+    border-radius:999px; padding:6px 14px 6px 10px; font-size:13px; font-weight:500;
+    cursor:pointer; transition: all .2s ease; font-family: inherit;
+  }
+  .theme-toggle:hover { border-color: var(--primary); color: var(--primary); }
+  .theme-toggle .icon { font-size: 15px; line-height:1; }
+
+  header {
+    background: #1a1814; color: #f7f4ef; padding: 3rem 2rem 2rem;
+    text-align: center; position: relative; overflow: hidden;
+  }
+  header::before { content: '☕'; position: absolute; font-size: 12rem; font-weight: 900; color: rgba(255,255,255,0.04); right: -1rem; top: -2rem; font-family: monospace; line-height: 1; }
+  header h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; font-family: 'Fraunces', serif; }
+  header p { font-size: 1.1rem; opacity: .85; margin-top: .5rem; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  nav {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    position: sticky; top: 45px; z-index: 100; display: flex; overflow-x: auto; gap: 0;
+    transition: background .25s ease, border-color .25s ease;
+  }
+  nav a { flex-shrink: 0; padding: .75rem 1rem; text-decoration: none; color: var(--muted); font-size: .78rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .module {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+    padding: 2rem; margin-bottom: 2.5rem; scroll-margin-top:100px;
+    transition: background .25s ease, border-color .25s ease;
+  }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-size: 1.35rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  .analogy { background: var(--accent-light); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: var(--accent); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; }
+
+  .concept { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p, .tip ul { font-size: .95rem; }
+  .tip ul { padding-left: 1.2rem; }
+
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  .glos { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .glos-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; }
+  .glos-item dt { font-weight: 700; color: var(--primary); font-size: .92rem; margin-bottom: .3rem; }
+  .glos-item dd { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+  .glos-item .emoji { font-size: 1.3rem; display: block; margin-bottom: .3rem; }
+
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: #1a1814; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  h2 { font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; color: var(--text); }
+  h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 .5rem; }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: var(--primary-light); color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+  strong { font-weight: 700; }
+
+  .code-block {
+    background: var(--code-bg); color: var(--code-text); border-radius: 10px;
+    padding: 1rem 1.25rem; font-family: 'DM Mono', monospace; font-size: .84rem;
+    overflow-x: auto; margin: 1rem 0; line-height: 1.65;
+  }
+  .code-block .cm { color: #8a8480; }
+  .code-block .attr { color: #e0b52e; }
+  .code-block .str { color: #7fd8a8; }
+  .code-block .tag2 { color: #e08a5a; }
+  .code-block .num { color: #7fb8e0; }
+
+  .exercise { background: var(--bg); border: 1px dashed var(--primary); border-radius: 10px; padding: 1.1rem 1.25rem; margin: 1rem 0; }
+  .exercise h4 { color: var(--primary); font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .5rem; }
+
+  /* ═══════ Demos en vivo ═══════ */
+  .demo-box {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 12px;
+    padding: 1.5rem; margin: 1rem 0; display: flex; align-items: center; justify-content: center; gap: 2rem; flex-wrap: wrap; min-height: 90px;
+  }
+  .demo-chip {
+    background: var(--primary); color: #1a1814; font-weight: 700; font-size: .82rem;
+    padding: .7rem 1.3rem; border-radius: 8px; font-family: 'DM Mono', monospace;
+    transition: transform .3s ease, background .3s ease;
+  }
+  .demo-chip:hover { transform: scale(1.15) rotate(-3deg); background: var(--secondary); }
+
+  @keyframes demo-pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.15); opacity: .7; }
+  }
+  .demo-pulse { animation: demo-pulse 1.6s ease-in-out infinite; }
+
+  @keyframes demo-bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-14px); }
+  }
+  .demo-bounce { animation: demo-bounce 1s cubic-bezier(.5,0,.5,1.6) infinite; }
+
+  .timing-track {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 1rem; margin: .6rem 0; position: relative; height: 46px; overflow: hidden;
+  }
+  .timing-dot {
+    width: 18px; height: 18px; border-radius: 50%; background: var(--primary);
+    position: absolute; top: 14px; left: 0;
+    animation: slide-track 2.4s infinite alternate;
+  }
+  .t-linear { animation-timing-function: linear; }
+  .t-ease { animation-timing-function: ease; }
+  .t-ease-in-out { animation-timing-function: ease-in-out; }
+  .t-bounce { animation-timing-function: cubic-bezier(.34,2.2,.5,1); }
+  @keyframes slide-track { from { left: 0; } to { left: calc(100% - 18px); } }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); transition: background .25s ease, border-color .25s ease; }
+</style>
+</head>
+<body>
+
+<div class="cafe-bar">
+  <a href="../capitulos.html?tab=adicionales">← Volver a Adicionales</a>
+  <span class="crumb">☕ Animaciones con CSS</span>
+  <div class="spacer"></div>
+  <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+    <span class="icon" id="themeIcon">🌙</span>
+    <span id="themeLabel">Modo oscuro</span>
+  </button>
+</div>
+
+<header>
+  <h1>Animaciones con CSS</h1>
+  <p>Keyframes, transiciones y timing functions</p>
+  <span class="badge">🧩 Guía adicional · Fuera de la ruta principal</span>
+</header>
+
+<nav>
+  <a href="#intro">🎯 Intro</a>
+  <a href="#transitions">🔀 transition: el cambio simple</a>
+  <a href="#keyframes">🎬 @keyframes: la secuencia completa</a>
+  <a href="#timing-functions">📈 Timing functions</a>
+  <a href="#rendimiento">⚡ Rendimiento: qué animar y qué no</a>
+  <a href="#ejercicios">🏋️ Ejercicios</a>
+</nav>
+
+<main>
+
+<div class="parte-badge">🧩 Guía adicional — HTML, CSS y JavaScript</div>
+
+<!-- ═══════════════════════════════════════════
+     INTRO
+═══════════════════════════════════════════ -->
+<section class="module" id="intro">
+  <div class="module-header">
+    <div class="module-icon">🎯</div>
+    <div>
+      <div class="module-title">Introducción — movimiento sin una sola línea de JavaScript</div>
+      <div class="module-sub">Dos herramientas, dos propósitos distintos</div>
+    </div>
+  </div>
+
+  <p>CSS tiene dos formas principales de animar elementos: <code>transition</code>, para cambios simples entre dos estados (como al pasar el mouse), y <code>@keyframes</code> con <code>animation</code>, para secuencias más complejas que se repiten o tienen varios pasos intermedios.</p>
+
+  <div class="concept">
+    <h4>💡 La regla para elegir entre las dos</h4>
+    <p>Si el cambio es "de A a B" y se dispara por algo (hover, clic, una clase que se agrega), usa <code>transition</code>. Si necesitas una secuencia con varios pasos, que se repita sola, o que arranque automáticamente al cargar la página, usa <code>@keyframes</code>.</p>
+  </div>
+
+  <div class="analogy">
+    <h4>🎞️ Analogía: el interruptor y la película</h4>
+    <p><code>transition</code> es como un interruptor de luz con atenuador (dimmer): pasa suavemente de apagado a encendido cuando lo activas, pero solo conoce esos dos estados. <code>@keyframes</code> es como una película completa: tú defines qué pasa en el minuto 0, en el minuto 2, en el minuto 5... y el navegador reproduce toda la secuencia, las veces que le digas.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     TRANSITIONS
+═══════════════════════════════════════════ -->
+<section class="module" id="transitions">
+  <div class="module-header">
+    <div class="module-icon">🔀</div>
+    <div>
+      <div class="module-title">transition: el cambio simple</div>
+      <div class="module-sub">De un estado a otro, de forma suave</div>
+    </div>
+  </div>
+
+  <p>Pasa el mouse sobre esta tarjeta:</p>
+
+  <div class="demo-box">
+    <div class="demo-chip">hover aquí →</div>
+  </div>
+
+  <div class="code-block">
+.chip {
+  <span class="attr">background</span>: var(--primary);
+  <span class="attr">transition</span>: transform <span class="num">.3s</span> ease, background <span class="num">.3s</span> ease;
+}
+
+.chip:hover {
+  <span class="attr">transform</span>: scale(<span class="num">1.15</span>) rotate(<span class="num">-3deg</span>);
+  <span class="attr">background</span>: var(--secondary);
+}
+  </div>
+
+  <p><code>transition</code> necesita tres piezas de información: <strong>qué</strong> propiedad animar, <strong>cuánto</strong> tiempo debe tardar, y <strong>cómo</strong> debe acelerar o desacelerar (la timing function, que vemos más abajo).</p>
+
+  <table class="tbl">
+    <tr><th>Propiedad</th><th>Qué controla</th></tr>
+    <tr><td><span class="tag">transition-property</span></td><td>Qué propiedad(es) CSS animar. <code>all</code> anima todas, pero es menos eficiente.</td></tr>
+    <tr><td><span class="tag">transition-duration</span></td><td>Cuánto tiempo dura el cambio (ej. <code>.3s</code>).</td></tr>
+    <tr><td><span class="tag">transition-timing-function</span></td><td>La curva de aceleración del cambio.</td></tr>
+    <tr><td><span class="tag">transition-delay</span></td><td>Cuánto esperar antes de empezar la transición.</td></tr>
+  </table>
+
+  <div class="tip">
+    <h4>🟢 La forma abreviada que verás más seguido</h4>
+    <p><code>transition: transform .3s ease;</code> combina las cuatro propiedades en una sola línea: propiedad, duración, timing function y (opcionalmente) delay, en ese orden.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     KEYFRAMES
+═══════════════════════════════════════════ -->
+<section class="module" id="keyframes">
+  <div class="module-header">
+    <div class="module-icon">🎬</div>
+    <div>
+      <div class="module-title">@keyframes: la secuencia completa</div>
+      <div class="module-sub">Definiendo "fotogramas clave" en porcentajes</div>
+    </div>
+  </div>
+
+  <div class="demo-box">
+    <div class="demo-chip demo-pulse">pulso</div>
+    <div class="demo-chip demo-bounce">rebote</div>
+  </div>
+
+  <div class="code-block">
+<span class="cm">@keyframes</span> pulso {
+  <span class="num">0%</span>, <span class="num">100%</span> { <span class="attr">transform</span>: scale(<span class="num">1</span>); <span class="attr">opacity</span>: <span class="num">1</span>; }
+  <span class="num">50%</span>       { <span class="attr">transform</span>: scale(<span class="num">1.15</span>); <span class="attr">opacity</span>: <span class="num">.7</span>; }
+}
+
+.elemento {
+  <span class="attr">animation</span>: pulso <span class="num">1.6s</span> ease-in-out infinite;
+}
+  </div>
+
+  <p>Cada porcentaje dentro de <code>@keyframes</code> representa un punto en el tiempo de la animación completa: <code>0%</code> es el inicio, <code>100%</code> el final, y puedes agregar tantos puntos intermedios como necesites (<code>25%</code>, <code>50%</code>, <code>75%</code>...).</p>
+
+  <table class="tbl">
+    <tr><th>Propiedad de animation</th><th>Qué controla</th></tr>
+    <tr><td><span class="tag">animation-name</span></td><td>El nombre del <code>@keyframes</code> a usar.</td></tr>
+    <tr><td><span class="tag">animation-duration</span></td><td>Cuánto dura un ciclo completo.</td></tr>
+    <tr><td><span class="tag">animation-iteration-count</span></td><td>Cuántas veces se repite (<code>infinite</code> para siempre).</td></tr>
+    <tr><td><span class="tag">animation-direction</span></td><td><code>normal</code>, <code>reverse</code>, o <code>alternate</code> para ir y volver.</td></tr>
+    <tr><td><span class="tag">animation-fill-mode</span></td><td>Qué estilo mantiene el elemento antes/después de que corra la animación.</td></tr>
+  </table>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     TIMING FUNCTIONS
+═══════════════════════════════════════════ -->
+<section class="module" id="timing-functions">
+  <div class="module-header">
+    <div class="module-icon">📈</div>
+    <div>
+      <div class="module-title">Timing functions: la diferencia entre "robótico" y "natural"</div>
+      <div class="module-sub">La curva de aceleración lo cambia casi todo</div>
+    </div>
+  </div>
+
+  <p>Observa cómo el mismo recorrido se siente completamente distinto según la curva usada:</p>
+
+  <p style="font-size:.82rem; color:var(--muted); margin-bottom:.2rem;"><code>linear</code> — velocidad constante, se siente mecánico</p>
+  <div class="timing-track"><div class="timing-dot t-linear"></div></div>
+
+  <p style="font-size:.82rem; color:var(--muted); margin-bottom:.2rem;"><code>ease</code> — arranca rápido, termina lento (la más natural)</p>
+  <div class="timing-track"><div class="timing-dot t-ease"></div></div>
+
+  <p style="font-size:.82rem; color:var(--muted); margin-bottom:.2rem;"><code>ease-in-out</code> — lento al inicio y al final</p>
+  <div class="timing-track"><div class="timing-dot t-ease-in-out"></div></div>
+
+  <p style="font-size:.82rem; color:var(--muted); margin-bottom:.2rem;"><code>cubic-bezier</code> personalizada — efecto de rebote</p>
+  <div class="timing-track"><div class="timing-dot t-bounce"></div></div>
+
+  <div class="tip">
+    <h4>🟢 Cuándo usar cada una</h4>
+    <ul>
+      <li><strong>linear:</strong> para animaciones continuas y mecánicas, como un spinner de carga girando.</li>
+      <li><strong>ease / ease-in-out:</strong> la opción por defecto para la mayoría de las interacciones de interfaz — se siente natural.</li>
+      <li><strong>cubic-bezier() personalizada:</strong> para efectos con personalidad, como rebotes o resortes. Herramientas como cubic-bezier.com ayudan a diseñar la curva visualmente.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     RENDIMIENTO
+═══════════════════════════════════════════ -->
+<section class="module" id="rendimiento">
+  <div class="module-header">
+    <div class="module-icon">⚡</div>
+    <div>
+      <div class="module-title">Rendimiento: qué animar y qué no</div>
+      <div class="module-sub">No todas las propiedades CSS son igual de "baratas" de animar</div>
+    </div>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ Evita animar width, height, top, left, margin</h4>
+    <p>Animar estas propiedades obliga al navegador a recalcular el layout completo de la página en cada fotograma (lo que se conoce como "reflow"), lo cual es costoso y puede generar animaciones con tirones (jank), sobre todo en dispositivos menos potentes.</p>
+  </div>
+
+  <table class="tbl">
+    <tr><th>En vez de...</th><th>Usa...</th><th>Por qué</th></tr>
+    <tr><td><code>left</code> / <code>top</code></td><td><code>transform: translate()</code></td><td>No dispara reflow; se procesa en la GPU.</td></tr>
+    <tr><td><code>width</code> / <code>height</code></td><td><code>transform: scale()</code></td><td>Escala visualmente sin recalcular el layout de otros elementos.</td></tr>
+    <tr><td><code>display</code> (para ocultar)</td><td><code>opacity</code> + <code>visibility</code></td><td>Permite transición suave; <code>display</code> cambia de golpe, sin animación posible.</td></tr>
+  </table>
+
+  <p>Las propiedades <code>transform</code> y <code>opacity</code> son las más "baratas" de animar porque el navegador puede procesarlas directamente en la GPU, sin recalcular la posición de ningún otro elemento en la página.</p>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     EJERCICIOS
+═══════════════════════════════════════════ -->
+<section class="module" id="ejercicios">
+  <div class="module-header">
+    <div class="module-icon">🏋️</div>
+    <div>
+      <div class="module-title">Ejercicios</div>
+      <div class="module-sub">Para practicar lo que acabas de leer</div>
+    </div>
+  </div>
+
+  <div class="exercise">
+    <h4>Ejercicio 1 — Botón con transición</h4>
+    <p>Crea un botón que cambie de color de fondo y se agrande ligeramente (<code>transform: scale(1.05)</code>) al pasar el mouse, con una transición de <code>.2s</code>.</p>
+  </div>
+
+  <div class="exercise">
+    <h4>Ejercicio 2 — Spinner de carga</h4>
+    <p>Crea un <code>@keyframes</code> llamado <code>girar</code> que rote un elemento de <code>0deg</code> a <code>360deg</code>, y aplícalo con <code>animation: girar 1s linear infinite;</code> a un círculo pequeño.</p>
+  </div>
+
+  <div class="exercise">
+    <h4>Ejercicio 3 — Compara timing functions</h4>
+    <p>Toma la misma animación de movimiento y pruébala con <code>linear</code>, <code>ease</code> y una <code>cubic-bezier</code> personalizada (usa cubic-bezier.com para diseñarla). Anota cuál se siente más apropiada para tu caso de uso.</p>
+  </div>
+
+  <div class="concept">
+    <h4>💡 Para llevarte de esta guía</h4>
+    <p>Usa <code>transition</code> para cambios simples entre dos estados y <code>@keyframes</code> para secuencias completas. Prioriza animar <code>transform</code> y <code>opacity</code> por rendimiento, y elige la timing function pensando en qué "sensación" quieres transmitir — no solo en que algo se mueva.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Guía Animaciones con CSS · Café &lt;/&gt; · Guías adicionales
+</footer>
+
+<script>
+  (function() {
+    var root = document.documentElement;
+    var icon = document.getElementById('themeIcon');
+    var label = document.getElementById('themeLabel');
+    var STORAGE_KEY = 'cafe-codigo-theme';
+
+    function applyTheme(theme) {
+      if (theme === 'dark') {
+        root.setAttribute('data-theme', 'dark');
+        icon.textContent = '☀️';
+        label.textContent = 'Modo claro';
+      } else {
+        root.removeAttribute('data-theme');
+        icon.textContent = '🌙';
+        label.textContent = 'Modo oscuro';
+      }
+    }
+
+    var saved = null;
+    try { saved = localStorage.getItem(STORAGE_KEY); } catch (e) {}
+
+    if (saved) {
+      applyTheme(saved);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      applyTheme('dark');
+    }
+
+    window.toggleTheme = function() {
+      var isDark = root.getAttribute('data-theme') === 'dark';
+      var next = isDark ? 'light' : 'dark';
+      applyTheme(next);
+      try { localStorage.setItem(STORAGE_KEY, next); } catch (e) {}
+    };
+  })();
+</script>
+
+</body>
+</html>

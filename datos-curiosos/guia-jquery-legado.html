@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía jQuery: de salvador a código legado — Café </></title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #c49a1a;
+    --primary-light:  #fdf6e0;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --danger:         #c44a2a;
+    --danger-light:   #fdf0ec;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1a1814;
+    --code-text:      #e8e4de;
+  }
+
+  body { font-family: 'DM Sans', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  .cafe-bar { background:#ffffff; border-bottom:1px solid #e8e4de; padding:0 24px; display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:200; height:45px; }
+  .cafe-bar a { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:#8a8480; text-decoration:none; padding:6px 14px; border:1px solid #e8e4de; border-radius:999px; transition:all 0.15s; }
+  .cafe-bar a:hover { color:#1a1814; border-color:#8a8480; }
+  .cafe-bar span { font-size:13px; color:#8a8480; }
+
+  header { background: #1a1814; color: #f7f4ef; padding: 3rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: '☕'; position: absolute; font-size: 12rem; font-weight: 900; color: rgba(255,255,255,0.04); right: -1rem; top: -2rem; font-family: monospace; line-height: 1; }
+  header h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; font-family: 'Fraunces', serif; }
+  header p { font-size: 1.1rem; opacity: .85; margin-top: .5rem; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 45px; z-index: 100; display: flex; overflow-x: auto; gap: 0; }
+  nav a { flex-shrink: 0; padding: .75rem 1rem; text-decoration: none; color: var(--muted); font-size: .78rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2.5rem; scroll-margin-top:100px; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-size: 1.35rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  .analogy { background: #FFF7ED; border: 1px solid #FDE68A; border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: #92400E; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; color: #78350F; }
+
+  .concept { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p, .tip ul { font-size: .95rem; }
+  .tip ul { padding-left: 1.2rem; }
+
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  .glos { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .glos-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; }
+  .glos-item dt { font-weight: 700; color: var(--primary); font-size: .92rem; margin-bottom: .3rem; }
+  .glos-item dd { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+  .glos-item .emoji { font-size: 1.3rem; display: block; margin-bottom: .3rem; }
+
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: white; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  h2 { font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; color: var(--text); }
+  h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 .5rem; }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: #f0ece6; color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+  strong { font-weight: 700; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); }
+</style>
+</head>
+<body>
+
+<div class="cafe-bar">
+  <a href="../capitulos.html?tab=datoscuriosos">← Volver a Datos Curiosos</a>
+  <span>☕ jQuery: de salvador a código legado</span>
+</div>
+
+<header>
+  <h1>jQuery: de salvador a "código legado"</h1>
+  <p>Su ascenso y su ocaso</p>
+  <span class="badge">✦ Dato curioso · Historia de la web ✦</span>
+</header>
+
+<nav>
+  <a href="#intro">🎯 Intro</a>
+  <a href="#el-ascenso">🚀 El ascenso: un solo comando para todo</a>
+  <a href="#el-dominio">👑 Cuando jQuery era prácticamente obligatorio</a>
+  <a href="#el-cambio">🔄 Lo que cambió por debajo</a>
+  <a href="#el-ocaso">📉 El ocaso lento, no la muerte súbita</a>
+  <a href="#legado">🏛️ Por qué sigue importando</a>
+</nav>
+
+<main>
+
+<div class="parte-badge">🧠 Dato curioso — Historia y curiosidades de HTML, CSS y JS</div>
+
+<!-- ═══════════════════════════════════════════
+     INTRO
+═══════════════════════════════════════════ -->
+<section class="module" id="intro">
+  <div class="module-header">
+    <div class="module-icon">🎯</div>
+    <div>
+      <div class="module-title">Introducción — la librería que todos usaban, hasta que dejó de ser necesaria</div>
+      <div class="module-sub">Pocas herramientas de JavaScript cayeron tan lejos, desde tan alto</div>
+    </div>
+  </div>
+
+  <p>Hubo un momento en que era casi impensable construir un sitio interactivo sin incluir jQuery. Hoy, muchos cursos y guías modernas ni siquiera lo mencionan. Esa caída no ocurrió porque jQuery haya sido un mal proyecto, sino porque resolvió tan bien su problema original que, con el tiempo, dejó de haber problema que resolver.</p>
+
+  <div class="concept">
+    <h4>💡 El dato en una frase</h4>
+    <p>jQuery, lanzado en 2006 por John Resig, se volvió la librería de JavaScript más usada de la historia porque resolvía las inconsistencias entre navegadores de la época. Con el paso de los años, los propios navegadores adoptaron APIs nativas más rápidas y estandarizadas —muchas inspiradas directamente en jQuery—, lo que hizo que la librería dejara de ser indispensable para la mayoría de los proyectos nuevos.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     EL ASCENSO
+═══════════════════════════════════════════ -->
+<section class="module" id="el-ascenso">
+  <div class="module-header">
+    <div class="module-icon">🚀</div>
+    <div>
+      <div class="module-title">El ascenso: un solo comando para todo</div>
+      <div class="module-sub">2006 — "escribe menos, haz más" (write less, do more)</div>
+    </div>
+  </div>
+
+  <p>John Resig presentó jQuery en agosto de 2006, con un lema que resumía perfectamente su propuesta de valor: <em>"write less, do more"</em>. En un momento en que seleccionar un elemento del DOM, manejar eventos o hacer una petición al servidor requería código distinto según el navegador, jQuery ofrecía una sola función —el famoso <code>$()</code>— capaz de hacer todo eso de forma consistente en cualquier navegador.</p>
+
+  <div class="analogy">
+    <h4>🔌 Analogía: el adaptador universal, otra vez</h4>
+    <p>Como se explicó en la guía sobre por qué existen tantos frameworks de JS, jQuery funcionaba como un adaptador universal: no cambiaba lo que había del otro lado (el navegador), pero evitaba que el desarrollador tuviera que cargar con las diferencias de cada uno. Con jQuery, una sola línea como <code>$('.boton').click(...)</code> funcionaba igual en Internet Explorer, Firefox o Safari, sin importar sus diferencias internas.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     EL DOMINIO
+═══════════════════════════════════════════ -->
+<section class="module" id="el-dominio">
+  <div class="module-header">
+    <div class="module-icon">👑</div>
+    <div>
+      <div class="module-title">Cuando jQuery era prácticamente obligatorio</div>
+      <div class="module-sub">La librería más usada del planeta, por mucho margen</div>
+    </div>
+  </div>
+
+  <p>Durante buena parte de la década de 2010, distintos análisis de uso de tecnologías web ubicaron a jQuery como la librería de JavaScript presente en la abrumadora mayoría de los sitios que usaban alguna librería de este tipo. Se volvió estándar de facto en plataformas como WordPress (que la incluye internamente hasta hoy), y prácticamente cualquier plugin o tutorial de la época asumía que jQuery ya estaba disponible en la página.</p>
+
+  <table class="tbl">
+    <tr><th>Problema de la época</th><th>Cómo lo resolvía jQuery</th></tr>
+    <tr><td>Seleccionar elementos del DOM</td><td>Selectores estilo CSS con <code>$('.clase')</code>, funcionando igual en todos los navegadores.</td></tr>
+    <tr><td>Peticiones asíncronas al servidor</td><td>El método <code>$.ajax()</code>, que evitaba lidiar directamente con las inconsistencias del objeto <code>XMLHttpRequest</code> nativo.</td></tr>
+    <tr><td>Animaciones y efectos</td><td>Métodos como <code>.fadeIn()</code> o <code>.slideUp()</code>, sin necesidad de escribir CSS de animación manualmente.</td></tr>
+    <tr><td>Manejo de eventos</td><td>Una API unificada de eventos, cuando el DOM nativo aún era inconsistente entre navegadores.</td></tr>
+  </table>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     EL CAMBIO
+═══════════════════════════════════════════ -->
+<section class="module" id="el-cambio">
+  <div class="module-header">
+    <div class="module-icon">🔄</div>
+    <div>
+      <div class="module-title">Lo que cambió por debajo: el propio navegador se puso al día</div>
+      <div class="module-sub">Las APIs nativas empezaron a hacer lo mismo que jQuery, sin necesitarlo</div>
+    </div>
+  </div>
+
+  <p>Con el paso de los años, y en buena parte inspirados por las soluciones que jQuery ya había popularizado, los navegadores fueron estandarizando e implementando APIs nativas de JavaScript que cubrían las mismas necesidades: <code>document.querySelector()</code> para seleccionar elementos con sintaxis de CSS, <code>fetch()</code> como alternativa moderna a las peticiones asíncronas, y animaciones nativas de CSS o de la API <code>Web Animations</code>.</p>
+
+  <div class="tip">
+    <h4>🟢 El propio jQuery reconoció el cambio</h4>
+    <ul>
+      <li><code>document.querySelectorAll()</code>, estandarizado en los navegadores modernos, ofrece selectores tipo CSS sin necesitar ninguna librería.</li>
+      <li><code>fetch()</code> reemplazó buena parte del rol que cumplía <code>$.ajax()</code>.</li>
+      <li>El método nativo <code>.classList</code> reemplazó la necesidad de <code>.addClass()</code> / <code>.removeClass()</code> de jQuery.</li>
+      <li>Sitios como "You Might Not Need jQuery" se volvieron populares en la comunidad, mostrando el equivalente nativo de cada función común de jQuery.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     EL OCASO
+═══════════════════════════════════════════ -->
+<section class="module" id="el-ocaso">
+  <div class="module-header">
+    <div class="module-icon">📉</div>
+    <div>
+      <div class="module-title">El ocaso lento, no la muerte súbita</div>
+      <div class="module-sub">jQuery no "murió", simplemente dejó de ser la opción por defecto</div>
+    </div>
+  </div>
+
+  <p>A esto se sumó el auge de los frameworks modernos basados en componentes (React, Vue, Angular), que resuelven la manipulación del DOM de una forma completamente distinta —a través de un estado y un re-renderizado declarativo, en lugar de manipular elementos directamente—, dejando a jQuery fuera del enfoque que la mayoría de los proyectos nuevos adoptaron.</p>
+
+  <div class="warn">
+    <h4>⚠️ "Código legado" no significa "código inútil"</h4>
+    <p>jQuery sigue instalado hoy en una porción enorme de sitios existentes en internet —en parte gracias a plataformas como WordPress— y sigue siendo perfectamente funcional para proyectos pequeños o para mantener sitios ya construidos con él. El término "código legado" describe que ya no es la opción recomendada para proyectos nuevos, no que haya dejado de funcionar.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     LEGADO
+═══════════════════════════════════════════ -->
+<section class="module" id="legado">
+  <div class="module-header">
+    <div class="module-icon">🏛️</div>
+    <div>
+      <div class="module-title">Por qué sigue importando</div>
+      <div class="module-sub">El destino más generoso que le puede pasar a una herramienta</div>
+    </div>
+  </div>
+
+  <dl class="glos">
+    <div class="glos-item">
+      <span class="emoji">🎯</span>
+      <dt>$() (el selector de jQuery)</dt>
+      <dd>La función central de jQuery, usada para seleccionar y manipular elementos del DOM con sintaxis de CSS.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🌐</span>
+      <dt>API nativa del navegador</dt>
+      <dd>Funciones integradas directamente en JavaScript y el DOM, sin necesitar ninguna librería externa, como <code>fetch()</code> o <code>querySelector()</code>.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">📦</span>
+      <dt>Código legado</dt>
+      <dd>Código o tecnología que sigue funcionando y en uso, pero que ya no se recomienda para proyectos nuevos por existir alternativas más modernas.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🧩</span>
+      <dt>Framework basado en componentes</dt>
+      <dd>Un enfoque (usado por React, Vue o Angular) que maneja la interfaz a través de un estado y una re-renderización declarativa, en lugar de manipular el DOM directamente como hacía jQuery.</dd>
+    </div>
+  </dl>
+
+  <div class="concept">
+    <h4>💡 Resumen del dato curioso</h4>
+    <p>jQuery no falló: tuvo tanto éxito resolviendo las inconsistencias entre navegadores que, con el tiempo, empujó a los propios navegadores a adoptar de forma nativa muchas de sus ideas. Esa es, en cierto modo, la mejor forma posible de quedar obsoleto — no porque algo saliera mal, sino porque el problema que resolvía dejó de existir. Hoy convive como "código legado" en millones de sitios ya construidos, mientras los proyectos nuevos suelen apoyarse en APIs nativas o en frameworks modernos basados en componentes.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Guía jQuery: de salvador a "código legado" · Café &lt;/&gt; · Datos Curiosos
+</footer>
+
+</body>
+</html>

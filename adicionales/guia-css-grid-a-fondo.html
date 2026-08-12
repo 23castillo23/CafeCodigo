@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Guía Formularios Avanzados — Café </></title>
+<title>Guía CSS Grid a fondo — Café </></title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -155,18 +155,36 @@
   .code-block .str { color: #7fd8a8; }
   .code-block .tag2 { color: #e08a5a; }
   .code-block .num { color: #7fb8e0; }
-  .code-block .kw { color: #d88ae0; }
 
   .exercise { background: var(--bg); border: 1px dashed var(--primary); border-radius: 10px; padding: 1.1rem 1.25rem; margin: 1rem 0; }
   .exercise h4 { color: var(--primary); font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .5rem; }
 
-  /* Demo en vivo: reflow */
-  .demo-live { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin: 1rem 0; text-align: center; }
-  .demo-live button { padding: .6rem 1.2rem; border-radius: 8px; border: none; background: var(--primary); color: #1a1814; font-weight: 700; cursor: pointer; font-family: inherit; font-size: .85rem; margin: 0 .3rem; }
-  .demo-live button:hover { background: var(--secondary); }
-  .demo-out { margin-top: 1rem; font-family: 'DM Mono', monospace; font-size: .82rem; color: var(--muted); min-height: 24px; }
-  .demo-list { list-style:none; display:flex; flex-wrap:wrap; gap:.4rem; justify-content:center; margin-top: 1rem; min-height: 40px; }
-  .demo-list li { background: var(--primary-light); color: var(--primary); border-radius: 6px; padding: .3rem .7rem; font-family:'DM Mono',monospace; font-size:.78rem; }
+  /* Demo visual de grid */
+  .grid-demo {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+    gap: .6rem;
+    margin: 1rem 0;
+  }
+  .grid-demo div {
+    background: var(--primary-light); color: var(--primary);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: .9rem; text-align: center; font-family: 'DM Mono', monospace; font-size: .82rem; font-weight: 600;
+  }
+  .grid-demo-areas {
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+    grid-template-rows: auto 1fr auto;
+    grid-template-areas: "head head" "side main" "foot foot";
+    gap: .6rem;
+    margin: 1rem 0;
+    min-height: 220px;
+  }
+  .grid-demo-areas .ga-head { grid-area: head; background: var(--primary); color:#1a1814; }
+  .grid-demo-areas .ga-side { grid-area: side; background: var(--secondary); color:#0c0a08; }
+  .grid-demo-areas .ga-main { grid-area: main; background: var(--accent-light); color: var(--accent); border:1px solid var(--border); }
+  .grid-demo-areas .ga-foot { grid-area: foot; background: var(--primary); color:#1a1814; }
+  .grid-demo-areas > div { border-radius: 8px; padding: .9rem; font-family:'DM Mono',monospace; font-size:.8rem; font-weight:600; display:flex; align-items:center; justify-content:center; }
 
   footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); transition: background .25s ease, border-color .25s ease; }
 </style>
@@ -175,7 +193,7 @@
 
 <div class="cafe-bar">
   <a href="../capitulos.html?tab=adicionales">← Volver a Adicionales</a>
-  <span class="crumb">📝 Formularios Avanzados</span>
+  <span class="crumb">☕ CSS Grid a fondo</span>
   <div class="spacer"></div>
   <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
     <span class="icon" id="themeIcon">🌙</span>
@@ -184,22 +202,23 @@
 </div>
 
 <header>
-  <h1>Formularios Avanzados</h1>
-  <p>Validación nativa, patrones y los atributos que casi nadie usa</p>
-  <span class="badge">✦ Guía adicional · HTML ✦</span>
+  <h1>CSS Grid a fondo</h1>
+  <p>Áreas, auto-fit vs auto-fill y layouts complejos</p>
+  <span class="badge">🧩 Guía adicional · Fuera de la ruta principal</span>
 </header>
 
 <nav>
   <a href="#intro">🎯 Intro</a>
-  <a href="#validacion-nativa">✅ Validación nativa</a>
-  <a href="#atributos">🧩 Atributos poco usados</a>
-  <a href="#pseudo-clases">🎨 Pseudo-clases</a>
-  <a href="#js-api">⚙️ Constraint API</a>
+  <a href="#conceptos-basicos">🧱 Conceptos básicos</a>
+  <a href="#grid-template-areas">🗺️ grid-template-areas</a>
+  <a href="#auto-fit-vs-fill">🔀 auto-fit vs. auto-fill</a>
+  <a href="#alineacion">📐 Alineación de items</a>
+  <a href="#ejercicios">🏋️ Ejercicios</a>
 </nav>
 
 <main>
 
-<div class="parte-badge">📝 Guía adicional — HTML, CSS y JavaScript</div>
+<div class="parte-badge">🧩 Guía adicional — HTML, CSS y JavaScript</div>
 
 <!-- ═══════════════════════════════════════════
      INTRO
@@ -208,228 +227,216 @@
   <div class="module-header">
     <div class="module-icon">🎯</div>
     <div>
-      <div class="module-title">Introducción — más allá del &lt;input&gt; básico</div>
-      <div class="module-sub">Por qué un formulario "bien hecho" no necesita casi JavaScript</div>
+      <div class="module-title">Introducción — layouts en dos dimensiones, por fin</div>
+      <div class="module-sub">Filas y columnas al mismo tiempo, sin trucos</div>
     </div>
   </div>
 
-  <p>Ya sabes crear un <code>&lt;form&gt;</code> con <code>&lt;input&gt;</code> y un botón de enviar. Esta guía va un paso más allá: cómo hacer que el propio navegador valide los datos por ti, sin escribir una sola línea de JavaScript para los casos más comunes — y cómo tomar el control con JS solo cuando de verdad lo necesitas.</p>
+  <p>CSS Grid es el sistema de layout de CSS pensado específicamente para organizar contenido en <strong>dos dimensiones a la vez</strong>: filas y columnas. A diferencia de Flexbox, que trabaja bien en una sola dirección, Grid te permite definir la estructura completa de una sección —cuántas columnas, cuántas filas, y dónde va cada bloque— desde un solo lugar.</p>
 
   <div class="concept">
-    <h4>💡 Lo que vas a aprender</h4>
-    <p>La validación nativa de HTML5 (<code>required</code>, <code>pattern</code>, tipos de <code>input</code>), atributos que mejoran mucho la experiencia y casi nadie conoce, cómo diseñar los estados de error con CSS puro, y cómo personalizar los mensajes de error con la Constraint Validation API de JavaScript.</p>
+    <h4>💡 La idea central</h4>
+    <p>Con Grid, defines una cuadrícula en el contenedor padre (<code>display: grid</code>) y luego colocas a los elementos hijos dentro de esa cuadrícula — ya sea dejando que fluyan automáticamente, o indicando exactamente en qué celda o área va cada uno.</p>
   </div>
-</section>
-
-<!-- ═══════════════════════════════════════════
-     VALIDACIÓN NATIVA
-═══════════════════════════════════════════ -->
-<section class="module" id="validacion-nativa">
-  <div class="module-header">
-    <div class="module-icon">✅</div>
-    <div>
-      <div class="module-title">Validación nativa de HTML5</div>
-      <div class="module-sub">El navegador ya sabe validar — solo hay que decirle las reglas</div>
-    </div>
-  </div>
-
-  <p>Antes de escribir JavaScript para "revisar" que un campo esté bien lleno, recuerda que HTML ya trae un sistema de validación integrado. Se activa solo con atributos.</p>
-
-  <div class="code-block"><span class="lang">HTML</span><span class="ct">&lt;form&gt;</span>
-  <span class="ct">&lt;label&gt;</span>Correo: <span class="ct">&lt;/label&gt;</span>
-  <span class="ct">&lt;input</span> <span class="ca">type</span>=<span class="cs">"email"</span> <span class="ca">required</span> <span class="ca">placeholder</span>=<span class="cs">"tucorreo@ejemplo.com"</span><span class="ct">&gt;</span>
-
-  <span class="ct">&lt;label&gt;</span>Edad: <span class="ct">&lt;/label&gt;</span>
-  <span class="ct">&lt;input</span> <span class="ca">type</span>=<span class="cs">"number"</span> <span class="ca">min</span>=<span class="cs">"18"</span> <span class="ca">max</span>=<span class="cs">"99"</span> <span class="ca">required</span><span class="ct">&gt;</span>
-
-  <span class="ct">&lt;button&gt;</span>Enviar<span class="ct">&lt;/button&gt;</span>
-<span class="ct">&lt;/form&gt;</span>
-</div>
-
-  <p>Con solo <code>type="email"</code> y <code>required</code>, el navegador ya rechaza correos mal escritos y campos vacíos — sin una línea de JavaScript.</p>
-
-  <table class="tbl">
-    <tr><th>Atributo</th><th>Qué hace</th></tr>
-    <tr><td><span class="tag">required</span></td><td>El campo no puede quedar vacío.</td></tr>
-    <tr><td><span class="tag">min / max</span></td><td>Rango permitido para números y fechas.</td></tr>
-    <tr><td><span class="tag">minlength / maxlength</span></td><td>Rango permitido de caracteres en texto.</td></tr>
-    <tr><td><span class="tag">type="email"</span></td><td>Exige el formato de un correo válido.</td></tr>
-    <tr><td><span class="tag">pattern</span></td><td>Exige que el valor cumpla una expresión regular.</td></tr>
-  </table>
 
   <div class="analogy">
-    <h4>🚪 Analogía: el portero del club</h4>
-    <p>La validación nativa es como un portero en la puerta: revisa que cumplas las reglas básicas (identificación, código de vestimenta) antes de dejarte pasar. No necesitas contratar a alguien más adentro (JavaScript) para revisar lo mismo otra vez — el portero ya filtró lo obvio.</p>
+    <h4>🗂️ Analogía: el tablero de ajedrez</h4>
+    <p>Flexbox es como acomodar objetos en una sola fila de estantería: puedes decidir su orden y espaciado, pero todo vive en una sola dirección. Grid es como un tablero de ajedrez: defines las filas y columnas de antemano, y cada pieza puede colocarse en una casilla específica, o incluso ocupar varias casillas a la vez.</p>
   </div>
 </section>
 
 <!-- ═══════════════════════════════════════════
-     ATRIBUTOS POCO USADOS
+     CONCEPTOS BÁSICOS
 ═══════════════════════════════════════════ -->
-<section class="module" id="atributos">
+<section class="module" id="conceptos-basicos">
   <div class="module-header">
-    <div class="module-icon">🧩</div>
+    <div class="module-icon">🧱</div>
     <div>
-      <div class="module-title">Atributos poco usados (pero muy útiles)</div>
-      <div class="module-sub">Pequeños detalles que mejoran mucho la experiencia</div>
+      <div class="module-title">Conceptos básicos</div>
+      <div class="module-sub">grid-template-columns, grid-template-rows y la unidad fr</div>
     </div>
   </div>
 
-  <dl class="glos">
-    <div class="glos-item">
-      <span class="emoji">🔤</span>
-      <dt>pattern</dt>
-      <dd>Valida el valor contra una expresión regular. Ej: <code>pattern="[0-9]{5}"</code> exige exactamente 5 dígitos.</dd>
-    </div>
-    <div class="glos-item">
-      <span class="emoji">📋</span>
-      <dt>list + datalist</dt>
-      <dd>Convierte un input de texto en un autocompletado con sugerencias, sin JavaScript ni librerías externas.</dd>
-    </div>
-    <div class="glos-item">
-      <span class="emoji">⌨️</span>
-      <dt>inputmode</dt>
-      <dd>Le dice al teclado del celular qué mostrar: <code>inputmode="numeric"</code> abre el teclado numérico aunque el input siga siendo de texto.</dd>
-    </div>
-    <div class="glos-item">
-      <span class="emoji">🚫</span>
-      <dt>novalidate</dt>
-      <dd>Atributo del <code>&lt;form&gt;</code> que desactiva la validación nativa por completo, para cuando quieres controlarla 100% con JavaScript.</dd>
-    </div>
-    <div class="glos-item">
-      <span class="emoji">🔁</span>
-      <dt>autocomplete</dt>
-      <dd>Le dice al navegador qué tipo de dato es (<code>autocomplete="email"</code>, <code>"tel"</code>, <code>"cc-number"</code>) para autocompletar mejor.</dd>
-    </div>
-  </dl>
-
-  <h2>Ejemplo: datalist para autocompletado</h2>
-  <div class="code-block"><span class="lang">HTML</span><span class="ct">&lt;input</span> <span class="ca">list</span>=<span class="cs">"lenguajes"</span> <span class="ca">name</span>=<span class="cs">"lenguaje"</span><span class="ct">&gt;</span>
-<span class="ct">&lt;datalist</span> <span class="ca">id</span>=<span class="cs">"lenguajes"</span><span class="ct">&gt;</span>
-  <span class="ct">&lt;option</span> <span class="ca">value</span>=<span class="cs">"HTML"</span><span class="ct">&gt;</span>
-  <span class="ct">&lt;option</span> <span class="ca">value</span>=<span class="cs">"CSS"</span><span class="ct">&gt;</span>
-  <span class="ct">&lt;option</span> <span class="ca">value</span>=<span class="cs">"JavaScript"</span><span class="ct">&gt;</span>
-<span class="ct">&lt;/datalist&gt;</span>
-</div>
-</section>
-
-<!-- ═══════════════════════════════════════════
-     PSEUDO-CLASES
-═══════════════════════════════════════════ -->
-<section class="module" id="pseudo-clases">
-  <div class="module-header">
-    <div class="module-icon">🎨</div>
-    <div>
-      <div class="module-title">Estilizar la validación con CSS</div>
-      <div class="module-sub">El navegador ya sabe si el campo es válido — solo hay que pintarlo</div>
-    </div>
+  <div class="code-block">
+.contenedor {
+  <span class="attr">display</span>: grid;
+  <span class="attr">grid-template-columns</span>: <span class="num">1fr</span> <span class="num">1fr</span> <span class="num">1fr</span>;  <span class="cm">/* 3 columnas iguales */</span>
+  <span class="attr">gap</span>: <span class="num">1rem</span>;                    <span class="cm">/* espacio entre celdas */</span>
+}
   </div>
 
-  <p>Cuando un campo tiene reglas de validación, el navegador le agrega automáticamente un estado que puedes usar en CSS, sin ninguna clase manual.</p>
+  <div class="grid-demo">
+    <div>1</div><div>2</div><div>3</div><div>4</div><div>5</div><div>6</div>
+  </div>
 
-  <div class="code-block"><span class="lang">CSS</span><span class="cc">/* Campo válido */</span>
-<span class="cn">input</span><span class="cv">:valid</span> {
-  <span class="cp">border-color</span>: <span class="cv">green</span>;
-}
+  <p>La unidad <code>fr</code> (fracción) es propia de Grid: representa una porción del espacio disponible, después de restar el <code>gap</code> y cualquier tamaño fijo. <code>1fr 1fr 1fr</code> crea tres columnas de ancho idéntico que se reparten todo el espacio sobrante.</p>
 
-<span class="cc">/* Campo inválido, pero solo cuando el usuario ya interactuó */</span>
-<span class="cn">input</span><span class="cv">:invalid</span><span class="cv">:not</span>(<span class="cv">:placeholder-shown</span>) {
-  <span class="cp">border-color</span>: <span class="cv">crimson</span>;
-}
-
-<span class="cc">/* Foco visible por teclado, no por mouse */</span>
-<span class="cn">input</span><span class="cv">:focus-visible</span> {
-  <span class="cp">outline</span>: <span class="cv">2px</span> <span class="cv">solid</span> <span class="cv">dodgerblue</span>;
-}
-</div>
+  <table class="tbl">
+    <tr><th>Propiedad</th><th>Qué define</th></tr>
+    <tr><td><span class="tag">grid-template-columns</span></td><td>El número y tamaño de las columnas.</td></tr>
+    <tr><td><span class="tag">grid-template-rows</span></td><td>El número y tamaño de las filas.</td></tr>
+    <tr><td><span class="tag">gap</span></td><td>El espacio entre celdas (equivalente a <code>row-gap</code> + <code>column-gap</code>).</td></tr>
+    <tr><td><span class="tag">minmax()</span></td><td>Define un tamaño mínimo y máximo para una columna o fila, útil para diseños flexibles.</td></tr>
+  </table>
 
   <div class="tip">
-    <h4>🟢 El truco de :not(:placeholder-shown)</h4>
-    <p>Usar solo <code>:invalid</code> pinta de rojo el campo desde que carga la página, antes de que el usuario escriba nada — se ve agresivo. Combinarlo con <code>:not(:placeholder-shown)</code> hace que el rojo aparezca solo después de que el usuario empezó a escribir y lo dejó incompleto o mal.</p>
+    <h4>🟢 Un patrón muy común</h4>
+    <p><code>grid-template-columns: repeat(3, 1fr);</code> es exactamente lo mismo que escribir <code>1fr 1fr 1fr</code>, pero más corto y más fácil de mantener si cambias el número de columnas.</p>
   </div>
 </section>
 
 <!-- ═══════════════════════════════════════════
-     CONSTRAINT VALIDATION API
+     GRID TEMPLATE AREAS
 ═══════════════════════════════════════════ -->
-<section class="module" id="js-api">
+<section class="module" id="grid-template-areas">
   <div class="module-header">
-    <div class="module-icon">⚙️</div>
+    <div class="module-icon">🗺️</div>
     <div>
-      <div class="module-title">Mensajes personalizados con JavaScript</div>
-      <div class="module-sub">Constraint Validation API — cuando el mensaje del navegador no alcanza</div>
+      <div class="module-title">grid-template-areas: dibujar el layout con nombres</div>
+      <div class="module-sub">Probablemente la característica más querida de Grid</div>
     </div>
   </div>
 
-  <p>El mensaje de error que muestra el navegador por defecto ("Rellena este campo") no se puede traducir ni personalizar solo con HTML. Para eso existe la Constraint Validation API.</p>
+  <p><code>grid-template-areas</code> te permite literalmente "dibujar" el layout usando nombres, y luego asignar cada elemento hijo a su área correspondiente con <code>grid-area</code>.</p>
 
-  <div class="code-block"><span class="lang">JavaScript</span><span class="cc">const input = document.querySelector('#usuario')</span>
+  <div class="code-block">
+.layout {
+  <span class="attr">display</span>: grid;
+  <span class="attr">grid-template-columns</span>: <span class="num">200px</span> <span class="num">1fr</span>;
+  <span class="attr">grid-template-areas</span>:
+    <span class="str">"header header"</span>
+    <span class="str">"sidebar main"</span>
+    <span class="str">"footer footer"</span>;
+}
 
-<span class="ct">input</span>.<span class="cn">addEventListener</span>(<span class="cs">'invalid'</span>, () <span class="ca">=&gt;</span> {
-  <span class="ct">input</span>.<span class="cn">setCustomValidity</span>(<span class="cs">'Escribe un nombre de usuario válido'</span>)
-})
+header  { <span class="attr">grid-area</span>: header; }
+aside   { <span class="attr">grid-area</span>: sidebar; }
+main    { <span class="attr">grid-area</span>: main; }
+footer  { <span class="attr">grid-area</span>: footer; }
+  </div>
 
-<span class="ct">input</span>.<span class="cn">addEventListener</span>(<span class="cs">'input'</span>, () <span class="ca">=&gt;</span> {
-  <span class="cc">// Limpiar el mensaje personalizado en cuanto el usuario corrige</span>
-  <span class="ct">input</span>.<span class="cn">setCustomValidity</span>(<span class="cs">''</span>)
-})
-</div>
+  <p>Así se ve ese mismo layout renderizado:</p>
+
+  <div class="grid-demo-areas">
+    <div class="ga-head">header</div>
+    <div class="ga-side">sidebar</div>
+    <div class="ga-main">main</div>
+    <div class="ga-foot">footer</div>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Por qué esto resuelve el "Holy Grail Layout" de un plumazo</h4>
+    <p>El clásico layout de encabezado + barra lateral + contenido + pie de página, que durante años fue tan difícil de lograr con tablas o floats (como se cuenta en la guía de "El caso de la etiqueta"), se resuelve con Grid en menos de diez líneas de CSS, sin trucos ni hacks.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     AUTO-FIT VS AUTO-FILL
+═══════════════════════════════════════════ -->
+<section class="module" id="auto-fit-vs-fill">
+  <div class="module-header">
+    <div class="module-icon">🔀</div>
+    <div>
+      <div class="module-title">auto-fit vs. auto-fill</div>
+      <div class="module-sub">El dúo que confunde a casi todo el mundo la primera vez</div>
+    </div>
+  </div>
+
+  <p>Ambos se usan junto con <code>repeat()</code> y <code>minmax()</code> para crear grids responsivos sin necesitar ni una sola media query:</p>
+
+  <div class="code-block">
+.galeria {
+  <span class="attr">display</span>: grid;
+  <span class="attr">grid-template-columns</span>: repeat(auto-fit, minmax(<span class="num">180px</span>, <span class="num">1fr</span>));
+  <span class="attr">gap</span>: <span class="num">1rem</span>;
+}
+  </div>
+
+  <p>Esta única línea le dice al navegador: "crea tantas columnas de al menos 180px como quepan, y repártete el espacio sobrante entre ellas". Cuando la pantalla se achica, las columnas se reacomodan solas, sin que tengas que escribir un solo <code>@media</code>.</p>
+
+  <table class="tbl">
+    <tr><th></th><th>auto-fit</th><th>auto-fill</th></tr>
+    <tr><td><span class="tag">Con pocos elementos</span></td><td>Estira las columnas existentes para llenar el espacio sobrante.</td><td>Deja columnas vacías "fantasma" del mismo tamaño, sin estirar las que sí tienen contenido.</td></tr>
+    <tr><td><span class="tag">Cuándo usarlo</span></td><td>Cuando quieres que los elementos existentes aprovechen todo el ancho disponible.</td><td>Cuando quieres mantener un tamaño de columna fijo, aunque sobre espacio vacío.</td></tr>
+  </table>
 
   <div class="warn">
-    <h4>⚠️ No olvides limpiar el mensaje</h4>
-    <p>Si llamas a <code>setCustomValidity()</code> con un texto y nunca lo vuelves a limpiar con <code>setCustomValidity('')</code>, el campo queda inválido para siempre, aunque el usuario lo corrija. Siempre limpia el mensaje en el evento <code>input</code>.</p>
+    <h4>⚠️ La diferencia solo se nota con pocos elementos</h4>
+    <p>Si tienes suficientes elementos para llenar todas las filas, <code>auto-fit</code> y <code>auto-fill</code> se ven exactamente igual. La diferencia solo se hace visible cuando hay espacio de sobra — por ejemplo, una galería con solo dos fotos en una pantalla ancha.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     ALINEACIÓN
+═══════════════════════════════════════════ -->
+<section class="module" id="alineacion">
+  <div class="module-header">
+    <div class="module-icon">📐</div>
+    <div>
+      <div class="module-title">Alineación de items</div>
+      <div class="module-sub">justify vs. align, y por qué siempre se confunden</div>
+    </div>
   </div>
 
+  <table class="tbl">
+    <tr><th>Propiedad</th><th>Eje que controla</th><th>Aplica a</th></tr>
+    <tr><td><span class="tag">justify-items</span></td><td>Horizontal (columnas)</td><td>Todos los elementos hijos, dentro de su celda.</td></tr>
+    <tr><td><span class="tag">align-items</span></td><td>Vertical (filas)</td><td>Todos los elementos hijos, dentro de su celda.</td></tr>
+    <tr><td><span class="tag">justify-content</span></td><td>Horizontal</td><td>La cuadrícula completa dentro del contenedor.</td></tr>
+    <tr><td><span class="tag">align-content</span></td><td>Vertical</td><td>La cuadrícula completa dentro del contenedor.</td></tr>
+  </table>
+
   <div class="tip">
-    <h4>🟢 Resumen de la guía</h4>
+    <h4>🟢 Truco para no confundirte</h4>
     <ul>
-      <li><strong>Validación nativa:</strong> <code>required</code>, <code>min/max</code>, <code>pattern</code>, tipos de <code>input</code>.</li>
-      <li><strong>Atributos útiles:</strong> <code>datalist</code>, <code>inputmode</code>, <code>autocomplete</code>, <code>novalidate</code>.</li>
-      <li><strong>CSS:</strong> <code>:valid</code>, <code>:invalid</code>, <code>:focus-visible</code>, <code>:not(:placeholder-shown)</code>.</li>
-      <li><strong>JavaScript:</strong> Constraint Validation API para mensajes personalizados.</li>
+      <li><strong>justify</strong> siempre es horizontal (como "justificar" texto de izquierda a derecha).</li>
+      <li><strong>align</strong> siempre es vertical.</li>
+      <li>Si termina en <strong>-items</strong>, afecta a cada elemento individualmente dentro de su celda.</li>
+      <li>Si termina en <strong>-content</strong>, mueve la cuadrícula completa dentro del contenedor.</li>
     </ul>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     EJERCICIOS
+═══════════════════════════════════════════ -->
+<section class="module" id="ejercicios">
+  <div class="module-header">
+    <div class="module-icon">🏋️</div>
+    <div>
+      <div class="module-title">Ejercicios</div>
+      <div class="module-sub">Para practicar lo que acabas de leer</div>
+    </div>
+  </div>
+
+  <div class="exercise">
+    <h4>Ejercicio 1 — Galería responsiva</h4>
+    <p>Crea una galería de 8 tarjetas usando <code>grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));</code>. Cambia el tamaño de tu ventana y observa cómo se reacomodan solas, sin ninguna media query.</p>
+  </div>
+
+  <div class="exercise">
+    <h4>Ejercicio 2 — El layout clásico</h4>
+    <p>Recrea el layout de header + sidebar + main + footer mostrado arriba usando <code>grid-template-areas</code>, con tu propio contenido dentro de cada sección.</p>
+  </div>
+
+  <div class="exercise">
+    <h4>Ejercicio 3 — auto-fit vs auto-fill</h4>
+    <p>Crea el mismo grid dos veces, uno con <code>auto-fit</code> y otro con <code>auto-fill</code>, pero coloca solo 2 elementos dentro. Compara visualmente la diferencia cuando sobra espacio.</p>
+  </div>
+
+  <div class="concept">
+    <h4>💡 Para llevarte de esta guía</h4>
+    <p>CSS Grid resuelve en pocas líneas lo que antes tomaba tablas anidadas o combinaciones frágiles de <code>float</code>. La combinación de <code>grid-template-areas</code> para la estructura y <code>repeat(auto-fit, minmax(...))</code> para la responsividad cubre la gran mayoría de los layouts que vas a necesitar en proyectos reales.</p>
   </div>
 </section>
 
 </main>
 
 <footer>
-  Guía Formularios Avanzados · Café &lt;/&gt; · Guías Adicionales
+  Guía CSS Grid a fondo · Café &lt;/&gt; · Guías adicionales
 </footer>
+
 <script>
-  function demoFragment() {
-    var lista = document.getElementById('demoLista');
-    var t0 = performance.now();
-    var frag = document.createDocumentFragment();
-    for (var i = 0; i < 300; i++) {
-      var li = document.createElement('li');
-      li.textContent = i;
-      frag.appendChild(li);
-    }
-    lista.appendChild(frag);
-    var t1 = performance.now();
-    document.getElementById('demoTiempo').textContent =
-      'Con DocumentFragment: ' + (t1 - t0).toFixed(2) + ' ms (una sola inserción real al DOM)';
-  }
-
-  function demoDirecto() {
-    var lista = document.getElementById('demoLista');
-    var t0 = performance.now();
-    for (var i = 0; i < 300; i++) {
-      var li = document.createElement('li');
-      li.textContent = i;
-      lista.appendChild(li); // inserción directa, una por una
-    }
-    var t1 = performance.now();
-    document.getElementById('demoTiempo').textContent =
-      'Insertando directo: ' + (t1 - t0).toFixed(2) + ' ms (300 inserciones reales al DOM)';
-  }
-
-  function demoLimpiar() {
-    document.getElementById('demoLista').innerHTML = '';
-    document.getElementById('demoTiempo').textContent = '';
-  }
-
   (function() {
     var root = document.documentElement;
     var icon = document.getElementById('themeIcon');

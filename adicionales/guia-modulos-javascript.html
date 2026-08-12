@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía Módulos de JavaScript (ES Modules) — Café </></title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #c49a1a;
+    --primary-light:  #fdf6e0;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --danger:         #c44a2a;
+    --danger-light:   #fdf0ec;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1a1814;
+    --code-text:      #e8e4de;
+
+    color-scheme: light;
+  }
+
+  :root[data-theme="dark"] {
+    --primary:        #e0b52e;
+    --primary-light:  #2b2410;
+    --secondary:      #3fcf9e;
+    --secondary-light:#0f2a22;
+    --accent:         #e0912e;
+    --accent-light:   #2e2110;
+    --danger:         #e07a5a;
+    --danger-light:   #2e1712;
+    --bg:             #14120f;
+    --surface:        #1e1b17;
+    --text:           #f0ece5;
+    --muted:          #a39d93;
+    --border:         #332e27;
+    --code-bg:        #0c0a08;
+    --code-text:      #e8e4de;
+
+    color-scheme: dark;
+  }
+
+  body {
+    font-family: 'DM Sans', 'Segoe UI', sans-serif;
+    background: var(--bg); color: var(--text);
+    line-height: 1.7; font-size: 16px;
+    transition: background .25s ease, color .25s ease;
+  }
+
+  .cafe-bar {
+    background: var(--surface); border-bottom:1px solid var(--border);
+    padding:0 24px; display:flex; align-items:center; gap:14px;
+    position:sticky; top:0; z-index:200; height:45px;
+    transition: background .25s ease, border-color .25s ease;
+  }
+  .cafe-bar a { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--muted); text-decoration:none; padding:6px 14px; border:1px solid var(--border); border-radius:999px; transition:all 0.15s; }
+  .cafe-bar a:hover { color:var(--text); border-color:var(--muted); }
+  .cafe-bar span.crumb { font-size:13px; color:var(--muted); }
+  .cafe-bar .spacer { flex: 1; }
+
+  .theme-toggle {
+    display:inline-flex; align-items:center; gap:8px;
+    background: var(--bg); border:1px solid var(--border); color: var(--text);
+    border-radius:999px; padding:6px 14px 6px 10px; font-size:13px; font-weight:500;
+    cursor:pointer; transition: all .2s ease; font-family: inherit;
+  }
+  .theme-toggle:hover { border-color: var(--primary); color: var(--primary); }
+  .theme-toggle .icon { font-size: 15px; line-height:1; }
+
+  header {
+    background: #1a1814; color: #f7f4ef; padding: 3rem 2rem 2rem;
+    text-align: center; position: relative; overflow: hidden;
+  }
+  header::before { content: '☕'; position: absolute; font-size: 12rem; font-weight: 900; color: rgba(255,255,255,0.04); right: -1rem; top: -2rem; font-family: monospace; line-height: 1; }
+  header h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; font-family: 'Fraunces', serif; }
+  header p { font-size: 1.1rem; opacity: .85; margin-top: .5rem; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  nav {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    position: sticky; top: 45px; z-index: 100; display: flex; overflow-x: auto; gap: 0;
+    transition: background .25s ease, border-color .25s ease;
+  }
+  nav a { flex-shrink: 0; padding: .75rem 1rem; text-decoration: none; color: var(--muted); font-size: .78rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .module {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+    padding: 2rem; margin-bottom: 2.5rem; scroll-margin-top:100px;
+    transition: background .25s ease, border-color .25s ease;
+  }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-size: 1.35rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  .analogy { background: var(--accent-light); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: var(--accent); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; }
+
+  .concept { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p, .tip ul { font-size: .95rem; }
+  .tip ul { padding-left: 1.2rem; }
+
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  .glos { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .glos-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; }
+  .glos-item dt { font-weight: 700; color: var(--primary); font-size: .92rem; margin-bottom: .3rem; }
+  .glos-item dd { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+  .glos-item .emoji { font-size: 1.3rem; display: block; margin-bottom: .3rem; }
+
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: #1a1814; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  h2 { font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; color: var(--text); }
+  h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 .5rem; }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: var(--primary-light); color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+  strong { font-weight: 700; }
+
+  .code-block {
+    background: var(--code-bg); color: var(--code-text); border-radius: 10px;
+    padding: 1rem 1.25rem; font-family: 'DM Mono', monospace; font-size: .84rem;
+    overflow-x: auto; margin: 1rem 0; line-height: 1.65;
+  }
+  .code-block .cm { color: #8a8480; }
+  .code-block .attr { color: #e0b52e; }
+  .code-block .str { color: #7fd8a8; }
+  .code-block .tag2 { color: #e08a5a; }
+  .code-block .num { color: #7fb8e0; }
+  .code-block .kw { color: #d88ae0; }
+  .code-block .filename { color: #6a655e; font-style: italic; }
+
+  .exercise { background: var(--bg); border: 1px dashed var(--primary); border-radius: 10px; padding: 1.1rem 1.25rem; margin: 1rem 0; }
+  .exercise h4 { color: var(--primary); font-size: .8rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .5rem; }
+
+  /* Diagrama de árbol de módulos */
+  .tree-diagram { display:flex; flex-direction:column; align-items:center; gap:.5rem; margin: 1.3rem 0; }
+  .tree-row { display:flex; gap: .8rem; justify-content:center; flex-wrap:wrap; }
+  .tree-node { background: var(--primary-light); border:1px solid var(--primary); color: var(--primary); border-radius: 8px; padding: .6rem 1rem; font-family:'DM Mono',monospace; font-size:.8rem; font-weight:700; }
+  .tree-node.entry { background: var(--secondary-light); border-color: var(--secondary); color: var(--secondary); }
+  .tree-connector { color: var(--muted); font-size: .9rem; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); transition: background .25s ease, border-color .25s ease; }
+</style>
+</head>
+<body>
+
+<div class="cafe-bar">
+  <a href="../capitulos.html?tab=adicionales">← Volver a Adicionales</a>
+  <span class="crumb">☕ Módulos de JavaScript (ES Modules)</span>
+  <div class="spacer"></div>
+  <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+    <span class="icon" id="themeIcon">🌙</span>
+    <span id="themeLabel">Modo oscuro</span>
+  </button>
+</div>
+
+<header>
+  <h1>Módulos de JavaScript (ES Modules)</h1>
+  <p>Import/export y organización de código</p>
+  <span class="badge">🧩 Guía adicional · Fuera de la ruta principal</span>
+</header>
+
+<nav>
+  <a href="#intro">🎯 Intro</a>
+  <a href="#el-problema">📄 El problema que resuelven</a>
+  <a href="#export-import">📤 export e import</a>
+  <a href="#tipos-export">🏷️ Named exports vs. default export</a>
+  <a href="#en-el-navegador">🌐 Usarlos directo en el navegador</a>
+  <a href="#buenas-practicas">✅ Buenas prácticas</a>
+  <a href="#ejercicios">🏋️ Ejercicios</a>
+</nav>
+
+<main>
+
+<div class="parte-badge">🧩 Guía adicional — HTML, CSS y JavaScript</div>
+
+<!-- ═══════════════════════════════════════════
+     INTRO
+═══════════════════════════════════════════ -->
+<section class="module" id="intro">
+  <div class="module-header">
+    <div class="module-icon">🎯</div>
+    <div>
+      <div class="module-title">Introducción — dividir el código sin que todo se pise entre sí</div>
+      <div class="module-sub">La forma estándar de organizar JavaScript en archivos separados</div>
+    </div>
+  </div>
+
+  <p>Conforme un proyecto crece, poner todo el JavaScript en un solo archivo se vuelve imposible de mantener. Los <strong>módulos de ES</strong> (ES Modules, o "ESM") son la forma estándar del propio lenguaje JavaScript para dividir el código en archivos separados que pueden compartir código entre sí de forma explícita y controlada.</p>
+
+  <div class="concept">
+    <h4>💡 La idea central</h4>
+    <p>Cada archivo de módulo tiene su propio espacio de variables, aislado del resto. Nada se comparte entre archivos a menos que lo <strong>exportes</strong> explícitamente desde un archivo, y lo <strong>importes</strong> explícitamente en otro.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     EL PROBLEMA
+═══════════════════════════════════════════ -->
+<section class="module" id="el-problema">
+  <div class="module-header">
+    <div class="module-icon">📄</div>
+    <div>
+      <div class="module-title">El problema que resuelven</div>
+      <div class="module-sub">Antes de los módulos, todo vivía en el mismo espacio global</div>
+    </div>
+  </div>
+
+  <p>Antes de que existieran los módulos nativos, incluir varios archivos <code>&lt;script&gt;</code> en una página significaba que todos compartían exactamente el mismo espacio de variables globales. Si dos archivos definían una variable o función con el mismo nombre, uno silenciosamente sobrescribía al otro.</p>
+
+  <div class="code-block">
+&lt;<span class="tag2">script</span> <span class="attr">src</span>=<span class="str">"a.js"</span>&gt;&lt;/<span class="tag2">script</span>&gt;
+&lt;<span class="tag2">script</span> <span class="attr">src</span>=<span class="str">"b.js"</span>&gt;&lt;/<span class="tag2">script</span>&gt;
+<span class="cm">&lt;!-- Si ambos definen "function iniciar()", el de b.js gana --&gt;</span>
+<span class="cm">&lt;!-- y el orden de carga importa muchísimo --&gt;</span>
+  </div>
+
+  <div class="analogy">
+    <h4>🏢 Analogía: la oficina de cubículos contra la oficina abierta</h4>
+    <p>Sin módulos, es como si todos en una oficina compartieran un solo escritorio gigante: cualquiera puede mover o borrar las cosas de cualquier otro por accidente. Con módulos, cada quien tiene su propio cubículo (su propio archivo, con su propio espacio) — y si necesitas algo del cubículo vecino, tienes que pedirlo explícitamente, no simplemente tomarlo.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     EXPORT / IMPORT
+═══════════════════════════════════════════ -->
+<section class="module" id="export-import">
+  <div class="module-header">
+    <div class="module-icon">📤</div>
+    <div>
+      <div class="module-title">export e import</div>
+      <div class="module-sub">Las dos palabras clave que hacen todo el trabajo</div>
+    </div>
+  </div>
+
+  <div class="code-block">
+<span class="filename">// matematicas.js</span>
+<span class="kw">export</span> function sumar(a, b) {
+  <span class="kw">return</span> a + b;
+}
+
+<span class="kw">export</span> function restar(a, b) {
+  <span class="kw">return</span> a - b;
+}
+
+<span class="kw">export</span> <span class="kw">const</span> PI = <span class="num">3.14159</span>;
+  </div>
+
+  <div class="code-block">
+<span class="filename">// app.js</span>
+<span class="kw">import</span> { sumar, PI } <span class="kw">from</span> <span class="str">'./matematicas.js'</span>;
+
+console.log(sumar(<span class="num">2</span>, <span class="num">3</span>));  <span class="cm">// 5</span>
+console.log(PI);        <span class="cm">// 3.14159</span>
+<span class="cm">// "restar" no se importó, así que no está disponible aquí</span>
+  </div>
+
+  <p>Cada archivo decide explícitamente qué comparte (con <code>export</code>) y cada archivo que lo usa decide explícitamente qué necesita de él (con <code>import</code>). Nada se filtra por accidente al espacio global.</p>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     TIPOS DE EXPORT
+═══════════════════════════════════════════ -->
+<section class="module" id="tipos-export">
+  <div class="module-header">
+    <div class="module-icon">🏷️</div>
+    <div>
+      <div class="module-title">Named exports vs. default export</div>
+      <div class="module-sub">Dos formas distintas de exportar, cada una con su lugar</div>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <tr><th></th><th>Named export</th><th>Default export</th></tr>
+    <tr><td><span class="tag">Cantidad por archivo</span></td><td>Tantos como quieras</td><td>Solo uno por archivo</td></tr>
+    <tr><td><span class="tag">Sintaxis al exportar</span></td><td><code>export function algo() {}</code></td><td><code>export default function() {}</code></td></tr>
+    <tr><td><span class="tag">Sintaxis al importar</span></td><td><code>import { algo } from '...'</code></td><td><code>import algo from '...'</code></td></tr>
+    <tr><td><span class="tag">Nombre al importar</span></td><td>Debe coincidir con el original (o usar <code>as</code>)</td><td>Puedes ponerle el nombre que quieras</td></tr>
+  </table>
+
+  <div class="code-block">
+<span class="filename">// Boton.js — default export</span>
+<span class="kw">export</span> <span class="kw">default</span> function Boton() { <span class="cm">/* ... */</span> }
+
+<span class="filename">// app.js — el nombre lo elige quien importa</span>
+<span class="kw">import</span> MiBoton <span class="kw">from</span> <span class="str">'./Boton.js'</span>;   <span class="cm">// funciona igual</span>
+<span class="kw">import</span> BotonComoSea <span class="kw">from</span> <span class="str">'./Boton.js'</span>;  <span class="cm">// también funciona</span>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Cuándo usar cada uno</h4>
+    <ul>
+      <li><strong>Named exports:</strong> cuando un archivo exporta varias utilidades relacionadas (funciones matemáticas, helpers de fecha).</li>
+      <li><strong>Default export:</strong> cuando el archivo representa "una sola cosa principal" — típico en componentes de interfaz, uno por archivo.</li>
+      <li>También puedes combinar ambos en el mismo archivo si tiene sentido para tu caso.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     EN EL NAVEGADOR
+═══════════════════════════════════════════ -->
+<section class="module" id="en-el-navegador">
+  <div class="module-header">
+    <div class="module-icon">🌐</div>
+    <div>
+      <div class="module-title">Usarlos directo en el navegador</div>
+      <div class="module-sub">Sin necesitar ninguna herramienta de build</div>
+    </div>
+  </div>
+
+  <p>Los navegadores modernos soportan módulos de forma nativa. Solo hace falta agregar <code>type="module"</code> al <code>&lt;script&gt;</code>:</p>
+
+  <div class="code-block">
+&lt;<span class="tag2">script</span> <span class="attr">type</span>=<span class="str">"module"</span> <span class="attr">src</span>=<span class="str">"app.js"</span>&gt;&lt;/<span class="tag2">script</span>&gt;
+  </div>
+
+  <table class="tbl">
+    <tr><th>Diferencia</th><th>Con type="module"</th><th>Script normal</th></tr>
+    <tr><td><span class="tag">Alcance de variables</span></td><td>Aisladas al módulo</td><td>Globales, compartidas entre scripts</td></tr>
+    <tr><td><span class="tag">Modo estricto</span></td><td>Activado automáticamente</td><td>Hay que escribir <code>'use strict'</code> manualmente</td></tr>
+    <tr><td><span class="tag">Carga</span></td><td>Siempre diferida (como <code>defer</code>)</td><td>Bloquea el parsing salvo que uses <code>defer</code>/<code>async</code></td></tr>
+    <tr><td><span class="tag">import/export</span></td><td>Disponibles</td><td>No disponibles — error de sintaxis</td></tr>
+  </table>
+
+  <div class="warn">
+    <h4>⚠️ Con file:// (abrir el HTML directo) suele fallar</h4>
+    <p>Los módulos requieren que la página se sirva por HTTP (aunque sea local, con algo como <code>python -m http.server</code> o Live Server), por restricciones de seguridad del navegador (CORS). Abrir el archivo HTML directamente con doble clic suele lanzar un error de módulos bloqueados.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     BUENAS PRÁCTICAS
+═══════════════════════════════════════════ -->
+<section class="module" id="buenas-practicas">
+  <div class="module-header">
+    <div class="module-icon">✅</div>
+    <div>
+      <div class="module-title">Buenas prácticas de organización</div>
+      <div class="module-sub">Un pequeño árbol de módulos, como ejemplo</div>
+    </div>
+  </div>
+
+  <div class="tree-diagram">
+    <div class="tree-node entry">app.js</div>
+    <div class="tree-connector">↓ importa de</div>
+    <div class="tree-row">
+      <div class="tree-node">ui/boton.js</div>
+      <div class="tree-node">utils/fechas.js</div>
+      <div class="tree-node">api/usuarios.js</div>
+    </div>
+  </div>
+
+  <dl class="glos">
+    <div class="glos-item">
+      <span class="emoji">📦</span>
+      <dt>Un módulo, una responsabilidad</dt>
+      <dd>Cada archivo debería tener un propósito claro y acotado — evita archivos "utils.js" gigantes con cien funciones sin relación entre sí.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🚪</span>
+      <dt>Archivo de entrada claro</dt>
+      <dd>Un archivo principal (como <code>app.js</code> o <code>main.js</code>) que importa y coordina a los demás, en vez de que cualquier archivo importe de cualquier otro sin orden.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🔁</span>
+      <dt>Evita dependencias circulares</dt>
+      <dd>Si el archivo A importa de B, y B importa de A, puedes obtener valores <code>undefined</code> inesperados — reorganiza el código para que la dependencia vaya en una sola dirección.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🏷️</span>
+      <dt>Nombres de archivo descriptivos</dt>
+      <dd>El nombre del archivo debería anticipar qué exporta — <code>validaciones-formulario.js</code> es más útil que <code>helpers2.js</code>.</dd>
+    </div>
+  </dl>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     EJERCICIOS
+═══════════════════════════════════════════ -->
+<section class="module" id="ejercicios">
+  <div class="module-header">
+    <div class="module-icon">🏋️</div>
+    <div>
+      <div class="module-title">Ejercicios</div>
+      <div class="module-sub">Para practicar lo que acabas de leer</div>
+    </div>
+  </div>
+
+  <div class="exercise">
+    <h4>Ejercicio 1 — Tu primer módulo</h4>
+    <p>Crea un archivo <code>saludos.js</code> con dos funciones exportadas: <code>saludar(nombre)</code> y <code>despedir(nombre)</code>. Impórtalas en un <code>app.js</code> y úsalas ahí.</p>
+  </div>
+
+  <div class="exercise">
+    <h4>Ejercicio 2 — Default export</h4>
+    <p>Convierte una de esas dos funciones en el <code>export default</code> de un archivo separado, e impórtala con un nombre distinto al original para comprobar que funciona igual.</p>
+  </div>
+
+  <div class="exercise">
+    <h4>Ejercicio 3 — Sírvelo por HTTP</h4>
+    <p>Abre tu archivo con <code>type="module"</code> directamente con doble clic (file://) y observa el error en consola. Luego sírvelo con un servidor local simple (como la extensión Live Server) y comprueba que ahora sí funciona.</p>
+  </div>
+
+  <div class="concept">
+    <h4>💡 Para llevarte de esta guía</h4>
+    <p>Los ES Modules son la forma nativa del lenguaje para dividir código en archivos con su propio espacio aislado, compartiendo solo lo que se exporta explícitamente. Requieren <code>type="module"</code> y servirse por HTTP — pero a cambio, eliminan por completo los problemas de variables globales chocando entre sí.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Guía Módulos de JavaScript (ES Modules) · Café &lt;/&gt; · Guías adicionales
+</footer>
+
+<script>
+  (function() {
+    var root = document.documentElement;
+    var icon = document.getElementById('themeIcon');
+    var label = document.getElementById('themeLabel');
+    var STORAGE_KEY = 'cafe-codigo-theme';
+
+    function applyTheme(theme) {
+      if (theme === 'dark') {
+        root.setAttribute('data-theme', 'dark');
+        icon.textContent = '☀️';
+        label.textContent = 'Modo claro';
+      } else {
+        root.removeAttribute('data-theme');
+        icon.textContent = '🌙';
+        label.textContent = 'Modo oscuro';
+      }
+    }
+
+    var saved = null;
+    try { saved = localStorage.getItem(STORAGE_KEY); } catch (e) {}
+
+    if (saved) {
+      applyTheme(saved);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      applyTheme('dark');
+    }
+
+    window.toggleTheme = function() {
+      var isDark = root.getAttribute('data-theme') === 'dark';
+      var next = isDark ? 'light' : 'dark';
+      applyTheme(next);
+      try { localStorage.setItem(STORAGE_KEY, next); } catch (e) {}
+    };
+  })();
+</script>
+
+</body>
+</html>
