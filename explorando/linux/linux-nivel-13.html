@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux desde Cero · N13 · Sistema de Archivos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root,[data-theme="light"]{--primary:#c44a2a;--primary-light:#fdf0ec;--primary-mid:rgba(196,74,42,.25);--secondary:#1a7a5a;--secondary-light:#edf7f3;--accent:#b07010;--accent-light:#fdf6e8;--bg:#f7f4ef;--surface:#ffffff;--text:#1a1814;--muted:#8a8480;--border:#e8e4de;--code-bg:#1a1814;--code-text:#e8e4de;--header-bg:#1a1814;--analogy-bg:#fff7ed;--analogy-border:#fde68a;--analogy-text:#78350f;--analogy-head:#92400e;--diagram-bg:#f0f4ff;--diagram-border:#c7d2fe;--note-bg:#f0f4ff;--note-border:#6366f1;--note-head:#4338ca;}
+[data-theme="dark"]{--primary:#ff7a57;--primary-light:rgba(255,122,87,.14);--primary-mid:rgba(255,122,87,.3);--secondary:#3ddc84;--secondary-light:rgba(61,220,132,.12);--accent:#f0c040;--accent-light:rgba(240,192,64,.12);--bg:#0d1117;--surface:#161b22;--text:#c9d8f0;--muted:#5a7090;--border:#21262d;--code-bg:#060a10;--code-text:#c9d8f0;--header-bg:#0a0e14;--analogy-bg:rgba(240,192,64,.07);--analogy-border:rgba(240,192,64,.3);--analogy-text:#e6d4a0;--analogy-head:#f0c040;--diagram-bg:#161b22;--diagram-border:#21262d;--note-bg:rgba(99,102,241,.1);--note-border:#818cf8;--note-head:#818cf8;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;font-size:16px;transition:background .25s,color .25s;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:300;height:45px;transition:background .25s,border-color .25s;}
+.topbar-back{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);text-decoration:none;padding:5px 14px;border:1px solid var(--border);border-radius:999px;transition:all .15s;}
+.topbar-back:hover{color:var(--text);border-color:var(--muted);}
+.topbar-info{font-size:13px;color:var(--muted);}
+.theme-btn{margin-left:auto;background:none;border:1px solid var(--border);border-radius:999px;padding:4px 13px;font-size:13px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:.35rem;transition:all .15s;font-family:'DM Sans',sans-serif;}
+.theme-btn:hover{color:var(--text);border-color:var(--muted);}
+header{background:var(--header-bg);color:#f7f4ef;padding:3rem 2rem 2.25rem;text-align:center;position:relative;overflow:hidden;}
+header::before{content:'N13';position:absolute;font-family:'DM Mono',monospace;font-size:11rem;font-weight:900;color:rgba(255,255,255,.04);right:-1rem;top:-1.5rem;line-height:1;pointer-events:none;}
+.header-eyebrow{display:inline-flex;align-items:center;gap:.5rem;background:rgba(196,74,42,.25);border:1px solid rgba(196,74,42,.45);border-radius:20px;padding:3px 14px;font-size:.78rem;font-weight:700;color:#ffaa88;margin-bottom:.85rem;}
+header h1{font-size:2.5rem;font-weight:800;letter-spacing:-1px;color:#f7f4ef;line-height:1.2;}
+header h1 em{font-style:normal;color:#ff8a6a;}
+header p{font-size:1.05rem;opacity:.8;margin-top:.5rem;max-width:540px;margin-left:auto;margin-right:auto;}
+.header-chips{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-top:.9rem;}
+.header-chip{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:20px;padding:3px 13px;font-size:.76rem;color:rgba(255,255,255,.75);}
+.niveles-nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:45px;z-index:110;display:flex;align-items:center;height:38px;padding:0 1rem;transition:background .25s;}
+.nn-prev,.nn-next{flex-shrink:0;display:flex;align-items:center;gap:.3rem;padding:0 .75rem;height:100%;text-decoration:none;color:var(--muted);font-size:.78rem;font-weight:500;border-right:1px solid var(--border);transition:color .15s;white-space:nowrap;}
+.nn-next{border-right:none;border-left:1px solid var(--border);}
+.nn-prev:hover,.nn-next:hover{color:var(--primary);}
+.nn-list{flex:1;display:flex;align-items:center;justify-content:center;gap:.15rem;overflow-x:auto;padding:0 .5rem;}
+.nn-list::-webkit-scrollbar{display:none;}
+.nn-list a{flex-shrink:0;padding:2px 9px;border-radius:20px;text-decoration:none;font-size:.73rem;font-weight:600;color:var(--muted);font-family:'DM Mono',monospace;transition:color .15s,background .15s;}
+.nn-list a:hover{color:var(--text);background:var(--bg);}
+.nn-list a.activa{background:var(--primary-light);color:var(--primary);}
+.nn-list .sep{color:var(--border);font-size:.7rem;padding:0 1px;flex-shrink:0;pointer-events:none;}
+.sec-nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:83px;z-index:100;display:flex;overflow-x:auto;transition:background .25s;}
+.sec-nav::-webkit-scrollbar{display:none;}
+.sec-nav a{flex-shrink:0;padding:.75rem 1.1rem;text-decoration:none;color:var(--muted);font-size:.82rem;font-weight:500;border-bottom:2px solid transparent;white-space:nowrap;transition:color .2s,border-color .2s;}
+.sec-nav a:hover{color:var(--primary);border-bottom-color:var(--primary);}
+main{max-width:920px;margin:0 auto;padding:2rem 1.5rem;}
+.nivel-badge{display:inline-flex;align-items:center;gap:.5rem;background:var(--primary);color:white;border-radius:20px;padding:5px 16px;font-size:.82rem;font-weight:700;margin-bottom:1.75rem;}
+.module{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;margin-bottom:2.5rem;scroll-margin-top:135px;transition:background .25s,border-color .25s;}
+.module-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border);}
+.module-icon{font-size:1.8rem;flex-shrink:0;}
+.module-title{font-size:1.35rem;font-weight:700;}
+.module-sub{font-size:.85rem;color:var(--muted);margin-top:2px;}
+.module h2{font-size:1.15rem;font-weight:700;margin:1.75rem 0 .75rem;}
+.module p{margin-bottom:.85rem;font-size:.97rem;}
+.module ul,.module ol{padding-left:1.4rem;margin-bottom:.85rem;}
+.module li{margin-bottom:.4rem;font-size:.96rem;}
+.analogy{background:var(--analogy-bg);border:1px solid var(--analogy-border);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0;}
+.analogy h4{color:var(--analogy-head);font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+.analogy p{font-size:.95rem;color:var(--analogy-text);margin:0;}
+.concept,.tip,.warn,.note{border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0;border-left-width:4px;border-left-style:solid;}
+.concept h4,.tip h4,.warn h4,.note h4{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+.concept p,.tip p,.warn p,.note p{font-size:.95rem;margin:0;}
+.tip ul{font-size:.95rem;padding-left:1.2rem;margin-top:.3rem;}
+.concept{background:var(--primary-light);border-color:var(--primary);}
+.concept h4{color:var(--primary);}
+.tip{background:var(--secondary-light);border-color:var(--secondary);}
+.tip h4{color:var(--secondary);}
+.warn{background:var(--primary-light);border-color:var(--primary);}
+.warn h4{color:var(--primary);}
+.note{background:var(--note-bg);border-color:var(--note-border);}
+.note h4{color:var(--note-head);}
+.code-wrap{position:relative;margin:1rem 0;}
+.code-block{background:var(--code-bg);color:var(--code-text);border-radius:10px;padding:1.25rem 1.5rem;font-family:'DM Mono',monospace;font-size:.88rem;line-height:1.85;overflow-x:auto;white-space:pre;}
+.lang-tag{position:absolute;top:.6rem;right:.75rem;background:rgba(255,255,255,.1);color:rgba(255,255,255,.45);font-size:.68rem;padding:2px 8px;border-radius:4px;font-family:sans-serif;font-weight:700;}
+.ct{color:#89B4FA;}.cv{color:#A6E3A1;}.cs{color:#F9E2AF;}.cc{color:#585B70;font-style:italic;}.cn{color:#FAB387;}
+.terminal{background:#0a0e14;border:1px solid #21262d;border-radius:10px;overflow:hidden;margin:1rem 0;}
+.term-bar{background:#161b22;padding:.42rem .85rem;display:flex;align-items:center;gap:.35rem;border-bottom:1px solid #21262d;}
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.dot-r{background:#ff5f57;}.dot-y{background:#ffbd2e;}.dot-g{background:#28c840;}
+.term-label{font-family:'DM Mono',monospace;font-size:.69rem;color:#3a5070;margin-left:.4rem;}
+.term-body{padding:1.1rem 1.3rem;font-family:'DM Mono',monospace;font-size:.85rem;line-height:2.1;color:#c9d8f0;}
+.t-p{color:#3ddc84;}.t-o{color:#5a7090;display:block;}.t-h{color:#253550;font-style:italic;display:block;}
+.diagram{background:var(--diagram-bg);border:1px solid var(--diagram-border);border-radius:12px;padding:1.5rem;margin:1.1rem 0;font-family:'DM Mono',monospace;font-size:.87rem;line-height:2;overflow-x:auto;transition:background .25s,border-color .25s;}
+.d-r{color:var(--primary);font-weight:700;}.d-g{color:var(--secondary);font-weight:700;}.d-y{color:var(--accent);font-weight:700;}.d-b{color:#6366f1;font-weight:700;}.d-m{color:var(--muted);font-style:italic;}
+.tbl{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem;}
+.tbl th{background:var(--primary-light);color:var(--primary);padding:.65rem 1rem;text-align:left;font-weight:600;}
+.tbl td{padding:.65rem 1rem;border-bottom:1px solid var(--border);vertical-align:top;}
+.tbl td:first-child{font-family:'DM Mono',monospace;font-size:.85rem;color:var(--primary);font-weight:600;}
+.tbl tr:hover td{background:var(--bg);}
+/* CMD GRID */
+.cmd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:.75rem;margin:1rem 0;}
+.cmd-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1rem;transition:background .25s;}
+.cmd-title{font-family:'DM Mono',monospace;font-size:.82rem;font-weight:700;color:var(--primary);margin-bottom:.3rem;}
+.cmd-desc{font-size:.83rem;color:var(--muted);margin-bottom:.5rem;}
+.cmd-ex{font-family:'DM Mono',monospace;font-size:.8rem;background:var(--code-bg);color:var(--code-text);padding:.45rem .75rem;border-radius:6px;display:block;}
+/* FS TREE */
+.fs-tree{background:var(--diagram-bg);border:1px solid var(--diagram-border);border-radius:12px;padding:1.5rem;margin:1rem 0;font-family:'DM Mono',monospace;font-size:.85rem;line-height:2.2;overflow-x:auto;}
+/* PERMISOS VISUAL */
+.perm-visual{background:var(--diagram-bg);border:1px solid var(--diagram-border);border-radius:12px;padding:1.5rem;margin:1rem 0;}
+.perm-row{font-family:'DM Mono',monospace;font-size:1.05rem;margin-bottom:.85rem;letter-spacing:.05em;}
+.perm-seg{display:inline-flex;flex-direction:column;align-items:center;margin:0 4px;}
+.perm-chars{background:var(--code-bg);color:var(--code-text);padding:4px 10px;border-radius:6px;font-size:1.1rem;letter-spacing:.08em;}
+.perm-chars.tipo{color:var(--accent);}
+.perm-chars.owner{color:var(--primary);}
+.perm-chars.group{color:var(--secondary);}
+.perm-chars.other{color:#6366f1;}
+.perm-label{font-size:.68rem;color:var(--muted);margin-top:3px;}
+/* ENLACE TYPES */
+.link-compare{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1rem 0;}
+@media(max-width:560px){.link-compare{grid-template-columns:1fr;}}
+.lc-box{border-radius:12px;padding:1.1rem;border:1px solid var(--border);}
+.lc-box.hard{background:var(--primary-light);border-color:rgba(196,74,42,.3);}
+.lc-box.soft{background:var(--secondary-light);border-color:rgba(26,122,90,.3);}
+.lc-head{font-weight:700;font-size:.95rem;margin-bottom:.5rem;}
+.lc-box.hard .lc-head{color:var(--primary);}
+.lc-box.soft .lc-head{color:var(--secondary);}
+.lc-item{font-size:.85rem;color:var(--muted);margin-bottom:.3rem;padding-left:.8rem;position:relative;}
+.lc-item::before{content:'·';position:absolute;left:0;}
+/* EJERCICIO */
+.ejercicio{background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:1.5rem;margin:1.5rem 0;}
+[data-theme="dark"] .ejercicio{background:rgba(240,192,64,.06);border-color:rgba(240,192,64,.22);}
+.ej-hd{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;font-weight:700;font-size:1rem;color:#78350F;flex-wrap:wrap;}
+[data-theme="dark"] .ej-hd{color:#f0c040;}
+.ej-badge{background:var(--accent);color:#fff;font-size:.68rem;padding:2px 9px;border-radius:20px;font-weight:700;text-transform:uppercase;}
+.ejercicio ol{padding-left:1.4rem;}
+.ejercicio ol li{margin-bottom:.6rem;font-size:.95rem;}
+.ejercicio p{font-size:.95rem;margin-bottom:.6rem;}
+.resumen{background:var(--primary-light);border:1px solid var(--primary-mid);border-radius:14px;padding:1.6rem;margin-bottom:1.5rem;}
+.resumen h3{color:var(--primary);margin-bottom:.75rem;font-size:1.05rem;}
+.resumen ul{padding-left:1.4rem;}
+.resumen li{font-size:.92rem;margin-bottom:.45rem;}
+.next-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem 1.5rem;display:flex;align-items:center;gap:1rem;text-decoration:none;transition:border-color .2s;margin-bottom:2rem;}
+.next-card:hover{border-color:var(--primary);}
+.nc-label{font-size:.72rem;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.2rem;}
+.nc-name{font-weight:700;color:var(--text);font-size:.97rem;}
+.nc-arrow{font-size:1.4rem;color:var(--primary);margin-left:auto;}
+code{font-family:'DM Mono',monospace;background:#f0ece6;color:var(--primary);padding:1px 5px;border-radius:4px;font-size:.9em;}
+[data-theme="dark"] code{background:#1c2128;}
+strong{font-weight:700;}
+p{margin-bottom:.8rem;}ul,ol{padding-left:1.4rem;margin-bottom:.8rem;}li{margin-bottom:.4rem;font-size:.96rem;}
+h2{font-size:1.2rem;font-weight:700;margin:1.75rem 0 .75rem;}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.85rem;border-top:1px solid var(--border);margin-top:1rem;background:var(--bg);transition:background .25s;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="topbar-back" href="../index.html">← Café &lt;/&gt;</a>
+  <span class="topbar-info">🐧 Linux desde Cero · Nivel 13 de 23</span>
+  <button class="theme-btn" onclick="toggleTheme()">
+    <span id="themeIcon">🌙</span><span id="themeLabel">Oscuro</span>
+  </button>
+</div>
+
+<header>
+  <div class="header-eyebrow">📁 Nivel 13 — La terminal</div>
+  <h1><em>Sistema de Archivos</em></h1>
+  <p>La estructura /, directorios esenciales, rutas absolutas y relativas, inodos, enlaces y tar/gzip</p>
+  <div class="header-chips">
+    <span class="header-chip">Nivel 13 de 23</span>
+    <span class="header-chip">📁 Archivos</span>
+    <span class="header-chip">9 subtemas</span>
+    <span class="header-chip">~30 min</span>
+  </div>
+</header>
+
+<div class="niveles-nav">
+  <a class="nn-prev" href="linux-nivel-12.html">← N12</a>
+  <div class="nn-list">
+    <a href="linux-nivel-01.html">N1</a><a href="linux-nivel-02.html">N2</a><a href="linux-nivel-03.html">N3</a>
+    <a href="linux-nivel-04.html">N4</a><a href="linux-nivel-05.html">N5</a><span class="sep">·</span>
+    <a href="linux-nivel-06.html">N6</a><a href="linux-nivel-07.html">N7</a><a href="linux-nivel-08.html">N8</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-09.html">N9</a><a href="linux-nivel-10.html">N10</a><a href="linux-nivel-11.html">N11</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-12.html">N12</a>
+    <a href="linux-nivel-13.html" class="activa">N13</a>
+    <a href="linux-nivel-14.html">N14</a><a href="linux-nivel-15.html">N15</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-16.html">N16</a><a href="linux-nivel-17.html">N17</a>
+    <a href="linux-nivel-18.html">N18</a><a href="linux-nivel-19.html">N19</a>
+    <a href="linux-nivel-20.html">N20</a><a href="linux-nivel-21.html">N21</a>
+    <a href="linux-nivel-22.html">N22</a><a href="linux-nivel-23.html">N23</a>
+  </div>
+  <a class="nn-next" href="linux-nivel-14.html">N14 →</a>
+</div>
+
+<nav class="sec-nav">
+  <a href="#estructura">🌳 Estructura /</a>
+  <a href="#directorios">📂 Directorios</a>
+  <a href="#rutas">🗺️ Rutas</a>
+  <a href="#navegacion">🧭 Navegación</a>
+  <a href="#operaciones">🔧 Operaciones</a>
+  <a href="#inodos">🔢 Inodos</a>
+  <a href="#enlaces">🔗 Enlaces</a>
+  <a href="#busqueda">🔍 Búsqueda</a>
+  <a href="#compresion">📦 tar y gzip</a>
+  <a href="#ejercicio">✏️ Ejercicio</a>
+</nav>
+
+<main>
+<div class="nivel-badge">📁 Nivel 13 — Sistema de Archivos</div>
+
+
+<!-- ═══════════════════════
+     ESTRUCTURA /
+═══════════════════════ -->
+<section class="module" id="estructura">
+  <div class="module-header">
+    <div class="module-icon">🌳</div>
+    <div>
+      <div class="module-title">La raíz — todo empieza en /</div>
+      <div class="module-sub">El árbol de directorios de Linux y por qué es diferente a Windows</div>
+    </div>
+  </div>
+
+  <p>En Linux no existen las letras de unidad (C:, D:, E:). Todo el sistema de archivos forma un <strong>único árbol</strong> que empieza en la raíz <code>/</code>. Los discos adicionales, los USBs, las particiones — todo se "monta" como ramas dentro de este árbol. Una sola jerarquía, un solo punto de entrada.</p>
+
+  <div class="analogy">
+    <h4>🌳 Analogía — Un árbol con una sola raíz</h4>
+    <p>Windows tiene varios árboles separados: C:\ para el sistema, D:\ para datos, E:\ para el DVD. Linux tiene <strong>un único árbol</strong> que empieza en <code>/</code>. Cuando conectas un USB, no aparece como "F:\" — se "injerta" como una rama en el árbol existente, por ejemplo en <code>/media/hugo/usb-sandisk</code>. Todo es accesible desde el mismo árbol usando las mismas rutas.</p>
+  </div>
+
+  <div class="fs-tree">
+<span class="d-r">/</span>  ← RAÍZ — el origen de todo
+├── <span class="d-y">bin/</span>       → binarios esenciales del sistema (ls, cp, mv, bash)
+├── <span class="d-y">boot/</span>      → kernel, initrd, GRUB — lo necesario para arrancar
+├── <span class="d-y">dev/</span>       → dispositivos como archivos (sda, tty, null, random)
+├── <span class="d-y">etc/</span>       → configuración del sistema (archivos de texto editables)
+├── <span class="d-y">home/</span>      → directorios personales de usuarios
+│   ├── <span class="d-g">hugo/</span>    ← TU home — documentos, proyectos, configuración
+│   └── <span class="d-g">maria/</span>
+├── <span class="d-y">lib/</span>       → bibliotecas compartidas usadas por /bin y /sbin
+├── <span class="d-y">media/</span>     → punto de montaje para USB, DVD, discos externos
+├── <span class="d-y">mnt/</span>       → montajes temporales manuales
+├── <span class="d-y">opt/</span>       → software opcional de terceros (JetBrains, Google Chrome)
+├── <span class="d-y">proc/</span>      → sistema de archivos virtual del kernel (procesos, CPU)
+├── <span class="d-y">root/</span>      → home del usuario root (diferente a /home/root)
+├── <span class="d-y">run/</span>       → datos runtime — PIDs, sockets — se borra al reiniciar
+├── <span class="d-y">sbin/</span>      → binarios de administración del sistema (fdisk, ip, mount)
+├── <span class="d-y">srv/</span>       → datos de servicios del servidor (web, FTP)
+├── <span class="d-y">sys/</span>       → interfaz con el kernel — dispositivos, módulos, configuración
+├── <span class="d-y">tmp/</span>       → archivos temporales — se borran al reiniciar
+├── <span class="d-y">usr/</span>       → la mayoría del software instalado
+│   ├── <span class="d-g">bin/</span>     ← ejecutables de usuario (git, python3, node)
+│   ├── <span class="d-g">lib/</span>     ← bibliotecas de aplicaciones
+│   ├── <span class="d-g">local/</span>   ← software instalado por el administrador manualmente
+│   └── <span class="d-g">share/</span>   ← datos compartidos (iconos, documentación, man pages)
+└── <span class="d-y">var/</span>       → datos variables — logs, bases de datos, caches, colas
+    ├── <span class="d-g">log/</span>     ← logs del sistema (syslog, auth.log, dpkg.log)
+    ├── <span class="d-g">www/</span>     ← archivos del servidor web (nginx, apache)
+    └── <span class="d-g">cache/</span>   ← caches de aplicaciones</div>
+
+  <div class="concept">
+    <h4>💡 El estándar FHS — Filesystem Hierarchy Standard</h4>
+    <p>Esta estructura no es arbitraria — está definida por el <strong>FHS (Filesystem Hierarchy Standard)</strong>, un documento que especifica qué debe ir en cada directorio. Todas las distribuciones Linux siguen el FHS para garantizar compatibilidad. Así un script escrito para Ubuntu puede asumir que Python está en <code>/usr/bin/python3</code> en cualquier distro Linux.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     DIRECTORIOS ESENCIALES
+═══════════════════════ -->
+<section class="module" id="directorios">
+  <div class="module-header">
+    <div class="module-icon">📂</div>
+    <div>
+      <div class="module-title">Directorios esenciales en detalle</div>
+      <div class="module-sub">Los que necesitas conocer para no perderte administrando el sistema</div>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Directorio</th><th>Contenido</th><th>Ejemplo práctico</th></tr></thead>
+    <tbody>
+      <tr><td>/etc</td><td>Toda la configuración del sistema en archivos de texto plano</td><td><code>/etc/hosts</code>, <code>/etc/ssh/sshd_config</code>, <code>/etc/fstab</code>, <code>/etc/apt/sources.list</code></td></tr>
+      <tr><td>/var/log</td><td>Los logs del sistema y aplicaciones</td><td><code>syslog</code> (general), <code>auth.log</code> (autenticación), <code>dpkg.log</code> (paquetes), <code>nginx/access.log</code></td></tr>
+      <tr><td>/home/usuario</td><td>Todo lo personal del usuario — nadie más puede leerlo por defecto</td><td><code>~/.bashrc</code>, <code>~/Descargas</code>, <code>~/proyectos</code>, <code>~/.ssh</code></td></tr>
+      <tr><td>/tmp</td><td>Archivos temporales, cualquiera puede escribir. Se borra al reiniciar.</td><td>Archivos de instalación, sockets temporales, archivos de editores</td></tr>
+      <tr><td>/proc</td><td>No existe en disco — el kernel lo crea en RAM. Info en tiempo real.</td><td><code>/proc/cpuinfo</code>, <code>/proc/meminfo</code>, <code>/proc/1/</code> (info del PID 1)</td></tr>
+      <tr><td>/dev</td><td>Dispositivos de hardware representados como archivos</td><td><code>/dev/sda</code> (disco), <code>/dev/tty0</code> (terminal), <code>/dev/null</code>, <code>/dev/random</code></td></tr>
+      <tr><td>/usr/bin</td><td>Los ejecutables de usuario instalados por el gestor de paquetes</td><td><code>git</code>, <code>python3</code>, <code>node</code>, <code>vim</code>, <code>curl</code></td></tr>
+      <tr><td>/usr/local</td><td>Software instalado manualmente por el admin (no por apt/dnf)</td><td>Compilaciones manuales, herramientas de empresa, versiones específicas</td></tr>
+      <tr><td>/opt</td><td>Software de terceros que se instala como bloque independiente</td><td>Google Chrome, JetBrains IDEs, Android Studio</td></tr>
+    </tbody>
+  </table>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">explorar la estructura del sistema</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Ver el contenido de la raíz</span>
+<span class="t-p">$</span> ls /
+<span class="t-o">bin  boot  dev  etc  home  lib  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var</span>
+
+<span class="t-h"># Ver cuánto espacio usa cada directorio de primer nivel</span>
+<span class="t-p">$</span> du -sh /* 2>/dev/null | sort -rh | head -10
+<span class="t-o">12G     /usr</span>
+<span class="t-o">4.2G    /var</span>
+<span class="t-o">1.1G    /home</span>
+
+<span class="t-h"># Ver los últimos 50 logs del sistema</span>
+<span class="t-p">$</span> tail -50 /var/log/syslog
+
+<span class="t-h"># Ver configuración de red</span>
+<span class="t-p">$</span> cat /etc/hosts
+<span class="t-o">127.0.0.1   localhost</span>
+<span class="t-o">127.0.1.1   ubuntu</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     RUTAS
+═══════════════════════ -->
+<section class="module" id="rutas">
+  <div class="module-header">
+    <div class="module-icon">🗺️</div>
+    <div>
+      <div class="module-title">Rutas absolutas y relativas</div>
+      <div class="module-sub">Las dos formas de especificar la ubicación de cualquier archivo</div>
+    </div>
+  </div>
+
+  <p>Para referenciar un archivo o directorio en Linux siempre usas una <strong>ruta</strong>. Hay dos tipos y es fundamental entender la diferencia.</p>
+
+  <div class="diagram">
+<span class="d-m"># RUTA ABSOLUTA — empieza siempre con /</span>
+<span class="d-m"># Describe el camino completo desde la raíz</span>
+<span class="d-m"># Funciona igual sin importar en qué directorio estés</span>
+
+<span class="d-g">/home/hugo/proyectos/cafe-codigo/index.html</span>
+ │    │     │          │          └── archivo
+ │    │     │          └──────────── subdirectorio
+ │    │     └─────────────────────── directorio de proyecto
+ │    └───────────────────────────── home de hugo
+ └────────────────────────────────── raíz del sistema
+
+<span class="d-m"># RUTA RELATIVA — empieza desde el directorio actual (sin /)</span>
+<span class="d-m"># Depende de dónde estés en el árbol</span>
+
+<span class="d-y">proyectos/cafe-codigo/index.html</span>    <span class="d-m">← si estás en /home/hugo</span>
+<span class="d-y">cafe-codigo/index.html</span>              <span class="d-m">← si estás en /home/hugo/proyectos</span>
+<span class="d-y">index.html</span>                          <span class="d-m">← si estás en /home/hugo/proyectos/cafe-codigo</span>
+
+<span class="d-m"># Símbolos especiales de ruta:</span>
+<span class="d-b">.</span>    = directorio actual
+<span class="d-b">..</span>   = directorio padre (un nivel arriba)
+<span class="d-b">~</span>    = tu home (/home/hugo)
+<span class="d-b">-</span>    = el directorio anterior (para cd -)</span></div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">rutas en la práctica</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Estás en /home/hugo/proyectos</span>
+<span class="t-p">hugo@ubuntu:~/proyectos$</span>
+
+<span class="t-h"># Ruta absoluta — siempre funciona igual</span>
+<span class="t-p">$</span> ls /home/hugo/proyectos/cafe-codigo
+<span class="t-p">$</span> cat /etc/hosts
+
+<span class="t-h"># Ruta relativa — depende de dónde estés</span>
+<span class="t-p">$</span> ls cafe-codigo           <span class="t-h"># = /home/hugo/proyectos/cafe-codigo</span>
+<span class="t-p">$</span> ls ../documentos         <span class="t-h"># = /home/hugo/documentos</span>
+<span class="t-p">$</span> ls ../../etc             <span class="t-h"># = /etc (sube dos niveles)</span>
+
+<span class="t-h"># ~ siempre apunta a tu home</span>
+<span class="t-p">$</span> cd ~/proyectos           <span class="t-h"># va a /home/hugo/proyectos</span>
+<span class="t-p">$</span> ls ~/.bashrc             <span class="t-h"># = /home/hugo/.bashrc</span>
+
+<span class="t-h"># cd - vuelve al directorio anterior</span>
+<span class="t-p">$</span> cd /etc
+<span class="t-p">$</span> cd ~/proyectos
+<span class="t-p">$</span> cd -                     <span class="t-h"># vuelve a /etc</span>
+<span class="t-o">/etc</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     NAVEGACIÓN Y OPERACIONES BÁSICAS
+═══════════════════════ -->
+<section class="module" id="navegacion">
+  <div class="module-header">
+    <div class="module-icon">🧭</div>
+    <div>
+      <div class="module-title">Navegación y operaciones básicas</div>
+      <div class="module-sub">Los comandos del día a día para moverte y manipular archivos</div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">navegación básica — los más usados</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># pwd — dónde estás ahora mismo</span>
+<span class="t-p">$</span> pwd
+<span class="t-o">/home/hugo/proyectos</span>
+
+<span class="t-h"># ls — listar contenido</span>
+<span class="t-p">$</span> ls                     <span class="t-h"># lista básica</span>
+<span class="t-p">$</span> ls -l                  <span class="t-h"># lista larga (permisos, tamaño, fecha)</span>
+<span class="t-p">$</span> ls -la                 <span class="t-h"># lista larga + archivos ocultos (.bashrc)</span>
+<span class="t-p">$</span> ls -lh                 <span class="t-h"># tamaño human-readable (KB, MB, GB)</span>
+<span class="t-p">$</span> ls -lt                 <span class="t-h"># ordenado por fecha (más reciente primero)</span>
+<span class="t-p">$</span> ls -R                  <span class="t-h"># recursivo — lista subdirectorios también</span>
+
+<span class="t-h"># cd — cambiar de directorio</span>
+<span class="t-p">$</span> cd /etc               <span class="t-h"># ruta absoluta</span>
+<span class="t-p">$</span> cd proyectos          <span class="t-h"># ruta relativa</span>
+<span class="t-p">$</span> cd ..                 <span class="t-h"># directorio padre</span>
+<span class="t-p">$</span> cd                    <span class="t-h"># sin argumentos → va a ~</span>
+<span class="t-p">$</span> cd -                  <span class="t-h"># directorio anterior</span>
+
+<span class="t-h"># tree — ver el árbol visual (instalar primero: apt install tree)</span>
+<span class="t-p">$</span> tree ~/proyectos -L 2
+<span class="t-o">proyectos/</span>
+<span class="t-o">├── cafe-codigo/</span>
+<span class="t-o">│   ├── index.html</span>
+<span class="t-o">│   └── assets/</span>
+<span class="t-o">└── api-rest/</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     OPERACIONES CON ARCHIVOS
+═══════════════════════ -->
+<section class="module" id="operaciones">
+  <div class="module-header">
+    <div class="module-icon">🔧</div>
+    <div>
+      <div class="module-title">Operaciones con archivos y directorios</div>
+      <div class="module-sub">Crear, copiar, mover, renombrar y eliminar — la base del trabajo diario</div>
+    </div>
+  </div>
+
+  <div class="cmd-grid">
+    <div class="cmd-card">
+      <div class="cmd-title">mkdir</div>
+      <div class="cmd-desc">Crear directorios. Con -p crea toda la cadena de padres.</div>
+      <span class="cmd-ex">mkdir proyectos
+mkdir -p a/b/c/d</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">touch</div>
+      <div class="cmd-desc">Crear archivo vacío o actualizar la fecha de modificación.</div>
+      <span class="cmd-ex">touch index.html
+touch archivo1 archivo2</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">cp</div>
+      <div class="cmd-desc">Copiar archivos. Con -r copia directorios recursivamente.</div>
+      <span class="cmd-ex">cp archivo.txt copia.txt
+cp -r carpeta/ destino/</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">mv</div>
+      <div class="cmd-desc">Mover o renombrar. Si el destino es diferente directorio, mueve. Si es mismo directorio, renombra.</div>
+      <span class="cmd-ex">mv archivo.txt nuevo.txt
+mv archivo.txt ~/documentos/</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">rm</div>
+      <div class="cmd-desc">Eliminar archivos. Con -r elimina directorios. -f fuerza sin preguntar.</div>
+      <span class="cmd-ex">rm archivo.txt
+rm -rf carpeta/</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">cat / less / head / tail</div>
+      <div class="cmd-desc">Ver contenido de archivos. less es para archivos largos.</div>
+      <span class="cmd-ex">cat archivo.txt
+less /var/log/syslog
+head -20 archivo.txt
+tail -f /var/log/syslog</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">wc</div>
+      <div class="cmd-desc">Contar líneas, palabras y caracteres de un archivo.</div>
+      <span class="cmd-ex">wc -l archivo.txt
+wc -w archivo.txt</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">stat</div>
+      <div class="cmd-desc">Ver información detallada de un archivo: tamaño, permisos, fechas, inodo.</div>
+      <span class="cmd-ex">stat archivo.txt
+stat /etc/hosts</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">file</div>
+      <div class="cmd-desc">Detectar el tipo real de un archivo (no se fía de la extensión).</div>
+      <span class="cmd-ex">file imagen.jpg
+file script.sh</span>
+    </div>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ rm -rf — el comando más peligroso de Linux</h4>
+    <p><code>rm -rf</code> elimina recursiva y forzosamente sin preguntar y sin papelera — no hay deshacer. <code>rm -rf /</code> borraría el sistema entero (Linux moderno tiene protección, pero aun así). Antes de ejecutar <code>rm -rf algo</code>, sustituye el <code>rm -rf</code> por <code>ls -la</code> para ver exactamente qué vas a borrar. Si tienes dudas, mueve a <code>/tmp</code> primero.</p>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">operaciones comunes en la práctica</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Crear estructura de proyecto en una línea</span>
+<span class="t-p">$</span> mkdir -p mi-app/{src,public,tests,docs}
+<span class="t-p">$</span> tree mi-app
+<span class="t-o">mi-app/</span>
+<span class="t-o">├── docs/</span>
+<span class="t-o">├── public/</span>
+<span class="t-o">├── src/</span>
+<span class="t-o">└── tests/</span>
+
+<span class="t-h"># Copiar con respaldo de timestamp</span>
+<span class="t-p">$</span> cp importante.conf importante.conf.bak.$(date +%Y%m%d)
+
+<span class="t-h"># Ver los últimos N logs en tiempo real (follow)</span>
+<span class="t-p">$</span> tail -f -n 100 /var/log/nginx/access.log
+
+<span class="t-h"># Verificar tipo real de un archivo</span>
+<span class="t-p">$</span> file documento.pdf
+<span class="t-o">documento.pdf: PDF document, version 1.7</span>
+<span class="t-p">$</span> file foto.jpg
+<span class="t-o">foto.jpg: JPEG image data, JFIF standard 1.01</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     INODOS
+═══════════════════════ -->
+<section class="module" id="inodos">
+  <div class="module-header">
+    <div class="module-icon">🔢</div>
+    <div>
+      <div class="module-title">Inodos — la ficha técnica de cada archivo</div>
+      <div class="module-sub">El concepto que explica cómo Linux realmente almacena la información</div>
+    </div>
+  </div>
+
+  <p>Cada archivo en Linux tiene dos partes: el <strong>nombre</strong> (que ves en el directorio) y el <strong>inodo</strong> (que contiene toda la información real del archivo). El nombre es solo una etiqueta que apunta a un inodo.</p>
+
+  <div class="analogy">
+    <h4>📚 Analogía — El índice de una biblioteca</h4>
+    <p>Un libro en una biblioteca tiene una <strong>ficha en el catálogo</strong> (inodo) y un <strong>nombre en el lomo</strong>. La ficha contiene: número de clasificación, autor, editorial, número de páginas, ubicación exacta en la estantería. El nombre en el lomo es solo una etiqueta conveniente para encontrarlo. Puedes tener el mismo libro con varios nombres en el catálogo (hard links) — todos apuntan a la misma ficha y al mismo libro físico.</p>
+  </div>
+
+  <div class="diagram">
+<span class="d-m"># Qué contiene un inodo</span>
+
+inodo #47382
+├── <span class="d-y">tipo</span>          → archivo regular, directorio, enlace, dispositivo…
+├── <span class="d-y">permisos</span>      → rwxr-xr-x (modo octal: 755)
+├── <span class="d-y">propietario</span>   → hugo (UID 1000)
+├── <span class="d-y">grupo</span>         → hugo (GID 1000)
+├── <span class="d-y">tamaño</span>        → 4521 bytes
+├── <span class="d-y">timestamps</span>    → acceso, modificación, cambio de metadatos
+├── <span class="d-y">hard links</span>    → contador de cuántos nombres apuntan a este inodo
+└── <span class="d-y">bloques</span>       → lista de bloques del disco donde están los datos
+
+<span class="d-m"># El nombre del archivo NO está en el inodo</span>
+<span class="d-m"># Está en el directorio, como un puntero al número de inodo</span>
+
+Directorio /home/hugo/:
+  "index.html"  →  inodo #47382
+  ".bashrc"     →  inodo #47383
+  "proyectos"   →  inodo #47390 (directorio)</div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">inspeccionar inodos</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Ver el número de inodo de un archivo</span>
+<span class="t-p">$</span> ls -i archivo.txt
+<span class="t-o">47382 archivo.txt</span>
+
+<span class="t-h"># Ver información completa del inodo</span>
+<span class="t-p">$</span> stat archivo.txt
+<span class="t-o">  File: archivo.txt</span>
+<span class="t-o">  Size: 4521            Blocks: 16         IO Block: 4096</span>
+<span class="t-o">Device: 802h/2050d      Inode: 47382       Links: 1</span>
+<span class="t-o">Access: (0644/-rw-r--r--)  Uid: (1000/hugo)  Gid: (1000/hugo)</span>
+<span class="t-o">Modify: 2025-01-15 10:23:44</span>
+
+<span class="t-h"># Ver cuántos inodos quedan libres en el disco</span>
+<span class="t-p">$</span> df -i
+<span class="t-o">Filesystem      Inodes  IUsed   IFree IUse% Mounted on</span>
+<span class="t-o">/dev/nvme0n1p2 6553600 245678 6307922    4% /</span>
+    </div>
+  </div>
+
+  <div class="note">
+    <h4>📌 Se pueden llenar los inodos antes que el disco</h4>
+    <p>El número total de inodos se fija al crear el sistema de archivos. Si tienes millones de archivos pequeños (logs, caché, emails), puedes quedarte sin inodos aunque quede espacio en disco. El síntoma: "No space left on device" pero <code>df -h</code> muestra espacio libre. La solución: <code>df -i</code> confirma el problema, y hay que eliminar archivos pequeños para liberar inodos.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     ENLACES
+═══════════════════════ -->
+<section class="module" id="enlaces">
+  <div class="module-header">
+    <div class="module-icon">🔗</div>
+    <div>
+      <div class="module-title">Hard links y Soft links (Symlinks)</div>
+      <div class="module-sub">Dos formas de hacer que un archivo tenga varios nombres o ubicaciones</div>
+    </div>
+  </div>
+
+  <p>Linux permite que un archivo tenga múltiples "entradas" en el sistema de archivos — multiple names que apuntan al mismo contenido. Hay dos tipos con comportamientos muy distintos.</p>
+
+  <div class="link-compare">
+    <div class="lc-box hard">
+      <div class="lc-head">🔗 Hard Link — enlace duro</div>
+      <div class="lc-item">Apunta directamente al inodo</div>
+      <div class="lc-item">El archivo existe mientras haya ≥1 hard link</div>
+      <div class="lc-item">No se puede hacer entre filesystems distintos</div>
+      <div class="lc-item">No se puede hacer a directorios</div>
+      <div class="lc-item">No "se rompe" si borras el original</div>
+      <div class="lc-item">Ocupa 0 bytes adicionales</div>
+    </div>
+    <div class="lc-box soft">
+      <div class="lc-head">🔀 Soft Link / Symlink — enlace simbólico</div>
+      <div class="lc-item">Apunta al nombre del archivo (ruta)</div>
+      <div class="lc-item">Si borras el original, el symlink queda "roto"</div>
+      <div class="lc-item">Puede cruzar filesystems distintos</div>
+      <div class="lc-item">Puede apuntar a directorios</div>
+      <div class="lc-item">Tiene su propio inodo pequeño</div>
+      <div class="lc-item">Como un acceso directo de Windows</div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">crear y gestionar enlaces</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Crear hard link</span>
+<span class="t-p">$</span> ln archivo-original.txt enlace-duro.txt
+<span class="t-p">$</span> ls -li  <span class="t-h"># ambos tienen el mismo número de inodo</span>
+<span class="t-o">47382 -rw-r--r-- 2 hugo hugo 4521 archivo-original.txt</span>
+<span class="t-o">47382 -rw-r--r-- 2 hugo hugo 4521 enlace-duro.txt</span>
+<span class="t-h">#                  ↑ Links: 2 — dos nombres para el mismo inodo</span>
+
+<span class="t-h"># Crear symlink (soft link) — -s de symbolic</span>
+<span class="t-p">$</span> ln -s /ruta/al/archivo-original.txt enlace-simbolico.txt
+<span class="t-p">$</span> ls -la
+<span class="t-o">lrwxrwxrwx 1 hugo hugo 28 jan 15 enlace-simbolico.txt -> /ruta/al/archivo-original.txt</span>
+<span class="t-h"># ↑ La l al inicio indica symlink, y se muestra → destino</span>
+
+<span class="t-h"># Symlink a directorio — muy útil para configuración</span>
+<span class="t-p">$</span> ln -s ~/proyectos/cafe-codigo /var/www/cafe
+<span class="t-h"># Ahora /var/www/cafe apunta a tu proyecto de desarrollo</span>
+
+<span class="t-h"># Ver el destino real de un symlink</span>
+<span class="t-p">$</span> readlink enlace-simbolico.txt
+<span class="t-o">/ruta/al/archivo-original.txt</span>
+<span class="t-p">$</span> readlink -f enlace-simbolico.txt   <span class="t-h"># ruta absoluta completa</span>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Symlinks en la práctica — los más útiles</h4>
+    <ul>
+      <li><code>/usr/bin/python</code> → <code>/usr/bin/python3</code> — que <code>python</code> apunte a python3</li>
+      <li><code>~/.config/nvim</code> → <code>~/dotfiles/nvim</code> — gestión de dotfiles con Git</li>
+      <li><code>/var/www/html</code> → <code>~/proyectos/web</code> — desarrollo local en servidor</li>
+      <li><code>/etc/nginx/sites-enabled/cafe</code> → <code>/etc/nginx/sites-available/cafe</code> — el patrón de nginx</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     BÚSQUEDA
+═══════════════════════ -->
+<section class="module" id="busqueda">
+  <div class="module-header">
+    <div class="module-icon">🔍</div>
+    <div>
+      <div class="module-title">Buscar archivos — find y locate</div>
+      <div class="module-sub">Las herramientas más potentes para encontrar lo que buscas</div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">find — búsqueda potente en tiempo real</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Sintaxis: find [donde] [criterio] [acción]</span>
+
+<span class="t-h"># Buscar por nombre</span>
+<span class="t-p">$</span> find ~ -name "*.html"
+<span class="t-p">$</span> find /etc -name "nginx.conf"
+<span class="t-p">$</span> find . -iname "readme*"      <span class="t-h"># -iname ignora mayúsculas</span>
+
+<span class="t-h"># Buscar por tipo</span>
+<span class="t-p">$</span> find ~ -type f               <span class="t-h"># solo archivos regulares</span>
+<span class="t-p">$</span> find ~ -type d               <span class="t-h"># solo directorios</span>
+<span class="t-p">$</span> find ~ -type l               <span class="t-h"># solo symlinks</span>
+
+<span class="t-h"># Buscar por tamaño</span>
+<span class="t-p">$</span> find ~ -size +100M           <span class="t-h"># archivos mayores de 100 MB</span>
+<span class="t-p">$</span> find /tmp -size -1k          <span class="t-h"># archivos menores de 1 KB</span>
+
+<span class="t-h"># Buscar por fecha de modificación</span>
+<span class="t-p">$</span> find ~ -mtime -7             <span class="t-h"># modificados en los últimos 7 días</span>
+<span class="t-p">$</span> find ~ -newer archivo.txt    <span class="t-h"># más recientes que archivo.txt</span>
+
+<span class="t-h"># Ejecutar una acción en cada resultado encontrado</span>
+<span class="t-p">$</span> find ~ -name "*.log" -delete              <span class="t-h"># borrar todos los .log</span>
+<span class="t-p">$</span> find ~ -name "*.py" -exec wc -l {} \;     <span class="t-h"># contar líneas de cada .py</span>
+
+<span class="t-h"># locate — busca en una base de datos (más rápido pero no en tiempo real)</span>
+<span class="t-p">$</span> sudo updatedb                <span class="t-h"># actualizar la base de datos</span>
+<span class="t-p">$</span> locate nginx.conf
+<span class="t-o">/etc/nginx/nginx.conf</span>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>💡 grep para buscar dentro de archivos</h4>
+    <p><code>find</code> busca archivos por sus atributos (nombre, tamaño, fecha). <code>grep</code> busca texto <em>dentro</em> de los archivos. Combinados son imparables: <code>grep -r "TODO" ~/proyectos --include="*.js"</code> encuentra todas las ocurrencias de "TODO" en archivos JavaScript de tus proyectos.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     TAR Y COMPRESIÓN
+═══════════════════════ -->
+<section class="module" id="compresion">
+  <div class="module-header">
+    <div class="module-icon">📦</div>
+    <div>
+      <div class="module-title">tar, gzip y compresión en Linux</div>
+      <div class="module-sub">El formato estándar de archivos comprimidos en el ecosistema Linux</div>
+    </div>
+  </div>
+
+  <p><strong>tar</strong> (Tape ARchive) empaqueta múltiples archivos en uno solo. <strong>gzip/bzip2/xz</strong> comprimen ese archivo. Juntos crean los famosos <code>.tar.gz</code> (o <code>.tgz</code>) que son el formato estándar de distribución de software en Linux.</p>
+
+  <div class="analogy">
+    <h4>📫 Analogía — El sobre y la cinta de embalar</h4>
+    <p><strong>tar</strong> es como meter varios documentos en un sobre — los agrupa sin comprimir. <strong>gzip</strong> es la cinta de embalar que comprime el sobre para que ocupe menos. Juntos: metes los papeles en el sobre (tar) y lo comprimes con la cinta (gzip). El resultado es un paquete compacto y portátil con todos los documentos dentro.</p>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">tar — crear, extraer e inspeccionar archivos</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># CREAR — empaquetar y comprimir</span>
+<span class="t-p">$</span> tar -czf backup.tar.gz carpeta/
+<span class="t-h"># -c = crear  -z = comprimir con gzip  -f = nombre del archivo</span>
+
+<span class="t-p">$</span> tar -cjf backup.tar.bz2 carpeta/   <span class="t-h"># bzip2 (mejor compresión, más lento)</span>
+<span class="t-p">$</span> tar -cJf backup.tar.xz carpeta/    <span class="t-h"># xz (mejor compresión aún, más lento)</span>
+
+<span class="t-h"># EXTRAER — descomprimir</span>
+<span class="t-p">$</span> tar -xzf backup.tar.gz            <span class="t-h"># extrae en el directorio actual</span>
+<span class="t-p">$</span> tar -xzf backup.tar.gz -C /tmp/   <span class="t-h"># extrae en /tmp/</span>
+
+<span class="t-h"># VER CONTENIDO sin extraer</span>
+<span class="t-p">$</span> tar -tzf backup.tar.gz
+<span class="t-o">carpeta/</span>
+<span class="t-o">carpeta/index.html</span>
+<span class="t-o">carpeta/assets/logo.png</span>
+
+<span class="t-h"># gzip / gunzip — comprimir/descomprimir un solo archivo</span>
+<span class="t-p">$</span> gzip archivo.txt         <span class="t-h"># crea archivo.txt.gz y borra el original</span>
+<span class="t-p">$</span> gunzip archivo.txt.gz   <span class="t-h"># descomprime</span>
+<span class="t-p">$</span> gzip -k archivo.txt     <span class="t-h"># -k = keep, mantiene el original</span>
+
+<span class="t-h"># zip/unzip — formato compatible con Windows</span>
+<span class="t-p">$</span> zip -r archivo.zip carpeta/
+<span class="t-p">$</span> unzip archivo.zip -d /destino/
+    </div>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Extensión</th><th>Herramienta</th><th>Velocidad</th><th>Compresión</th><th>Uso típico</th></tr></thead>
+    <tbody>
+      <tr><td>.tar</td><td>tar (solo)</td><td>Muy rápida</td><td>Ninguna</td><td>Solo empaquetar, sin comprimir</td></tr>
+      <tr><td>.tar.gz / .tgz</td><td>tar + gzip</td><td>Rápida</td><td>Buena</td><td>El más común — distribución de software</td></tr>
+      <tr><td>.tar.bz2</td><td>tar + bzip2</td><td>Lenta</td><td>Mejor</td><td>Cuando el tamaño importa más que la velocidad</td></tr>
+      <tr><td>.tar.xz</td><td>tar + xz</td><td>Muy lenta</td><td>Excelente</td><td>Distribuciones Linux (paquetes apt/dnf)</td></tr>
+      <tr><td>.zip</td><td>zip/unzip</td><td>Rápida</td><td>Buena</td><td>Compatibilidad con Windows</td></tr>
+    </tbody>
+  </table>
+
+  <div class="tip">
+    <h4>🟢 El truco de las flags de tar</h4>
+    <p>Para recordar las flags más usadas de tar: piensa en <strong>cxtz f</strong> — <strong>c</strong>rear, e<strong>x</strong>traer, lis<strong>t</strong>ar, g<strong>z</strong>ip, <strong>f</strong>ichero. Las flags más comunes son <code>-czf</code> (crear con gzip) y <code>-xzf</code> (extraer gzip). En versiones modernas de tar puedes omitir el guión: <code>tar czf backup.tar.gz carpeta/</code>.</p>
+  </div>
+</section>
+
+
+<!-- EJERCICIO -->
+<div class="ejercicio" id="ejercicio">
+  <div class="ej-hd">
+    ✏️ Ejercicio del Nivel 13
+    <span class="ej-badge">Práctica completa</span>
+  </div>
+  <p>Construye un proyecto de práctica completo en tu terminal:</p>
+  <ol>
+    <li><strong>Estructura:</strong> crea la estructura <code>mkdir -p ~/practica-n13/{src,docs,tests,backup}</code> y crea 3 archivos HTML vacíos en src con <code>touch ~/practica-n13/src/{index,about,contact}.html</code></li>
+    <li><strong>Rutas:</strong> navega a <code>~/practica-n13/src</code> y ejecuta <code>ls ../docs</code> (ruta relativa) y <code>ls /home/$USER/practica-n13/backup</code> (ruta absoluta). Nota la diferencia.</li>
+    <li><strong>Inodo:</strong> ejecuta <code>stat ~/practica-n13/src/index.html</code>. Anota el número de inodo. Luego crea un hard link: <code>ln index.html ../backup/index-backup.html</code> y ejecuta <code>stat</code> en ambos — ¿tienen el mismo inodo?</li>
+    <li><strong>Symlink:</strong> crea un symlink: <code>ln -s ~/practica-n13 ~/escritorio-practica</code>. Ejecuta <code>ls -la ~ | grep practica</code> — ¿ves la flecha →?</li>
+    <li><strong>find:</strong> ejecuta <code>find ~/practica-n13 -name "*.html"</code>. ¿Cuántos archivos .html hay?</li>
+    <li><strong>tar:</strong> crea un backup: <code>tar -czf ~/practica-n13/backup/proyecto.tar.gz ~/practica-n13/src/</code>. Luego lista su contenido con <code>tar -tzf ~/practica-n13/backup/proyecto.tar.gz</code>.</li>
+    <li><strong>Limpieza:</strong> verifica el espacio usado con <code>du -sh ~/practica-n13</code>.</li>
+  </ol>
+</div>
+
+<!-- RESUMEN -->
+<div class="resumen">
+  <h3>🟥 Resumen del Nivel 13</h3>
+  <ul>
+    <li>Linux tiene <strong>un único árbol</strong> desde <code>/</code>. No hay letras de unidad. Todo se monta como rama del árbol.</li>
+    <li>Directorios clave: <code>/etc</code> (config), <code>/var/log</code> (logs), <code>/home</code> (usuarios), <code>/tmp</code> (temporal), <code>/proc</code> (kernel virtual).</li>
+    <li><strong>Ruta absoluta</strong> empieza con <code>/</code>. <strong>Ruta relativa</strong> empieza desde el directorio actual. <code>~</code> = home, <code>..</code> = padre.</li>
+    <li>Operaciones esenciales: <code>ls -la</code>, <code>cd</code>, <code>mkdir -p</code>, <code>cp -r</code>, <code>mv</code>, <code>rm -rf</code> (con cuidado), <code>touch</code>.</li>
+    <li>El <strong>inodo</strong> contiene toda la info del archivo excepto su nombre. El directorio guarda la relación nombre→inodo.</li>
+    <li><strong>Hard link</strong> — apunta al inodo, no se rompe al borrar el original. <strong>Symlink</strong> — apunta al nombre, se puede romper.</li>
+    <li><code>find</code> — búsqueda por nombre, tipo, tamaño, fecha. Muy potente con <code>-exec</code>.</li>
+    <li><code>tar -czf</code> empaquetar y comprimir. <code>tar -xzf</code> extraer. <code>tar -tzf</code> ver contenido sin extraer.</li>
+  </ul>
+</div>
+
+<a class="next-card" href="linux-nivel-14.html">
+  <div>
+    <div class="nc-label">Siguiente → Nivel 14</div>
+    <div class="nc-name">Usuarios y permisos — chmod, chown, sudo, grupos y el modelo de seguridad de Linux</div>
+  </div>
+  <div class="nc-arrow">→</div>
+</a>
+
+</main>
+
+<footer>
+  Linux desde Cero · Nivel 13 · Sistema de Archivos · Café &lt;/&gt; · Hugo 2025
+</footer>
+
+<script>
+(function(){const s=localStorage.getItem('cafe-theme');const sys=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';const t=s||sys;document.documentElement.setAttribute('data-theme',t);updateUI(t);})();
+function toggleTheme(){const c=document.documentElement.getAttribute('data-theme');const n=c==='light'?'dark':'light';document.documentElement.setAttribute('data-theme',n);localStorage.setItem('cafe-theme',n);updateUI(n);}
+function updateUI(t){const i=document.getElementById('themeIcon');const l=document.getElementById('themeLabel');if(!i||!l)return;i.textContent=t==='dark'?'☀️':'🌙';l.textContent=t==='dark'?'Claro':'Oscuro';}
+</script>
+</body>
+</html>

@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux desde Cero · N10 · El Escritorio de Linux</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root,[data-theme="light"]{--primary:#c44a2a;--primary-light:#fdf0ec;--primary-mid:rgba(196,74,42,.25);--secondary:#1a7a5a;--secondary-light:#edf7f3;--accent:#b07010;--accent-light:#fdf6e8;--bg:#f7f4ef;--surface:#ffffff;--text:#1a1814;--muted:#8a8480;--border:#e8e4de;--code-bg:#1a1814;--code-text:#e8e4de;--header-bg:#1a1814;--analogy-bg:#fff7ed;--analogy-border:#fde68a;--analogy-text:#78350f;--analogy-head:#92400e;--diagram-bg:#f0f4ff;--diagram-border:#c7d2fe;--note-bg:#f0f4ff;--note-border:#6366f1;--note-head:#4338ca;}
+[data-theme="dark"]{--primary:#ff7a57;--primary-light:rgba(255,122,87,.14);--primary-mid:rgba(255,122,87,.3);--secondary:#3ddc84;--secondary-light:rgba(61,220,132,.12);--accent:#f0c040;--accent-light:rgba(240,192,64,.12);--bg:#0d1117;--surface:#161b22;--text:#c9d8f0;--muted:#5a7090;--border:#21262d;--code-bg:#060a10;--code-text:#c9d8f0;--header-bg:#0a0e14;--analogy-bg:rgba(240,192,64,.07);--analogy-border:rgba(240,192,64,.3);--analogy-text:#e6d4a0;--analogy-head:#f0c040;--diagram-bg:#161b22;--diagram-border:#21262d;--note-bg:rgba(99,102,241,.1);--note-border:#818cf8;--note-head:#818cf8;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;font-size:16px;transition:background .25s,color .25s;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:300;height:45px;transition:background .25s,border-color .25s;}
+.topbar-back{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);text-decoration:none;padding:5px 14px;border:1px solid var(--border);border-radius:999px;transition:all .15s;}
+.topbar-back:hover{color:var(--text);border-color:var(--muted);}
+.topbar-info{font-size:13px;color:var(--muted);}
+.theme-btn{margin-left:auto;background:none;border:1px solid var(--border);border-radius:999px;padding:4px 13px;font-size:13px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:.35rem;transition:all .15s;font-family:'DM Sans',sans-serif;}
+.theme-btn:hover{color:var(--text);border-color:var(--muted);}
+header{background:var(--header-bg);color:#f7f4ef;padding:3rem 2rem 2.25rem;text-align:center;position:relative;overflow:hidden;}
+header::before{content:'N10';position:absolute;font-family:'DM Mono',monospace;font-size:11rem;font-weight:900;color:rgba(255,255,255,.04);right:-1rem;top:-1.5rem;line-height:1;pointer-events:none;}
+.header-eyebrow{display:inline-flex;align-items:center;gap:.5rem;background:rgba(196,74,42,.25);border:1px solid rgba(196,74,42,.45);border-radius:20px;padding:3px 14px;font-size:.78rem;font-weight:700;color:#ffaa88;margin-bottom:.85rem;}
+header h1{font-size:2.5rem;font-weight:800;letter-spacing:-1px;color:#f7f4ef;line-height:1.2;}
+header h1 em{font-style:normal;color:#ff8a6a;}
+header p{font-size:1.05rem;opacity:.8;margin-top:.5rem;max-width:540px;margin-left:auto;margin-right:auto;}
+.header-chips{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-top:.9rem;}
+.header-chip{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:20px;padding:3px 13px;font-size:.76rem;color:rgba(255,255,255,.75);}
+.niveles-nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:45px;z-index:110;display:flex;align-items:center;height:38px;padding:0 1rem;transition:background .25s;}
+.nn-prev,.nn-next{flex-shrink:0;display:flex;align-items:center;gap:.3rem;padding:0 .75rem;height:100%;text-decoration:none;color:var(--muted);font-size:.78rem;font-weight:500;border-right:1px solid var(--border);transition:color .15s;white-space:nowrap;}
+.nn-next{border-right:none;border-left:1px solid var(--border);}
+.nn-prev:hover,.nn-next:hover{color:var(--primary);}
+.nn-list{flex:1;display:flex;align-items:center;justify-content:center;gap:.15rem;overflow-x:auto;padding:0 .5rem;}
+.nn-list::-webkit-scrollbar{display:none;}
+.nn-list a{flex-shrink:0;padding:2px 9px;border-radius:20px;text-decoration:none;font-size:.73rem;font-weight:600;color:var(--muted);font-family:'DM Mono',monospace;transition:color .15s,background .15s;}
+.nn-list a:hover{color:var(--text);background:var(--bg);}
+.nn-list a.activa{background:var(--primary-light);color:var(--primary);}
+.nn-list .sep{color:var(--border);font-size:.7rem;padding:0 1px;flex-shrink:0;pointer-events:none;}
+.sec-nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:83px;z-index:100;display:flex;overflow-x:auto;transition:background .25s;}
+.sec-nav::-webkit-scrollbar{display:none;}
+.sec-nav a{flex-shrink:0;padding:.75rem 1.1rem;text-decoration:none;color:var(--muted);font-size:.82rem;font-weight:500;border-bottom:2px solid transparent;white-space:nowrap;transition:color .2s,border-color .2s;}
+.sec-nav a:hover{color:var(--primary);border-bottom-color:var(--primary);}
+main{max-width:920px;margin:0 auto;padding:2rem 1.5rem;}
+.nivel-badge{display:inline-flex;align-items:center;gap:.5rem;background:var(--primary);color:white;border-radius:20px;padding:5px 16px;font-size:.82rem;font-weight:700;margin-bottom:1.75rem;}
+.module{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;margin-bottom:2.5rem;scroll-margin-top:135px;transition:background .25s,border-color .25s;}
+.module-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border);}
+.module-icon{font-size:1.8rem;flex-shrink:0;}
+.module-title{font-size:1.35rem;font-weight:700;}
+.module-sub{font-size:.85rem;color:var(--muted);margin-top:2px;}
+.module h2{font-size:1.15rem;font-weight:700;margin:1.75rem 0 .75rem;}
+.module p{margin-bottom:.85rem;font-size:.97rem;}
+.module ul,.module ol{padding-left:1.4rem;margin-bottom:.85rem;}
+.module li{margin-bottom:.4rem;font-size:.96rem;}
+.analogy{background:var(--analogy-bg);border:1px solid var(--analogy-border);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0;}
+.analogy h4{color:var(--analogy-head);font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+.analogy p{font-size:.95rem;color:var(--analogy-text);margin:0;}
+.concept,.tip,.warn,.note{border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0;border-left-width:4px;border-left-style:solid;}
+.concept h4,.tip h4,.warn h4,.note h4{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+.concept p,.tip p,.warn p,.note p{font-size:.95rem;margin:0;}
+.tip ul{font-size:.95rem;padding-left:1.2rem;margin-top:.3rem;}
+.concept{background:var(--primary-light);border-color:var(--primary);}
+.concept h4{color:var(--primary);}
+.tip{background:var(--secondary-light);border-color:var(--secondary);}
+.tip h4{color:var(--secondary);}
+.warn{background:var(--primary-light);border-color:var(--primary);}
+.warn h4{color:var(--primary);}
+.note{background:var(--note-bg);border-color:var(--note-border);}
+.note h4{color:var(--note-head);}
+.code-wrap{position:relative;margin:1rem 0;}
+.code-block{background:var(--code-bg);color:var(--code-text);border-radius:10px;padding:1.25rem 1.5rem;font-family:'DM Mono',monospace;font-size:.88rem;line-height:1.85;overflow-x:auto;white-space:pre;}
+.lang-tag{position:absolute;top:.6rem;right:.75rem;background:rgba(255,255,255,.1);color:rgba(255,255,255,.45);font-size:.68rem;padding:2px 8px;border-radius:4px;font-family:sans-serif;font-weight:700;}
+.ct{color:#89B4FA;}.cv{color:#A6E3A1;}.cs{color:#F9E2AF;}.cc{color:#585B70;font-style:italic;}.cn{color:#FAB387;}
+.terminal{background:#0a0e14;border:1px solid #21262d;border-radius:10px;overflow:hidden;margin:1rem 0;}
+.term-bar{background:#161b22;padding:.42rem .85rem;display:flex;align-items:center;gap:.35rem;border-bottom:1px solid #21262d;}
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.dot-r{background:#ff5f57;}.dot-y{background:#ffbd2e;}.dot-g{background:#28c840;}
+.term-label{font-family:'DM Mono',monospace;font-size:.69rem;color:#3a5070;margin-left:.4rem;}
+.term-body{padding:1.1rem 1.3rem;font-family:'DM Mono',monospace;font-size:.85rem;line-height:2.1;color:#c9d8f0;}
+.t-p{color:#3ddc84;}.t-o{color:#5a7090;display:block;}.t-h{color:#253550;font-style:italic;display:block;}
+.diagram{background:var(--diagram-bg);border:1px solid var(--diagram-border);border-radius:12px;padding:1.5rem;margin:1.1rem 0;font-family:'DM Mono',monospace;font-size:.87rem;line-height:2;overflow-x:auto;transition:background .25s,border-color .25s;}
+.d-r{color:var(--primary);font-weight:700;}.d-g{color:var(--secondary);font-weight:700;}.d-y{color:var(--accent);font-weight:700;}.d-b{color:#6366f1;font-weight:700;}.d-m{color:var(--muted);font-style:italic;}
+.tbl{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem;}
+.tbl th{background:var(--primary-light);color:var(--primary);padding:.65rem 1rem;text-align:left;font-weight:600;}
+.tbl td{padding:.65rem 1rem;border-bottom:1px solid var(--border);vertical-align:top;}
+.tbl td:first-child{font-family:'DM Mono',monospace;font-size:.85rem;color:var(--primary);font-weight:600;}
+.tbl tr:hover td{background:var(--bg);}
+
+/* DE CARDS GRANDES */
+.de-card{background:var(--bg);border:1px solid var(--border);border-radius:16px;padding:1.5rem;margin-bottom:1.25rem;transition:border-color .2s,background .25s;}
+.de-card:hover{border-color:var(--primary);}
+.de-head{display:flex;align-items:flex-start;gap:1rem;margin-bottom:.85rem;}
+.de-logo{font-size:2.5rem;flex-shrink:0;}
+.de-info{flex:1;}
+.de-name{font-weight:800;font-size:1.2rem;margin-bottom:2px;}
+.de-tag{font-family:'DM Mono',monospace;font-size:.72rem;color:var(--muted);}
+.de-chips{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.4rem;}
+.de-chip{font-size:.7rem;padding:2px 8px;border-radius:20px;font-weight:700;}
+.chip-g{background:var(--secondary-light);color:var(--secondary);}
+.chip-r{background:var(--primary-light);color:var(--primary);}
+.chip-b{background:var(--note-bg);color:var(--note-border);}
+.chip-y{background:var(--accent-light);color:var(--accent);}
+.de-desc{font-size:.9rem;color:var(--muted);line-height:1.6;margin-bottom:.75rem;}
+.de-toolkit{display:inline-flex;align-items:center;gap:.4rem;font-family:'DM Mono',monospace;font-size:.8rem;background:var(--code-bg);color:var(--code-text);padding:.35rem .75rem;border-radius:6px;}
+
+/* CAPAS DE ESCRITORIO */
+.de-stack{display:flex;flex-direction:column;gap:3px;margin:1rem 0;}
+.ds-layer{border-radius:10px;padding:.8rem 1.1rem;border:1px solid var(--border);display:flex;align-items:center;gap:.85rem;font-size:.88rem;transition:background .25s;}
+.ds-icon{font-size:1.2rem;flex-shrink:0;}
+.ds-name{font-weight:700;min-width:160px;flex-shrink:0;}
+.ds-desc{color:var(--muted);font-size:.84rem;}
+.ds-layer.l1{background:rgba(124,58,237,.07);border-color:rgba(124,58,237,.2);}
+.ds-layer.l1 .ds-name{color:#7c3aed;}
+.ds-layer.l2{background:rgba(236,72,153,.07);border-color:rgba(236,72,153,.2);}
+.ds-layer.l2 .ds-name{color:#db2777;}
+.ds-layer.l3{background:var(--secondary-light);border-color:rgba(26,122,90,.25);}
+.ds-layer.l3 .ds-name{color:var(--secondary);}
+.ds-layer.l4{background:var(--note-bg);border-color:rgba(99,102,241,.25);}
+.ds-layer.l4 .ds-name{color:#6366f1;}
+.ds-layer.l5{background:var(--primary-light);border-color:rgba(196,74,42,.25);}
+.ds-layer.l5 .ds-name{color:var(--primary);}
+
+/* COMPARATIVA GRID */
+.compare-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.75rem;margin:1rem 0;}
+.cg-box{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:1rem;transition:background .25s;}
+.cg-title{font-weight:700;font-size:.92rem;margin-bottom:.5rem;display:flex;align-items:center;gap:.4rem;}
+.cg-list{font-size:.83rem;color:var(--muted);line-height:1.8;}
+
+/* EJERCICIO */
+.ejercicio{background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:1.5rem;margin:1.5rem 0;}
+[data-theme="dark"] .ejercicio{background:rgba(240,192,64,.06);border-color:rgba(240,192,64,.22);}
+.ej-hd{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;font-weight:700;font-size:1rem;color:#78350F;flex-wrap:wrap;}
+[data-theme="dark"] .ej-hd{color:#f0c040;}
+.ej-badge{background:var(--accent);color:#fff;font-size:.68rem;padding:2px 9px;border-radius:20px;font-weight:700;text-transform:uppercase;}
+.ejercicio ol{padding-left:1.4rem;}
+.ejercicio ol li{margin-bottom:.6rem;font-size:.95rem;}
+.ejercicio p{font-size:.95rem;margin-bottom:.6rem;}
+.resumen{background:var(--primary-light);border:1px solid var(--primary-mid);border-radius:14px;padding:1.6rem;margin-bottom:1.5rem;}
+.resumen h3{color:var(--primary);margin-bottom:.75rem;font-size:1.05rem;}
+.resumen ul{padding-left:1.4rem;}
+.resumen li{font-size:.92rem;margin-bottom:.45rem;}
+.next-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem 1.5rem;display:flex;align-items:center;gap:1rem;text-decoration:none;transition:border-color .2s;margin-bottom:2rem;}
+.next-card:hover{border-color:var(--primary);}
+.nc-label{font-size:.72rem;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.2rem;}
+.nc-name{font-weight:700;color:var(--text);font-size:.97rem;}
+.nc-arrow{font-size:1.4rem;color:var(--primary);margin-left:auto;}
+code{font-family:'DM Mono',monospace;background:#f0ece6;color:var(--primary);padding:1px 5px;border-radius:4px;font-size:.9em;}
+[data-theme="dark"] code{background:#1c2128;}
+strong{font-weight:700;}
+p{margin-bottom:.8rem;}ul,ol{padding-left:1.4rem;margin-bottom:.8rem;}li{margin-bottom:.4rem;font-size:.96rem;}
+h2{font-size:1.2rem;font-weight:700;margin:1.75rem 0 .75rem;}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.85rem;border-top:1px solid var(--border);margin-top:1rem;background:var(--bg);transition:background .25s;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="topbar-back" href="../index.html">← Café &lt;/&gt;</a>
+  <span class="topbar-info">🐧 Linux desde Cero · Nivel 10 de 23</span>
+  <button class="theme-btn" onclick="toggleTheme()">
+    <span id="themeIcon">🌙</span><span id="themeLabel">Oscuro</span>
+  </button>
+</div>
+
+<header>
+  <div class="header-eyebrow">🖥️ Nivel 10 — Arquitectura interna</div>
+  <h1>El <em>Escritorio</em> de Linux</h1>
+  <p>GNOME, KDE Plasma, XFCE y más — qué son los entornos de escritorio, cómo funcionan y cuál elegir</p>
+  <div class="header-chips">
+    <span class="header-chip">Nivel 10 de 23</span>
+    <span class="header-chip">🖥️ Escritorio</span>
+    <span class="header-chip">8 subtemas</span>
+    <span class="header-chip">~25 min</span>
+  </div>
+</header>
+
+<div class="niveles-nav">
+  <a class="nn-prev" href="linux-nivel-09.html">← N9</a>
+  <div class="nn-list">
+    <a href="linux-nivel-01.html">N1</a><a href="linux-nivel-02.html">N2</a><a href="linux-nivel-03.html">N3</a>
+    <a href="linux-nivel-04.html">N4</a><a href="linux-nivel-05.html">N5</a><span class="sep">·</span>
+    <a href="linux-nivel-06.html">N6</a><a href="linux-nivel-07.html">N7</a><a href="linux-nivel-08.html">N8</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-09.html">N9</a><a href="linux-nivel-10.html" class="activa">N10</a>
+    <a href="linux-nivel-11.html">N11</a><span class="sep">·</span>
+    <a href="linux-nivel-12.html">N12</a><a href="linux-nivel-13.html">N13</a>
+    <a href="linux-nivel-14.html">N14</a><a href="linux-nivel-15.html">N15</a><span class="sep">·</span>
+    <a href="linux-nivel-16.html">N16</a><a href="linux-nivel-17.html">N17</a>
+    <a href="linux-nivel-18.html">N18</a><a href="linux-nivel-19.html">N19</a>
+    <a href="linux-nivel-20.html">N20</a><a href="linux-nivel-21.html">N21</a>
+    <a href="linux-nivel-22.html">N22</a><a href="linux-nivel-23.html">N23</a>
+  </div>
+  <a class="nn-next" href="linux-nivel-11.html">N11 →</a>
+</div>
+
+<nav class="sec-nav">
+  <a href="#que-es">🎯 ¿Qué es un DE?</a>
+  <a href="#capas">🏗️ Capas del escritorio</a>
+  <a href="#gnome">🟣 GNOME</a>
+  <a href="#kde">🔵 KDE Plasma</a>
+  <a href="#ligeros">⚡ Ligeros</a>
+  <a href="#wm">🪟 Window Managers</a>
+  <a href="#comparativa">⚖️ Comparativa</a>
+  <a href="#personalizar">🎨 Personalizar</a>
+  <a href="#ejercicio">✏️ Ejercicio</a>
+</nav>
+
+<main>
+<div class="nivel-badge">🖥️ Nivel 10 — El Escritorio de Linux</div>
+
+
+<!-- ═══════════════════════
+     ¿QUÉ ES UN DE?
+═══════════════════════ -->
+<section class="module" id="que-es">
+  <div class="module-header">
+    <div class="module-icon">🎯</div>
+    <div>
+      <div class="module-title">¿Qué es un entorno de escritorio?</div>
+      <div class="module-sub">El software que transforma una terminal en una interfaz gráfica completa</div>
+    </div>
+  </div>
+
+  <p>Un <strong>entorno de escritorio</strong> (Desktop Environment, DE) es una colección de software que proporciona la interfaz gráfica completa de Linux: ventanas, iconos, paneles, menús, gestor de archivos, centro de configuración y aplicaciones integradas. Es una capa opcional sobre el kernel — los servidores no lo tienen.</p>
+
+  <div class="analogy">
+    <h4>🏠 Analogía — El interior decorado de la casa</h4>
+    <p>El kernel y las herramientas GNU son la estructura de la casa — paredes, electricidad, fontanería. El entorno de escritorio es el <strong>diseño de interiores completo</strong>: el color de las paredes, los muebles, cómo están organizadas las habitaciones, la iluminación, los electrodomésticos. Puedes cambiar completamente la decoración sin tocar la estructura. En Linux puedes cambiar de GNOME a KDE manteniendo exactamente el mismo sistema operativo por debajo.</p>
+  </div>
+
+  <div class="note">
+    <h4>📌 El escritorio NO es Linux</h4>
+    <p>Esta es una confusión muy común: el escritorio gráfico (GNOME, KDE) <strong>no es parte del kernel Linux ni de GNU</strong>. Es software adicional que corre en el espacio de usuario, como cualquier aplicación. Si instalas Ubuntu Server, no tiene escritorio — y funciona perfectamente. El escritorio es para humanos, no para el sistema.</p>
+  </div>
+
+  <p>Un entorno de escritorio completo incluye:</p>
+  <ul>
+    <li><strong>Compositor / Window Manager</strong> — dibuja y gestiona las ventanas en pantalla.</li>
+    <li><strong>Panel / Barra de tareas</strong> — la barra con el reloj, lanzadores y bandeja del sistema.</li>
+    <li><strong>Gestor de archivos</strong> — Nautilus (GNOME), Dolphin (KDE), Thunar (XFCE).</li>
+    <li><strong>Centro de configuración</strong> — ajustes de pantalla, teclado, red, usuarios.</li>
+    <li><strong>Aplicaciones nativas</strong> — calculadora, editor de texto, visor de imágenes, terminal.</li>
+    <li><strong>Gestor de pantalla / Login</strong> — GDM, SDDM, LightDM — la pantalla de inicio de sesión.</li>
+  </ul>
+</section>
+
+
+<!-- ═══════════════════════
+     CAPAS DEL ESCRITORIO
+═══════════════════════ -->
+<section class="module" id="capas">
+  <div class="module-header">
+    <div class="module-icon">🏗️</div>
+    <div>
+      <div class="module-title">Las capas del sistema gráfico</div>
+      <div class="module-sub">Cómo se construye la interfaz gráfica desde el kernel hasta la pantalla</div>
+    </div>
+  </div>
+
+  <p>El sistema gráfico de Linux no es un bloque monolítico — también está estratificado. Cada capa tiene una responsabilidad específica. Esto explica por qué puedes cambiar solo el compositor, solo el gestor de ventanas, o solo el escritorio completo.</p>
+
+  <div class="de-stack">
+    <div class="ds-layer l1">
+      <div class="ds-icon">📱</div>
+      <div class="ds-name">Aplicaciones GTK/Qt</div>
+      <div class="ds-desc">Firefox, VS Code, LibreOffice — usan toolkits para dibujar su UI</div>
+    </div>
+    <div class="ds-layer l2">
+      <div class="ds-icon">🖥️</div>
+      <div class="ds-name">Entorno de escritorio</div>
+      <div class="ds-desc">GNOME, KDE, XFCE — gestiona ventanas, panel, configuración y apps nativas</div>
+    </div>
+    <div class="ds-layer l3">
+      <div class="ds-icon">🪟</div>
+      <div class="ds-name">Compositor / WM</div>
+      <div class="ds-desc">Mutter (GNOME), KWin (KDE), Openbox — dibuja ventanas, sombras, efectos, transparencias</div>
+    </div>
+    <div class="ds-layer l4">
+      <div class="ds-icon">📺</div>
+      <div class="ds-name">Servidor de display</div>
+      <div class="ds-desc">Wayland (moderno) o X11 (clásico) — protocolo de comunicación entre apps y pantalla</div>
+    </div>
+    <div class="ds-layer l5">
+      <div class="ds-icon">⚙️</div>
+      <div class="ds-name">Kernel — DRM/KMS</div>
+      <div class="ds-desc">Direct Rendering Manager — acceso directo a la GPU para renderizado acelerado</div>
+    </div>
+  </div>
+
+  <div class="diagram">
+<span class="d-m"># Cómo Firefox dibuja un botón en pantalla</span>
+
+<span class="d-b">Firefox</span>  →  llama a <span class="d-b">GTK</span>: "dibuja un botón azul aquí"
+<span class="d-b">GTK</span>      →  envía la instrucción al <span class="d-g">compositor Mutter</span>
+<span class="d-g">Mutter</span>   →  habla con <span class="d-y">Wayland</span>: "renderiza esto en coordenadas X,Y"
+<span class="d-y">Wayland</span>  →  llama al kernel (<span class="d-r">DRM/KMS</span>) para acceder a la GPU
+<span class="d-r">GPU</span>      →  convierte las instrucciones en píxeles y los envía al monitor
+<span class="d-m">Monitor</span>  →  muestra el botón azul en pantalla
+
+<span class="d-m">Todo esto ocurre en milisegundos, 60-120 veces por segundo</span></div>
+</section>
+
+
+<!-- ═══════════════════════
+     GNOME
+═══════════════════════ -->
+<section class="module" id="gnome">
+  <div class="module-header">
+    <div class="module-icon">🟣</div>
+    <div>
+      <div class="module-title">GNOME — el escritorio más popular</div>
+      <div class="module-sub">El entorno por defecto de Ubuntu, Fedora y muchas distribuciones principales</div>
+    </div>
+  </div>
+
+  <div class="de-card">
+    <div class="de-head">
+      <div class="de-logo">🟣</div>
+      <div class="de-info">
+        <div class="de-name">GNOME 46 / 47</div>
+        <div class="de-tag">GNU Network Object Model Environment · desde 1999 · GNOME Foundation</div>
+        <div class="de-chips">
+          <span class="de-chip chip-g">Muy popular</span>
+          <span class="de-chip chip-b">GTK4</span>
+          <span class="de-chip chip-y">Wayland nativo</span>
+          <span class="de-chip chip-r">RAM media-alta</span>
+        </div>
+      </div>
+    </div>
+    <div class="de-desc">GNOME es el escritorio más usado en Linux. Diseño limpio y minimalista, filosofía "menos es más". Panel superior único, Activities Overview para ver todas las apps y escritorios virtuales. Por defecto en Ubuntu, Fedora, Debian, openSUSE y muchas otras distros importantes.</div>
+    <div class="de-toolkit"><span>toolkit:</span> <strong>GTK4 + libadwaita</strong> · <span>WM:</span> <strong>Mutter</strong> · <span>login:</span> <strong>GDM</strong></div>
+  </div>
+
+  <h2>Filosofía de GNOME — simplicity by design</h2>
+  <p>GNOME toma decisiones por el usuario con el objetivo de reducir la complejidad visual. Muchas opciones están ocultas o eliminadas intencionalmente. Esto lo hace muy limpio pero puede frustrar a usuarios que quieren controlar cada detalle.</p>
+
+  <div class="compare-grid">
+    <div class="cg-box">
+      <div class="cg-title">✅ Puntos fuertes</div>
+      <div class="cg-list">
+        Diseño muy pulido<br>
+        Wayland de primera clase<br>
+        Accesibilidad excelente<br>
+        Consistencia visual total<br>
+        Gestos táctiles perfectos<br>
+        Soporte empresarial
+      </div>
+    </div>
+    <div class="cg-box">
+      <div class="cg-title">⚠️ Puntos débiles</div>
+      <div class="cg-list">
+        Consume más RAM (~800 MB)<br>
+        Pocas opciones sin extensiones<br>
+        Curva de aprendizaje si vienes de Windows<br>
+        Extensiones pueden romperse<br>
+        Personalización limitada nativa
+      </div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">comandos útiles en GNOME</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Ver versión de GNOME</span>
+<span class="t-p">$</span> gnome-shell --version
+<span class="t-o">GNOME Shell 46.2</span>
+
+<span class="t-h"># Reiniciar GNOME Shell sin cerrar sesión (Alt+F2 → r → Enter también funciona)</span>
+<span class="t-p">$</span> killall -HUP gnome-shell
+
+<span class="t-h"># Ver y cambiar configuración con gsettings</span>
+<span class="t-p">$</span> gsettings get org.gnome.desktop.interface color-scheme
+<span class="t-o">'prefer-dark'</span>
+<span class="t-p">$</span> gsettings set org.gnome.desktop.interface color-scheme 'prefer-light'
+
+<span class="t-h"># Listar extensiones instaladas</span>
+<span class="t-p">$</span> gnome-extensions list
+<span class="t-o">dash-to-dock@micxgx.gmail.com</span>
+<span class="t-o">blur-my-shell@aunetx</span>
+
+<span class="t-h"># Instalar extensión de GNOME desde la terminal</span>
+<span class="t-p">$</span> gnome-extensions install extension-id
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 GNOME Tweaks + Extensions — desbloquear el potencial</h4>
+    <p><strong>GNOME Tweaks</strong> (<code>sudo apt install gnome-tweaks</code>) añade opciones de personalización que GNOME esconde por defecto: fuentes, botones de ventana, animaciones. <strong>extensions.gnome.org</strong> tiene cientos de extensiones: Dash to Dock (barra de tareas como macOS), AppIndicator (iconos en bandeja del sistema), Clipboard Indicator y muchas más. Con estas dos herramientas GNOME se convierte en uno de los escritorios más potentes.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     KDE PLASMA
+═══════════════════════ -->
+<section class="module" id="kde">
+  <div class="module-header">
+    <div class="module-icon">🔵</div>
+    <div>
+      <div class="module-title">KDE Plasma — el escritorio más personalizable</div>
+      <div class="module-sub">Potencia, flexibilidad y una experiencia parecida a Windows para quienes migran</div>
+    </div>
+  </div>
+
+  <div class="de-card">
+    <div class="de-head">
+      <div class="de-logo">🔵</div>
+      <div class="de-info">
+        <div class="de-name">KDE Plasma 6</div>
+        <div class="de-tag">K Desktop Environment · desde 1996 · KDE e.V.</div>
+        <div class="de-chips">
+          <span class="de-chip chip-b">Qt6 / QML</span>
+          <span class="de-chip chip-g">Altamente personalizable</span>
+          <span class="de-chip chip-y">Wayland maduro</span>
+          <span class="de-chip chip-r">RAM baja (~400 MB)</span>
+        </div>
+      </div>
+    </div>
+    <div class="de-desc">KDE Plasma es el escritorio más personalizable del mundo Linux. Diseño familiar para usuarios de Windows (barra inferior, menú de inicio, bandeja del sistema). Qt6 permite una UI muy pulida y consistente. Plasma 6 mejoró enormemente el soporte Wayland. Por defecto en Kubuntu, openSUSE, Fedora KDE Spin y Manjaro KDE.</div>
+    <div class="de-toolkit"><span>toolkit:</span> <strong>Qt6 + QML</strong> · <span>WM:</span> <strong>KWin</strong> · <span>login:</span> <strong>SDDM</strong></div>
+  </div>
+
+  <div class="analogy">
+    <h4>🎛️ Analogía — El cockpit del avión vs el coche automático</h4>
+    <p><strong>GNOME</strong> es el coche automático: elegante, simple, tú solo decides a dónde ir y él conduce. <strong>KDE Plasma</strong> es el cockpit de un avión: tienes control de cada palanca, botón e instrumento. Con GNOME, el 90% de los usuarios está contento con lo que hay. Con KDE, el 10% que quiere controlar absolutamente todo está en su elemento — y los otros usuarios también pueden usarlo de forma simple sin tocar nada.</p>
+  </div>
+
+  <div class="compare-grid">
+    <div class="cg-box">
+      <div class="cg-title">✅ Puntos fuertes</div>
+      <div class="cg-list">
+        Personalización infinita<br>
+        Bajo consumo de RAM<br>
+        Apps KDE muy completas<br>
+        Familiar para usuarios Windows<br>
+        KRunner (búsqueda potente)<br>
+        Widgets en el escritorio
+      </div>
+    </div>
+    <div class="cg-box">
+      <div class="cg-title">⚠️ Puntos débiles</div>
+      <div class="cg-list">
+        Puede abrumar con opciones<br>
+        Inconsistencia visual a veces<br>
+        Apps Qt y GTK no siempre combinan<br>
+        Wayland maduró tarde (ya OK en Plasma 6)<br>
+        Bugs más frecuentes que GNOME
+      </div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">comandos útiles en KDE Plasma</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Ver versión de Plasma</span>
+<span class="t-p">$</span> plasmashell --version
+<span class="t-o">plasmashell 6.0.5</span>
+
+<span class="t-h"># Reiniciar Plasma Shell sin cerrar sesión</span>
+<span class="t-p">$</span> kquitapp6 plasmashell && kstart6 plasmashell
+
+<span class="t-h"># KRunner — el buscador mágico de KDE (Alt+Space)</span>
+<span class="t-h"># Busca apps, archivos, hace cálculos, convierte unidades, abre URLs</span>
+
+<span class="t-h"># Configuración de KDE desde terminal</span>
+<span class="t-p">$</span> kwriteconfig6 --file kdeglobals --group General --key ColorScheme "Breeze Dark"
+
+<span class="t-h"># Instalar temas de KDE</span>
+<span class="t-p">$</span> sudo apt install plasma-theme-oxygen kde-style-oxygen
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     ENTORNOS LIGEROS
+═══════════════════════ -->
+<section class="module" id="ligeros">
+  <div class="module-header">
+    <div class="module-icon">⚡</div>
+    <div>
+      <div class="module-title">Entornos ligeros — para equipos con pocos recursos</div>
+      <div class="module-sub">XFCE, LXQt, MATE y Cinnamon — velocidad sobre elegancia</div>
+    </div>
+  </div>
+
+  <p>Cuando el equipo tiene poca RAM (menos de 2 GB), una GPU débil o simplemente quieres velocidad máxima, los entornos ligeros son la respuesta. Consumen una fracción de los recursos de GNOME o KDE manteniendo una experiencia completa.</p>
+
+  <div class="de-card">
+    <div class="de-head">
+      <div class="de-logo">🐭</div>
+      <div class="de-info">
+        <div class="de-name">XFCE 4</div>
+        <div class="de-tag">Xfce Desktop Environment · desde 1996 · ~300 MB RAM</div>
+        <div class="de-chips">
+          <span class="de-chip chip-g">Muy ligero</span><span class="de-chip chip-y">Estable</span><span class="de-chip chip-b">GTK3</span>
+        </div>
+      </div>
+    </div>
+    <div class="de-desc">El clásico de los entornos ligeros. Panel superior+inferior (configurable), muy estable, usa GTK3. Por defecto en Xubuntu, Linux Mint XFCE y MX Linux. Perfecto para equipos con 2-4 GB de RAM. No tiene los efectos visuales de GNOME/KDE pero es rápido y fiable.</div>
+    <div class="de-toolkit"><span>toolkit:</span> <strong>GTK3</strong> · <span>WM:</span> <strong>Xfwm4</strong> · <span>login:</span> <strong>LightDM</strong></div>
+  </div>
+
+  <div class="de-card">
+    <div class="de-head">
+      <div class="de-logo">🍃</div>
+      <div class="de-info">
+        <div class="de-name">Cinnamon</div>
+        <div class="de-tag">Linux Mint · fork de GNOME 3 · ~600 MB RAM</div>
+        <div class="de-chips">
+          <span class="de-chip chip-g">Familiar Windows</span><span class="de-chip chip-b">GTK3</span>
+        </div>
+      </div>
+    </div>
+    <div class="de-desc">Creado por Linux Mint cuando GNOME 3 cambió drásticamente de interfaz. Parece Windows clásico: barra inferior, menú de inicio, bandeja del sistema. Es la razón por la que Linux Mint es tan popular para migrar desde Windows. Más ligero que KDE con un aspecto similar.</div>
+    <div class="de-toolkit"><span>toolkit:</span> <strong>GTK3</strong> · <span>WM:</span> <strong>Muffin</strong></div>
+  </div>
+
+  <div class="de-card">
+    <div class="de-head">
+      <div class="de-logo">🧊</div>
+      <div class="de-info">
+        <div class="de-name">LXQt</div>
+        <div class="de-tag">LXDE + Razor-qt · ultra ligero · ~200 MB RAM</div>
+        <div class="de-chips">
+          <span class="de-chip chip-r">Ultra ligero</span><span class="de-chip chip-b">Qt5</span>
+        </div>
+      </div>
+    </div>
+    <div class="de-desc">El más ligero de los entornos completos. Usa Qt5 (ligero) en lugar de GTK. Ideal para máquinas muy antiguas o VMs con poca RAM asignada. Funcional pero sin mucho brillo visual. Lo encontrarás en Lubuntu y Raspberry Pi OS Lite.</div>
+    <div class="de-toolkit"><span>toolkit:</span> <strong>Qt5</strong> · <span>WM:</span> <strong>Openbox</strong> · <span>RAM:</span> <strong>~200 MB</strong></div>
+  </div>
+
+  <div class="de-card">
+    <div class="de-head">
+      <div class="de-logo">🦅</div>
+      <div class="de-info">
+        <div class="de-name">MATE</div>
+        <div class="de-tag">Continuación de GNOME 2 · clásico · ~400 MB RAM</div>
+        <div class="de-chips">
+          <span class="de-chip chip-g">Clásico</span><span class="de-chip chip-b">GTK3</span>
+        </div>
+      </div>
+    </div>
+    <div class="de-desc">Nació cuando GNOME 2 fue reemplazado por GNOME 3 — muchos usuarios no querían el cambio. MATE es GNOME 2 modernizado y mantenido. Interfaz clásica con panel superior (apps, lugares, sistema) e inferior (ventanas abiertas). Muy apreciado por su tradición.</div>
+    <div class="de-toolkit"><span>toolkit:</span> <strong>GTK3</strong> · <span>WM:</span> <strong>Marco</strong></div>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Entorno</th><th>RAM ~</th><th>Toolkit</th><th>Mejor para</th></tr></thead>
+    <tbody>
+      <tr><td>GNOME</td><td>800 MB</td><td>GTK4</td><td>Usuarios modernos, laptops, touchscreens</td></tr>
+      <tr><td>KDE Plasma</td><td>400 MB</td><td>Qt6</td><td>Usuarios que vienen de Windows, power users</td></tr>
+      <tr><td>Cinnamon</td><td>600 MB</td><td>GTK3</td><td>Migrar desde Windows, facilidad de uso</td></tr>
+      <tr><td>XFCE</td><td>300 MB</td><td>GTK3</td><td>Equipos con 2-4 GB RAM, velocidad</td></tr>
+      <tr><td>MATE</td><td>400 MB</td><td>GTK3</td><td>Fans del clásico GNOME 2</td></tr>
+      <tr><td>LXQt</td><td>200 MB</td><td>Qt5</td><td>Máquinas muy antiguas, &lt; 1 GB RAM</td></tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- ═══════════════════════
+     WINDOW MANAGERS
+═══════════════════════ -->
+<section class="module" id="wm">
+  <div class="module-header">
+    <div class="module-icon">🪟</div>
+    <div>
+      <div class="module-title">Window Managers — sin entorno, máximo control</div>
+      <div class="module-sub">Para los que solo quieren un gestor de ventanas, sin nada más</div>
+    </div>
+  </div>
+
+  <p>Un <strong>Window Manager</strong> (WM) es la pieza mínima para tener interfaz gráfica: solo gestiona las ventanas. Sin panel, sin gestor de archivos, sin configuración gráfica. El usuario construye el entorno a su gusto añadiendo solo lo que necesita. Uso extremadamente bajo de recursos.</p>
+
+  <div class="analogy">
+    <h4>🏗️ Analogía — El estudio vacío vs el apartamento amueblado</h4>
+    <p>Un entorno completo (GNOME/KDE) es un apartamento amueblado de diseño: todo incluido, listo para entrar. Un Window Manager es un estudio vacío con buena estructura: tú decides si pones muebles y cuáles. Requiere más trabajo inicial pero el resultado puede ser exactamente lo que necesitas, sin nada que sobre.</p>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Window Manager</th><th>Tipo</th><th>Uso de RAM</th><th>Perfil de usuario</th></tr></thead>
+    <tbody>
+      <tr><td>i3wm</td><td>Tiling (mosaico)</td><td>~50 MB</td><td>Desarrolladores que viven en la terminal. Todo con teclado.</td></tr>
+      <tr><td>Sway</td><td>Tiling (Wayland)</td><td>~60 MB</td><td>i3wm pero para Wayland. El favorito moderno.</td></tr>
+      <tr><td>bspwm</td><td>Tiling</td><td>~40 MB</td><td>Máximo control, configuración en scripts.</td></tr>
+      <tr><td>Hyprland</td><td>Tiling (Wayland)</td><td>~80 MB</td><td>Tiling moderno con animaciones suaves. Muy de moda.</td></tr>
+      <tr><td>Openbox</td><td>Floating (clásico)</td><td>~30 MB</td><td>WM clásico con menú clic derecho. Altamente configurable.</td></tr>
+      <tr><td>Fluxbox</td><td>Floating</td><td>~20 MB</td><td>Ultra ligero. Para máquinas muy antiguas.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">i3wm — el tiling window manager más popular</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># i3 — todo con atajos de teclado, ventanas en mosaico automático</span>
+<span class="t-h"># $mod = tecla Windows o Alt (configurable)</span>
+
+<span class="t-h"># Abrir terminal</span>
+<span class="t-o">$mod + Enter</span>
+
+<span class="t-h"># Abrir lanzador de apps</span>
+<span class="t-o">$mod + d  (dmenu)</span>
+
+<span class="t-h"># Cambiar de escritorio virtual</span>
+<span class="t-o">$mod + 1..9</span>
+
+<span class="t-h"># Mover ventana a otro escritorio</span>
+<span class="t-o">$mod + Shift + 1..9</span>
+
+<span class="t-h"># Cambiar layout (split h/v, tabbed, stacking)</span>
+<span class="t-o">$mod + h / $mod + v / $mod + w / $mod + s</span>
+
+<span class="t-h"># Con i3 + polybar + picom + rofi = setup ultrarápido y personalizado</span>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>💡 Tiling WM — el secreto de productividad de los devs</h4>
+    <p>Los <strong>Tiling Window Managers</strong> como i3, Sway o Hyprland organizan automáticamente las ventanas en mosaico — sin solapamientos, sin arrastrar ventanas, sin gestionar tamaños manualmente. Cada ventana nueva divide el espacio disponible. Al principio parece raro, pero después de una semana muchos desarrolladores no pueden volver a un sistema de ventanas flotantes: manos siempre en el teclado, vista siempre en el código.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     COMPARATIVA
+═══════════════════════ -->
+<section class="module" id="comparativa">
+  <div class="module-header">
+    <div class="module-icon">⚖️</div>
+    <div>
+      <div class="module-title">¿Cuál escritorio elegir?</div>
+      <div class="module-sub">La guía directa según tu perfil y necesidades</div>
+    </div>
+  </div>
+
+  <p>La decisión del escritorio es muy personal y depende de tus prioridades. Aquí la guía directa:</p>
+
+  <table class="tbl">
+    <thead><tr><th>Si quieres…</th><th>Elige</th><th>Por qué</th></tr></thead>
+    <tbody>
+      <tr><td>La experiencia más limpia y moderna</td><td>GNOME</td><td>Diseño consistente, Wayland nativo, excelente en laptops</td></tr>
+      <tr><td>Máxima personalización como Windows</td><td>KDE Plasma</td><td>Todo configurable, barra inferior, menú de inicio familiar</td></tr>
+      <tr><td>Migrar desde Windows sin estrés</td><td>Cinnamon o KDE</td><td>Interfaz muy parecida a Windows, curva de aprendizaje mínima</td></tr>
+      <tr><td>Velocidad en equipo con 2-4 GB RAM</td><td>XFCE</td><td>Rápido, estable, ligero, funcional</td></tr>
+      <tr><td>PC muy antiguo o &lt; 2 GB RAM</td><td>LXQt o Fluxbox</td><td>Mínimo consumo de recursos, funciona en hardware viejo</td></tr>
+      <tr><td>Máxima productividad, manos en el teclado</td><td>i3wm / Sway</td><td>Tiling automático, sin ratón, extremadamente eficiente</td></tr>
+      <tr><td>Aprender Linux a fondo</td><td>GNOME o KDE + después i3</td><td>Empieza con algo accesible, después explora</td></tr>
+      <tr><td>macOS en Linux</td><td>GNOME + extensiones o elementaryOS</td><td>Dock, Activities similar a Mission Control</td></tr>
+    </tbody>
+  </table>
+
+  <div class="tip">
+    <h4>🟢 Puedes instalar varios y probarlos</h4>
+    <p>La gran ventaja de Linux es que puedes instalar varios entornos de escritorio en paralelo y elegir cuál usar en cada inicio de sesión. En la pantalla de login hay un ícono para cambiar el entorno. Instalar KDE en Ubuntu: <code>sudo apt install kde-plasma-desktop</code>. Instalar XFCE: <code>sudo apt install xfce4</code>. Prueba varios y quédate con el que más te guste — sin reinstalar nada.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     PERSONALIZAR
+═══════════════════════ -->
+<section class="module" id="personalizar">
+  <div class="module-header">
+    <div class="module-icon">🎨</div>
+    <div>
+      <div class="module-title">Personalizar el escritorio Linux</div>
+      <div class="module-sub">Temas, iconos, fuentes y las herramientas para transformar tu escritorio</div>
+    </div>
+  </div>
+
+  <p>Linux es el sistema más personalizable del mundo — no solo puedes cambiar el fondo de pantalla, sino el aspecto completo de cada elemento de la interfaz. La comunidad de <strong>r/unixporn</strong> en Reddit muestra setups que dejan a Windows y macOS como sistemas genéricos.</p>
+
+  <h2>Recursos para personalizar</h2>
+
+  <div class="compare-grid">
+    <div class="cg-box">
+      <div class="cg-title">🎨 Temas GTK</div>
+      <div class="cg-list">
+        gnome-look.org<br>
+        Adwaita (GNOME oficial)<br>
+        Nordic · Dracula · Catppuccin<br>
+        <code>~/.themes/</code>
+      </div>
+    </div>
+    <div class="cg-box">
+      <div class="cg-title">🔷 Iconos</div>
+      <div class="cg-list">
+        Papirus (muy popular)<br>
+        Tela · Fluent · Candy<br>
+        gnome-look.org/icons<br>
+        <code>~/.icons/</code>
+      </div>
+    </div>
+    <div class="cg-box">
+      <div class="cg-title">🖋️ Fuentes</div>
+      <div class="cg-list">
+        Inter · Fira Sans<br>
+        JetBrains Mono (código)<br>
+        Nerd Fonts (terminal)<br>
+        <code>~/.local/share/fonts/</code>
+      </div>
+    </div>
+    <div class="cg-box">
+      <div class="cg-title">🌈 Paletas de color</div>
+      <div class="cg-list">
+        Catppuccin (muy de moda)<br>
+        Dracula · Nord · Gruvbox<br>
+        Tokyo Night · Rosé Pine<br>
+        terminal.sexy para generar
+      </div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">personalizar GNOME desde la terminal</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Instalar GNOME Tweaks (herramienta de personalización)</span>
+<span class="t-p">$</span> sudo apt install gnome-tweaks gnome-shell-extensions
+
+<span class="t-h"># Instalar tema de iconos Papirus</span>
+<span class="t-p">$</span> sudo add-apt-repository ppa:papirus/papirus
+<span class="t-p">$</span> sudo apt install papirus-icon-theme
+
+<span class="t-h"># Instalar fuente JetBrains Mono para la terminal</span>
+<span class="t-p">$</span> sudo apt install fonts-jetbrains-mono
+
+<span class="t-h"># Aplicar tema desde gsettings</span>
+<span class="t-p">$</span> gsettings set org.gnome.desktop.interface icon-theme 'Papirus-Dark'
+<span class="t-p">$</span> gsettings set org.gnome.desktop.interface font-name 'Inter 11'
+<span class="t-p">$</span> gsettings set org.gnome.desktop.interface monospace-font-name 'JetBrains Mono 11'
+
+<span class="t-h"># Ver el escritorio actual (X11 o Wayland)</span>
+<span class="t-p">$</span> echo $XDG_SESSION_TYPE
+<span class="t-o">wayland</span>
+    </div>
+  </div>
+
+  <div class="note">
+    <h4>📌 r/unixporn y dotfiles</div>
+    <p>La comunidad <strong>r/unixporn</strong> comparte setups de escritorios Linux increíblemente personalizados. La forma en que se comparte la configuración es mediante <strong>dotfiles</strong> — los archivos de configuración de las apps que empiezan por punto (como <code>.bashrc</code>, <code>.config/</code>). Muchos usuarios tienen sus dotfiles en GitHub para poder reproducir su setup perfecto en cualquier máquina. Busca "dotfiles github" y descubre un mundo nuevo.</p>
+  </div>
+</section>
+
+
+<!-- EJERCICIO -->
+<div class="ejercicio" id="ejercicio">
+  <div class="ej-hd">
+    ✏️ Ejercicio del Nivel 10
+    <span class="ej-badge">Exploración</span>
+  </div>
+  <p>Explora y personaliza tu entorno de escritorio actual:</p>
+  <ol>
+    <li>Ejecuta <code>echo $XDG_SESSION_TYPE</code> — ¿usas X11 o Wayland? ¿Y <code>echo $DESKTOP_SESSION</code>? ¿Qué escritorio tienes?</li>
+    <li>Si tienes GNOME: instala <code>gnome-tweaks</code> y explora todas sus opciones. Activa los botones minimizar/maximizar en Comportamiento de las ventanas.</li>
+    <li>Descarga e instala el tema de iconos <strong>Papirus</strong> y aplícalo con GNOME Tweaks o el Centro de configuración de KDE.</li>
+    <li>Instala un segundo entorno para probar: en Ubuntu <code>sudo apt install kubuntu-desktop</code> o <code>sudo apt install xfce4</code>. En la pantalla de login, cambia el entorno y compara.</li>
+    <li>Abre el monitor del sistema (<code>gnome-system-monitor</code> o <code>htop</code>) con el escritorio principal y observa cuánta RAM consume. Luego cambia al entorno ligero y compara.</li>
+    <li>Visita <strong>gnome-look.org</strong> o <strong>store.kde.org</strong> y elige un tema que te guste. Instálalo y aplícalo.</li>
+  </ol>
+  <p><strong>Reflexión:</strong> ¿Cuál escritorio prefieres después de probarlos? ¿Priorizas el diseño, la velocidad o la personalización?</p>
+</div>
+
+<!-- RESUMEN -->
+<div class="resumen">
+  <h3>🟥 Resumen del Nivel 10</h3>
+  <ul>
+    <li>Un <strong>entorno de escritorio</strong> (DE) es software de usuario opcional — los servidores no lo necesitan.</li>
+    <li>El sistema gráfico tiene capas: Kernel DRM → Servidor display (Wayland/X11) → Compositor → DE → Apps.</li>
+    <li><strong>GNOME</strong> — diseño limpio, minimalista, Wayland nativo. Por defecto en Ubuntu y Fedora. ~800 MB RAM.</li>
+    <li><strong>KDE Plasma</strong> — personalización infinita, familiar para usuarios Windows, Qt6. ~400 MB RAM.</li>
+    <li><strong>Cinnamon</strong> — clásico y familiar. <strong>XFCE</strong> — ligero y rápido. <strong>LXQt</strong> — ultraligero para hardware viejo.</li>
+    <li>Los <strong>Window Managers</strong> (i3, Sway, Hyprland) son la opción minimalista para poder users — todo con teclado, mínima RAM.</li>
+    <li>Puedes instalar varios entornos en paralelo y cambiar entre ellos en el login — sin reinstalar.</li>
+    <li>Personalización: temas GTK/Qt, iconos (Papirus), fuentes (JetBrains Mono), paletas (Catppuccin). Todo en <code>~/.config/</code>.</li>
+  </ul>
+</div>
+
+<a class="next-card" href="linux-nivel-11.html">
+  <div>
+    <div class="nc-label">Siguiente → Nivel 11</div>
+    <div class="nc-name">X11 y Wayland — los protocolos de display que hacen posible el escritorio gráfico</div>
+  </div>
+  <div class="nc-arrow">→</div>
+</a>
+
+</main>
+
+<footer>
+  Linux desde Cero · Nivel 10 · El Escritorio de Linux · Café &lt;/&gt; · Hugo 2025
+</footer>
+
+<script>
+(function(){const s=localStorage.getItem('cafe-theme');const sys=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';const t=s||sys;document.documentElement.setAttribute('data-theme',t);updateUI(t);})();
+function toggleTheme(){const c=document.documentElement.getAttribute('data-theme');const n=c==='light'?'dark':'light';document.documentElement.setAttribute('data-theme',n);localStorage.setItem('cafe-theme',n);updateUI(n);}
+function updateUI(t){const i=document.getElementById('themeIcon');const l=document.getElementById('themeLabel');if(!i||!l)return;i.textContent=t==='dark'?'☀️':'🌙';l.textContent=t==='dark'?'Claro':'Oscuro';}
+</script>
+</body>
+</html>

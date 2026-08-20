@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux desde Cero · N4 · Distribuciones Linux</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root,[data-theme="light"]{--primary:#c44a2a;--primary-light:#fdf0ec;--primary-mid:rgba(196,74,42,.25);--secondary:#1a7a5a;--secondary-light:#edf7f3;--accent:#b07010;--accent-light:#fdf6e8;--bg:#f7f4ef;--surface:#ffffff;--text:#1a1814;--muted:#8a8480;--border:#e8e4de;--code-bg:#1a1814;--code-text:#e8e4de;--header-bg:#1a1814;--analogy-bg:#fff7ed;--analogy-border:#fde68a;--analogy-text:#78350f;--analogy-head:#92400e;--diagram-bg:#f0f4ff;--diagram-border:#c7d2fe;--note-bg:#f0f4ff;--note-border:#6366f1;--note-head:#4338ca;}
+[data-theme="dark"]{--primary:#ff7a57;--primary-light:rgba(255,122,87,.14);--primary-mid:rgba(255,122,87,.3);--secondary:#3ddc84;--secondary-light:rgba(61,220,132,.12);--accent:#f0c040;--accent-light:rgba(240,192,64,.12);--bg:#0d1117;--surface:#161b22;--text:#c9d8f0;--muted:#5a7090;--border:#21262d;--code-bg:#060a10;--code-text:#c9d8f0;--header-bg:#0a0e14;--analogy-bg:rgba(240,192,64,.07);--analogy-border:rgba(240,192,64,.3);--analogy-text:#e6d4a0;--analogy-head:#f0c040;--diagram-bg:#161b22;--diagram-border:#21262d;--note-bg:rgba(99,102,241,.1);--note-border:#818cf8;--note-head:#818cf8;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;font-size:16px;transition:background .25s,color .25s;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:300;height:45px;transition:background .25s,border-color .25s;}
+.topbar-back{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);text-decoration:none;padding:5px 14px;border:1px solid var(--border);border-radius:999px;transition:all .15s;}
+.topbar-back:hover{color:var(--text);border-color:var(--muted);}
+.topbar-info{font-size:13px;color:var(--muted);}
+.theme-btn{margin-left:auto;background:none;border:1px solid var(--border);border-radius:999px;padding:4px 13px;font-size:13px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:.35rem;transition:all .15s;font-family:'DM Sans',sans-serif;}
+.theme-btn:hover{color:var(--text);border-color:var(--muted);}
+header{background:var(--header-bg);color:#f7f4ef;padding:3rem 2rem 2.25rem;text-align:center;position:relative;overflow:hidden;}
+header::before{content:'N04';position:absolute;font-family:'DM Mono',monospace;font-size:11rem;font-weight:900;color:rgba(255,255,255,.04);right:-1rem;top:-1.5rem;line-height:1;pointer-events:none;}
+.header-eyebrow{display:inline-flex;align-items:center;gap:.5rem;background:rgba(196,74,42,.25);border:1px solid rgba(196,74,42,.45);border-radius:20px;padding:3px 14px;font-size:.78rem;font-weight:700;color:#ffaa88;margin-bottom:.85rem;}
+header h1{font-size:2.5rem;font-weight:800;letter-spacing:-1px;color:#f7f4ef;line-height:1.2;}
+header h1 em{font-style:normal;color:#ff8a6a;}
+header p{font-size:1.05rem;opacity:.8;margin-top:.5rem;max-width:540px;margin-left:auto;margin-right:auto;}
+.header-chips{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-top:.9rem;}
+.header-chip{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:20px;padding:3px 13px;font-size:.76rem;color:rgba(255,255,255,.75);}
+.niveles-nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:45px;z-index:110;display:flex;align-items:center;height:38px;padding:0 1rem;transition:background .25s;}
+.nn-prev,.nn-next{flex-shrink:0;display:flex;align-items:center;gap:.3rem;padding:0 .75rem;height:100%;text-decoration:none;color:var(--muted);font-size:.78rem;font-weight:500;border-right:1px solid var(--border);transition:color .15s;white-space:nowrap;}
+.nn-next{border-right:none;border-left:1px solid var(--border);}
+.nn-prev:hover,.nn-next:hover{color:var(--primary);}
+.nn-list{flex:1;display:flex;align-items:center;justify-content:center;gap:.15rem;overflow-x:auto;padding:0 .5rem;}
+.nn-list::-webkit-scrollbar{display:none;}
+.nn-list a{flex-shrink:0;padding:2px 9px;border-radius:20px;text-decoration:none;font-size:.73rem;font-weight:600;color:var(--muted);font-family:'DM Mono',monospace;transition:color .15s,background .15s;}
+.nn-list a:hover{color:var(--text);background:var(--bg);}
+.nn-list a.activa{background:var(--primary-light);color:var(--primary);}
+.nn-list .sep{color:var(--border);font-size:.7rem;padding:0 1px;flex-shrink:0;pointer-events:none;}
+.sec-nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:83px;z-index:100;display:flex;overflow-x:auto;transition:background .25s;}
+.sec-nav::-webkit-scrollbar{display:none;}
+.sec-nav a{flex-shrink:0;padding:.75rem 1.1rem;text-decoration:none;color:var(--muted);font-size:.82rem;font-weight:500;border-bottom:2px solid transparent;white-space:nowrap;transition:color .2s,border-color .2s;}
+.sec-nav a:hover{color:var(--primary);border-bottom-color:var(--primary);}
+main{max-width:920px;margin:0 auto;padding:2rem 1.5rem;}
+.nivel-badge{display:inline-flex;align-items:center;gap:.5rem;background:var(--primary);color:white;border-radius:20px;padding:5px 16px;font-size:.82rem;font-weight:700;margin-bottom:1.75rem;}
+.module{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;margin-bottom:2.5rem;scroll-margin-top:135px;transition:background .25s,border-color .25s;}
+.module-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border);}
+.module-icon{font-size:1.8rem;flex-shrink:0;}
+.module-title{font-size:1.35rem;font-weight:700;}
+.module-sub{font-size:.85rem;color:var(--muted);margin-top:2px;}
+.module h2{font-size:1.15rem;font-weight:700;margin:1.75rem 0 .75rem;}
+.module p{margin-bottom:.85rem;font-size:.97rem;}
+.module ul,.module ol{padding-left:1.4rem;margin-bottom:.85rem;}
+.module li{margin-bottom:.4rem;font-size:.96rem;}
+.analogy{background:var(--analogy-bg);border:1px solid var(--analogy-border);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0;}
+.analogy h4{color:var(--analogy-head);font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+.analogy p{font-size:.95rem;color:var(--analogy-text);margin:0;}
+.concept,.tip,.warn,.note{border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0;border-left-width:4px;border-left-style:solid;}
+.concept h4,.tip h4,.warn h4,.note h4{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+.concept p,.tip p,.warn p,.note p{font-size:.95rem;margin:0;}
+.tip ul{font-size:.95rem;padding-left:1.2rem;margin-top:.3rem;}
+.concept{background:var(--primary-light);border-color:var(--primary);}
+.concept h4{color:var(--primary);}
+.tip{background:var(--secondary-light);border-color:var(--secondary);}
+.tip h4{color:var(--secondary);}
+.warn{background:var(--primary-light);border-color:var(--primary);}
+.warn h4{color:var(--primary);}
+.note{background:var(--note-bg);border-color:var(--note-border);}
+.note h4{color:var(--note-head);}
+.code-wrap{position:relative;margin:1rem 0;}
+.code-block{background:var(--code-bg);color:var(--code-text);border-radius:10px;padding:1.25rem 1.5rem;font-family:'DM Mono',monospace;font-size:.88rem;line-height:1.85;overflow-x:auto;white-space:pre;}
+.lang-tag{position:absolute;top:.6rem;right:.75rem;background:rgba(255,255,255,.1);color:rgba(255,255,255,.45);font-size:.68rem;padding:2px 8px;border-radius:4px;font-family:sans-serif;font-weight:700;}
+.ct{color:#89B4FA;}.ca{color:#CBA6F7;}.cv{color:#A6E3A1;}.cs{color:#F9E2AF;}.cc{color:#585B70;font-style:italic;}.cn{color:#FAB387;}
+.terminal{background:#0a0e14;border:1px solid #21262d;border-radius:10px;overflow:hidden;margin:1rem 0;}
+.term-bar{background:#161b22;padding:.42rem .85rem;display:flex;align-items:center;gap:.35rem;border-bottom:1px solid #21262d;}
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.dot-r{background:#ff5f57;}.dot-y{background:#ffbd2e;}.dot-g{background:#28c840;}
+.term-label{font-family:'DM Mono',monospace;font-size:.69rem;color:#3a5070;margin-left:.4rem;}
+.term-body{padding:1.1rem 1.3rem;font-family:'DM Mono',monospace;font-size:.85rem;line-height:2.1;color:#c9d8f0;}
+.t-p{color:#3ddc84;}.t-o{color:#5a7090;display:block;}.t-h{color:#253550;font-style:italic;display:block;}
+.diagram{background:var(--diagram-bg);border:1px solid var(--diagram-border);border-radius:12px;padding:1.5rem;margin:1.1rem 0;font-family:'DM Mono',monospace;font-size:.87rem;line-height:2;overflow-x:auto;transition:background .25s,border-color .25s;}
+.d-r{color:var(--primary);font-weight:700;}.d-g{color:var(--secondary);font-weight:700;}.d-y{color:var(--accent);font-weight:700;}.d-b{color:#6366f1;font-weight:700;}.d-m{color:var(--muted);font-style:italic;}
+.tbl{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem;}
+.tbl th{background:var(--primary-light);color:var(--primary);padding:.65rem 1rem;text-align:left;font-weight:600;}
+.tbl td{padding:.65rem 1rem;border-bottom:1px solid var(--border);vertical-align:top;}
+.tbl td:first-child{font-family:'DM Mono',monospace;font-size:.85rem;color:var(--primary);font-weight:600;}
+.tbl tr:hover td{background:var(--bg);}
+
+/* DISTRO CARDS */
+.distro-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;margin:1rem 0;}
+.distro-card{background:var(--bg);border:1px solid var(--border);border-radius:14px;padding:1.25rem;transition:border-color .2s,background .25s;cursor:default;}
+.distro-card:hover{border-color:var(--primary);}
+.dc-head{display:flex;align-items:center;gap:.75rem;margin-bottom:.7rem;}
+.dc-logo{font-size:2rem;flex-shrink:0;}
+.dc-name{font-weight:700;font-size:1rem;}
+.dc-family{font-family:'DM Mono',monospace;font-size:.72rem;color:var(--muted);margin-top:1px;}
+.dc-desc{font-size:.87rem;color:var(--muted);line-height:1.55;margin-bottom:.7rem;}
+.dc-chips{display:flex;gap:.35rem;flex-wrap:wrap;}
+.dc-chip{font-size:.7rem;padding:2px 8px;border-radius:20px;font-weight:600;background:var(--primary-light);color:var(--primary);}
+.dc-chip.green{background:var(--secondary-light);color:var(--secondary);}
+.dc-chip.blue{background:var(--note-bg);color:var(--note-border);}
+.dc-chip.yellow{background:var(--accent-light);color:var(--accent);}
+
+/* ÁRBOL DE DISTROS */
+.distro-tree{font-family:'DM Mono',monospace;font-size:.88rem;line-height:2.2;background:var(--diagram-bg);border:1px solid var(--diagram-border);border-radius:12px;padding:1.5rem;margin:1rem 0;overflow-x:auto;}
+.dt-root{color:var(--primary);font-weight:700;}
+.dt-child{color:var(--secondary);font-weight:700;}
+.dt-grandchild{color:var(--text);}
+.dt-note{color:var(--muted);font-style:italic;}
+
+/* PKG COMPARATIVA */
+.pkg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.75rem;margin:1rem 0;}
+.pkg-box{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1rem;transition:background .25s;}
+.pkg-name{font-family:'DM Mono',monospace;font-size:.85rem;font-weight:700;color:var(--primary);margin-bottom:.3rem;}
+.pkg-used{font-size:.78rem;color:var(--muted);margin-bottom:.5rem;}
+.pkg-cmd{font-family:'DM Mono',monospace;font-size:.78rem;background:var(--code-bg);color:var(--code-text);padding:.5rem .75rem;border-radius:6px;display:block;margin-top:.3rem;}
+
+/* ELEGIR DISTRO WIZARD */
+.wizard{background:var(--bg);border:1px solid var(--border);border-radius:14px;padding:1.5rem;margin:1.1rem 0;}
+.wiz-row{display:flex;align-items:flex-start;gap:1rem;padding:.6rem 0;border-bottom:1px solid var(--border);}
+.wiz-row:last-child{border-bottom:none;}
+.wiz-emoji{font-size:1.4rem;flex-shrink:0;margin-top:2px;}
+.wiz-cond{font-size:.9rem;font-weight:600;flex:1;}
+.wiz-rec{font-size:.85rem;color:var(--primary);font-family:'DM Mono',monospace;font-weight:700;min-width:130px;flex-shrink:0;}
+
+/* EJERCICIO */
+.ejercicio{background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:1.5rem;margin:1.5rem 0;}
+[data-theme="dark"] .ejercicio{background:rgba(240,192,64,.06);border-color:rgba(240,192,64,.22);}
+.ej-hd{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;font-weight:700;font-size:1rem;color:#78350F;flex-wrap:wrap;}
+[data-theme="dark"] .ej-hd{color:#f0c040;}
+.ej-badge{background:var(--accent);color:#fff;font-size:.68rem;padding:2px 9px;border-radius:20px;font-weight:700;text-transform:uppercase;}
+.ejercicio ol{padding-left:1.4rem;}
+.ejercicio ol li{margin-bottom:.6rem;font-size:.95rem;}
+.ejercicio p{font-size:.95rem;margin-bottom:.6rem;}
+.resumen{background:var(--primary-light);border:1px solid var(--primary-mid);border-radius:14px;padding:1.6rem;margin-bottom:1.5rem;}
+.resumen h3{color:var(--primary);margin-bottom:.75rem;font-size:1.05rem;}
+.resumen ul{padding-left:1.4rem;}
+.resumen li{font-size:.92rem;margin-bottom:.45rem;}
+.next-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem 1.5rem;display:flex;align-items:center;gap:1rem;text-decoration:none;transition:border-color .2s;margin-bottom:2rem;}
+.next-card:hover{border-color:var(--primary);}
+.nc-label{font-size:.72rem;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.2rem;}
+.nc-name{font-weight:700;color:var(--text);font-size:.97rem;}
+.nc-arrow{font-size:1.4rem;color:var(--primary);margin-left:auto;}
+code{font-family:'DM Mono',monospace;background:#f0ece6;color:var(--primary);padding:1px 5px;border-radius:4px;font-size:.9em;}
+[data-theme="dark"] code{background:#1c2128;}
+strong{font-weight:700;}
+p{margin-bottom:.8rem;}ul,ol{padding-left:1.4rem;margin-bottom:.8rem;}li{margin-bottom:.4rem;font-size:.96rem;}
+h2{font-size:1.2rem;font-weight:700;margin:1.75rem 0 .75rem;}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.85rem;border-top:1px solid var(--border);margin-top:1rem;background:var(--bg);transition:background .25s;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="topbar-back" href="../index.html">← Café &lt;/&gt;</a>
+  <span class="topbar-info">🐧 Linux desde Cero · Nivel 4 de 23</span>
+  <button class="theme-btn" onclick="toggleTheme()">
+    <span id="themeIcon">🌙</span><span id="themeLabel">Oscuro</span>
+  </button>
+</div>
+
+<header>
+  <div class="header-eyebrow">🌱 Nivel 4 — Conceptos base</div>
+  <h1><em>Distribuciones</em> Linux</h1>
+  <p>Qué son, qué incluyen, por qué existen tantas y cuál elegir según tu situación</p>
+  <div class="header-chips">
+    <span class="header-chip">Nivel 4 de 23</span>
+    <span class="header-chip">🌱 Principiante</span>
+    <span class="header-chip">7 subtemas</span>
+    <span class="header-chip">~25 min</span>
+  </div>
+</header>
+
+<div class="niveles-nav">
+  <a class="nn-prev" href="linux-nivel-03.html">← N3</a>
+  <div class="nn-list">
+    <a href="linux-nivel-01.html" title="Sistema Operativo">N1</a>
+    <a href="linux-nivel-02.html" title="¿Qué es Linux?">N2</a>
+    <a href="linux-nivel-03.html" title="GNU">N3</a>
+    <a href="linux-nivel-04.html" class="activa" title="Distribuciones">N4</a>
+    <a href="linux-nivel-05.html" title="Instalar Linux">N5</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-06.html" title="Familia Debian">N6</a>
+    <a href="linux-nivel-07.html" title="Familia Red Hat">N7</a>
+    <a href="linux-nivel-08.html" title="Otras familias">N8</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-09.html" title="Capas de Linux">N9</a>
+    <a href="linux-nivel-10.html" title="Escritorio">N10</a>
+    <a href="linux-nivel-11.html" title="X11 y Wayland">N11</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-12.html" title="Terminal">N12</a>
+    <a href="linux-nivel-13.html" title="Sistema de archivos">N13</a>
+    <a href="linux-nivel-14.html" title="Usuarios y permisos">N14</a>
+    <a href="linux-nivel-15.html" title="Software">N15</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-16.html" title="Procesos">N16</a>
+    <a href="linux-nivel-17.html" title="Arranque">N17</a>
+    <a href="linux-nivel-18.html" title="Almacenamiento">N18</a>
+    <a href="linux-nivel-19.html" title="CPU y RAM">N19</a>
+    <a href="linux-nivel-20.html" title="Redes">N20</a>
+    <a href="linux-nivel-21.html" title="Seguridad">N21</a>
+    <a href="linux-nivel-22.html" title="Linux internamente">N22</a>
+    <a href="linux-nivel-23.html" title="Programar y crear">N23</a>
+  </div>
+  <a class="nn-next" href="linux-nivel-05.html">N5 →</a>
+</div>
+
+<nav class="sec-nav">
+  <a href="#que-es">📦 ¿Qué es una distro?</a>
+  <a href="#componentes">🧩 Componentes</a>
+  <a href="#por-que">🤔 ¿Por qué tantas?</a>
+  <a href="#arbol">🌳 Árbol genealógico</a>
+  <a href="#populares">⭐ Las más populares</a>
+  <a href="#paquetes">📦 Gestores de paquetes</a>
+  <a href="#elegir">🎯 ¿Cuál elegir?</a>
+  <a href="#ejercicio">✏️ Ejercicio</a>
+</nav>
+
+<main>
+<div class="nivel-badge">🌱 Nivel 4 — Distribuciones Linux</div>
+
+
+<!-- ═══════════════════════
+     ¿QUÉ ES UNA DISTRO?
+═══════════════════════ -->
+<section class="module" id="que-es">
+  <div class="module-header">
+    <div class="module-icon">📦</div>
+    <div>
+      <div class="module-title">¿Qué es una distribución Linux?</div>
+      <div class="module-sub">El paquete completo que convierte el kernel en un sistema usable</div>
+    </div>
+  </div>
+
+  <p>Ya sabemos que Linux es el kernel y GNU aporta las herramientas. Pero con eso solo tienes las piezas — como tener los ingredientes de una receta sin cocinar nada. Una <strong>distribución Linux</strong> (o "distro") es alguien que tomó todas esas piezas, las ensambló, las configuró y te las entrega como un sistema listo para instalar y usar.</p>
+
+  <div class="analogy">
+    <h4>🚗 Analogía — El motor y el coche terminado</h4>
+    <p>El kernel Linux es el motor. GNU son las piezas mecánicas. Pero tú no compras un motor y unas piezas para construirte un coche — compras un <strong>coche terminado</strong>: con carrocería, asientos, color, garantía y manual. Ubuntu es como un Toyota: fiable, cómodo, para todos. Arch Linux es como un kit de construcción: tú eliges cada pieza, lo montas tú mismo, y el resultado es exactamente lo que quieres.</p>
+  </div>
+
+  <div class="note">
+    <h4>📌 La palabra "distribución"</h4>
+    <p>Se llama distribución porque literalmente <strong>distribuye</strong> el software — empaqueta el kernel, las herramientas GNU, el escritorio, las aplicaciones y el instalador en un solo ISO descargable. También se abrevia como <strong>distro</strong>. Hoy existen más de 600 distribuciones activas registradas, aunque unas pocas concentran la mayoría de usuarios.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     COMPONENTES
+═══════════════════════ -->
+<section class="module" id="componentes">
+  <div class="module-header">
+    <div class="module-icon">🧩</div>
+    <div>
+      <div class="module-title">¿Qué incluye una distribución?</div>
+      <div class="module-sub">Las 6 piezas que toda distro ensambla y entrega</div>
+    </div>
+  </div>
+
+  <p>Cada distribución toma decisiones concretas sobre qué incluir en cada una de estas capas. Esas decisiones son las que las hacen distintas entre sí.</p>
+
+  <div class="diagram">
+<span class="d-m">┌──────────────────────────────────────────────────────────┐</span>
+<span class="d-m">│</span>  <span class="d-b">Instalador</span>     →  la pantalla gráfica para instalar el SO   <span class="d-m">│</span>
+<span class="d-m">├──────────────────────────────────────────────────────────┤</span>
+<span class="d-m">│</span>  <span class="d-b">Aplicaciones</span>   →  Firefox, LibreOffice, GIMP, Thunderbird   <span class="d-m">│</span>
+<span class="d-m">├──────────────────────────────────────────────────────────┤</span>
+<span class="d-m">│</span>  <span class="d-g">Escritorio</span>     →  GNOME, KDE, XFCE, MATE, Cinnamon...       <span class="d-m">│</span>
+<span class="d-m">├──────────────────────────────────────────────────────────┤</span>
+<span class="d-m">│</span>  <span class="d-y">Gestor pkgs</span>    →  apt, dnf, pacman, zypper, emerge...        <span class="d-m">│</span>
+<span class="d-m">├──────────────────────────────────────────────────────────┤</span>
+<span class="d-m">│</span>  <span class="d-g">Herramientas</span>   →  GNU coreutils, bash, systemd, drivers...   <span class="d-m">│</span>
+<span class="d-m">├──────────────────────────────────────────────────────────┤</span>
+<span class="d-m">│</span>  <span class="d-r">Kernel Linux</span>   →  la versión específica del kernel elegida   <span class="d-m">│</span>
+<span class="d-m">└──────────────────────────────────────────────────────────┘</span>
+  <span class="d-m">Todo esto junto = una distribución Linux lista para instalar</span></div>
+
+  <table class="tbl">
+    <thead><tr><th>Componente</th><th>Decisión de la distro</th><th>Ejemplo Ubuntu vs Arch</th></tr></thead>
+    <tbody>
+      <tr><td>Kernel</td><td>¿Qué versión? ¿Con qué parches?</td><td>Ubuntu usa LTS con parches propios; Arch usa la versión estable más reciente</td></tr>
+      <tr><td>Gestor de paquetes</td><td>¿Qué formato y herramienta?</td><td>Ubuntu usa APT + .deb; Arch usa pacman + .pkg.tar.zst</td></tr>
+      <tr><td>Init system</td><td>¿Cómo arrancan los servicios?</td><td>Ambos usan systemd (la mayoría de distros lo hacen)</td></tr>
+      <tr><td>Escritorio por defecto</td><td>¿Qué entorno visual?</td><td>Ubuntu trae GNOME; Arch no trae ninguno — tú lo eliges</td></tr>
+      <tr><td>Ciclo de releases</td><td>¿Cuándo actualizan?</td><td>Ubuntu cada 6 meses + LTS cada 2 años; Arch es rolling release (continuo)</td></tr>
+      <tr><td>Filosofía de software</td><td>¿Solo libre o también privativo?</td><td>Ubuntu incluye drivers privativos; Debian puro no</td></tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- ═══════════════════════
+     ¿POR QUÉ TANTAS?
+═══════════════════════ -->
+<section class="module" id="por-que">
+  <div class="module-header">
+    <div class="module-icon">🤔</div>
+    <div>
+      <div class="module-title">¿Por qué existen más de 600 distribuciones?</div>
+      <div class="module-sub">La libertad del código abierto permite que cualquiera cree su propia versión</div>
+    </div>
+  </div>
+
+  <p>Que existan tantas distros no es un problema — es una consecuencia natural de la libertad del software libre. Como el código es abierto, <strong>cualquiera puede tomar una distro existente, modificarla y publicar su propia versión</strong>. Y mucha gente lo ha hecho.</p>
+
+  <div class="analogy">
+    <h4>🍕 Analogía — La receta de pizza pública</h4>
+    <p>Imagina que alguien publica la receta perfecta de pizza y dice "úsala, modifícala, compártela libremente". Al mes siguiente hay mil variaciones: pizza sin gluten, pizza vegana, pizza con ingredientes locales de cada región, pizza ultraoptimizada para restaurantes industriales, pizza minimalista con solo tomate y queso. Todas son "pizza" y todas vienen de la misma receta base. Así son las distribuciones Linux.</p>
+  </div>
+
+  <p>Las razones más comunes por las que nace una nueva distro:</p>
+  <ul>
+    <li><strong>Filosofía diferente</strong> — puro software libre (Debian) vs pragmatismo (Ubuntu)</li>
+    <li><strong>Uso específico</strong> — servidores (CentOS), seguridad (Kali), privacidad (Tails), ciencia (Scientific Linux)</li>
+    <li><strong>Idioma o región</strong> — optimizadas para un país o idioma concreto</li>
+    <li><strong>Hardware específico</strong> — routers, NAS, Raspberry Pi, dispositivos embebidos</li>
+    <li><strong>Control total</strong> — Arch y Gentoo para los que quieren construirlo todo a mano</li>
+    <li><strong>Estabilidad extrema</strong> — Debian Stable y RHEL para servidores de producción</li>
+  </ul>
+
+  <div class="tip">
+    <h4>🟢 No te abrumes por la cantidad</h4>
+    <p>En la práctica, el 90% de los usuarios se mueven entre 5–6 distros grandes. El resto son variaciones o proyectos de nicho. Para aprender Linux, cualquier distro basada en Debian o Red Hat sirve perfectamente — y las habilidades se transfieren entre todas.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     ÁRBOL GENEALÓGICO
+═══════════════════════ -->
+<section class="module" id="arbol">
+  <div class="module-header">
+    <div class="module-icon">🌳</div>
+    <div>
+      <div class="module-title">El árbol genealógico de las distros</div>
+      <div class="module-sub">Cómo se derivan unas de otras — las 4 grandes familias</div>
+    </div>
+  </div>
+
+  <p>La mayoría de las distribuciones descienden de unas pocas "distros madre". Conocer el árbol genealógico te ayuda a entender qué tienen en común y por qué los comandos se parecen dentro de una familia.</p>
+
+  <div class="distro-tree">
+<span class="dt-root">🐧 KERNEL LINUX</span>
+│
+├── <span class="dt-root">📦 DEBIAN</span>  <span class="dt-note">(1993 · apt · .deb · filosofía libre)</span>
+│   ├── <span class="dt-child">Ubuntu</span>  <span class="dt-note">(2004 · la más popular del mundo)</span>
+│   │   ├── <span class="dt-grandchild">Linux Mint</span>  <span class="dt-note">· más amigable que Ubuntu</span>
+│   │   ├── <span class="dt-grandchild">Pop!_OS</span>     <span class="dt-note">· para desarrolladores y gamers</span>
+│   │   └── <span class="dt-grandchild">elementary OS</span> <span class="dt-note">· inspirada en macOS</span>
+│   ├── <span class="dt-child">Kali Linux</span>  <span class="dt-note">· ciberseguridad y pentesting</span>
+│   └── <span class="dt-child">Raspberry Pi OS</span>  <span class="dt-note">· para la Raspberry Pi</span>
+│
+├── <span class="dt-root">🎩 RED HAT</span>  <span class="dt-note">(1994 · dnf/rpm · .rpm · empresas)</span>
+│   ├── <span class="dt-child">Fedora</span>  <span class="dt-note">(innovación y últimas versiones)</span>
+│   ├── <span class="dt-child">RHEL</span>  <span class="dt-note">(Red Hat Enterprise Linux · pago)</span>
+│   │   └── <span class="dt-grandchild">AlmaLinux / Rocky Linux</span>  <span class="dt-note">· clones libres de RHEL</span>
+│   └── <span class="dt-child">CentOS Stream</span>  <span class="dt-note">· upstream de RHEL</span>
+│
+├── <span class="dt-root">🎱 ARCH</span>  <span class="dt-note">(2002 · pacman · rolling release · avanzados)</span>
+│   ├── <span class="dt-child">Manjaro</span>  <span class="dt-note">· Arch con instalador gráfico fácil</span>
+│   └── <span class="dt-child">EndeavourOS</span>  <span class="dt-note">· Arch más accesible</span>
+│
+└── <span class="dt-root">🦎 SUSE</span>  <span class="dt-note">(1994 · zypper · .rpm · empresas Europa)</span>
+    ├── <span class="dt-child">openSUSE Leap</span>  <span class="dt-note">· estable, para escritorio/servidor</span>
+    └── <span class="dt-child">openSUSE Tumbleweed</span>  <span class="dt-note">· rolling release</span>
+  </div>
+
+  <div class="concept">
+    <h4>💡 Las familias comparten el gestor de paquetes</h4>
+    <p>Lo más importante de la familia es que comparten el <strong>gestor de paquetes</strong>. Si sabes usar <code>apt</code>, puedes administrar Ubuntu, Debian, Mint, Kali y Raspberry Pi OS. Si sabes <code>dnf</code>, puedes administrar Fedora, RHEL, Rocky y Alma. Las habilidades se transfieren dentro de la familia.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     LAS MÁS POPULARES
+═══════════════════════ -->
+<section class="module" id="populares">
+  <div class="module-header">
+    <div class="module-icon">⭐</div>
+    <div>
+      <div class="module-title">Las distribuciones más populares</div>
+      <div class="module-sub">Conoce las 6 que concentran la mayoría de usuarios del mundo</div>
+    </div>
+  </div>
+
+  <div class="distro-grid">
+
+    <div class="distro-card">
+      <div class="dc-head">
+        <div class="dc-logo">🟠</div>
+        <div>
+          <div class="dc-name">Ubuntu</div>
+          <div class="dc-family">Familia Debian · Canonical</div>
+        </div>
+      </div>
+      <div class="dc-desc">La distro más popular para escritorio y servidores. Enorme comunidad, excelente documentación, instalador muy amigable. Ideal para empezar.</div>
+      <div class="dc-chips">
+        <span class="dc-chip green">Principiantes</span>
+        <span class="dc-chip">Servidores</span>
+        <span class="dc-chip blue">GNOME</span>
+      </div>
+    </div>
+
+    <div class="distro-card">
+      <div class="dc-head">
+        <div class="dc-logo">🍃</div>
+        <div>
+          <div class="dc-name">Linux Mint</div>
+          <div class="dc-family">Familia Debian/Ubuntu</div>
+        </div>
+      </div>
+      <div class="dc-desc">La favorita de quienes vienen de Windows. Escritorio Cinnamon muy familiar, rendimiento excelente, lista para usar sin configurar nada.</div>
+      <div class="dc-chips">
+        <span class="dc-chip green">Desde Windows</span>
+        <span class="dc-chip yellow">Cinnamon</span>
+      </div>
+    </div>
+
+    <div class="distro-card">
+      <div class="dc-head">
+        <div class="dc-logo">🎩</div>
+        <div>
+          <div class="dc-name">Fedora</div>
+          <div class="dc-family">Familia Red Hat · patrocinada por Red Hat</div>
+        </div>
+      </div>
+      <div class="dc-desc">La vanguardia de Linux. Siempre tiene las versiones más recientes de software. Preferida por desarrolladores y la que usa Linus Torvalds.</div>
+      <div class="dc-chips">
+        <span class="dc-chip">Desarrolladores</span>
+        <span class="dc-chip blue">GNOME puro</span>
+        <span class="dc-chip yellow">Actualizada</span>
+      </div>
+    </div>
+
+    <div class="distro-card">
+      <div class="dc-head">
+        <div class="dc-logo">🌀</div>
+        <div>
+          <div class="dc-name">Debian</div>
+          <div class="dc-family">La madre de muchas distros · 1993</div>
+        </div>
+      </div>
+      <div class="dc-desc">El pilar de la estabilidad. Muy conservadora con las versiones — lo que incluye está probadísimo. Ideal para servidores que no pueden fallar.</div>
+      <div class="dc-chips">
+        <span class="dc-chip">Servidores</span>
+        <span class="dc-chip green">Ultra-estable</span>
+        <span class="dc-chip">Solo libre</span>
+      </div>
+    </div>
+
+    <div class="distro-card">
+      <div class="dc-head">
+        <div class="dc-logo">🏹</div>
+        <div>
+          <div class="dc-name">Arch Linux</div>
+          <div class="dc-family">Familia Arch · rolling release</div>
+        </div>
+      </div>
+      <div class="dc-desc">Para usuarios avanzados que quieren control total. Se instala desde cero, sin instalador gráfico. La aprendes y entiendes Linux a fondo de verdad.</div>
+      <div class="dc-chips">
+        <span class="dc-chip">Avanzados</span>
+        <span class="dc-chip yellow">Rolling</span>
+        <span class="dc-chip blue">Tú eliges todo</span>
+      </div>
+    </div>
+
+    <div class="distro-card">
+      <div class="dc-head">
+        <div class="dc-logo">🐉</div>
+        <div>
+          <div class="dc-name">Kali Linux</div>
+          <div class="dc-family">Familia Debian · Offensive Security</div>
+        </div>
+      </div>
+      <div class="dc-desc">Especializada en ciberseguridad y pentesting. Incluye cientos de herramientas de seguridad preinstaladas. No es para uso diario general.</div>
+      <div class="dc-chips">
+        <span class="dc-chip">Seguridad</span>
+        <span class="dc-chip">Pentesting</span>
+        <span class="dc-chip yellow">Especializada</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     GESTORES DE PAQUETES
+═══════════════════════ -->
+<section class="module" id="paquetes">
+  <div class="module-header">
+    <div class="module-icon">📦</div>
+    <div>
+      <div class="module-title">Gestores de paquetes</div>
+      <div class="module-sub">La herramienta más importante de una distro — la tienda de aplicaciones de la terminal</div>
+    </div>
+  </div>
+
+  <p>El <strong>gestor de paquetes</strong> es la herramienta que instala, actualiza y elimina software en tu sistema. Es como una App Store de la terminal — pero más poderosa. Resuelve automáticamente las dependencias: si quieres instalar A que necesita B que necesita C, el gestor instala los tres solo.</p>
+
+  <div class="analogy">
+    <h4>🛒 Analogía — El supermercado que cocina por ti</h4>
+    <p>Instalar software manualmente sería como ir a buscar cada ingrediente de una receta tú mismo: comprar la harina, los huevos, la levadura... en distintas tiendas. El gestor de paquetes es como un supermercado que además cocina: le dices "quiero pastel de chocolate" y él busca todos los ingredientes, los compra, los mezcla en el orden correcto y te entrega el pastel listo. Tú solo escribes una línea.</p>
+  </div>
+
+  <div class="pkg-grid">
+    <div class="pkg-box">
+      <div class="pkg-name">apt</div>
+      <div class="pkg-used">Debian · Ubuntu · Mint · Kali</div>
+      <span class="pkg-cmd">apt install firefox</span>
+      <span class="pkg-cmd">apt update && apt upgrade</span>
+      <span class="pkg-cmd">apt remove firefox</span>
+    </div>
+    <div class="pkg-box">
+      <div class="pkg-name">dnf</div>
+      <div class="pkg-used">Fedora · RHEL · Rocky · Alma</div>
+      <span class="pkg-cmd">dnf install firefox</span>
+      <span class="pkg-cmd">dnf update</span>
+      <span class="pkg-cmd">dnf remove firefox</span>
+    </div>
+    <div class="pkg-box">
+      <div class="pkg-name">pacman</div>
+      <div class="pkg-used">Arch · Manjaro · EndeavourOS</div>
+      <span class="pkg-cmd">pacman -S firefox</span>
+      <span class="pkg-cmd">pacman -Syu</span>
+      <span class="pkg-cmd">pacman -R firefox</span>
+    </div>
+    <div class="pkg-box">
+      <div class="pkg-name">zypper</div>
+      <div class="pkg-used">openSUSE · SUSE Linux</div>
+      <span class="pkg-cmd">zypper install firefox</span>
+      <span class="pkg-cmd">zypper update</span>
+      <span class="pkg-cmd">zypper remove firefox</span>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">apt en acción — instalando VS Code en Ubuntu</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Primero actualizamos la lista de paquetes disponibles</span>
+<span class="t-p">$</span> sudo apt update
+<span class="t-o">Hit:1 http://archive.ubuntu.com/ubuntu noble InRelease</span>
+<span class="t-o">Reading package lists... Done</span>
+
+<span class="t-h"># Instalamos VS Code</span>
+<span class="t-p">$</span> sudo apt install code
+<span class="t-o">The following NEW packages will be installed:</span>
+<span class="t-o">  code</span>
+<span class="t-o">Do you want to continue? [Y/n] Y</span>
+<span class="t-o">Fetched 98.3 MB in 8s</span>
+<span class="t-o">Setting up code (1.89.1) ...</span>
+
+<span class="t-h"># Verificamos que se instaló correctamente</span>
+<span class="t-p">$</span> code --version
+<span class="t-o">1.89.1</span>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Formatos universales — Snap, Flatpak y AppImage</h4>
+    <p>Además del gestor nativo de cada distro, existen formatos universales que funcionan en <em>cualquier</em> distro: <strong>Snap</strong> (de Canonical/Ubuntu), <strong>Flatpak</strong> (neutral, preferido por la comunidad) y <strong>AppImage</strong> (un ejecutable sin instalar). Flatpak se está convirtiendo en el estándar para aplicaciones de escritorio multiplataforma.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     ¿CUÁL ELEGIR?
+═══════════════════════ -->
+<section class="module" id="elegir">
+  <div class="module-header">
+    <div class="module-icon">🎯</div>
+    <div>
+      <div class="module-title">¿Cuál distribución elegir?</div>
+      <div class="module-sub">La respuesta honesta según tu situación real</div>
+    </div>
+  </div>
+
+  <p>No existe "la mejor distro" — existe <strong>la mejor distro para tu situación</strong>. Aquí el mapa directo:</p>
+
+  <div class="wizard">
+    <div class="wiz-row">
+      <div class="wiz-emoji">🐣</div>
+      <div class="wiz-cond">Primera vez en Linux, vienes de Windows</div>
+      <div class="wiz-rec">Linux Mint</div>
+    </div>
+    <div class="wiz-row">
+      <div class="wiz-emoji">🎓</div>
+      <div class="wiz-cond">Estudiante de sistemas, quieres aprender bien</div>
+      <div class="wiz-rec">Ubuntu o Fedora</div>
+    </div>
+    <div class="wiz-row">
+      <div class="wiz-emoji">💻</div>
+      <div class="wiz-cond">Desarrollador de software, productividad</div>
+      <div class="wiz-rec">Fedora o Pop!_OS</div>
+    </div>
+    <div class="wiz-row">
+      <div class="wiz-emoji">🖥️</div>
+      <div class="wiz-cond">Servidor en producción, máxima estabilidad</div>
+      <div class="wiz-rec">Debian o RHEL</div>
+    </div>
+    <div class="wiz-row">
+      <div class="wiz-emoji">🔐</div>
+      <div class="wiz-cond">Ciberseguridad y hacking ético</div>
+      <div class="wiz-rec">Kali Linux</div>
+    </div>
+    <div class="wiz-row">
+      <div class="wiz-emoji">🏗️</div>
+      <div class="wiz-cond">Quiero entender Linux a fondo, no me da miedo</div>
+      <div class="wiz-rec">Arch Linux</div>
+    </div>
+    <div class="wiz-row">
+      <div class="wiz-emoji">🍎</div>
+      <div class="wiz-cond">Vienes de macOS, me gusta lo limpio y bonito</div>
+      <div class="wiz-rec">elementary OS</div>
+    </div>
+    <div class="wiz-row">
+      <div class="wiz-emoji">🕹️</div>
+      <div class="wiz-cond">Gamer, quiero jugar en Linux</div>
+      <div class="wiz-rec">Pop!_OS o Nobara</div>
+    </div>
+    <div class="wiz-row">
+      <div class="wiz-emoji">🦾</div>
+      <div class="wiz-cond">IA, machine learning, CUDA, GPU</div>
+      <div class="wiz-rec">Ubuntu 22.04 LTS</div>
+    </div>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ El consejo más importante</h4>
+    <p>Para esta guía y para aprender Linux desde cero, te recomiendo <strong>Ubuntu o Linux Mint</strong>. Tienen la mayor comunidad, la mejor documentación en español y el mayor número de respuestas en Google cuando algo falla. Cuando ya domines Linux podrás migrar a la distro que quieras — y lo harás con criterio real, no por moda.</p>
+  </div>
+
+  <div class="note">
+    <h4>📌 Paralysis by choice — la trampa del principiante</h4>
+    <p>El error más común es pasar semanas eligiendo distro en lugar de instalarla y aprender. Todas las distros principales te enseñan los mismos conceptos: sistema de archivos, permisos, terminal, procesos. Elige Ubuntu o Mint, instálalo en el Nivel 5 y <strong>empieza a aprender</strong>. Siempre puedes cambiar después.</p>
+  </div>
+</section>
+
+
+<!-- EJERCICIO -->
+<div class="ejercicio" id="ejercicio">
+  <div class="ej-hd">
+    ✏️ Ejercicio del Nivel 4
+    <span class="ej-badge">Investigación</span>
+  </div>
+  <p>Este ejercicio te prepara para elegir e instalar tu distro en el Nivel 5:</p>
+  <ol>
+    <li>Entra a <strong>distrowatch.com</strong> y mira el ranking de popularidad. ¿Cuáles son las 5 primeras? ¿Te sorprende alguna?</li>
+    <li>Busca en YouTube "Ubuntu vs Linux Mint 2024" — mira 5 minutos de comparativa. ¿Cuál te parece más atractiva visualmente?</li>
+    <li>Entra a <strong>ubuntu.com/download</strong> y a <strong>linuxmint.com/download</strong>. Observa qué escritorios ofrecen cada una.</li>
+    <li>Ejecuta en tu sistema actual: ¿qué gestor de paquetes usas si ya tienes Linux? (<code>which apt</code>, <code>which dnf</code>, <code>which pacman</code>)</li>
+    <li>Busca la distro que usa tu empresa o universidad. ¿Es Debian/Ubuntu o Red Hat/Fedora?</li>
+  </ol>
+  <p><strong>Decisión:</strong> Antes del Nivel 5 decide qué distro vas a instalar y por qué. Escríbela aquí mentalmente — en el siguiente nivel la instalarás.</p>
+</div>
+
+<!-- RESUMEN -->
+<div class="resumen">
+  <h3>🟥 Resumen del Nivel 4</h3>
+  <ul>
+    <li>Una <strong>distribución</strong> ensambla kernel, GNU, escritorio, gestor de paquetes e instalador en un ISO descargable y usable.</li>
+    <li>Existen más de 600 distros porque el código libre permite que cualquiera cree la suya propia.</li>
+    <li>Hay 4 familias principales: <strong>Debian</strong> (apt), <strong>Red Hat</strong> (dnf), <strong>Arch</strong> (pacman) y <strong>SUSE</strong> (zypper).</li>
+    <li>Ubuntu desciende de Debian; Fedora es la base de Red Hat; Arch es independiente.</li>
+    <li>El <strong>gestor de paquetes</strong> instala, actualiza y elimina software resolviendo dependencias automáticamente.</li>
+    <li>Para aprender: <strong>Ubuntu o Linux Mint</strong>. Para servidores: Debian o RHEL. Para avanzados: Arch.</li>
+    <li>No hay mejor distro — hay mejor distro para tu situación. Elige y empieza: siempre puedes cambiar.</li>
+  </ul>
+</div>
+
+<a class="next-card" href="linux-nivel-05.html">
+  <div>
+    <div class="nc-label">Siguiente → Nivel 5</div>
+    <div class="nc-name">Instalar Linux — USB booteable, particiones, dual boot con Windows, UEFI y primeros pasos</div>
+  </div>
+  <div class="nc-arrow">→</div>
+</a>
+
+</main>
+
+<footer>
+  Linux desde Cero · Nivel 4 · Distribuciones · Café &lt;/&gt; · Hugo 2025
+</footer>
+
+<script>
+(function(){const s=localStorage.getItem('cafe-theme');const sys=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';const t=s||sys;document.documentElement.setAttribute('data-theme',t);updateUI(t);})();
+function toggleTheme(){const c=document.documentElement.getAttribute('data-theme');const n=c==='light'?'dark':'light';document.documentElement.setAttribute('data-theme',n);localStorage.setItem('cafe-theme',n);updateUI(n);}
+function updateUI(t){const i=document.getElementById('themeIcon');const l=document.getElementById('themeLabel');if(!i||!l)return;i.textContent=t==='dark'?'☀️':'🌙';l.textContent=t==='dark'?'Claro':'Oscuro';}
+</script>
+</body>
+</html>

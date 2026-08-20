@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux desde Cero · N16 · Procesos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root,[data-theme="light"]{--primary:#c44a2a;--primary-light:#fdf0ec;--primary-mid:rgba(196,74,42,.25);--secondary:#1a7a5a;--secondary-light:#edf7f3;--accent:#b07010;--accent-light:#fdf6e8;--bg:#f7f4ef;--surface:#ffffff;--text:#1a1814;--muted:#8a8480;--border:#e8e4de;--code-bg:#1a1814;--code-text:#e8e4de;--header-bg:#1a1814;--analogy-bg:#fff7ed;--analogy-border:#fde68a;--analogy-text:#78350f;--analogy-head:#92400e;--diagram-bg:#f0f4ff;--diagram-border:#c7d2fe;--note-bg:#f0f4ff;--note-border:#6366f1;--note-head:#4338ca;}
+[data-theme="dark"]{--primary:#ff7a57;--primary-light:rgba(255,122,87,.14);--primary-mid:rgba(255,122,87,.3);--secondary:#3ddc84;--secondary-light:rgba(61,220,132,.12);--accent:#f0c040;--accent-light:rgba(240,192,64,.12);--bg:#0d1117;--surface:#161b22;--text:#c9d8f0;--muted:#5a7090;--border:#21262d;--code-bg:#060a10;--code-text:#c9d8f0;--header-bg:#0a0e14;--analogy-bg:rgba(240,192,64,.07);--analogy-border:rgba(240,192,64,.3);--analogy-text:#e6d4a0;--analogy-head:#f0c040;--diagram-bg:#161b22;--diagram-border:#21262d;--note-bg:rgba(99,102,241,.1);--note-border:#818cf8;--note-head:#818cf8;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;font-size:16px;transition:background .25s,color .25s;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:300;height:45px;}
+.topbar-back{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);text-decoration:none;padding:5px 14px;border:1px solid var(--border);border-radius:999px;transition:all .15s;}
+.topbar-back:hover{color:var(--text);border-color:var(--muted);}
+.topbar-info{font-size:13px;color:var(--muted);}
+.theme-btn{margin-left:auto;background:none;border:1px solid var(--border);border-radius:999px;padding:4px 13px;font-size:13px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:.35rem;transition:all .15s;font-family:'DM Sans',sans-serif;}
+.theme-btn:hover{color:var(--text);border-color:var(--muted);}
+header{background:var(--header-bg);color:#f7f4ef;padding:3rem 2rem 2.25rem;text-align:center;position:relative;overflow:hidden;}
+header::before{content:'N16';position:absolute;font-family:'DM Mono',monospace;font-size:11rem;font-weight:900;color:rgba(255,255,255,.04);right:-1rem;top:-1.5rem;line-height:1;pointer-events:none;}
+.header-eyebrow{display:inline-flex;align-items:center;gap:.5rem;background:rgba(196,74,42,.25);border:1px solid rgba(196,74,42,.45);border-radius:20px;padding:3px 14px;font-size:.78rem;font-weight:700;color:#ffaa88;margin-bottom:.85rem;}
+header h1{font-size:2.5rem;font-weight:800;letter-spacing:-1px;color:#f7f4ef;line-height:1.2;}
+header h1 em{font-style:normal;color:#ff8a6a;}
+header p{font-size:1.05rem;opacity:.8;margin-top:.5rem;max-width:560px;margin-left:auto;margin-right:auto;}
+.header-chips{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-top:.9rem;}
+.header-chip{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:20px;padding:3px 13px;font-size:.76rem;color:rgba(255,255,255,.75);}
+.niveles-nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:45px;z-index:110;display:flex;align-items:center;height:38px;padding:0 1rem;}
+.nn-prev,.nn-next{flex-shrink:0;display:flex;align-items:center;gap:.3rem;padding:0 .75rem;height:100%;text-decoration:none;color:var(--muted);font-size:.78rem;font-weight:500;border-right:1px solid var(--border);transition:color .15s;white-space:nowrap;}
+.nn-next{border-right:none;border-left:1px solid var(--border);}
+.nn-prev:hover,.nn-next:hover{color:var(--primary);}
+.nn-list{flex:1;display:flex;align-items:center;justify-content:center;gap:.15rem;overflow-x:auto;padding:0 .5rem;}
+.nn-list::-webkit-scrollbar{display:none;}
+.nn-list a{flex-shrink:0;padding:2px 9px;border-radius:20px;text-decoration:none;font-size:.73rem;font-weight:600;color:var(--muted);font-family:'DM Mono',monospace;transition:color .15s,background .15s;}
+.nn-list a:hover{color:var(--text);background:var(--bg);}
+.nn-list a.activa{background:var(--primary-light);color:var(--primary);}
+.nn-list .sep{color:var(--border);font-size:.7rem;padding:0 1px;flex-shrink:0;pointer-events:none;}
+.sec-nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:83px;z-index:100;display:flex;overflow-x:auto;}
+.sec-nav::-webkit-scrollbar{display:none;}
+.sec-nav a{flex-shrink:0;padding:.75rem 1.1rem;text-decoration:none;color:var(--muted);font-size:.82rem;font-weight:500;border-bottom:2px solid transparent;white-space:nowrap;transition:color .2s,border-color .2s;}
+.sec-nav a:hover{color:var(--primary);border-bottom-color:var(--primary);}
+main{max-width:920px;margin:0 auto;padding:2rem 1.5rem;}
+.nivel-badge{display:inline-flex;align-items:center;gap:.5rem;background:var(--primary);color:white;border-radius:20px;padding:5px 16px;font-size:.82rem;font-weight:700;margin-bottom:1.75rem;}
+.module{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;margin-bottom:2.5rem;scroll-margin-top:135px;transition:background .25s,border-color .25s;}
+.module-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border);}
+.module-icon{font-size:1.8rem;flex-shrink:0;}
+.module-title{font-size:1.35rem;font-weight:700;}
+.module-sub{font-size:.85rem;color:var(--muted);margin-top:2px;}
+.module h2{font-size:1.15rem;font-weight:700;margin:1.75rem 0 .75rem;}
+.module p{margin-bottom:.85rem;font-size:.97rem;}
+.module ul,.module ol{padding-left:1.4rem;margin-bottom:.85rem;}
+.module li{margin-bottom:.4rem;font-size:.96rem;}
+.analogy{background:var(--analogy-bg);border:1px solid var(--analogy-border);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0;}
+.analogy h4{color:var(--analogy-head);font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+.analogy p{font-size:.95rem;color:var(--analogy-text);margin:0;}
+.concept,.tip,.warn,.note{border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0;border-left-width:4px;border-left-style:solid;}
+.concept h4,.tip h4,.warn h4,.note h4{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+.concept p,.tip p,.warn p,.note p{font-size:.95rem;margin:0;}
+.tip ul{font-size:.95rem;padding-left:1.2rem;margin-top:.3rem;}
+.concept{background:var(--primary-light);border-color:var(--primary);}.concept h4{color:var(--primary);}
+.tip{background:var(--secondary-light);border-color:var(--secondary);}.tip h4{color:var(--secondary);}
+.warn{background:var(--primary-light);border-color:var(--primary);}.warn h4{color:var(--primary);}
+.note{background:var(--note-bg);border-color:var(--note-border);}.note h4{color:var(--note-head);}
+.terminal{background:#0a0e14;border:1px solid #21262d;border-radius:10px;overflow:hidden;margin:1rem 0;}
+.term-bar{background:#161b22;padding:.42rem .85rem;display:flex;align-items:center;gap:.35rem;border-bottom:1px solid #21262d;}
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.dot-r{background:#ff5f57;}.dot-y{background:#ffbd2e;}.dot-g{background:#28c840;}
+.term-label{font-family:'DM Mono',monospace;font-size:.69rem;color:#3a5070;margin-left:.4rem;}
+.term-body{padding:1.1rem 1.3rem;font-family:'DM Mono',monospace;font-size:.85rem;line-height:2.1;color:#c9d8f0;}
+.t-p{color:#3ddc84;}.t-o{color:#5a7090;display:block;}.t-h{color:#253550;font-style:italic;display:block;}
+.diagram{background:var(--diagram-bg);border:1px solid var(--diagram-border);border-radius:12px;padding:1.5rem;margin:1.1rem 0;font-family:'DM Mono',monospace;font-size:.87rem;line-height:2;overflow-x:auto;}
+.d-r{color:var(--primary);font-weight:700;}.d-g{color:var(--secondary);font-weight:700;}.d-y{color:var(--accent);font-weight:700;}.d-b{color:#6366f1;font-weight:700;}.d-m{color:var(--muted);font-style:italic;}
+.tbl{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem;}
+.tbl th{background:var(--primary-light);color:var(--primary);padding:.65rem 1rem;text-align:left;font-weight:600;}
+.tbl td{padding:.65rem 1rem;border-bottom:1px solid var(--border);vertical-align:top;}
+.tbl td:first-child{font-family:'DM Mono',monospace;font-size:.85rem;color:var(--primary);font-weight:600;}
+.tbl tr:hover td{background:var(--bg);}
+
+/* ESTADOS PROCESO */
+.estado-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.75rem;margin:1rem 0;}
+.estado-card{border-radius:12px;padding:1rem;border:1px solid var(--border);text-align:center;}
+.ec-sym{font-family:'DM Mono',monospace;font-size:1.8rem;font-weight:900;margin-bottom:.3rem;}
+.ec-name{font-weight:700;font-size:.9rem;margin-bottom:.25rem;}
+.ec-desc{font-size:.8rem;color:var(--muted);line-height:1.5;}
+.ec-r{background:var(--secondary-light);border-color:rgba(26,122,90,.3);}.ec-r .ec-sym{color:var(--secondary);}
+.ec-s{background:var(--note-bg);border-color:rgba(99,102,241,.25);}.ec-s .ec-sym{color:#6366f1;}
+.ec-d{background:var(--accent-light);border-color:rgba(176,112,16,.3);}.ec-d .ec-sym{color:var(--accent);}
+.ec-z{background:var(--primary-light);border-color:rgba(196,74,42,.3);}.ec-z .ec-sym{color:var(--primary);}
+.ec-t{background:rgba(124,58,237,.08);border-color:rgba(124,58,237,.2);}.ec-t .ec-sym{color:#7c3aed;}
+
+/* SEÑALES GRID */
+.sig-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:.7rem;margin:1rem 0;}
+.sig-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.9rem 1rem;display:flex;gap:.85rem;align-items:flex-start;}
+.sig-num{font-family:'DM Mono',monospace;font-size:.75rem;font-weight:800;color:white;background:var(--primary);padding:2px 7px;border-radius:6px;flex-shrink:0;margin-top:2px;}
+.sig-name{font-family:'DM Mono',monospace;font-size:.85rem;font-weight:700;color:var(--primary);margin-bottom:2px;}
+.sig-desc{font-size:.82rem;color:var(--muted);line-height:1.5;}
+
+/* JOBS VISUAL */
+.jobs-flow{display:flex;flex-direction:column;gap:.4rem;margin:1rem 0;}
+.jf-row{display:flex;align-items:center;gap:.75rem;padding:.65rem 1rem;border-radius:10px;background:var(--bg);border:1px solid var(--border);font-size:.87rem;}
+.jf-key{font-family:'DM Mono',monospace;font-size:.78rem;font-weight:700;min-width:90px;flex-shrink:0;}
+.jf-row.fg .jf-key{color:var(--primary);}
+.jf-row.bg .jf-key{color:var(--secondary);}
+.jf-row.stop .jf-key{color:#7c3aed;}
+.jf-desc{color:var(--muted);font-size:.83rem;}
+
+/* CMD GRID */
+.cmd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:.75rem;margin:1rem 0;}
+.cmd-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1rem;}
+.cmd-title{font-family:'DM Mono',monospace;font-size:.82rem;font-weight:700;color:var(--primary);margin-bottom:.3rem;}
+.cmd-desc{font-size:.83rem;color:var(--muted);margin-bottom:.5rem;}
+.cmd-ex{font-family:'DM Mono',monospace;font-size:.79rem;background:var(--code-bg);color:var(--code-text);padding:.45rem .75rem;border-radius:6px;display:block;}
+
+.ejercicio{background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:1.5rem;margin:1.5rem 0;}
+[data-theme="dark"] .ejercicio{background:rgba(240,192,64,.06);border-color:rgba(240,192,64,.22);}
+.ej-hd{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;font-weight:700;font-size:1rem;color:#78350F;flex-wrap:wrap;}
+[data-theme="dark"] .ej-hd{color:#f0c040;}
+.ej-badge{background:var(--accent);color:#fff;font-size:.68rem;padding:2px 9px;border-radius:20px;font-weight:700;text-transform:uppercase;}
+.ejercicio ol{padding-left:1.4rem;}
+.ejercicio ol li{margin-bottom:.6rem;font-size:.95rem;}
+.ejercicio p{font-size:.95rem;margin-bottom:.6rem;}
+.resumen{background:var(--primary-light);border:1px solid var(--primary-mid);border-radius:14px;padding:1.6rem;margin-bottom:1.5rem;}
+.resumen h3{color:var(--primary);margin-bottom:.75rem;font-size:1.05rem;}
+.resumen ul{padding-left:1.4rem;}
+.resumen li{font-size:.92rem;margin-bottom:.45rem;}
+.next-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem 1.5rem;display:flex;align-items:center;gap:1rem;text-decoration:none;transition:border-color .2s;margin-bottom:2rem;}
+.next-card:hover{border-color:var(--primary);}
+.nc-label{font-size:.72rem;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.2rem;}
+.nc-name{font-weight:700;color:var(--text);font-size:.97rem;}
+.nc-arrow{font-size:1.4rem;color:var(--primary);margin-left:auto;}
+code{font-family:'DM Mono',monospace;background:#f0ece6;color:var(--primary);padding:1px 5px;border-radius:4px;font-size:.9em;}
+[data-theme="dark"] code{background:#1c2128;}
+strong{font-weight:700;}
+p{margin-bottom:.8rem;}ul,ol{padding-left:1.4rem;margin-bottom:.8rem;}li{margin-bottom:.4rem;font-size:.96rem;}
+h2{font-size:1.2rem;font-weight:700;margin:1.75rem 0 .75rem;}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.85rem;border-top:1px solid var(--border);margin-top:1rem;background:var(--bg);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="topbar-back" href="../index.html">← Café &lt;/&gt;</a>
+  <span class="topbar-info">🐧 Linux desde Cero · Nivel 16 de 23</span>
+  <button class="theme-btn" onclick="toggleTheme()">
+    <span id="themeIcon">🌙</span><span id="themeLabel">Oscuro</span>
+  </button>
+</div>
+
+<header>
+  <div class="header-eyebrow">⚡ Nivel 16 — La terminal</div>
+  <h1><em>Procesos</em> en Linux</h1>
+  <p>PID, estados, ps, top, htop, señales, jobs y cómo controlar todo lo que corre en tu sistema</p>
+  <div class="header-chips">
+    <span class="header-chip">Nivel 16 de 23</span>
+    <span class="header-chip">⚡ Procesos</span>
+    <span class="header-chip">9 subtemas</span>
+    <span class="header-chip">~30 min</span>
+  </div>
+</header>
+
+<div class="niveles-nav">
+  <a class="nn-prev" href="linux-nivel-15.html">← N15</a>
+  <div class="nn-list">
+    <a href="linux-nivel-01.html">N1</a><a href="linux-nivel-02.html">N2</a><a href="linux-nivel-03.html">N3</a>
+    <a href="linux-nivel-04.html">N4</a><a href="linux-nivel-05.html">N5</a><span class="sep">·</span>
+    <a href="linux-nivel-06.html">N6</a><a href="linux-nivel-07.html">N7</a><a href="linux-nivel-08.html">N8</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-09.html">N9</a><a href="linux-nivel-10.html">N10</a><a href="linux-nivel-11.html">N11</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-12.html">N12</a><a href="linux-nivel-13.html">N13</a><a href="linux-nivel-14.html">N14</a>
+    <a href="linux-nivel-15.html">N15</a><span class="sep">·</span>
+    <a href="linux-nivel-16.html" class="activa">N16</a>
+    <a href="linux-nivel-17.html">N17</a><a href="linux-nivel-18.html">N18</a><a href="linux-nivel-19.html">N19</a>
+    <a href="linux-nivel-20.html">N20</a><a href="linux-nivel-21.html">N21</a>
+    <a href="linux-nivel-22.html">N22</a><a href="linux-nivel-23.html">N23</a>
+  </div>
+  <a class="nn-next" href="linux-nivel-17.html">N17 →</a>
+</div>
+
+<nav class="sec-nav">
+  <a href="#que-es">🧬 ¿Qué es un proceso?</a>
+  <a href="#estados">🔄 Estados</a>
+  <a href="#ps">🔍 ps</a>
+  <a href="#top">📊 top y htop</a>
+  <a href="#senales">📡 Señales</a>
+  <a href="#kill">🔫 kill</a>
+  <a href="#jobs">🎛️ Jobs</a>
+  <a href="#nice">⚖️ Nice</a>
+  <a href="#ejercicio">✏️ Ejercicio</a>
+</nav>
+
+<main>
+<div class="nivel-badge">⚡ Nivel 16 — Procesos en Linux</div>
+
+
+<!-- QUÉ ES UN PROCESO -->
+<section class="module" id="que-es">
+  <div class="module-header">
+    <div class="module-icon">🧬</div>
+    <div>
+      <div class="module-title">¿Qué es un proceso?</div>
+      <div class="module-sub">La unidad básica de ejecución en Linux — todo lo que corre es un proceso</div>
+    </div>
+  </div>
+
+  <p>Un <strong>proceso</strong> es un programa en ejecución. No el archivo ejecutable en disco — sino ese archivo cargado en memoria, con su propio espacio de direcciones, sus descriptores de archivo, su CPU time y su estado. Cada proceso tiene un <strong>PID</strong> (Process ID) único asignado por el kernel.</p>
+
+  <div class="analogy">
+    <h4>🏃 Analogía — La receta vs el cocinero</h4>
+    <p>Un programa en disco es como una <strong>receta</strong> — son instrucciones estáticas escritas en papel. Un proceso es el <strong>cocinero ejecutando esa receta</strong> ahora mismo: tiene ingredientes (datos en RAM), usa utensilios (archivos abiertos, sockets), ocupa espacio en la cocina (memoria), tarda un tiempo (CPU), y puede crear ayudantes (procesos hijos). La misma receta puede ejecutarse por varios cocineros a la vez — igual que el mismo programa puede tener múltiples procesos.</p>
+  </div>
+
+  <div class="diagram">
+<span class="d-m"># Qué contiene cada proceso</span>
+
+Proceso PID 1847 (firefox)
+├── <span class="d-y">PID</span>            1847  ← identificador único
+├── <span class="d-y">PPID</span>           901   ← PID del proceso padre (gnome-shell)
+├── <span class="d-y">UID/GID</span>        1000  ← quién lo ejecuta (hugo)
+├── <span class="d-y">Estado</span>         S     ← durmiendo (sleeping)
+├── <span class="d-y">Espacio memoria</span>      ← código, datos, heap, stack (virtual)
+├── <span class="d-y">File descriptors</span>     ← archivos abiertos (stdin=0, stdout=1, stderr=2, ...)
+├── <span class="d-y">Variables de entorno</span> ← HOME, PATH, DISPLAY...
+├── <span class="d-y">Directorio actual</span>    ← /home/hugo
+├── <span class="d-y">CPU time</span>              ← cuánto tiempo de CPU ha consumido
+└── <span class="d-y">Prioridad (nice)</span>     ← qué tan prioritario es frente a otros
+
+<span class="d-m"># Relación padre-hijo: todo proceso tiene un padre excepto PID 1</span>
+systemd (1) → gnome-shell (901) → firefox (1847) → tab (2103)</div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">información básica de procesos</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Tu propio PID en la shell actual</span>
+<span class="t-p">$</span> echo $$
+<span class="t-o">12847</span>
+
+<span class="t-h"># PID del proceso padre de la shell</span>
+<span class="t-p">$</span> echo $PPID
+<span class="t-o">12840</span>
+
+<span class="t-h"># Ver el árbol de procesos completo</span>
+<span class="t-p">$</span> pstree -p | head -20
+<span class="t-o">systemd(1)─┬─NetworkManager(624)</span>
+<span class="t-o">           ├─gnome-shell(901)─┬─firefox(1847)─┬─firefox(2103)</span>
+<span class="t-o">           │                  │               └─firefox(2198)</span>
+<span class="t-o">           │                  └─code(2341)</span>
+<span class="t-o">           └─bash(12840)───bash(12847)───pstree(12901)</span>
+
+<span class="t-h"># Encontrar el PID de un proceso por nombre</span>
+<span class="t-p">$</span> pidof firefox
+<span class="t-o">1847 2103 2198</span>
+<span class="t-p">$</span> pgrep -l firefox
+<span class="t-o">1847 firefox</span>
+<span class="t-o">2103 firefox</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ESTADOS -->
+<section class="module" id="estados">
+  <div class="module-header">
+    <div class="module-icon">🔄</div>
+    <div>
+      <div class="module-title">Estados de un proceso</div>
+      <div class="module-sub">En qué situación puede estar un proceso en cada momento</div>
+    </div>
+  </div>
+
+  <p>Un proceso no siempre está usando la CPU activamente. Pasa por diferentes <strong>estados</strong> a lo largo de su vida. Entender estos estados es clave para diagnosticar problemas de rendimiento.</p>
+
+  <div class="estado-grid">
+    <div class="estado-card ec-r">
+      <div class="ec-sym">R</div>
+      <div class="ec-name">Running</div>
+      <div class="ec-desc">Ejecutándose en la CPU ahora mismo, o en la cola del scheduler listo para ejecutarse.</div>
+    </div>
+    <div class="estado-card ec-s">
+      <div class="ec-sym">S</div>
+      <div class="ec-name">Sleeping</div>
+      <div class="ec-desc">Durmiendo, esperando un evento (tecla, dato de red, temporizador). El estado más común.</div>
+    </div>
+    <div class="estado-card ec-d">
+      <div class="ec-sym">D</div>
+      <div class="ec-name">Disk Sleep</div>
+      <div class="ec-desc">Esperando I/O de disco — no se puede interrumpir. Señales ignoradas. Malo si dura mucho.</div>
+    </div>
+    <div class="estado-card ec-z">
+      <div class="ec-sym">Z</div>
+      <div class="ec-name">Zombie</div>
+      <div class="ec-desc">Ha terminado pero el padre no recogió su código de salida. Solo ocupa una entrada en la tabla de procesos.</div>
+    </div>
+    <div class="estado-card ec-t">
+      <div class="ec-sym">T</div>
+      <div class="ec-name">Stopped</div>
+      <div class="ec-desc">Detenido por señal (Ctrl+Z) o por el debugger. Puede reanudarse con fg o SIGCONT.</div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>💡 Muchos procesos en D es señal de problema</h4>
+    <p>Si ves muchos procesos en estado <strong>D</strong> (Disk Sleep) en <code>top</code>, suele indicar un problema de I/O: disco muy lento, NFS colgado, o disco fallando. Los procesos en D no responden a señales (ni a SIGKILL), lo que puede hacer que el sistema parezca congelado. La solución suele ser identificar el dispositivo de almacenamiento problemático.</p>
+  </div>
+</section>
+
+
+<!-- PS -->
+<section class="module" id="ps">
+  <div class="module-header">
+    <div class="module-icon">🔍</div>
+    <div>
+      <div class="module-title">ps — snapshot de los procesos actuales</div>
+      <div class="module-sub">El comando para ver qué procesos están corriendo en un momento dado</div>
+    </div>
+  </div>
+
+  <p><strong>ps</strong> (Process Status) muestra una fotografía instantánea de los procesos activos. A diferencia de <code>top</code>, no se actualiza en tiempo real — es una instantánea del momento en que lo ejecutas.</p>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">ps — todas las combinaciones útiles</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># ps aux — el comando más usado, muestra TODOS los procesos</span>
+<span class="t-p">$</span> ps aux
+<span class="t-o">USER    PID  %CPU %MEM    VSZ   RSS TTY  STAT START   TIME COMMAND</span>
+<span class="t-o">root      1   0.0  0.1 169680 12288 ?    Ss   09:00   0:03 /sbin/init</span>
+<span class="t-o">hugo   1847   3.2  8.4 3856204 685892 ?  Sl   09:45   1:23 /usr/lib/firefox/firefox</span>
+<span class="t-o">hugo  12847   0.0  0.0  10352  5120 pts/0 Ss  10:30   0:00 bash</span>
+<span class="t-h"># a = todos los usuarios, u = formato usuario, x = sin terminal</span>
+
+<span class="t-h"># Las columnas más importantes:</span>
+<span class="t-h"># %CPU = porcentaje de CPU usado</span>
+<span class="t-h"># %MEM = porcentaje de RAM física usada</span>
+<span class="t-h"># VSZ  = memoria virtual total (puede ser mucho mayor que la real)</span>
+<span class="t-h"># RSS  = memoria física real usada (Resident Set Size)</span>
+<span class="t-h"># STAT = estado: R=running S=sleeping D=disk T=stopped Z=zombie</span>
+
+<span class="t-h"># Ver procesos de un usuario específico</span>
+<span class="t-p">$</span> ps -u hugo
+
+<span class="t-h"># Los 5 procesos que más CPU consumen</span>
+<span class="t-p">$</span> ps aux --sort=-%cpu | head -6
+
+<span class="t-h"># Los 5 procesos que más RAM consumen</span>
+<span class="t-p">$</span> ps aux --sort=-%mem | head -6
+
+<span class="t-h"># Buscar un proceso específico</span>
+<span class="t-p">$</span> ps aux | grep firefox
+<span class="t-o">hugo   1847  3.2  8.4 ... /usr/lib/firefox/firefox</span>
+
+<span class="t-h"># Ver el árbol de procesos con ps</span>
+<span class="t-p">$</span> ps auxf | head -25    <span class="t-h"># f = forest (árbol)</span>
+
+<span class="t-h"># Formato personalizado — ver solo lo que necesitas</span>
+<span class="t-p">$</span> ps -eo pid,ppid,user,stat,%cpu,%mem,comm --sort=-%cpu | head -10
+    </div>
+  </div>
+</section>
+
+
+<!-- TOP Y HTOP -->
+<section class="module" id="top">
+  <div class="module-header">
+    <div class="module-icon">📊</div>
+    <div>
+      <div class="module-title">top y htop — monitorización en tiempo real</div>
+      <div class="module-sub">La diferencia entre una fotografía (ps) y una película (top/htop)</div>
+    </div>
+  </div>
+
+  <p><strong>top</strong> es el monitor de procesos interactivo incluido en todos los sistemas Linux. <strong>htop</strong> es su versión moderna con colores, barras visuales y manejo con ratón. Si no lo tienes: <code>sudo apt install htop</code>.</p>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">top — uso básico e interacción</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Lanzar top</span>
+<span class="t-p">$</span> top
+
+<span class="t-h"># Lo que muestra la cabecera:</span>
+<span class="t-o">top - 10:45:12 up 1:23, 1 user, load average: 0.42, 0.51, 0.48</span>
+<span class="t-h"># uptime, usuarios conectados, carga media (1, 5, 15 minutos)</span>
+
+<span class="t-o">Tasks: 287 total, 1 running, 286 sleeping, 0 stopped, 0 zombie</span>
+<span class="t-o">%Cpu(s): 3.2 us, 1.1 sy, 0.0 ni, 94.8 id, 0.8 wa, 0.0 hi, 0.1 si</span>
+<span class="t-h"># us=user sy=system id=idle wa=waiting(I/O) — el wa alto indica problema de disco</span>
+
+<span class="t-o">MiB Mem:  15809.6 total, 8234.1 free, 5821.4 used, 1754.1 buff/cache</span>
+<span class="t-o">MiB Swap:  2048.0 total,  2048.0 free,    0.0 used.  9231.2 avail Mem</span>
+
+<span class="t-h"># Atajos de teclado dentro de top:</span>
+<span class="t-h"># q        → salir</span>
+<span class="t-h"># k        → matar proceso (te pide el PID)</span>
+<span class="t-h"># r        → cambiar prioridad (renice)</span>
+<span class="t-h"># M        → ordenar por uso de memoria</span>
+<span class="t-h"># P        → ordenar por uso de CPU (por defecto)</span>
+<span class="t-h"># 1        → mostrar cada núcleo de CPU por separado</span>
+<span class="t-h"># u        → filtrar por usuario</span>
+<span class="t-h"># H        → mostrar hilos (threads) en lugar de procesos</span>
+<span class="t-h"># Espacio  → actualizar ahora mismo</span>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">htop — el top moderno (instalar: sudo apt install htop)</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Lanzar htop</span>
+<span class="t-p">$</span> htop
+
+<span class="t-h"># Ventajas de htop sobre top:</span>
+<span class="t-h"># - Barras de CPU, RAM y Swap a color y en tiempo real</span>
+<span class="t-h"># - Navegación con flechas, clic de ratón</span>
+<span class="t-h"># - F3 → buscar proceso por nombre</span>
+<span class="t-h"># - F4 → filtrar por nombre</span>
+<span class="t-h"># - F5 → vista de árbol (tree view)</span>
+<span class="t-h"># - F6 → cambiar columna de ordenación</span>
+<span class="t-h"># - F9 → enviar señal al proceso (menú visual)</span>
+<span class="t-h"># - F10 → salir</span>
+
+<span class="t-h"># htop con vista de árbol desde la línea de comandos</span>
+<span class="t-p">$</span> htop -t
+
+<span class="t-h"># Otras herramientas de monitorización:</span>
+<span class="t-p">$</span> btop          <span class="t-h"># el más moderno y hermoso (apt install btop)</span>
+<span class="t-p">$</span> glances       <span class="t-h"># monitor completo del sistema (apt install glances)</span>
+<span class="t-p">$</span> iotop         <span class="t-h"># monitorización de I/O de disco por proceso</span>
+<span class="t-p">$</span> nethogs       <span class="t-h"># monitorización de red por proceso</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- SEÑALES -->
+<section class="module" id="senales">
+  <div class="module-header">
+    <div class="module-icon">📡</div>
+    <div>
+      <div class="module-title">Señales — el sistema de mensajería entre procesos</div>
+      <div class="module-sub">Cómo el kernel y otros procesos comunican eventos a un proceso en ejecución</div>
+    </div>
+  </div>
+
+  <p>Una <strong>señal</strong> es una notificación asíncrona que el kernel (o un proceso) envía a otro proceso. El proceso puede capturar la señal y decidir qué hacer, o ignorarla — excepto <strong>SIGKILL</strong> y <strong>SIGSTOP</strong>, que no pueden ser ignoradas ni capturadas.</p>
+
+  <div class="analogy">
+    <h4>📟 Analogía — El buscapersonas del proceso</h4>
+    <p>Las señales son como mensajes en un buscapersonas de los años 90. No interrumpen lo que estás haciendo de forma inmediata — el proceso las recibe cuando puede y decide cómo responder. Algunos mensajes son sugerencias corteses ("termina cuando puedas" — SIGTERM), otros son órdenes directas del jefe que no puedes ignorar ("para ahora mismo" — SIGKILL).</p>
+  </div>
+
+  <div class="sig-grid">
+    <div class="sig-card">
+      <span class="sig-num">1</span>
+      <div><div class="sig-name">SIGHUP</div><div class="sig-desc">Colgar (hangup). Históricamente: terminal cerrada. Hoy: recargar configuración sin reiniciar el proceso.</div></div>
+    </div>
+    <div class="sig-card">
+      <span class="sig-num">2</span>
+      <div><div class="sig-name">SIGINT</div><div class="sig-desc">Interrupción. Lo que envía Ctrl+C. Termina el proceso amablemente. El proceso puede capturarla.</div></div>
+    </div>
+    <div class="sig-card">
+      <span class="sig-num">3</span>
+      <div><div class="sig-name">SIGQUIT</div><div class="sig-desc">Quit. Como SIGINT pero genera un core dump. Lo envía Ctrl+\.</div></div>
+    </div>
+    <div class="sig-card">
+      <span class="sig-num">9</span>
+      <div><div class="sig-name">SIGKILL</div><div class="sig-desc">Matar inmediatamente. El kernel lo ejecuta directamente. NO puede ser capturada ni ignorada. Último recurso.</div></div>
+    </div>
+    <div class="sig-card">
+      <span class="sig-num">15</span>
+      <div><div class="sig-name">SIGTERM</div><div class="sig-desc">Terminar. La señal por defecto de kill. Pide amablemente que el proceso termine. El proceso puede capturarla para hacer limpieza.</div></div>
+    </div>
+    <div class="sig-card">
+      <span class="sig-num">17</span>
+      <div><div class="sig-name">SIGCHLD</div><div class="sig-desc">Un proceso hijo terminó. El padre la recibe para poder recoger el estado de salida (wait).</div></div>
+    </div>
+    <div class="sig-card">
+      <span class="sig-num">18</span>
+      <div><div class="sig-name">SIGCONT</div><div class="sig-desc">Continuar. Reanuda un proceso que fue detenido con SIGSTOP o SIGTSTP (Ctrl+Z).</div></div>
+    </div>
+    <div class="sig-card">
+      <span class="sig-num">19</span>
+      <div><div class="sig-name">SIGSTOP</div><div class="sig-desc">Detener (no terminar). NO puede ser capturada. Pausa el proceso hasta recibir SIGCONT.</div></div>
+    </div>
+    <div class="sig-card">
+      <span class="sig-num">20</span>
+      <div><div class="sig-name">SIGTSTP</div><div class="sig-desc">Terminal stop. Lo envía Ctrl+Z. Como SIGSTOP pero el proceso SÍ puede capturarla.</div></div>
+    </div>
+    <div class="sig-card">
+      <span class="sig-num">10</span>
+      <div><div class="sig-name">SIGUSR1/2</div><div class="sig-desc">Señales definidas por el usuario. Cada aplicación decide qué significan. Nginx las usa para rotar logs.</div></div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">ver todas las señales disponibles</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Ver todas las señales disponibles en el sistema</span>
+<span class="t-p">$</span> kill -l
+<span class="t-o"> 1) SIGHUP    2) SIGINT    3) SIGQUIT   4) SIGILL    5) SIGTRAP</span>
+<span class="t-o"> 6) SIGABRT   7) SIGBUS    8) SIGFPE    9) SIGKILL  10) SIGUSR1</span>
+<span class="t-o">11) SIGSEGV  12) SIGUSR2  13) SIGPIPE  14) SIGALRM  15) SIGTERM</span>
+<span class="t-o">...</span>
+
+<span class="t-h"># Caso real: nginx recarga configuración con SIGHUP sin reiniciar</span>
+<span class="t-p">$</span> sudo kill -HUP $(pidof nginx)
+<span class="t-h"># nginx captura SIGHUP y recarga nginx.conf en caliente</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- KILL -->
+<section class="module" id="kill">
+  <div class="module-header">
+    <div class="module-icon">🔫</div>
+    <div>
+      <div class="module-title">kill, killall y pkill — enviar señales</div>
+      <div class="module-sub">Las herramientas para terminar (o controlar) procesos desde la terminal</div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">kill, killall y pkill</span>
+    </div>
+    <div class="term-body">
+<span class="t-h">## kill — envía señal a un PID específico</span>
+<span class="t-p">$</span> kill 1847            <span class="t-h"># SIGTERM (15) por defecto — terminar amablemente</span>
+<span class="t-p">$</span> kill -15 1847        <span class="t-h"># SIGTERM explícito</span>
+<span class="t-p">$</span> kill -9 1847         <span class="t-h"># SIGKILL — matar sin piedad (último recurso)</span>
+<span class="t-p">$</span> kill -HUP 1847       <span class="t-h"># SIGHUP — recargar configuración</span>
+<span class="t-p">$</span> kill -STOP 1847      <span class="t-h"># pausar el proceso</span>
+<span class="t-p">$</span> kill -CONT 1847      <span class="t-h"># reanudar el proceso</span>
+
+<span class="t-h">## killall — envía señal a todos los procesos con ese nombre</span>
+<span class="t-p">$</span> killall firefox       <span class="t-h"># termina todos los procesos llamados "firefox"</span>
+<span class="t-p">$</span> killall -9 firefox    <span class="t-h"># mata todos sin contemplaciones</span>
+<span class="t-p">$</span> killall -u hugo       <span class="t-h"># termina todos los procesos del usuario hugo</span>
+
+<span class="t-h">## pkill — como killall pero con patrones y más opciones</span>
+<span class="t-p">$</span> pkill firefox         <span class="t-h"># igual que killall firefox</span>
+<span class="t-p">$</span> pkill -u hugo         <span class="t-h"># matar procesos del usuario hugo</span>
+<span class="t-p">$</span> pkill -f "python script.py"  <span class="t-h"># busca en el comando completo, no solo el nombre</span>
+
+<span class="t-h">## El orden correcto para matar un proceso que no responde:</span>
+<span class="t-p">$</span> kill -15 PID    <span class="t-h"># 1. pedir amablemente (esperar unos segundos)</span>
+<span class="t-p">$</span> kill -9  PID    <span class="t-h"># 2. si no responde, matar a la fuerza</span>
+    </div>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ SIGKILL (-9) como último recurso</h4>
+    <p>SIGKILL mata el proceso inmediatamente sin darle oportunidad de limpiar. Esto puede dejar archivos corruptos, bases de datos inconsistentes, archivos de lock sin eliminar o datos sin escribir al disco. Siempre intenta SIGTERM primero y espera unos segundos. Si el proceso ignora SIGTERM, entonces usa SIGKILL.</p>
+  </div>
+</section>
+
+
+<!-- JOBS -->
+<section class="module" id="jobs">
+  <div class="module-header">
+    <div class="module-icon">🎛️</div>
+    <div>
+      <div class="module-title">Jobs — procesos en primer y segundo plano</div>
+      <div class="module-sub">Cómo mover procesos entre el frente y el fondo de la terminal</div>
+    </div>
+  </div>
+
+  <p>Cada terminal tiene un conjunto de <strong>jobs</strong> (trabajos): el proceso en <strong>primer plano</strong> (foreground) que recibe la entrada del teclado, y procesos en <strong>segundo plano</strong> (background) que corren sin ocupar la terminal.</p>
+
+  <div class="jobs-flow">
+    <div class="jf-row fg">
+      <div class="jf-key">comando</div>
+      <div class="jf-desc">Ejecutar en primer plano — bloquea la terminal hasta que termina</div>
+    </div>
+    <div class="jf-row bg">
+      <div class="jf-key">comando &</div>
+      <div class="jf-desc">Ejecutar en segundo plano — la terminal queda libre inmediatamente</div>
+    </div>
+    <div class="jf-row stop">
+      <div class="jf-key">Ctrl+Z</div>
+      <div class="jf-desc">Suspender el proceso en primer plano (SIGTSTP) — queda pausado en background</div>
+    </div>
+    <div class="jf-row fg">
+      <div class="jf-key">fg</div>
+      <div class="jf-desc">Traer el último job suspendido/background de vuelta al primer plano</div>
+    </div>
+    <div class="jf-row bg">
+      <div class="jf-key">bg</div>
+      <div class="jf-desc">Reanudar el último job suspendido en segundo plano (sin bloqueante)</div>
+    </div>
+    <div class="jf-row fg">
+      <div class="jf-key">jobs</div>
+      <div class="jf-desc">Listar todos los jobs de la sesión actual con su número y estado</div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">jobs — control completo de procesos en la terminal</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Lanzar un proceso en segundo plano con &</span>
+<span class="t-p">$</span> npm run dev &
+<span class="t-o">[1] 2847</span>
+<span class="t-h"># [1] = número de job, 2847 = PID</span>
+
+<span class="t-h"># Lanzar otro proceso largo</span>
+<span class="t-p">$</span> python3 servidor.py &
+<span class="t-o">[2] 2901</span>
+
+<span class="t-h"># Ver todos los jobs activos</span>
+<span class="t-p">$</span> jobs
+<span class="t-o">[1]  Running    npm run dev &</span>
+<span class="t-o">[2]- Running    python3 servidor.py &</span>
+
+<span class="t-h"># Traer el job [1] al frente</span>
+<span class="t-p">$</span> fg 1
+<span class="t-o">npm run dev</span>
+
+<span class="t-h"># Suspenderlo con Ctrl+Z</span>
+<span class="t-h"># ^Z</span>
+<span class="t-o">[1]+  Stopped    npm run dev</span>
+
+<span class="t-h"># Reanudar en segundo plano</span>
+<span class="t-p">$</span> bg 1
+<span class="t-o">[1]+ npm run dev &</span>
+
+<span class="t-h"># Matar un job por su número</span>
+<span class="t-p">$</span> kill %1          <span class="t-h"># el % indica número de job, no PID</span>
+<span class="t-p">$</span> kill %2
+
+<span class="t-h"># Proceso que sobrevive al cerrar la terminal</span>
+<span class="t-p">$</span> nohup python3 servidor.py &     <span class="t-h"># ignora SIGHUP al cerrar terminal</span>
+<span class="t-p">$</span> disown %1                       <span class="t-h"># desasociar job de la terminal</span>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 tmux — la solución definitiva para sesiones persistentes</h4>
+    <p><strong>tmux</strong> es un multiplexor de terminal que mantiene sesiones activas aunque cierres la terminal o pierdas la conexión SSH. Puedes desconectarte de una sesión tmux y al volver todo sigue corriendo exactamente donde lo dejaste. Es la herramienta esencial para trabajo en servidores remotos: <code>tmux new -s trabajo</code>, trabaja, <code>Ctrl+B D</code> para desconectar, <code>tmux attach -t trabajo</code> para reconectar.</p>
+  </div>
+</section>
+
+
+<!-- NICE -->
+<section class="module" id="nice">
+  <div class="module-header">
+    <div class="module-icon">⚖️</div>
+    <div>
+      <div class="module-title">Nice y renice — prioridad de procesos</div>
+      <div class="module-sub">Controlar cuánta CPU recibe un proceso en relación con los demás</div>
+    </div>
+  </div>
+
+  <p>El scheduler del kernel asigna tiempo de CPU según la <strong>prioridad</strong> de cada proceso. La prioridad de usuario se controla con el valor <strong>nice</strong> — un número de -20 (máxima prioridad) a +19 (mínima prioridad). Los usuarios normales solo pueden bajar la prioridad de sus propios procesos (aumentar el nice). Root puede hacer cualquier cosa.</p>
+
+  <div class="analogy">
+    <h4>🍽️ Analogía — El buffet con orden de preferencia</h4>
+    <p>El scheduler es el chef de un buffet con capacidad limitada. El valor nice es qué tan "amable" (nice) es el proceso con los demás — cuánto cede su turno. Un nice de <strong>-20</strong> es el VIP que siempre come primero. Un nice de <strong>+19</strong> es el comensal más educado que siempre deja pasar a todos y come cuando sobra. Los usuarios normales no pueden convertirse en VIP (no pueden bajar el nice) — pero sí pueden ser más amables.</p>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">nice y renice — gestionar prioridades</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Ver la prioridad de los procesos en ps</span>
+<span class="t-p">$</span> ps -eo pid,ni,comm --sort=ni | head -10
+<span class="t-o">  PID  NI COMMAND</span>
+<span class="t-o">    1   0 systemd</span>
+<span class="t-o"> 1847   0 firefox</span>
+<span class="t-o"> 2341   0 code</span>
+
+<span class="t-h"># Lanzar un proceso con baja prioridad (nice alto)</span>
+<span class="t-p">$</span> nice -n 19 make -j$(nproc)    <span class="t-h"># compilación en background sin molestar</span>
+<span class="t-p">$</span> nice -n 10 rsync -a /datos/ /backup/  <span class="t-h"># backup que no roba CPU</span>
+
+<span class="t-h"># Cambiar la prioridad de un proceso ya en ejecución</span>
+<span class="t-p">$</span> renice -n 15 -p 1847      <span class="t-h"># bajar prioridad de firefox (PID 1847)</span>
+<span class="t-p">$</span> sudo renice -n -5 -p 901  <span class="t-h"># subir prioridad (solo root)</span>
+
+<span class="t-h"># Ver nice en htop: la columna NI</span>
+<span class="t-h"># En top: la columna NI también muestra el nice value</span>
+
+<span class="t-h"># Caso de uso real: compilar el kernel sin que el sistema se ponga lento</span>
+<span class="t-p">$</span> nice -n 19 make -j$(nproc) 2>&1 | tee compilacion.log &
+    </div>
+  </div>
+
+  <div class="cmd-grid">
+    <div class="cmd-card">
+      <div class="cmd-title">nice -n 19 cmd</div>
+      <div class="cmd-desc">Lanzar comando con la mínima prioridad. El sistema seguirá respondiendo bien mientras compila, hace backup o encode.</div>
+      <span class="cmd-ex">nice -n 19 ffmpeg -i video.mp4 out.mkv</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">renice</div>
+      <div class="cmd-desc">Cambiar la prioridad de un proceso ya en ejecución sin reiniciarlo.</div>
+      <span class="cmd-ex">renice -n 10 -p $(pidof code)</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">ionice</div>
+      <div class="cmd-desc">Como nice pero para I/O de disco. Útil para backups que no deben afectar la velocidad del disco.</div>
+      <span class="cmd-ex">ionice -c 3 rsync -a src/ dst/</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">taskset</div>
+      <div class="cmd-desc">Fijar un proceso a núcleos de CPU específicos (CPU affinity). Útil para benchmarks o tiempo real.</div>
+      <span class="cmd-ex">taskset -c 0,1 ./programa</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- EJERCICIO -->
+<div class="ejercicio" id="ejercicio">
+  <div class="ej-hd">
+    ✏️ Ejercicio del Nivel 16
+    <span class="ej-badge">Diagnóstico</span>
+  </div>
+  <p>Practica la gestión de procesos en tu sistema:</p>
+  <ol>
+    <li><strong>Árbol de procesos:</strong> ejecuta <code>pstree -p | head -30</code>. ¿Puedes trazar el árbol desde systemd hasta tu terminal?</li>
+    <li><strong>ps:</strong> ejecuta <code>ps aux --sort=-%mem | head -8</code>. ¿Cuál es el proceso que más RAM consume? ¿Cuánto % usa?</li>
+    <li><strong>Estados:</strong> ejecuta <code>ps aux | awk '{print $8}' | sort | uniq -c | sort -rn</code>. ¿Cuántos procesos hay en cada estado (S, R, D, Z)?</li>
+    <li><strong>top:</strong> ejecuta <code>top</code>. Pulsa <code>1</code> para ver cada núcleo, <code>M</code> para ordenar por memoria, <code>q</code> para salir.</li>
+    <li><strong>Jobs:</strong> lanza <code>sleep 100 &</code>. Luego <code>sleep 200 &</code>. Ejecuta <code>jobs</code> — ¿ves los dos? Mata el primero con <code>kill %1</code>. Verifica con <code>jobs</code> de nuevo.</li>
+    <li><strong>Señales:</strong> lanza <code>sleep 1000</code> (sin &, en primer plano). Pulsa Ctrl+Z. ¿Qué estado tiene ahora? Escribe <code>bg</code> para pasarlo a background. Ahora <code>kill %1</code>.</li>
+    <li><strong>nice:</strong> ejecuta <code>nice -n 19 find / -name "*.log" 2>/dev/null > /tmp/logs.txt &</code>. Mientras corre, el sistema sigue respondiendo normal. ¿Por qué?</li>
+  </ol>
+  <p><strong>Reto de diagnóstico:</strong> Ejecuta <code>ps aux | grep -v grep | grep Z</code> — ¿tienes procesos zombie? Si sí, ¿cuál es su PPID y por qué el padre no los recolectó?</p>
+</div>
+
+<!-- RESUMEN -->
+<div class="resumen">
+  <h3>🟥 Resumen del Nivel 16</h3>
+  <ul>
+    <li>Un <strong>proceso</strong> es un programa en ejecución con PID único, espacio de memoria propio, estado y relación padre-hijo.</li>
+    <li>Estados: <strong>R</strong> (running), <strong>S</strong> (sleeping, normal), <strong>D</strong> (esperando I/O, preocupante si dura), <strong>Z</strong> (zombie), <strong>T</strong> (stopped).</li>
+    <li><code>ps aux</code> — snapshot de todos los procesos. <code>--sort=-%cpu</code> y <code>--sort=-%mem</code> para ordenar.</li>
+    <li><code>top</code> y <code>htop</code> — monitorización en tiempo real. <code>htop</code> es más amigable. <code>btop</code> es el más moderno.</li>
+    <li><strong>Señales</strong>: SIGTERM (15) termina amablemente, SIGKILL (9) mata inmediatamente sin posibilidad de captura, SIGHUP (1) recarga configuración.</li>
+    <li><code>kill PID</code>, <code>killall nombre</code>, <code>pkill patrón</code> — enviar señales. Siempre SIGTERM primero, SIGKILL solo como último recurso.</li>
+    <li><strong>Jobs</strong>: <code>comando &</code> en background, <code>Ctrl+Z</code> suspender, <code>fg</code> traer al frente, <code>bg</code> reanudar en background, <code>jobs</code> listar.</li>
+    <li><code>nohup comando &</code> — proceso que sobrevive al cerrar la terminal. <code>tmux</code> para sesiones persistentes.</li>
+    <li><strong>Nice</strong>: -20 (máxima prioridad) a +19 (mínima). <code>nice -n 19 cmd</code> para tareas pesadas que no deben molestar.</li>
+  </ul>
+</div>
+
+<a class="next-card" href="linux-nivel-17.html">
+  <div>
+    <div class="nc-label">Siguiente → Nivel 17</div>
+    <div class="nc-name">Arranque y servicios — UEFI, GRUB, kernel, initrd, systemd y logs con journalctl</div>
+  </div>
+  <div class="nc-arrow">→</div>
+</a>
+
+</main>
+
+<footer>
+  Linux desde Cero · Nivel 16 · Procesos · Café &lt;/&gt; · Hugo 2025
+</footer>
+
+<script>
+(function(){const s=localStorage.getItem('cafe-theme');const sys=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';const t=s||sys;document.documentElement.setAttribute('data-theme',t);updateUI(t);})();
+function toggleTheme(){const c=document.documentElement.getAttribute('data-theme');const n=c==='light'?'dark':'light';document.documentElement.setAttribute('data-theme',n);localStorage.setItem('cafe-theme',n);updateUI(n);}
+function updateUI(t){const i=document.getElementById('themeIcon');const l=document.getElementById('themeLabel');if(!i||!l)return;i.textContent=t==='dark'?'☀️':'🌙';l.textContent=t==='dark'?'Claro':'Oscuro';}
+</script>
+</body>
+</html>

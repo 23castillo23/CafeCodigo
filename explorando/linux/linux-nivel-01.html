@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux desde Cero · N1 · Sistema Operativo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ══════════════════════════════
+   MODO CLARO — colores del archivo de referencia
+══════════════════════════════ */
+:root, [data-theme="light"] {
+  --primary:         #c44a2a;
+  --primary-light:   #fdf0ec;
+  --primary-mid:     rgba(196,74,42,.25);
+  --secondary:       #1a7a5a;
+  --secondary-light: #edf7f3;
+  --accent:          #b07010;
+  --accent-light:    #fdf6e8;
+  --bg:              #f7f4ef;
+  --surface:         #ffffff;
+  --text:            #1a1814;
+  --muted:           #8a8480;
+  --border:          #e8e4de;
+  --code-bg:         #1a1814;
+  --code-text:       #e8e4de;
+  --header-bg:       #1a1814;
+  --analogy-bg:      #fff7ed;
+  --analogy-border:  #fde68a;
+  --analogy-text:    #78350f;
+  --analogy-head:    #92400e;
+  --diagram-bg:      #f0f4ff;
+  --diagram-border:  #c7d2fe;
+  --note-bg:         #f0f4ff;
+  --note-border:     #6366f1;
+  --note-head:       #4338ca;
+}
+
+/* ══════════════════════════════
+   MODO OSCURO
+══════════════════════════════ */
+[data-theme="dark"] {
+  --primary:         #ff7a57;
+  --primary-light:   rgba(255,122,87,.14);
+  --primary-mid:     rgba(255,122,87,.3);
+  --secondary:       #3ddc84;
+  --secondary-light: rgba(61,220,132,.12);
+  --accent:          #f0c040;
+  --accent-light:    rgba(240,192,64,.12);
+  --bg:              #0d1117;
+  --surface:         #161b22;
+  --text:            #c9d8f0;
+  --muted:           #5a7090;
+  --border:          #21262d;
+  --code-bg:         #060a10;
+  --code-text:       #c9d8f0;
+  --header-bg:       #0a0e14;
+  --analogy-bg:      rgba(240,192,64,.07);
+  --analogy-border:  rgba(240,192,64,.3);
+  --analogy-text:    #e6d4a0;
+  --analogy-head:    #f0c040;
+  --diagram-bg:      #161b22;
+  --diagram-border:  #21262d;
+  --note-bg:         rgba(99,102,241,.1);
+  --note-border:     #818cf8;
+  --note-head:       #818cf8;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.75;
+  font-size: 16px;
+  transition: background .25s, color .25s;
+}
+
+/* ══════════════════════════════
+   TOPBAR — exactamente como el archivo de referencia
+══════════════════════════════ */
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  position: sticky;
+  top: 0;
+  z-index: 300;
+  height: 45px;
+  transition: background .25s, border-color .25s;
+}
+.topbar-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--muted);
+  text-decoration: none;
+  padding: 5px 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  transition: all .15s;
+}
+.topbar-back:hover { color: var(--text); border-color: var(--muted); }
+.topbar-info { font-size: 13px; color: var(--muted); }
+.theme-btn {
+  margin-left: auto;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 13px;
+  font-size: 13px;
+  color: var(--muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  transition: all .15s;
+  font-family: 'DM Sans', sans-serif;
+}
+.theme-btn:hover { color: var(--text); border-color: var(--muted); }
+
+/* ══════════════════════════════
+   HEADER — centrado y limpio, exacto al archivo de referencia
+══════════════════════════════ */
+header {
+  background: var(--header-bg);
+  color: #f7f4ef;
+  padding: 3rem 2rem 2.25rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+header::before {
+  content: 'N01';
+  position: absolute;
+  font-family: 'DM Mono', monospace;
+  font-size: 11rem;
+  font-weight: 900;
+  color: rgba(255,255,255,.04);
+  right: -1rem;
+  top: -1.5rem;
+  line-height: 1;
+  pointer-events: none;
+}
+.header-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  background: rgba(196,74,42,.25);
+  border: 1px solid rgba(196,74,42,.45);
+  border-radius: 20px;
+  padding: 3px 14px;
+  font-size: .78rem;
+  font-weight: 700;
+  color: #ffaa88;
+  margin-bottom: .85rem;
+  letter-spacing: .04em;
+}
+header h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  letter-spacing: -1px;
+  color: #f7f4ef;
+  line-height: 1.2;
+}
+header h1 em { font-style: normal; color: #ff8a6a; }
+header p {
+  font-size: 1.05rem;
+  opacity: .8;
+  margin-top: .5rem;
+  max-width: 520px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.header-chips {
+  display: flex;
+  gap: .5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: .9rem;
+}
+.header-chip {
+  background: rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.22);
+  border-radius: 20px;
+  padding: 3px 13px;
+  font-size: .76rem;
+  color: rgba(255,255,255,.75);
+}
+
+/* ══════════════════════════════
+   BARRA DE NIVELES — misma estructura que partes-nav del ref
+══════════════════════════════ */
+.niveles-nav {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 45px;
+  z-index: 110;
+  display: flex;
+  align-items: center;
+  height: 38px;
+  padding: 0 1rem;
+  transition: background .25s;
+}
+.nn-prev, .nn-next {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+  padding: 0 .75rem;
+  height: 100%;
+  text-decoration: none;
+  color: var(--muted);
+  font-size: .78rem;
+  font-weight: 500;
+  border-right: 1px solid var(--border);
+  transition: color .15s;
+  white-space: nowrap;
+}
+.nn-next { border-right: none; border-left: 1px solid var(--border); }
+.nn-prev:hover, .nn-next:hover { color: var(--primary); }
+.nn-list {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .15rem;
+  overflow-x: auto;
+  padding: 0 .5rem;
+}
+.nn-list::-webkit-scrollbar { display: none; }
+.nn-list a {
+  flex-shrink: 0;
+  padding: 2px 9px;
+  border-radius: 20px;
+  text-decoration: none;
+  font-size: .73rem;
+  font-weight: 600;
+  color: var(--muted);
+  font-family: 'DM Mono', monospace;
+  transition: color .15s, background .15s;
+}
+.nn-list a:hover { color: var(--text); background: var(--bg); }
+.nn-list a.activa { background: var(--primary-light); color: var(--primary); }
+.nn-list .sep { color: var(--border); font-size: .7rem; padding: 0 1px; flex-shrink: 0; pointer-events: none; }
+
+/* ══════════════════════════════
+   SECCIÓN NAV — igual al nav del archivo de referencia
+══════════════════════════════ */
+.sec-nav {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 83px;
+  z-index: 100;
+  display: flex;
+  overflow-x: auto;
+  transition: background .25s;
+}
+.sec-nav::-webkit-scrollbar { display: none; }
+.sec-nav a {
+  flex-shrink: 0;
+  padding: .75rem 1.1rem;
+  text-decoration: none;
+  color: var(--muted);
+  font-size: .82rem;
+  font-weight: 500;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: color .2s, border-color .2s;
+}
+.sec-nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+/* ══════════════════════════════
+   MAIN
+══════════════════════════════ */
+main { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+.nivel-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  background: var(--primary);
+  color: white;
+  border-radius: 20px;
+  padding: 5px 16px;
+  font-size: .82rem;
+  font-weight: 700;
+  margin-bottom: 1.75rem;
+}
+
+/* ══════════════════════════════
+   MÓDULO — igual al del archivo de referencia
+══════════════════════════════ */
+.module {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2.5rem;
+  scroll-margin-top: 135px;
+  transition: background .25s, border-color .25s;
+}
+.module-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.module-icon { font-size: 1.8rem; flex-shrink: 0; }
+.module-title { font-size: 1.35rem; font-weight: 700; }
+.module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+.module h2 { font-size: 1.15rem; font-weight: 700; margin: 1.75rem 0 .75rem; }
+.module h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 .5rem; }
+.module p { margin-bottom: .85rem; font-size: .97rem; }
+.module ul, .module ol { padding-left: 1.4rem; margin-bottom: .85rem; }
+.module li { margin-bottom: .4rem; font-size: .96rem; }
+
+/* ══════════════════════════════
+   ANALOGÍA — exacta al archivo de referencia
+══════════════════════════════ */
+.analogy {
+  background: var(--analogy-bg);
+  border: 1px solid var(--analogy-border);
+  border-left: 4px solid var(--accent);
+  border-radius: 0 10px 10px 0;
+  padding: 1.1rem 1.25rem;
+  margin: 1.1rem 0;
+}
+.analogy h4 {
+  color: var(--analogy-head);
+  font-size: .78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin-bottom: .4rem;
+}
+.analogy p { font-size: .95rem; color: var(--analogy-text); margin: 0; }
+
+/* ══════════════════════════════
+   CALLOUTS — exactos al archivo de referencia
+══════════════════════════════ */
+.concept, .tip, .warn, .note {
+  border-radius: 0 10px 10px 0;
+  padding: 1.1rem 1.25rem;
+  margin: 1.1rem 0;
+  border-left-width: 4px;
+  border-left-style: solid;
+}
+.concept h4, .tip h4, .warn h4, .note h4 {
+  font-size: .78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin-bottom: .4rem;
+}
+.concept p, .tip p, .warn p, .note p { font-size: .95rem; margin: 0; }
+.tip ul { font-size: .95rem; padding-left: 1.2rem; margin-top: .3rem; }
+
+.concept { background: var(--primary-light); border-color: var(--primary); }
+.concept h4 { color: var(--primary); }
+.tip     { background: var(--secondary-light); border-color: var(--secondary); }
+.tip h4  { color: var(--secondary); }
+.warn    { background: var(--primary-light); border-color: var(--primary); }
+.warn h4 { color: var(--primary); }
+.note    { background: var(--note-bg); border-color: var(--note-border); }
+.note h4 { color: var(--note-head); }
+
+/* ══════════════════════════════
+   CÓDIGO — exacto al archivo de referencia
+══════════════════════════════ */
+.code-wrap { position: relative; margin: 1rem 0; }
+.code-block {
+  background: var(--code-bg);
+  color: var(--code-text);
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  font-family: 'DM Mono', monospace;
+  font-size: .88rem;
+  line-height: 1.85;
+  overflow-x: auto;
+  white-space: pre;
+}
+.lang-tag {
+  position: absolute;
+  top: .6rem;
+  right: .75rem;
+  background: rgba(255,255,255,.1);
+  color: rgba(255,255,255,.45);
+  font-size: .68rem;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-family: sans-serif;
+  font-weight: 700;
+}
+.ct { color: #89B4FA; }
+.ca { color: #CBA6F7; }
+.cv { color: #A6E3A1; }
+.cs { color: #F9E2AF; }
+.cc { color: #585B70; font-style: italic; }
+.cn { color: #FAB387; }
+
+/* ══════════════════════════════
+   TERMINAL
+══════════════════════════════ */
+.terminal {
+  background: #0a0e14;
+  border: 1px solid #21262d;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 1rem 0;
+}
+.term-bar {
+  background: #161b22;
+  padding: .42rem .85rem;
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+  border-bottom: 1px solid #21262d;
+}
+.dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.dot-r { background: #ff5f57; }
+.dot-y { background: #ffbd2e; }
+.dot-g { background: #28c840; }
+.term-label { font-family: 'DM Mono', monospace; font-size: .69rem; color: #3a5070; margin-left: .4rem; }
+.term-body {
+  padding: 1.1rem 1.3rem;
+  font-family: 'DM Mono', monospace;
+  font-size: .85rem;
+  line-height: 2.1;
+  color: #c9d8f0;
+}
+.t-p { color: #3ddc84; }
+.t-o { color: #5a7090; display: block; }
+.t-h { color: #253550; font-style: italic; display: block; }
+.t-ok { color: #3ddc84; }
+
+/* ══════════════════════════════
+   DIAGRAMA
+══════════════════════════════ */
+.diagram {
+  background: var(--diagram-bg);
+  border: 1px solid var(--diagram-border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin: 1.1rem 0;
+  font-family: 'DM Mono', monospace;
+  font-size: .87rem;
+  line-height: 2;
+  overflow-x: auto;
+  transition: background .25s, border-color .25s;
+}
+.d-r { color: var(--primary); font-weight: 700; }
+.d-g { color: var(--secondary); font-weight: 700; }
+.d-y { color: var(--accent); font-weight: 700; }
+.d-b { color: #6366f1; font-weight: 700; }
+.d-m { color: var(--muted); font-style: italic; }
+
+/* ══════════════════════════════
+   GRID DE CONCEPTOS
+══════════════════════════════ */
+.concept-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+  margin: 1rem 0;
+}
+.concept-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.1rem;
+  transition: background .25s, border-color .25s;
+}
+.cc-icon { font-size: 1.5rem; margin-bottom: .4rem; }
+.cc-name { font-family: 'DM Mono', monospace; font-size: .8rem; font-weight: 700; color: var(--primary); margin-bottom: .3rem; }
+.cc-desc { font-size: .85rem; color: var(--muted); line-height: 1.55; }
+
+/* ══════════════════════════════
+   TABLA
+══════════════════════════════ */
+.tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+.tbl th {
+  background: var(--primary-light);
+  color: var(--primary);
+  padding: .65rem 1rem;
+  text-align: left;
+  font-weight: 600;
+}
+.tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+.tbl td:first-child { font-family: 'DM Mono', monospace; font-size: .85rem; color: var(--primary); font-weight: 600; }
+.tbl tr:hover td { background: var(--bg); }
+.tag {
+  display: inline-block;
+  background: var(--primary-light);
+  color: var(--primary);
+  font-family: 'DM Mono', monospace;
+  font-size: .82rem;
+  padding: 1px 7px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+/* ══════════════════════════════
+   STACK DE CAPAS
+══════════════════════════════ */
+.stack { display: flex; flex-direction: column; gap: 4px; margin: 1.1rem 0; max-width: 480px; }
+.stack-layer {
+  border-radius: 9px;
+  padding: .7rem 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  font-size: .9rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+  cursor: default;
+  transition: transform .15s;
+}
+.stack-layer:hover { transform: translateX(5px); }
+.sl-icon { font-size: 1.1rem; flex-shrink: 0; }
+.sl-name { flex: 1; }
+.sl-tag { font-family: 'DM Mono', monospace; font-size: .65rem; font-weight: 700; padding: 2px 7px; border-radius: 4px; opacity: .8; }
+.sl-u { background: var(--secondary-light); border-color: rgba(26,122,90,.3); color: var(--secondary); }
+.sl-u .sl-tag { background: rgba(26,122,90,.15); }
+.sl-a { background: var(--note-bg); border-color: rgba(99,102,241,.25); color: #6366f1; }
+.sl-a .sl-tag { background: rgba(99,102,241,.15); }
+.sl-s { background: var(--primary-light); border-color: rgba(196,74,42,.25); color: var(--primary); }
+.sl-s .sl-tag { background: rgba(196,74,42,.15); }
+.sl-h { background: var(--accent-light); border-color: rgba(176,112,16,.25); color: var(--accent); }
+.sl-h .sl-tag { background: rgba(176,112,16,.15); }
+.stack-sep { text-align: center; font-size: .8rem; color: var(--muted); font-family: 'DM Mono', monospace; }
+
+/* ══════════════════════════════
+   SECUENCIA DE ARRANQUE
+══════════════════════════════ */
+.boot-seq { display: flex; flex-direction: column; gap: 0; margin: 1.1rem 0; position: relative; }
+.boot-seq::before {
+  content: '';
+  position: absolute;
+  left: 21px;
+  top: 30px;
+  bottom: 30px;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--border), var(--primary-mid), var(--border));
+}
+.boot-step { display: flex; align-items: flex-start; gap: 1rem; padding: .5rem 0; }
+.bs-num {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--surface); border: 2px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'DM Mono', monospace; font-size: .8rem; font-weight: 700;
+  color: var(--primary); flex-shrink: 0; z-index: 1;
+  transition: background .25s, border-color .25s;
+}
+.bs-body { flex: 1; padding-top: .55rem; }
+.bs-name { font-weight: 700; font-size: .95rem; margin-bottom: .2rem; }
+.bs-desc { font-size: .85rem; color: var(--muted); }
+
+/* ══════════════════════════════
+   EJERCICIO — igual al archivo de referencia (.ex)
+══════════════════════════════ */
+.ejercicio {
+  background: #FFFBEB;
+  border: 1px solid #FDE68A;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+}
+[data-theme="dark"] .ejercicio {
+  background: rgba(240,192,64,.06);
+  border-color: rgba(240,192,64,.22);
+}
+.ej-hd {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  margin-bottom: 1rem;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #78350F;
+  flex-wrap: wrap;
+}
+[data-theme="dark"] .ej-hd { color: #f0c040; }
+.ej-badge {
+  background: var(--accent);
+  color: #fff;
+  font-size: .68rem;
+  padding: 2px 9px;
+  border-radius: 20px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.ejercicio ol { padding-left: 1.4rem; }
+.ejercicio ol li { margin-bottom: .6rem; font-size: .95rem; }
+.ejercicio p { font-size: .95rem; margin-bottom: .6rem; }
+
+/* ══════════════════════════════
+   RESUMEN Y SIGUIENTE
+══════════════════════════════ */
+.resumen {
+  background: var(--primary-light);
+  border: 1px solid var(--primary-mid);
+  border-radius: 14px;
+  padding: 1.6rem;
+  margin-bottom: 1.5rem;
+}
+.resumen h3 { color: var(--primary); margin-bottom: .75rem; font-size: 1.05rem; }
+.resumen ul { padding-left: 1.4rem; }
+.resumen li { font-size: .92rem; margin-bottom: .45rem; }
+
+.next-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  text-decoration: none;
+  transition: border-color .2s, background .2s;
+  margin-bottom: 2rem;
+}
+.next-card:hover { border-color: var(--primary); }
+.nc-label { font-size: .72rem; color: var(--muted); font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .2rem; }
+.nc-name { font-weight: 700; color: var(--text); font-size: .97rem; }
+.nc-arrow { font-size: 1.4rem; color: var(--primary); margin-left: auto; }
+
+/* ══════════════════════════════
+   UTILITARIOS
+══════════════════════════════ */
+code {
+  font-family: 'DM Mono', monospace;
+  background: #f0ece6;
+  color: var(--primary);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: .9em;
+}
+[data-theme="dark"] code { background: #1c2128; }
+strong { font-weight: 700; }
+p { margin-bottom: .8rem; }
+ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+li { margin-bottom: .4rem; font-size: .96rem; }
+h2 { font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; }
+h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 .5rem; }
+
+footer {
+  text-align: center;
+  padding: 2rem;
+  color: var(--muted);
+  font-size: .85rem;
+  border-top: 1px solid var(--border);
+  margin-top: 1rem;
+  background: var(--bg);
+  transition: background .25s;
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <a class="topbar-back" href="../index.html">← Café &lt;/&gt;</a>
+  <span class="topbar-info">🐧 Linux desde Cero · Nivel 1 de 23</span>
+  <button class="theme-btn" onclick="toggleTheme()">
+    <span id="themeIcon">🌙</span>
+    <span id="themeLabel">Oscuro</span>
+  </button>
+</div>
+
+<!-- HEADER — centrado y limpio como el archivo de referencia -->
+<header>
+  <div class="header-eyebrow">🌱 Nivel 1 — Conceptos base</div>
+  <h1>El <em>Sistema Operativo</em><br>— el jefe de la computadora</h1>
+  <p>Software, hardware y cómo encajan. La base que explica todo lo demás.</p>
+  <div class="header-chips">
+    <span class="header-chip">Nivel 1 de 23</span>
+    <span class="header-chip">🌱 Principiante</span>
+    <span class="header-chip">6 subtemas</span>
+    <span class="header-chip">~20 min</span>
+  </div>
+</header>
+
+<!-- BARRA DE NIVELES -->
+<div class="niveles-nav">
+  <a class="nn-prev" href="#">← </a>
+  <div class="nn-list">
+    <a href="linux-nivel-01.html" class="activa" title="Sistema Operativo">N1</a>
+    <a href="linux-nivel-02.html" title="¿Qué es Linux?">N2</a>
+    <a href="linux-nivel-03.html" title="GNU">N3</a>
+    <a href="linux-nivel-04.html" title="Distribuciones">N4</a>
+    <a href="linux-nivel-05.html" title="Instalar Linux">N5</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-06.html" title="Familia Debian">N6</a>
+    <a href="linux-nivel-07.html" title="Familia Red Hat">N7</a>
+    <a href="linux-nivel-08.html" title="Otras familias">N8</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-09.html" title="Capas de Linux">N9</a>
+    <a href="linux-nivel-10.html" title="Escritorio">N10</a>
+    <a href="linux-nivel-11.html" title="X11 y Wayland">N11</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-12.html" title="Terminal">N12</a>
+    <a href="linux-nivel-13.html" title="Sistema de archivos">N13</a>
+    <a href="linux-nivel-14.html" title="Usuarios y permisos">N14</a>
+    <a href="linux-nivel-15.html" title="Software">N15</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-16.html" title="Procesos">N16</a>
+    <a href="linux-nivel-17.html" title="Arranque">N17</a>
+    <a href="linux-nivel-18.html" title="Almacenamiento">N18</a>
+    <a href="linux-nivel-19.html" title="CPU y RAM">N19</a>
+    <a href="linux-nivel-20.html" title="Redes">N20</a>
+    <a href="linux-nivel-21.html" title="Seguridad">N21</a>
+    <a href="linux-nivel-22.html" title="Linux internamente">N22</a>
+    <a href="linux-nivel-23.html" title="Programar y crear">N23</a>
+  </div>
+  <a class="nn-next" href="linux-nivel-02.html">N2 →</a>
+</div>
+
+<!-- SECCIÓN NAV -->
+<nav class="sec-nav">
+  <a href="#software">💾 Software</a>
+  <a href="#hardware">🔧 Hardware</a>
+  <a href="#so">🎯 Sistema Operativo</a>
+  <a href="#comparativa">⚖️ Comparativa</a>
+  <a href="#encendido">⚡ Al encender</a>
+  <a href="#ejercicio">✏️ Ejercicio</a>
+</nav>
+
+<main>
+<div class="nivel-badge">🌱 Nivel 1 — Sistema Operativo</div>
+
+
+<!-- ═══════════════════════════════
+     SOFTWARE
+═══════════════════════════════ -->
+<section class="module" id="software">
+  <div class="module-header">
+    <div class="module-icon">💾</div>
+    <div>
+      <div class="module-title">¿Qué es el software?</div>
+      <div class="module-sub">Las instrucciones que le dicen a la computadora qué hacer</div>
+    </div>
+  </div>
+
+  <p>El <strong>software</strong> son instrucciones almacenadas que la CPU ejecuta. No tiene forma física — no lo puedes tocar. Es código, lógica, reglas. Sin software, el hardware más potente del mundo no hace absolutamente nada útil.</p>
+
+  <div class="analogy">
+    <h4>🎵 Analogía — Las partituras de una orquesta</h4>
+    <p>Imagina una orquesta filarmónica. Los músicos (hardware) saben tocar sus instrumentos, pero sin las <strong>partituras</strong> (software) no saben qué tocar ni cuándo. El software son exactamente esas instrucciones escritas: le dice a cada parte de la computadora qué hacer, en qué orden y cómo.</p>
+  </div>
+
+  <h2>Los 4 tipos de software</h2>
+
+  <div class="concept-grid">
+    <div class="concept-card">
+      <div class="cc-icon">📱</div>
+      <div class="cc-name">Aplicaciones</div>
+      <div class="cc-desc">Lo que el usuario usa directamente: Chrome, VS Code, Spotify. Hacen algo útil para una persona.</div>
+    </div>
+    <div class="concept-card">
+      <div class="cc-icon">⚙️</div>
+      <div class="cc-name">Software de sistema</div>
+      <div class="cc-desc">Hace funcionar todo lo demás: el sistema operativo, las utilidades del sistema, gestores de archivos.</div>
+    </div>
+    <div class="concept-card">
+      <div class="cc-icon">🔌</div>
+      <div class="cc-name">Drivers</div>
+      <div class="cc-desc">Traducen entre el SO y un dispositivo concreto. Sin el driver correcto, la GPU o el audio no responden.</div>
+    </div>
+    <div class="concept-card">
+      <div class="cc-icon">🔒</div>
+      <div class="cc-name">Firmware</div>
+      <div class="cc-desc">Software grabado dentro del hardware. La BIOS/UEFI, el firmware de tu router. El nivel más bajo posible.</div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>💡 Para recordar</h4>
+    <p>El software existe en capas — cada capa usa la de abajo y sirve a la de arriba. Las aplicaciones usan el SO. El SO usa los drivers. Los drivers usan el firmware. Esta idea de capas es fundamental para entender Linux.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════
+     HARDWARE
+═══════════════════════════════ -->
+<section class="module" id="hardware">
+  <div class="module-header">
+    <div class="module-icon">🔧</div>
+    <div>
+      <div class="module-title">¿Qué es el hardware?</div>
+      <div class="module-sub">Los componentes físicos que ejecutan el software</div>
+    </div>
+  </div>
+
+  <p>El <strong>hardware</strong> es todo lo físico de la computadora — los circuitos, chips y dispositivos que puedes tocar. El hardware por sí solo no hace nada útil: necesita software que le diga qué hacer con su energía y capacidades.</p>
+
+  <div class="analogy">
+    <h4>🎸 Analogía — Los instrumentos musicales</h4>
+    <p>El hardware son los instrumentos: el violín, el piano, la batería. Son físicos, los puedes ver y tocar. Pero sin las partituras (software), un violín solo hace ruido sin sentido. Necesitas ambos — la capacidad física Y las instrucciones — para que haya música real.</p>
+  </div>
+
+  <div class="diagram">
+<span class="d-y">CPU</span>  — El cerebro. Ejecuta miles de millones de instrucciones por segundo.
+    Tiene núcleos (cores). Más núcleos = más tareas en paralelo.
+
+<span class="d-b">RAM</span>  — La mesa de trabajo. Rápida pero temporal.
+    Todo lo que usas ahora mismo vive en RAM. Se borra al apagar.
+
+<span class="d-g">Disco</span> — El archivero permanente.
+    SSD (rápido, silencioso) o HDD (más lento, magnético). Persiste.
+
+<span class="d-r">GPU</span>  — La tarjeta gráfica. Procesa imágenes, video y gráficos 3D.
+    Miles de núcleos pequeños. También usada para IA.
+
+<span class="d-m">MB</span>   — La motherboard. El tablero que conecta y alimenta todo.
+    CPU, RAM, disco, GPU, USB — todo se conecta aquí.</div>
+
+  <div class="tip">
+    <h4>🟢 Relevancia para Linux</h4>
+    <p>Linux tiene que hablarle a <em>todo</em> ese hardware. Lo hace a través de <strong>drivers</strong> dentro del kernel. Si un dispositivo no funciona en Linux, casi siempre es un problema de driver faltante. Entender hardware te ayuda a diagnosticar esos problemas.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════
+     SISTEMA OPERATIVO
+═══════════════════════════════ -->
+<section class="module" id="so">
+  <div class="module-header">
+    <div class="module-icon">🎯</div>
+    <div>
+      <div class="module-title">¿Qué es un Sistema Operativo?</div>
+      <div class="module-sub">El intermediario entre el hardware y tus aplicaciones</div>
+    </div>
+  </div>
+
+  <p>El <strong>sistema operativo</strong> (SO) es el software que actúa como intermediario entre el hardware y las aplicaciones. Sin él, cada programa tendría que saber exactamente cómo hablarle al disco, a la red, a la CPU — una tarea imposible de gestionar. El SO lo resuelve todo.</p>
+
+  <div class="analogy">
+    <h4>🎼 Analogía — El director de orquesta</h4>
+    <p>El sistema operativo es el <strong>director de orquesta</strong>. Los músicos (aplicaciones) no se comunican entre sí directamente, ni tocan cuando quieren — todo pasa por el director. Él decide quién toca cuándo, gestiona los recursos compartidos y mantiene la armonía. Sin director: caos absoluto.</p>
+  </div>
+
+  <h2>Las capas del sistema — cómo se organizan</h2>
+
+  <div class="stack">
+    <div class="stack-layer sl-u">
+      <div class="sl-icon">👤</div>
+      <div class="sl-name">Usuario</div>
+      <div class="sl-tag">Tú</div>
+    </div>
+    <div class="stack-sep">↕ usa</div>
+    <div class="stack-layer sl-a">
+      <div class="sl-icon">📱</div>
+      <div class="sl-name">Aplicaciones — Chrome, VS Code, Spotify…</div>
+      <div class="sl-tag">Software</div>
+    </div>
+    <div class="stack-sep">↕ pide recursos al</div>
+    <div class="stack-layer sl-s">
+      <div class="sl-icon">🎯</div>
+      <div class="sl-name">Sistema Operativo — Linux / Windows / macOS</div>
+      <div class="sl-tag">Kernel + SO</div>
+    </div>
+    <div class="stack-sep">↕ controla</div>
+    <div class="stack-layer sl-h">
+      <div class="sl-icon">🔧</div>
+      <div class="sl-name">Hardware — CPU, RAM, Disco, Red…</div>
+      <div class="sl-tag">Físico</div>
+    </div>
+  </div>
+
+  <h2>Las 5 funciones del sistema operativo</h2>
+
+  <table class="tbl">
+    <thead>
+      <tr><th>Función</th><th>Qué hace exactamente</th><th>Ejemplo práctico</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Gestión de procesos</td><td>Decide qué programa usa la CPU en cada instante</td><td>Chrome y VS Code corriendo "a la vez"</td></tr>
+      <tr><td>Gestión de memoria</td><td>Asigna RAM a cada programa y la recupera al cerrarlos</td><td>Que una app no lea la RAM de otra</td></tr>
+      <tr><td>Gestión de archivos</td><td>Organiza el disco en carpetas, archivos y permisos</td><td>Que puedas guardar y abrir documentos</td></tr>
+      <tr><td>Gestión de dispositivos</td><td>Se comunica con el hardware mediante drivers</td><td>Que el audio, la red y el teclado funcionen</td></tr>
+      <tr><td>Seguridad</td><td>Controla quién puede hacer qué en el sistema</td><td>Que una app no borre archivos del sistema</td></tr>
+    </tbody>
+  </table>
+
+  <h2>SO vs Aplicación — la diferencia clave</h2>
+
+  <div class="note">
+    <h4>📌 Distinción importante</h4>
+    <p>El <strong>SO gestiona recursos</strong> y habla con el hardware. Una <strong>aplicación usa esos recursos</strong> para hacer algo útil. Chrome le pide al SO que abra conexiones de red, muestre ventanas y lea archivos del caché. El SO hace el trabajo sucio — Chrome solo sabe pedir.</p>
+  </div>
+
+  <div class="code-wrap">
+    <div class="code-block"><span class="cc"># Así trabaja el SO cuando Chrome abre Google:</span>
+
+<span class="ct">Chrome</span>  →  "SO, dame acceso a la red para conectarme a google.com"
+<span class="cs">SO</span>      →  revisa permisos → habla con el driver de red → abre socket TCP
+<span class="cs">SO</span>      →  "Chrome, aquí tienes tu conexión"
+
+<span class="ct">Spotify</span> →  "SO, reproduce audio por los altavoces"
+<span class="cs">SO</span>      →  habla con driver de audio → manda señal a la tarjeta de sonido
+
+<span class="ct">VS Code</span> →  "SO, abre el archivo /home/hugo/proyecto/index.html"
+<span class="cs">SO</span>      →  consulta sistema de archivos → lee bloques del disco → devuelve bytes</div>
+    <div class="lang-tag">CONCEPTO</div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════
+     COMPARATIVA
+═══════════════════════════════ -->
+<section class="module" id="comparativa">
+  <div class="module-header">
+    <div class="module-icon">⚖️</div>
+    <div>
+      <div class="module-title">Windows, macOS y Linux</div>
+      <div class="module-sub">Tres sistemas operativos, tres filosofías completamente distintas</div>
+    </div>
+  </div>
+
+  <p>Los tres hacen lo mismo en esencia — gestionar hardware y correr aplicaciones. La diferencia está en la <strong>filosofía, el control que te dan y dónde se usan</strong> en el mundo real.</p>
+
+  <div class="analogy">
+    <h4>🚗 Analogía — Tres tipos de vehículo</h4>
+    <p><strong>Windows</strong> es un coche automático de concesionario: cómodo y funciona bien, pero si falla algo en el motor no puedes tocarlo — llamas al técnico. <strong>macOS</strong> es un coche de lujo sellado herméticamente — muy pulido, pero solo funciona con sus propias piezas y reglas. <strong>Linux</strong> es un kit mecánico abierto: puedes desmontarlo, modificarlo y adaptarlo a cualquier necesidad — pero necesitas aprender mecánica.</p>
+  </div>
+
+  <table class="tbl">
+    <thead>
+      <tr><th>Aspecto</th><th>Windows</th><th>macOS</th><th>Linux</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Creador</td><td>Microsoft</td><td>Apple</td><td>Comunidad mundial</td></tr>
+      <tr><td>Código fuente</td><td>Cerrado / privado</td><td>Cerrado / privado</td><td>Abierto y público</td></tr>
+      <tr><td>Costo</td><td>De pago (licencia)</td><td>Gratis, requiere Mac</td><td>100% gratuito</td></tr>
+      <tr><td>Control del usuario</td><td>Limitado</td><td>Limitado</td><td>Total — cambias todo</td></tr>
+      <tr><td>Dónde domina</td><td>Escritorio empresarial</td><td>Creativos y devs</td><td>Servidores y nube</td></tr>
+      <tr><td>Hardware</td><td>Cualquier x86/x64</td><td>Solo hardware Apple</td><td>Prácticamente cualquiera</td></tr>
+      <tr><td>Personalización</td><td>Baja</td><td>Media</td><td>Ilimitada</td></tr>
+    </tbody>
+  </table>
+
+  <div class="tip">
+    <h4>🟢 ¿Por qué aprender Linux aunque uses Windows?</h4>
+    <ul>
+      <li>El <strong>~90% de los servidores web</strong> del mundo corren Linux</li>
+      <li>Toda la <strong>nube</strong> — AWS, GCP, Azure — usa Linux por defecto</li>
+      <li><strong>Android</strong> está basado en el kernel de Linux</li>
+      <li>La mayoría de herramientas de desarrollo modernas son primero Linux</li>
+      <li>Entender Linux te hace mejor desarrollador en cualquier plataforma</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════
+     AL ENCENDER
+═══════════════════════════════ -->
+<section class="module" id="encendido">
+  <div class="module-header">
+    <div class="module-icon">⚡</div>
+    <div>
+      <div class="module-title">¿Qué ocurre cuando enciendes Linux?</div>
+      <div class="module-sub">6 pasos que convierten corriente eléctrica en un escritorio funcional</div>
+    </div>
+  </div>
+
+  <p>Presionas el botón y en segundos tienes un escritorio listo. Detrás hay una secuencia de pasos muy precisa. Entenderla te dará el mapa mental para diagnosticar casi cualquier problema de arranque más adelante.</p>
+
+  <div class="analogy">
+    <h4>🏨 Analogía — Abrir un hotel por la mañana</h4>
+    <p>Encender Linux es como abrir un hotel: primero el guardia verifica que el edificio está intacto (UEFI), luego el gerente abre las puertas principales (bootloader), después el director de operaciones organiza al personal (kernel), el jefe de servicios asigna tareas a cada departamento (systemd) y finalmente el recepcionista recibe a los huéspedes (pantalla de login). Cada paso depende del anterior.</p>
+  </div>
+
+  <div class="boot-seq">
+    <div class="boot-step">
+      <div class="bs-num">1</div>
+      <div class="bs-body">
+        <div class="bs-name">⚡ Energía eléctrica</div>
+        <div class="bs-desc">Presionas el botón. La fuente de poder convierte la corriente al voltaje exacto que necesitan la CPU, RAM y disco. La CPU despierta.</div>
+      </div>
+    </div>
+    <div class="boot-step">
+      <div class="bs-num">2</div>
+      <div class="bs-body">
+        <div class="bs-name">🔒 UEFI / BIOS — Firmware</div>
+        <div class="bs-desc">El primer software corre desde un chip en la placa base. Verifica que el hardware funcione (CPU, RAM, disco) y busca dónde está el sistema operativo instalado.</div>
+      </div>
+    </div>
+    <div class="boot-step">
+      <div class="bs-num">3</div>
+      <div class="bs-body">
+        <div class="bs-name">📀 Bootloader — GRUB en Linux</div>
+        <div class="bs-desc">El UEFI carga el bootloader desde el disco. GRUB muestra el menú de arranque y carga el kernel de Linux en la RAM. Es el "lanzador" del sistema operativo.</div>
+      </div>
+    </div>
+    <div class="boot-step">
+      <div class="bs-num">4</div>
+      <div class="bs-body">
+        <div class="bs-name">🐧 Kernel de Linux</div>
+        <div class="bs-desc">El kernel arranca: detecta todo el hardware, carga los drivers necesarios, monta el sistema de archivos raíz (/). Es el momento en que Linux toma control total de la máquina.</div>
+      </div>
+    </div>
+    <div class="boot-step">
+      <div class="bs-num">5</div>
+      <div class="bs-body">
+        <div class="bs-name">⚙️ systemd — PID 1</div>
+        <div class="bs-desc">El primer proceso que lanza el kernel. Arranca todos los servicios del sistema en paralelo — red, audio, impresoras, pantalla. Es el gerente de operaciones de Linux.</div>
+      </div>
+    </div>
+    <div class="boot-step">
+      <div class="bs-num">6</div>
+      <div class="bs-body">
+        <div class="bs-name">🖥️ Login y Escritorio</div>
+        <div class="bs-desc">systemd lanza el gestor de pantalla (GDM en GNOME). Escribes tu contraseña y se carga el entorno de escritorio completo. Ya puedes trabajar.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">lo que ves al arrancar Linux — simplificado</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># GRUB muestra el menú de selección...</span>
+<span class="t-o">  GNU GRUB version 2.12</span>
+<span class="t-o">  ┌──────────────────────────────────┐</span>
+<span class="t-o">  │* Ubuntu 24.04 LTS                │</span>
+<span class="t-o">  │  Ubuntu 24.04 (modo recuperación)│</span>
+<span class="t-o">  └──────────────────────────────────┘</span>
+
+<span class="t-h"># El kernel arranca y detecta hardware...</span>
+<span class="t-o">[    0.000000] Linux version 6.8.0-45-generic</span>
+<span class="t-o">[    0.312455] ACPI: enabled</span>
+<span class="t-o">[    0.891234] EXT4-fs (sda2): mounted filesystem</span>
+
+<span class="t-h"># systemd levanta todos los servicios...</span>
+<span class="t-o">[  <span class="t-ok">OK</span>  ] Started Network Manager.</span>
+<span class="t-o">[  <span class="t-ok">OK</span>  ] Started PulseAudio Sound System.</span>
+<span class="t-o">[  <span class="t-ok">OK</span>  ] Reached target Graphical Interface.</span>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Por qué importa este mapa desde ahora</h4>
+    <p>Cada uno de estos 6 pasos tiene su propio nivel más adelante en la guía. Cuando Linux no arranque, sabrás exactamente dónde buscar: ¿el GRUB no carga? ¿el kernel se cuelga? ¿un servicio de systemd falla? Este mapa mental te salvará muchas veces.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════
+     EJERCICIO
+═══════════════════════════════ -->
+<div class="ejercicio" id="ejercicio">
+  <div class="ej-hd">
+    ✏️ Ejercicio del Nivel 1
+    <span class="ej-badge">Reflexión</span>
+  </div>
+  <p>No necesitas Linux todavía. Este ejercicio es de observación y comprensión:</p>
+  <ol>
+    <li>Mira tu pantalla ahora mismo. ¿Qué es <strong>software</strong> (lo que ves) y qué es <strong>hardware</strong> (lo que puedes tocar)?</li>
+    <li>Abre el administrador de tareas de tu SO actual (<code>Ctrl+Shift+Esc</code> en Windows, Activity Monitor en macOS). ¿Cuántos procesos hay corriendo aunque no tengas nada abierto?</li>
+    <li>Piensa en una app que usas a diario. ¿Qué hardware necesita para funcionar? (¿Red? ¿Disco? ¿CPU? ¿Audio? ¿GPU?)</li>
+    <li>La próxima vez que enciendas tu computadora, observa. ¿Puedes identificar alguno de los 6 pasos del arranque?</li>
+    <li>Busca en Google <strong>"Linux server market share 2025"</strong>. ¿Cuánto del internet corre sobre Linux?</li>
+  </ol>
+  <p><strong>Bonus:</strong> ¿En qué momento exacto del arranque crees que el sistema operativo "toma control" del hardware?</p>
+</div>
+
+
+<!-- RESUMEN -->
+<div class="resumen">
+  <h3>🟥 Resumen del Nivel 1</h3>
+  <ul>
+    <li><strong>Software</strong> = instrucciones. <strong>Hardware</strong> = componentes físicos. Se necesitan mutuamente — sin los dos no hay nada.</li>
+    <li>El <strong>Sistema Operativo</strong> es el intermediario que gestiona procesos, memoria, archivos y dispositivos.</li>
+    <li>Sin SO, cada app tendría que hablarle directamente al hardware — imposible de gestionar.</li>
+    <li>Linux, Windows y macOS hacen lo mismo, pero con filosofías distintas. Linux domina servidores y la nube.</li>
+    <li>Al encender: <strong>UEFI → GRUB → Kernel → systemd → Escritorio</strong>. Cada paso depende del anterior.</li>
+    <li>Linux es gratuito, de código abierto y da control total. La contrapartida: hay que aprender cómo funciona.</li>
+  </ul>
+</div>
+
+<!-- SIGUIENTE -->
+<a class="next-card" href="linux-nivel-02.html">
+  <div>
+    <div class="nc-label">Siguiente → Nivel 2</div>
+    <div class="nc-name">¿Qué es Linux exactamente? — El kernel, el proyecto, versiones y GNU/Linux</div>
+  </div>
+  <div class="nc-arrow">→</div>
+</a>
+
+</main>
+
+<footer>
+  Linux desde Cero · Nivel 1 · Sistema Operativo · Café &lt;/&gt; · Hugo 2025
+</footer>
+
+<script>
+(function() {
+  const saved = localStorage.getItem('cafe-theme');
+  const sys = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  const theme = saved || sys;
+  document.documentElement.setAttribute('data-theme', theme);
+  updateUI(theme);
+})();
+
+function toggleTheme() {
+  const cur = document.documentElement.getAttribute('data-theme');
+  const next = cur === 'light' ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('cafe-theme', next);
+  updateUI(next);
+}
+
+function updateUI(theme) {
+  const icon = document.getElementById('themeIcon');
+  const label = document.getElementById('themeLabel');
+  if (!icon || !label) return;
+  icon.textContent  = theme === 'dark' ? '☀️' : '🌙';
+  label.textContent = theme === 'dark' ? 'Claro' : 'Oscuro';
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux desde Cero · N2 · ¿Qué es Linux?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root, [data-theme="light"] {
+  --primary:         #c44a2a;
+  --primary-light:   #fdf0ec;
+  --primary-mid:     rgba(196,74,42,.25);
+  --secondary:       #1a7a5a;
+  --secondary-light: #edf7f3;
+  --accent:          #b07010;
+  --accent-light:    #fdf6e8;
+  --bg:              #f7f4ef;
+  --surface:         #ffffff;
+  --text:            #1a1814;
+  --muted:           #8a8480;
+  --border:          #e8e4de;
+  --code-bg:         #1a1814;
+  --code-text:       #e8e4de;
+  --header-bg:       #1a1814;
+  --analogy-bg:      #fff7ed;
+  --analogy-border:  #fde68a;
+  --analogy-text:    #78350f;
+  --analogy-head:    #92400e;
+  --diagram-bg:      #f0f4ff;
+  --diagram-border:  #c7d2fe;
+  --note-bg:         #f0f4ff;
+  --note-border:     #6366f1;
+  --note-head:       #4338ca;
+}
+
+[data-theme="dark"] {
+  --primary:         #ff7a57;
+  --primary-light:   rgba(255,122,87,.14);
+  --primary-mid:     rgba(255,122,87,.3);
+  --secondary:       #3ddc84;
+  --secondary-light: rgba(61,220,132,.12);
+  --accent:          #f0c040;
+  --accent-light:    rgba(240,192,64,.12);
+  --bg:              #0d1117;
+  --surface:         #161b22;
+  --text:            #c9d8f0;
+  --muted:           #5a7090;
+  --border:          #21262d;
+  --code-bg:         #060a10;
+  --code-text:       #c9d8f0;
+  --header-bg:       #0a0e14;
+  --analogy-bg:      rgba(240,192,64,.07);
+  --analogy-border:  rgba(240,192,64,.3);
+  --analogy-text:    #e6d4a0;
+  --analogy-head:    #f0c040;
+  --diagram-bg:      #161b22;
+  --diagram-border:  #21262d;
+  --note-bg:         rgba(99,102,241,.1);
+  --note-border:     #818cf8;
+  --note-head:       #818cf8;
+}
+
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); line-height: 1.75; font-size: 16px; transition: background .25s, color .25s; }
+
+/* TOPBAR */
+.topbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; gap: 14px; position: sticky; top: 0; z-index: 300; height: 45px; transition: background .25s, border-color .25s; }
+.topbar-back { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); text-decoration: none; padding: 5px 14px; border: 1px solid var(--border); border-radius: 999px; transition: all .15s; }
+.topbar-back:hover { color: var(--text); border-color: var(--muted); }
+.topbar-info { font-size: 13px; color: var(--muted); }
+.theme-btn { margin-left: auto; background: none; border: 1px solid var(--border); border-radius: 999px; padding: 4px 13px; font-size: 13px; color: var(--muted); cursor: pointer; display: flex; align-items: center; gap: .35rem; transition: all .15s; font-family: 'DM Sans', sans-serif; }
+.theme-btn:hover { color: var(--text); border-color: var(--muted); }
+
+/* HEADER */
+header { background: var(--header-bg); color: #f7f4ef; padding: 3rem 2rem 2.25rem; text-align: center; position: relative; overflow: hidden; }
+header::before { content: 'N02'; position: absolute; font-family: 'DM Mono', monospace; font-size: 11rem; font-weight: 900; color: rgba(255,255,255,.04); right: -1rem; top: -1.5rem; line-height: 1; pointer-events: none; }
+.header-eyebrow { display: inline-flex; align-items: center; gap: .5rem; background: rgba(196,74,42,.25); border: 1px solid rgba(196,74,42,.45); border-radius: 20px; padding: 3px 14px; font-size: .78rem; font-weight: 700; color: #ffaa88; margin-bottom: .85rem; letter-spacing: .04em; }
+header h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; color: #f7f4ef; line-height: 1.2; }
+header h1 em { font-style: normal; color: #ff8a6a; }
+header p { font-size: 1.05rem; opacity: .8; margin-top: .5rem; max-width: 520px; margin-left: auto; margin-right: auto; }
+.header-chips { display: flex; gap: .5rem; justify-content: center; flex-wrap: wrap; margin-top: .9rem; }
+.header-chip { background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.22); border-radius: 20px; padding: 3px 13px; font-size: .76rem; color: rgba(255,255,255,.75); }
+
+/* NIVELES NAV */
+.niveles-nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 45px; z-index: 110; display: flex; align-items: center; height: 38px; padding: 0 1rem; transition: background .25s; }
+.nn-prev, .nn-next { flex-shrink: 0; display: flex; align-items: center; gap: .3rem; padding: 0 .75rem; height: 100%; text-decoration: none; color: var(--muted); font-size: .78rem; font-weight: 500; border-right: 1px solid var(--border); transition: color .15s; white-space: nowrap; }
+.nn-next { border-right: none; border-left: 1px solid var(--border); }
+.nn-prev:hover, .nn-next:hover { color: var(--primary); }
+.nn-list { flex: 1; display: flex; align-items: center; justify-content: center; gap: .15rem; overflow-x: auto; padding: 0 .5rem; }
+.nn-list::-webkit-scrollbar { display: none; }
+.nn-list a { flex-shrink: 0; padding: 2px 9px; border-radius: 20px; text-decoration: none; font-size: .73rem; font-weight: 600; color: var(--muted); font-family: 'DM Mono', monospace; transition: color .15s, background .15s; }
+.nn-list a:hover { color: var(--text); background: var(--bg); }
+.nn-list a.activa { background: var(--primary-light); color: var(--primary); }
+.nn-list .sep { color: var(--border); font-size: .7rem; padding: 0 1px; flex-shrink: 0; pointer-events: none; }
+
+/* SEC NAV */
+.sec-nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 83px; z-index: 100; display: flex; overflow-x: auto; transition: background .25s; }
+.sec-nav::-webkit-scrollbar { display: none; }
+.sec-nav a { flex-shrink: 0; padding: .75rem 1.1rem; text-decoration: none; color: var(--muted); font-size: .82rem; font-weight: 500; border-bottom: 2px solid transparent; white-space: nowrap; transition: color .2s, border-color .2s; }
+.sec-nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+/* MAIN */
+main { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem; }
+.nivel-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: white; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.75rem; }
+
+/* MÓDULO */
+.module { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2.5rem; scroll-margin-top: 135px; transition: background .25s, border-color .25s; }
+.module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+.module-icon { font-size: 1.8rem; flex-shrink: 0; }
+.module-title { font-size: 1.35rem; font-weight: 700; }
+.module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+.module h2 { font-size: 1.15rem; font-weight: 700; margin: 1.75rem 0 .75rem; }
+.module h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 .5rem; }
+.module p { margin-bottom: .85rem; font-size: .97rem; }
+.module ul, .module ol { padding-left: 1.4rem; margin-bottom: .85rem; }
+.module li { margin-bottom: .4rem; font-size: .96rem; }
+
+/* CALLOUTS */
+.analogy { background: var(--analogy-bg); border: 1px solid var(--analogy-border); border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+.analogy h4 { color: var(--analogy-head); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+.analogy p { font-size: .95rem; color: var(--analogy-text); margin: 0; }
+
+.concept, .tip, .warn, .note { border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; border-left-width: 4px; border-left-style: solid; }
+.concept h4, .tip h4, .warn h4, .note h4 { font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+.concept p, .tip p, .warn p, .note p { font-size: .95rem; margin: 0; }
+.tip ul { font-size: .95rem; padding-left: 1.2rem; margin-top: .3rem; }
+.concept { background: var(--primary-light); border-color: var(--primary); }
+.concept h4 { color: var(--primary); }
+.tip { background: var(--secondary-light); border-color: var(--secondary); }
+.tip h4 { color: var(--secondary); }
+.warn { background: var(--primary-light); border-color: var(--primary); }
+.warn h4 { color: var(--primary); }
+.note { background: var(--note-bg); border-color: var(--note-border); }
+.note h4 { color: var(--note-head); }
+
+/* CÓDIGO */
+.code-wrap { position: relative; margin: 1rem 0; }
+.code-block { background: var(--code-bg); color: var(--code-text); border-radius: 10px; padding: 1.25rem 1.5rem; font-family: 'DM Mono', monospace; font-size: .88rem; line-height: 1.85; overflow-x: auto; white-space: pre; }
+.lang-tag { position: absolute; top: .6rem; right: .75rem; background: rgba(255,255,255,.1); color: rgba(255,255,255,.45); font-size: .68rem; padding: 2px 8px; border-radius: 4px; font-family: sans-serif; font-weight: 700; }
+.ct { color: #89B4FA; } .ca { color: #CBA6F7; } .cv { color: #A6E3A1; } .cs { color: #F9E2AF; } .cc { color: #585B70; font-style: italic; } .cn { color: #FAB387; }
+
+/* TERMINAL */
+.terminal { background: #0a0e14; border: 1px solid #21262d; border-radius: 10px; overflow: hidden; margin: 1rem 0; }
+.term-bar { background: #161b22; padding: .42rem .85rem; display: flex; align-items: center; gap: .35rem; border-bottom: 1px solid #21262d; }
+.dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.dot-r { background: #ff5f57; } .dot-y { background: #ffbd2e; } .dot-g { background: #28c840; }
+.term-label { font-family: 'DM Mono', monospace; font-size: .69rem; color: #3a5070; margin-left: .4rem; }
+.term-body { padding: 1.1rem 1.3rem; font-family: 'DM Mono', monospace; font-size: .85rem; line-height: 2.1; color: #c9d8f0; }
+.t-p { color: #3ddc84; } .t-o { color: #5a7090; display: block; } .t-h { color: #253550; font-style: italic; display: block; } .t-ok { color: #3ddc84; }
+
+/* DIAGRAMA */
+.diagram { background: var(--diagram-bg); border: 1px solid var(--diagram-border); border-radius: 12px; padding: 1.5rem; margin: 1.1rem 0; font-family: 'DM Mono', monospace; font-size: .87rem; line-height: 2; overflow-x: auto; transition: background .25s, border-color .25s; }
+.d-r { color: var(--primary); font-weight: 700; } .d-g { color: var(--secondary); font-weight: 700; } .d-y { color: var(--accent); font-weight: 700; } .d-b { color: #6366f1; font-weight: 700; } .d-m { color: var(--muted); font-style: italic; }
+
+/* TABLA */
+.tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+.tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+.tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+.tbl td:first-child { font-family: 'DM Mono', monospace; font-size: .85rem; color: var(--primary); font-weight: 600; }
+.tbl tr:hover td { background: var(--bg); }
+
+/* GRIDS */
+.concept-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; margin: 1rem 0; }
+.concept-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem; transition: background .25s, border-color .25s; }
+.cc-icon { font-size: 1.5rem; margin-bottom: .4rem; }
+.cc-name { font-family: 'DM Mono', monospace; font-size: .8rem; font-weight: 700; color: var(--primary); margin-bottom: .3rem; }
+.cc-desc { font-size: .85rem; color: var(--muted); line-height: 1.55; }
+
+/* VERSIONES TIMELINE */
+.timeline { display: flex; flex-direction: column; gap: 0; margin: 1.1rem 0; position: relative; }
+.timeline::before { content: ''; position: absolute; left: 21px; top: 24px; bottom: 24px; width: 2px; background: linear-gradient(to bottom, var(--border), var(--primary-mid), var(--border)); }
+.tl-item { display: flex; align-items: flex-start; gap: 1rem; padding: .45rem 0; }
+.tl-dot { width: 44px; height: 44px; border-radius: 50%; background: var(--surface); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-family: 'DM Mono', monospace; font-size: .72rem; font-weight: 700; color: var(--primary); flex-shrink: 0; z-index: 1; transition: background .25s; }
+.tl-dot.highlight { background: var(--primary-light); border-color: var(--primary); }
+.tl-body { flex: 1; padding-top: .6rem; }
+.tl-year { font-family: 'DM Mono', monospace; font-size: .75rem; font-weight: 700; color: var(--primary); margin-bottom: .15rem; }
+.tl-name { font-weight: 700; font-size: .95rem; }
+.tl-desc { font-size: .85rem; color: var(--muted); }
+
+/* KERNEL RING DIAGRAM */
+.ring-diagram { display: flex; align-items: center; justify-content: center; margin: 1.5rem 0; }
+.rings { position: relative; width: 320px; height: 320px; flex-shrink: 0; }
+.ring { position: absolute; border-radius: 50%; display: flex; align-items: center; justify-content: center; text-align: center; font-weight: 700; transition: transform .2s; cursor: default; }
+.ring:hover { transform: scale(1.03); }
+.ring-hw { width: 320px; height: 320px; top: 0; left: 0; background: rgba(176,112,16,.12); border: 2px solid rgba(176,112,16,.3); }
+.ring-k  { width: 240px; height: 240px; top: 40px; left: 40px; background: rgba(196,74,42,.12); border: 2px solid rgba(196,74,42,.3); }
+.ring-u  { width: 160px; height: 160px; top: 80px; left: 80px; background: rgba(26,122,90,.15); border: 2px solid rgba(26,122,90,.35); }
+.ring-app{ width: 80px; height: 80px; top: 120px; left: 120px; background: rgba(99,102,241,.2); border: 2px solid rgba(99,102,241,.45); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.ring-label { position: absolute; font-size: .72rem; font-family: 'DM Mono', monospace; }
+.rl-hw  { bottom: 6px; right: 22px; color: var(--accent); }
+.rl-k   { bottom: 14px; right: 30px; color: var(--primary); }
+.rl-u   { bottom: 18px; right: 22px; color: var(--secondary); }
+.rl-app { font-size: .7rem; color: #6366f1; text-align: center; line-height: 1.2; }
+.ring-legend { margin-left: 2rem; display: flex; flex-direction: column; gap: .65rem; }
+.rl-item { display: flex; align-items: flex-start; gap: .6rem; }
+.rl-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; margin-top: 3px; }
+.rl-text { font-size: .85rem; }
+.rl-text strong { display: block; font-size: .88rem; }
+@media (max-width: 600px) { .ring-diagram { flex-direction: column; } .ring-legend { margin-left: 0; margin-top: 1rem; } }
+
+/* EJERCICIO */
+.ejercicio { background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 12px; padding: 1.5rem; margin: 1.5rem 0; }
+[data-theme="dark"] .ejercicio { background: rgba(240,192,64,.06); border-color: rgba(240,192,64,.22); }
+.ej-hd { display: flex; align-items: center; gap: .75rem; margin-bottom: 1rem; font-weight: 700; font-size: 1rem; color: #78350F; flex-wrap: wrap; }
+[data-theme="dark"] .ej-hd { color: #f0c040; }
+.ej-badge { background: var(--accent); color: #fff; font-size: .68rem; padding: 2px 9px; border-radius: 20px; font-weight: 700; text-transform: uppercase; }
+.ejercicio ol { padding-left: 1.4rem; }
+.ejercicio ol li { margin-bottom: .6rem; font-size: .95rem; }
+.ejercicio p { font-size: .95rem; margin-bottom: .6rem; }
+
+/* RESUMEN Y SIGUIENTE */
+.resumen { background: var(--primary-light); border: 1px solid var(--primary-mid); border-radius: 14px; padding: 1.6rem; margin-bottom: 1.5rem; }
+.resumen h3 { color: var(--primary); margin-bottom: .75rem; font-size: 1.05rem; }
+.resumen ul { padding-left: 1.4rem; }
+.resumen li { font-size: .92rem; margin-bottom: .45rem; }
+.next-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem 1.5rem; display: flex; align-items: center; gap: 1rem; text-decoration: none; transition: border-color .2s; margin-bottom: 2rem; }
+.next-card:hover { border-color: var(--primary); }
+.nc-label { font-size: .72rem; color: var(--muted); font-family: 'DM Mono', monospace; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .2rem; }
+.nc-name { font-weight: 700; color: var(--text); font-size: .97rem; }
+.nc-arrow { font-size: 1.4rem; color: var(--primary); margin-left: auto; }
+
+/* UTILITARIOS */
+code { font-family: 'DM Mono', monospace; background: #f0ece6; color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+[data-theme="dark"] code { background: #1c2128; }
+strong { font-weight: 700; }
+p { margin-bottom: .8rem; } ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; } li { margin-bottom: .4rem; font-size: .96rem; }
+h2 { font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; }
+h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 .5rem; }
+footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); transition: background .25s; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="topbar-back" href="../index.html">← Café &lt;/&gt;</a>
+  <span class="topbar-info">🐧 Linux desde Cero · Nivel 2 de 23</span>
+  <button class="theme-btn" onclick="toggleTheme()">
+    <span id="themeIcon">🌙</span><span id="themeLabel">Oscuro</span>
+  </button>
+</div>
+
+<header>
+  <div class="header-eyebrow">🌱 Nivel 2 — Conceptos base</div>
+  <h1>¿Qué es <em>Linux</em> exactamente?</h1>
+  <p>El kernel, el proyecto, las versiones y la diferencia entre Linux y GNU/Linux</p>
+  <div class="header-chips">
+    <span class="header-chip">Nivel 2 de 23</span>
+    <span class="header-chip">🌱 Principiante</span>
+    <span class="header-chip">7 subtemas</span>
+    <span class="header-chip">~25 min</span>
+  </div>
+</header>
+
+<div class="niveles-nav">
+  <a class="nn-prev" href="linux-nivel-01.html">← N1</a>
+  <div class="nn-list">
+    <a href="linux-nivel-01.html" title="Sistema Operativo">N1</a>
+    <a href="linux-nivel-02.html" class="activa" title="¿Qué es Linux?">N2</a>
+    <a href="linux-nivel-03.html" title="GNU">N3</a>
+    <a href="linux-nivel-04.html" title="Distribuciones">N4</a>
+    <a href="linux-nivel-05.html" title="Instalar Linux">N5</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-06.html" title="Familia Debian">N6</a>
+    <a href="linux-nivel-07.html" title="Familia Red Hat">N7</a>
+    <a href="linux-nivel-08.html" title="Otras familias">N8</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-09.html" title="Capas de Linux">N9</a>
+    <a href="linux-nivel-10.html" title="Escritorio">N10</a>
+    <a href="linux-nivel-11.html" title="X11 y Wayland">N11</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-12.html" title="Terminal">N12</a>
+    <a href="linux-nivel-13.html" title="Sistema de archivos">N13</a>
+    <a href="linux-nivel-14.html" title="Usuarios y permisos">N14</a>
+    <a href="linux-nivel-15.html" title="Software">N15</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-16.html" title="Procesos">N16</a>
+    <a href="linux-nivel-17.html" title="Arranque">N17</a>
+    <a href="linux-nivel-18.html" title="Almacenamiento">N18</a>
+    <a href="linux-nivel-19.html" title="CPU y RAM">N19</a>
+    <a href="linux-nivel-20.html" title="Redes">N20</a>
+    <a href="linux-nivel-21.html" title="Seguridad">N21</a>
+    <a href="linux-nivel-22.html" title="Linux internamente">N22</a>
+    <a href="linux-nivel-23.html" title="Programar y crear">N23</a>
+  </div>
+  <a class="nn-next" href="linux-nivel-03.html">N3 →</a>
+</div>
+
+<nav class="sec-nav">
+  <a href="#significado">🏷 ¿Qué significa?</a>
+  <a href="#kernel">⚙️ El Kernel</a>
+  <a href="#que-hace">🔬 ¿Qué hace?</a>
+  <a href="#proyecto">🌍 El Proyecto</a>
+  <a href="#codigo">📂 Código fuente</a>
+  <a href="#versiones">📋 Versiones</a>
+  <a href="#gnulinux">🤝 Linux vs GNU/Linux</a>
+  <a href="#ejercicio">✏️ Ejercicio</a>
+</nav>
+
+<main>
+<div class="nivel-badge">🌱 Nivel 2 — ¿Qué es Linux?</div>
+
+
+<!-- ═══════════════════════════════
+     ¿QUÉ SIGNIFICA LINUX?
+═══════════════════════════════ -->
+<section class="module" id="significado">
+  <div class="module-header">
+    <div class="module-icon">🏷️</div>
+    <div>
+      <div class="module-title">¿Qué significa "Linux"?</div>
+      <div class="module-sub">El origen del nombre y la confusión más común de los principiantes</div>
+    </div>
+  </div>
+
+  <p>Cuando la gente dice "Linux" en realidad puede referirse a dos cosas distintas — y confundirlas es uno de los errores más comunes de los principiantes. Vamos a dejarlas claras desde el principio.</p>
+
+  <div class="concept-grid">
+    <div class="concept-card">
+      <div class="cc-icon">⚙️</div>
+      <div class="cc-name">Linux = El Kernel</div>
+      <div class="cc-desc">Técnicamente, "Linux" es solo el <strong>kernel</strong> — el núcleo del sistema operativo. Creado por Linus Torvalds en 1991. Es un programa, no un sistema operativo completo.</div>
+    </div>
+    <div class="concept-card">
+      <div class="cc-icon">🐧</div>
+      <div class="cc-name">Linux = El SO completo</div>
+      <div class="cc-desc">En el uso cotidiano, "Linux" se refiere al sistema operativo completo: kernel + herramientas GNU + escritorio + aplicaciones. Ubuntu, Fedora, Arch son "Linux" en este sentido.</div>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <h4>🚗 Analogía — El motor y el coche</h4>
+    <p>El <strong>kernel Linux</strong> es como el <strong>motor</strong> de un coche — el componente central que hace que todo funcione. Pero un motor solo no es un coche. Necesitas carrocería, ruedas, volante, asientos. Cuando la gente dice "Linux" normalmente habla del coche completo, no solo del motor. Cuando los técnicos dicen "Linux", suelen hablar solo del motor.</p>
+  </div>
+
+  <div class="note">
+    <h4>📌 El nombre — Linus + Unix = Linux</h4>
+    <p><strong>Linus Torvalds</strong> creó el kernel en 1991 cuando era estudiante en Helsinki (Finlandia). Lo llamó "Linux" combinando su propio nombre (Linus) con Unix — el sistema operativo que inspiró su diseño. La mascota oficial, el pingüino Tux, fue elegida porque Linus tiene debilidad por los pingüinos.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════
+     EL KERNEL
+═══════════════════════════════ -->
+<section class="module" id="kernel">
+  <div class="module-header">
+    <div class="module-icon">⚙️</div>
+    <div>
+      <div class="module-title">Linux como Kernel</div>
+      <div class="module-sub">El núcleo que se sienta entre el hardware y todo lo demás</div>
+    </div>
+  </div>
+
+  <p>El <strong>kernel</strong> es el programa central del sistema operativo. Corre con los máximos privilegios del sistema y es el único que puede hablarle directamente al hardware. Todo lo demás — aplicaciones, shell, escritorio — le habla al kernel, y el kernel le habla al hardware.</p>
+
+  <div class="analogy">
+    <h4>🏛️ Analogía — El gobierno de una ciudad</h4>
+    <p>El <strong>kernel es el gobierno de la computadora</strong>. Los ciudadanos (aplicaciones) no pueden acceder directamente a los recursos de la ciudad (hardware) — tienen que pedírselo al gobierno. El gobierno decide quién usa qué recurso, cuándo y cómo. Tiene acceso total a todo. Los ciudadanos tienen acceso restringido y controlado.</p>
+  </div>
+
+  <h2>Kernel Space vs User Space</h2>
+  <p>Linux divide la memoria en dos zonas con permisos completamente distintos. Esta separación es fundamental para la seguridad y estabilidad del sistema.</p>
+
+  <div class="ring-diagram">
+    <div class="rings">
+      <div class="ring ring-hw">
+        <span class="ring-label rl-hw">Hardware</span>
+      </div>
+      <div class="ring ring-k">
+        <span class="ring-label rl-k">Kernel Space</span>
+      </div>
+      <div class="ring ring-u">
+        <span class="ring-label rl-u">User Space</span>
+      </div>
+      <div class="ring ring-app">
+        <span class="rl-app">Apps</span>
+      </div>
+    </div>
+    <div class="ring-legend">
+      <div class="rl-item">
+        <div class="rl-dot" style="background:rgba(99,102,241,.7)"></div>
+        <div class="rl-text"><strong style="color:#6366f1">Apps (centro)</strong>Chrome, VS Code, Spotify. Acceso restringido. Si crashean, no pasa nada al sistema.</div>
+      </div>
+      <div class="rl-item">
+        <div class="rl-dot" style="background:rgba(26,122,90,.7)"></div>
+        <div class="rl-text"><strong style="color:var(--secondary)">User Space</strong>Donde corren todas las apps y procesos del usuario. Comunicación con kernel vía system calls.</div>
+      </div>
+      <div class="rl-item">
+        <div class="rl-dot" style="background:rgba(196,74,42,.7)"></div>
+        <div class="rl-text"><strong style="color:var(--primary)">Kernel Space</strong>Donde corre el kernel Linux. Acceso total al hardware. Un bug aquí puede colgar todo el sistema.</div>
+      </div>
+      <div class="rl-item">
+        <div class="rl-dot" style="background:rgba(176,112,16,.7)"></div>
+        <div class="rl-text"><strong style="color:var(--accent)">Hardware</strong>CPU, RAM, disco, red. Solo el kernel puede acceder directamente.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 ¿Por qué importa esta separación?</h4>
+    <p>Si una aplicación tiene un bug y crashea, solo muere esa app — el sistema sigue funcionando. Si el kernel tiene un bug y crashea, el sistema entero se detiene (el famoso <strong>Kernel Panic</strong> en Linux, o la Pantalla Azul en Windows). La separación protege la estabilidad del sistema.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════
+     ¿QUÉ HACE EL KERNEL?
+═══════════════════════════════ -->
+<section class="module" id="que-hace">
+  <div class="module-header">
+    <div class="module-icon">🔬</div>
+    <div>
+      <div class="module-title">¿Qué hace exactamente el kernel?</div>
+      <div class="module-sub">Las 5 responsabilidades centrales del kernel Linux</div>
+    </div>
+  </div>
+
+  <p>El kernel Linux tiene responsabilidades muy concretas. No hace todo — solo lo más crítico y privilegiado. El resto lo delega a herramientas en User Space.</p>
+
+  <div class="concept-grid">
+    <div class="concept-card">
+      <div class="cc-icon">⏱️</div>
+      <div class="cc-name">Scheduler — Planificador de CPU</div>
+      <div class="cc-desc">Decide qué proceso usa la CPU en cada fracción de segundo. Hace que parezca que todo corre "a la vez" aunque la CPU ejecuta una cosa a la vez.</div>
+    </div>
+    <div class="concept-card">
+      <div class="cc-icon">🧠</div>
+      <div class="cc-name">Gestión de memoria</div>
+      <div class="cc-desc">Asigna, controla y protege la RAM. Cada proceso cree que tiene toda la memoria para él solo — el kernel crea esa ilusión con memoria virtual.</div>
+    </div>
+    <div class="concept-card">
+      <div class="cc-icon">📁</div>
+      <div class="cc-name">Sistema de archivos virtual</div>
+      <div class="cc-desc">Abstrae cómo se leen y escriben archivos. No importa si está en SSD, HDD o en la red — el kernel da la misma interfaz a las apps.</div>
+    </div>
+    <div class="concept-card">
+      <div class="cc-icon">🔌</div>
+      <div class="cc-name">Drivers de dispositivos</div>
+      <div class="cc-desc">Contiene miles de drivers para GPU, teclado, red, audio, USB… Permite que el SO reconozca y use hardware sin que las apps sepan cómo funciona.</div>
+    </div>
+    <div class="concept-card">
+      <div class="cc-icon">🌐</div>
+      <div class="cc-name">Networking</div>
+      <div class="cc-desc">Gestiona toda la comunicación de red: TCP/IP, sockets, firewalls. Cuando abres una web, el kernel es quien abre la conexión real.</div>
+    </div>
+    <div class="concept-card">
+      <div class="cc-icon">🔒</div>
+      <div class="cc-name">Seguridad y permisos</div>
+      <div class="cc-desc">Controla quién puede hacer qué. Verifica permisos de archivos, aísla procesos y previene que una app acceda a los datos de otra.</div>
+    </div>
+  </div>
+
+  <div class="code-wrap">
+    <div class="code-block"><span class="cc"># Así habla una app con el kernel — mediante System Calls</span>
+
+<span class="ct">Chrome</span> quiere leer un archivo:
+  → llama a <span class="cv">open("/home/hugo/.config", O_RDONLY)</span>    <span class="cc"># system call</span>
+  → el kernel verifica permisos, accede al disco, devuelve datos
+  → Chrome recibe los datos sin saber nada del hardware
+
+<span class="ct">Spotify</span> quiere reproducir audio:
+  → llama a <span class="cv">write(fd_audio, buffer, size)</span>             <span class="cc"># system call</span>
+  → el kernel envía los bytes al driver de audio
+  → el driver envía señal a la tarjeta de sonido
+  → suena la música</div>
+    <div class="lang-tag">CONCEPTO</div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════
+     EL PROYECTO LINUX
+═══════════════════════════════ -->
+<section class="module" id="proyecto">
+  <div class="module-header">
+    <div class="module-icon">🌍</div>
+    <div>
+      <div class="module-title">Linux como Proyecto</div>
+      <div class="module-sub">El mayor proyecto colaborativo de software en la historia de la humanidad</div>
+    </div>
+  </div>
+
+  <p>Más allá del código, Linux es un <strong>proyecto de colaboración global</strong>. Miles de personas y empresas contribuyen al kernel. Es el mayor proyecto de software de código abierto jamás creado.</p>
+
+  <div class="analogy">
+    <h4>🏗️ Analogía — Construir una catedral entre miles</h4>
+    <p>Imagina una catedral que nadie contrató construir, que miles de arquitectos de todo el mundo añaden piedras voluntariamente, que cualquiera puede ver los planos completos, que nadie la posee y que aun así es una de las obras de ingeniería más sólidas del mundo. Eso es el kernel Linux — construido por miles sin jefe central, sin sueldo obligatorio, y usado en prácticamente todo el internet.</p>
+  </div>
+
+  <h2>¿Quién contribuye al kernel Linux?</h2>
+
+  <table class="tbl">
+    <thead><tr><th>Tipo de contribuidor</th><th>Ejemplos</th><th>Por qué contribuyen</th></tr></thead>
+    <tbody>
+      <tr><td>Empresas tecnológicas</td><td>Intel, Google, Red Hat, Samsung, Meta</td><td>Sus productos dependen de Linux — les interesa que funcione bien</td></tr>
+      <tr><td>Desarrolladores individuales</td><td>Miles en todo el mundo</td><td>Passion, reputación profesional, resolver sus propios problemas</td></tr>
+      <tr><td>Universidades</td><td>MIT, Stanford, Helsinki</td><td>Investigación y formación de estudiantes</td></tr>
+      <tr><td>Organizaciones</td><td>Linux Foundation</td><td>Coordinar y financiar el desarrollo</td></tr>
+    </tbody>
+  </table>
+
+  <div class="tip">
+    <h4>🟢 Los números del kernel Linux</h4>
+    <ul>
+      <li>Más de <strong>30 millones de líneas de código</strong> en la versión actual</li>
+      <li>Más de <strong>15,000 desarrolladores</strong> han contribuido históricamente</li>
+      <li>Se hace un nuevo release <strong>cada 9–10 semanas</strong> aproximadamente</li>
+      <li>El código fuente completo está en <strong>kernel.org</strong> — cualquiera puede verlo</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════
+     CÓDIGO FUENTE
+═══════════════════════════════ -->
+<section class="module" id="codigo">
+  <div class="module-header">
+    <div class="module-icon">📂</div>
+    <div>
+      <div class="module-title">El código fuente del kernel</div>
+      <div class="module-sub">Público, abierto y escrito principalmente en C</div>
+    </div>
+  </div>
+
+  <p>El código fuente del kernel Linux es completamente <strong>público y abierto</strong>. Cualquiera puede descargarlo, leerlo, modificarlo y contribuir a él. Está disponible en <code>kernel.org</code> y en GitHub.</p>
+
+  <div class="diagram">
+<span class="d-m"># Estructura del código fuente del kernel Linux</span>
+
+linux/
+├── <span class="d-y">arch/</span>         → Código específico de arquitectura (x86, ARM, RISC-V...)
+├── <span class="d-g">drivers/</span>      → Miles de drivers: GPU, red, USB, audio, bluetooth...
+│   ├── gpu/
+│   ├── net/
+│   └── usb/
+├── <span class="d-b">fs/</span>           → Sistemas de archivos: ext4, btrfs, xfs, fat, ntfs...
+├── <span class="d-r">kernel/</span>       → El núcleo del núcleo: scheduler, procesos, señales
+├── <span class="d-y">mm/</span>           → Gestión de memoria: páginas, swap, memoria virtual
+├── <span class="d-g">net/</span>          → Networking: TCP/IP, sockets, firewalls
+├── <span class="d-b">security/</span>     → Módulos de seguridad: SELinux, AppArmor
+└── <span class="d-m">include/</span>      → Cabeceras e interfaces compartidas</div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">descargar y explorar el código fuente del kernel</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Ver la versión actual del kernel en tu sistema</span>
+<span class="t-p">$</span> uname -r
+<span class="t-o">6.8.0-45-generic</span>
+
+<span class="t-h"># Descargar el código fuente (solo para curiosidad — ¡son ~1.3 GB!)</span>
+<span class="t-p">$</span> wget https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-6.8.tar.xz
+
+<span class="t-h"># Contar las líneas de código (dato curioso)</span>
+<span class="t-p">$</span> find linux-6.8 -name "*.c" | xargs wc -l | tail -1
+<span class="t-o">  30241847 total</span>
+
+<span class="t-h"># El kernel está escrito mayoritariamente en C y algo de ensamblador</span>
+<span class="t-p">$</span> ls linux-6.8/kernel/sched/
+<span class="t-o">core.c  fair.c  idle.c  rt.c  deadline.c  ...</span>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>💡 ¿Por qué C y no Python o Java?</h4>
+    <p>El kernel necesita control total sobre el hardware y cero overhead. C permite manipular memoria directamente, no tiene garbage collector, y el código generado es extremadamente eficiente. Python o Java tienen capas de abstracción que serían inaceptables para algo que corre tan cerca del metal.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════
+     VERSIONES DEL KERNEL
+═══════════════════════════════ -->
+<section class="module" id="versiones">
+  <div class="module-header">
+    <div class="module-icon">📋</div>
+    <div>
+      <div class="module-title">Versiones del kernel</div>
+      <div class="module-sub">Cómo se numeran y cuáles son estables, LTS o de desarrollo</div>
+    </div>
+  </div>
+
+  <p>El kernel Linux tiene un sistema de versiones propio. Entenderlo te ayuda a saber qué tan estable y actualizado está el sistema que usas.</p>
+
+  <div class="diagram">
+<span class="d-m"># Formato de versión del kernel: MAYOR.MENOR.PATCH[-EXTRA]</span>
+
+   6  .  8  .  0  - 45 - generic
+   │     │     │     │       └── variante (Ubuntu, Arch, etc.)
+   │     │     │     └────────── parche de seguridad
+   │     │     └──────────────── revisión menor
+   │     └────────────────────── versión menor (release regular)
+   └──────────────────────────── versión mayor (cambia poco)</div>
+
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot">1991</div>
+      <div class="tl-body">
+        <div class="tl-year">Agosto 1991</div>
+        <div class="tl-name">Linux 0.0.1 — el anuncio de Linus</div>
+        <div class="tl-desc">"Just a hobby, won't be big and professional like GNU" — famosa cita de Linus en la lista de correo de Minix</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot">1994</div>
+      <div class="tl-body">
+        <div class="tl-year">1994</div>
+        <div class="tl-name">Linux 1.0 — primer release estable</div>
+        <div class="tl-desc">176,250 líneas de código. Soporte para TCP/IP. Primer kernel considerado "completo".</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot">2003</div>
+      <div class="tl-body">
+        <div class="tl-year">2003</div>
+        <div class="tl-name">Linux 2.6 — era moderna</div>
+        <div class="tl-desc">La serie 2.6 duró casi una década. Introdujo mejoras masivas en el scheduler, threading y soporte de hardware.</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot highlight">LTS</div>
+      <div class="tl-body">
+        <div class="tl-year">Versiones LTS</div>
+        <div class="tl-name">Long Term Support — la opción para servidores</div>
+        <div class="tl-desc">Algunas versiones reciben mantenimiento por 6+ años. Ubuntu LTS usa kernels LTS para garantizar estabilidad en producción.</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot highlight">HOY</div>
+      <div class="tl-body">
+        <div class="tl-year">2024–2025</div>
+        <div class="tl-name">Linux 6.x — estado actual</div>
+        <div class="tl-desc">Nuevos releases cada ~9 semanas. Soporte para Rust junto a C, mejoras en Wayland, soporte para hardware ARM moderno y Apple Silicon.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">comandos para ver info de tu kernel</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Versión completa del kernel</span>
+<span class="t-p">$</span> uname -r
+<span class="t-o">6.8.0-45-generic</span>
+
+<span class="t-h"># Información completa del sistema</span>
+<span class="t-p">$</span> uname -a
+<span class="t-o">Linux ubuntu 6.8.0-45-generic #45-Ubuntu SMP PREEMPT_DYNAMIC x86_64 GNU/Linux</span>
+
+<span class="t-h"># Arquitectura del procesador</span>
+<span class="t-p">$</span> uname -m
+<span class="t-o">x86_64</span>
+
+<span class="t-h"># Ver todos los kernels instalados (en Ubuntu/Debian)</span>
+<span class="t-p">$</span> dpkg --list | grep linux-image
+<span class="t-o">ii  linux-image-6.8.0-45-generic</span>
+<span class="t-o">ii  linux-image-6.8.0-44-generic</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════
+     LINUX vs GNU/LINUX
+═══════════════════════════════ -->
+<section class="module" id="gnulinux">
+  <div class="module-header">
+    <div class="module-icon">🤝</div>
+    <div>
+      <div class="module-title">Linux vs GNU/Linux</div>
+      <div class="module-sub">La distinción técnica más debatida del mundo del software libre</div>
+    </div>
+  </div>
+
+  <p>Cuando alguien dice "Ubuntu es Linux", técnicamente está siendo impreciso — aunque todo el mundo lo entiende. La realidad es que Ubuntu (y la mayoría de lo que llamamos "Linux") es realmente <strong>GNU/Linux</strong>.</p>
+
+  <div class="analogy">
+    <h4>🚀 Analogía — El cohete y el módulo lunar</h4>
+    <p>El kernel Linux es como el <strong>motor del cohete Saturno V</strong> — la parte que genera el empuje fundamental. Pero el cohete no habría llegado a la Luna sin el <strong>módulo lunar Apollo</strong> (GNU) — las herramientas que permiten que los astronautas (usuarios) vivan y trabajen. Llamar a todo el programa "Linux" sería como llamar a toda la misión Apollo "El motor".</p>
+  </div>
+
+  <div class="diagram">
+<span class="d-m"># Lo que realmente es "Ubuntu Linux":</span>
+
+<span class="d-b">Aplicaciones</span>      → Firefox, LibreOffice, GIMP, VS Code...
+<span class="d-g">Entorno escritorio</span> → GNOME, KDE, XFCE... (no es parte de GNU ni Linux)
+<span class="d-y">Herramientas GNU</span>  → bash, ls, grep, gcc, glibc, coreutils...
+<span class="d-r">Kernel Linux</span>      → El único componente que ES Linux propiamente dicho
+
+<span class="d-m"># Todo junto = GNU/Linux</span>
+<span class="d-m"># Por costumbre todos lo llamamos solo "Linux"</span></div>
+
+  <table class="tbl">
+    <thead><tr><th>Componente</th><th>Quién lo hace</th><th>Ejemplos</th></tr></thead>
+    <tbody>
+      <tr><td>Kernel Linux</td><td>Linus Torvalds + comunidad</td><td>El programa <code>linux</code> que arranca</td></tr>
+      <tr><td>Shell</td><td>Proyecto GNU</td><td><code>bash</code>, <code>sh</code></td></tr>
+      <tr><td>Utilidades básicas</td><td>Proyecto GNU</td><td><code>ls</code>, <code>cp</code>, <code>mv</code>, <code>grep</code>, <code>find</code></td></tr>
+      <tr><td>Compilador</td><td>Proyecto GNU</td><td><code>gcc</code>, <code>g++</code></td></tr>
+      <tr><td>Biblioteca C</td><td>Proyecto GNU</td><td><code>glibc</code> — base de casi todo el software</td></tr>
+      <tr><td>Escritorio</td><td>GNOME Foundation, KDE e.V…</td><td>GNOME, KDE Plasma, XFCE</td></tr>
+      <tr><td>Gestor de paquetes</td><td>Cada distro</td><td><code>apt</code>, <code>dnf</code>, <code>pacman</code></td></tr>
+    </tbody>
+  </table>
+
+  <div class="warn">
+    <h4>⚠️ ¿Debo decir "GNU/Linux"?</h4>
+    <p>Richard Stallman (fundador de GNU) insiste en que debería llamarse GNU/Linux para reconocer la contribución del proyecto GNU. En la práctica, casi nadie lo hace — dicen simplemente "Linux". En esta guía usaremos "Linux" para referirnos al sistema completo, como hace la mayoría, pero ahora ya sabes la distinción técnica correcta.</p>
+  </div>
+</section>
+
+
+<!-- EJERCICIO -->
+<div class="ejercicio" id="ejercicio">
+  <div class="ej-hd">
+    ✏️ Ejercicio del Nivel 2
+    <span class="ej-badge">Exploración</span>
+  </div>
+  <p>Si ya tienes Linux instalado (o cuando lo instales en el Nivel 5), prueba estos comandos. Si usas Windows/Mac, los puedes ver en imágenes en línea:</p>
+  <ol>
+    <li>Ejecuta <code>uname -r</code> en la terminal. ¿Qué versión del kernel tienes?</li>
+    <li>Ejecuta <code>uname -a</code>. Identifica cada parte: versión, fecha de compilación, arquitectura.</li>
+    <li>Busca en <strong>kernel.org</strong> cuál es la versión estable más reciente del kernel hoy. ¿Es más nueva que la tuya?</li>
+    <li>Ejecuta <code>ls /</code> — estás viendo el sistema de archivos raíz del kernel. ¿Reconoces alguna carpeta de lo que vimos?</li>
+    <li>Ejecuta <code>cat /proc/version</code> — este archivo lo genera el kernel en tiempo real con info sobre sí mismo. ¿Qué dice?</li>
+  </ol>
+  <p><strong>Reflexión:</strong> ¿Puedes nombrar 3 herramientas que usas en la terminal que son parte de GNU y no del kernel Linux?</p>
+</div>
+
+<!-- RESUMEN -->
+<div class="resumen">
+  <h3>🟥 Resumen del Nivel 2</h3>
+  <ul>
+    <li>"Linux" puede significar el <strong>kernel</strong> (técnico) o el <strong>SO completo</strong> (uso cotidiano).</li>
+    <li>El kernel fue creado por <strong>Linus Torvalds</strong> en 1991 en Helsinki. El nombre: Linus + Unix.</li>
+    <li>El kernel es el único programa con acceso total al hardware — todo lo demás se lo pide a él.</li>
+    <li>Divide la memoria en <strong>Kernel Space</strong> (privilegiado) y <strong>User Space</strong> (restringido). Esta separación protege la estabilidad.</li>
+    <li>El kernel gestiona: scheduler, memoria, sistema de archivos, drivers, red y seguridad.</li>
+    <li>Es el mayor proyecto open source del mundo: 30M+ líneas de código, 15,000+ contribuidores, escrito en C.</li>
+    <li>Las versiones siguen el formato <strong>MAYOR.MENOR.PATCH</strong>. Las LTS tienen soporte largo.</li>
+    <li>Lo que llamamos "Linux" es técnicamente <strong>GNU/Linux</strong> — kernel Linux + herramientas GNU.</li>
+  </ul>
+</div>
+
+<a class="next-card" href="linux-nivel-03.html">
+  <div>
+    <div class="nc-label">Siguiente → Nivel 3</div>
+    <div class="nc-name">¿Qué es GNU? — El proyecto, Richard Stallman, software libre, GPL y las herramientas que completan Linux</div>
+  </div>
+  <div class="nc-arrow">→</div>
+</a>
+
+</main>
+
+<footer>
+  Linux desde Cero · Nivel 2 · ¿Qué es Linux? · Café &lt;/&gt; · Hugo 2025
+</footer>
+
+<script>
+(function() {
+  const saved = localStorage.getItem('cafe-theme');
+  const sys = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  const theme = saved || sys;
+  document.documentElement.setAttribute('data-theme', theme);
+  updateUI(theme);
+})();
+function toggleTheme() {
+  const cur = document.documentElement.getAttribute('data-theme');
+  const next = cur === 'light' ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('cafe-theme', next);
+  updateUI(next);
+}
+function updateUI(theme) {
+  const icon = document.getElementById('themeIcon');
+  const label = document.getElementById('themeLabel');
+  if (!icon || !label) return;
+  icon.textContent  = theme === 'dark' ? '☀️' : '🌙';
+  label.textContent = theme === 'dark' ? 'Claro' : 'Oscuro';
+}
+</script>
+</body>
+</html>

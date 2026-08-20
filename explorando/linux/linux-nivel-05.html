@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux desde Cero · N5 · Instalar Linux</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root,[data-theme="light"]{--primary:#c44a2a;--primary-light:#fdf0ec;--primary-mid:rgba(196,74,42,.25);--secondary:#1a7a5a;--secondary-light:#edf7f3;--accent:#b07010;--accent-light:#fdf6e8;--bg:#f7f4ef;--surface:#ffffff;--text:#1a1814;--muted:#8a8480;--border:#e8e4de;--code-bg:#1a1814;--code-text:#e8e4de;--header-bg:#1a1814;--analogy-bg:#fff7ed;--analogy-border:#fde68a;--analogy-text:#78350f;--analogy-head:#92400e;--diagram-bg:#f0f4ff;--diagram-border:#c7d2fe;--note-bg:#f0f4ff;--note-border:#6366f1;--note-head:#4338ca;}
+[data-theme="dark"]{--primary:#ff7a57;--primary-light:rgba(255,122,87,.14);--primary-mid:rgba(255,122,87,.3);--secondary:#3ddc84;--secondary-light:rgba(61,220,132,.12);--accent:#f0c040;--accent-light:rgba(240,192,64,.12);--bg:#0d1117;--surface:#161b22;--text:#c9d8f0;--muted:#5a7090;--border:#21262d;--code-bg:#060a10;--code-text:#c9d8f0;--header-bg:#0a0e14;--analogy-bg:rgba(240,192,64,.07);--analogy-border:rgba(240,192,64,.3);--analogy-text:#e6d4a0;--analogy-head:#f0c040;--diagram-bg:#161b22;--diagram-border:#21262d;--note-bg:rgba(99,102,241,.1);--note-border:#818cf8;--note-head:#818cf8;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;font-size:16px;transition:background .25s,color .25s;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:300;height:45px;transition:background .25s,border-color .25s;}
+.topbar-back{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);text-decoration:none;padding:5px 14px;border:1px solid var(--border);border-radius:999px;transition:all .15s;}
+.topbar-back:hover{color:var(--text);border-color:var(--muted);}
+.topbar-info{font-size:13px;color:var(--muted);}
+.theme-btn{margin-left:auto;background:none;border:1px solid var(--border);border-radius:999px;padding:4px 13px;font-size:13px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:.35rem;transition:all .15s;font-family:'DM Sans',sans-serif;}
+.theme-btn:hover{color:var(--text);border-color:var(--muted);}
+header{background:var(--header-bg);color:#f7f4ef;padding:3rem 2rem 2.25rem;text-align:center;position:relative;overflow:hidden;}
+header::before{content:'N05';position:absolute;font-family:'DM Mono',monospace;font-size:11rem;font-weight:900;color:rgba(255,255,255,.04);right:-1rem;top:-1.5rem;line-height:1;pointer-events:none;}
+.header-eyebrow{display:inline-flex;align-items:center;gap:.5rem;background:rgba(196,74,42,.25);border:1px solid rgba(196,74,42,.45);border-radius:20px;padding:3px 14px;font-size:.78rem;font-weight:700;color:#ffaa88;margin-bottom:.85rem;}
+header h1{font-size:2.5rem;font-weight:800;letter-spacing:-1px;color:#f7f4ef;line-height:1.2;}
+header h1 em{font-style:normal;color:#ff8a6a;}
+header p{font-size:1.05rem;opacity:.8;margin-top:.5rem;max-width:540px;margin-left:auto;margin-right:auto;}
+.header-chips{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-top:.9rem;}
+.header-chip{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:20px;padding:3px 13px;font-size:.76rem;color:rgba(255,255,255,.75);}
+.niveles-nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:45px;z-index:110;display:flex;align-items:center;height:38px;padding:0 1rem;transition:background .25s;}
+.nn-prev,.nn-next{flex-shrink:0;display:flex;align-items:center;gap:.3rem;padding:0 .75rem;height:100%;text-decoration:none;color:var(--muted);font-size:.78rem;font-weight:500;border-right:1px solid var(--border);transition:color .15s;white-space:nowrap;}
+.nn-next{border-right:none;border-left:1px solid var(--border);}
+.nn-prev:hover,.nn-next:hover{color:var(--primary);}
+.nn-list{flex:1;display:flex;align-items:center;justify-content:center;gap:.15rem;overflow-x:auto;padding:0 .5rem;}
+.nn-list::-webkit-scrollbar{display:none;}
+.nn-list a{flex-shrink:0;padding:2px 9px;border-radius:20px;text-decoration:none;font-size:.73rem;font-weight:600;color:var(--muted);font-family:'DM Mono',monospace;transition:color .15s,background .15s;}
+.nn-list a:hover{color:var(--text);background:var(--bg);}
+.nn-list a.activa{background:var(--primary-light);color:var(--primary);}
+.nn-list .sep{color:var(--border);font-size:.7rem;padding:0 1px;flex-shrink:0;pointer-events:none;}
+.sec-nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:83px;z-index:100;display:flex;overflow-x:auto;transition:background .25s;}
+.sec-nav::-webkit-scrollbar{display:none;}
+.sec-nav a{flex-shrink:0;padding:.75rem 1.1rem;text-decoration:none;color:var(--muted);font-size:.82rem;font-weight:500;border-bottom:2px solid transparent;white-space:nowrap;transition:color .2s,border-color .2s;}
+.sec-nav a:hover{color:var(--primary);border-bottom-color:var(--primary);}
+main{max-width:920px;margin:0 auto;padding:2rem 1.5rem;}
+.nivel-badge{display:inline-flex;align-items:center;gap:.5rem;background:var(--primary);color:white;border-radius:20px;padding:5px 16px;font-size:.82rem;font-weight:700;margin-bottom:1.75rem;}
+.module{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;margin-bottom:2.5rem;scroll-margin-top:135px;transition:background .25s,border-color .25s;}
+.module-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border);}
+.module-icon{font-size:1.8rem;flex-shrink:0;}
+.module-title{font-size:1.35rem;font-weight:700;}
+.module-sub{font-size:.85rem;color:var(--muted);margin-top:2px;}
+.module h2{font-size:1.15rem;font-weight:700;margin:1.75rem 0 .75rem;}
+.module p{margin-bottom:.85rem;font-size:.97rem;}
+.module ul,.module ol{padding-left:1.4rem;margin-bottom:.85rem;}
+.module li{margin-bottom:.4rem;font-size:.96rem;}
+.analogy{background:var(--analogy-bg);border:1px solid var(--analogy-border);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0;}
+.analogy h4{color:var(--analogy-head);font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+.analogy p{font-size:.95rem;color:var(--analogy-text);margin:0;}
+.concept,.tip,.warn,.note{border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0;border-left-width:4px;border-left-style:solid;}
+.concept h4,.tip h4,.warn h4,.note h4{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+.concept p,.tip p,.warn p,.note p{font-size:.95rem;margin:0;}
+.tip ul{font-size:.95rem;padding-left:1.2rem;margin-top:.3rem;}
+.concept{background:var(--primary-light);border-color:var(--primary);}
+.concept h4{color:var(--primary);}
+.tip{background:var(--secondary-light);border-color:var(--secondary);}
+.tip h4{color:var(--secondary);}
+.warn{background:var(--primary-light);border-color:var(--primary);}
+.warn h4{color:var(--primary);}
+.note{background:var(--note-bg);border-color:var(--note-border);}
+.note h4{color:var(--note-head);}
+.code-wrap{position:relative;margin:1rem 0;}
+.code-block{background:var(--code-bg);color:var(--code-text);border-radius:10px;padding:1.25rem 1.5rem;font-family:'DM Mono',monospace;font-size:.88rem;line-height:1.85;overflow-x:auto;white-space:pre;}
+.lang-tag{position:absolute;top:.6rem;right:.75rem;background:rgba(255,255,255,.1);color:rgba(255,255,255,.45);font-size:.68rem;padding:2px 8px;border-radius:4px;font-family:sans-serif;font-weight:700;}
+.ct{color:#89B4FA;}.cv{color:#A6E3A1;}.cs{color:#F9E2AF;}.cc{color:#585B70;font-style:italic;}.cn{color:#FAB387;}
+.terminal{background:#0a0e14;border:1px solid #21262d;border-radius:10px;overflow:hidden;margin:1rem 0;}
+.term-bar{background:#161b22;padding:.42rem .85rem;display:flex;align-items:center;gap:.35rem;border-bottom:1px solid #21262d;}
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.dot-r{background:#ff5f57;}.dot-y{background:#ffbd2e;}.dot-g{background:#28c840;}
+.term-label{font-family:'DM Mono',monospace;font-size:.69rem;color:#3a5070;margin-left:.4rem;}
+.term-body{padding:1.1rem 1.3rem;font-family:'DM Mono',monospace;font-size:.85rem;line-height:2.1;color:#c9d8f0;}
+.t-p{color:#3ddc84;}.t-o{color:#5a7090;display:block;}.t-h{color:#253550;font-style:italic;display:block;}
+.diagram{background:var(--diagram-bg);border:1px solid var(--diagram-border);border-radius:12px;padding:1.5rem;margin:1.1rem 0;font-family:'DM Mono',monospace;font-size:.87rem;line-height:2;overflow-x:auto;transition:background .25s,border-color .25s;}
+.d-r{color:var(--primary);font-weight:700;}.d-g{color:var(--secondary);font-weight:700;}.d-y{color:var(--accent);font-weight:700;}.d-b{color:#6366f1;font-weight:700;}.d-m{color:var(--muted);font-style:italic;}
+.tbl{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem;}
+.tbl th{background:var(--primary-light);color:var(--primary);padding:.65rem 1rem;text-align:left;font-weight:600;}
+.tbl td{padding:.65rem 1rem;border-bottom:1px solid var(--border);vertical-align:top;}
+.tbl td:first-child{font-family:'DM Mono',monospace;font-size:.85rem;color:var(--primary);font-weight:600;}
+.tbl tr:hover td{background:var(--bg);}
+
+/* PASOS NUMERADOS — estilo guía de instalación */
+.steps{display:flex;flex-direction:column;gap:0;margin:1.1rem 0;position:relative;}
+.steps::before{content:'';position:absolute;left:21px;top:30px;bottom:30px;width:2px;background:linear-gradient(to bottom,var(--border),var(--primary-mid),var(--border));}
+.step{display:flex;align-items:flex-start;gap:1rem;padding:.5rem 0;}
+.step-num{width:44px;height:44px;border-radius:50%;background:var(--surface);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:.8rem;font-weight:700;color:var(--primary);flex-shrink:0;z-index:1;transition:background .25s,border-color .25s;}
+.step-num.done{background:var(--secondary-light);border-color:var(--secondary);color:var(--secondary);}
+.step-body{flex:1;padding-top:.55rem;}
+.step-title{font-weight:700;font-size:.97rem;margin-bottom:.25rem;}
+.step-desc{font-size:.87rem;color:var(--muted);line-height:1.6;}
+
+/* OPCIONES DE INSTALACIÓN */
+.install-opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1rem;margin:1rem 0;}
+.install-opt{background:var(--bg);border:2px solid var(--border);border-radius:14px;padding:1.25rem;transition:border-color .2s,background .25s;cursor:default;}
+.install-opt:hover{border-color:var(--primary);}
+.io-icon{font-size:2rem;margin-bottom:.5rem;}
+.io-name{font-weight:700;font-size:1rem;margin-bottom:.35rem;}
+.io-desc{font-size:.86rem;color:var(--muted);line-height:1.55;margin-bottom:.6rem;}
+.io-badge{display:inline-block;font-size:.7rem;padding:2px 9px;border-radius:20px;font-weight:700;}
+.io-badge.rec{background:var(--secondary-light);color:var(--secondary);}
+.io-badge.med{background:var(--accent-light);color:var(--accent);}
+.io-badge.adv{background:var(--primary-light);color:var(--primary);}
+
+/* PARTICIONES VISUAL */
+.disk-visual{margin:1.1rem 0;}
+.disk-bar{display:flex;border-radius:8px;overflow:hidden;height:44px;margin-bottom:.75rem;border:1px solid var(--border);}
+.disk-seg{display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:.72rem;font-weight:700;color:white;transition:flex .3s;}
+.seg-win{background:#0078d4;flex:5;}
+.seg-boot{background:var(--accent);flex:.4;min-width:40px;}
+.seg-swap{background:#6366f1;flex:.5;min-width:40px;}
+.seg-root{background:var(--primary);flex:3;}
+.seg-home{background:var(--secondary);flex:3;}
+.disk-legend{display:flex;flex-wrap:wrap;gap:.6rem;}
+.dl-item{display:flex;align-items:center;gap:.4rem;font-size:.82rem;}
+.dl-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0;}
+
+/* UEFI vs BIOS */
+.compare-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1rem 0;}
+@media(max-width:560px){.compare-2{grid-template-columns:1fr;}}
+.cmp-box{border-radius:12px;padding:1.25rem;border:1px solid var(--border);}
+.cmp-box.old{background:var(--accent-light);border-color:rgba(176,112,16,.3);}
+.cmp-box.new{background:var(--secondary-light);border-color:rgba(26,122,90,.3);}
+.cmp-head{font-weight:700;font-size:.97rem;margin-bottom:.7rem;display:flex;align-items:center;gap:.4rem;}
+.cmp-box.old .cmp-head{color:var(--accent);}
+.cmp-box.new .cmp-head{color:var(--secondary);}
+.cmp-item{font-size:.86rem;margin-bottom:.35rem;padding-left:.9rem;position:relative;}
+.cmp-item::before{content:'·';position:absolute;left:0;color:var(--muted);}
+
+/* CHECKLIST PRE-INSTALL */
+.checklist{display:flex;flex-direction:column;gap:.5rem;margin:1rem 0;}
+.cl-item{display:flex;align-items:flex-start;gap:.75rem;padding:.75rem 1rem;background:var(--bg);border:1px solid var(--border);border-radius:10px;font-size:.9rem;transition:background .25s;}
+.cl-icon{font-size:1.2rem;flex-shrink:0;margin-top:1px;}
+.cl-text strong{display:block;font-size:.92rem;margin-bottom:1px;}
+.cl-text span{font-size:.83rem;color:var(--muted);}
+
+/* EJERCICIO */
+.ejercicio{background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:1.5rem;margin:1.5rem 0;}
+[data-theme="dark"] .ejercicio{background:rgba(240,192,64,.06);border-color:rgba(240,192,64,.22);}
+.ej-hd{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;font-weight:700;font-size:1rem;color:#78350F;flex-wrap:wrap;}
+[data-theme="dark"] .ej-hd{color:#f0c040;}
+.ej-badge{background:var(--accent);color:#fff;font-size:.68rem;padding:2px 9px;border-radius:20px;font-weight:700;text-transform:uppercase;}
+.ejercicio ol{padding-left:1.4rem;}
+.ejercicio ol li{margin-bottom:.6rem;font-size:.95rem;}
+.ejercicio p{font-size:.95rem;margin-bottom:.6rem;}
+.resumen{background:var(--primary-light);border:1px solid var(--primary-mid);border-radius:14px;padding:1.6rem;margin-bottom:1.5rem;}
+.resumen h3{color:var(--primary);margin-bottom:.75rem;font-size:1.05rem;}
+.resumen ul{padding-left:1.4rem;}
+.resumen li{font-size:.92rem;margin-bottom:.45rem;}
+.next-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem 1.5rem;display:flex;align-items:center;gap:1rem;text-decoration:none;transition:border-color .2s;margin-bottom:2rem;}
+.next-card:hover{border-color:var(--primary);}
+.nc-label{font-size:.72rem;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.2rem;}
+.nc-name{font-weight:700;color:var(--text);font-size:.97rem;}
+.nc-arrow{font-size:1.4rem;color:var(--primary);margin-left:auto;}
+code{font-family:'DM Mono',monospace;background:#f0ece6;color:var(--primary);padding:1px 5px;border-radius:4px;font-size:.9em;}
+[data-theme="dark"] code{background:#1c2128;}
+strong{font-weight:700;}
+p{margin-bottom:.8rem;}ul,ol{padding-left:1.4rem;margin-bottom:.8rem;}li{margin-bottom:.4rem;font-size:.96rem;}
+h2{font-size:1.2rem;font-weight:700;margin:1.75rem 0 .75rem;}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.85rem;border-top:1px solid var(--border);margin-top:1rem;background:var(--bg);transition:background .25s;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="topbar-back" href="../index.html">← Café &lt;/&gt;</a>
+  <span class="topbar-info">🐧 Linux desde Cero · Nivel 5 de 23</span>
+  <button class="theme-btn" onclick="toggleTheme()">
+    <span id="themeIcon">🌙</span><span id="themeLabel">Oscuro</span>
+  </button>
+</div>
+
+<header>
+  <div class="header-eyebrow">🌱 Nivel 5 — Conceptos base</div>
+  <h1><em>Instalar Linux</em></h1>
+  <p>USB booteable, particiones, dual boot con Windows, UEFI/BIOS y los primeros pasos tras la instalación</p>
+  <div class="header-chips">
+    <span class="header-chip">Nivel 5 de 23</span>
+    <span class="header-chip">🌱 Principiante</span>
+    <span class="header-chip">8 subtemas</span>
+    <span class="header-chip">~30 min</span>
+  </div>
+</header>
+
+<div class="niveles-nav">
+  <a class="nn-prev" href="linux-nivel-04.html">← N4</a>
+  <div class="nn-list">
+    <a href="linux-nivel-01.html" title="Sistema Operativo">N1</a>
+    <a href="linux-nivel-02.html" title="¿Qué es Linux?">N2</a>
+    <a href="linux-nivel-03.html" title="GNU">N3</a>
+    <a href="linux-nivel-04.html" title="Distribuciones">N4</a>
+    <a href="linux-nivel-05.html" class="activa" title="Instalar Linux">N5</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-06.html" title="Familia Debian">N6</a>
+    <a href="linux-nivel-07.html" title="Familia Red Hat">N7</a>
+    <a href="linux-nivel-08.html" title="Otras familias">N8</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-09.html" title="Capas de Linux">N9</a>
+    <a href="linux-nivel-10.html" title="Escritorio">N10</a>
+    <a href="linux-nivel-11.html" title="X11 y Wayland">N11</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-12.html" title="Terminal">N12</a>
+    <a href="linux-nivel-13.html" title="Sistema de archivos">N13</a>
+    <a href="linux-nivel-14.html" title="Usuarios y permisos">N14</a>
+    <a href="linux-nivel-15.html" title="Software">N15</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-16.html" title="Procesos">N16</a>
+    <a href="linux-nivel-17.html" title="Arranque">N17</a>
+    <a href="linux-nivel-18.html" title="Almacenamiento">N18</a>
+    <a href="linux-nivel-19.html" title="CPU y RAM">N19</a>
+    <a href="linux-nivel-20.html" title="Redes">N20</a>
+    <a href="linux-nivel-21.html" title="Seguridad">N21</a>
+    <a href="linux-nivel-22.html" title="Linux internamente">N22</a>
+    <a href="linux-nivel-23.html" title="Programar y crear">N23</a>
+  </div>
+  <a class="nn-next" href="linux-nivel-06.html">N6 →</a>
+</div>
+
+<nav class="sec-nav">
+  <a href="#opciones">🗺 Opciones</a>
+  <a href="#checklist">✅ Antes de empezar</a>
+  <a href="#usb">💿 USB booteable</a>
+  <a href="#uefi">🔒 UEFI vs BIOS</a>
+  <a href="#particiones">💽 Particiones</a>
+  <a href="#dualboot">🪟 Dual boot</a>
+  <a href="#instalacion">🚀 La instalación</a>
+  <a href="#postinstall">🎉 Primeros pasos</a>
+  <a href="#ejercicio">✏️ Ejercicio</a>
+</nav>
+
+<main>
+<div class="nivel-badge">🌱 Nivel 5 — Instalar Linux</div>
+
+
+<!-- ═══════════════════════
+     OPCIONES
+═══════════════════════ -->
+<section class="module" id="opciones">
+  <div class="module-header">
+    <div class="module-icon">🗺️</div>
+    <div>
+      <div class="module-title">¿Cómo quieres instalar Linux?</div>
+      <div class="module-sub">Tres caminos distintos según tu situación y nivel de compromiso</div>
+    </div>
+  </div>
+
+  <p>No hay una sola forma de instalar Linux. Antes de empezar, elige el camino que mejor se adapta a tu situación. Cada uno tiene ventajas y limitaciones concretas.</p>
+
+  <div class="install-opts">
+    <div class="install-opt">
+      <div class="io-icon">🖥️</div>
+      <div class="io-name">Máquina virtual (VM)</div>
+      <div class="io-desc">Linux corre dentro de una ventana en tu sistema actual. No tocas tu disco real. Perfecto para experimentar sin riesgo. Requiere al menos 8 GB de RAM.</div>
+      <span class="io-badge rec">✓ Recomendado para empezar</span>
+    </div>
+    <div class="install-opt">
+      <div class="io-icon">🪟</div>
+      <div class="io-name">Dual boot</div>
+      <div class="io-desc">Linux y Windows conviven en el mismo disco en particiones separadas. Al encender eliges cuál arrancar. Rendimiento nativo, pero hay que particionar con cuidado.</div>
+      <span class="io-badge med">⚡ Rendimiento real</span>
+    </div>
+    <div class="install-opt">
+      <div class="io-icon">🐧</div>
+      <div class="io-name">Instalación única</div>
+      <div class="io-desc">Linux ocupa todo el disco. La forma más limpia y simple. Ideal si tienes una computadora extra o ya decidiste pasarte a Linux completamente.</div>
+      <span class="io-badge rec">✓ Más simple</span>
+    </div>
+    <div class="install-opt">
+      <div class="io-icon">🪟</div>
+      <div class="io-name">WSL2 (Windows)</div>
+      <div class="io-desc">Windows Subsystem for Linux — terminal Linux integrada en Windows 11/10. No es un Linux completo pero sirve para aprender la terminal sin instalar nada.</div>
+      <span class="io-badge med">⚡ Sin instalar</span>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Recomendación para esta guía</h4>
+    <p>Si es tu primera vez: empieza con una <strong>máquina virtual con VirtualBox o VMware</strong> usando Ubuntu 24.04 LTS. Es gratis, sin riesgo, y puedes experimentar todo lo que quieras sin miedo a romper nada. Cuando te sientas cómodo, da el salto al dual boot o instalación completa.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     CHECKLIST PRE-INSTALL
+═══════════════════════ -->
+<section class="module" id="checklist">
+  <div class="module-header">
+    <div class="module-icon">✅</div>
+    <div>
+      <div class="module-title">Checklist antes de instalar</div>
+      <div class="module-sub">Lo que debes verificar antes de arrancar el instalador</div>
+    </div>
+  </div>
+
+  <p>Instalar Linux en hardware real requiere preparación. Omitir alguno de estos pasos es la causa del 90% de los problemas que reportan los principiantes.</p>
+
+  <div class="checklist">
+    <div class="cl-item">
+      <div class="cl-icon">💾</div>
+      <div class="cl-text">
+        <strong>Haz un backup de tus datos</strong>
+        <span>Copia tus archivos importantes a un disco externo o la nube. Si algo sale mal durante la instalación, tu disco puede quedar en un estado inconsistente.</span>
+      </div>
+    </div>
+    <div class="cl-item">
+      <div class="cl-icon">🔋</div>
+      <div class="cl-text">
+        <strong>Enchufa el cargador (laptops)</strong>
+        <span>Una instalación que se interrumpe por batería baja puede dejar el sistema en estado de arranque roto. Siempre instala con el cargador conectado.</span>
+      </div>
+    </div>
+    <div class="cl-item">
+      <div class="cl-icon">📶</div>
+      <div class="cl-text">
+        <strong>Conecta a internet (si puedes)</strong>
+        <span>El instalador descarga actualizaciones y drivers adicionales durante la instalación. Con cable ethernet es más fiable que WiFi durante este proceso.</span>
+      </div>
+    </div>
+    <div class="cl-item">
+      <div class="cl-icon">💿</div>
+      <div class="cl-text">
+        <strong>USB de al menos 8 GB</strong>
+        <span>El ISO de Ubuntu 24.04 LTS pesa ~5.5 GB. Necesitas un USB de 8 GB mínimo. Todo lo que haya en el USB se borrará al crear el booteable.</span>
+      </div>
+    </div>
+    <div class="cl-item">
+      <div class="cl-icon">🔑</div>
+      <div class="cl-text">
+        <strong>Desactiva Secure Boot (si necesario)</strong>
+        <span>Ubuntu moderno soporta Secure Boot. Pero si tienes problemas al arrancar el USB, desactivarlo en la UEFI suele resolverlo. Puedes reactivarlo después.</span>
+      </div>
+    </div>
+    <div class="cl-item">
+      <div class="cl-icon">🗂️</div>
+      <div class="cl-text">
+        <strong>Anota el espacio disponible en disco</strong>
+        <span>Linux necesita mínimo 25 GB para instalarse con comodidad. 50 GB es lo recomendado para uso normal. 100 GB+ si vas a programar y guardar proyectos.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ El error más común</h4>
+    <p>Instalar Linux sin hacer backup y sin leer el particionador con calma. El instalador muestra claramente qué va a hacer con tu disco — léelo dos veces antes de hacer clic en "Instalar". Una vez que el instalador formatea, no hay vuelta atrás.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     USB BOOTEABLE
+═══════════════════════ -->
+<section class="module" id="usb">
+  <div class="module-header">
+    <div class="module-icon">💿</div>
+    <div>
+      <div class="module-title">Crear un USB booteable</div>
+      <div class="module-sub">Descargar el ISO y grabarlo correctamente en el USB</div>
+    </div>
+  </div>
+
+  <p>Un <strong>USB booteable</strong> contiene el instalador de Linux grabado de forma especial para que la computadora pueda arrancar desde él. No es simplemente copiar el archivo ISO — hay que "quemar" el ISO con una herramienta específica.</p>
+
+  <div class="analogy">
+    <h4>📼 Analogía — No es copiar, es grabar</h4>
+    <p>Copiar el archivo ISO al USB es como intentar instalar Windows copiando el DVD a una carpeta — no funciona. El ISO tiene que <strong>grabarse</strong> en el USB de forma que la UEFI pueda leerlo como disco de arranque. Es como la diferencia entre copiar música a un casete y grabarla correctamente con la velocidad y el formato adecuados.</p>
+  </div>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <div class="step-title">Descarga el ISO de Ubuntu 24.04 LTS</div>
+        <div class="step-desc">Entra a <strong>ubuntu.com/download/desktop</strong> y descarga el archivo .iso (~5.5 GB). Verifica el checksum SHA256 para asegurarte de que la descarga está íntegra.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <div class="step-title">Descarga Balena Etcher o Rufus</div>
+        <div class="step-desc"><strong>Balena Etcher</strong> (Windows/Mac/Linux) es el más simple: solo arrastrar el ISO, seleccionar el USB y clic en Flash. <strong>Rufus</strong> (solo Windows) da más opciones. Cualquiera de los dos funciona perfectamente.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <div class="step-title">Graba el ISO en el USB</div>
+        <div class="step-desc">Abre Etcher → selecciona el ISO → selecciona el USB → clic en Flash. El proceso tarda 5–10 minutos. Todo el contenido del USB se borrará — guarda lo que necesites antes.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <div class="step-title">Arranca desde el USB</div>
+        <div class="step-desc">Inserta el USB, reinicia la computadora y entra al boot menu presionando <code>F12</code>, <code>F11</code>, <code>Esc</code> o <code>Del</code> (varía por fabricante). Selecciona el USB en el menú y Ubuntu arrancará en modo live.</div>
+      </div>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Fabricante</th><th>Tecla Boot Menu</th><th>Tecla UEFI/BIOS</th></tr></thead>
+    <tbody>
+      <tr><td>Dell</td><td>F12</td><td>F2</td></tr>
+      <tr><td>HP</td><td>F9 o Esc</td><td>F10</td></tr>
+      <tr><td>Lenovo</td><td>F12 o Fn+F12</td><td>F2 o Fn+F2</td></tr>
+      <tr><td>ASUS</td><td>F8 o Esc</td><td>F2 o Del</td></tr>
+      <tr><td>Acer</td><td>F12</td><td>F2 o Del</td></tr>
+      <tr><td>MSI</td><td>F11</td><td>Del</td></tr>
+      <tr><td>Clónicos/Genéricos</td><td>F11 o F12</td><td>Del o F1</td></tr>
+    </tbody>
+  </table>
+
+  <div class="concept">
+    <h4>💡 Modo Live — prueba sin instalar</h4>
+    <p>Al arrancar desde el USB, Ubuntu te ofrece "Probar Ubuntu" antes de instalar. <strong>Úsalo.</strong> El modo live carga Ubuntu completamente en la RAM — puedes navegar, usar aplicaciones y comprobar que el WiFi, audio y pantalla funcionan en tu hardware antes de comprometerte con la instalación.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     UEFI vs BIOS
+═══════════════════════ -->
+<section class="module" id="uefi">
+  <div class="module-header">
+    <div class="module-icon">🔒</div>
+    <div>
+      <div class="module-title">UEFI vs BIOS — el firmware de arranque</div>
+      <div class="module-sub">El programa que arranca antes que cualquier sistema operativo</div>
+    </div>
+  </div>
+
+  <p>Antes de que Linux arranque, el firmware de la placa base toma el control. Existen dos tipos: el antiguo <strong>BIOS</strong> y el moderno <strong>UEFI</strong>. Saber cuál tienes afecta cómo configuras el arranque y las particiones.</p>
+
+  <div class="compare-2">
+    <div class="cmp-box old">
+      <div class="cmp-head">🕰️ BIOS (Legacy)</div>
+      <div class="cmp-item">Interfaz de texto, teclado solo</div>
+      <div class="cmp-item">Solo discos MBR (máx 2 TB)</div>
+      <div class="cmp-item">Máximo 4 particiones primarias</div>
+      <div class="cmp-item">Sin Secure Boot</div>
+      <div class="cmp-item">Tiempo de arranque más lento</div>
+      <div class="cmp-item">Computadoras pre-2012</div>
+    </div>
+    <div class="cmp-box new">
+      <div class="cmp-head">⚡ UEFI (Moderno)</div>
+      <div class="cmp-item">Interfaz gráfica con ratón</div>
+      <div class="cmp-item">Discos GPT (hasta 9.4 ZB)</div>
+      <div class="cmp-item">Particiones ilimitadas</div>
+      <div class="cmp-item">Secure Boot disponible</div>
+      <div class="cmp-item">Arranque más rápido</div>
+      <div class="cmp-item">Computadoras post-2012</div>
+    </div>
+  </div>
+
+  <div class="diagram">
+<span class="d-m"># Cómo saber si tienes UEFI o BIOS (en Windows):</span>
+
+<span class="d-m">Método 1:</span>  Win + R  →  msinfo32  →  busca "Modo BIOS"
+             Si dice <span class="d-g">UEFI</span> → tienes UEFI
+             Si dice <span class="d-y">Legado</span> → tienes BIOS Legacy
+
+<span class="d-m">Método 2:</span>  Si existe la carpeta <span class="d-g">C:\Windows\Boot\EFI</span> → UEFI
+             Si existe <span class="d-y">C:\Windows\Boot\PCAT</span> → BIOS Legacy
+
+<span class="d-m"># En Linux (si ya lo tienes instalado):</span>
+<span class="d-g">$ ls /sys/firmware/efi</span>   <span class="d-m">→ Si existe la carpeta, es UEFI</span></div>
+
+  <div class="note">
+    <h4>📌 Secure Boot y Linux</h4>
+    <p>Secure Boot es una función UEFI que verifica que solo software firmado digitalmente pueda arrancar. Ubuntu y Fedora incluyen sus propias firmas y funcionan con Secure Boot activado. Si usas otra distro o tienes problemas, desactívalo en la configuración UEFI. No es un riesgo de seguridad desactivarlo en una computadora personal.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     PARTICIONES
+═══════════════════════ -->
+<section class="module" id="particiones">
+  <div class="module-header">
+    <div class="module-icon">💽</div>
+    <div>
+      <div class="module-title">Particiones de disco</div>
+      <div class="module-sub">Cómo dividir el espacio del disco para Linux</div>
+    </div>
+  </div>
+
+  <p>Una <strong>partición</strong> es una división lógica del disco duro — como separar un cajón grande en compartimentos más pequeños. Linux necesita al menos una partición para instalarse, pero lo habitual es tener varias con propósitos distintos.</p>
+
+  <div class="analogy">
+    <h4>🏠 Analogía — Dividir un apartamento</h4>
+    <p>Tu disco es el apartamento. Las particiones son las habitaciones: sala, cocina, dormitorio, baño. Puedes vivir en un estudio sin divisiones (una sola partición), pero tener habitaciones separadas te da orden: si inundas la cocina (llenas la partición <code>/home</code>), el dormitorio (el sistema en <code>/</code>) no se ve afectado.</p>
+  </div>
+
+  <h2>Las particiones que necesita Linux (con UEFI)</h2>
+
+  <div class="disk-visual">
+    <div class="disk-bar">
+      <div class="disk-seg seg-boot" title="/boot/efi — 512 MB">EFI</div>
+      <div class="disk-seg seg-swap" title="swap — 4-8 GB">swap</div>
+      <div class="disk-seg seg-root" title="/ — 30-50 GB">  /  (raíz)</div>
+      <div class="disk-seg seg-home" title="/home — resto">/home</div>
+    </div>
+    <div class="disk-legend">
+      <div class="dl-item"><div class="dl-dot" style="background:#b07010"></div><span><code>/boot/efi</code> — 512 MB — Archivos de arranque UEFI</span></div>
+      <div class="dl-item"><div class="dl-dot" style="background:#6366f1"></div><span><code>swap</code> — 4–8 GB — Memoria virtual en disco</span></div>
+      <div class="dl-item"><div class="dl-dot" style="background:#c44a2a"></div><span><code>/</code> (raíz) — 30–50 GB — El sistema operativo completo</span></div>
+      <div class="dl-item"><div class="dl-dot" style="background:#1a7a5a"></div><span><code>/home</code> — el resto — Tus archivos, configuraciones y proyectos</span></div>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Partición</th><th>Tamaño recomendado</th><th>Sistema de archivos</th><th>Para qué sirve</th></tr></thead>
+    <tbody>
+      <tr><td>/boot/efi</td><td>512 MB</td><td>FAT32</td><td>Archivos de arranque UEFI y GRUB. Obligatoria en sistemas UEFI.</td></tr>
+      <tr><td>swap</td><td>= tu RAM (máx 8 GB)</td><td>swap</td><td>Memoria virtual. Se usa cuando la RAM se llena. También para hibernación.</td></tr>
+      <tr><td>/ (raíz)</td><td>30–50 GB</td><td>ext4 o btrfs</td><td>Todo el sistema operativo: kernel, programas, configuración del sistema.</td></tr>
+      <tr><td>/home</td><td>El espacio restante</td><td>ext4 o btrfs</td><td>Tus archivos personales, descargas, proyectos, configuraciones de usuario.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="tip">
+    <h4>🟢 Consejo para principiantes — dejar que el instalador decida</h4>
+    <p>Ubuntu y Linux Mint tienen la opción <strong>"Instalar junto a Windows"</strong> o <strong>"Borrar disco e instalar"</strong>. Si eliges una de estas, el instalador crea las particiones automáticamente de forma óptima. El particionado manual es para cuando ya sabes lo que haces. Para tu primera instalación: deja que el instalador decida.</p>
+  </div>
+
+  <div class="concept">
+    <h4>💡 ¿Por qué separar / y /home?</h4>
+    <p>Si <code>/</code> y <code>/home</code> están en la misma partición y el sistema se llena, pueden ocurrir errores del SO. Más importante: si algún día reinstalaas Linux, puedes formatear solo <code>/</code> (el sistema) y mantener <code>/home</code> intacto con todos tus archivos. Es como renovar la casa sin tocar el contenido.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     DUAL BOOT
+═══════════════════════ -->
+<section class="module" id="dualboot">
+  <div class="module-header">
+    <div class="module-icon">🪟</div>
+    <div>
+      <div class="module-title">Dual Boot — Linux y Windows juntos</div>
+      <div class="module-sub">Convivencia pacífica de dos sistemas en el mismo disco</div>
+    </div>
+  </div>
+
+  <p>Con <strong>dual boot</strong> instalas Linux junto a Windows en el mismo disco. Al encender la computadora, GRUB te muestra un menú para elegir cuál sistema arrancar. Obtienes lo mejor de los dos mundos sin sacrificar ninguno.</p>
+
+  <div class="analogy">
+    <h4>🏠 Analogía — Dos apartamentos en el mismo edificio</h4>
+    <p>El dual boot es como vivir en un edificio con dos apartamentos: uno decorado como Windows (para el trabajo, juegos, Office) y otro como Linux (para programar, aprender, experimentar). El portero (GRUB) te pregunta al entrar a cuál quieres ir. Los apartamentos no se mezclan, pero comparten el edificio.</p>
+  </div>
+
+  <h2>Pasos para configurar dual boot</h2>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <div class="step-title">Libera espacio en Windows</div>
+        <div class="step-desc">Abre el Administrador de discos en Windows (click derecho en inicio → Administración de discos). Haz click derecho en la partición C: → Reducir volumen. Libera al menos 50 GB para Linux. Windows creará espacio no asignado.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <div class="step-title">Desactiva Fast Startup en Windows</div>
+        <div class="step-desc">Panel de control → Opciones de energía → Elegir el comportamiento del botón de inicio/apagado → Desactiva "Inicio rápido". Este modo deja Windows en un estado "congelado" que puede corromper sus archivos si Linux los lee.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <div class="step-title">Arranca el instalador de Linux</div>
+        <div class="step-desc">Arranca desde el USB booteable. En el instalador elige "Instalar junto a Windows". El instalador detectará Windows automáticamente y usará el espacio no asignado que liberaste.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <div class="step-title">GRUB se instala automáticamente</div>
+        <div class="step-desc">El instalador instala GRUB como gestor de arranque. Desde ahora, al encender verás el menú de GRUB con opciones para Ubuntu y Windows. El timeout por defecto es 10 segundos, luego arranca Linux.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ Cuidado con las actualizaciones de Windows</h4>
+    <p>Las actualizaciones grandes de Windows (Feature Updates) a veces sobreescriben el MBR/EFI y eliminan GRUB. Si tras actualizar Windows ya no aparece el menú de GRUB, no entres en pánico — Linux sigue ahí. Arranca desde el USB live y usa <code>boot-repair</code> para restaurar GRUB. Es un problema conocido y tiene solución.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     LA INSTALACIÓN PASO A PASO
+═══════════════════════ -->
+<section class="module" id="instalacion">
+  <div class="module-header">
+    <div class="module-icon">🚀</div>
+    <div>
+      <div class="module-title">La instalación paso a paso</div>
+      <div class="module-sub">Lo que verás en el instalador de Ubuntu 24.04 LTS</div>
+    </div>
+  </div>
+
+  <p>El instalador de Ubuntu es uno de los más amigables de todas las distros. Aquí el recorrido completo de lo que verás en pantalla.</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <div class="step-title">🌐 Idioma y accesibilidad</div>
+        <div class="step-desc">Elige español. El instalador cambia todo el idioma al instante. También puedes activar opciones de accesibilidad si las necesitas.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <div class="step-title">⌨️ Distribución de teclado</div>
+        <div class="step-desc">Elige Spanish (Latin American) si tu teclado tiene ñ y acentos. Prueba escribir en el campo de texto que aparece para verificar que los caracteres especiales funcionan correctamente.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <div class="step-title">📶 Conexión a internet</div>
+        <div class="step-desc">Conecta a tu red WiFi o deja la conexión por cable. Si te conectas, el instalador descargará actualizaciones automáticamente. Si no tienes internet, puedes actualizarlo después.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <div class="step-title">📦 Tipo de instalación</div>
+        <div class="step-desc">Elige entre "Instalación predeterminada" (Firefox, LibreOffice incluidos) o "Instalación mínima" (solo lo esencial). Para empezar, la predeterminada es más cómoda.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-body">
+        <div class="step-title">💽 Tipo de instalación en disco</div>
+        <div class="step-desc">La pantalla más importante. Elige "Instalar junto a Windows" para dual boot, o "Borrar disco" para instalación única. Lee con calma antes de confirmar — esta acción no tiene deshacer.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">6</div>
+      <div class="step-body">
+        <div class="step-title">🌍 Zona horaria</div>
+        <div class="step-desc">Haz clic en el mapa en tu región o escribe tu ciudad. El sistema usará esta zona para la hora del sistema.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">7</div>
+      <div class="step-body">
+        <div class="step-title">👤 Usuario y contraseña</div>
+        <div class="step-desc">Escribe tu nombre, el nombre del equipo (hostname), tu nombre de usuario y una contraseña segura. Activa "Requerir contraseña para iniciar sesión". Este usuario tendrá permisos de sudo (administrador).</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">8</div>
+      <div class="step-body">
+        <div class="step-title">⏳ Instalación en progreso</div>
+        <div class="step-desc">El instalador copia los archivos, configura el bootloader y personaliza el sistema. Tarda entre 10 y 25 minutos según la velocidad del disco y la conexión a internet. Al terminar, reinicia y retira el USB.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     POST-INSTALACIÓN
+═══════════════════════ -->
+<section class="module" id="postinstall">
+  <div class="module-header">
+    <div class="module-icon">🎉</div>
+    <div>
+      <div class="module-title">Primeros pasos tras la instalación</div>
+      <div class="module-sub">Lo primero que debes hacer en tu nuevo sistema Linux</div>
+    </div>
+  </div>
+
+  <p>¡Tienes Linux instalado! Ahora hay un orden recomendado de primeras acciones para dejar el sistema actualizado, seguro y listo para trabajar.</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num done">✓</div>
+      <div class="step-body">
+        <div class="step-title">Actualizar todo el sistema</div>
+        <div class="step-desc">Lo primero siempre. Actualiza el índice de paquetes y todos los paquetes instalados a sus versiones más recientes.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num done">✓</div>
+      <div class="step-body">
+        <div class="step-title">Instalar drivers adicionales</div>
+        <div class="step-desc">Ubuntu detecta automáticamente hardware que necesita drivers privativos (NVIDIA, WiFi broadcom, etc.) y los ofrece en "Software y actualizaciones → Controladores adicionales".</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num done">✓</div>
+      <div class="step-body">
+        <div class="step-title">Configurar el idioma completo</div>
+        <div class="step-desc">Configuración → Sistema → Región e idioma → instala el soporte de idioma completo si faltan paquetes. Esto asegura que fechas, monedas y formatos estén en español.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num done">✓</div>
+      <div class="step-body">
+        <div class="step-title">Instalar tus herramientas básicas</div>
+        <div class="step-desc">VS Code, Git, Node.js, tu navegador preferido. Todo desde la terminal con <code>apt</code> o desde el Centro de Software.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">comandos esenciales post-instalación en Ubuntu</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># 1. Actualizar todo el sistema</span>
+<span class="t-p">$</span> sudo apt update && sudo apt upgrade -y
+
+<span class="t-h"># 2. Instalar herramientas de desarrollo esenciales</span>
+<span class="t-p">$</span> sudo apt install -y build-essential git curl wget
+
+<span class="t-h"># 3. Instalar VS Code</span>
+<span class="t-p">$</span> sudo snap install code --classic
+
+<span class="t-h"># 4. Instalar Node.js (via nvm — la forma recomendada)</span>
+<span class="t-p">$</span> curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+<span class="t-p">$</span> nvm install --lts
+
+<span class="t-h"># 5. Ver info básica del sistema</span>
+<span class="t-p">$</span> uname -r           <span class="t-h"># versión del kernel</span>
+<span class="t-p">$</span> lsb_release -a     <span class="t-h"># info de la distro</span>
+<span class="t-p">$</span> df -h              <span class="t-h"># espacio en disco</span>
+<span class="t-p">$</span> free -h            <span class="t-h"># memoria RAM disponible</span>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 La regla de oro post-instalación</h4>
+    <p>Ejecuta <code>sudo apt update && sudo apt upgrade</code> una vez a la semana. Mantener el sistema actualizado es la medida de seguridad más importante en Linux. Las actualizaciones incluyen parches de seguridad del kernel y de todas las aplicaciones instaladas.</p>
+  </div>
+</section>
+
+
+<!-- EJERCICIO -->
+<div class="ejercicio" id="ejercicio">
+  <div class="ej-hd">
+    ✏️ Ejercicio del Nivel 5
+    <span class="ej-badge">Práctica real</span>
+  </div>
+  <p><strong>Opción A — Máquina Virtual (recomendado para empezar):</strong></p>
+  <ol>
+    <li>Descarga e instala <strong>VirtualBox</strong> (gratuito) desde virtualbox.org</li>
+    <li>Descarga el ISO de <strong>Ubuntu 24.04 LTS</strong> desde ubuntu.com</li>
+    <li>Crea una VM nueva: 4 GB RAM, 50 GB disco, 2 CPUs, activa "Enable EFI"</li>
+    <li>Asigna el ISO como disco de arranque y arranca la VM</li>
+    <li>Instala Ubuntu con las opciones por defecto y completa los primeros pasos</li>
+    <li>Abre la terminal y ejecuta: <code>sudo apt update && sudo apt upgrade -y</code></li>
+  </ol>
+  <p><strong>Opción B — Hardware real:</strong></p>
+  <ol>
+    <li>Haz el backup de tus datos importantes</li>
+    <li>Crea el USB booteable con Balena Etcher + ISO Ubuntu 24.04</li>
+    <li>Instala en dual boot o instalación única según tu situación</li>
+    <li>Completa los primeros pasos post-instalación de este nivel</li>
+  </ol>
+  <p><strong>Verificación:</strong> Al terminar debes poder abrir la terminal y ejecutar <code>uname -r</code> y ver la versión del kernel de Linux. ¡Eso significa que estás corriendo Linux!</p>
+</div>
+
+<!-- RESUMEN -->
+<div class="resumen">
+  <h3>🟥 Resumen del Nivel 5</h3>
+  <ul>
+    <li>Tienes 4 opciones: <strong>VM</strong> (sin riesgo), <strong>dual boot</strong> (con Windows), <strong>instalación única</strong> o <strong>WSL2</strong>.</li>
+    <li>Antes de instalar: backup, cargador conectado, USB de 8 GB+, 50 GB de espacio libre.</li>
+    <li>El USB booteable se crea con <strong>Balena Etcher</strong> o Rufus — no se copia el ISO, se graba.</li>
+    <li><strong>UEFI</strong> es el firmware moderno (post-2012). Soporta discos GPT, Secure Boot y arranque rápido.</li>
+    <li>Linux necesita particiones: <code>/boot/efi</code> (512 MB), <code>swap</code>, <code>/</code> (sistema) y <code>/home</code> (tus archivos).</li>
+    <li>Para <strong>dual boot</strong>: libera espacio en Windows, desactiva Fast Startup, instala Linux en el espacio libre.</li>
+    <li>GRUB es el gestor de arranque que aparece al encender y te permite elegir SO.</li>
+    <li>Post-instalación: <code>sudo apt update && sudo apt upgrade</code> siempre primero.</li>
+  </ul>
+</div>
+
+<a class="next-card" href="linux-nivel-06.html">
+  <div>
+    <div class="nc-label">Siguiente → Nivel 6</div>
+    <div class="nc-name">Familia Debian — Ubuntu, Linux Mint, APT en profundidad, repositorios y paquetes .deb</div>
+  </div>
+  <div class="nc-arrow">→</div>
+</a>
+
+</main>
+
+<footer>
+  Linux desde Cero · Nivel 5 · Instalar Linux · Café &lt;/&gt; · Hugo 2025
+</footer>
+
+<script>
+(function(){const s=localStorage.getItem('cafe-theme');const sys=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';const t=s||sys;document.documentElement.setAttribute('data-theme',t);updateUI(t);})();
+function toggleTheme(){const c=document.documentElement.getAttribute('data-theme');const n=c==='light'?'dark':'light';document.documentElement.setAttribute('data-theme',n);localStorage.setItem('cafe-theme',n);updateUI(n);}
+function updateUI(t){const i=document.getElementById('themeIcon');const l=document.getElementById('themeLabel');if(!i||!l)return;i.textContent=t==='dark'?'☀️':'🌙';l.textContent=t==='dark'?'Claro':'Oscuro';}
+</script>
+</body>
+</html>

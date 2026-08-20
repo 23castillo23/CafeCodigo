@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux desde Cero · N14 · Usuarios y Permisos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root,[data-theme="light"]{--primary:#c44a2a;--primary-light:#fdf0ec;--primary-mid:rgba(196,74,42,.25);--secondary:#1a7a5a;--secondary-light:#edf7f3;--accent:#b07010;--accent-light:#fdf6e8;--bg:#f7f4ef;--surface:#ffffff;--text:#1a1814;--muted:#8a8480;--border:#e8e4de;--code-bg:#1a1814;--code-text:#e8e4de;--header-bg:#1a1814;--analogy-bg:#fff7ed;--analogy-border:#fde68a;--analogy-text:#78350f;--analogy-head:#92400e;--diagram-bg:#f0f4ff;--diagram-border:#c7d2fe;--note-bg:#f0f4ff;--note-border:#6366f1;--note-head:#4338ca;}
+[data-theme="dark"]{--primary:#ff7a57;--primary-light:rgba(255,122,87,.14);--primary-mid:rgba(255,122,87,.3);--secondary:#3ddc84;--secondary-light:rgba(61,220,132,.12);--accent:#f0c040;--accent-light:rgba(240,192,64,.12);--bg:#0d1117;--surface:#161b22;--text:#c9d8f0;--muted:#5a7090;--border:#21262d;--code-bg:#060a10;--code-text:#c9d8f0;--header-bg:#0a0e14;--analogy-bg:rgba(240,192,64,.07);--analogy-border:rgba(240,192,64,.3);--analogy-text:#e6d4a0;--analogy-head:#f0c040;--diagram-bg:#161b22;--diagram-border:#21262d;--note-bg:rgba(99,102,241,.1);--note-border:#818cf8;--note-head:#818cf8;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;font-size:16px;transition:background .25s,color .25s;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:300;height:45px;transition:background .25s,border-color .25s;}
+.topbar-back{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);text-decoration:none;padding:5px 14px;border:1px solid var(--border);border-radius:999px;transition:all .15s;}
+.topbar-back:hover{color:var(--text);border-color:var(--muted);}
+.topbar-info{font-size:13px;color:var(--muted);}
+.theme-btn{margin-left:auto;background:none;border:1px solid var(--border);border-radius:999px;padding:4px 13px;font-size:13px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:.35rem;transition:all .15s;font-family:'DM Sans',sans-serif;}
+.theme-btn:hover{color:var(--text);border-color:var(--muted);}
+header{background:var(--header-bg);color:#f7f4ef;padding:3rem 2rem 2.25rem;text-align:center;position:relative;overflow:hidden;}
+header::before{content:'N14';position:absolute;font-family:'DM Mono',monospace;font-size:11rem;font-weight:900;color:rgba(255,255,255,.04);right:-1rem;top:-1.5rem;line-height:1;pointer-events:none;}
+.header-eyebrow{display:inline-flex;align-items:center;gap:.5rem;background:rgba(196,74,42,.25);border:1px solid rgba(196,74,42,.45);border-radius:20px;padding:3px 14px;font-size:.78rem;font-weight:700;color:#ffaa88;margin-bottom:.85rem;}
+header h1{font-size:2.5rem;font-weight:800;letter-spacing:-1px;color:#f7f4ef;line-height:1.2;}
+header h1 em{font-style:normal;color:#ff8a6a;}
+header p{font-size:1.05rem;opacity:.8;margin-top:.5rem;max-width:540px;margin-left:auto;margin-right:auto;}
+.header-chips{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-top:.9rem;}
+.header-chip{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:20px;padding:3px 13px;font-size:.76rem;color:rgba(255,255,255,.75);}
+.niveles-nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:45px;z-index:110;display:flex;align-items:center;height:38px;padding:0 1rem;transition:background .25s;}
+.nn-prev,.nn-next{flex-shrink:0;display:flex;align-items:center;gap:.3rem;padding:0 .75rem;height:100%;text-decoration:none;color:var(--muted);font-size:.78rem;font-weight:500;border-right:1px solid var(--border);transition:color .15s;white-space:nowrap;}
+.nn-next{border-right:none;border-left:1px solid var(--border);}
+.nn-prev:hover,.nn-next:hover{color:var(--primary);}
+.nn-list{flex:1;display:flex;align-items:center;justify-content:center;gap:.15rem;overflow-x:auto;padding:0 .5rem;}
+.nn-list::-webkit-scrollbar{display:none;}
+.nn-list a{flex-shrink:0;padding:2px 9px;border-radius:20px;text-decoration:none;font-size:.73rem;font-weight:600;color:var(--muted);font-family:'DM Mono',monospace;transition:color .15s,background .15s;}
+.nn-list a:hover{color:var(--text);background:var(--bg);}
+.nn-list a.activa{background:var(--primary-light);color:var(--primary);}
+.nn-list .sep{color:var(--border);font-size:.7rem;padding:0 1px;flex-shrink:0;pointer-events:none;}
+.sec-nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:83px;z-index:100;display:flex;overflow-x:auto;transition:background .25s;}
+.sec-nav::-webkit-scrollbar{display:none;}
+.sec-nav a{flex-shrink:0;padding:.75rem 1.1rem;text-decoration:none;color:var(--muted);font-size:.82rem;font-weight:500;border-bottom:2px solid transparent;white-space:nowrap;transition:color .2s,border-color .2s;}
+.sec-nav a:hover{color:var(--primary);border-bottom-color:var(--primary);}
+main{max-width:920px;margin:0 auto;padding:2rem 1.5rem;}
+.nivel-badge{display:inline-flex;align-items:center;gap:.5rem;background:var(--primary);color:white;border-radius:20px;padding:5px 16px;font-size:.82rem;font-weight:700;margin-bottom:1.75rem;}
+.module{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;margin-bottom:2.5rem;scroll-margin-top:135px;transition:background .25s,border-color .25s;}
+.module-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border);}
+.module-icon{font-size:1.8rem;flex-shrink:0;}
+.module-title{font-size:1.35rem;font-weight:700;}
+.module-sub{font-size:.85rem;color:var(--muted);margin-top:2px;}
+.module h2{font-size:1.15rem;font-weight:700;margin:1.75rem 0 .75rem;}
+.module p{margin-bottom:.85rem;font-size:.97rem;}
+.module ul,.module ol{padding-left:1.4rem;margin-bottom:.85rem;}
+.module li{margin-bottom:.4rem;font-size:.96rem;}
+.analogy{background:var(--analogy-bg);border:1px solid var(--analogy-border);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0;}
+.analogy h4{color:var(--analogy-head);font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+.analogy p{font-size:.95rem;color:var(--analogy-text);margin:0;}
+.concept,.tip,.warn,.note{border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0;border-left-width:4px;border-left-style:solid;}
+.concept h4,.tip h4,.warn h4,.note h4{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+.concept p,.tip p,.warn p,.note p{font-size:.95rem;margin:0;}
+.tip ul{font-size:.95rem;padding-left:1.2rem;margin-top:.3rem;}
+.concept{background:var(--primary-light);border-color:var(--primary);}
+.concept h4{color:var(--primary);}
+.tip{background:var(--secondary-light);border-color:var(--secondary);}
+.tip h4{color:var(--secondary);}
+.warn{background:var(--primary-light);border-color:var(--primary);}
+.warn h4{color:var(--primary);}
+.note{background:var(--note-bg);border-color:var(--note-border);}
+.note h4{color:var(--note-head);}
+.code-wrap{position:relative;margin:1rem 0;}
+.code-block{background:var(--code-bg);color:var(--code-text);border-radius:10px;padding:1.25rem 1.5rem;font-family:'DM Mono',monospace;font-size:.88rem;line-height:1.85;overflow-x:auto;white-space:pre;}
+.lang-tag{position:absolute;top:.6rem;right:.75rem;background:rgba(255,255,255,.1);color:rgba(255,255,255,.45);font-size:.68rem;padding:2px 8px;border-radius:4px;font-family:sans-serif;font-weight:700;}
+.ct{color:#89B4FA;}.cv{color:#A6E3A1;}.cs{color:#F9E2AF;}.cc{color:#585B70;font-style:italic;}.cn{color:#FAB387;}
+.terminal{background:#0a0e14;border:1px solid #21262d;border-radius:10px;overflow:hidden;margin:1rem 0;}
+.term-bar{background:#161b22;padding:.42rem .85rem;display:flex;align-items:center;gap:.35rem;border-bottom:1px solid #21262d;}
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.dot-r{background:#ff5f57;}.dot-y{background:#ffbd2e;}.dot-g{background:#28c840;}
+.term-label{font-family:'DM Mono',monospace;font-size:.69rem;color:#3a5070;margin-left:.4rem;}
+.term-body{padding:1.1rem 1.3rem;font-family:'DM Mono',monospace;font-size:.85rem;line-height:2.1;color:#c9d8f0;}
+.t-p{color:#3ddc84;}.t-o{color:#5a7090;display:block;}.t-h{color:#253550;font-style:italic;display:block;}
+.diagram{background:var(--diagram-bg);border:1px solid var(--diagram-border);border-radius:12px;padding:1.5rem;margin:1.1rem 0;font-family:'DM Mono',monospace;font-size:.87rem;line-height:2;overflow-x:auto;transition:background .25s,border-color .25s;}
+.d-r{color:var(--primary);font-weight:700;}.d-g{color:var(--secondary);font-weight:700;}.d-y{color:var(--accent);font-weight:700;}.d-b{color:#6366f1;font-weight:700;}.d-m{color:var(--muted);font-style:italic;}
+.tbl{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem;}
+.tbl th{background:var(--primary-light);color:var(--primary);padding:.65rem 1rem;text-align:left;font-weight:600;}
+.tbl td{padding:.65rem 1rem;border-bottom:1px solid var(--border);vertical-align:top;}
+.tbl td:first-child{font-family:'DM Mono',monospace;font-size:.85rem;color:var(--primary);font-weight:600;}
+.tbl tr:hover td{background:var(--bg);}
+
+/* PERMISOS VISUAL */
+.perm-visual{background:var(--diagram-bg);border:1px solid var(--diagram-border);border-radius:14px;padding:1.75rem;margin:1rem 0;}
+.perm-line{font-family:'DM Mono',monospace;font-size:1.1rem;font-weight:700;letter-spacing:.08em;margin-bottom:1.25rem;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;}
+.ps{padding:3px 8px;border-radius:6px;font-size:1.05rem;}
+.ps-tipo{background:rgba(176,112,16,.18);color:var(--accent);}
+.ps-owner{background:rgba(196,74,42,.15);color:var(--primary);}
+.ps-group{background:rgba(26,122,90,.15);color:var(--secondary);}
+.ps-other{background:rgba(99,102,241,.12);color:#6366f1;}
+.perm-legend{display:flex;gap:1rem;flex-wrap:wrap;margin-top:.5rem;}
+.pl-item{display:flex;align-items:center;gap:.4rem;font-size:.82rem;}
+.pl-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0;}
+
+/* CHMOD CALC */
+.chmod-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin:1rem 0;}
+@media(max-width:500px){.chmod-grid{grid-template-columns:1fr;}}
+.chmod-box{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1rem;text-align:center;transition:background .25s;}
+.chmod-who{font-size:.75rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.4rem;}
+.chmod-bits{display:flex;justify-content:center;gap:.3rem;margin-bottom:.4rem;}
+.chmod-bit{width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:.85rem;font-weight:700;}
+.cb-r{background:rgba(196,74,42,.15);color:var(--primary);}
+.cb-w{background:rgba(26,122,90,.15);color:var(--secondary);}
+.cb-x{background:rgba(99,102,241,.12);color:#6366f1;}
+.cb-off{background:var(--bg);color:var(--muted);border:1px solid var(--border);}
+.chmod-num{font-family:'DM Mono',monospace;font-size:1.4rem;font-weight:800;color:var(--primary);}
+.chmod-label{font-size:.75rem;color:var(--muted);}
+
+/* USUARIOS TABLE */
+.user-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:.75rem;margin:1rem 0;}
+.user-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1rem;transition:background .25s;}
+.uc-icon{font-size:1.5rem;margin-bottom:.4rem;}
+.uc-name{font-family:'DM Mono',monospace;font-size:.85rem;font-weight:700;color:var(--primary);margin-bottom:.2rem;}
+.uc-desc{font-size:.83rem;color:var(--muted);line-height:1.5;}
+
+/* EJERCICIO */
+.ejercicio{background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:1.5rem;margin:1.5rem 0;}
+[data-theme="dark"] .ejercicio{background:rgba(240,192,64,.06);border-color:rgba(240,192,64,.22);}
+.ej-hd{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;font-weight:700;font-size:1rem;color:#78350F;flex-wrap:wrap;}
+[data-theme="dark"] .ej-hd{color:#f0c040;}
+.ej-badge{background:var(--accent);color:#fff;font-size:.68rem;padding:2px 9px;border-radius:20px;font-weight:700;text-transform:uppercase;}
+.ejercicio ol{padding-left:1.4rem;}
+.ejercicio ol li{margin-bottom:.6rem;font-size:.95rem;}
+.ejercicio p{font-size:.95rem;margin-bottom:.6rem;}
+.resumen{background:var(--primary-light);border:1px solid var(--primary-mid);border-radius:14px;padding:1.6rem;margin-bottom:1.5rem;}
+.resumen h3{color:var(--primary);margin-bottom:.75rem;font-size:1.05rem;}
+.resumen ul{padding-left:1.4rem;}
+.resumen li{font-size:.92rem;margin-bottom:.45rem;}
+.next-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem 1.5rem;display:flex;align-items:center;gap:1rem;text-decoration:none;transition:border-color .2s;margin-bottom:2rem;}
+.next-card:hover{border-color:var(--primary);}
+.nc-label{font-size:.72rem;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.2rem;}
+.nc-name{font-weight:700;color:var(--text);font-size:.97rem;}
+.nc-arrow{font-size:1.4rem;color:var(--primary);margin-left:auto;}
+code{font-family:'DM Mono',monospace;background:#f0ece6;color:var(--primary);padding:1px 5px;border-radius:4px;font-size:.9em;}
+[data-theme="dark"] code{background:#1c2128;}
+strong{font-weight:700;}
+p{margin-bottom:.8rem;}ul,ol{padding-left:1.4rem;margin-bottom:.8rem;}li{margin-bottom:.4rem;font-size:.96rem;}
+h2{font-size:1.2rem;font-weight:700;margin:1.75rem 0 .75rem;}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.85rem;border-top:1px solid var(--border);margin-top:1rem;background:var(--bg);transition:background .25s;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="topbar-back" href="../index.html">← Café &lt;/&gt;</a>
+  <span class="topbar-info">🐧 Linux desde Cero · Nivel 14 de 23</span>
+  <button class="theme-btn" onclick="toggleTheme()">
+    <span id="themeIcon">🌙</span><span id="themeLabel">Oscuro</span>
+  </button>
+</div>
+
+<header>
+  <div class="header-eyebrow">🔐 Nivel 14 — La terminal</div>
+  <h1><em>Usuarios</em> y Permisos</h1>
+  <p>chmod, chown, sudo, grupos, /etc/passwd y el modelo de seguridad de Linux explicado desde cero</p>
+  <div class="header-chips">
+    <span class="header-chip">Nivel 14 de 23</span>
+    <span class="header-chip">🔐 Seguridad</span>
+    <span class="header-chip">9 subtemas</span>
+    <span class="header-chip">~35 min</span>
+  </div>
+</header>
+
+<div class="niveles-nav">
+  <a class="nn-prev" href="linux-nivel-13.html">← N13</a>
+  <div class="nn-list">
+    <a href="linux-nivel-01.html">N1</a><a href="linux-nivel-02.html">N2</a><a href="linux-nivel-03.html">N3</a>
+    <a href="linux-nivel-04.html">N4</a><a href="linux-nivel-05.html">N5</a><span class="sep">·</span>
+    <a href="linux-nivel-06.html">N6</a><a href="linux-nivel-07.html">N7</a><a href="linux-nivel-08.html">N8</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-09.html">N9</a><a href="linux-nivel-10.html">N10</a><a href="linux-nivel-11.html">N11</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-12.html">N12</a><a href="linux-nivel-13.html">N13</a>
+    <a href="linux-nivel-14.html" class="activa">N14</a>
+    <a href="linux-nivel-15.html">N15</a><span class="sep">·</span>
+    <a href="linux-nivel-16.html">N16</a><a href="linux-nivel-17.html">N17</a>
+    <a href="linux-nivel-18.html">N18</a><a href="linux-nivel-19.html">N19</a>
+    <a href="linux-nivel-20.html">N20</a><a href="linux-nivel-21.html">N21</a>
+    <a href="linux-nivel-22.html">N22</a><a href="linux-nivel-23.html">N23</a>
+  </div>
+  <a class="nn-next" href="linux-nivel-15.html">N15 →</a>
+</div>
+
+<nav class="sec-nav">
+  <a href="#modelo">🏗 Modelo de seguridad</a>
+  <a href="#usuarios">👤 Usuarios</a>
+  <a href="#grupos">👥 Grupos</a>
+  <a href="#permisos">🔐 Permisos rwx</a>
+  <a href="#chmod">⚙️ chmod</a>
+  <a href="#chown">👤 chown</a>
+  <a href="#sudo">🦸 sudo y root</a>
+  <a href="#especiales">✨ Permisos especiales</a>
+  <a href="#ejercicio">✏️ Ejercicio</a>
+</nav>
+
+<main>
+<div class="nivel-badge">🔐 Nivel 14 — Usuarios y Permisos</div>
+
+
+<!-- ═══════════════════════
+     MODELO DE SEGURIDAD
+═══════════════════════ -->
+<section class="module" id="modelo">
+  <div class="module-header">
+    <div class="module-icon">🏗️</div>
+    <div>
+      <div class="module-title">El modelo de seguridad de Linux</div>
+      <div class="module-sub">Todo en Linux pertenece a alguien — y eso define quién puede hacer qué</div>
+    </div>
+  </div>
+
+  <p>Linux fue diseñado desde sus inicios como un sistema <strong>multiusuario</strong>. Cada recurso del sistema — archivos, procesos, dispositivos, sockets de red — pertenece a un <strong>usuario</strong> y a un <strong>grupo</strong>. El kernel comprueba esta propiedad en cada operación y decide si la permite o la deniega.</p>
+
+  <div class="analogy">
+    <h4>🏢 Analogía — El edificio de apartamentos con conserje</h4>
+    <p>Linux es como un edificio de apartamentos: cada apartamento (<code>/home/hugo</code>) pertenece a su inquilino (usuario). El propietario puede entrar cuando quiere, modificar su apartamento, invitar a gente. Los vecinos no pueden entrar a tu apartamento sin permiso. El conserje (root) tiene llave maestra de todos los apartamentos y puede entrar a cualquiera en caso de emergencia. Cada puerta tiene una lista de quién puede entrar, ver o modificar qué (permisos rwx).</p>
+  </div>
+
+  <div class="diagram">
+<span class="d-m"># El modelo de tres capas de permisos en Linux</span>
+
+Cada archivo o directorio tiene:
+  <span class="d-r">Propietario (owner)</span>  →  el usuario que lo creó o al que se asignó
+  <span class="d-g">Grupo (group)</span>        →  un grupo de usuarios con acceso especial
+  <span class="d-b">Otros (others)</span>       →  todos los demás usuarios del sistema
+
+Y tres tipos de permiso por capa:
+  <span class="d-y">r</span> (read)    →  leer el contenido
+  <span class="d-y">w</span> (write)   →  modificar/eliminar
+  <span class="d-y">x</span> (execute) →  ejecutar (archivos) / acceder (directorios)
+
+<span class="d-m"># Resultado: 9 bits de permiso por archivo</span>
+<span class="d-r">rwx</span><span class="d-g">r-x</span><span class="d-b">r--</span>
+<span class="d-m">owner group other</span></div>
+</section>
+
+
+<!-- ═══════════════════════
+     USUARIOS
+═══════════════════════ -->
+<section class="module" id="usuarios">
+  <div class="module-header">
+    <div class="module-icon">👤</div>
+    <div>
+      <div class="module-title">Usuarios en Linux</div>
+      <div class="module-sub">/etc/passwd, UID, tipos de usuario y comandos de gestión</div>
+    </div>
+  </div>
+
+  <p>Cada usuario en Linux tiene un <strong>UID</strong> (User ID) único — un número que el kernel usa internamente. Los nombres de usuario son solo una interfaz amigable para los humanos. Los usuarios se almacenan en <code>/etc/passwd</code>.</p>
+
+  <div class="user-grid">
+    <div class="user-card">
+      <div class="uc-icon">👑</div>
+      <div class="uc-name">root (UID 0)</div>
+      <div class="uc-desc">El superusuario. Puede hacer absolutamente todo. UID siempre 0. En Ubuntu está desactivado por defecto — se usa <code>sudo</code>.</div>
+    </div>
+    <div class="user-card">
+      <div class="uc-icon">👤</div>
+      <div class="uc-name">Usuario normal (UID ≥1000)</div>
+      <div class="uc-desc">Los usuarios humanos. Creados al instalar el SO o con <code>adduser</code>. Tienen home en /home/usuario. UIDs desde 1000.</div>
+    </div>
+    <div class="user-card">
+      <div class="uc-icon">🤖</div>
+      <div class="uc-name">Usuario de sistema (UID 1-999)</div>
+      <div class="uc-desc">Creados para servicios: www-data (nginx), postgres, mysql, nobody. Sin contraseña, sin home real, sin login interactivo.</div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">/etc/passwd y gestión de usuarios</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Ver el archivo /etc/passwd — un usuario por línea</span>
+<span class="t-p">$</span> cat /etc/passwd | head -5
+<span class="t-o">root:x:0:0:root:/root:/bin/bash</span>
+<span class="t-o">daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin</span>
+<span class="t-o">www-data:x:33:33:www-data:/var/www:/usr/sbin/nologin</span>
+<span class="t-o">hugo:x:1000:1000:Hugo,,,:/home/hugo:/bin/bash</span>
+<span class="t-h"># formato: usuario:x:UID:GID:comentario:home:shell</span>
+<span class="t-h"># la 'x' significa que la contraseña está en /etc/shadow (encriptada)</span>
+
+<span class="t-h"># Ver tu UID, GID y grupos actuales</span>
+<span class="t-p">$</span> id
+<span class="t-o">uid=1000(hugo) gid=1000(hugo) grupos=1000(hugo),4(adm),24(cdrom),27(sudo)</span>
+
+<span class="t-h"># Ver quién está conectado al sistema ahora</span>
+<span class="t-p">$</span> who
+<span class="t-o">hugo     tty7         2025-01-15 09:45 (:0)</span>
+
+<span class="t-h"># Crear usuario nuevo</span>
+<span class="t-p">$</span> sudo adduser maria          <span class="t-h"># interactivo — pide nombre, contraseña, etc.</span>
+<span class="t-p">$</span> sudo useradd -m -s /bin/bash carlos  <span class="t-h"># rápido con flags</span>
+
+<span class="t-h"># Cambiar contraseña</span>
+<span class="t-p">$</span> passwd                    <span class="t-h"># cambia TU contraseña</span>
+<span class="t-p">$</span> sudo passwd maria         <span class="t-h"># root cambia la de maria</span>
+
+<span class="t-h"># Eliminar usuario</span>
+<span class="t-p">$</span> sudo deluser maria        <span class="t-h"># elimina usuario pero mantiene home</span>
+<span class="t-p">$</span> sudo deluser --remove-home maria  <span class="t-h"># elimina también /home/maria</span>
+
+<span class="t-h"># Cambiar de usuario</span>
+<span class="t-p">$</span> su - maria               <span class="t-h"># cambia a maria (pide contraseña de maria)</span>
+<span class="t-p">$</span> exit                     <span class="t-h"># vuelve al usuario anterior</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     GRUPOS
+═══════════════════════ -->
+<section class="module" id="grupos">
+  <div class="module-header">
+    <div class="module-icon">👥</div>
+    <div>
+      <div class="module-title">Grupos — permisos compartidos</div>
+      <div class="module-sub">Cómo organizar usuarios con acceso compartido a recursos</div>
+    </div>
+  </div>
+
+  <p>Un <strong>grupo</strong> es una colección de usuarios que comparten permisos. Cada archivo tiene un grupo propietario, y todos los miembros de ese grupo tienen los permisos del grupo sobre ese archivo. Los grupos se almacenan en <code>/etc/group</code>.</p>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">grupos — gestión completa</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Ver los grupos del sistema</span>
+<span class="t-p">$</span> cat /etc/group | head -8
+<span class="t-o">root:x:0:</span>
+<span class="t-o">sudo:x:27:hugo</span>
+<span class="t-o">docker:x:998:hugo</span>
+<span class="t-o">www-data:x:33:</span>
+
+<span class="t-h"># Ver tus grupos</span>
+<span class="t-p">$</span> groups
+<span class="t-o">hugo adm cdrom sudo plugdev lpadmin sambashare</span>
+
+<span class="t-h"># Añadir usuario a un grupo</span>
+<span class="t-p">$</span> sudo usermod -aG docker hugo    <span class="t-h"># -a = append, -G = grupo</span>
+<span class="t-p">$</span> sudo usermod -aG sudo maria     <span class="t-h"># dar permisos sudo a maria</span>
+<span class="t-h"># IMPORTANTE: cerrar sesión y volver para que tenga efecto</span>
+
+<span class="t-h"># Crear y eliminar grupos</span>
+<span class="t-p">$</span> sudo groupadd desarrolladores
+<span class="t-p">$</span> sudo groupdel desarrolladores
+
+<span class="t-h"># Ver a qué grupos pertenece un usuario</span>
+<span class="t-p">$</span> id hugo
+<span class="t-o">uid=1000(hugo) gid=1000(hugo) grupos=1000(hugo),27(sudo),998(docker)</span>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Grupos importantes que deberías conocer</h4>
+    <ul>
+      <li><strong>sudo</strong> — permite usar sudo (equivalente a administradores en Windows)</li>
+      <li><strong>docker</strong> — permite usar Docker sin sudo</li>
+      <li><strong>www-data</strong> — el grupo del servidor web (nginx/apache)</li>
+      <li><strong>adm</strong> — permite leer logs del sistema en /var/log</li>
+      <li><strong>dialout</strong> — acceso a puertos seriales (Arduino, Raspberry Pi)</li>
+      <li><strong>video/audio</strong> — acceso a GPU y dispositivos de audio</li>
+    </ul>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     PERMISOS rwx
+═══════════════════════ -->
+<section class="module" id="permisos">
+  <div class="module-header">
+    <div class="module-icon">🔐</div>
+    <div>
+      <div class="module-title">Permisos rwx — leer, escribir, ejecutar</div>
+      <div class="module-sub">Descifrar el código de permisos que muestra ls -l</div>
+    </div>
+  </div>
+
+  <p>Cuando ejecutas <code>ls -l</code> ves algo como <code>-rwxr-xr--</code>. Esos 10 caracteres contienen toda la información de permisos de un archivo. Aprender a leerlos e interpretarlos es fundamental.</p>
+
+  <div class="perm-visual">
+    <div style="font-family:'DM Mono',monospace;font-size:.95rem;margin-bottom:1rem;color:var(--muted);">Ejemplo: <span style="color:var(--code-text);background:var(--code-bg);padding:3px 8px;border-radius:5px;">-rwxr-xr-- 1 hugo developers 4521 jan 15 index.sh</span></div>
+
+    <div style="display:flex;gap:.3rem;align-items:center;flex-wrap:wrap;margin-bottom:1.25rem;">
+      <span class="ps ps-tipo">-</span>
+      <span class="ps ps-owner">rwx</span>
+      <span class="ps ps-group">r-x</span>
+      <span class="ps ps-other">r--</span>
+      <span style="font-size:.85rem;color:var(--muted);margin-left:.5rem;">1 hugo developers 4521 jan 15 index.sh</span>
+    </div>
+
+    <div class="perm-legend">
+      <div class="pl-item"><div class="pl-dot" style="background:rgba(176,112,16,.5)"></div><span><strong style="color:var(--accent)">-</strong> = tipo (- archivo, d directorio, l symlink, b dispositivo bloque)</span></div>
+      <div class="pl-item"><div class="pl-dot" style="background:rgba(196,74,42,.5)"></div><span><strong style="color:var(--primary)">rwx</strong> = owner (hugo) puede leer, escribir y ejecutar</span></div>
+      <div class="pl-item"><div class="pl-dot" style="background:rgba(26,122,90,.5)"></div><span><strong style="color:var(--secondary)">r-x</strong> = group (developers) puede leer y ejecutar, NO escribir</span></div>
+      <div class="pl-item"><div class="pl-dot" style="background:rgba(99,102,241,.5)"></div><span><strong style="color:#6366f1">r--</strong> = others (todos los demás) solo puede leer</span></div>
+    </div>
+  </div>
+
+  <h2>¿Qué significa cada permiso en archivos vs directorios?</h2>
+
+  <table class="tbl">
+    <thead><tr><th>Permiso</th><th>En archivos</th><th>En directorios</th></tr></thead>
+    <tbody>
+      <tr><td>r (read)</td><td>Leer el contenido del archivo (<code>cat</code>, <code>less</code>)</td><td>Listar el contenido del directorio (<code>ls</code>)</td></tr>
+      <tr><td>w (write)</td><td>Modificar o eliminar el archivo</td><td>Crear, renombrar o eliminar archivos dentro del directorio</td></tr>
+      <tr><td>x (execute)</td><td>Ejecutar el archivo como programa (<code>./script.sh</code>)</td><td>Acceder al directorio (<code>cd</code>) y a sus archivos por ruta</td></tr>
+    </tbody>
+  </table>
+
+  <div class="concept">
+    <h4>💡 x en directorios — el más confuso</h4>
+    <p>El permiso <code>x</code> en un directorio no significa "ejecutar" sino <strong>atravesar</strong> — poder hacer <code>cd</code> en él y acceder a los archivos que contiene por ruta. Puedes tener <code>r</code> sin <code>x</code>: ves los nombres de los archivos con <code>ls</code> pero no puedes abrirlos. O <code>x</code> sin <code>r</code>: puedes acceder a los archivos si sabes el nombre, pero <code>ls</code> no te mostrará nada.</p>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">leer permisos con ls -l</span>
+    </div>
+    <div class="term-body">
+<span class="t-p">$</span> ls -la ~/proyectos
+<span class="t-o">total 32</span>
+<span class="t-o">drwxr-xr-x  4 hugo hugo 4096 jan 15 10:23 .</span>
+<span class="t-o">drwxr-x--- 18 hugo hugo 4096 jan 15 09:45 ..</span>
+<span class="t-o">-rw-r--r--  1 hugo hugo 4521 jan 14 15:30 README.md</span>
+<span class="t-o">-rwxr-xr-x  1 hugo hugo  892 jan 13 11:20 deploy.sh</span>
+<span class="t-o">drwxrwxr-x  2 hugo devs 4096 jan 15 10:10 shared/</span>
+<span class="t-o">-rw-------  1 hugo hugo 1024 jan 10 08:00 .env</span>
+<span class="t-h"># ↑ .env solo lo puede leer/escribir el propietario (secretos)</span>
+
+<span class="t-h"># Tipos de archivo en el primer carácter:</span>
+<span class="t-h"># -  → archivo regular</span>
+<span class="t-h"># d  → directorio</span>
+<span class="t-h"># l  → symlink</span>
+<span class="t-h"># b  → dispositivo de bloque (disco)</span>
+<span class="t-h"># c  → dispositivo de carácter (terminal)</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     CHMOD
+═══════════════════════ -->
+<section class="module" id="chmod">
+  <div class="module-header">
+    <div class="module-icon">⚙️</div>
+    <div>
+      <div class="module-title">chmod — cambiar permisos</div>
+      <div class="module-sub">Modo simbólico y modo octal — las dos formas de cambiar permisos</div>
+    </div>
+  </div>
+
+  <p><strong>chmod</strong> (CHange MODe) cambia los permisos de un archivo o directorio. Tiene dos formas de especificar los permisos: simbólica (más legible) y octal (más concisa y común en la práctica).</p>
+
+  <h2>Modo simbólico — intuitivo</h2>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">chmod simbólico — u/g/o/a + r/w/x</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Sintaxis: chmod [quién][+/-/=][qué] archivo</span>
+<span class="t-h"># quién: u=owner  g=group  o=others  a=all</span>
+<span class="t-h"># operador: + añadir  - quitar  = establecer exactamente</span>
+<span class="t-h"># qué: r=read  w=write  x=execute</span>
+
+<span class="t-h"># Dar permiso de ejecución al propietario</span>
+<span class="t-p">$</span> chmod u+x script.sh
+
+<span class="t-h"># Dar permiso de ejecución a todos</span>
+<span class="t-p">$</span> chmod a+x script.sh
+
+<span class="t-h"># Quitar permiso de escritura al grupo y a otros</span>
+<span class="t-p">$</span> chmod go-w archivo.txt
+
+<span class="t-h"># Establecer permisos exactos para cada capa</span>
+<span class="t-p">$</span> chmod u=rwx,g=r-x,o=r-- script.sh
+
+<span class="t-h"># Aplicar recursivamente a un directorio</span>
+<span class="t-p">$</span> chmod -R 755 /var/www/html/
+    </div>
+  </div>
+
+  <h2>Modo octal — el más usado en la práctica</h2>
+  <p>Cada permiso (r=4, w=2, x=1) se suma para cada capa. El resultado es un número de 3 dígitos (owner, group, others).</p>
+
+  <div class="chmod-grid">
+    <div class="chmod-box">
+      <div class="chmod-who">Owner</div>
+      <div class="chmod-bits">
+        <div class="chmod-bit cb-r">r</div>
+        <div class="chmod-bit cb-w">w</div>
+        <div class="chmod-bit cb-x">x</div>
+      </div>
+      <div class="chmod-num">7</div>
+      <div class="chmod-label">4+2+1 = 7</div>
+    </div>
+    <div class="chmod-box">
+      <div class="chmod-who">Group</div>
+      <div class="chmod-bits">
+        <div class="chmod-bit cb-r">r</div>
+        <div class="chmod-bit cb-off">-</div>
+        <div class="chmod-bit cb-x">x</div>
+      </div>
+      <div class="chmod-num">5</div>
+      <div class="chmod-label">4+0+1 = 5</div>
+    </div>
+    <div class="chmod-box">
+      <div class="chmod-who">Others</div>
+      <div class="chmod-bits">
+        <div class="chmod-bit cb-r">r</div>
+        <div class="chmod-bit cb-off">-</div>
+        <div class="chmod-bit cb-off">-</div>
+      </div>
+      <div class="chmod-num">4</div>
+      <div class="chmod-label">4+0+0 = 4</div>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Octal</th><th>Simbólico</th><th>Uso típico</th></tr></thead>
+    <tbody>
+      <tr><td>777</td><td>rwxrwxrwx</td><td>Todos pueden todo. Solo para /tmp. Nunca en producción.</td></tr>
+      <tr><td>755</td><td>rwxr-xr-x</td><td>Ejecutables y directorios públicos. Estándar en /usr/bin.</td></tr>
+      <tr><td>644</td><td>rw-r--r--</td><td>Archivos de configuración, HTML, código fuente. El más común.</td></tr>
+      <tr><td>600</td><td>rw-------</td><td>Archivos privados: .env, claves SSH, ~/.ssh/id_rsa.</td></tr>
+      <tr><td>700</td><td>rwx------</td><td>Scripts y directorios completamente privados.</td></tr>
+      <tr><td>640</td><td>rw-r-----</td><td>Owner lee/escribe, grupo solo lee, otros nada. Logs.</td></tr>
+      <tr><td>400</td><td>r--------</td><td>Solo lectura para el propietario. Claves SSH públicas.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">chmod octal — los más usados</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># El script necesita ser ejecutable</span>
+<span class="t-p">$</span> chmod 755 deploy.sh
+
+<span class="t-h"># El .env solo lo lee el propietario</span>
+<span class="t-p">$</span> chmod 600 .env
+
+<span class="t-h"># Los archivos web son legibles por el servidor</span>
+<span class="t-p">$</span> chmod 644 index.html
+
+<span class="t-h"># La clave SSH privada debe ser 600 o SSH rechaza la conexión</span>
+<span class="t-p">$</span> chmod 600 ~/.ssh/id_rsa
+<span class="t-p">$</span> chmod 644 ~/.ssh/id_rsa.pub
+
+<span class="t-h"># Aplicar 755 a todos los directorios y 644 a todos los archivos</span>
+<span class="t-p">$</span> find /var/www/html -type d -exec chmod 755 {} \;
+<span class="t-p">$</span> find /var/www/html -type f -exec chmod 644 {} \;
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     CHOWN
+═══════════════════════ -->
+<section class="module" id="chown">
+  <div class="module-header">
+    <div class="module-icon">👤</div>
+    <div>
+      <div class="module-title">chown y chgrp — cambiar propietario y grupo</div>
+      <div class="module-sub">Asignar la propiedad correcta a archivos y directorios</div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">chown — cambiar propietario</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Sintaxis: chown [usuario][:grupo] archivo</span>
+
+<span class="t-h"># Cambiar solo el propietario</span>
+<span class="t-p">$</span> sudo chown hugo archivo.txt
+
+<span class="t-h"># Cambiar propietario Y grupo a la vez</span>
+<span class="t-p">$</span> sudo chown hugo:developers archivo.txt
+
+<span class="t-h"># Cambiar solo el grupo (con chown)</span>
+<span class="t-p">$</span> sudo chown :www-data /var/www/html/
+
+<span class="t-h"># chgrp — comando específico para cambiar grupo</span>
+<span class="t-p">$</span> sudo chgrp www-data /var/www/html/
+
+<span class="t-h"># Recursivo — cambia propietario de directorio y todo su contenido</span>
+<span class="t-p">$</span> sudo chown -R hugo:hugo ~/proyectos/
+
+<span class="t-h"># Caso típico: dar un proyecto web al servidor nginx</span>
+<span class="t-p">$</span> sudo chown -R www-data:www-data /var/www/html/
+<span class="t-p">$</span> sudo chmod -R 755 /var/www/html/
+
+<span class="t-h"># Verificar el resultado</span>
+<span class="t-p">$</span> ls -la /var/www/html/
+<span class="t-o">drwxr-xr-x 3 www-data www-data 4096 jan 15 index.html</span>
+    </div>
+  </div>
+
+  <div class="note">
+    <h4>📌 El patrón típico en servidores web</h4>
+    <p>En un servidor nginx/apache: los archivos pertenecen a <code>www-data:www-data</code> (el usuario del servidor web) con permisos <code>644</code> para archivos y <code>755</code> para directorios. El desarrollador (hugo) está en el grupo <code>www-data</code> para poder editar los archivos. Así el servidor puede leerlos y el desarrollador puede modificarlos.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     SUDO Y ROOT
+═══════════════════════ -->
+<section class="module" id="sudo">
+  <div class="module-header">
+    <div class="module-icon">🦸</div>
+    <div>
+      <div class="module-title">sudo — ejecutar como root sin ser root</div>
+      <div class="module-sub">El mecanismo de elevación de privilegios más importante de Linux</div>
+    </div>
+  </div>
+
+  <p><strong>sudo</strong> (Superuser DO) permite a usuarios autorizados ejecutar comandos con privilegios de root sin necesidad de conocer la contraseña de root. Es mucho más seguro que usar la cuenta root directamente.</p>
+
+  <div class="analogy">
+    <h4>🔑 Analogía — El poder notarial temporal</h4>
+    <p><strong>sudo</strong> es como un <strong>poder notarial temporal y auditado</strong>. El notario (root) no está presente en cada operación — le da a personas de confianza (usuarios en el grupo sudo) la capacidad de actuar en su nombre para tareas específicas. Cada uso queda registrado en el log. Si algo sale mal, hay un rastro completo de quién hizo qué y cuándo.</p>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">sudo — uso y configuración</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Ejecutar un comando como root</span>
+<span class="t-p">$</span> sudo apt update
+<span class="t-o">[sudo] password for hugo: ****</span>
+<span class="t-o">Hit:1 http://archive.ubuntu.com/ubuntu noble InRelease</span>
+
+<span class="t-h"># sudo recuerda la contraseña por 15 minutos (configurable)</span>
+<span class="t-h"># El próximo sudo en esos 15 min no pide contraseña</span>
+
+<span class="t-h"># Abrir una shell completa como root</span>
+<span class="t-p">$</span> sudo -i            <span class="t-h"># shell de root con su entorno</span>
+<span class="t-p">$</span> sudo -s            <span class="t-h"># shell de root con tu entorno actual</span>
+<span class="t-h"># ¡Cuidado! Sal con exit cuando termines</span>
+
+<span class="t-h"># Ver qué puede hacer tu usuario con sudo</span>
+<span class="t-p">$</span> sudo -l
+<span class="t-o">User hugo may run the following commands on ubuntu:</span>
+<span class="t-o">    (ALL : ALL) ALL</span>
+
+<span class="t-h"># Ejecutar el último comando con sudo (si olvidaste el sudo)</span>
+<span class="t-p">$</span> apt update           <span class="t-h"># error: permiso denegado</span>
+<span class="t-p">$</span> sudo !!              <span class="t-h"># ejecuta: sudo apt update</span>
+
+<span class="t-h"># Ver el log de sudo (quién hizo qué)</span>
+<span class="t-p">$</span> sudo cat /var/log/auth.log | grep sudo | tail -10
+<span class="t-o">jan 15 10:23:45 ubuntu sudo: hugo : TTY=pts/0 ; COMMAND=/usr/bin/apt update</span>
+    </div>
+  </div>
+
+  <h2>El archivo /etc/sudoers</h2>
+  <p>El archivo <code>/etc/sudoers</code> define exactamente quién puede usar sudo y para qué. <strong>Nunca lo edites directamente</strong> — usa <code>visudo</code> que valida la sintaxis antes de guardar.</p>
+
+  <div class="code-wrap">
+    <div class="code-block"><span class="cc"># /etc/sudoers — fragmento típico</span>
+
+<span class="cc"># Root puede hacer todo</span>
+<span class="cv">root</span>    ALL=(ALL:ALL) ALL
+
+<span class="cc"># Miembros del grupo sudo pueden hacer todo</span>
+%<span class="cv">sudo</span>   ALL=(ALL:ALL) ALL
+
+<span class="cc"># Hugo puede reiniciar nginx sin contraseña</span>
+<span class="cv">hugo</span>    ALL=(ALL) NOPASSWD: /bin/systemctl restart nginx
+
+<span class="cc"># El usuario deploy solo puede actualizar el código</span>
+<span class="cv">deploy</span>  ALL=(ALL) NOPASSWD: /usr/bin/git pull, /bin/systemctl restart app</span>
+
+<span class="cc"># Editar siempre con visudo — nunca con nano/vim directamente</span>
+<span class="cc"># $ sudo visudo</span></div>
+    <div class="lang-tag">SUDOERS</div>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ sudo vs su vs login como root</h4>
+    <p><strong>sudo</strong> es la forma recomendada — queda auditado, tiene timeout, y el usuario mantiene su identidad. <strong>su -</strong> (Switch User) cambia completamente a otro usuario — necesitas la contraseña de ese usuario. <strong>Loguearse directamente como root</strong> es la peor opción — sin auditoría, sin timeout, máximo riesgo. En Ubuntu, la cuenta root está deshabilitada por defecto precisamente para forzar el uso de sudo.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     PERMISOS ESPECIALES
+═══════════════════════ -->
+<section class="module" id="especiales">
+  <div class="module-header">
+    <div class="module-icon">✨</div>
+    <div>
+      <div class="module-title">Permisos especiales — SUID, SGID y Sticky Bit</div>
+      <div class="module-sub">Los tres bits de permiso avanzados que van más allá de rwx</div>
+    </div>
+  </div>
+
+  <p>Además de rwx, Linux tiene tres bits de permiso especiales que modifican el comportamiento de ejecución y acceso. Son menos comunes en el día a día pero críticos para entender cómo funciona el sistema.</p>
+
+  <table class="tbl">
+    <thead><tr><th>Bit</th><th>En archivos</th><th>En directorios</th><th>Cómo se muestra</th></tr></thead>
+    <tbody>
+      <tr><td>SUID (4xxx)</td><td>El archivo se ejecuta con los permisos del <strong>propietario</strong>, no del usuario que lo ejecuta. Ej: /usr/bin/passwd se ejecuta como root aunque lo lance un usuario normal.</td><td>Sin efecto significativo</td><td><code>-rwsr-xr-x</code> (s en posición x del owner)</td></tr>
+      <tr><td>SGID (2xxx)</td><td>Se ejecuta con los permisos del <strong>grupo</strong> propietario</td><td>Los archivos creados dentro heredan el grupo del directorio, no el grupo del creador</td><td><code>drwxr-sr-x</code> (s en posición x del group)</td></tr>
+      <tr><td>Sticky Bit (1xxx)</td><td>Sin efecto en archivos modernos</td><td>Solo el <strong>propietario</strong> de un archivo puede borrarlo, aunque otros tengan w en el directorio. Usado en /tmp</td><td><code>drwxrwxrwt</code> (t en posición x de others)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">permisos especiales en el sistema</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Ver archivos con SUID en el sistema (se ejecutan como root)</span>
+<span class="t-p">$</span> find /usr/bin -perm -4000 2>/dev/null
+<span class="t-o">/usr/bin/passwd</span>
+<span class="t-o">/usr/bin/sudo</span>
+<span class="t-o">/usr/bin/su</span>
+<span class="t-o">/usr/bin/mount</span>
+
+<span class="t-h"># passwd tiene SUID — por eso un usuario normal puede cambiar su contraseña</span>
+<span class="t-h"># (las contraseñas están en /etc/shadow que solo root puede escribir)</span>
+<span class="t-p">$</span> ls -la /usr/bin/passwd
+<span class="t-o">-rwsr-xr-x 1 root root 59976 /usr/bin/passwd</span>
+<span class="t-h">#     ↑ la 's' indica SUID — corre como root siempre</span>
+
+<span class="t-h"># /tmp tiene sticky bit — cada uno borra solo lo suyo</span>
+<span class="t-p">$</span> ls -la / | grep tmp
+<span class="t-o">drwxrwxrwt  1 root root  4096 /tmp</span>
+<span class="t-h">#          ↑ la 't' indica sticky bit</span>
+
+<span class="t-h"># Aplicar sticky bit a un directorio compartido</span>
+<span class="t-p">$</span> sudo chmod +t /compartido/
+<span class="t-h"># o en octal:</span>
+<span class="t-p">$</span> sudo chmod 1777 /compartido/
+    </div>
+  </div>
+</section>
+
+
+<!-- EJERCICIO -->
+<div class="ejercicio" id="ejercicio">
+  <div class="ej-hd">
+    ✏️ Ejercicio del Nivel 14
+    <span class="ej-badge">Seguridad</span>
+  </div>
+  <p>Practica el sistema de permisos completo:</p>
+  <ol>
+    <li><strong>Usuarios:</strong> ejecuta <code>id</code> — anota tu UID, GID y todos tus grupos. ¿Estás en el grupo sudo?</li>
+    <li><strong>Leer permisos:</strong> ejecuta <code>ls -la ~</code> y descifra los permisos de 5 archivos distintos. ¿Qué puede hacer cada capa?</li>
+    <li><strong>chmod:</strong> crea <code>touch ~/test-permisos.sh</code>. Ejecuta <code>ls -la ~/test-permisos.sh</code>. ¿Tiene x? Añádelo: <code>chmod u+x ~/test-permisos.sh</code>. Verifica de nuevo.</li>
+    <li><strong>Octal:</strong> aplica <code>chmod 644 ~/test-permisos.sh</code>. ¿Qué permisos tiene ahora? Luego <code>chmod 700 ~/test-permisos.sh</code>. ¿Y ahora?</li>
+    <li><strong>SUID:</strong> ejecuta <code>ls -la /usr/bin/passwd</code>. ¿Ves la 's' en los permisos del owner? ¿Por qué es importante?</li>
+    <li><strong>sudo:</strong> ejecuta <code>sudo -l</code> — ¿qué comandos puedes usar con sudo?</li>
+    <li><strong>Grupos:</strong> ejecuta <code>groups</code>. ¿Estás en el grupo docker? Si no: <code>sudo usermod -aG docker $USER</code> y cierra/abre sesión.</li>
+  </ol>
+  <p><strong>Escenario práctico:</strong> Tienes un proyecto web en <code>~/mi-web/</code> y quieres que nginx pueda leerlo. Ejecuta: <code>sudo chown -R $USER:www-data ~/mi-web/ && chmod -R 750 ~/mi-web/</code>. ¿Por qué 750 y no 755?</p>
+</div>
+
+<!-- RESUMEN -->
+<div class="resumen">
+  <h3>🟥 Resumen del Nivel 14</h3>
+  <ul>
+    <li>Linux es multiusuario: cada archivo tiene <strong>propietario</strong>, <strong>grupo</strong> y permisos para <strong>otros</strong>.</li>
+    <li>UID 0 = root, UID 1-999 = usuarios de sistema, UID ≥1000 = usuarios humanos.</li>
+    <li><code>/etc/passwd</code> lista usuarios. <code>/etc/group</code> lista grupos. <code>/etc/shadow</code> guarda contraseñas encriptadas.</li>
+    <li>Permisos: <strong>r</strong>=4 (leer), <strong>w</strong>=2 (escribir), <strong>x</strong>=1 (ejecutar/atravesar). Se aplican a owner, group y others.</li>
+    <li><code>chmod 755 archivo</code> — owner todo, grupo y otros solo leer/ejecutar. El más común para ejecutables.</li>
+    <li><code>chmod 644 archivo</code> — owner leer/escribir, todos los demás solo leer. El más común para archivos.</li>
+    <li><code>chown usuario:grupo archivo</code> cambia el propietario. <code>chown -R</code> aplica recursivamente.</li>
+    <li><strong>sudo</strong> ejecuta comandos como root con auditoría y timeout. Mucho mejor que loguearse como root.</li>
+    <li><strong>SUID</strong> — el ejecutable corre con los permisos del propietario (ej: passwd corre como root). <strong>Sticky bit</strong> — en /tmp, cada usuario solo borra sus propios archivos.</li>
+  </ul>
+</div>
+
+<a class="next-card" href="linux-nivel-15.html">
+  <div>
+    <div class="nc-label">Siguiente → Nivel 15</div>
+    <div class="nc-name">Instalar software — dpkg, APT, Snap, Flatpak y compilar desde fuente</div>
+  </div>
+  <div class="nc-arrow">→</div>
+</a>
+
+</main>
+
+<footer>
+  Linux desde Cero · Nivel 14 · Usuarios y Permisos · Café &lt;/&gt; · Hugo 2025
+</footer>
+
+<script>
+(function(){const s=localStorage.getItem('cafe-theme');const sys=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';const t=s||sys;document.documentElement.setAttribute('data-theme',t);updateUI(t);})();
+function toggleTheme(){const c=document.documentElement.getAttribute('data-theme');const n=c==='light'?'dark':'light';document.documentElement.setAttribute('data-theme',n);localStorage.setItem('cafe-theme',n);updateUI(n);}
+function updateUI(t){const i=document.getElementById('themeIcon');const l=document.getElementById('themeLabel');if(!i||!l)return;i.textContent=t==='dark'?'☀️':'🌙';l.textContent=t==='dark'?'Claro':'Oscuro';}
+</script>
+</body>
+</html>

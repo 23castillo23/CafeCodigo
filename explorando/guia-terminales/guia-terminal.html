@@ -64,13 +64,16 @@
     padding:0 24px; display:flex; align-items:center; gap:14px;
     position:sticky; top:0; z-index:200; height:45px;
     transition: background .25s ease, border-color .25s ease;
+    overflow-x:auto; overflow-y:hidden; scrollbar-width:none; -ms-overflow-style:none;
   }
-  .cafe-bar a { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--muted); text-decoration:none; padding:6px 14px; border:1px solid var(--border); border-radius:999px; transition:all 0.15s; }
+  .cafe-bar::-webkit-scrollbar { display:none; }
+  .cafe-bar a { flex-shrink:0; white-space:nowrap; display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--muted); text-decoration:none; padding:6px 14px; border:1px solid var(--border); border-radius:999px; transition:all 0.15s; }
   .cafe-bar a:hover { color:var(--text); border-color:var(--muted); }
-  .cafe-bar span.crumb { font-size:13px; color:var(--muted); }
-  .cafe-bar .spacer { flex: 1; }
+  .cafe-bar span.crumb { flex-shrink:0; white-space:nowrap; font-size:13px; color:var(--muted); }
+  .cafe-bar .spacer { flex: 1 0 14px; }
 
   .theme-toggle {
+    flex-shrink:0; white-space:nowrap;
     display:inline-flex; align-items:center; gap:8px;
     background: var(--bg); border:1px solid var(--border); color: var(--text);
     border-radius:999px; padding:6px 14px 6px 10px; font-size:13px; font-weight:500;
@@ -80,7 +83,7 @@
   .theme-toggle .icon { font-size: 15px; line-height:1; }
 
   header {
-    background: #211c33; color: #f3f0fb; padding: 3rem 2rem 2rem;
+    background: #0c0c0c; color: #f3f0fb; padding: 3rem 2rem 2rem;
     text-align: center; position: relative; overflow: hidden;
   }
   header::before { content: '>_'; position: absolute; font-size: 10rem; font-weight: 900; color: rgba(255,255,255,0.04); right: -1rem; top: -1rem; font-family: 'DM Mono', monospace; line-height: 1; }
@@ -164,7 +167,7 @@
 
   /* Ventana de terminal simulada — propia de esta guía, reutiliza los mismos tokens de color */
   .term-block {
-    background: var(--code-bg); color: var(--code-text); border-radius: 10px;
+    background: #0c0c0c; color: var(--code-text); border-radius: 10px;
     overflow: hidden; margin: 1rem 0;
   }
   .term-block-bar {
@@ -197,21 +200,21 @@
 </div>
 
 <header>
-  <h1>Terminal: moverte sin mouse</h1>
-  <p>La terminal es la herramienta que más vas a usar como programador después del propio editor de código. Aquí ves qué es, por qué importa, y los comandos que vas a repetir todos los días hasta que se vuelvan automáticos.</p>
+  <h1>Terminal: el mapa mental antes de elegir sistema</h1>
+  <p>Todo lo que es <strong>igual</strong> sin importar si terminas en Linux, Mac o Windows: qué es una terminal, por qué se usa, y la gramática con la que se lee cualquier comando. Los comandos exactos — <code>ls</code> vs <code>dir</code>, <code>rm</code> vs <code>del</code> — viven en la guía de tu sistema.</p>
   <span class="badge">🖥️ Fundamentos · Habilidad de apoyo</span>
 </header>
 
 <nav>
   <a href="#que-es">🖥️ ¿Qué es?</a>
   <a href="#por-que">⚡ ¿Por qué usarla?</a>
-  <a href="#navegacion">🧭 Navegación</a>
-  <a href="#archivos">📁 Archivos</a>
-  <a href="#ver-contenido">👀 Ver contenido</a>
+  <a href="#gramatica">🧩 Gramática de un comando</a>
+  <a href="#ciclo-archivo">📁 Ciclo de vida de un archivo</a>
   <a href="#permisos">🔐 Permisos</a>
-  <a href="#atajos">⌨️ Atajos</a>
+  <a href="#atajos">⌨️ Atajos universales</a>
   <a href="#tuberias">🔀 Tuberías</a>
   <a href="#glosario">📖 Glosario</a>
+  <a href="#siguiente">➡️ Siguiente paso</a>
 </nav>
 
 <main>
@@ -280,102 +283,74 @@
 <!-- ═══════════════════════════════════════════
      NAVEGACIÓN
 ═══════════════════════════════════════════ -->
-<section class="module" id="navegacion">
+<section class="module" id="gramatica">
   <div class="module-header">
-    <div class="module-icon">🧭</div>
+    <div class="module-icon">🧩</div>
     <div>
-      <div class="module-title">Navegación básica</div>
-      <div class="module-sub">pwd, ls, cd — los tres comandos que vas a escribir sin pensar</div>
+      <div class="module-title">La gramática de un comando</div>
+      <div class="module-sub">Comando + argumento + flags — la estructura que se repite en cualquier shell</div>
     </div>
   </div>
 
-  <p>Todo en tu computadora vive dentro de carpetas (también llamadas <strong>directorios</strong>), una dentro de otra. Navegar es simplemente moverte entre esas carpetas usando comandos en lugar de doble clic.</p>
+  <p>Antes de memorizar comandos, vale más entender su estructura. Casi cualquier línea que escribas en cualquier terminal — Bash, Zsh, PowerShell, CMD — sigue el mismo patrón de tres piezas:</p>
 
   <div class="term-block">
     <div class="term-block-bar">
       <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
-      <span style="margin-left:6px;">terminal</span>
+      <span style="margin-left:6px;">anatomía de un comando</span>
     </div>
     <div class="term-block-body">
-      <div class="l"><span class="prompt">$</span> <span class="cmd">pwd</span></div>
-      <div class="l out">/home/hugo/proyectos</div>
-      <div class="l cm">// pwd = "print working directory": te dice dónde estás parado</div>
-      <div class="l"><span class="prompt">$</span> <span class="cmd">ls</span></div>
-      <div class="l out">capitulos.html   index.html   img/   css/</div>
-      <div class="l cm">// ls (Linux/Mac) o dir (Windows): lista lo que hay en la carpeta actual</div>
-      <div class="l"><span class="prompt">$</span> <span class="cmd">cd img</span></div>
-      <div class="l cm">// cd = "change directory": entras a la carpeta "img"</div>
-      <div class="l"><span class="prompt">$</span> <span class="cmd">cd ..</span></div>
-      <div class="l cm">// ".." significa "un nivel arriba" — regresas a la carpeta anterior</div>
+      <div class="l"><span class="prompt">$</span> <span class="cmd">cp -r carpeta destino</span></div>
+      <div class="l cm">// cp     → el comando: qué acción quieres ejecutar</div>
+      <div class="l cm">// -r     → una flag/bandera: modifica cómo se comporta el comando</div>
+      <div class="l cm">// carpeta destino → argumentos: la información sobre la que actúa</div>
     </div>
   </div>
 
-  <table class="tbl">
-    <tr><th>Comando</th><th>Qué hace</th></tr>
-    <tr><td><span class="tag">pwd</span></td><td>Muestra la ruta completa de la carpeta donde estás.</td></tr>
-    <tr><td><span class="tag">ls</span> / <span class="tag">dir</span></td><td>Lista archivos y carpetas del directorio actual. <code>ls -la</code> muestra también los ocultos y con detalle.</td></tr>
-    <tr><td><span class="tag">cd &lt;carpeta&gt;</span></td><td>Entra a esa carpeta. <code>cd ..</code> sube un nivel, <code>cd ~</code> te lleva a tu carpeta de usuario.</td></tr>
-    <tr><td><span class="tag">cd /</span></td><td>Te lleva a la raíz del sistema de archivos.</td></tr>
-  </table>
+  <p>Ese patrón — <strong>comando · flags · argumentos</strong> — es universal. Lo que cambia de un sistema a otro es el vocabulario: en Linux copias con <code>cp</code>, en CMD con <code>copy</code>, pero la gramática de la instrucción es idéntica.</p>
+
+  <div class="concept">
+    <h4>📍 "Dónde estás parado" siempre existe</h4>
+    <p>Toda terminal, sin importar el sistema, recuerda una carpeta actual — tu ubicación de trabajo — y la mayoría de los comandos actúan sobre ella si no le das una ruta distinta. Una <strong>ruta absoluta</strong> empieza desde la raíz del sistema; una <strong>ruta relativa</strong> parte de donde ya estás parado.</p>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Los comandos exactos van en la guía de tu sistema</h4>
+    <p>Cómo ver dónde estás, listar una carpeta o moverte entre directorios — con ejemplos, tabla completa y ejercicios — está en <a href="guia-linux.html"><strong>Linux a fondo</strong></a> y en <a href="guia-cmd.html"><strong>CMD de Windows</strong></a>. Aquí solo queda claro el concepto que no cambia entre ellos.</p>
+  </div>
 </section>
 
 <!-- ═══════════════════════════════════════════
      ARCHIVOS
 ═══════════════════════════════════════════ -->
-<section class="module" id="archivos">
+<section class="module" id="ciclo-archivo">
   <div class="module-header">
     <div class="module-icon">📁</div>
     <div>
-      <div class="module-title">Crear, mover y borrar archivos</div>
-      <div class="module-sub">mkdir, touch, cp, mv, rm</div>
+      <div class="module-title">El ciclo de vida de un archivo</div>
+      <div class="module-sub">Crear, ver, mover y borrar — cuatro acciones que existen en todo sistema</div>
     </div>
   </div>
 
-  <p>Una vez que sabes moverte, el siguiente paso es manipular lo que hay dentro de cada carpeta.</p>
+  <p>Sin importar el sistema operativo, lo que puedes hacerle a un archivo desde la terminal se reduce siempre a las mismas cuatro acciones. Lo que cambia es el nombre del comando:</p>
 
   <table class="tbl">
-    <tr><th>Comando</th><th>Qué hace</th></tr>
-    <tr><td><span class="tag">mkdir nombre</span></td><td>Crea una carpeta nueva llamada "nombre".</td></tr>
-    <tr><td><span class="tag">touch archivo.txt</span></td><td>Crea un archivo vacío (en Windows, <code>type nul &gt; archivo.txt</code>).</td></tr>
-    <tr><td><span class="tag">cp origen destino</span></td><td>Copia un archivo o carpeta (con <code>-r</code> para carpetas completas).</td></tr>
-    <tr><td><span class="tag">mv origen destino</span></td><td>Mueve o renombra un archivo — no deja copia en el lugar original.</td></tr>
-    <tr><td><span class="tag">rm archivo</span></td><td>Borra un archivo. Con <code>-r</code> borra una carpeta completa.</td></tr>
+    <tr><th>Acción</th><th>La idea</th></tr>
+    <tr><td><strong>Crear</strong></td><td>Generar una carpeta o archivo nuevo en la ubicación actual.</td></tr>
+    <tr><td><strong>Ver</strong></td><td>Imprimir el contenido de un archivo en la propia terminal, sin abrir un editor.</td></tr>
+    <tr><td><strong>Mover / copiar</strong></td><td>Duplicar o reubicar algo, con o sin dejar el original en su lugar.</td></tr>
+    <tr><td><strong>Borrar</strong></td><td>Eliminarlo — casi siempre de forma permanente e inmediata.</td></tr>
   </table>
 
   <div class="warn">
-    <h4>⚠️ rm no manda nada a la papelera</h4>
-    <p>Cuando borras algo desde la terminal, se borra directo — no hay "deshacer". Antes de usar <code>rm -r</code> en una carpeta, revisa dos veces qué estás borrando y desde dónde.</p>
-  </div>
-</section>
-
-<!-- ═══════════════════════════════════════════
-     VER CONTENIDO
-═══════════════════════════════════════════ -->
-<section class="module" id="ver-contenido">
-  <div class="module-header">
-    <div class="module-icon">👀</div>
-    <div>
-      <div class="module-title">Ver el contenido de un archivo</div>
-      <div class="module-sub">cat y head, sin abrir un editor</div>
-    </div>
+    <h4>⚠️ Borrar desde la terminal casi nunca tiene "deshacer"</h4>
+    <p>A diferencia del explorador de archivos, la terminal no manda nada a la papelera por defecto. Esto es igual en Linux, Mac y Windows: antes de borrar algo con un comando, revisa dos veces qué estás borrando y desde dónde estás parado.</p>
   </div>
 
-  <p>No siempre necesitas abrir un editor completo solo para revisar qué hay dentro de un archivo.</p>
-
-  <div class="term-block">
-    <div class="term-block-bar">
-      <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
-      <span style="margin-left:6px;">terminal</span>
-    </div>
-    <div class="term-block-body">
-      <div class="l"><span class="prompt">$</span> <span class="cmd">cat notas.txt</span></div>
-      <div class="l out">Aquí aparece todo el contenido del archivo de una sola vez</div>
-      <div class="l"><span class="prompt">$</span> <span class="cmd">head -n 5 notas.txt</span></div>
-      <div class="l out">Muestra solo las primeras 5 líneas</div>
-    </div>
+  <div class="tip">
+    <h4>🟢 Los comandos exactos, en la guía de tu sistema</h4>
+    <p><code>mkdir</code>/<code>touch</code>/<code>cp</code>/<code>mv</code>/<code>rm</code>/<code>cat</code> en Linux, o <code>md</code>/<code>copy</code>/<code>move</code>/<code>del</code>/<code>type</code> en CMD — con tabla completa, ejemplos y hasta un editor de texto en terminal (<code>nano</code>) — están en <a href="guia-linux.html"><strong>Linux a fondo</strong></a> y <a href="guia-cmd.html"><strong>CMD de Windows</strong></a>.</p>
   </div>
-
-  <p><code>cat</code> (de "concatenate") imprime todo el archivo en la terminal. Es perfecto para archivos cortos como configuraciones o notas rápidas — para archivos largos, se usa más un editor.</p>
 </section>
 
 <!-- ═══════════════════════════════════════════
@@ -386,20 +361,25 @@
     <div class="module-icon">🔐</div>
     <div>
       <div class="module-title">Permisos, sin miedo</div>
-      <div class="module-sub">rwx y sudo, lo justo para reconocerlos</div>
+      <div class="module-sub">La misma idea detrás de rwx, sudo y "Ejecutar como administrador"</div>
     </div>
   </div>
 
-  <p>En sistemas tipo Linux/Mac, cada archivo tiene permisos que definen quién puede leerlo, escribirlo o ejecutarlo. No necesitas dominarlos desde el día uno, pero sí reconocerlos.</p>
+  <p>Todo sistema operativo moderno protege sus archivos con algún esquema de permisos — la idea es siempre la misma: <strong>no todo el que puede ver un archivo puede modificarlo, y no todo el que puede modificarlo puede ejecutarlo</strong>.</p>
 
   <div class="concept">
-    <h4>🔐 rwx — read, write, execute</h4>
-    <p>Read (leer), write (escribir), execute (ejecutar). Al escribir <code>ls -l</code> vas a ver algo como <code>-rwxr--r--</code>: son los permisos del dueño, del grupo y de todos los demás, en ese orden.</p>
+    <h4>🔐 Tres preguntas que todo sistema responde</h4>
+    <p>¿Quién es el dueño de esto? ¿Qué puede hacer el dueño que los demás no? ¿Hace falta pedir permiso especial para esta acción puntual? Linux lo resuelve con <code>rwx</code> y permisos numéricos, Windows con su propio sistema de cuentas y administrador — la lógica de fondo es la misma.</p>
   </div>
 
   <div class="warn">
-    <h4>⚠️ sudo — superpoderes, con cuidado</h4>
-    <p>"Super user do" — ejecuta un comando con permisos de administrador. Se usa cuando el sistema te bloquea una acción por seguridad. Úsalo solo cuando sepas exactamente qué comando estás corriendo.</p>
+    <h4>⚠️ Los "superpoderes" existen en todos lados, con otro nombre</h4>
+    <p><code>sudo</code> en Linux/Mac y "Ejecutar como administrador" en Windows cumplen el mismo rol: te dejan saltarte una restricción de seguridad por una sola acción. En ambos casos, la regla es igual — solo úsalo cuando sepas exactamente qué comando estás corriendo.</p>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 El detalle técnico, en la guía de tu sistema</h4>
+    <p>La tabla completa de <code>rwx</code>, el sistema numérico (<code>chmod 755</code>) y <code>chown</code> están explicados a fondo en <a href="guia-linux.html"><strong>Linux a fondo</strong></a>.</p>
   </div>
 </section>
 
@@ -410,10 +390,12 @@
   <div class="module-header">
     <div class="module-icon">⌨️</div>
     <div>
-      <div class="module-title">Atajos que te van a ahorrar tiempo</div>
-      <div class="module-sub">Tab, flechas, Ctrl+C, Ctrl+R, Ctrl+L</div>
+      <div class="module-title">Atajos universales</div>
+      <div class="module-sub">Los 5 que funcionan en casi cualquier shell — Bash, Zsh, Git Bash, incluso PowerShell</div>
     </div>
   </div>
+
+  <p>Estos cinco sobreviven al cambio de sistema porque son convención de shell, no de un comando puntual — te van a servir sin importar dónde termines trabajando.</p>
 
   <table class="tbl">
     <tr><th>Atajo</th><th>Qué hace</th></tr>
@@ -423,6 +405,11 @@
     <tr><td><span class="tag">Ctrl + R</span></td><td>Busca en tu historial de comandos escribiendo parte de lo que recuerdas.</td></tr>
     <tr><td><span class="tag">Ctrl + L</span> / <span class="tag">clear</span></td><td>Limpia la pantalla de la terminal sin borrar el historial.</td></tr>
   </table>
+
+  <div class="tip">
+    <h4>🟢 ¿Quieres la lista completa?</h4>
+    <p>Ctrl+Z, Ctrl+D, Ctrl+A/E/U y los atajos de historial con <code>!!</code> están en <a href="guia-linux.html"><strong>Linux a fondo</strong></a> — ya específicos de Bash.</p>
+  </div>
 </section>
 
 <!-- ═══════════════════════════════════════════
@@ -433,26 +420,18 @@
     <div class="module-icon">🔀</div>
     <div>
       <div class="module-title">Tuberías y redirección</div>
-      <div class="module-sub">Conectar comandos entre sí con | y ></div>
+      <div class="module-sub">Conectar comandos entre sí — el concepto, sin importar el símbolo exacto</div>
     </div>
   </div>
 
-  <p>Uno de los grandes poderes de la terminal es poder conectar comandos entre sí, para que la salida de uno sea la entrada del siguiente.</p>
+  <p>Uno de los grandes poderes de la terminal es poder conectar comandos entre sí, para que la salida de uno sea la entrada del siguiente — en vez de copiar y pegar resultados a mano.</p>
 
-  <div class="term-block">
-    <div class="term-block-bar">
-      <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
-      <span style="margin-left:6px;">terminal</span>
-    </div>
-    <div class="term-block-body">
-      <div class="l"><span class="prompt">$</span> <span class="cmd">ls | grep .html</span></div>
-      <div class="l cm">// el símbolo | ("pipe") pasa el resultado de ls a grep, que filtra solo lo que contiene ".html"</div>
-      <div class="l"><span class="prompt">$</span> <span class="cmd">ls > lista.txt</span></div>
-      <div class="l cm">// el símbolo > guarda el resultado del comando en un archivo, en vez de mostrarlo en pantalla</div>
-    </div>
+  <div class="concept">
+    <h4>🔀 Dos ideas, no dos símbolos que memorizar</h4>
+    <p>Una <strong>tubería</strong> (pipe) toma la salida de un comando y la pasa como entrada al siguiente. Una <strong>redirección</strong> toma la salida de un comando y, en vez de mostrarla en pantalla, la guarda en un archivo. El símbolo exacto (<code>|</code> y <code>&gt;</code> en Bash, o su equivalente en PowerShell) cambia entre sistemas, pero la idea de "conectar" es la misma en todos.</p>
   </div>
 
-  <p>No necesitas usarlas todos los días, pero reconocerlas te va a ahorrar mucha confusión cuando las veas en guías o en código de otras personas.</p>
+  <p>No necesitas usarlas todos los días, pero reconocer el concepto te va a ahorrar mucha confusión cuando las veas en guías o en código de otras personas — la sintaxis exacta de Bash está en <a href="guia-linux.html"><strong>Linux a fondo</strong></a>.</p>
 </section>
 
 <!-- ═══════════════════════════════════════════
@@ -504,8 +483,30 @@
 
   <div class="concept">
     <h4>💡 Para llevarte de esta guía</h4>
-    <p>Con <code>pwd</code>, <code>ls</code>, <code>cd</code>, <code>mkdir</code>, <code>cp</code>, <code>mv</code> y <code>rm</code> ya puedes moverte y manipular archivos sin tocar el mouse. El resto — permisos, tuberías, atajos — se va acomodando solo con la práctica diaria.</p>
+    <p>Terminal, shell, comando, flag, argumento, ruta absoluta y relativa — con este vocabulario ya puedes leer cualquier guía de comandos sin perderte, sin importar el sistema del que hable.</p>
   </div>
+</section>
+
+<!-- ═══════════════════════════════════════════
+     SIGUIENTE PASO
+═══════════════════════════════════════════ -->
+<section class="module" id="siguiente">
+  <div class="module-header">
+    <div class="module-icon">➡️</div>
+    <div>
+      <div class="module-title">Ahora sí, a los comandos reales</div>
+      <div class="module-sub">Con el mapa mental listo, toca elegir tu sistema</div>
+    </div>
+  </div>
+
+  <p>Ya tienes el vocabulario y la gramática. Lo que sigue es práctica con comandos reales — y ahí cada sistema tiene su propia guía completa, con tablas, ejercicios y cheat sheet:</p>
+
+  <table class="tbl">
+    <tr><th>Si usas</th><th>Sigue en</th></tr>
+    <tr><td>Linux o Mac</td><td><a href="guia-linux.html"><strong>Linux a fondo</strong></a> — navegación, archivos, permisos, procesos, paquetes, bash y scripts</td></tr>
+    <tr><td>Windows</td><td><a href="guia-cmd.html"><strong>CMD de Windows</strong></a> — los mismos conceptos, con la sintaxis del símbolo del sistema</td></tr>
+    <tr><td>Ambos / cambias seguido</td><td><a href="comparativa-linux-cmd.html"><strong>Linux vs CMD</strong></a> — tabla comparativa lado a lado</td></tr>
+  </table>
 </section>
 
 </main>

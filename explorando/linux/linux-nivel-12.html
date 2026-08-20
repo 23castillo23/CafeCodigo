@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux desde Cero · N12 · Terminal y Bash</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root,[data-theme="light"]{--primary:#c44a2a;--primary-light:#fdf0ec;--primary-mid:rgba(196,74,42,.25);--secondary:#1a7a5a;--secondary-light:#edf7f3;--accent:#b07010;--accent-light:#fdf6e8;--bg:#f7f4ef;--surface:#ffffff;--text:#1a1814;--muted:#8a8480;--border:#e8e4de;--code-bg:#1a1814;--code-text:#e8e4de;--header-bg:#1a1814;--analogy-bg:#fff7ed;--analogy-border:#fde68a;--analogy-text:#78350f;--analogy-head:#92400e;--diagram-bg:#f0f4ff;--diagram-border:#c7d2fe;--note-bg:#f0f4ff;--note-border:#6366f1;--note-head:#4338ca;}
+[data-theme="dark"]{--primary:#ff7a57;--primary-light:rgba(255,122,87,.14);--primary-mid:rgba(255,122,87,.3);--secondary:#3ddc84;--secondary-light:rgba(61,220,132,.12);--accent:#f0c040;--accent-light:rgba(240,192,64,.12);--bg:#0d1117;--surface:#161b22;--text:#c9d8f0;--muted:#5a7090;--border:#21262d;--code-bg:#060a10;--code-text:#c9d8f0;--header-bg:#0a0e14;--analogy-bg:rgba(240,192,64,.07);--analogy-border:rgba(240,192,64,.3);--analogy-text:#e6d4a0;--analogy-head:#f0c040;--diagram-bg:#161b22;--diagram-border:#21262d;--note-bg:rgba(99,102,241,.1);--note-border:#818cf8;--note-head:#818cf8;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;font-size:16px;transition:background .25s,color .25s;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:300;height:45px;transition:background .25s,border-color .25s;}
+.topbar-back{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);text-decoration:none;padding:5px 14px;border:1px solid var(--border);border-radius:999px;transition:all .15s;}
+.topbar-back:hover{color:var(--text);border-color:var(--muted);}
+.topbar-info{font-size:13px;color:var(--muted);}
+.theme-btn{margin-left:auto;background:none;border:1px solid var(--border);border-radius:999px;padding:4px 13px;font-size:13px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:.35rem;transition:all .15s;font-family:'DM Sans',sans-serif;}
+.theme-btn:hover{color:var(--text);border-color:var(--muted);}
+header{background:var(--header-bg);color:#f7f4ef;padding:3rem 2rem 2.25rem;text-align:center;position:relative;overflow:hidden;}
+header::before{content:'N12';position:absolute;font-family:'DM Mono',monospace;font-size:11rem;font-weight:900;color:rgba(255,255,255,.04);right:-1rem;top:-1.5rem;line-height:1;pointer-events:none;}
+.header-eyebrow{display:inline-flex;align-items:center;gap:.5rem;background:rgba(196,74,42,.25);border:1px solid rgba(196,74,42,.45);border-radius:20px;padding:3px 14px;font-size:.78rem;font-weight:700;color:#ffaa88;margin-bottom:.85rem;}
+header h1{font-size:2.5rem;font-weight:800;letter-spacing:-1px;color:#f7f4ef;line-height:1.2;}
+header h1 em{font-style:normal;color:#ff8a6a;}
+header p{font-size:1.05rem;opacity:.8;margin-top:.5rem;max-width:540px;margin-left:auto;margin-right:auto;}
+.header-chips{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-top:.9rem;}
+.header-chip{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:20px;padding:3px 13px;font-size:.76rem;color:rgba(255,255,255,.75);}
+.niveles-nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:45px;z-index:110;display:flex;align-items:center;height:38px;padding:0 1rem;transition:background .25s;}
+.nn-prev,.nn-next{flex-shrink:0;display:flex;align-items:center;gap:.3rem;padding:0 .75rem;height:100%;text-decoration:none;color:var(--muted);font-size:.78rem;font-weight:500;border-right:1px solid var(--border);transition:color .15s;white-space:nowrap;}
+.nn-next{border-right:none;border-left:1px solid var(--border);}
+.nn-prev:hover,.nn-next:hover{color:var(--primary);}
+.nn-list{flex:1;display:flex;align-items:center;justify-content:center;gap:.15rem;overflow-x:auto;padding:0 .5rem;}
+.nn-list::-webkit-scrollbar{display:none;}
+.nn-list a{flex-shrink:0;padding:2px 9px;border-radius:20px;text-decoration:none;font-size:.73rem;font-weight:600;color:var(--muted);font-family:'DM Mono',monospace;transition:color .15s,background .15s;}
+.nn-list a:hover{color:var(--text);background:var(--bg);}
+.nn-list a.activa{background:var(--primary-light);color:var(--primary);}
+.nn-list .sep{color:var(--border);font-size:.7rem;padding:0 1px;flex-shrink:0;pointer-events:none;}
+.sec-nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:83px;z-index:100;display:flex;overflow-x:auto;transition:background .25s;}
+.sec-nav::-webkit-scrollbar{display:none;}
+.sec-nav a{flex-shrink:0;padding:.75rem 1.1rem;text-decoration:none;color:var(--muted);font-size:.82rem;font-weight:500;border-bottom:2px solid transparent;white-space:nowrap;transition:color .2s,border-color .2s;}
+.sec-nav a:hover{color:var(--primary);border-bottom-color:var(--primary);}
+main{max-width:920px;margin:0 auto;padding:2rem 1.5rem;}
+.nivel-badge{display:inline-flex;align-items:center;gap:.5rem;background:var(--primary);color:white;border-radius:20px;padding:5px 16px;font-size:.82rem;font-weight:700;margin-bottom:1.75rem;}
+.module{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;margin-bottom:2.5rem;scroll-margin-top:135px;transition:background .25s,border-color .25s;}
+.module-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border);}
+.module-icon{font-size:1.8rem;flex-shrink:0;}
+.module-title{font-size:1.35rem;font-weight:700;}
+.module-sub{font-size:.85rem;color:var(--muted);margin-top:2px;}
+.module h2{font-size:1.15rem;font-weight:700;margin:1.75rem 0 .75rem;}
+.module p{margin-bottom:.85rem;font-size:.97rem;}
+.module ul,.module ol{padding-left:1.4rem;margin-bottom:.85rem;}
+.module li{margin-bottom:.4rem;font-size:.96rem;}
+.analogy{background:var(--analogy-bg);border:1px solid var(--analogy-border);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0;}
+.analogy h4{color:var(--analogy-head);font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+.analogy p{font-size:.95rem;color:var(--analogy-text);margin:0;}
+.concept,.tip,.warn,.note{border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0;border-left-width:4px;border-left-style:solid;}
+.concept h4,.tip h4,.warn h4,.note h4{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+.concept p,.tip p,.warn p,.note p{font-size:.95rem;margin:0;}
+.tip ul{font-size:.95rem;padding-left:1.2rem;margin-top:.3rem;}
+.concept{background:var(--primary-light);border-color:var(--primary);}
+.concept h4{color:var(--primary);}
+.tip{background:var(--secondary-light);border-color:var(--secondary);}
+.tip h4{color:var(--secondary);}
+.warn{background:var(--primary-light);border-color:var(--primary);}
+.warn h4{color:var(--primary);}
+.note{background:var(--note-bg);border-color:var(--note-border);}
+.note h4{color:var(--note-head);}
+.code-wrap{position:relative;margin:1rem 0;}
+.code-block{background:var(--code-bg);color:var(--code-text);border-radius:10px;padding:1.25rem 1.5rem;font-family:'DM Mono',monospace;font-size:.88rem;line-height:1.85;overflow-x:auto;white-space:pre;}
+.lang-tag{position:absolute;top:.6rem;right:.75rem;background:rgba(255,255,255,.1);color:rgba(255,255,255,.45);font-size:.68rem;padding:2px 8px;border-radius:4px;font-family:sans-serif;font-weight:700;}
+.ct{color:#89B4FA;}.cv{color:#A6E3A1;}.cs{color:#F9E2AF;}.cc{color:#585B70;font-style:italic;}.cn{color:#FAB387;}
+.terminal{background:#0a0e14;border:1px solid #21262d;border-radius:10px;overflow:hidden;margin:1rem 0;}
+.term-bar{background:#161b22;padding:.42rem .85rem;display:flex;align-items:center;gap:.35rem;border-bottom:1px solid #21262d;}
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.dot-r{background:#ff5f57;}.dot-y{background:#ffbd2e;}.dot-g{background:#28c840;}
+.term-label{font-family:'DM Mono',monospace;font-size:.69rem;color:#3a5070;margin-left:.4rem;}
+.term-body{padding:1.1rem 1.3rem;font-family:'DM Mono',monospace;font-size:.85rem;line-height:2.1;color:#c9d8f0;}
+.t-p{color:#3ddc84;}.t-o{color:#5a7090;display:block;}.t-h{color:#253550;font-style:italic;display:block;}
+.diagram{background:var(--diagram-bg);border:1px solid var(--diagram-border);border-radius:12px;padding:1.5rem;margin:1.1rem 0;font-family:'DM Mono',monospace;font-size:.87rem;line-height:2;overflow-x:auto;transition:background .25s,border-color .25s;}
+.d-r{color:var(--primary);font-weight:700;}.d-g{color:var(--secondary);font-weight:700;}.d-y{color:var(--accent);font-weight:700;}.d-b{color:#6366f1;font-weight:700;}.d-m{color:var(--muted);font-style:italic;}
+.tbl{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem;}
+.tbl th{background:var(--primary-light);color:var(--primary);padding:.65rem 1rem;text-align:left;font-weight:600;}
+.tbl td{padding:.65rem 1rem;border-bottom:1px solid var(--border);vertical-align:top;}
+.tbl td:first-child{font-family:'DM Mono',monospace;font-size:.85rem;color:var(--primary);font-weight:600;}
+.tbl tr:hover td{background:var(--bg);}
+/* CMD GRID */
+.cmd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.75rem;margin:1rem 0;}
+.cmd-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1rem;transition:background .25s;}
+.cmd-title{font-family:'DM Mono',monospace;font-size:.82rem;font-weight:700;color:var(--primary);margin-bottom:.3rem;}
+.cmd-desc{font-size:.83rem;color:var(--muted);margin-bottom:.5rem;}
+.cmd-ex{font-family:'DM Mono',monospace;font-size:.8rem;background:var(--code-bg);color:var(--code-text);padding:.45rem .75rem;border-radius:6px;display:block;}
+/* PROMPT ANATOMY */
+.prompt-anatomy{background:var(--diagram-bg);border:1px solid var(--diagram-border);border-radius:12px;padding:1.5rem;margin:1rem 0;}
+.pa-prompt{font-family:'DM Mono',monospace;font-size:1.1rem;margin-bottom:1rem;color:var(--code-text);background:var(--code-bg);padding:.75rem 1rem;border-radius:8px;}
+.pa-items{display:flex;flex-wrap:wrap;gap:.5rem;}
+.pa-item{font-size:.82rem;padding:.3rem .7rem;border-radius:20px;font-family:'DM Mono',monospace;}
+.pai-user{background:rgba(61,220,132,.15);color:var(--secondary);}
+.pai-host{background:rgba(99,102,241,.15);color:#6366f1;}
+.pai-dir{background:rgba(196,74,42,.15);color:var(--primary);}
+.pai-sym{background:rgba(176,112,16,.15);color:var(--accent);}
+/* ATAJOS GRID */
+.keys-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:.65rem;margin:1rem 0;}
+.key-row{display:flex;align-items:center;gap:.75rem;padding:.6rem .9rem;background:var(--bg);border:1px solid var(--border);border-radius:8px;font-size:.86rem;transition:background .25s;}
+.key-combo{font-family:'DM Mono',monospace;font-size:.78rem;font-weight:700;color:var(--primary);min-width:110px;flex-shrink:0;}
+.key-desc{color:var(--muted);}
+/* EJERCICIO */
+.ejercicio{background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:1.5rem;margin:1.5rem 0;}
+[data-theme="dark"] .ejercicio{background:rgba(240,192,64,.06);border-color:rgba(240,192,64,.22);}
+.ej-hd{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;font-weight:700;font-size:1rem;color:#78350F;flex-wrap:wrap;}
+[data-theme="dark"] .ej-hd{color:#f0c040;}
+.ej-badge{background:var(--accent);color:#fff;font-size:.68rem;padding:2px 9px;border-radius:20px;font-weight:700;text-transform:uppercase;}
+.ejercicio ol{padding-left:1.4rem;}
+.ejercicio ol li{margin-bottom:.6rem;font-size:.95rem;}
+.ejercicio p{font-size:.95rem;margin-bottom:.6rem;}
+.resumen{background:var(--primary-light);border:1px solid var(--primary-mid);border-radius:14px;padding:1.6rem;margin-bottom:1.5rem;}
+.resumen h3{color:var(--primary);margin-bottom:.75rem;font-size:1.05rem;}
+.resumen ul{padding-left:1.4rem;}
+.resumen li{font-size:.92rem;margin-bottom:.45rem;}
+.next-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem 1.5rem;display:flex;align-items:center;gap:1rem;text-decoration:none;transition:border-color .2s;margin-bottom:2rem;}
+.next-card:hover{border-color:var(--primary);}
+.nc-label{font-size:.72rem;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.2rem;}
+.nc-name{font-weight:700;color:var(--text);font-size:.97rem;}
+.nc-arrow{font-size:1.4rem;color:var(--primary);margin-left:auto;}
+code{font-family:'DM Mono',monospace;background:#f0ece6;color:var(--primary);padding:1px 5px;border-radius:4px;font-size:.9em;}
+[data-theme="dark"] code{background:#1c2128;}
+strong{font-weight:700;}
+p{margin-bottom:.8rem;}ul,ol{padding-left:1.4rem;margin-bottom:.8rem;}li{margin-bottom:.4rem;font-size:.96rem;}
+h2{font-size:1.2rem;font-weight:700;margin:1.75rem 0 .75rem;}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.85rem;border-top:1px solid var(--border);margin-top:1rem;background:var(--bg);transition:background .25s;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="topbar-back" href="../index.html">← Café &lt;/&gt;</a>
+  <span class="topbar-info">🐧 Linux desde Cero · Nivel 12 de 23</span>
+  <button class="theme-btn" onclick="toggleTheme()">
+    <span id="themeIcon">🌙</span><span id="themeLabel">Oscuro</span>
+  </button>
+</div>
+
+<header>
+  <div class="header-eyebrow">🐚 Nivel 12 — La terminal</div>
+  <h1><em>Terminal</em> y Bash</h1>
+  <p>Variables, PATH, alias, historial, redirección, pipes y los atajos que multiplican tu velocidad</p>
+  <div class="header-chips">
+    <span class="header-chip">Nivel 12 de 23</span>
+    <span class="header-chip">🐚 Terminal</span>
+    <span class="header-chip">9 subtemas</span>
+    <span class="header-chip">~35 min</span>
+  </div>
+</header>
+
+<div class="niveles-nav">
+  <a class="nn-prev" href="linux-nivel-11.html">← N11</a>
+  <div class="nn-list">
+    <a href="linux-nivel-01.html">N1</a><a href="linux-nivel-02.html">N2</a><a href="linux-nivel-03.html">N3</a>
+    <a href="linux-nivel-04.html">N4</a><a href="linux-nivel-05.html">N5</a><span class="sep">·</span>
+    <a href="linux-nivel-06.html">N6</a><a href="linux-nivel-07.html">N7</a><a href="linux-nivel-08.html">N8</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-09.html">N9</a><a href="linux-nivel-10.html">N10</a><a href="linux-nivel-11.html">N11</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-12.html" class="activa">N12</a>
+    <a href="linux-nivel-13.html">N13</a><a href="linux-nivel-14.html">N14</a><a href="linux-nivel-15.html">N15</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-16.html">N16</a><a href="linux-nivel-17.html">N17</a>
+    <a href="linux-nivel-18.html">N18</a><a href="linux-nivel-19.html">N19</a>
+    <a href="linux-nivel-20.html">N20</a><a href="linux-nivel-21.html">N21</a>
+    <a href="linux-nivel-22.html">N22</a><a href="linux-nivel-23.html">N23</a>
+  </div>
+  <a class="nn-next" href="linux-nivel-13.html">N13 →</a>
+</div>
+
+<nav class="sec-nav">
+  <a href="#terminal">🖥️ Terminal vs Shell</a>
+  <a href="#prompt">💬 El prompt</a>
+  <a href="#variables">📦 Variables</a>
+  <a href="#path">🗺️ PATH</a>
+  <a href="#alias">⚡ Alias</a>
+  <a href="#historia">📜 Historial</a>
+  <a href="#redireccion">↪️ Redirección</a>
+  <a href="#pipes">🔗 Pipes</a>
+  <a href="#atajos">⌨️ Atajos</a>
+  <a href="#ejercicio">✏️ Ejercicio</a>
+</nav>
+
+<main>
+<div class="nivel-badge">🐚 Nivel 12 — Terminal y Bash</div>
+
+
+<!-- ═══════════════════════
+     TERMINAL VS SHELL
+═══════════════════════ -->
+<section class="module" id="terminal">
+  <div class="module-header">
+    <div class="module-icon">🖥️</div>
+    <div>
+      <div class="module-title">Terminal vs Shell — la diferencia que confunde a todos</div>
+      <div class="module-sub">No son lo mismo — entender la distinción cambia cómo piensas en la línea de comandos</div>
+    </div>
+  </div>
+
+  <p>La mayoría de personas usa "terminal" y "shell" como sinónimos. No lo son — son dos piezas distintas que trabajan juntas.</p>
+
+  <div class="compare-2" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1rem 0;">
+    <div style="background:var(--note-bg);border:1px solid rgba(99,102,241,.25);border-radius:14px;padding:1.25rem;">
+      <div style="font-weight:800;font-size:1rem;color:#6366f1;margin-bottom:.6rem;">🖥️ Terminal (Emulador)</div>
+      <div style="font-size:.86rem;color:var(--muted);line-height:1.6;">La <strong>ventana gráfica</strong> que ves en pantalla. Dibuja texto, gestiona colores y fuentes, captura tu teclado. GNOME Terminal, Alacritty, Kitty, Tilix. Es solo un contenedor visual.</div>
+    </div>
+    <div style="background:var(--secondary-light);border:1px solid rgba(26,122,90,.25);border-radius:14px;padding:1.25rem;">
+      <div style="font-weight:800;font-size:1rem;color:var(--secondary);margin-bottom:.6rem;">🐚 Shell (Intérprete)</div>
+      <div style="font-size:.86rem;color:var(--muted);line-height:1.6;">El programa que <strong>interpreta y ejecuta</strong> tus comandos. Lee lo que escribes, lo analiza y llama al kernel. Bash, Zsh, Fish, Sh. Es el cerebro de la operación.</div>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <h4>📺 Analogía — El televisor y el canal</h4>
+    <p>El <strong>emulador de terminal</strong> es el televisor — la pantalla, los altavoces, los botones físicos. La <strong>shell</strong> es el canal de televisión — el contenido real que se transmite. Puedes cambiar el televisor (Alacritty vs GNOME Terminal) sin cambiar el contenido (Bash). Y puedes cambiar el canal (Bash vs Zsh) sin cambiar el televisor.</p>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Emuladores de terminal</th><th>Característica principal</th></tr></thead>
+    <tbody>
+      <tr><td>GNOME Terminal</td><td>Por defecto en GNOME/Ubuntu. Simple, estable, bien integrado.</td></tr>
+      <tr><td>Alacritty</td><td>Acelerado por GPU. Extremadamente rápido. Muy popular entre devs.</td></tr>
+      <tr><td>Kitty</td><td>Acelerado por GPU + soporte imágenes en terminal. Muy configurable.</td></tr>
+      <tr><td>Tilix</td><td>Múltiples paneles en una ventana. Ideal para trabajo con SSH.</td></tr>
+      <tr><td>Konsole</td><td>El terminal de KDE. Muy completo con tabs, perfiles y splits.</td></tr>
+      <tr><td>tmux / screen</td><td>Multiplexores de terminal — múltiples "ventanas" dentro de una sesión SSH.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- ═══════════════════════
+     EL PROMPT
+═══════════════════════ -->
+<section class="module" id="prompt">
+  <div class="module-header">
+    <div class="module-icon">💬</div>
+    <div>
+      <div class="module-title">Anatomía del prompt</div>
+      <div class="module-sub">Todo lo que te dice esa línea antes de que escribas</div>
+    </div>
+  </div>
+
+  <p>El <strong>prompt</strong> es el texto que Bash muestra esperando que escribas un comando. No es decoración — te da información esencial sobre tu contexto actual.</p>
+
+  <div class="prompt-anatomy">
+    <div class="pa-prompt">hugo@ubuntu:~/proyectos/web$</div>
+    <div class="pa-items">
+      <span class="pa-item pai-user">hugo → usuario actual</span>
+      <span class="pa-item pai-host">ubuntu → hostname de la máquina</span>
+      <span class="pa-item pai-dir">~/proyectos/web → directorio actual</span>
+      <span class="pa-item pai-sym">$ → usuario normal (# = root)</span>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">el prompt en acción</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Prompt de usuario normal — $ al final</span>
+<span class="t-p">hugo@ubuntu:~$</span> whoami
+<span class="t-o">hugo</span>
+
+<span class="t-h"># Prompt de root — # al final (¡cuidado!)</span>
+<span class="t-p">root@ubuntu:~#</span> whoami
+<span class="t-o">root</span>
+
+<span class="t-h"># Ver y personalizar la variable PS1 (define el prompt)</span>
+<span class="t-p">$</span> echo $PS1
+<span class="t-o">\u@\h:\w\$</span>
+<span class="t-h"># \u = usuario · \h = hostname · \w = directorio · \$ = símbolo</span>
+
+<span class="t-h"># Cambiar el prompt temporalmente con colores</span>
+<span class="t-p">$</span> PS1="\[\033[32m\]\u\[\033[0m\]@\h:\w$ "
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Oh My Bash / Oh My Zsh — prompts hermosos con una línea</h4>
+    <p>Personalizar el prompt manualmente con códigos de color es tedioso. <strong>Oh My Bash</strong> (para Bash) y <strong>Oh My Zsh</strong> (para Zsh) son frameworks que añaden temas hermosos, autocompletado mejorado y plugins con un solo comando de instalación. También existe <strong>Starship</strong> — un prompt ultra-rápido escrito en Rust que funciona con cualquier shell.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     VARIABLES
+═══════════════════════ -->
+<section class="module" id="variables">
+  <div class="module-header">
+    <div class="module-icon">📦</div>
+    <div>
+      <div class="module-title">Variables en Bash</div>
+      <div class="module-sub">Variables locales, de entorno y las más importantes del sistema</div>
+    </div>
+  </div>
+
+  <p>Las <strong>variables</strong> en Bash almacenan valores que pueden ser cadenas de texto, números o resultados de comandos. Son la memoria de la shell.</p>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">variables en Bash — sintaxis completa</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Definir una variable (sin espacios alrededor del =)</span>
+<span class="t-p">$</span> nombre="Hugo"
+<span class="t-p">$</span> edad=25
+<span class="t-p">$</span> proyecto="cafe-codigo"
+
+<span class="t-h"># Usar una variable con $</span>
+<span class="t-p">$</span> echo "Hola, $nombre. Tienes $edad años."
+<span class="t-o">Hola, Hugo. Tienes 25 años.</span>
+
+<span class="t-h"># Usar {} para delimitar el nombre de la variable</span>
+<span class="t-p">$</span> echo "${nombre}ito"
+<span class="t-o">Hugito</span>
+
+<span class="t-h"># Capturar la salida de un comando en una variable</span>
+<span class="t-p">$</span> fecha=$(date +%Y-%m-%d)
+<span class="t-p">$</span> echo "Hoy es: $fecha"
+<span class="t-o">Hoy es: 2025-01-15</span>
+
+<span class="t-h"># Exportar variable para que la vean los procesos hijos</span>
+<span class="t-p">$</span> export MI_VAR="valor"
+
+<span class="t-h"># Variables de solo lectura (constantes)</span>
+<span class="t-p">$</span> readonly VERSION="1.0.0"
+
+<span class="t-h"># Ver todas las variables de entorno</span>
+<span class="t-p">$</span> env | head -10
+<span class="t-o">HOME=/home/hugo</span>
+<span class="t-o">USER=hugo</span>
+<span class="t-o">SHELL=/bin/bash</span>
+    </div>
+  </div>
+
+  <h2>Variables de entorno importantes del sistema</h2>
+
+  <table class="tbl">
+    <thead><tr><th>Variable</th><th>Valor típico</th><th>Para qué sirve</th></tr></thead>
+    <tbody>
+      <tr><td>HOME</td><td>/home/hugo</td><td>Tu directorio personal. El ~ es un alias de $HOME.</td></tr>
+      <tr><td>USER</td><td>hugo</td><td>Tu nombre de usuario actual.</td></tr>
+      <tr><td>SHELL</td><td>/bin/bash</td><td>La shell que estás usando.</td></tr>
+      <tr><td>PATH</td><td>/usr/bin:/usr/local/bin:…</td><td>Lista de directorios donde Bash busca comandos. Crítica.</td></tr>
+      <tr><td>PWD</td><td>/home/hugo/proyectos</td><td>Directorio actual (Print Working Directory).</td></tr>
+      <tr><td>OLDPWD</td><td>/home/hugo</td><td>El directorio anterior. Permite volver con <code>cd -</code>.</td></tr>
+      <tr><td>LANG</td><td>es_MX.UTF-8</td><td>Idioma y codificación del sistema.</td></tr>
+      <tr><td>EDITOR</td><td>vim / nano / code</td><td>Editor de texto por defecto (usado por git, cron…).</td></tr>
+      <tr><td>PS1</td><td>\u@\h:\w\$</td><td>La plantilla del prompt de Bash.</td></tr>
+      <tr><td>?</td><td>0 / 1 / 127…</td><td>Código de salida del último comando. 0 = éxito.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="concept">
+    <h4>💡 La variable $? — el código de salida</h4>
+    <p>Cada comando termina con un código de salida: <strong>0</strong> significa éxito y cualquier otro número significa error. La variable <code>$?</code> guarda el código del último comando. Es fundamental en scripts para tomar decisiones: <code>if [ $? -eq 0 ]; then echo "OK"; else echo "ERROR"; fi</code>. Muchos programas usan códigos específicos (1=error general, 127=comando no encontrado, 130=interrumpido por Ctrl+C).</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     PATH
+═══════════════════════ -->
+<section class="module" id="path">
+  <div class="module-header">
+    <div class="module-icon">🗺️</div>
+    <div>
+      <div class="module-title">El PATH — cómo Bash encuentra los comandos</div>
+      <div class="module-sub">La variable más importante del sistema — sin entenderla no puedes instalar herramientas correctamente</div>
+    </div>
+  </div>
+
+  <p>Cuando escribes <code>git</code> en la terminal, Bash no sabe dónde está ese programa. Busca en una lista de directorios definida en la variable <strong>PATH</strong>. Si lo encuentra, lo ejecuta. Si no, obtienes "command not found".</p>
+
+  <div class="analogy">
+    <h4>🗺️ Analogía — La guía telefónica de los comandos</h4>
+    <p>El PATH es como la <strong>guía telefónica de tu ciudad</strong>. Cuando quieres llamar a "la pizzería", buscas en la guía — no necesitas saber la dirección exacta de cada pizzería de la ciudad. Cuando escribes <code>git</code>, Bash busca "git" en el PATH — no necesitas escribir <code>/usr/bin/git</code> cada vez. Si agregas una nueva "pizzería" (programa), tienes que añadir su "número" (directorio) a la guía (PATH) para que Bash lo encuentre.</p>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">PATH — ver, entender y modificar</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Ver el PATH actual (directorios separados por :)</span>
+<span class="t-p">$</span> echo $PATH
+<span class="t-o">/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/hugo/.local/bin</span>
+
+<span class="t-h"># Ver en forma legible</span>
+<span class="t-p">$</span> echo $PATH | tr ':' '\n'
+<span class="t-o">/usr/local/sbin</span>
+<span class="t-o">/usr/local/bin</span>
+<span class="t-o">/usr/sbin</span>
+<span class="t-o">/usr/bin</span>
+<span class="t-o">/sbin</span>
+<span class="t-o">/bin</span>
+<span class="t-o">/home/hugo/.local/bin</span>
+
+<span class="t-h"># Saber dónde está un comando exactamente</span>
+<span class="t-p">$</span> which git
+<span class="t-o">/usr/bin/git</span>
+<span class="t-p">$</span> which python3
+<span class="t-o">/usr/bin/python3</span>
+
+<span class="t-h"># Añadir un directorio al PATH (temporalmente en esta sesión)</span>
+<span class="t-p">$</span> export PATH="$HOME/.local/bin:$PATH"
+
+<span class="t-h"># Añadir al PATH permanentemente (en ~/.bashrc)</span>
+<span class="t-p">$</span> echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+<span class="t-p">$</span> source ~/.bashrc       <span class="t-h"># recargar .bashrc sin reiniciar la terminal</span>
+    </div>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ El orden en el PATH importa</h4>
+    <p>Bash busca en los directorios del PATH <strong>de izquierda a derecha</strong> y ejecuta el primer resultado que encuentra. Si tienes dos versiones de Python — una en <code>/usr/bin/</code> y otra en <code>/home/hugo/.local/bin/</code> — la que aparezca primero en el PATH es la que se ejecuta. Por eso añadir directorios al <strong>principio</strong> del PATH (<code>PATH="$HOME/.local/bin:$PATH"</code>) les da prioridad sobre los del sistema.</p>
+  </div>
+
+  <h2>El archivo ~/.bashrc — la configuración de tu shell</h2>
+  <p>El archivo <code>~/.bashrc</code> se ejecuta cada vez que abres una terminal interactiva. Es donde defines variables de entorno permanentes, alias, funciones y modificaciones al PATH.</p>
+
+  <div class="code-wrap">
+    <div class="code-block"><span class="cc"># ~/.bashrc — ejemplo de configuración básica</span>
+
+<span class="cc"># Variables de entorno</span>
+<span class="cv">export EDITOR</span>=<span class="cs">"code"</span>
+<span class="cv">export LANG</span>=<span class="cs">"es_MX.UTF-8"</span>
+
+<span class="cc"># Añadir directorios al PATH</span>
+<span class="cv">export PATH</span>=<span class="cs">"$HOME/.local/bin:$HOME/.cargo/bin:$PATH"</span>
+
+<span class="cc"># Alias útiles</span>
+<span class="ct">alias</span> ll=<span class="cs">'ls -alF --color=auto'</span>
+<span class="ct">alias</span> la=<span class="cs">'ls -A'</span>
+<span class="ct">alias</span> ..=<span class="cs">'cd ..'</span>
+<span class="ct">alias</span> ...=<span class="cs">'cd ../..'</span>
+<span class="ct">alias</span> grep=<span class="cs">'grep --color=auto'</span>
+
+<span class="cc"># Historial mejorado</span>
+<span class="cv">export HISTSIZE</span>=10000
+<span class="cv">export HISTFILESIZE</span>=20000
+<span class="cv">export HISTCONTROL</span>=<span class="cs">ignoredups:erasedups</span>
+
+<span class="cc"># Prompt personalizado</span>
+<span class="cv">PS1</span>=<span class="cs">'\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '</span></div>
+    <div class="lang-tag">BASH</div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     ALIAS
+═══════════════════════ -->
+<section class="module" id="alias">
+  <div class="module-header">
+    <div class="module-icon">⚡</div>
+    <div>
+      <div class="module-title">Alias — comandos cortos para comandos largos</div>
+      <div class="module-sub">La forma más rápida de multiplicar tu velocidad en la terminal</div>
+    </div>
+  </div>
+
+  <p>Un <strong>alias</strong> es un nombre corto que sustituye a un comando (posiblemente largo y complicado). Una vez definido, puedes escribir el alias en lugar del comando completo. Son una de las primeras cosas que deberías configurar en tu <code>.bashrc</code>.</p>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">alias — crear, usar y gestionar</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Crear un alias (temporal — solo en esta sesión)</span>
+<span class="t-p">$</span> alias ll='ls -la --color=auto'
+<span class="t-p">$</span> alias gs='git status'
+<span class="t-p">$</span> alias gc='git commit -m'
+<span class="t-p">$</span> alias gp='git push'
+<span class="t-p">$</span> alias update='sudo apt update && sudo apt upgrade -y'
+
+<span class="t-h"># Usar el alias</span>
+<span class="t-p">$</span> ll
+<span class="t-o">total 48</span>
+<span class="t-o">drwxr-xr-x 2 hugo hugo 4096 jan 15 10:23 .</span>
+<span class="t-o">drwxr-xr-x 8 hugo hugo 4096 jan 15 10:20 ..</span>
+
+<span class="t-h"># Ver todos los alias activos</span>
+<span class="t-p">$</span> alias
+<span class="t-o">alias gs='git status'</span>
+<span class="t-o">alias ll='ls -la --color=auto'</span>
+
+<span class="t-h"># Eliminar un alias</span>
+<span class="t-p">$</span> unalias gs
+
+<span class="t-h"># Ejecutar el comando original sin el alias (con \)</span>
+<span class="t-p">$</span> \ls       <span class="t-h"># ejecuta ls sin el alias</span>
+    </div>
+  </div>
+
+  <div class="cmd-grid">
+    <div class="cmd-card">
+      <div class="cmd-title">alias .. y ...</div>
+      <div class="cmd-desc">Navegar directorios hacia arriba rápidamente.</div>
+      <span class="cmd-ex">alias ..='cd ..'
+alias ...='cd ../..'</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">alias para Git</div>
+      <div class="cmd-desc">Los comandos git más usados reducidos a 2 caracteres.</div>
+      <span class="cmd-ex">alias gs='git status'
+alias ga='git add .'
+alias gc='git commit -m'
+alias gp='git push'</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">alias update</div>
+      <div class="cmd-desc">Actualizar el sistema con un solo comando.</div>
+      <span class="cmd-ex">alias update='sudo apt update && sudo apt upgrade -y && sudo apt autoremove -y'</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">alias para Python</div>
+      <div class="cmd-desc">Si tienes Python 2 y 3 instalados.</div>
+      <span class="cmd-ex">alias python='python3'
+alias pip='pip3'
+alias venv='python3 -m venv'</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     HISTORIAL
+═══════════════════════ -->
+<section class="module" id="historia">
+  <div class="module-header">
+    <div class="module-icon">📜</div>
+    <div>
+      <div class="module-title">Historial de comandos — tu memoria de la terminal</div>
+      <div class="module-sub">Cómo buscar, reusar y gestionar el historial de Bash</div>
+    </div>
+  </div>
+
+  <p>Bash guarda todos los comandos que ejecutas en un archivo (<code>~/.bash_history</code>). El historial bien configurado es una de las herramientas de productividad más poderosas de la terminal.</p>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">historial — todos los trucos</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Ver el historial completo</span>
+<span class="t-p">$</span> history
+<span class="t-o">  998  git push origin main</span>
+<span class="t-o">  999  npm run dev</span>
+<span class="t-o"> 1000  sudo apt update</span>
+
+<span class="t-h"># Buscar en el historial — Ctrl+R (búsqueda inversa interactiva)</span>
+<span class="t-h"># Pulsa Ctrl+R y escribe parte del comando que buscas</span>
+<span class="t-h"># Pulsa Ctrl+R otra vez para ver el siguiente resultado</span>
+
+<span class="t-h"># Ejecutar el último comando que empezó con "git"</span>
+<span class="t-p">$</span> !git
+<span class="t-o">git push origin main</span>
+
+<span class="t-h"># Ejecutar el comando número 998</span>
+<span class="t-p">$</span> !998
+
+<span class="t-h"># Repetir el último comando</span>
+<span class="t-p">$</span> !!
+
+<span class="t-h"># Usar el último argumento del comando anterior con !$</span>
+<span class="t-p">$</span> mkdir proyectos/nuevo-sitio
+<span class="t-p">$</span> cd !$           <span class="t-h"># equivale a: cd proyectos/nuevo-sitio</span>
+
+<span class="t-h"># Buscar comandos en el historial con grep</span>
+<span class="t-p">$</span> history | grep "docker"
+<span class="t-o">  234  docker ps</span>
+<span class="t-o">  567  docker-compose up -d</span>
+
+<span class="t-h"># Limpiar el historial</span>
+<span class="t-p">$</span> history -c && history -w
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Ctrl+R — el atajo de historial más importante</h4>
+    <p><strong>Ctrl+R</strong> activa la búsqueda reversa interactiva: empieza a escribir parte de un comando y Bash te muestra el más reciente que coincide. Pulsa Ctrl+R otra vez para ver el anterior. Cuando encuentres el que buscas, pulsa Enter para ejecutarlo o las flechas para editarlo. Es el atajo que más tiempo ahorra a diario.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     REDIRECCIÓN
+═══════════════════════ -->
+<section class="module" id="redireccion">
+  <div class="module-header">
+    <div class="module-icon">↪️</div>
+    <div>
+      <div class="module-title">Redirección de entrada/salida</div>
+      <div class="module-sub">stdin, stdout, stderr y cómo controlar a dónde van los datos</div>
+    </div>
+  </div>
+
+  <p>En Linux, cada proceso tiene tres canales de datos estándar: entrada (<strong>stdin</strong>), salida (<strong>stdout</strong>) y errores (<strong>stderr</strong>). La redirección te permite cambiar de dónde vienen los datos y a dónde van — en lugar de teclado y pantalla, pueden ser archivos.</p>
+
+  <div class="analogy">
+    <h4>🚿 Analogía — Las tuberías de agua</h4>
+    <p>stdin, stdout y stderr son como tuberías de agua. Normalmente el agua (datos) entra por el grifo (teclado) y sale por el desagüe (pantalla). La redirección te permite cambiar las tuberías: conectar la entrada a un depósito (archivo), mandar la salida a otro depósito, o separar el agua limpia (stdout) del agua sucia (stderr) en recipientes distintos.</p>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">redirección — todos los operadores</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># stdout (>) — redirigir la salida a un archivo (SOBREESCRIBE)</span>
+<span class="t-p">$</span> ls -la > lista.txt          <span class="t-h"># guarda la lista en lista.txt</span>
+<span class="t-p">$</span> echo "Hola" > archivo.txt   <span class="t-h"># crea o sobreescribe archivo.txt</span>
+
+<span class="t-h"># stdout (>>) — AÑADIR al final del archivo (no sobreescribe)</span>
+<span class="t-p">$</span> echo "línea 1" > log.txt
+<span class="t-p">$</span> echo "línea 2" >> log.txt   <span class="t-h"># añade al final, no borra línea 1</span>
+
+<span class="t-h"># stdin (<) — leer entrada desde un archivo</span>
+<span class="t-p">$</span> sort < lista.txt           <span class="t-h"># sort lee de lista.txt en vez del teclado</span>
+<span class="t-p">$</span> wc -l < archivo.txt        <span class="t-h"># cuenta las líneas del archivo</span>
+
+<span class="t-h"># stderr (2>) — redirigir errores a un archivo</span>
+<span class="t-p">$</span> ls /no-existe 2> errores.txt
+<span class="t-p">$</span> gcc programa.c 2> errores-compilacion.txt
+
+<span class="t-h"># Redirigir stdout Y stderr al mismo archivo</span>
+<span class="t-p">$</span> comando > salida.txt 2>&1   <span class="t-h"># clásico</span>
+<span class="t-p">$</span> comando &> salida.txt       <span class="t-h"># sintaxis moderna</span>
+
+<span class="t-h"># Descartar errores (enviarlos al agujero negro)</span>
+<span class="t-p">$</span> comando 2>/dev/null
+
+<span class="t-h"># Descartar TODA la salida</span>
+<span class="t-p">$</span> comando &>/dev/null
+    </div>
+  </div>
+
+  <div class="diagram">
+<span class="d-m"># Los tres file descriptors estándar</span>
+
+stdin   (0)  →  <span class="d-m">teclado por defecto</span>  →  puede venir de un archivo con  <span class="d-g">&lt;</span>
+stdout  (1)  →  <span class="d-m">pantalla por defecto</span>  →  puede ir a un archivo con  <span class="d-r">&gt;</span>  o  <span class="d-r">&gt;&gt;</span>
+stderr  (2)  →  <span class="d-m">pantalla por defecto</span>  →  puede ir a un archivo con  <span class="d-y">2&gt;</span>
+
+<span class="d-m"># 2>&1 significa "redirigir stderr (2) al mismo sitio que stdout (1)"</span></div>
+</section>
+
+
+<!-- ═══════════════════════
+     PIPES
+═══════════════════════ -->
+<section class="module" id="pipes">
+  <div class="module-header">
+    <div class="module-icon">🔗</div>
+    <div>
+      <div class="module-title">Pipes — encadenar comandos</div>
+      <div class="module-sub">La filosofía Unix: programas pequeños que hacen una cosa bien y se conectan entre sí</div>
+    </div>
+  </div>
+
+  <p>Un <strong>pipe</strong> (<code>|</code>) conecta la salida de un comando con la entrada del siguiente. Es la implementación de la filosofía Unix: en lugar de un programa gigante que hace todo, tienes muchos programas pequeños especializados que puedes encadenar.</p>
+
+  <div class="analogy">
+    <h4>🏭 Analogía — La cadena de montaje</h4>
+    <p>Un pipe es una <strong>cadena de montaje</strong>. En la primera estación tomas los materiales brutos (ls, cat, find…). Cada estación siguiente procesa lo que recibe de la anterior y pasa el resultado a la siguiente (grep filtra, sort ordena, head trunca, wc cuenta). Al final de la cadena obtienes el producto terminado — exactamente lo que necesitabas.</p>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">pipes — del simple al complejo</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Simple: listar y filtrar</span>
+<span class="t-p">$</span> ls -la | grep ".html"
+<span class="t-o">-rw-r--r-- 1 hugo hugo 4521 index.html</span>
+<span class="t-o">-rw-r--r-- 1 hugo hugo 2341 about.html</span>
+
+<span class="t-h"># Contar cuántos procesos corre Firefox</span>
+<span class="t-p">$</span> ps aux | grep firefox | wc -l
+<span class="t-o">8</span>
+
+<span class="t-h"># Los 5 procesos que más CPU consumen</span>
+<span class="t-p">$</span> ps aux --sort=-%cpu | head -6
+
+<span class="t-h"># Buscar en logs y mostrar solo las últimas 20 líneas de errores</span>
+<span class="t-p">$</span> cat /var/log/syslog | grep "error" | tail -20
+
+<span class="t-h"># Contar cuántos archivos .js hay en el proyecto</span>
+<span class="t-p">$</span> find . -name "*.js" | wc -l
+<span class="t-o">47</span>
+
+<span class="t-h"># Los 10 archivos más grandes del sistema</span>
+<span class="t-p">$</span> du -ah / 2>/dev/null | sort -rh | head -10
+
+<span class="t-h"># Ver las IPs que más conexiones hacen al servidor</span>
+<span class="t-p">$</span> cat /var/log/nginx/access.log | awk '{print $1}' | sort | uniq -c | sort -rn | head -10
+
+<span class="t-h"># Cadena compleja: palabras únicas en un archivo, ordenadas</span>
+<span class="t-p">$</span> cat texto.txt | tr ' ' '\n' | sort | uniq | head -20
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 tee — bifurcar la salida</h4>
+    <p><code>tee</code> lee de stdin y escribe simultáneamente a stdout Y a un archivo. Perfecto cuando quieres ver la salida en pantalla y guardarla al mismo tiempo: <code>make build 2>&1 | tee build.log</code> — ves el output en tiempo real y queda guardado en build.log para revisar después.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     ATAJOS DE TECLADO
+═══════════════════════ -->
+<section class="module" id="atajos">
+  <div class="module-header">
+    <div class="module-icon">⌨️</div>
+    <div>
+      <div class="module-title">Atajos de teclado — velocidad en la terminal</div>
+      <div class="module-sub">Los atajos que usan los profesionales a diario</div>
+    </div>
+  </div>
+
+  <p>La terminal es mucho más rápida con el teclado que con el ratón. Estos atajos de Bash son los que más productividad dan una vez que los interiorizas — y se aprenden en una semana de uso.</p>
+
+  <h2>Navegación y edición de línea</h2>
+  <div class="keys-grid">
+    <div class="key-row"><div class="key-combo">Ctrl + A</div><div class="key-desc">Mover cursor al inicio de la línea</div></div>
+    <div class="key-row"><div class="key-combo">Ctrl + E</div><div class="key-desc">Mover cursor al final de la línea</div></div>
+    <div class="key-row"><div class="key-combo">Ctrl + ←/→</div><div class="key-desc">Mover palabra a palabra (Alt+B / Alt+F)</div></div>
+    <div class="key-row"><div class="key-combo">Ctrl + W</div><div class="key-desc">Borrar la palabra anterior al cursor</div></div>
+    <div class="key-row"><div class="key-combo">Ctrl + K</div><div class="key-desc">Borrar desde el cursor hasta el final</div></div>
+    <div class="key-row"><div class="key-combo">Ctrl + U</div><div class="key-desc">Borrar desde el cursor hasta el inicio</div></div>
+    <div class="key-row"><div class="key-combo">Ctrl + Y</div><div class="key-desc">Pegar lo borrado con Ctrl+W/K/U</div></div>
+    <div class="key-row"><div class="key-combo">Alt + D</div><div class="key-desc">Borrar la palabra siguiente al cursor</div></div>
+  </div>
+
+  <h2>Historial y búsqueda</h2>
+  <div class="keys-grid">
+    <div class="key-row"><div class="key-combo">↑ / ↓</div><div class="key-desc">Navegar por comandos anteriores/siguientes</div></div>
+    <div class="key-row"><div class="key-combo">Ctrl + R</div><div class="key-desc">Búsqueda reversa interactiva en el historial</div></div>
+    <div class="key-row"><div class="key-combo">Ctrl + G</div><div class="key-desc">Cancelar la búsqueda del historial</div></div>
+    <div class="key-row"><div class="key-combo">!!</div><div class="key-desc">Repetir el último comando</div></div>
+    <div class="key-row"><div class="key-combo">!$</div><div class="key-desc">Último argumento del comando anterior</div></div>
+    <div class="key-row"><div class="key-combo">!git</div><div class="key-desc">Último comando que empezó con "git"</div></div>
+  </div>
+
+  <h2>Control de procesos</h2>
+  <div class="keys-grid">
+    <div class="key-row"><div class="key-combo">Ctrl + C</div><div class="key-desc">Matar el proceso en primer plano (SIGINT)</div></div>
+    <div class="key-row"><div class="key-combo">Ctrl + Z</div><div class="key-desc">Suspender proceso (mandarlo al fondo)</div></div>
+    <div class="key-row"><div class="key-combo">Ctrl + D</div><div class="key-desc">Enviar EOF — cerrar la terminal o salir de python/node</div></div>
+    <div class="key-row"><div class="key-combo">Ctrl + L</div><div class="key-desc">Limpiar la pantalla (como el comando clear)</div></div>
+    <div class="key-row"><div class="key-combo">fg / bg</div><div class="key-desc">Traer proceso suspendido al frente / fondo</div></div>
+    <div class="key-row"><div class="key-combo">jobs</div><div class="key-desc">Ver procesos en segundo plano de esta sesión</div></div>
+  </div>
+
+  <h2>Autocompletado — Tab es tu mejor amigo</h2>
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">autocompletado con Tab</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Tab completa comandos, rutas y argumentos</span>
+<span class="t-p">$</span> cd Docu[Tab]          → cd Documentos/
+<span class="t-p">$</span> git che[Tab]          → git checkout
+<span class="t-p">$</span> git checkout ma[Tab]  → git checkout main
+
+<span class="t-h"># Si hay ambigüedad, pulsa Tab dos veces para ver opciones</span>
+<span class="t-p">$</span> ls /usr/b[Tab][Tab]
+<span class="t-o">bin/  bin32/  bin64/</span>
+
+<span class="t-h"># Autocompletado de variables</span>
+<span class="t-p">$</span> echo $HO[Tab]         → echo $HOME
+
+<span class="t-h"># Instalar bash-completion para autocompletado avanzado</span>
+<span class="t-p">$</span> sudo apt install bash-completion
+<span class="t-h"># Ahora Tab funciona con git, apt, docker, kubectl y más</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- EJERCICIO -->
+<div class="ejercicio" id="ejercicio">
+  <div class="ej-hd">
+    ✏️ Ejercicio del Nivel 12
+    <span class="ej-badge">Práctica intensiva</span>
+  </div>
+  <p>Abre la terminal y practica cada concepto de este nivel:</p>
+  <ol>
+    <li><strong>Variables:</strong> define <code>nombre="TuNombre"</code> y <code>version=$(uname -r)</code>. Luego ejecuta <code>echo "Hola $nombre, tu kernel es $version"</code>.</li>
+    <li><strong>PATH:</strong> ejecuta <code>echo $PATH | tr ':' '\n'</code>. Cuenta cuántos directorios tiene tu PATH. Ejecuta <code>which ls</code>, <code>which git</code> y <code>which python3</code>.</li>
+    <li><strong>Alias:</strong> crea estos alias y pruébalos: <code>alias ll='ls -alh --color=auto'</code>, <code>alias ..='cd ..'</code>, <code>alias gs='git status'</code>. Añádelos a tu <code>~/.bashrc</code>.</li>
+    <li><strong>Historial:</strong> ejecuta 5 comandos distintos. Luego prueba <code>Ctrl+R</code> y busca uno de ellos. Prueba también <code>!!</code> para repetir el último.</li>
+    <li><strong>Redirección:</strong> ejecuta <code>ls -la ~ > mi-home.txt</code>. Luego <code>cat mi-home.txt | wc -l</code>. ¿Cuántos archivos tienes en tu home?</li>
+    <li><strong>Pipes:</strong> ejecuta <code>ps aux | grep bash | head -5</code>. Luego <code>find ~ -name "*.html" 2>/dev/null | wc -l</code> — ¿cuántos HTML tienes?</li>
+    <li><strong>Atajos:</strong> escribe un comando largo y practica: Ctrl+A (ir al inicio), Ctrl+E (ir al final), Ctrl+W (borrar palabra), Ctrl+K (borrar hasta el final).</li>
+  </ol>
+  <p><strong>Reto final:</strong> en una sola línea con pipes, muestra los 5 archivos más grandes de tu directorio home: <code>du -ah ~/* 2>/dev/null | sort -rh | head -5</code></p>
+</div>
+
+<!-- RESUMEN -->
+<div class="resumen">
+  <h3>🟥 Resumen del Nivel 12</h3>
+  <ul>
+    <li>La <strong>terminal</strong> es la ventana gráfica. La <strong>shell</strong> (Bash) es el intérprete — son dos piezas distintas.</li>
+    <li>El <strong>prompt</strong> muestra usuario, host, directorio actual y si eres root (#) o usuario normal ($).</li>
+    <li>Variables: <code>nombre="valor"</code>, usar con <code>$nombre</code>. Exportar con <code>export</code> para que las vean los procesos hijos.</li>
+    <li>El <strong>PATH</strong> es la lista de directorios donde Bash busca comandos — de izquierda a derecha. Añadir con <code>export PATH="$dir:$PATH"</code>.</li>
+    <li><strong>~/.bashrc</strong> — se ejecuta al abrir la terminal. Aquí van PATH, alias y variables permanentes.</li>
+    <li><strong>Alias</strong>: <code>alias ll='ls -la'</code> — atajos para comandos largos. Añadir al .bashrc para que persistan.</li>
+    <li>Historial: <strong>Ctrl+R</strong> para búsqueda inversa. <code>!!</code> repite el último. <code>!$</code> usa el último argumento.</li>
+    <li>Redirección: <code>></code> sobreescribe, <code>>></code> añade, <code><</code> lee de archivo, <code>2></code> redirige errores, <code>2>/dev/null</code> descarta errores.</li>
+    <li><strong>Pipes</strong> <code>|</code> encadenan comandos — la salida de uno es la entrada del siguiente.</li>
+    <li>Atajos clave: <strong>Ctrl+R</strong>, <strong>Ctrl+C</strong>, <strong>Ctrl+L</strong>, <strong>Ctrl+A/E</strong>, <strong>Ctrl+W/K/U</strong>, <strong>Tab</strong>.</li>
+  </ul>
+</div>
+
+<a class="next-card" href="linux-nivel-13.html">
+  <div>
+    <div class="nc-label">Siguiente → Nivel 13</div>
+    <div class="nc-name">Sistema de archivos — estructura /, directorios, rutas, permisos, enlaces y tar/gzip</div>
+  </div>
+  <div class="nc-arrow">→</div>
+</a>
+
+</main>
+
+<footer>
+  Linux desde Cero · Nivel 12 · Terminal y Bash · Café &lt;/&gt; · Hugo 2025
+</footer>
+
+<script>
+(function(){const s=localStorage.getItem('cafe-theme');const sys=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';const t=s||sys;document.documentElement.setAttribute('data-theme',t);updateUI(t);})();
+function toggleTheme(){const c=document.documentElement.getAttribute('data-theme');const n=c==='light'?'dark':'light';document.documentElement.setAttribute('data-theme',n);localStorage.setItem('cafe-theme',n);updateUI(n);}
+function updateUI(t){const i=document.getElementById('themeIcon');const l=document.getElementById('themeLabel');if(!i||!l)return;i.textContent=t==='dark'?'☀️':'🌙';l.textContent=t==='dark'?'Claro':'Oscuro';}
+</script>
+</body>
+</html>

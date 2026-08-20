@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux desde Cero · N9 · Capas de Linux</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root,[data-theme="light"]{--primary:#c44a2a;--primary-light:#fdf0ec;--primary-mid:rgba(196,74,42,.25);--secondary:#1a7a5a;--secondary-light:#edf7f3;--accent:#b07010;--accent-light:#fdf6e8;--bg:#f7f4ef;--surface:#ffffff;--text:#1a1814;--muted:#8a8480;--border:#e8e4de;--code-bg:#1a1814;--code-text:#e8e4de;--header-bg:#1a1814;--analogy-bg:#fff7ed;--analogy-border:#fde68a;--analogy-text:#78350f;--analogy-head:#92400e;--diagram-bg:#f0f4ff;--diagram-border:#c7d2fe;--note-bg:#f0f4ff;--note-border:#6366f1;--note-head:#4338ca;}
+[data-theme="dark"]{--primary:#ff7a57;--primary-light:rgba(255,122,87,.14);--primary-mid:rgba(255,122,87,.3);--secondary:#3ddc84;--secondary-light:rgba(61,220,132,.12);--accent:#f0c040;--accent-light:rgba(240,192,64,.12);--bg:#0d1117;--surface:#161b22;--text:#c9d8f0;--muted:#5a7090;--border:#21262d;--code-bg:#060a10;--code-text:#c9d8f0;--header-bg:#0a0e14;--analogy-bg:rgba(240,192,64,.07);--analogy-border:rgba(240,192,64,.3);--analogy-text:#e6d4a0;--analogy-head:#f0c040;--diagram-bg:#161b22;--diagram-border:#21262d;--note-bg:rgba(99,102,241,.1);--note-border:#818cf8;--note-head:#818cf8;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;font-size:16px;transition:background .25s,color .25s;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:300;height:45px;transition:background .25s,border-color .25s;}
+.topbar-back{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);text-decoration:none;padding:5px 14px;border:1px solid var(--border);border-radius:999px;transition:all .15s;}
+.topbar-back:hover{color:var(--text);border-color:var(--muted);}
+.topbar-info{font-size:13px;color:var(--muted);}
+.theme-btn{margin-left:auto;background:none;border:1px solid var(--border);border-radius:999px;padding:4px 13px;font-size:13px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:.35rem;transition:all .15s;font-family:'DM Sans',sans-serif;}
+.theme-btn:hover{color:var(--text);border-color:var(--muted);}
+header{background:var(--header-bg);color:#f7f4ef;padding:3rem 2rem 2.25rem;text-align:center;position:relative;overflow:hidden;}
+header::before{content:'N09';position:absolute;font-family:'DM Mono',monospace;font-size:11rem;font-weight:900;color:rgba(255,255,255,.04);right:-1rem;top:-1.5rem;line-height:1;pointer-events:none;}
+.header-eyebrow{display:inline-flex;align-items:center;gap:.5rem;background:rgba(196,74,42,.25);border:1px solid rgba(196,74,42,.45);border-radius:20px;padding:3px 14px;font-size:.78rem;font-weight:700;color:#ffaa88;margin-bottom:.85rem;}
+header h1{font-size:2.5rem;font-weight:800;letter-spacing:-1px;color:#f7f4ef;line-height:1.2;}
+header h1 em{font-style:normal;color:#ff8a6a;}
+header p{font-size:1.05rem;opacity:.8;margin-top:.5rem;max-width:540px;margin-left:auto;margin-right:auto;}
+.header-chips{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-top:.9rem;}
+.header-chip{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:20px;padding:3px 13px;font-size:.76rem;color:rgba(255,255,255,.75);}
+.niveles-nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:45px;z-index:110;display:flex;align-items:center;height:38px;padding:0 1rem;transition:background .25s;}
+.nn-prev,.nn-next{flex-shrink:0;display:flex;align-items:center;gap:.3rem;padding:0 .75rem;height:100%;text-decoration:none;color:var(--muted);font-size:.78rem;font-weight:500;border-right:1px solid var(--border);transition:color .15s;white-space:nowrap;}
+.nn-next{border-right:none;border-left:1px solid var(--border);}
+.nn-prev:hover,.nn-next:hover{color:var(--primary);}
+.nn-list{flex:1;display:flex;align-items:center;justify-content:center;gap:.15rem;overflow-x:auto;padding:0 .5rem;}
+.nn-list::-webkit-scrollbar{display:none;}
+.nn-list a{flex-shrink:0;padding:2px 9px;border-radius:20px;text-decoration:none;font-size:.73rem;font-weight:600;color:var(--muted);font-family:'DM Mono',monospace;transition:color .15s,background .15s;}
+.nn-list a:hover{color:var(--text);background:var(--bg);}
+.nn-list a.activa{background:var(--primary-light);color:var(--primary);}
+.nn-list .sep{color:var(--border);font-size:.7rem;padding:0 1px;flex-shrink:0;pointer-events:none;}
+.sec-nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:83px;z-index:100;display:flex;overflow-x:auto;transition:background .25s;}
+.sec-nav::-webkit-scrollbar{display:none;}
+.sec-nav a{flex-shrink:0;padding:.75rem 1.1rem;text-decoration:none;color:var(--muted);font-size:.82rem;font-weight:500;border-bottom:2px solid transparent;white-space:nowrap;transition:color .2s,border-color .2s;}
+.sec-nav a:hover{color:var(--primary);border-bottom-color:var(--primary);}
+main{max-width:920px;margin:0 auto;padding:2rem 1.5rem;}
+.nivel-badge{display:inline-flex;align-items:center;gap:.5rem;background:var(--primary);color:white;border-radius:20px;padding:5px 16px;font-size:.82rem;font-weight:700;margin-bottom:1.75rem;}
+.module{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;margin-bottom:2.5rem;scroll-margin-top:135px;transition:background .25s,border-color .25s;}
+.module-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border);}
+.module-icon{font-size:1.8rem;flex-shrink:0;}
+.module-title{font-size:1.35rem;font-weight:700;}
+.module-sub{font-size:.85rem;color:var(--muted);margin-top:2px;}
+.module h2{font-size:1.15rem;font-weight:700;margin:1.75rem 0 .75rem;}
+.module p{margin-bottom:.85rem;font-size:.97rem;}
+.module ul,.module ol{padding-left:1.4rem;margin-bottom:.85rem;}
+.module li{margin-bottom:.4rem;font-size:.96rem;}
+.analogy{background:var(--analogy-bg);border:1px solid var(--analogy-border);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0;}
+.analogy h4{color:var(--analogy-head);font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+.analogy p{font-size:.95rem;color:var(--analogy-text);margin:0;}
+.concept,.tip,.warn,.note{border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0;border-left-width:4px;border-left-style:solid;}
+.concept h4,.tip h4,.warn h4,.note h4{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+.concept p,.tip p,.warn p,.note p{font-size:.95rem;margin:0;}
+.tip ul{font-size:.95rem;padding-left:1.2rem;margin-top:.3rem;}
+.concept{background:var(--primary-light);border-color:var(--primary);}
+.concept h4{color:var(--primary);}
+.tip{background:var(--secondary-light);border-color:var(--secondary);}
+.tip h4{color:var(--secondary);}
+.warn{background:var(--primary-light);border-color:var(--primary);}
+.warn h4{color:var(--primary);}
+.note{background:var(--note-bg);border-color:var(--note-border);}
+.note h4{color:var(--note-head);}
+.code-wrap{position:relative;margin:1rem 0;}
+.code-block{background:var(--code-bg);color:var(--code-text);border-radius:10px;padding:1.25rem 1.5rem;font-family:'DM Mono',monospace;font-size:.88rem;line-height:1.85;overflow-x:auto;white-space:pre;}
+.lang-tag{position:absolute;top:.6rem;right:.75rem;background:rgba(255,255,255,.1);color:rgba(255,255,255,.45);font-size:.68rem;padding:2px 8px;border-radius:4px;font-family:sans-serif;font-weight:700;}
+.ct{color:#89B4FA;}.cv{color:#A6E3A1;}.cs{color:#F9E2AF;}.cc{color:#585B70;font-style:italic;}.cn{color:#FAB387;}
+.terminal{background:#0a0e14;border:1px solid #21262d;border-radius:10px;overflow:hidden;margin:1rem 0;}
+.term-bar{background:#161b22;padding:.42rem .85rem;display:flex;align-items:center;gap:.35rem;border-bottom:1px solid #21262d;}
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.dot-r{background:#ff5f57;}.dot-y{background:#ffbd2e;}.dot-g{background:#28c840;}
+.term-label{font-family:'DM Mono',monospace;font-size:.69rem;color:#3a5070;margin-left:.4rem;}
+.term-body{padding:1.1rem 1.3rem;font-family:'DM Mono',monospace;font-size:.85rem;line-height:2.1;color:#c9d8f0;}
+.t-p{color:#3ddc84;}.t-o{color:#5a7090;display:block;}.t-h{color:#253550;font-style:italic;display:block;}
+.diagram{background:var(--diagram-bg);border:1px solid var(--diagram-border);border-radius:12px;padding:1.5rem;margin:1.1rem 0;font-family:'DM Mono',monospace;font-size:.87rem;line-height:2;overflow-x:auto;transition:background .25s,border-color .25s;}
+.d-r{color:var(--primary);font-weight:700;}.d-g{color:var(--secondary);font-weight:700;}.d-y{color:var(--accent);font-weight:700;}.d-b{color:#6366f1;font-weight:700;}.d-m{color:var(--muted);font-style:italic;}
+.tbl{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem;}
+.tbl th{background:var(--primary-light);color:var(--primary);padding:.65rem 1rem;text-align:left;font-weight:600;}
+.tbl td{padding:.65rem 1rem;border-bottom:1px solid var(--border);vertical-align:top;}
+.tbl td:first-child{font-family:'DM Mono',monospace;font-size:.85rem;color:var(--primary);font-weight:600;}
+.tbl tr:hover td{background:var(--bg);}
+
+/* STACK INTERACTIVO DE CAPAS */
+.layer-stack{display:flex;flex-direction:column;gap:3px;margin:1.25rem 0;}
+.layer{border-radius:12px;padding:1.1rem 1.4rem;border:2px solid transparent;cursor:default;transition:transform .15s,box-shadow .15s;}
+.layer:hover{transform:translateX(6px);box-shadow:0 2px 12px rgba(0,0,0,.08);}
+.layer-head{display:flex;align-items:center;gap:.85rem;margin-bottom:.35rem;}
+.layer-num{font-family:'DM Mono',monospace;font-size:.7rem;font-weight:700;opacity:.6;min-width:24px;}
+.layer-icon{font-size:1.35rem;flex-shrink:0;}
+.layer-name{font-weight:700;font-size:1rem;flex:1;}
+.layer-tag{font-family:'DM Mono',monospace;font-size:.68rem;padding:2px 8px;border-radius:20px;font-weight:700;opacity:.85;}
+.layer-desc{font-size:.86rem;line-height:1.6;padding-left:3.2rem;}
+.layer-examples{font-size:.8rem;font-family:'DM Mono',monospace;padding-left:3.2rem;margin-top:.2rem;opacity:.7;}
+
+.l-hw{background:var(--accent-light);border-color:rgba(176,112,16,.3);}
+.l-hw .layer-name,.l-hw .layer-tag{color:var(--accent);}
+.l-hw .layer-tag{background:rgba(176,112,16,.15);}
+
+.l-k{background:var(--primary-light);border-color:rgba(196,74,42,.3);}
+.l-k .layer-name,.l-k .layer-tag{color:var(--primary);}
+.l-k .layer-tag{background:rgba(196,74,42,.15);}
+
+.l-sys{background:var(--note-bg);border-color:rgba(99,102,241,.25);}
+.l-sys .layer-name,.l-sys .layer-tag{color:#6366f1;}
+.l-sys .layer-tag{background:rgba(99,102,241,.15);}
+
+.l-gnu{background:var(--secondary-light);border-color:rgba(26,122,90,.3);}
+.l-gnu .layer-name,.l-gnu .layer-tag{color:var(--secondary);}
+.l-gnu .layer-tag{background:rgba(26,122,90,.15);}
+
+.l-desk{background:rgba(236,72,153,.08);border-color:rgba(236,72,153,.2);}
+.l-desk .layer-name,.l-desk .layer-tag{color:#db2777;}
+.l-desk .layer-tag{background:rgba(236,72,153,.12);}
+
+.l-app{background:rgba(124,58,237,.08);border-color:rgba(124,58,237,.2);}
+.l-app .layer-name,.l-app .layer-tag{color:#7c3aed;}
+.l-app .layer-tag{background:rgba(124,58,237,.12);}
+
+.layer-sep{text-align:center;font-size:.8rem;color:var(--muted);font-family:'DM Mono',monospace;padding:.1rem 0;}
+
+/* SYSCALL VISUAL */
+.syscall-flow{display:flex;flex-direction:column;gap:.4rem;margin:1rem 0;}
+.sc-row{display:flex;align-items:center;gap:.6rem;font-size:.87rem;}
+.sc-box{padding:.4rem .9rem;border-radius:8px;font-family:'DM Mono',monospace;font-size:.82rem;font-weight:700;flex-shrink:0;}
+.sc-app{background:rgba(124,58,237,.12);color:#7c3aed;}
+.sc-call{background:var(--primary-light);color:var(--primary);}
+.sc-k{background:rgba(196,74,42,.1);color:var(--primary);}
+.sc-hw{background:var(--accent-light);color:var(--accent);}
+.sc-arrow{color:var(--muted);font-weight:700;}
+.sc-desc{color:var(--muted);font-size:.82rem;}
+
+/* PROCESO VISUAL */
+.proc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.75rem;margin:1rem 0;}
+.proc-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1rem;transition:background .25s;}
+.pc-title{font-family:'DM Mono',monospace;font-size:.82rem;font-weight:700;color:var(--primary);margin-bottom:.3rem;}
+.pc-desc{font-size:.83rem;color:var(--muted);line-height:1.5;}
+
+/* FILESYSTEM TREE */
+.fs-tree{background:var(--diagram-bg);border:1px solid var(--diagram-border);border-radius:12px;padding:1.5rem;margin:1rem 0;font-family:'DM Mono',monospace;font-size:.85rem;line-height:2.1;overflow-x:auto;}
+
+/* EJERCICIO */
+.ejercicio{background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:1.5rem;margin:1.5rem 0;}
+[data-theme="dark"] .ejercicio{background:rgba(240,192,64,.06);border-color:rgba(240,192,64,.22);}
+.ej-hd{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;font-weight:700;font-size:1rem;color:#78350F;flex-wrap:wrap;}
+[data-theme="dark"] .ej-hd{color:#f0c040;}
+.ej-badge{background:var(--accent);color:#fff;font-size:.68rem;padding:2px 9px;border-radius:20px;font-weight:700;text-transform:uppercase;}
+.ejercicio ol{padding-left:1.4rem;}
+.ejercicio ol li{margin-bottom:.6rem;font-size:.95rem;}
+.ejercicio p{font-size:.95rem;margin-bottom:.6rem;}
+.resumen{background:var(--primary-light);border:1px solid var(--primary-mid);border-radius:14px;padding:1.6rem;margin-bottom:1.5rem;}
+.resumen h3{color:var(--primary);margin-bottom:.75rem;font-size:1.05rem;}
+.resumen ul{padding-left:1.4rem;}
+.resumen li{font-size:.92rem;margin-bottom:.45rem;}
+.next-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem 1.5rem;display:flex;align-items:center;gap:1rem;text-decoration:none;transition:border-color .2s;margin-bottom:2rem;}
+.next-card:hover{border-color:var(--primary);}
+.nc-label{font-size:.72rem;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.2rem;}
+.nc-name{font-weight:700;color:var(--text);font-size:.97rem;}
+.nc-arrow{font-size:1.4rem;color:var(--primary);margin-left:auto;}
+code{font-family:'DM Mono',monospace;background:#f0ece6;color:var(--primary);padding:1px 5px;border-radius:4px;font-size:.9em;}
+[data-theme="dark"] code{background:#1c2128;}
+strong{font-weight:700;}
+p{margin-bottom:.8rem;}ul,ol{padding-left:1.4rem;margin-bottom:.8rem;}li{margin-bottom:.4rem;font-size:.96rem;}
+h2{font-size:1.2rem;font-weight:700;margin:1.75rem 0 .75rem;}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.85rem;border-top:1px solid var(--border);margin-top:1rem;background:var(--bg);transition:background .25s;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="topbar-back" href="../index.html">← Café &lt;/&gt;</a>
+  <span class="topbar-info">🐧 Linux desde Cero · Nivel 9 de 23</span>
+  <button class="theme-btn" onclick="toggleTheme()">
+    <span id="themeIcon">🌙</span><span id="themeLabel">Oscuro</span>
+  </button>
+</div>
+
+<header>
+  <div class="header-eyebrow">🏗️ Nivel 9 — Arquitectura interna</div>
+  <h1>Las <em>Capas de Linux</em></h1>
+  <p>Hardware → Kernel → Userspace → Aplicaciones: cómo se comunican y por qué importa entenderlo</p>
+  <div class="header-chips">
+    <span class="header-chip">Nivel 9 de 23</span>
+    <span class="header-chip">🏗️ Arquitectura</span>
+    <span class="header-chip">8 subtemas</span>
+    <span class="header-chip">~30 min</span>
+  </div>
+</header>
+
+<div class="niveles-nav">
+  <a class="nn-prev" href="linux-nivel-08.html">← N8</a>
+  <div class="nn-list">
+    <a href="linux-nivel-01.html">N1</a><a href="linux-nivel-02.html">N2</a><a href="linux-nivel-03.html">N3</a>
+    <a href="linux-nivel-04.html">N4</a><a href="linux-nivel-05.html">N5</a><span class="sep">·</span>
+    <a href="linux-nivel-06.html">N6</a><a href="linux-nivel-07.html">N7</a><a href="linux-nivel-08.html">N8</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-09.html" class="activa">N9</a>
+    <a href="linux-nivel-10.html">N10</a><a href="linux-nivel-11.html">N11</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-12.html">N12</a><a href="linux-nivel-13.html">N13</a>
+    <a href="linux-nivel-14.html">N14</a><a href="linux-nivel-15.html">N15</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-16.html">N16</a><a href="linux-nivel-17.html">N17</a>
+    <a href="linux-nivel-18.html">N18</a><a href="linux-nivel-19.html">N19</a>
+    <a href="linux-nivel-20.html">N20</a><a href="linux-nivel-21.html">N21</a>
+    <a href="linux-nivel-22.html">N22</a><a href="linux-nivel-23.html">N23</a>
+  </div>
+  <a class="nn-next" href="linux-nivel-10.html">N10 →</a>
+</div>
+
+<nav class="sec-nav">
+  <a href="#vision">🔭 Visión general</a>
+  <a href="#hardware">🔧 Capa Hardware</a>
+  <a href="#kernel">⚙️ Capa Kernel</a>
+  <a href="#syscalls">📞 System Calls</a>
+  <a href="#userspace">👤 Userspace</a>
+  <a href="#filesystem">📁 Sistema de archivos</a>
+  <a href="#procesos">⚡ Procesos</a>
+  <a href="#flujo">🔄 Flujo completo</a>
+  <a href="#ejercicio">✏️ Ejercicio</a>
+</nav>
+
+<main>
+<div class="nivel-badge">🏗️ Nivel 9 — Capas de Linux</div>
+
+
+<!-- ═══════════════════════
+     VISIÓN GENERAL
+═══════════════════════ -->
+<section class="module" id="vision">
+  <div class="module-header">
+    <div class="module-icon">🔭</div>
+    <div>
+      <div class="module-title">Visión general — las 6 capas</div>
+      <div class="module-sub">El mapa completo de cómo se organiza un sistema Linux por dentro</div>
+    </div>
+  </div>
+
+  <p>Linux no es un bloque monolítico — es un sistema perfectamente estratificado en capas donde cada una tiene una responsabilidad clara y solo se comunica con las capas adyacentes. Entender este modelo es el salto conceptual que separa a quien "usa Linux" de quien "entiende Linux".</p>
+
+  <div class="analogy">
+    <h4>🏢 Analogía — El edificio de oficinas</h4>
+    <p>Linux es como un edificio de oficinas de 6 plantas. La <strong>planta baja</strong> es el hardware — los cimientos físicos. La <strong>primera planta</strong> es el kernel — seguridad, control de acceso, gestión de recursos. Las <strong>plantas intermedias</strong> son los servicios del sistema. La <strong>última planta</strong> son las apps que el usuario ve. Cada planta accede a la de abajo mediante ascensores controlados (las System Calls) — nadie puede saltar pisos ni acceder directamente al sótano sin pasar por seguridad.</p>
+  </div>
+
+  <div class="layer-stack">
+    <div class="layer l-app">
+      <div class="layer-head">
+        <span class="layer-num">6</span>
+        <span class="layer-icon">📱</span>
+        <span class="layer-name">Aplicaciones de usuario</span>
+        <span class="layer-tag">User Space</span>
+      </div>
+      <div class="layer-desc">Lo que el usuario ve e interactúa directamente. Corren con privilegios mínimos.</div>
+      <div class="layer-examples">Firefox · VS Code · Spotify · LibreOffice · Terminal</div>
+    </div>
+    <div class="layer-sep">↕ usan el entorno de escritorio</div>
+
+    <div class="layer l-desk">
+      <div class="layer-head">
+        <span class="layer-num">5</span>
+        <span class="layer-icon">🖥️</span>
+        <span class="layer-name">Entorno de escritorio</span>
+        <span class="layer-tag">User Space</span>
+      </div>
+      <div class="layer-desc">Ventanas, menús, barra de tareas, gestión visual. Opcional — los servidores no lo tienen.</div>
+      <div class="layer-examples">GNOME · KDE Plasma · XFCE · X11 · Wayland</div>
+    </div>
+    <div class="layer-sep">↕ usan las herramientas GNU</div>
+
+    <div class="layer l-gnu">
+      <div class="layer-head">
+        <span class="layer-num">4</span>
+        <span class="layer-icon">🔧</span>
+        <span class="layer-name">Herramientas GNU y bibliotecas</span>
+        <span class="layer-tag">User Space</span>
+      </div>
+      <div class="layer-desc">Shell, coreutils, glibc — el puente entre aplicaciones y el kernel. Sin esta capa nada funciona.</div>
+      <div class="layer-examples">bash · ls · grep · glibc · libssl · libgtk</div>
+    </div>
+    <div class="layer-sep">↕ se comunican vía System Calls</div>
+
+    <div class="layer l-sys">
+      <div class="layer-head">
+        <span class="layer-num">3</span>
+        <span class="layer-icon">⚙️</span>
+        <span class="layer-name">Servicios del sistema</span>
+        <span class="layer-tag">User Space</span>
+      </div>
+      <div class="layer-desc">Procesos que corren en segundo plano gestionando recursos del sistema. Arrancan con systemd.</div>
+      <div class="layer-examples">systemd · udev · NetworkManager · PulseAudio · D-Bus</div>
+    </div>
+    <div class="layer-sep">↕ System Calls — la frontera Kernel/User</span></div>
+
+    <div class="layer l-k">
+      <div class="layer-head">
+        <span class="layer-num">2</span>
+        <span class="layer-icon">🐧</span>
+        <span class="layer-name">Kernel Linux</span>
+        <span class="layer-tag">Kernel Space</span>
+      </div>
+      <div class="layer-desc">El núcleo con acceso total. Gestiona CPU, RAM, dispositivos, red, sistema de archivos y seguridad.</div>
+      <div class="layer-examples">scheduler · mm · VFS · drivers · networking · security</div>
+    </div>
+    <div class="layer-sep">↕ accede directamente al hardware</div>
+
+    <div class="layer l-hw">
+      <div class="layer-head">
+        <span class="layer-num">1</span>
+        <span class="layer-icon">🔩</span>
+        <span class="layer-name">Hardware</span>
+        <span class="layer-tag">Físico</span>
+      </div>
+      <div class="layer-desc">Los componentes físicos. Solo el kernel puede hablarles directamente a través de drivers.</div>
+      <div class="layer-examples">CPU · RAM · SSD · GPU · NIC · USB · Teclado · Pantalla</div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>💡 La regla fundamental: cada capa solo habla con sus vecinas</h4>
+    <p>Firefox no habla directamente con el disco. glibc no habla directamente con la GPU. Cada capa usa los servicios de la capa inmediatamente inferior y ofrece servicios a la inmediatamente superior. Esta separación es lo que hace que Linux sea seguro, estable y modular — un bug en Firefox no puede corromper el kernel.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     CAPA HARDWARE
+═══════════════════════ -->
+<section class="module" id="hardware">
+  <div class="module-header">
+    <div class="module-icon">🔩</div>
+    <div>
+      <div class="module-title">Capa 1 — Hardware</div>
+      <div class="module-sub">Los componentes físicos y cómo el kernel los ve</div>
+    </div>
+  </div>
+
+  <p>El hardware es la base de todo. Linux lo abstrae en categorías de dispositivos para que las capas superiores no tengan que saber si el disco es un Samsung SSD NVMe o un disco duro Seagate de 2007 — ambos aparecen como <code>/dev/sda</code> o <code>/dev/nvme0n1</code>.</p>
+
+  <div class="proc-grid">
+    <div class="proc-card">
+      <div class="pc-title">CPU</div>
+      <div class="pc-desc">El kernel ve núcleos, hilos, caché y frecuencia. Asigna tiempo de CPU a los procesos mediante el scheduler CFS (Completely Fair Scheduler).</div>
+    </div>
+    <div class="proc-card">
+      <div class="pc-title">RAM</div>
+      <div class="pc-desc">El kernel gestiona páginas de 4KB. Cada proceso cree tener toda la RAM (memoria virtual). El kernel mapea páginas virtuales a físicas.</div>
+    </div>
+    <div class="proc-card">
+      <div class="pc-title">Almacenamiento</div>
+      <div class="pc-desc">SSD, HDD, NVMe aparecen como dispositivos de bloques en <code>/dev/</code>. El kernel usa drivers específicos para cada tipo de controladora.</div>
+    </div>
+    <div class="proc-card">
+      <div class="pc-title">Red (NIC)</div>
+      <div class="pc-desc">La tarjeta de red aparece como interfaz (<code>eth0</code>, <code>wlan0</code>). El stack de red del kernel gestiona TCP/IP, paquetes y buffers.</div>
+    </div>
+    <div class="proc-card">
+      <div class="pc-title">GPU</div>
+      <div class="pc-desc">La más compleja. Drivers (NVIDIA, AMD, Intel) exponen la GPU al sistema. DRM/KMS gestiona el display. Vulkan/OpenGL para renderizado.</div>
+    </div>
+    <div class="proc-card">
+      <div class="pc-title">Dispositivos USB/HID</div>
+      <div class="pc-desc">Teclado, ratón, USB — el subsistema udev detecta su conexión y crea el nodo de dispositivo en <code>/dev/input/</code> automáticamente.</div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">explorar el hardware desde Linux</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Ver todos los dispositivos PCI (GPU, NIC, controladora SATA)</span>
+<span class="t-p">$</span> lspci
+<span class="t-o">00:02.0 VGA compatible controller: Intel UHD Graphics 620</span>
+<span class="t-o">02:00.0 Network controller: Intel Wi-Fi 6 AX201</span>
+<span class="t-o">03:00.0 NVMe SSD controller: Samsung 980 Pro</span>
+
+<span class="t-h"># Ver dispositivos USB conectados</span>
+<span class="t-p">$</span> lsusb
+<span class="t-o">Bus 001 Device 003: ID 046d:c52b Logitech Unifying Receiver</span>
+
+<span class="t-h"># Ver discos y particiones</span>
+<span class="t-p">$</span> lsblk
+<span class="t-o">NAME        MAJ:MIN  SIZE TYPE MOUNTPOINT</span>
+<span class="t-o">nvme0n1     259:0   500G disk</span>
+<span class="t-o">├─nvme0n1p1 259:1   512M part /boot/efi</span>
+<span class="t-o">└─nvme0n1p2 259:2  499G part /</span>
+
+<span class="t-h"># Ver info detallada de CPU</span>
+<span class="t-p">$</span> lscpu | grep -E "Model name|CPU\(s\)|Thread"
+<span class="t-o">Model name:  Intel Core i7-10750H @ 2.60GHz</span>
+<span class="t-o">CPU(s):      12</span>
+<span class="t-o">Thread(s) per core: 2</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     CAPA KERNEL
+═══════════════════════ -->
+<section class="module" id="kernel">
+  <div class="module-header">
+    <div class="module-icon">⚙️</div>
+    <div>
+      <div class="module-title">Capa 2 — El Kernel Linux</div>
+      <div class="module-sub">Los 6 subsistemas del kernel y qué hace cada uno</div>
+    </div>
+  </div>
+
+  <p>El kernel no es un programa monolítico simple — es una colección de subsistemas especializados que trabajan juntos. Cada subsistema tiene su propio equipo de mantenedores, su propia carpeta en el código fuente y su propia interfaz hacia las capas superiores.</p>
+
+  <div class="analogy">
+    <h4>🏥 Analogía — El hospital y sus departamentos</h4>
+    <p>El kernel es como un hospital: tiene un departamento de urgencias (scheduler — asigna atención inmediata), farmacia (gestión de memoria — da recursos y los recupera), quirófanos (sistema de archivos VFS — operaciones de I/O), UCI (subsistema de red — comunicación crítica), mantenimiento (drivers — hablan con el equipamiento) y seguridad (módulos de seguridad — controlan quién entra dónde). Cada uno es esencial y trabaja coordinado con los demás.</p>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Subsistema</th><th>Carpeta en fuente</th><th>Responsabilidad</th></tr></thead>
+    <tbody>
+      <tr><td>Scheduler (CFS)</td><td>kernel/sched/</td><td>Decide qué proceso usa la CPU en cada instante. El algoritmo CFS garantiza equidad entre procesos.</td></tr>
+      <tr><td>Memory Manager</td><td>mm/</td><td>Gestiona RAM física y virtual. Páginas, swap, malloc, mmap, OOM killer.</td></tr>
+      <tr><td>VFS</td><td>fs/</td><td>Virtual File System — interfaz única para todos los sistemas de archivos: ext4, btrfs, tmpfs, procfs…</td></tr>
+      <tr><td>Drivers</td><td>drivers/</td><td>60%+ del código del kernel. Hablan directamente con el hardware. GPU, red, USB, audio, teclado…</td></tr>
+      <tr><td>Network Stack</td><td>net/</td><td>TCP/IP, sockets, firewall (netfilter/iptables), routing, interfaces de red.</td></tr>
+      <tr><td>Security</td><td>security/</td><td>LSM (Linux Security Modules): SELinux, AppArmor, seccomp, capabilities, namespaces.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="diagram">
+<span class="d-m"># Los subsistemas del kernel y sus interacciones</span>
+
+               <span class="d-m">[ User Space — System Calls ]</span>
+                        │
+      ┌─────────────────┼─────────────────┐
+      │                 │                 │
+  <span class="d-r">Scheduler</span>    <span class="d-r">Memory Mgr</span>       <span class="d-r">VFS</span>
+  (CPU time)   (RAM/swap)      (archivos)
+      │                 │                 │
+      └─────────────────┼─────────────────┘
+                        │
+              <span class="d-b">Network Stack</span>    <span class="d-g">Drivers</span>
+              (TCP/IP/sockets)  (hw access)
+                        │
+               <span class="d-m">[ Hardware físico ]</span></div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">inspeccionar el kernel desde /proc y /sys</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># /proc — información en tiempo real del kernel (no es un disco real)</span>
+<span class="t-p">$</span> cat /proc/version
+<span class="t-o">Linux version 6.8.0-45-generic (gcc version 13.2.0)</span>
+
+<span class="t-p">$</span> cat /proc/cpuinfo | grep "model name" | head -1
+<span class="t-o">model name : Intel(R) Core(TM) i7-10750H CPU @ 2.60GHz</span>
+
+<span class="t-p">$</span> cat /proc/meminfo | head -5
+<span class="t-o">MemTotal:       16189208 kB</span>
+<span class="t-o">MemFree:         8234112 kB</span>
+<span class="t-o">MemAvailable:   11827544 kB</span>
+
+<span class="t-h"># /sys — configuración del kernel y dispositivos</span>
+<span class="t-p">$</span> cat /sys/block/nvme0n1/size
+<span class="t-o">1000215216</span>
+
+<span class="t-h"># Ver módulos del kernel cargados (drivers)</span>
+<span class="t-p">$</span> lsmod | head -10
+<span class="t-o">Module                  Size  Used by</span>
+<span class="t-o">nvidia              56832000  128</span>
+<span class="t-o">iwlwifi               430080  1 iwlmvm</span>
+<span class="t-o">ext4                  983040  2</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     SYSTEM CALLS
+═══════════════════════ -->
+<section class="module" id="syscalls">
+  <div class="module-header">
+    <div class="module-icon">📞</div>
+    <div>
+      <div class="module-title">System Calls — la frontera entre mundos</div>
+      <div class="module-sub">La única puerta de entrada al kernel desde el espacio de usuario</div>
+    </div>
+  </div>
+
+  <p>Las <strong>System Calls</strong> (syscalls) son la única forma que tiene el código de usuario (apps, shell, bibliotecas) de pedirle al kernel que haga algo privilegiado. Son la interfaz oficial entre User Space y Kernel Space. Linux tiene aproximadamente 350 syscalls definidas.</p>
+
+  <div class="analogy">
+    <h4>🏦 Analogía — La ventanilla del banco</h4>
+    <p>Las syscalls son la <strong>ventanilla del banco</strong>. El banco (kernel) tiene el dinero (recursos: CPU, RAM, disco). Tú (aplicación) no puedes entrar a la cámara acorazada directamente — tienes que ir a la ventanilla, identificarte, pedir lo que necesitas con el formulario correcto, y el cajero (syscall handler) verifica que tienes permiso y hace la operación. Seguro, controlado, auditado.</p>
+  </div>
+
+  <p>Las syscalls más importantes y cuándo se usan:</p>
+
+  <div class="syscall-flow">
+    <div class="sc-row">
+      <div class="sc-box sc-app">Chrome</div>
+      <span class="sc-arrow">→</span>
+      <div class="sc-box sc-call">open()</div>
+      <span class="sc-arrow">→</span>
+      <div class="sc-box sc-k">kernel</div>
+      <span class="sc-arrow">→</span>
+      <div class="sc-box sc-hw">SSD</div>
+      <span class="sc-desc">Abrir un archivo del disco</span>
+    </div>
+    <div class="sc-row">
+      <div class="sc-box sc-app">Spotify</div>
+      <span class="sc-arrow">→</span>
+      <div class="sc-box sc-call">write()</div>
+      <span class="sc-arrow">→</span>
+      <div class="sc-box sc-k">kernel</div>
+      <span class="sc-arrow">→</span>
+      <div class="sc-box sc-hw">Audio</div>
+      <span class="sc-desc">Enviar audio al driver</span>
+    </div>
+    <div class="sc-row">
+      <div class="sc-box sc-app">curl</div>
+      <span class="sc-arrow">→</span>
+      <div class="sc-box sc-call">connect()</div>
+      <span class="sc-arrow">→</span>
+      <div class="sc-box sc-k">kernel</div>
+      <span class="sc-arrow">→</span>
+      <div class="sc-box sc-hw">NIC</div>
+      <span class="sc-desc">Abrir conexión TCP</span>
+    </div>
+    <div class="sc-row">
+      <div class="sc-box sc-app">bash</div>
+      <span class="sc-arrow">→</span>
+      <div class="sc-box sc-call">fork()</div>
+      <span class="sc-arrow">→</span>
+      <div class="sc-box sc-k">kernel</div>
+      <span class="sc-arrow">→</span>
+      <div class="sc-box sc-hw">CPU</div>
+      <span class="sc-desc">Crear proceso hijo</span>
+    </div>
+    <div class="sc-row">
+      <div class="sc-box sc-app">malloc</div>
+      <span class="sc-arrow">→</span>
+      <div class="sc-box sc-call">mmap()</div>
+      <span class="sc-arrow">→</span>
+      <div class="sc-box sc-k">kernel</div>
+      <span class="sc-arrow">→</span>
+      <div class="sc-box sc-hw">RAM</div>
+      <span class="sc-desc">Pedir memoria al sistema</span>
+    </div>
+    <div class="sc-row">
+      <div class="sc-box sc-app">ls</div>
+      <span class="sc-arrow">→</span>
+      <div class="sc-box sc-call">getdents()</div>
+      <span class="sc-arrow">→</span>
+      <div class="sc-box sc-k">kernel</div>
+      <span class="sc-arrow">→</span>
+      <div class="sc-box sc-hw">FS</div>
+      <span class="sc-desc">Leer entradas de directorio</span>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">strace — ver las syscalls que hace un programa en tiempo real</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># strace muestra cada syscall que hace un programa — fascinante</span>
+<span class="t-p">$</span> strace ls /tmp 2>&1 | head -20
+<span class="t-o">execve("/usr/bin/ls", ["ls", "/tmp"], ...) = 0</span>
+<span class="t-o">openat(AT_FDCWD, "/tmp", O_RDONLY|O_DIRECTORY) = 3</span>
+<span class="t-o">getdents64(3, 0x5638..., 32768) = 248</span>
+<span class="t-o">write(1, "archivo1.txt  archivo2.log\n", 27) = 27</span>
+<span class="t-o">close(3) = 0</span>
+
+<span class="t-h"># Contar cuántas syscalls hace un comando</span>
+<span class="t-p">$</span> strace -c ls / 2>&1 | tail -15
+<span class="t-o">% time     seconds  usecs/call     calls  syscall</span>
+<span class="t-o">  45.23    0.000091          9        10  openat</span>
+<span class="t-o">  22.11    0.000045          4        10  read</span>
+<span class="t-o">  18.04    0.000036          4         9  mmap</span>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>💡 Por qué las syscalls son el punto de seguridad crítico</h4>
+    <p>Cada syscall es un punto de control de seguridad. El kernel verifica permisos en cada una: ¿tiene este proceso permiso para leer este archivo? ¿Puede abrir una conexión de red? ¿Puede crear un proceso hijo? Si la respuesta es no, la syscall falla con un error <code>EPERM</code> o <code>EACCES</code> y el proceso nunca llega al hardware. Es por eso que un proceso comprometido no puede hacer daño fuera de sus permisos.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     USERSPACE
+═══════════════════════ -->
+<section class="module" id="userspace">
+  <div class="module-header">
+    <div class="module-icon">👤</div>
+    <div>
+      <div class="module-title">Capas 3-6 — El Userspace</div>
+      <div class="module-sub">Servicios del sistema, GNU, escritorio y aplicaciones</div>
+    </div>
+  </div>
+
+  <p>El <strong>userspace</strong> (espacio de usuario) es todo lo que corre fuera del kernel. Aquí los procesos tienen privilegios limitados y se comunican con el kernel solo a través de syscalls. Está organizado en sub-capas que dependen unas de otras.</p>
+
+  <h2>Capa 3 — Servicios del sistema (daemons)</h2>
+  <p>Los <strong>daemons</strong> son procesos que corren en segundo plano sin interacción del usuario. Arrancan con el sistema (vía systemd) y gestionan recursos compartidos.</p>
+
+  <div class="proc-grid">
+    <div class="proc-card">
+      <div class="pc-title">systemd</div>
+      <div class="pc-desc">PID 1 — el padre de todos los procesos. Gestiona el arranque y todos los servicios del sistema.</div>
+    </div>
+    <div class="proc-card">
+      <div class="pc-title">udev</div>
+      <div class="pc-desc">Detecta hardware nuevo (plug &amp; play). Crea nodos en /dev/ cuando conectas un USB o disco.</div>
+    </div>
+    <div class="proc-card">
+      <div class="pc-title">NetworkManager</div>
+      <div class="pc-desc">Gestiona conexiones WiFi, Ethernet y VPN. Expone una interfaz D-Bus para que otras apps lo controlen.</div>
+    </div>
+    <div class="proc-card">
+      <div class="pc-title">PulseAudio / Pipewire</div>
+      <div class="pc-desc">Servidor de audio. Mezcla el sonido de múltiples apps (Spotify + Chrome + videollamada) y lo envía al driver.</div>
+    </div>
+    <div class="proc-card">
+      <div class="pc-title">D-Bus</div>
+      <div class="pc-desc">Sistema de mensajería entre procesos. Las apps se comunican entre sí sin conocerse directamente.</div>
+    </div>
+    <div class="proc-card">
+      <div class="pc-title">cron / systemd timers</div>
+      <div class="pc-desc">Ejecutan tareas programadas. Backups automáticos, actualizaciones, limpieza de logs.</div>
+    </div>
+  </div>
+
+  <h2>Capa 4 — GNU y bibliotecas</h2>
+  <p>Las <strong>bibliotecas compartidas</strong> son código reutilizable que muchas apps usan a la vez. En lugar de que cada app incluya su propia copia de libc, todas usan la misma cargada en memoria.</p>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">ver qué bibliotecas usa un programa</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># ldd muestra las bibliotecas que carga un ejecutable</span>
+<span class="t-p">$</span> ldd /usr/bin/git
+<span class="t-o">        linux-vdso.so.1 (0x00007ffeb6bfd000)</span>
+<span class="t-o">        libpcre2-8.so.0 => /usr/lib/x86_64-linux-gnu/libpcre2-8.so.0</span>
+<span class="t-o">        libz.so.1 => /usr/lib/x86_64-linux-gnu/libz.so.1</span>
+<span class="t-o">        libc.so.6 => /usr/lib/x86_64-linux-gnu/libc.so.6</span>
+
+<span class="t-h"># Las bibliotecas compartidas viven en:</span>
+<span class="t-p">$</span> ls /usr/lib/x86_64-linux-gnu/ | head -10
+<span class="t-o">libc.so.6        libm.so.6       libssl.so.3</span>
+<span class="t-o">libpthread.so.0  libcurl.so.4    libgtk-3.so.0</span>
+
+<span class="t-h"># Ver todas las bibliotecas cargadas en memoria ahora mismo</span>
+<span class="t-p">$</span> cat /proc/$(pidof firefox)/maps | grep "\.so" | awk '{print $6}' | sort -u | head -8
+<span class="t-o">/usr/lib/x86_64-linux-gnu/libdbus-1.so.3</span>
+<span class="t-o">/usr/lib/x86_64-linux-gnu/libgio-2.0.so.0</span>
+    </div>
+  </div>
+
+  <h2>Capas 5 y 6 — Escritorio y Aplicaciones</h2>
+  <p>El <strong>entorno de escritorio</strong> (GNOME, KDE) corre en userspace como cualquier otra aplicación — no tiene privilegios especiales salvo los que le otorga el usuario. Las <strong>aplicaciones</strong> usan las APIs del escritorio (GTK, Qt) que a su vez usan las bibliotecas GNU que a su vez hacen syscalls al kernel.</p>
+</section>
+
+
+<!-- ═══════════════════════
+     SISTEMA DE ARCHIVOS VIRTUAL
+═══════════════════════ -->
+<section class="module" id="filesystem">
+  <div class="module-header">
+    <div class="module-icon">📁</div>
+    <div>
+      <div class="module-title">El sistema de archivos virtual (VFS)</div>
+      <div class="module-sub">Por qué "todo en Linux es un archivo" — y qué significa realmente</div>
+    </div>
+  </div>
+
+  <p>Una de las ideas más poderosas de Unix/Linux es que <strong>"todo es un archivo"</strong>. No solo los documentos — también los dispositivos, los procesos, la configuración del kernel y los sockets de red se representan como archivos. Esto permite usar las mismas herramientas (cat, echo, read, write) para interactuar con todo.</p>
+
+  <div class="analogy">
+    <h4>📬 Analogía — El sistema postal universal</h4>
+    <p>Imagina que puedes enviar una carta a cualquier entidad — una persona, una empresa, un cajero automático, una impresora — usando exactamente el mismo formato de sobre y el mismo servicio postal. No necesitas aprender un sistema diferente para cada destinatario. El VFS es ese servicio postal universal — leer un archivo del disco, un dispositivo USB o una conexión de red usa exactamente la misma llamada <code>read()</code>.</p>
+  </div>
+
+  <div class="fs-tree">
+<span class="d-r">/</span>  ← raíz del sistema de archivos
+├── <span class="d-b">proc/</span>         ← sistema de archivos virtual del kernel (procesos, CPU, memoria)
+│   ├── <span class="d-m">1/</span>          ← PID 1 (systemd) — su info como archivos
+│   ├── <span class="d-m">cpuinfo</span>     ← info de la CPU en tiempo real
+│   └── <span class="d-m">meminfo</span>     ← estado de la RAM en tiempo real
+├── <span class="d-b">sys/</span>          ← configuración del kernel y dispositivos
+│   ├── <span class="d-m">block/</span>      ← discos y particiones
+│   └── <span class="d-m">class/net/</span>  ← interfaces de red
+├── <span class="d-b">dev/</span>          ← dispositivos de hardware como archivos
+│   ├── <span class="d-m">sda</span>         ← primer disco SATA
+│   ├── <span class="d-m">nvme0n1</span>    ← disco NVMe
+│   ├── <span class="d-m">tty0</span>        ← terminal de consola
+│   └── <span class="d-m">null</span>        ← el agujero negro — descarta todo lo que escribes
+├── <span class="d-g">bin/</span>          ← binarios esenciales del sistema (ls, cp, bash)
+├── <span class="d-g">usr/</span>          ← programas y bibliotecas instalados
+│   ├── <span class="d-m">bin/</span>        ← ejecutables de usuario (git, python, node)
+│   └── <span class="d-m">lib/</span>        ← bibliotecas compartidas (.so)
+├── <span class="d-g">etc/</span>          ← configuración del sistema (archivos de texto)
+├── <span class="d-g">home/</span>         ← directorios personales de usuarios
+│   └── <span class="d-m">hugo/</span>       ← tu home: documentos, .bashrc, proyectos
+├── <span class="d-g">var/</span>          ← datos variables: logs, bases de datos, caches
+│   └── <span class="d-m">log/</span>        ← logs del sistema
+└── <span class="d-g">tmp/</span>          ← archivos temporales (se borran al reiniciar)</div>
+
+  <div class="tip">
+    <h4>🟢 /dev/null — el dispositivo más útil</h4>
+    <p><code>/dev/null</code> es un dispositivo especial que descarta todo lo que se escribe en él y devuelve EOF al leerlo. Es el "agujero negro" de Linux. Extremadamente útil para silenciar la salida de comandos: <code>comando 2>/dev/null</code> descarta los errores. <code>comando &>/dev/null</code> descarta todo. Es un archivo pero no existe físicamente en ningún disco.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     PROCESOS Y SEÑALES
+═══════════════════════ -->
+<section class="module" id="procesos">
+  <div class="module-header">
+    <div class="module-icon">⚡</div>
+    <div>
+      <div class="module-title">Procesos — cómo Linux gestiona la ejecución</div>
+      <div class="module-sub">PID, fork/exec, señales y el árbol de procesos</div>
+    </div>
+  </div>
+
+  <p>Cada programa en ejecución es un <strong>proceso</strong>. Linux identifica cada proceso con un número único llamado <strong>PID</strong> (Process ID). El sistema arranca con systemd como PID 1 y todos los demás procesos son hijos o descendientes de él.</p>
+
+  <div class="diagram">
+<span class="d-m"># El árbol de procesos de Linux</span>
+
+<span class="d-r">PID 1</span>  systemd          ← el primer proceso, padre de todos
+  ├── <span class="d-g">PID 2</span>  kthreadd         ← hilos del kernel
+  ├── <span class="d-y">PID 847</span> NetworkManager   ← servicio de red
+  ├── <span class="d-y">PID 901</span> gnome-shell      ← escritorio GNOME
+  │   ├── <span class="d-b">PID 1203</span> firefox      ← navegador
+  │   │   └── <span class="d-b">PID 1890</span> firefox  ← proceso de pestaña
+  │   └── <span class="d-b">PID 1250</span> code         ← VS Code
+  └── <span class="d-y">PID 950</span> bash             ← tu terminal
+      └── <span class="d-b">PID 2847</span> python3      ← script que lanzaste</div>
+
+  <h2>fork() y exec() — cómo nacen los procesos</h2>
+  <p>En Linux todos los procesos nacen de la misma forma. No se "crean desde cero" — se clonan y luego se transforman:</p>
+
+  <div class="diagram">
+<span class="d-m"># bash lanza un nuevo programa (ej: git clone)</span>
+
+bash (PID 950)
+  │
+  ├─ <span class="d-g">fork()</span>   → crea una copia exacta de bash  (PID 1100)
+  │              mismo código, misma memoria, mismo estado
+  │
+  └─ PID 1100 llama <span class="d-y">exec("git", ["git","clone","..."])</span>
+               → reemplaza su propio código por el de git
+               → ahora PID 1100 ES git corriendo
+
+<span class="d-m"># bash espera (wait()) a que PID 1100 termine</span>
+<span class="d-m"># cuando git termina, bash recupera el control</span></div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">explorar procesos en Linux</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Ver todos los procesos en árbol</span>
+<span class="t-p">$</span> pstree -p | head -20
+<span class="t-o">systemd(1)─┬─NetworkManager(847)</span>
+<span class="t-o">           ├─gnome-shell(901)─┬─firefox(1203)</span>
+<span class="t-o">           │                  └─code(1250)</span>
+<span class="t-o">           └─bash(950)───pstree(2849)</span>
+
+<span class="t-h"># Ver procesos con uso de CPU y RAM</span>
+<span class="t-p">$</span> ps aux --sort=-%cpu | head -8
+<span class="t-o">USER    PID  %CPU %MEM    VSZ   RSS COMMAND</span>
+<span class="t-o">hugo   1203  12.3  8.4 3856204 685892 /usr/lib/firefox/firefox</span>
+<span class="t-o">hugo   1250   4.1  5.2 1234568 424960 /usr/share/code/code</span>
+
+<span class="t-h"># Ver el PID de un proceso por nombre</span>
+<span class="t-p">$</span> pidof firefox
+<span class="t-o">1203 1890 1902</span>
+
+<span class="t-h"># Enviar señal SIGTERM (terminar amablemente)</span>
+<span class="t-p">$</span> kill -15 2847       <span class="t-h"># SIGTERM — pide al proceso que termine</span>
+<span class="t-p">$</span> kill -9  2847       <span class="t-h"># SIGKILL — mata sin piedad (último recurso)</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     FLUJO COMPLETO
+═══════════════════════ -->
+<section class="module" id="flujo">
+  <div class="module-header">
+    <div class="module-icon">🔄</div>
+    <div>
+      <div class="module-title">Flujo completo — de un clic a los transistores</div>
+      <div class="module-sub">Trazando exactamente qué ocurre cuando abres un archivo en Firefox</div>
+    </div>
+  </div>
+
+  <p>Juntemos todo lo que hemos visto siguiendo el camino completo de una acción concreta: haces clic en "Guardar archivo" en Firefox. ¿Qué ocurre en cada capa?</p>
+
+  <div class="diagram">
+<span class="d-m"># Tú haces clic en "Guardar" en Firefox</span>
+
+<span class="d-b">Capa 6 — App</span>
+  Firefox detecta el clic → llama a sus APIs internas → decide escribir el archivo
+
+<span class="d-b">Capa 5 — Escritorio</span>
+  GTK (biblioteca gráfica) procesa el evento del ratón → notifica a Firefox
+
+<span class="d-g">Capa 4 — GNU/glibc</span>
+  Firefox llama a <span class="d-g">fopen()</span> de glibc → glibc convierte esto a syscalls
+
+<span class="d-m">══════ FRONTERA KERNEL/USER — System Call ══════</span>
+
+<span class="d-r">Capa 2 — Kernel</span>
+  syscall <span class="d-r">open()</span>  → VFS verifica permisos → crea file descriptor
+  syscall <span class="d-r">write()</span> → VFS selecciona el sistema de archivos (ext4)
+               → ext4 calcula dónde escribir en el disco
+               → I/O scheduler optimiza el orden de escrituras
+               → driver NVMe envía el comando al controlador
+
+<span class="d-y">Capa 1 — Hardware</span>
+  SSD NVMe recibe el comando → escribe los datos en sus celdas flash
+  → envía confirmación al kernel → kernel notifica a Firefox
+  → Firefox muestra "archivo guardado"
+
+<span class="d-m">Tiempo total: ~1-5 milisegundos</span></div>
+
+  <div class="note">
+    <h4>📌 Por qué importa entender este flujo</h4>
+    <p>Cuando algo falla — un archivo no se guarda, una conexión no funciona, una app crashea — este mapa te dice dónde buscar. ¿Falla en la capa de app? ¿Es un problema de permisos en el kernel? ¿El driver del disco tiene un bug? ¿El sistema de archivos está lleno? Sin este modelo mental, los problemas de Linux parecen magia negra. Con él, son diagnósticos sistemáticos.</p>
+  </div>
+</section>
+
+
+<!-- EJERCICIO -->
+<div class="ejercicio" id="ejercicio">
+  <div class="ej-hd">
+    ✏️ Ejercicio del Nivel 9
+    <span class="ej-badge">Exploración</span>
+  </div>
+  <p>Explora las capas de Linux desde tu terminal (Ubuntu, Fedora, o cualquier distro):</p>
+  <ol>
+    <li><strong>Hardware:</strong> ejecuta <code>lspci</code>, <code>lsusb</code> y <code>lsblk</code>. Identifica tu GPU, tu NIC y tus discos. ¿Coinciden con las especificaciones de tu equipo?</li>
+    <li><strong>Kernel:</strong> ejecuta <code>cat /proc/cpuinfo | grep "model name" | head -1</code> y <code>cat /proc/meminfo | head -3</code>. ¿Qué ves?</li>
+    <li><strong>Módulos:</strong> ejecuta <code>lsmod</code>. ¿Ves el driver de tu WiFi o GPU? Búscalo: <code>lsmod | grep -i nvidia</code> o <code>lsmod | grep -i wifi</code>.</li>
+    <li><strong>Syscalls:</strong> instala strace (<code>sudo apt install strace</code>) y ejecuta <code>strace ls /tmp 2>&1 | head -15</code>. ¿Puedes identificar las syscalls open, read y write?</li>
+    <li><strong>Procesos:</strong> ejecuta <code>pstree -p | head -20</code>. ¿Ves a systemd como PID 1? ¿Puedes trazar el árbol hasta tu terminal?</li>
+    <li><strong>VFS:</strong> ejecuta <code>cat /proc/version</code> y <code>cat /sys/class/net/lo/address</code>. ¿Ves cómo el kernel expone información como archivos de texto?</li>
+    <li><strong>Bibliotecas:</strong> ejecuta <code>ldd $(which ls)</code>. ¿Cuántas bibliotecas usa el comando ls?</li>
+  </ol>
+  <p><strong>Reflexión:</strong> Ahora que conoces las capas, cuando algo falla en tu sistema Linux, ¿en qué capa buscarías primero el problema? ¿Por qué?</p>
+</div>
+
+<!-- RESUMEN -->
+<div class="resumen">
+  <h3>🟥 Resumen del Nivel 9</h3>
+  <ul>
+    <li>Linux tiene <strong>6 capas</strong>: Hardware → Kernel → Servicios → GNU/libs → Escritorio → Apps.</li>
+    <li>Cada capa solo se comunica con sus vecinas — nadie salta pisos. Esto garantiza seguridad y estabilidad.</li>
+    <li>El <strong>Kernel</strong> tiene 6 subsistemas: scheduler, memory manager, VFS, drivers, network stack y security.</li>
+    <li>Las <strong>System Calls</strong> son la única puerta entre User Space y Kernel Space. Linux tiene ~350 syscalls.</li>
+    <li><code>strace</code> permite ver en tiempo real qué syscalls hace cualquier programa.</li>
+    <li><strong>"Todo es un archivo"</strong> — dispositivos (/dev/), procesos (/proc/), configuración del kernel (/sys/) son archivos.</li>
+    <li>Todos los procesos nacen de <strong>fork()</strong> (clonar) + <strong>exec()</strong> (transformar). PID 1 es systemd.</li>
+    <li>Entender el flujo completo (clic → transistor) permite diagnosticar cualquier problema de forma sistemática.</li>
+  </ul>
+</div>
+
+<a class="next-card" href="linux-nivel-10.html">
+  <div>
+    <div class="nc-label">Siguiente → Nivel 10</div>
+    <div class="nc-name">El Escritorio de Linux — GNOME, KDE, XFCE y los entornos de escritorio en profundidad</div>
+  </div>
+  <div class="nc-arrow">→</div>
+</a>
+
+</main>
+
+<footer>
+  Linux desde Cero · Nivel 9 · Capas de Linux · Café &lt;/&gt; · Hugo 2025
+</footer>
+
+<script>
+(function(){const s=localStorage.getItem('cafe-theme');const sys=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';const t=s||sys;document.documentElement.setAttribute('data-theme',t);updateUI(t);})();
+function toggleTheme(){const c=document.documentElement.getAttribute('data-theme');const n=c==='light'?'dark':'light';document.documentElement.setAttribute('data-theme',n);localStorage.setItem('cafe-theme',n);updateUI(n);}
+function updateUI(t){const i=document.getElementById('themeIcon');const l=document.getElementById('themeLabel');if(!i||!l)return;i.textContent=t==='dark'?'☀️':'🌙';l.textContent=t==='dark'?'Claro':'Oscuro';}
+</script>
+</body>
+</html>

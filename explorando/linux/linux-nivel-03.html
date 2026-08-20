@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux desde Cero · N3 · ¿Qué es GNU?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root,[data-theme="light"]{--primary:#c44a2a;--primary-light:#fdf0ec;--primary-mid:rgba(196,74,42,.25);--secondary:#1a7a5a;--secondary-light:#edf7f3;--accent:#b07010;--accent-light:#fdf6e8;--bg:#f7f4ef;--surface:#ffffff;--text:#1a1814;--muted:#8a8480;--border:#e8e4de;--code-bg:#1a1814;--code-text:#e8e4de;--header-bg:#1a1814;--analogy-bg:#fff7ed;--analogy-border:#fde68a;--analogy-text:#78350f;--analogy-head:#92400e;--diagram-bg:#f0f4ff;--diagram-border:#c7d2fe;--note-bg:#f0f4ff;--note-border:#6366f1;--note-head:#4338ca;}
+[data-theme="dark"]{--primary:#ff7a57;--primary-light:rgba(255,122,87,.14);--primary-mid:rgba(255,122,87,.3);--secondary:#3ddc84;--secondary-light:rgba(61,220,132,.12);--accent:#f0c040;--accent-light:rgba(240,192,64,.12);--bg:#0d1117;--surface:#161b22;--text:#c9d8f0;--muted:#5a7090;--border:#21262d;--code-bg:#060a10;--code-text:#c9d8f0;--header-bg:#0a0e14;--analogy-bg:rgba(240,192,64,.07);--analogy-border:rgba(240,192,64,.3);--analogy-text:#e6d4a0;--analogy-head:#f0c040;--diagram-bg:#161b22;--diagram-border:#21262d;--note-bg:rgba(99,102,241,.1);--note-border:#818cf8;--note-head:#818cf8;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;font-size:16px;transition:background .25s,color .25s;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:300;height:45px;transition:background .25s,border-color .25s;}
+.topbar-back{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);text-decoration:none;padding:5px 14px;border:1px solid var(--border);border-radius:999px;transition:all .15s;}
+.topbar-back:hover{color:var(--text);border-color:var(--muted);}
+.topbar-info{font-size:13px;color:var(--muted);}
+.theme-btn{margin-left:auto;background:none;border:1px solid var(--border);border-radius:999px;padding:4px 13px;font-size:13px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:.35rem;transition:all .15s;font-family:'DM Sans',sans-serif;}
+.theme-btn:hover{color:var(--text);border-color:var(--muted);}
+header{background:var(--header-bg);color:#f7f4ef;padding:3rem 2rem 2.25rem;text-align:center;position:relative;overflow:hidden;}
+header::before{content:'N03';position:absolute;font-family:'DM Mono',monospace;font-size:11rem;font-weight:900;color:rgba(255,255,255,.04);right:-1rem;top:-1.5rem;line-height:1;pointer-events:none;}
+.header-eyebrow{display:inline-flex;align-items:center;gap:.5rem;background:rgba(196,74,42,.25);border:1px solid rgba(196,74,42,.45);border-radius:20px;padding:3px 14px;font-size:.78rem;font-weight:700;color:#ffaa88;margin-bottom:.85rem;}
+header h1{font-size:2.5rem;font-weight:800;letter-spacing:-1px;color:#f7f4ef;line-height:1.2;}
+header h1 em{font-style:normal;color:#ff8a6a;}
+header p{font-size:1.05rem;opacity:.8;margin-top:.5rem;max-width:520px;margin-left:auto;margin-right:auto;}
+.header-chips{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-top:.9rem;}
+.header-chip{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:20px;padding:3px 13px;font-size:.76rem;color:rgba(255,255,255,.75);}
+.niveles-nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:45px;z-index:110;display:flex;align-items:center;height:38px;padding:0 1rem;transition:background .25s;}
+.nn-prev,.nn-next{flex-shrink:0;display:flex;align-items:center;gap:.3rem;padding:0 .75rem;height:100%;text-decoration:none;color:var(--muted);font-size:.78rem;font-weight:500;border-right:1px solid var(--border);transition:color .15s;white-space:nowrap;}
+.nn-next{border-right:none;border-left:1px solid var(--border);}
+.nn-prev:hover,.nn-next:hover{color:var(--primary);}
+.nn-list{flex:1;display:flex;align-items:center;justify-content:center;gap:.15rem;overflow-x:auto;padding:0 .5rem;}
+.nn-list::-webkit-scrollbar{display:none;}
+.nn-list a{flex-shrink:0;padding:2px 9px;border-radius:20px;text-decoration:none;font-size:.73rem;font-weight:600;color:var(--muted);font-family:'DM Mono',monospace;transition:color .15s,background .15s;}
+.nn-list a:hover{color:var(--text);background:var(--bg);}
+.nn-list a.activa{background:var(--primary-light);color:var(--primary);}
+.nn-list .sep{color:var(--border);font-size:.7rem;padding:0 1px;flex-shrink:0;pointer-events:none;}
+.sec-nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:83px;z-index:100;display:flex;overflow-x:auto;transition:background .25s;}
+.sec-nav::-webkit-scrollbar{display:none;}
+.sec-nav a{flex-shrink:0;padding:.75rem 1.1rem;text-decoration:none;color:var(--muted);font-size:.82rem;font-weight:500;border-bottom:2px solid transparent;white-space:nowrap;transition:color .2s,border-color .2s;}
+.sec-nav a:hover{color:var(--primary);border-bottom-color:var(--primary);}
+main{max-width:920px;margin:0 auto;padding:2rem 1.5rem;}
+.nivel-badge{display:inline-flex;align-items:center;gap:.5rem;background:var(--primary);color:white;border-radius:20px;padding:5px 16px;font-size:.82rem;font-weight:700;margin-bottom:1.75rem;}
+.module{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;margin-bottom:2.5rem;scroll-margin-top:135px;transition:background .25s,border-color .25s;}
+.module-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border);}
+.module-icon{font-size:1.8rem;flex-shrink:0;}
+.module-title{font-size:1.35rem;font-weight:700;}
+.module-sub{font-size:.85rem;color:var(--muted);margin-top:2px;}
+.module h2{font-size:1.15rem;font-weight:700;margin:1.75rem 0 .75rem;}
+.module h3{font-size:1rem;font-weight:700;margin:1.25rem 0 .5rem;}
+.module p{margin-bottom:.85rem;font-size:.97rem;}
+.module ul,.module ol{padding-left:1.4rem;margin-bottom:.85rem;}
+.module li{margin-bottom:.4rem;font-size:.96rem;}
+.analogy{background:var(--analogy-bg);border:1px solid var(--analogy-border);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0;}
+.analogy h4{color:var(--analogy-head);font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+.analogy p{font-size:.95rem;color:var(--analogy-text);margin:0;}
+.concept,.tip,.warn,.note{border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0;border-left-width:4px;border-left-style:solid;}
+.concept h4,.tip h4,.warn h4,.note h4{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+.concept p,.tip p,.warn p,.note p{font-size:.95rem;margin:0;}
+.tip ul{font-size:.95rem;padding-left:1.2rem;margin-top:.3rem;}
+.concept{background:var(--primary-light);border-color:var(--primary);}
+.concept h4{color:var(--primary);}
+.tip{background:var(--secondary-light);border-color:var(--secondary);}
+.tip h4{color:var(--secondary);}
+.warn{background:var(--primary-light);border-color:var(--primary);}
+.warn h4{color:var(--primary);}
+.note{background:var(--note-bg);border-color:var(--note-border);}
+.note h4{color:var(--note-head);}
+.code-wrap{position:relative;margin:1rem 0;}
+.code-block{background:var(--code-bg);color:var(--code-text);border-radius:10px;padding:1.25rem 1.5rem;font-family:'DM Mono',monospace;font-size:.88rem;line-height:1.85;overflow-x:auto;white-space:pre;}
+.lang-tag{position:absolute;top:.6rem;right:.75rem;background:rgba(255,255,255,.1);color:rgba(255,255,255,.45);font-size:.68rem;padding:2px 8px;border-radius:4px;font-family:sans-serif;font-weight:700;}
+.ct{color:#89B4FA;}.ca{color:#CBA6F7;}.cv{color:#A6E3A1;}.cs{color:#F9E2AF;}.cc{color:#585B70;font-style:italic;}.cn{color:#FAB387;}
+.terminal{background:#0a0e14;border:1px solid #21262d;border-radius:10px;overflow:hidden;margin:1rem 0;}
+.term-bar{background:#161b22;padding:.42rem .85rem;display:flex;align-items:center;gap:.35rem;border-bottom:1px solid #21262d;}
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.dot-r{background:#ff5f57;}.dot-y{background:#ffbd2e;}.dot-g{background:#28c840;}
+.term-label{font-family:'DM Mono',monospace;font-size:.69rem;color:#3a5070;margin-left:.4rem;}
+.term-body{padding:1.1rem 1.3rem;font-family:'DM Mono',monospace;font-size:.85rem;line-height:2.1;color:#c9d8f0;}
+.t-p{color:#3ddc84;}.t-o{color:#5a7090;display:block;}.t-h{color:#253550;font-style:italic;display:block;}.t-ok{color:#3ddc84;}
+.diagram{background:var(--diagram-bg);border:1px solid var(--diagram-border);border-radius:12px;padding:1.5rem;margin:1.1rem 0;font-family:'DM Mono',monospace;font-size:.87rem;line-height:2;overflow-x:auto;transition:background .25s,border-color .25s;}
+.d-r{color:var(--primary);font-weight:700;}.d-g{color:var(--secondary);font-weight:700;}.d-y{color:var(--accent);font-weight:700;}.d-b{color:#6366f1;font-weight:700;}.d-m{color:var(--muted);font-style:italic;}
+.tbl{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem;}
+.tbl th{background:var(--primary-light);color:var(--primary);padding:.65rem 1rem;text-align:left;font-weight:600;}
+.tbl td{padding:.65rem 1rem;border-bottom:1px solid var(--border);vertical-align:top;}
+.tbl td:first-child{font-family:'DM Mono',monospace;font-size:.85rem;color:var(--primary);font-weight:600;}
+.tbl tr:hover td{background:var(--bg);}
+.concept-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;margin:1rem 0;}
+.concept-card{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:1.1rem;transition:background .25s,border-color .25s;}
+.cc-icon{font-size:1.5rem;margin-bottom:.4rem;}
+.cc-name{font-family:'DM Mono',monospace;font-size:.8rem;font-weight:700;color:var(--primary);margin-bottom:.3rem;}
+.cc-desc{font-size:.85rem;color:var(--muted);line-height:1.55;}
+
+/* LICENCIA VISUAL */
+.license-visual{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1.1rem 0;}
+@media(max-width:580px){.license-visual{grid-template-columns:1fr;}}
+.lv-box{border-radius:12px;padding:1.25rem;border:1px solid var(--border);}
+.lv-box.libre{background:var(--secondary-light);border-color:rgba(26,122,90,.3);}
+.lv-box.privado{background:var(--primary-light);border-color:rgba(196,74,42,.3);}
+.lv-head{font-weight:700;font-size:.95rem;margin-bottom:.75rem;display:flex;align-items:center;gap:.4rem;}
+.lv-box.libre .lv-head{color:var(--secondary);}
+.lv-box.privado .lv-head{color:var(--primary);}
+.lv-item{font-size:.87rem;margin-bottom:.4rem;display:flex;align-items:flex-start;gap:.4rem;}
+.lv-item::before{flex-shrink:0;margin-top:2px;}
+.lv-box.libre .lv-item::before{content:'✓';color:var(--secondary);}
+.lv-box.privado .lv-item::before{content:'✗';color:var(--primary);}
+
+/* HERRAMIENTAS GNU TABLE */
+.gnu-tools{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.75rem;margin:1rem 0;}
+.gnu-tool{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.85rem 1rem;display:flex;gap:.75rem;align-items:flex-start;transition:background .25s,border-color .25s;}
+.gt-cmd{font-family:'DM Mono',monospace;font-size:.88rem;font-weight:700;color:var(--primary);min-width:60px;flex-shrink:0;}
+.gt-desc{font-size:.83rem;color:var(--muted);line-height:1.45;}
+
+/* HISTORIA STALLMAN */
+.story-box{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin:1.1rem 0;display:flex;gap:1.25rem;align-items:flex-start;transition:background .25s;}
+.sb-avatar{font-size:3rem;flex-shrink:0;}
+.sb-content h3{font-size:1rem;font-weight:700;margin-bottom:.35rem;}
+.sb-content p{font-size:.9rem;color:var(--muted);margin:0;}
+
+/* EJERCICIO */
+.ejercicio{background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:1.5rem;margin:1.5rem 0;}
+[data-theme="dark"] .ejercicio{background:rgba(240,192,64,.06);border-color:rgba(240,192,64,.22);}
+.ej-hd{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;font-weight:700;font-size:1rem;color:#78350F;flex-wrap:wrap;}
+[data-theme="dark"] .ej-hd{color:#f0c040;}
+.ej-badge{background:var(--accent);color:#fff;font-size:.68rem;padding:2px 9px;border-radius:20px;font-weight:700;text-transform:uppercase;}
+.ejercicio ol{padding-left:1.4rem;}
+.ejercicio ol li{margin-bottom:.6rem;font-size:.95rem;}
+.ejercicio p{font-size:.95rem;margin-bottom:.6rem;}
+.resumen{background:var(--primary-light);border:1px solid var(--primary-mid);border-radius:14px;padding:1.6rem;margin-bottom:1.5rem;}
+.resumen h3{color:var(--primary);margin-bottom:.75rem;font-size:1.05rem;}
+.resumen ul{padding-left:1.4rem;}
+.resumen li{font-size:.92rem;margin-bottom:.45rem;}
+.next-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem 1.5rem;display:flex;align-items:center;gap:1rem;text-decoration:none;transition:border-color .2s;margin-bottom:2rem;}
+.next-card:hover{border-color:var(--primary);}
+.nc-label{font-size:.72rem;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.2rem;}
+.nc-name{font-weight:700;color:var(--text);font-size:.97rem;}
+.nc-arrow{font-size:1.4rem;color:var(--primary);margin-left:auto;}
+code{font-family:'DM Mono',monospace;background:#f0ece6;color:var(--primary);padding:1px 5px;border-radius:4px;font-size:.9em;}
+[data-theme="dark"] code{background:#1c2128;}
+strong{font-weight:700;}
+p{margin-bottom:.8rem;}ul,ol{padding-left:1.4rem;margin-bottom:.8rem;}li{margin-bottom:.4rem;font-size:.96rem;}
+h2{font-size:1.2rem;font-weight:700;margin:1.75rem 0 .75rem;}
+h3{font-size:1rem;font-weight:700;margin:1.25rem 0 .5rem;}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.85rem;border-top:1px solid var(--border);margin-top:1rem;background:var(--bg);transition:background .25s;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="topbar-back" href="../index.html">← Café &lt;/&gt;</a>
+  <span class="topbar-info">🐧 Linux desde Cero · Nivel 3 de 23</span>
+  <button class="theme-btn" onclick="toggleTheme()">
+    <span id="themeIcon">🌙</span><span id="themeLabel">Oscuro</span>
+  </button>
+</div>
+
+<header>
+  <div class="header-eyebrow">🌱 Nivel 3 — Conceptos base</div>
+  <h1>¿Qué es <em>GNU</em>?</h1>
+  <p>El proyecto que completó Linux: Stallman, software libre, la GPL y las herramientas que usas cada día sin saberlo</p>
+  <div class="header-chips">
+    <span class="header-chip">Nivel 3 de 23</span>
+    <span class="header-chip">🌱 Principiante</span>
+    <span class="header-chip">8 subtemas</span>
+    <span class="header-chip">~20 min</span>
+  </div>
+</header>
+
+<div class="niveles-nav">
+  <a class="nn-prev" href="linux-nivel-02.html">← N2</a>
+  <div class="nn-list">
+    <a href="linux-nivel-01.html" title="Sistema Operativo">N1</a>
+    <a href="linux-nivel-02.html" title="¿Qué es Linux?">N2</a>
+    <a href="linux-nivel-03.html" class="activa" title="GNU">N3</a>
+    <a href="linux-nivel-04.html" title="Distribuciones">N4</a>
+    <a href="linux-nivel-05.html" title="Instalar Linux">N5</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-06.html" title="Familia Debian">N6</a>
+    <a href="linux-nivel-07.html" title="Familia Red Hat">N7</a>
+    <a href="linux-nivel-08.html" title="Otras familias">N8</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-09.html" title="Capas de Linux">N9</a>
+    <a href="linux-nivel-10.html" title="Escritorio">N10</a>
+    <a href="linux-nivel-11.html" title="X11 y Wayland">N11</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-12.html" title="Terminal">N12</a>
+    <a href="linux-nivel-13.html" title="Sistema de archivos">N13</a>
+    <a href="linux-nivel-14.html" title="Usuarios y permisos">N14</a>
+    <a href="linux-nivel-15.html" title="Software">N15</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-16.html" title="Procesos">N16</a>
+    <a href="linux-nivel-17.html" title="Arranque">N17</a>
+    <a href="linux-nivel-18.html" title="Almacenamiento">N18</a>
+    <a href="linux-nivel-19.html" title="CPU y RAM">N19</a>
+    <a href="linux-nivel-20.html" title="Redes">N20</a>
+    <a href="linux-nivel-21.html" title="Seguridad">N21</a>
+    <a href="linux-nivel-22.html" title="Linux internamente">N22</a>
+    <a href="linux-nivel-23.html" title="Programar y crear">N23</a>
+  </div>
+  <a class="nn-next" href="linux-nivel-04.html">N4 →</a>
+</div>
+
+<nav class="sec-nav">
+  <a href="#proyecto">🏛 El Proyecto</a>
+  <a href="#stallman">👤 Stallman</a>
+  <a href="#libre">🔓 Software libre</a>
+  <a href="#gpl">📜 La GPL</a>
+  <a href="#herramientas">🔧 Herramientas</a>
+  <a href="#bash">🐚 Bash</a>
+  <a href="#glibc">📚 glibc</a>
+  <a href="#union">🤝 GNU + Linux</a>
+  <a href="#ejercicio">✏️ Ejercicio</a>
+</nav>
+
+<main>
+<div class="nivel-badge">🌱 Nivel 3 — ¿Qué es GNU?</div>
+
+
+<!-- ═══════════════════════════════
+     EL PROYECTO GNU
+═══════════════════════════════ -->
+<section class="module" id="proyecto">
+  <div class="module-header">
+    <div class="module-icon">🏛️</div>
+    <div>
+      <div class="module-title">El Proyecto GNU</div>
+      <div class="module-sub">La iniciativa que empezó 8 años antes que Linux y lo completó</div>
+    </div>
+  </div>
+
+  <p>En 1983, antes de que Linux existiera, <strong>Richard Stallman</strong> lanzó el <strong>Proyecto GNU</strong> con un objetivo ambicioso: crear un sistema operativo completamente libre — donde cualquiera pudiera ver el código, modificarlo y compartirlo sin restricciones.</p>
+
+  <div class="analogy">
+    <h4>🏗️ Analogía — Construir una ciudad sin el suelo</h4>
+    <p>GNU construyó durante años todos los edificios de una ciudad: casas, tiendas, calles, semáforos, tuberías. Todo estaba listo. Pero les faltaba el suelo — el sistema operativo base que conectara todo con el hardware. Cuando Linus Torvalds creó el kernel Linux en 1991, fue como encontrar el terreno perfecto. Los edificios de GNU se instalaron sobre el suelo Linux y nació GNU/Linux.</p>
+  </div>
+
+  <div class="note">
+    <h4>📌 GNU es un acrónimo recursivo</h4>
+    <p><strong>GNU</strong> significa <strong>GNU's Not Unix</strong> — es un chiste de informático. El nombre se define a sí mismo en forma de broma. GNU se inspiró en Unix (el sistema operativo de los años 70), pero sin copiar su código — todo reescrito desde cero con licencia libre.</p>
+  </div>
+
+  <div class="diagram">
+<span class="d-m"># Cronología: GNU empezó 8 años antes que Linux</span>
+
+<span class="d-y">1969</span>  Unix creado en Bell Labs (AT&T) — código privado
+<span class="d-y">1983</span>  <span class="d-g">Richard Stallman</span> anuncia el Proyecto GNU
+<span class="d-y">1985</span>  <span class="d-g">Stallman</span> publica el Manifiesto GNU y funda la FSF
+<span class="d-y">1989</span>  Primera versión de la <span class="d-r">GNU GPL</span> — la licencia libre
+<span class="d-y">1991</span>  <span class="d-b">Linus Torvalds</span> crea el kernel Linux
+<span class="d-y">1992</span>  Linux adopta la GPL — GNU + Linux se unen oficialmente
+<span class="d-y">1993</span>  Nace Debian — primera gran distribución GNU/Linux</div>
+</section>
+
+
+<!-- ═══════════════════════════════
+     RICHARD STALLMAN
+═══════════════════════════════ -->
+<section class="module" id="stallman">
+  <div class="module-header">
+    <div class="module-icon">👤</div>
+    <div>
+      <div class="module-title">Richard Stallman — El hacker filósofo</div>
+      <div class="module-sub">El hombre que decidió que el software debía ser libre por principio ético</div>
+    </div>
+  </div>
+
+  <div class="story-box">
+    <div class="sb-avatar">🧔</div>
+    <div class="sb-content">
+      <h3>Richard Matthew Stallman (RMS) — 1953</h3>
+      <p>Programador del MIT en los años 70. Vivía en una cultura donde los programadores compartían el código libremente — hasta que las empresas empezaron a privatizarlo. En 1980 tuvo un momento revelador: no pudo modificar el software de una impresora Xerox porque el código era privado. Ese momento cambió su vida y, sin exagerar, la historia del software.</p>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <h4>📚 Analogía — El bibliotecario que no puede prestar libros</h4>
+    <p>Imagina que trabajas en una biblioteca y alguien te da un libro interesantísimo, pero con una condición: no puedes prestarlo, no puedes fotocopiarlo, no puedes decirle a nadie qué dice. Para Stallman, eso era exactamente lo que estaba pasando con el software — y lo encontró moralmente inaceptable. La solución no fue quejarse: fue escribir el software alternativo él mismo y regalarlo al mundo.</p>
+  </div>
+
+  <h2>La Fundación del Software Libre (FSF)</h2>
+  <p>En 1985 Stallman fundó la <strong>Free Software Foundation (FSF)</strong> para financiar y coordinar el proyecto GNU. La FSF sigue activa hoy, promoviendo el software libre y desarrollando herramientas como GCC y glibc.</p>
+
+  <div class="concept">
+    <h4>💡 "Free as in freedom, not as in free beer"</h4>
+    <p>La famosa frase de Stallman. En inglés "free" significa gratis <em>y</em> libre. El software libre no es necesariamente gratuito — es libre como en libertad. Puedes cobrar por él. Lo que no puedes hacer es quitarle esas libertades a quien lo recibe.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════
+     SOFTWARE LIBRE
+═══════════════════════════════ -->
+<section class="module" id="libre">
+  <div class="module-header">
+    <div class="module-icon">🔓</div>
+    <div>
+      <div class="module-title">¿Qué es el Software Libre?</div>
+      <div class="module-sub">Las 4 libertades que definen si un software es realmente "libre"</div>
+    </div>
+  </div>
+
+  <p>Stallman definió con precisión qué significa que un software sea libre. No es una cuestión de precio — es una cuestión de <strong>cuatro libertades concretas</strong> que el usuario debe tener.</p>
+
+  <div class="concept-grid">
+    <div class="concept-card">
+      <div class="cc-icon">🏃</div>
+      <div class="cc-name">Libertad 0</div>
+      <div class="cc-desc"><strong>Usar</strong> el programa con cualquier propósito, sin restricciones. Para trabajo, para jugar, para lo que quieras.</div>
+    </div>
+    <div class="concept-card">
+      <div class="cc-icon">🔍</div>
+      <div class="cc-name">Libertad 1</div>
+      <div class="cc-desc"><strong>Estudiar</strong> cómo funciona el programa y modificarlo. Requiere acceso al código fuente.</div>
+    </div>
+    <div class="concept-card">
+      <div class="cc-icon">📤</div>
+      <div class="cc-name">Libertad 2</div>
+      <div class="cc-desc"><strong>Distribuir</strong> copias del programa para ayudar a otros — con o sin cobrar dinero.</div>
+    </div>
+    <div class="concept-card">
+      <div class="cc-icon">🔄</div>
+      <div class="cc-name">Libertad 3</div>
+      <div class="cc-desc"><strong>Mejorar</strong> el programa y publicar esas mejoras para que toda la comunidad se beneficie.</div>
+    </div>
+  </div>
+
+  <div class="license-visual">
+    <div class="lv-box libre">
+      <div class="lv-head">🔓 Software Libre</div>
+      <div class="lv-item">Ver el código fuente completo</div>
+      <div class="lv-item">Modificarlo como quieras</div>
+      <div class="lv-item">Distribuir tus modificaciones</div>
+      <div class="lv-item">Usarlo en cualquier contexto</div>
+      <div class="lv-item">Ejemplos: Linux, Firefox, LibreOffice, VLC</div>
+    </div>
+    <div class="lv-box privado">
+      <div class="lv-head">🔒 Software Privativo</div>
+      <div class="lv-item">Ver el código fuente</div>
+      <div class="lv-item">Modificarlo</div>
+      <div class="lv-item">Distribuir copias (generalmente)</div>
+      <div class="lv-item">Usar para ciertos propósitos</div>
+      <div class="lv-item">Ejemplos: Windows, macOS, Photoshop, Office</div>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Software Libre ≠ Open Source</h4>
+    <p>Aunque se usan casi como sinónimos, hay una diferencia filosófica. <strong>Software Libre</strong> (Stallman/FSF) es una cuestión ética — la libertad es un derecho del usuario. <strong>Open Source</strong> (OSI) es una cuestión práctica — el código abierto produce mejor software. En la práctica, la mayoría de las licencias se aplican a ambas definiciones, incluida la GPL y la MIT.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════
+     GNU GPL
+═══════════════════════════════ -->
+<section class="module" id="gpl">
+  <div class="module-header">
+    <div class="module-icon">📜</div>
+    <div>
+      <div class="module-title">GNU General Public License — La GPL</div>
+      <div class="module-sub">La licencia que usa el kernel Linux y que protege la libertad del software</div>
+    </div>
+  </div>
+
+  <p>La <strong>GPL</strong> es la licencia de software libre más influyente del mundo. El kernel Linux usa la <strong>GPL versión 2</strong>. La idea central de la GPL es brillantemente simple: si usas código GPL, tu código también tiene que ser GPL. La libertad se propaga como una cadena.</p>
+
+  <div class="analogy">
+    <h4>🧬 Analogía — El virus de la libertad</h4>
+    <p>La GPL funciona como un "virus de la libertad" — en el buen sentido. Si tomas código GPL y lo incorporas en tu programa, <strong>todo tu programa debe ser GPL</strong>. No puedes tomar software libre, mejorarlo y hacerlo privativo. La libertad se contagia obligatoriamente. Las empresas que quieren usar Linux en productos privativos tienen que negociar o usar el kernel con cuidado de no mezclar código GPL con el suyo.</p>
+  </div>
+
+  <h2>Las licencias libres más comunes — comparativa</h2>
+
+  <table class="tbl">
+    <thead>
+      <tr><th>Licencia</th><th>¿Código derivado debe ser libre?</th><th>Uso típico</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>GPL v2</td><td>Sí — obligatoriamente (copyleft fuerte)</td><td>Kernel Linux, GCC</td></tr>
+      <tr><td>GPL v3</td><td>Sí — con protección adicional anti-tivoización</td><td>Bash, GDB, muchas herramientas GNU</td></tr>
+      <tr><td>LGPL</td><td>Solo si modificas la librería en sí</td><td>glibc — permite que apps privativas la usen</td></tr>
+      <tr><td>MIT</td><td>No — haz lo que quieras</td><td>jQuery, Node.js, millones de proyectos</td></tr>
+      <tr><td>Apache 2.0</td><td>No — pero exige mencionar cambios</td><td>Android, proyectos de Google y Apache</td></tr>
+      <tr><td>BSD</td><td>No — muy permisiva</td><td>FreeBSD, partes de macOS</td></tr>
+    </tbody>
+  </table>
+
+  <div class="warn">
+    <h4>⚠️ Por qué el kernel Linux usa GPLv2 específicamente</h4>
+    <p>Linus Torvalds eligió GPLv2 en 1992 y se ha negado a actualizar a GPLv3. Su razón: la GPLv3 añade restricciones sobre "tivoización" (hardware que solo acepta software firmado). Linus considera que eso va más allá de lo que debería hacer una licencia de software. Este debate sigue activo en la comunidad.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════
+     HERRAMIENTAS GNU
+═══════════════════════════════ -->
+<section class="module" id="herramientas">
+  <div class="module-header">
+    <div class="module-icon">🔧</div>
+    <div>
+      <div class="module-title">Herramientas GNU — Las que usas cada día</div>
+      <div class="module-sub">Los programas de GNU que forman la base de cualquier sistema Linux</div>
+    </div>
+  </div>
+
+  <p>Cuando abres una terminal y escribes <code>ls</code>, <code>cp</code>, <code>grep</code> o <code>find</code> — estás usando <strong>herramientas del Proyecto GNU</strong>. Sin ellas, Linux sería solo un kernel sin nada útil que hacer.</p>
+
+  <div class="analogy">
+    <h4>🔨 Analogía — La caja de herramientas del mecánico</h4>
+    <p>El kernel Linux es el taller mecánico — tiene la estructura, la electricidad, el espacio. Las herramientas GNU son la caja de herramientas: llaves, destornilladores, alicates, martillos. Sin la caja de herramientas, el mecánico (usuario) no puede hacer nada útil en el taller. Las herramientas GNU son tan fundamentales que ni las notas porque siempre están ahí.</p>
+  </div>
+
+  <h2>GNU Coreutils — las herramientas más básicas</h2>
+  <p>El paquete <strong>coreutils</strong> contiene los comandos más fundamentales del sistema. Son tan esenciales que vienen en absolutamente todas las distribuciones Linux.</p>
+
+  <div class="gnu-tools">
+    <div class="gnu-tool"><div class="gt-cmd">ls</div><div class="gt-desc">Listar archivos y directorios</div></div>
+    <div class="gnu-tool"><div class="gt-cmd">cp</div><div class="gt-desc">Copiar archivos y carpetas</div></div>
+    <div class="gnu-tool"><div class="gt-cmd">mv</div><div class="gt-desc">Mover o renombrar archivos</div></div>
+    <div class="gnu-tool"><div class="gt-cmd">rm</div><div class="gt-desc">Eliminar archivos (¡sin papelera!)</div></div>
+    <div class="gnu-tool"><div class="gt-cmd">mkdir</div><div class="gt-desc">Crear directorios</div></div>
+    <div class="gnu-tool"><div class="gt-cmd">cat</div><div class="gt-desc">Mostrar contenido de archivos</div></div>
+    <div class="gnu-tool"><div class="gt-cmd">echo</div><div class="gt-desc">Imprimir texto en la terminal</div></div>
+    <div class="gnu-tool"><div class="gt-cmd">sort</div><div class="gt-desc">Ordenar líneas de texto</div></div>
+    <div class="gnu-tool"><div class="gt-cmd">wc</div><div class="gt-desc">Contar líneas, palabras, bytes</div></div>
+    <div class="gnu-tool"><div class="gt-cmd">chmod</div><div class="gt-desc">Cambiar permisos de archivos</div></div>
+    <div class="gnu-tool"><div class="gt-cmd">chown</div><div class="gt-desc">Cambiar propietario de archivos</div></div>
+    <div class="gnu-tool"><div class="gt-cmd">date</div><div class="gt-desc">Mostrar/configurar la fecha</div></div>
+  </div>
+
+  <h2>Otras herramientas GNU importantes</h2>
+
+  <table class="tbl">
+    <thead><tr><th>Herramienta</th><th>Qué hace</th><th>Importancia</th></tr></thead>
+    <tbody>
+      <tr><td>grep</td><td>Buscar texto con patrones en archivos</td><td>Imprescindible para administrar sistemas</td></tr>
+      <tr><td>find</td><td>Buscar archivos por nombre, tipo, tamaño, fecha</td><td>Herramienta de búsqueda más completa del SO</td></tr>
+      <tr><td>awk</td><td>Procesar y transformar texto por columnas</td><td>Muy usada en scripts de administración</td></tr>
+      <tr><td>sed</td><td>Editor de texto en stream — búsqueda y reemplazo</td><td>Fundamental para automatización</td></tr>
+      <tr><td>tar</td><td>Comprimir y descomprimir archivos .tar.gz</td><td>Formato estándar de distribución en Linux</td></tr>
+      <tr><td>make</td><td>Automatizar la compilación de proyectos</td><td>Base del sistema de build de Linux y miles de proyectos</td></tr>
+      <tr><td>diff / patch</td><td>Comparar archivos y aplicar parches</td><td>Esencial para el desarrollo del kernel y proyectos open source</td></tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- ═══════════════════════════════
+     BASH
+═══════════════════════════════ -->
+<section class="module" id="bash">
+  <div class="module-header">
+    <div class="module-icon">🐚</div>
+    <div>
+      <div class="module-title">Bash — La shell de GNU</div>
+      <div class="module-sub">El intérprete de comandos que es el idioma de la terminal</div>
+    </div>
+  </div>
+
+  <p><strong>Bash</strong> (Bourne Again SHell) es la shell por defecto en casi todas las distribuciones Linux. Es un proyecto GNU — fue creado para reemplazar la <code>sh</code> original de Unix. Cuando abres una terminal y escribes comandos, Bash los interpreta y ejecuta.</p>
+
+  <div class="analogy">
+    <h4>🗣️ Analogía — El intérprete humano en una conferencia</h4>
+    <p>Bash es como el <strong>intérprete en una conferencia internacional</strong>. Tú hablas en tu idioma (comandos legibles para humanos: <code>ls -la /home</code>), el intérprete (Bash) lo traduce al idioma del sistema (llamadas al kernel) y te devuelve la respuesta traducida de vuelta. Sin el intérprete, tú y el kernel no podéis comunicaros directamente.</p>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">bash — el intérprete en acción</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Bash procesa lo que escribes ANTES de ejecutarlo</span>
+<span class="t-h"># 1. Lee la línea que escribiste</span>
+<span class="t-h"># 2. La analiza (parsing)</span>
+<span class="t-h"># 3. Expande variables, comodines, etc.</span>
+<span class="t-h"># 4. Ejecuta el comando</span>
+<span class="t-h"># 5. Muestra el resultado</span>
+
+<span class="t-p">$</span> echo $SHELL          <span class="t-h"># ¿qué shell estás usando?</span>
+<span class="t-o">/bin/bash</span>
+
+<span class="t-p">$</span> bash --version       <span class="t-h"># versión de Bash instalada</span>
+<span class="t-o">GNU bash, version 5.2.15(1)-release</span>
+
+<span class="t-h"># Bash también es un lenguaje de programación</span>
+<span class="t-p">$</span> for i in 1 2 3; do echo "Número: $i"; done
+<span class="t-o">Número: 1</span>
+<span class="t-o">Número: 2</span>
+<span class="t-o">Número: 3</span>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>💡 Bash no es el único — pero es el más común</h4>
+    <p>Existen otras shells: <code>zsh</code> (por defecto en macOS, muy popular con Oh My Zsh), <code>fish</code> (más amigable), <code>sh</code> (la más básica y portable), <code>dash</code> (muy rápida, usada en scripts de sistema). Bash es el estándar en la mayoría de sistemas Linux y la que aprenderás en esta guía.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════
+     GCC Y GLIBC
+═══════════════════════════════ -->
+<section class="module" id="glibc">
+  <div class="module-header">
+    <div class="module-icon">📚</div>
+    <div>
+      <div class="module-title">GCC y glibc — El compilador y la biblioteca C</div>
+      <div class="module-sub">Las dos piezas de GNU que hacen posible que el software exista</div>
+    </div>
+  </div>
+
+  <p>De todas las herramientas GNU, dos son las más fundamentales a nivel de infraestructura: el compilador <strong>GCC</strong> y la biblioteca C estándar <strong>glibc</strong>. Sin ellas, el software moderno simplemente no existiría.</p>
+
+  <h2>GCC — GNU Compiler Collection</h2>
+
+  <div class="analogy">
+    <h4>🏭 Analogía — La fábrica que convierte planos en máquinas</h4>
+    <p>El código fuente en C o C++ son los planos de una máquina — instrucciones legibles por humanos. <strong>GCC es la fábrica</strong> que convierte esos planos en una máquina real (un binario ejecutable). Sin la fábrica, los planos son papel inútil. El propio kernel Linux se compila con GCC.</p>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">GCC en acción — compilar un programa en C</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Tienes este código fuente en hola.c:</span>
+<span class="t-o">#include &lt;stdio.h&gt;</span>
+<span class="t-o">int main() { printf("Hola, GNU/Linux!\n"); return 0; }</span>
+
+<span class="t-h"># GCC lo convierte en un ejecutable:</span>
+<span class="t-p">$</span> gcc hola.c -o hola
+<span class="t-p">$</span> ./hola
+<span class="t-o">Hola, GNU/Linux!</span>
+
+<span class="t-h"># Ver la versión de GCC</span>
+<span class="t-p">$</span> gcc --version
+<span class="t-o">gcc (Ubuntu 13.2.0-23ubuntu4) 13.2.0</span>
+<span class="t-o">Copyright (C) 2023 Free Software Foundation, Inc.</span>
+    </div>
+  </div>
+
+  <h2>glibc — GNU C Library</h2>
+
+  <p>La <strong>glibc</strong> es la biblioteca C estándar de GNU. Es la capa que conecta los programas con el kernel — proporciona funciones como <code>printf()</code>, <code>malloc()</code>, <code>open()</code>. Casi todo el software en Linux la usa, sea consciente de ello o no.</p>
+
+  <div class="diagram">
+<span class="d-m"># Cómo se llama al kernel a través de glibc</span>
+
+<span class="d-b">Tu programa</span>  →  printf("Hola")         <span class="d-m"># llamada a función de C</span>
+                ↓
+<span class="d-g">glibc</span>        →  write(1, "Hola", 4)    <span class="d-m"># convierte a system call</span>
+                ↓
+<span class="d-r">Kernel Linux</span> →  accede al hardware      <span class="d-m"># muestra en pantalla</span>
+
+<span class="d-m"># glibc es el puente entre el código C y el kernel</span>
+<span class="d-m"># Sin glibc, cada programa tendría que hacer las system calls directamente</span></div>
+
+  <div class="tip">
+    <h4>🟢 ¿Por qué glibc usa LGPL y no GPL?</h4>
+    <p>Si glibc usara GPL estricta, ningún software privativo (como drivers de NVIDIA o aplicaciones comerciales) podría ejecutarse en Linux — porque todos enlazan con glibc. La <strong>LGPL</strong> (Lesser GPL) permite que software privativo use la librería sin tener que hacer su código abierto, pero cualquier modificación a glibc en sí debe seguir siendo libre.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════
+     GNU + LINUX
+═══════════════════════════════ -->
+<section class="module" id="union">
+  <div class="module-header">
+    <div class="module-icon">🤝</div>
+    <div>
+      <div class="module-title">GNU + Linux = Un sistema operativo completo</div>
+      <div class="module-sub">Cómo se ensamblan las piezas para formar lo que usas cada día</div>
+    </div>
+  </div>
+
+  <p>Ahora puedes ver el cuadro completo. GNU construyó todas las piezas del sistema operativo — todo excepto el kernel. Linux aportó el kernel que faltaba. Juntos forman un sistema operativo completo y libre.</p>
+
+  <div class="diagram">
+<span class="d-m">┌─────────────────────────────────────────────────────┐</span>
+<span class="d-m">│</span>  Lo que ves y usas: GNOME, KDE, Firefox, VS Code     <span class="d-m">│</span>
+<span class="d-m">├─────────────────────────────────────────────────────┤</span>
+<span class="d-g">│  GNU: bash, ls, grep, gcc, glibc, coreutils, make    │</span>
+<span class="d-m">├─────────────────────────────────────────────────────┤</span>
+<span class="d-r">│  Kernel Linux: scheduler, memoria, drivers, red      │</span>
+<span class="d-m">├─────────────────────────────────────────────────────┤</span>
+<span class="d-y">│  Hardware: CPU, RAM, Disco, GPU, Red, USB...         │</span>
+<span class="d-m">└─────────────────────────────────────────────────────┘</span>
+
+<span class="d-m">  └─ Todo esto junto = lo que llamamos "Linux" o "GNU/Linux"</span></div>
+
+  <div class="concept-grid">
+    <div class="concept-card">
+      <div class="cc-icon">🐧</div>
+      <div class="cc-name">Aportación de Linux</div>
+      <div class="cc-desc">El kernel — la pieza que habla con el hardware. Gestión de procesos, memoria, drivers, red y seguridad.</div>
+    </div>
+    <div class="concept-card">
+      <div class="cc-icon">🦬</div>
+      <div class="cc-name">Aportación de GNU</div>
+      <div class="cc-desc">El resto del sistema: Bash, coreutils, GCC, glibc, grep, sed, awk, tar, make y decenas de herramientas esenciales.</div>
+    </div>
+    <div class="concept-card">
+      <div class="cc-icon">🏢</div>
+      <div class="cc-name">Aportación de la comunidad</div>
+      <div class="cc-desc">El escritorio (GNOME, KDE), las aplicaciones, los gestores de paquetes, la documentación y el soporte.</div>
+    </div>
+    <div class="concept-card">
+      <div class="cc-icon">📦</div>
+      <div class="cc-name">Aportación de la distro</div>
+      <div class="cc-desc">Empaqueta todo junto: Ubuntu, Fedora, Arch. Añaden el instalador, el configurador y la identidad visual.</div>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Por qué GNU fue tan importante</h4>
+    <p>Cuando Linus Torvalds creó el kernel Linux, no tuvo que escribir desde cero la shell, el compilador, las utilidades básicas ni la biblioteca C — todo eso ya existía como software libre gracias a GNU. Pudo centrarse en el kernel y simplemente <em>adoptó</em> todo el ecosistema GNU. Sin GNU, Linux habría tardado años más en convertirse en un sistema utilizable.</p>
+  </div>
+</section>
+
+
+<!-- EJERCICIO -->
+<div class="ejercicio" id="ejercicio">
+  <div class="ej-hd">
+    ✏️ Ejercicio del Nivel 3
+    <span class="ej-badge">Exploración</span>
+  </div>
+  <p>Abre una terminal (en Linux, macOS o WSL en Windows) y ejecuta estos comandos para descubrir las herramientas GNU en tu sistema:</p>
+  <ol>
+    <li>Ejecuta <code>bash --version</code> — ¿qué versión de Bash tienes? Observa que dice "GNU bash".</li>
+    <li>Ejecuta <code>ls --version</code> — ¿dice "GNU coreutils"?</li>
+    <li>Ejecuta <code>grep --version</code> — ¿dice "GNU grep"?</li>
+    <li>Ejecuta <code>gcc --version</code> — ¿tienes GCC instalado? Si no: <code>sudo apt install gcc</code></li>
+    <li>Ejecuta <code>ldd --version</code> — verás la versión de glibc que usa tu sistema.</li>
+    <li>Crea un archivo <code>hola.c</code> con el código del ejemplo de arriba y compílalo con <code>gcc hola.c -o hola</code>. ¡Ejecuta <code>./hola</code>!</li>
+  </ol>
+  <p><strong>Reflexión:</strong> Cuando usas <code>ls</code> o <code>grep</code>, ¿sabías que estabas usando software del Proyecto GNU de 1983? ¿Cómo cambia eso tu perspectiva sobre la terminal?</p>
+</div>
+
+<!-- RESUMEN -->
+<div class="resumen">
+  <h3>🟥 Resumen del Nivel 3</h3>
+  <ul>
+    <li><strong>GNU</strong> es un proyecto de software libre lanzado por Stallman en 1983 — 8 años antes que Linux.</li>
+    <li>El nombre es un acrónimo recursivo: <strong>GNU's Not Unix</strong>.</li>
+    <li>Stallman lo inició por razones éticas: el software debe ser libre como en libertad, no como en precio.</li>
+    <li>El software libre garantiza 4 libertades: usar, estudiar, distribuir y mejorar.</li>
+    <li>La <strong>GPL</strong> es la licencia que usa el kernel Linux — el copyleft garantiza que la libertad se propague.</li>
+    <li>GNU aportó: Bash, coreutils (ls, cp, mv…), GCC (compilador), glibc (biblioteca C), grep, sed, awk y más.</li>
+    <li><strong>Bash</strong> es la shell de GNU — el intérprete que traduce tus comandos al lenguaje del kernel.</li>
+    <li><strong>glibc</strong> es el puente entre el código C de las apps y las system calls del kernel.</li>
+    <li>GNU + Linux = un sistema operativo completo. Sin GNU, Linux sería solo un kernel sin nada útil.</li>
+  </ul>
+</div>
+
+<a class="next-card" href="linux-nivel-04.html">
+  <div>
+    <div class="nc-label">Siguiente → Nivel 4</div>
+    <div class="nc-name">¿Qué es una distribución Linux? — Qué incluye, cómo funciona el gestor de paquetes y por qué existen tantas distros</div>
+  </div>
+  <div class="nc-arrow">→</div>
+</a>
+
+</main>
+
+<footer>
+  Linux desde Cero · Nivel 3 · ¿Qué es GNU? · Café &lt;/&gt; · Hugo 2025
+</footer>
+
+<script>
+(function(){const s=localStorage.getItem('cafe-theme');const sys=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';const t=s||sys;document.documentElement.setAttribute('data-theme',t);updateUI(t);})();
+function toggleTheme(){const c=document.documentElement.getAttribute('data-theme');const n=c==='light'?'dark':'light';document.documentElement.setAttribute('data-theme',n);localStorage.setItem('cafe-theme',n);updateUI(n);}
+function updateUI(t){const i=document.getElementById('themeIcon');const l=document.getElementById('themeLabel');if(!i||!l)return;i.textContent=t==='dark'?'☀️':'🌙';l.textContent=t==='dark'?'Claro':'Oscuro';}
+</script>
+</body>
+</html>

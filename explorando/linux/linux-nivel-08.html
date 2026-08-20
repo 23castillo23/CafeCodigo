@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux desde Cero · N8 · Otras familias</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root,[data-theme="light"]{--primary:#c44a2a;--primary-light:#fdf0ec;--primary-mid:rgba(196,74,42,.25);--secondary:#1a7a5a;--secondary-light:#edf7f3;--accent:#b07010;--accent-light:#fdf6e8;--bg:#f7f4ef;--surface:#ffffff;--text:#1a1814;--muted:#8a8480;--border:#e8e4de;--code-bg:#1a1814;--code-text:#e8e4de;--header-bg:#1a1814;--analogy-bg:#fff7ed;--analogy-border:#fde68a;--analogy-text:#78350f;--analogy-head:#92400e;--diagram-bg:#f0f4ff;--diagram-border:#c7d2fe;--note-bg:#f0f4ff;--note-border:#6366f1;--note-head:#4338ca;}
+[data-theme="dark"]{--primary:#ff7a57;--primary-light:rgba(255,122,87,.14);--primary-mid:rgba(255,122,87,.3);--secondary:#3ddc84;--secondary-light:rgba(61,220,132,.12);--accent:#f0c040;--accent-light:rgba(240,192,64,.12);--bg:#0d1117;--surface:#161b22;--text:#c9d8f0;--muted:#5a7090;--border:#21262d;--code-bg:#060a10;--code-text:#c9d8f0;--header-bg:#0a0e14;--analogy-bg:rgba(240,192,64,.07);--analogy-border:rgba(240,192,64,.3);--analogy-text:#e6d4a0;--analogy-head:#f0c040;--diagram-bg:#161b22;--diagram-border:#21262d;--note-bg:rgba(99,102,241,.1);--note-border:#818cf8;--note-head:#818cf8;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;font-size:16px;transition:background .25s,color .25s;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:300;height:45px;transition:background .25s,border-color .25s;}
+.topbar-back{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);text-decoration:none;padding:5px 14px;border:1px solid var(--border);border-radius:999px;transition:all .15s;}
+.topbar-back:hover{color:var(--text);border-color:var(--muted);}
+.topbar-info{font-size:13px;color:var(--muted);}
+.theme-btn{margin-left:auto;background:none;border:1px solid var(--border);border-radius:999px;padding:4px 13px;font-size:13px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:.35rem;transition:all .15s;font-family:'DM Sans',sans-serif;}
+.theme-btn:hover{color:var(--text);border-color:var(--muted);}
+header{background:var(--header-bg);color:#f7f4ef;padding:3rem 2rem 2.25rem;text-align:center;position:relative;overflow:hidden;}
+header::before{content:'N08';position:absolute;font-family:'DM Mono',monospace;font-size:11rem;font-weight:900;color:rgba(255,255,255,.04);right:-1rem;top:-1.5rem;line-height:1;pointer-events:none;}
+.header-eyebrow{display:inline-flex;align-items:center;gap:.5rem;background:rgba(196,74,42,.25);border:1px solid rgba(196,74,42,.45);border-radius:20px;padding:3px 14px;font-size:.78rem;font-weight:700;color:#ffaa88;margin-bottom:.85rem;}
+header h1{font-size:2.5rem;font-weight:800;letter-spacing:-1px;color:#f7f4ef;line-height:1.2;}
+header h1 em{font-style:normal;color:#ff8a6a;}
+header p{font-size:1.05rem;opacity:.8;margin-top:.5rem;max-width:540px;margin-left:auto;margin-right:auto;}
+.header-chips{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-top:.9rem;}
+.header-chip{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:20px;padding:3px 13px;font-size:.76rem;color:rgba(255,255,255,.75);}
+.niveles-nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:45px;z-index:110;display:flex;align-items:center;height:38px;padding:0 1rem;transition:background .25s;}
+.nn-prev,.nn-next{flex-shrink:0;display:flex;align-items:center;gap:.3rem;padding:0 .75rem;height:100%;text-decoration:none;color:var(--muted);font-size:.78rem;font-weight:500;border-right:1px solid var(--border);transition:color .15s;white-space:nowrap;}
+.nn-next{border-right:none;border-left:1px solid var(--border);}
+.nn-prev:hover,.nn-next:hover{color:var(--primary);}
+.nn-list{flex:1;display:flex;align-items:center;justify-content:center;gap:.15rem;overflow-x:auto;padding:0 .5rem;}
+.nn-list::-webkit-scrollbar{display:none;}
+.nn-list a{flex-shrink:0;padding:2px 9px;border-radius:20px;text-decoration:none;font-size:.73rem;font-weight:600;color:var(--muted);font-family:'DM Mono',monospace;transition:color .15s,background .15s;}
+.nn-list a:hover{color:var(--text);background:var(--bg);}
+.nn-list a.activa{background:var(--primary-light);color:var(--primary);}
+.nn-list .sep{color:var(--border);font-size:.7rem;padding:0 1px;flex-shrink:0;pointer-events:none;}
+.sec-nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:83px;z-index:100;display:flex;overflow-x:auto;transition:background .25s;}
+.sec-nav::-webkit-scrollbar{display:none;}
+.sec-nav a{flex-shrink:0;padding:.75rem 1.1rem;text-decoration:none;color:var(--muted);font-size:.82rem;font-weight:500;border-bottom:2px solid transparent;white-space:nowrap;transition:color .2s,border-color .2s;}
+.sec-nav a:hover{color:var(--primary);border-bottom-color:var(--primary);}
+main{max-width:920px;margin:0 auto;padding:2rem 1.5rem;}
+.nivel-badge{display:inline-flex;align-items:center;gap:.5rem;background:var(--primary);color:white;border-radius:20px;padding:5px 16px;font-size:.82rem;font-weight:700;margin-bottom:1.75rem;}
+.module{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;margin-bottom:2.5rem;scroll-margin-top:135px;transition:background .25s,border-color .25s;}
+.module-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border);}
+.module-icon{font-size:1.8rem;flex-shrink:0;}
+.module-title{font-size:1.35rem;font-weight:700;}
+.module-sub{font-size:.85rem;color:var(--muted);margin-top:2px;}
+.module h2{font-size:1.15rem;font-weight:700;margin:1.75rem 0 .75rem;}
+.module p{margin-bottom:.85rem;font-size:.97rem;}
+.module ul,.module ol{padding-left:1.4rem;margin-bottom:.85rem;}
+.module li{margin-bottom:.4rem;font-size:.96rem;}
+.analogy{background:var(--analogy-bg);border:1px solid var(--analogy-border);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0;}
+.analogy h4{color:var(--analogy-head);font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+.analogy p{font-size:.95rem;color:var(--analogy-text);margin:0;}
+.concept,.tip,.warn,.note{border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0;border-left-width:4px;border-left-style:solid;}
+.concept h4,.tip h4,.warn h4,.note h4{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+.concept p,.tip p,.warn p,.note p{font-size:.95rem;margin:0;}
+.tip ul{font-size:.95rem;padding-left:1.2rem;margin-top:.3rem;}
+.concept{background:var(--primary-light);border-color:var(--primary);}
+.concept h4{color:var(--primary);}
+.tip{background:var(--secondary-light);border-color:var(--secondary);}
+.tip h4{color:var(--secondary);}
+.warn{background:var(--primary-light);border-color:var(--primary);}
+.warn h4{color:var(--primary);}
+.note{background:var(--note-bg);border-color:var(--note-border);}
+.note h4{color:var(--note-head);}
+.code-wrap{position:relative;margin:1rem 0;}
+.code-block{background:var(--code-bg);color:var(--code-text);border-radius:10px;padding:1.25rem 1.5rem;font-family:'DM Mono',monospace;font-size:.88rem;line-height:1.85;overflow-x:auto;white-space:pre;}
+.lang-tag{position:absolute;top:.6rem;right:.75rem;background:rgba(255,255,255,.1);color:rgba(255,255,255,.45);font-size:.68rem;padding:2px 8px;border-radius:4px;font-family:sans-serif;font-weight:700;}
+.ct{color:#89B4FA;}.cv{color:#A6E3A1;}.cs{color:#F9E2AF;}.cc{color:#585B70;font-style:italic;}.cn{color:#FAB387;}
+.terminal{background:#0a0e14;border:1px solid #21262d;border-radius:10px;overflow:hidden;margin:1rem 0;}
+.term-bar{background:#161b22;padding:.42rem .85rem;display:flex;align-items:center;gap:.35rem;border-bottom:1px solid #21262d;}
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.dot-r{background:#ff5f57;}.dot-y{background:#ffbd2e;}.dot-g{background:#28c840;}
+.term-label{font-family:'DM Mono',monospace;font-size:.69rem;color:#3a5070;margin-left:.4rem;}
+.term-body{padding:1.1rem 1.3rem;font-family:'DM Mono',monospace;font-size:.85rem;line-height:2.1;color:#c9d8f0;}
+.t-p{color:#3ddc84;}.t-o{color:#5a7090;display:block;}.t-h{color:#253550;font-style:italic;display:block;}
+.diagram{background:var(--diagram-bg);border:1px solid var(--diagram-border);border-radius:12px;padding:1.5rem;margin:1.1rem 0;font-family:'DM Mono',monospace;font-size:.87rem;line-height:2;overflow-x:auto;transition:background .25s,border-color .25s;}
+.d-r{color:var(--primary);font-weight:700;}.d-g{color:var(--secondary);font-weight:700;}.d-y{color:var(--accent);font-weight:700;}.d-b{color:#6366f1;font-weight:700;}.d-m{color:var(--muted);font-style:italic;}
+.tbl{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem;}
+.tbl th{background:var(--primary-light);color:var(--primary);padding:.65rem 1rem;text-align:left;font-weight:600;}
+.tbl td{padding:.65rem 1rem;border-bottom:1px solid var(--border);vertical-align:top;}
+.tbl td:first-child{font-family:'DM Mono',monospace;font-size:.85rem;color:var(--primary);font-weight:600;}
+.tbl tr:hover td{background:var(--bg);}
+
+/* DISTRO BIG CARD */
+.distro-big{background:var(--bg);border:1px solid var(--border);border-radius:16px;padding:1.5rem;margin-bottom:1.25rem;transition:border-color .2s,background .25s;}
+.distro-big:hover{border-color:var(--primary);}
+.db-head{display:flex;align-items:flex-start;gap:1rem;margin-bottom:.85rem;}
+.db-logo{font-size:2.5rem;flex-shrink:0;}
+.db-info{flex:1;}
+.db-name{font-weight:800;font-size:1.2rem;margin-bottom:2px;}
+.db-tag{font-family:'DM Mono',monospace;font-size:.72rem;color:var(--muted);}
+.db-chips{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.4rem;}
+.db-chip{font-size:.7rem;padding:2px 8px;border-radius:20px;font-weight:700;}
+.chip-g{background:var(--secondary-light);color:var(--secondary);}
+.chip-r{background:var(--primary-light);color:var(--primary);}
+.chip-b{background:var(--note-bg);color:var(--note-border);}
+.chip-y{background:var(--accent-light);color:var(--accent);}
+.db-desc{font-size:.9rem;color:var(--muted);line-height:1.6;margin-bottom:.75rem;}
+.db-pkg{display:inline-flex;align-items:center;gap:.4rem;font-family:'DM Mono',monospace;font-size:.8rem;background:var(--code-bg);color:var(--code-text);padding:.35rem .75rem;border-radius:6px;}
+
+/* MAPA ECOSISTEMA */
+.eco-map{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin:1rem 0;}
+@media(max-width:560px){.eco-map{grid-template-columns:1fr;}}
+.eco-box{border-radius:12px;padding:1.1rem;border:1px solid var(--border);background:var(--bg);}
+.eco-title{font-weight:700;font-size:.92rem;margin-bottom:.4rem;display:flex;align-items:center;gap:.4rem;}
+.eco-list{font-size:.83rem;color:var(--muted);line-height:1.8;}
+
+/* TABLA GESTORES */
+.pm-row{display:flex;align-items:center;gap:.85rem;padding:.65rem 1rem;border-radius:10px;background:var(--bg);border:1px solid var(--border);margin-bottom:.4rem;transition:background .25s;}
+.pm-pkg{font-family:'DM Mono',monospace;font-weight:700;color:var(--primary);min-width:80px;font-size:.88rem;}
+.pm-distro{min-width:130px;font-size:.85rem;font-weight:600;}
+.pm-cmd{font-family:'DM Mono',monospace;font-size:.8rem;color:var(--muted);}
+
+/* EJERCICIO */
+.ejercicio{background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:1.5rem;margin:1.5rem 0;}
+[data-theme="dark"] .ejercicio{background:rgba(240,192,64,.06);border-color:rgba(240,192,64,.22);}
+.ej-hd{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;font-weight:700;font-size:1rem;color:#78350F;flex-wrap:wrap;}
+[data-theme="dark"] .ej-hd{color:#f0c040;}
+.ej-badge{background:var(--accent);color:#fff;font-size:.68rem;padding:2px 9px;border-radius:20px;font-weight:700;text-transform:uppercase;}
+.ejercicio ol{padding-left:1.4rem;}
+.ejercicio ol li{margin-bottom:.6rem;font-size:.95rem;}
+.ejercicio p{font-size:.95rem;margin-bottom:.6rem;}
+.resumen{background:var(--primary-light);border:1px solid var(--primary-mid);border-radius:14px;padding:1.6rem;margin-bottom:1.5rem;}
+.resumen h3{color:var(--primary);margin-bottom:.75rem;font-size:1.05rem;}
+.resumen ul{padding-left:1.4rem;}
+.resumen li{font-size:.92rem;margin-bottom:.45rem;}
+.next-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem 1.5rem;display:flex;align-items:center;gap:1rem;text-decoration:none;transition:border-color .2s;margin-bottom:2rem;}
+.next-card:hover{border-color:var(--primary);}
+.nc-label{font-size:.72rem;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.2rem;}
+.nc-name{font-weight:700;color:var(--text);font-size:.97rem;}
+.nc-arrow{font-size:1.4rem;color:var(--primary);margin-left:auto;}
+code{font-family:'DM Mono',monospace;background:#f0ece6;color:var(--primary);padding:1px 5px;border-radius:4px;font-size:.9em;}
+[data-theme="dark"] code{background:#1c2128;}
+strong{font-weight:700;}
+p{margin-bottom:.8rem;}ul,ol{padding-left:1.4rem;margin-bottom:.8rem;}li{margin-bottom:.4rem;font-size:.96rem;}
+h2{font-size:1.2rem;font-weight:700;margin:1.75rem 0 .75rem;}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.85rem;border-top:1px solid var(--border);margin-top:1rem;background:var(--bg);transition:background .25s;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="topbar-back" href="../index.html">← Café &lt;/&gt;</a>
+  <span class="topbar-info">🐧 Linux desde Cero · Nivel 8 de 23</span>
+  <button class="theme-btn" onclick="toggleTheme()">
+    <span id="themeIcon">🌙</span><span id="themeLabel">Oscuro</span>
+  </button>
+</div>
+
+<header>
+  <div class="header-eyebrow">🌐 Nivel 8 — Familias de distros</div>
+  <h1><em>Otras familias</em> Linux</h1>
+  <p>Arch, SUSE, Alpine, NixOS y el panorama completo del ecosistema — todos los gestores de paquetes de un vistazo</p>
+  <div class="header-chips">
+    <span class="header-chip">Nivel 8 de 23</span>
+    <span class="header-chip">🌐 Ecosistema</span>
+    <span class="header-chip">8 subtemas</span>
+    <span class="header-chip">~25 min</span>
+  </div>
+</header>
+
+<div class="niveles-nav">
+  <a class="nn-prev" href="linux-nivel-07.html">← N7</a>
+  <div class="nn-list">
+    <a href="linux-nivel-01.html">N1</a><a href="linux-nivel-02.html">N2</a><a href="linux-nivel-03.html">N3</a>
+    <a href="linux-nivel-04.html">N4</a><a href="linux-nivel-05.html">N5</a><span class="sep">·</span>
+    <a href="linux-nivel-06.html">N6</a><a href="linux-nivel-07.html">N7</a>
+    <a href="linux-nivel-08.html" class="activa">N8</a><span class="sep">·</span>
+    <a href="linux-nivel-09.html">N9</a><a href="linux-nivel-10.html">N10</a><a href="linux-nivel-11.html">N11</a>
+    <span class="sep">·</span><a href="linux-nivel-12.html">N12</a><a href="linux-nivel-13.html">N13</a>
+    <a href="linux-nivel-14.html">N14</a><a href="linux-nivel-15.html">N15</a><span class="sep">·</span>
+    <a href="linux-nivel-16.html">N16</a><a href="linux-nivel-17.html">N17</a><a href="linux-nivel-18.html">N18</a>
+    <a href="linux-nivel-19.html">N19</a><a href="linux-nivel-20.html">N20</a><a href="linux-nivel-21.html">N21</a>
+    <a href="linux-nivel-22.html">N22</a><a href="linux-nivel-23.html">N23</a>
+  </div>
+  <a class="nn-next" href="linux-nivel-09.html">N9 →</a>
+</div>
+
+<nav class="sec-nav">
+  <a href="#arch">🏹 Arch</a>
+  <a href="#suse">🦎 SUSE</a>
+  <a href="#alpine">🏔️ Alpine</a>
+  <a href="#nixos">❄️ NixOS</a>
+  <a href="#especiales">🎯 Especiales</a>
+  <a href="#gestores">📦 Todos los gestores</a>
+  <a href="#ecosistema">🗺️ Mapa ecosistema</a>
+  <a href="#ejercicio">✏️ Ejercicio</a>
+</nav>
+
+<main>
+<div class="nivel-badge">🌐 Nivel 8 — Otras familias Linux</div>
+
+
+<!-- ═══════════════════════
+     ARCH LINUX
+═══════════════════════ -->
+<section class="module" id="arch">
+  <div class="module-header">
+    <div class="module-icon">🏹</div>
+    <div>
+      <div class="module-title">Arch Linux — control total, mínimo por defecto</div>
+      <div class="module-sub">La distro que te enseña Linux de verdad porque lo construyes desde cero</div>
+    </div>
+  </div>
+
+  <div class="distro-big">
+    <div class="db-head">
+      <div class="db-logo">🏹</div>
+      <div class="db-info">
+        <div class="db-name">Arch Linux</div>
+        <div class="db-tag">Independiente · desde 2002 · Judd Vinet</div>
+        <div class="db-chips">
+          <span class="db-chip chip-r">Avanzados</span>
+          <span class="db-chip chip-y">Rolling release</span>
+          <span class="db-chip chip-b">pacman</span>
+          <span class="db-chip chip-g">Minimalista</span>
+        </div>
+      </div>
+    </div>
+    <div class="db-desc">Arch parte de cero — sin instalador gráfico, sin escritorio, sin nada preconfigurado. Tú decides cada componente que entra en tu sistema. Es el aprendizaje más profundo de Linux que existe porque no hay magia automática: si algo funciona, es porque tú lo configuraste.</div>
+    <div class="db-pkg"><span>gestor:</span> <strong>pacman</strong> · <span>AUR: yay / paru</span></div>
+  </div>
+
+  <div class="analogy">
+    <h4>🏠 Analogía — Construir tu propia casa desde los cimientos</h4>
+    <p>Ubuntu es una casa lista para entrar — muebles incluidos, pintura elegida, todo configurado. Arch es un terreno vacío con materiales de construcción: tú decides si pones paredes de ladrillo o madera, cuántas habitaciones, dónde van las ventanas. El resultado final puede ser exactamente lo que querías — pero tienes que saber construir. Nadie que empiece con Arch olvida lo que aprende.</p>
+  </div>
+
+  <h2>Los principios de Arch (The Arch Way)</h2>
+  <ul>
+    <li><strong>Simplicidad</strong> — mínimo por defecto, sin decisiones tomadas por ti.</li>
+    <li><strong>Modernidad</strong> — siempre la versión más reciente de todo (rolling release).</li>
+    <li><strong>Pragmatismo</strong> — libre cuando sea posible, propietario cuando sea necesario.</li>
+    <li><strong>Usuario céntrico</strong> — hecho para usuarios que saben lo que hacen.</li>
+    <li><strong>Versatilidad</strong> — cualquier escritorio, cualquier herramienta, cualquier configuración.</li>
+  </ul>
+
+  <h2>pacman — el gestor de paquetes de Arch</h2>
+  <p><strong>pacman</strong> es uno de los gestores de paquetes más rápidos y simples. Sin subcomandos complejos — flags directas. Y el <strong>AUR</strong> (Arch User Repository) es el repositorio de paquetes más grande del mundo Linux — prácticamente cualquier software existe ahí.</p>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">pacman — comandos esenciales en Arch Linux</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Actualizar sistema completo (siempre hacer esto primero en Arch)</span>
+<span class="t-p">$</span> sudo pacman -Syu
+<span class="t-o">:: Synchronizing package databases...</span>
+<span class="t-o">:: Starting full system upgrade...</span>
+<span class="t-o"> there is nothing to do</span>
+
+<span class="t-h"># Instalar un paquete</span>
+<span class="t-p">$</span> sudo pacman -S git firefox htop
+
+<span class="t-h"># Eliminar paquete y sus dependencias huérfanas</span>
+<span class="t-p">$</span> sudo pacman -Rns git
+
+<span class="t-h"># Buscar paquete en repositorios oficiales</span>
+<span class="t-p">$</span> pacman -Ss "editor de código"
+
+<span class="t-h"># Ver info de un paquete</span>
+<span class="t-p">$</span> pacman -Si git
+
+<span class="t-h"># Listar paquetes instalados explícitamente (no como dependencias)</span>
+<span class="t-p">$</span> pacman -Qe
+
+<span class="t-h"># AUR — instalar con yay (helper del AUR)</span>
+<span class="t-p">$</span> yay -S visual-studio-code-bin
+<span class="t-h"># El AUR tiene +90,000 paquetes mantenidos por la comunidad</span>
+    </div>
+  </div>
+
+  <div class="note">
+    <h4>📌 La Wiki de Arch — la mejor documentación Linux del mundo</h4>
+    <p>El mayor tesoro de Arch no es la distro en sí — es la <strong>Arch Wiki</strong> (wiki.archlinux.org). Es la documentación Linux más completa, actualizada y detallada que existe. La mejor parte: es tan buena que incluso los usuarios de Ubuntu, Fedora o Debian la usan a diario para resolver problemas. Si buscas algo de Linux en Google, casi siempre la mejor respuesta viene de la Arch Wiki.</p>
+  </div>
+
+  <h2>Distros derivadas de Arch — Arch sin el dolor</h2>
+
+  <div class="distro-big">
+    <div class="db-head">
+      <div class="db-logo">🌊</div>
+      <div class="db-info">
+        <div class="db-name">Manjaro</div>
+        <div class="db-tag">Arch con instalador gráfico · desde 2011</div>
+        <div class="db-chips"><span class="db-chip chip-g">Principiantes Arch</span><span class="db-chip chip-y">Rolling</span></div>
+      </div>
+    </div>
+    <div class="db-desc">Arch con un instalador gráfico amigable y escritorio preconfigurado. Los paquetes pasan por pruebas de estabilidad extra antes de llegar al usuario. Más fácil que Arch puro pero con las mismas ventajas del AUR y rolling release.</div>
+    <div class="db-pkg"><span>gestor:</span> <strong>pacman + pamac</strong></div>
+  </div>
+
+  <div class="distro-big">
+    <div class="db-head">
+      <div class="db-logo">🚀</div>
+      <div class="db-info">
+        <div class="db-name">EndeavourOS</div>
+        <div class="db-tag">Arch con instalador · sin capas extra · desde 2019</div>
+        <div class="db-chips"><span class="db-chip chip-b">Semi-avanzado</span><span class="db-chip chip-y">Rolling</span></div>
+      </div>
+    </div>
+    <div class="db-desc">Arch con un instalador gráfico (Calamares) pero sin las capas de personalización de Manjaro. Muy cercana a Arch puro pero sin tener que leer la guía de instalación entera. Favorita de quienes quieren Arch "de verdad" pero con un poco de ayuda.</div>
+    <div class="db-pkg"><span>gestor:</span> <strong>pacman + yay</strong></div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     SUSE
+═══════════════════════ -->
+<section class="module" id="suse">
+  <div class="module-header">
+    <div class="module-icon">🦎</div>
+    <div>
+      <div class="module-title">SUSE — el gigante europeo</div>
+      <div class="module-sub">La distribución empresarial más importante de Europa</div>
+    </div>
+  </div>
+
+  <div class="distro-big">
+    <div class="db-head">
+      <div class="db-logo">🦎</div>
+      <div class="db-info">
+        <div class="db-name">SUSE Linux Enterprise (SLE)</div>
+        <div class="db-tag">SUSE GmbH · Alemania · desde 1994</div>
+        <div class="db-chips">
+          <span class="db-chip chip-r">Empresarial</span>
+          <span class="db-chip chip-b">zypper + RPM</span>
+          <span class="db-chip chip-g">Europa</span>
+        </div>
+      </div>
+    </div>
+    <div class="db-desc">La distro empresarial dominante en Europa, especialmente en banca, seguros y gobierno. Competidora directa de RHEL. Usa paquetes .rpm como Red Hat pero con su propio ecosistema y herramientas. Famous por YaST — una herramienta gráfica de configuración del sistema única.</div>
+    <div class="db-pkg"><span>gestor:</span> <strong>zypper</strong> · <span>formato:</span> <strong>.rpm</strong></div>
+  </div>
+
+  <div class="distro-big">
+    <div class="db-head">
+      <div class="db-logo">🌿</div>
+      <div class="db-info">
+        <div class="db-name">openSUSE Leap</div>
+        <div class="db-tag">Versión comunitaria estable de SUSE</div>
+        <div class="db-chips"><span class="db-chip chip-g">Estable</span><span class="db-chip chip-b">zypper</span></div>
+      </div>
+    </div>
+    <div class="db-desc">La versión libre y comunitaria de SUSE Enterprise. Muy estable, basada en el código de SUSE. Ideal para escritorio o servidor sin pagar la suscripción empresarial. Excelente soporte de hardware y YaST incluido.</div>
+    <div class="db-pkg"><span>gestor:</span> <strong>zypper</strong></div>
+  </div>
+
+  <div class="distro-big">
+    <div class="db-head">
+      <div class="db-logo">🌀</div>
+      <div class="db-info">
+        <div class="db-name">openSUSE Tumbleweed</div>
+        <div class="db-tag">Rolling release de openSUSE</div>
+        <div class="db-chips"><span class="db-chip chip-y">Rolling</span><span class="db-chip chip-g">Probado</span></div>
+      </div>
+    </div>
+    <div class="db-desc">Rolling release de openSUSE con pruebas automatizadas muy rigurosas (OpenQA). Tiene las versiones más recientes del software pero con un nivel de pruebas que Arch no alcanza. La mejor opción si quieres rolling release con más seguridad que Arch.</div>
+    <div class="db-pkg"><span>gestor:</span> <strong>zypper</strong></div>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">zypper — comandos esenciales en openSUSE</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Actualizar repositorios y sistema</span>
+<span class="t-p">$</span> sudo zypper refresh && sudo zypper update
+
+<span class="t-h"># Instalar paquete</span>
+<span class="t-p">$</span> sudo zypper install git
+
+<span class="t-h"># Buscar paquete</span>
+<span class="t-p">$</span> zypper search nginx
+
+<span class="t-h"># Eliminar paquete</span>
+<span class="t-p">$</span> sudo zypper remove git
+
+<span class="t-h"># Ver info del paquete</span>
+<span class="t-p">$</span> zypper info git
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>💡 YaST — la herramienta única de SUSE</h4>
+    <p><strong>YaST</strong> (Yet another Setup Tool) es una herramienta gráfica y de terminal que permite configurar prácticamente todo el sistema desde un único lugar: particiones, red, usuarios, servicios, firewall, impresoras y más. No existe nada equivalente en otras distros. Es uno de los mayores argumentos a favor de SUSE para administradores que prefieren interfaces gráficas.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     ALPINE LINUX
+═══════════════════════ -->
+<section class="module" id="alpine">
+  <div class="module-header">
+    <div class="module-icon">🏔️</div>
+    <div>
+      <div class="module-title">Alpine Linux — el rey de los contenedores</div>
+      <div class="module-sub">La distro más pequeña y segura, favorita de Docker</div>
+    </div>
+  </div>
+
+  <div class="distro-big">
+    <div class="db-head">
+      <div class="db-logo">🏔️</div>
+      <div class="db-info">
+        <div class="db-name">Alpine Linux</div>
+        <div class="db-tag">Natanael Copa · desde 2005 · ~5 MB</div>
+        <div class="db-chips">
+          <span class="db-chip chip-g">Contenedores</span>
+          <span class="db-chip chip-b">apk</span>
+          <span class="db-chip chip-r">Ultraligero</span>
+          <span class="db-chip chip-y">Seguro</span>
+        </div>
+      </div>
+    </div>
+    <div class="db-desc">Alpine es minúscula — la imagen base de Docker pesa apenas 5 MB, comparada con los 80 MB de Ubuntu. Usa musl libc en lugar de glibc, y BusyBox en lugar de GNU coreutils. Es la imagen base por defecto en la mayoría de contenedores Docker en producción.</div>
+    <div class="db-pkg"><span>gestor:</span> <strong>apk</strong> · <span>libc:</span> <strong>musl</strong> · <span>utils:</span> <strong>BusyBox</strong></div>
+  </div>
+
+  <div class="analogy">
+    <h4>🎒 Analogía — La mochila ultraligera del montañero</h4>
+    <p>Ubuntu es una maleta grande con ruedas — cómoda, lleva todo, pero pesa. Alpine es la mochila ultraligera del montañero profesional: solo lo estrictamente necesario, sin nada que sobre, optimizada para ir rápido y subir alto. En el mundo de los contenedores donde necesitas millones de instancias pequeñas y eficientes, Alpine es la respuesta obvia.</p>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">Alpine Linux en un Dockerfile — el uso más común</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Dockerfile usando Alpine como base (imagen ~5 MB vs ~80 MB Ubuntu)</span>
+<span class="t-o">FROM alpine:3.19</span>
+
+<span class="t-h"># apk — el gestor de paquetes de Alpine (muy rápido)</span>
+<span class="t-o">RUN apk update && apk add --no-cache nodejs npm git curl</span>
+
+<span class="t-o">WORKDIR /app</span>
+<span class="t-o">COPY . .</span>
+<span class="t-o">RUN npm install</span>
+<span class="t-o">CMD ["node", "server.js"]</span>
+
+<span class="t-h"># En Alpine directamente:</span>
+<span class="t-p">$</span> apk update              <span class="t-h"># actualizar índice</span>
+<span class="t-p">$</span> apk add git             <span class="t-h"># instalar paquete</span>
+<span class="t-p">$</span> apk del git             <span class="t-h"># eliminar paquete</span>
+<span class="t-p">$</span> apk search nginx        <span class="t-h"># buscar paquete</span>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Alpine y musl libc — la trampa del principiante</h4>
+    <p>Alpine usa <strong>musl libc</strong> en lugar de glibc. La mayoría del software Linux está compilado para glibc. Esto significa que algunos binarios precompilados para Ubuntu no funcionan directamente en Alpine y hay que recompilarlos o usar versiones específicas. En Docker esto raramente es problema porque todo se compila dentro del contenedor, pero es importante saberlo si alguna vez ves errores extraños al usar Alpine.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     NIXOS
+═══════════════════════ -->
+<section class="module" id="nixos">
+  <div class="module-header">
+    <div class="module-icon">❄️</div>
+    <div>
+      <div class="module-title">NixOS — el sistema operativo declarativo</div>
+      <div class="module-sub">La filosofía radicalmente diferente: todo el sistema como código</div>
+    </div>
+  </div>
+
+  <div class="distro-big">
+    <div class="db-head">
+      <div class="db-logo">❄️</div>
+      <div class="db-info">
+        <div class="db-name">NixOS</div>
+        <div class="db-tag">Eelco Dolstra · desde 2003 · revolucionario</div>
+        <div class="db-chips">
+          <span class="db-chip chip-b">Declarativo</span>
+          <span class="db-chip chip-g">Reproducible</span>
+          <span class="db-chip chip-y">Rollback total</span>
+          <span class="db-chip chip-r">Avanzado</span>
+        </div>
+      </div>
+    </div>
+    <div class="db-desc">NixOS es filosóficamente diferente a todo lo demás. No configuras el sistema — lo <strong>declaras</strong>. Describes en un archivo qué debe tener tu sistema (paquetes, servicios, configuración) y NixOS lo hace realidad. Si algo sale mal, haces rollback al estado anterior con un comando. Reproducibilidad total: el mismo archivo genera el mismo sistema en cualquier máquina.</div>
+    <div class="db-pkg"><span>gestor:</span> <strong>nix</strong> · <span>config:</span> <strong>configuration.nix</strong></div>
+  </div>
+
+  <div class="analogy">
+    <h4>📜 Analogía — Infrastructure as Code para tu escritorio</h4>
+    <p>En DevOps existe el concepto de <em>Infrastructure as Code</em> — describes tu infraestructura en código y la herramienta la crea. NixOS aplica exactamente eso a tu sistema operativo personal. En lugar de hacer clic en "instalar" 50 veces, escribes un archivo que dice "quiero Firefox, VS Code, Git, GNOME con este tema, y estos servicios activos" — y NixOS construye exactamente eso, reproducible al 100%.</p>
+  </div>
+
+  <div class="code-wrap">
+    <div class="code-block"><span class="cc"># /etc/nixos/configuration.nix — el sistema entero como código</span>
+{ config, pkgs, ... }:
+{
+  <span class="ct">imports</span> = [ ./hardware-configuration.nix ];
+
+  <span class="ct">boot.loader.grub.device</span> = <span class="cs">"/dev/sda"</span>;
+
+  <span class="cc"># Paquetes instalados en el sistema</span>
+  <span class="ct">environment.systemPackages</span> = with pkgs; [
+    <span class="cv">git firefox vim htop curl wget nodejs</span>
+  ];
+
+  <span class="cc"># Servicios activados</span>
+  <span class="ct">services.openssh.enable</span> = true;
+  <span class="ct">services.nginx.enable</span>   = true;
+
+  <span class="cc"># Usuarios del sistema</span>
+  <span class="ct">users.users.hugo</span> = {
+    isNormalUser = true;
+    extraGroups = [ <span class="cs">"wheel"</span> <span class="cs">"networkmanager"</span> ];
+  };
+
+  <span class="ct">system.stateVersion</span> = <span class="cs">"24.05"</span>;
+}
+
+<span class="cc"># Aplicar los cambios:</span>
+<span class="cv">$ sudo nixos-rebuild switch</span>
+<span class="cc"># NixOS construye exactamente lo que declaraste</span></div>
+    <div class="lang-tag">NIX</div>
+  </div>
+
+  <div class="note">
+    <h4>📌 NixOS en tendencia — el favorito de DevOps modernos</h4>
+    <p>NixOS es la distro de más rápido crecimiento entre desarrolladores y DevOps en los últimos años. Su promesa de reproducibilidad total — el mismo sistema en tu laptop y en producción — resuelve el problema clásico de "en mi máquina funciona". Tiene una curva de aprendizaje empinada pero quienes lo adoptan raramente vuelven atrás.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     DISTROS ESPECIALES
+═══════════════════════ -->
+<section class="module" id="especiales">
+  <div class="module-header">
+    <div class="module-icon">🎯</div>
+    <div>
+      <div class="module-title">Distros de propósito especial</div>
+      <div class="module-sub">Linux adaptado para usos muy concretos</div>
+    </div>
+  </div>
+
+  <p>Más allá de las grandes familias, hay distros creadas para un propósito muy específico. Algunas son pequeñas joyas que resuelven un problema concreto mejor que cualquier distro generalista.</p>
+
+  <table class="tbl">
+    <thead><tr><th>Distro</th><th>Propósito</th><th>Por qué es notable</th></tr></thead>
+    <tbody>
+      <tr><td>Tails</td><td>Privacidad y anonimato</td><td>Corre solo desde USB, no deja rastro, todo pasa por Tor. Usada por periodistas y activistas.</td></tr>
+      <tr><td>Whonix</td><td>Privacidad en VM</td><td>Dos VMs: una Gateway Tor y una Workstation. Arquitectura que hace imposible filtrar IP real.</td></tr>
+      <tr><td>Qubes OS</td><td>Seguridad por compartimentación</td><td>Cada tarea en su propia VM aislada. El SO más seguro para escritorio. Usada por Edward Snowden.</td></tr>
+      <tr><td>CoreOS / Flatcar</td><td>Contenedores en producción</td><td>SO mínimo diseñado solo para correr contenedores Docker/Kubernetes. Sin gestor de paquetes clásico.</td></tr>
+      <tr><td>Proxmox VE</td><td>Virtualización y VMs</td><td>Basada en Debian, para gestionar VMs y contenedores LXC en servidores físicos. Muy usada en homelabs.</td></tr>
+      <tr><td>TrueNAS Core</td><td>NAS y almacenamiento</td><td>Para servidores de almacenamiento en red. ZFS nativo. Gestión web. Para homelab y empresas.</td></tr>
+      <tr><td>Kali Linux</td><td>Ciberseguridad / Pentesting</td><td>600+ herramientas de seguridad preinstaladas. La referencia absoluta en el sector.</td></tr>
+      <tr><td>Ubuntu Core</td><td>IoT y embebidos</td><td>Ubuntu mínimo para dispositivos IoT, routers y sistemas embebidos. Actualización atómica.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- ═══════════════════════
+     TODOS LOS GESTORES
+═══════════════════════ -->
+<section class="module" id="gestores">
+  <div class="module-header">
+    <div class="module-icon">📦</div>
+    <div>
+      <div class="module-title">Todos los gestores de paquetes — de un vistazo</div>
+      <div class="module-sub">La tabla maestra de referencia para no perderse entre familias</div>
+    </div>
+  </div>
+
+  <p>Ya has visto APT, DNF, pacman y zypper en los niveles anteriores. Aquí el mapa completo con todos los gestores relevantes para tener como referencia rápida.</p>
+
+  <div class="pm-row"><div class="pm-pkg">apt</div><div class="pm-distro">Debian / Ubuntu / Mint</div><div class="pm-cmd">apt install pkg · apt upgrade · apt remove pkg</div></div>
+  <div class="pm-row"><div class="pm-pkg">dnf</div><div class="pm-distro">Fedora / RHEL / Rocky</div><div class="pm-cmd">dnf install pkg · dnf upgrade · dnf remove pkg</div></div>
+  <div class="pm-row"><div class="pm-pkg">pacman</div><div class="pm-distro">Arch / Manjaro</div><div class="pm-cmd">pacman -S pkg · pacman -Syu · pacman -Rns pkg</div></div>
+  <div class="pm-row"><div class="pm-pkg">zypper</div><div class="pm-distro">openSUSE / SUSE</div><div class="pm-cmd">zypper install pkg · zypper update · zypper remove pkg</div></div>
+  <div class="pm-row"><div class="pm-pkg">apk</div><div class="pm-distro">Alpine Linux</div><div class="pm-cmd">apk add pkg · apk upgrade · apk del pkg</div></div>
+  <div class="pm-row"><div class="pm-pkg">nix</div><div class="pm-distro">NixOS</div><div class="pm-cmd">nix-env -iA pkg · nixos-rebuild switch</div></div>
+  <div class="pm-row"><div class="pm-pkg">emerge</div><div class="pm-distro">Gentoo</div><div class="pm-cmd">emerge pkg · emerge --update @world</div></div>
+  <div class="pm-row"><div class="pm-pkg">snap</div><div class="pm-distro">Universal (Canonical)</div><div class="pm-cmd">snap install pkg · snap refresh · snap remove pkg</div></div>
+  <div class="pm-row"><div class="pm-pkg">flatpak</div><div class="pm-distro">Universal (comunidad)</div><div class="pm-cmd">flatpak install pkg · flatpak update · flatpak remove pkg</div></div>
+  <div class="pm-row"><div class="pm-pkg">brew</div><div class="pm-distro">Homebrew (cualquier distro)</div><div class="pm-cmd">brew install pkg · brew upgrade · brew remove pkg</div></div>
+
+  <div class="tip">
+    <h4>🟢 Flatpak — el futuro del software de escritorio en Linux</h4>
+    <p>Flatpak se está convirtiendo en el estándar de facto para aplicaciones de escritorio en Linux. Funciona en cualquier distro, las apps van empaquetadas con todas sus dependencias, están sandboxeadas por seguridad y las actualizaciones son atómicas. GNOME Software y KDE Discover lo soportan nativamente. Si alguien te pregunta cómo instalar software en Linux sin saber la distro del usuario, di Flatpak.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     MAPA DEL ECOSISTEMA
+═══════════════════════ -->
+<section class="module" id="ecosistema">
+  <div class="module-header">
+    <div class="module-icon">🗺️</div>
+    <div>
+      <div class="module-title">El ecosistema Linux completo — mapa mental</div>
+      <div class="module-sub">Dónde vive cada distro y para qué sirve</div>
+    </div>
+  </div>
+
+  <p>Ahora que conoces todas las familias, aquí el mapa completo del ecosistema organizado por caso de uso. Guárdalo como referencia.</p>
+
+  <div class="eco-map">
+    <div class="eco-box">
+      <div class="eco-title">🖥️ Escritorio / Aprender</div>
+      <div class="eco-list">
+        Ubuntu · Linux Mint · Fedora<br>
+        Pop!_OS · Manjaro · elementary OS<br>
+        openSUSE Leap · EndeavourOS
+      </div>
+    </div>
+    <div class="eco-box">
+      <div class="eco-title">🏢 Servidores empresariales</div>
+      <div class="eco-list">
+        RHEL · SUSE Enterprise<br>
+        Debian Stable · Ubuntu LTS Server<br>
+        Rocky Linux · AlmaLinux
+      </div>
+    </div>
+    <div class="eco-box">
+      <div class="eco-title">🐳 Contenedores / Docker</div>
+      <div class="eco-list">
+        Alpine Linux · Ubuntu minimal<br>
+        Debian slim · Fedora minimal<br>
+        Flatcar · CoreOS
+      </div>
+    </div>
+    <div class="eco-box">
+      <div class="eco-title">🔐 Seguridad / Privacidad</div>
+      <div class="eco-list">
+        Kali Linux · Tails · Whonix<br>
+        Qubes OS · Parrot OS<br>
+        BlackArch (sobre Arch)
+      </div>
+    </div>
+    <div class="eco-box">
+      <div class="eco-title">🏗️ Control total / Avanzados</div>
+      <div class="eco-list">
+        Arch Linux · Gentoo<br>
+        NixOS · Void Linux<br>
+        LFS (Linux From Scratch)
+      </div>
+    </div>
+    <div class="eco-box">
+      <div class="eco-title">🔬 Ciencia / HPC</div>
+      <div class="eco-list">
+        Ubuntu (clusters IA)<br>
+        Rocky Linux (sucesor Scientific)<br>
+        Fedora Scientific spin
+      </div>
+    </div>
+    <div class="eco-box">
+      <div class="eco-title">📡 IoT / Embebidos</div>
+      <div class="eco-list">
+        Raspberry Pi OS · Alpine<br>
+        Ubuntu Core · OpenWRT<br>
+        Yocto Project (custom)
+      </div>
+    </div>
+    <div class="eco-box">
+      <div class="eco-title">☁️ Cloud / Rolling</div>
+      <div class="eco-list">
+        Ubuntu Cloud · Amazon Linux<br>
+        openSUSE Tumbleweed<br>
+        Arch · NixOS (infra as code)
+      </div>
+    </div>
+  </div>
+
+  <div class="diagram">
+<span class="d-m"># Resumen: ¿qué aprender para tu carrera?</span>
+
+<span class="d-g">Desarrollo web / backend</span>  →  Ubuntu LTS o Fedora
+<span class="d-g">DevOps / Cloud</span>            →  Ubuntu + Alpine (Docker) + NixOS (IaC)
+<span class="d-r">Sysadmin empresarial</span>      →  RHEL / Rocky + Debian Stable
+<span class="d-r">Ciberseguridad</span>            →  Kali + Debian + Arch (para entender internals)
+<span class="d-y">Embedded / IoT</span>            →  Alpine + Raspberry Pi OS + Yocto
+<span class="d-b">Aprender Linux a fondo</span>    →  Ubuntu primero → luego Arch o NixOS</div>
+</section>
+
+
+<!-- EJERCICIO -->
+<div class="ejercicio" id="ejercicio">
+  <div class="ej-hd">
+    ✏️ Ejercicio del Nivel 8
+    <span class="ej-badge">Investigación</span>
+  </div>
+  <p>Con lo aprendido en los niveles 6, 7 y 8 sobre las familias, completa este mapa de decisión personal:</p>
+  <ol>
+    <li><strong>Para tu aprendizaje actual</strong> — ¿qué distro elegiste instalar en el Nivel 5 y sigue siendo tu primera elección ahora que conoces todas las familias?</li>
+    <li><strong>Para contenedores Docker</strong> — busca en Docker Hub la imagen oficial de Alpine: <code>docker pull alpine</code> (si tienes Docker). Compara el tamaño con <code>docker pull ubuntu</code>. ¿Cuánta diferencia hay?</li>
+    <li><strong>Para tu carrera</strong> — según el mapa del ecosistema de este nivel, ¿qué familia de distros deberías aprender para el rol al que aspiras? ¿Ya tienes esa distro en tu radar?</li>
+    <li><strong>Arch Wiki</strong> — entra a wiki.archlinux.org y busca un tema que hayas tenido dudas en esta guía (permisos, arranque, particiones). ¿Está bien explicado? Guarda el enlace como favorito.</li>
+    <li><strong>Flatpak</strong> — si tienes Linux instalado, ejecuta <code>flatpak list</code>. ¿Tienes apps instaladas con Flatpak? Instala una: <code>flatpak install flathub org.gimp.GIMP</code></li>
+  </ol>
+  <p><strong>Reflexión final sobre N6-N8:</strong> Ahora conoces las tres grandes familias (Debian, Red Hat, Arch/SUSE) y sus gestores de paquetes. El 95% de los sistemas Linux que encontrarás en tu carrera pertenecen a alguna de estas familias. ¿Cuál te resulta más interesante y por qué?</p>
+</div>
+
+<!-- RESUMEN -->
+<div class="resumen">
+  <h3>🟥 Resumen del Nivel 8</h3>
+  <ul>
+    <li><strong>Arch Linux</strong> — rolling release, todo manual, pacman + AUR. La Arch Wiki es la mejor documentación Linux del mundo.</li>
+    <li><strong>Manjaro / EndeavourOS</strong> — Arch con instalador. Más accesibles sin perder las ventajas del AUR.</li>
+    <li><strong>SUSE / openSUSE</strong> — el gigante europeo. Usa zypper + RPM. YaST es su herramienta única de configuración.</li>
+    <li><strong>Alpine Linux</strong> — ~5 MB, ultraligero, el rey de los contenedores Docker. Usa apk y musl libc.</li>
+    <li><strong>NixOS</strong> — declarativo, reproducible, rollback total. Todo el sistema como código en <code>configuration.nix</code>.</li>
+    <li>Gestores de paquetes: apt · dnf · pacman · zypper · apk · nix · emerge. Flatpak es el universal de escritorio.</li>
+    <li>El ecosistema Linux cubre todos los nichos: escritorio, servidor, contenedores, seguridad, IoT, ciencia y cloud.</li>
+  </ul>
+</div>
+
+<a class="next-card" href="linux-nivel-09.html">
+  <div>
+    <div class="nc-label">Siguiente → Nivel 9</div>
+    <div class="nc-name">Capas de Linux — Hardware, Kernel, Userspace y Aplicaciones en profundidad</div>
+  </div>
+  <div class="nc-arrow">→</div>
+</a>
+
+</main>
+
+<footer>
+  Linux desde Cero · Nivel 8 · Otras familias · Café &lt;/&gt; · Hugo 2025
+</footer>
+
+<script>
+(function(){const s=localStorage.getItem('cafe-theme');const sys=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';const t=s||sys;document.documentElement.setAttribute('data-theme',t);updateUI(t);})();
+function toggleTheme(){const c=document.documentElement.getAttribute('data-theme');const n=c==='light'?'dark':'light';document.documentElement.setAttribute('data-theme',n);localStorage.setItem('cafe-theme',n);updateUI(n);}
+function updateUI(t){const i=document.getElementById('themeIcon');const l=document.getElementById('themeLabel');if(!i||!l)return;i.textContent=t==='dark'?'☀️':'🌙';l.textContent=t==='dark'?'Claro':'Oscuro';}
+</script>
+</body>
+</html>

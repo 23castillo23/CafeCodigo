@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux desde Cero · N17 · Arranque y Servicios</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root,[data-theme="light"]{--primary:#c44a2a;--primary-light:#fdf0ec;--primary-mid:rgba(196,74,42,.25);--secondary:#1a7a5a;--secondary-light:#edf7f3;--accent:#b07010;--accent-light:#fdf6e8;--bg:#f7f4ef;--surface:#ffffff;--text:#1a1814;--muted:#8a8480;--border:#e8e4de;--code-bg:#1a1814;--code-text:#e8e4de;--header-bg:#1a1814;--analogy-bg:#fff7ed;--analogy-border:#fde68a;--analogy-text:#78350f;--analogy-head:#92400e;--diagram-bg:#f0f4ff;--diagram-border:#c7d2fe;--note-bg:#f0f4ff;--note-border:#6366f1;--note-head:#4338ca;}
+[data-theme="dark"]{--primary:#ff7a57;--primary-light:rgba(255,122,87,.14);--primary-mid:rgba(255,122,87,.3);--secondary:#3ddc84;--secondary-light:rgba(61,220,132,.12);--accent:#f0c040;--accent-light:rgba(240,192,64,.12);--bg:#0d1117;--surface:#161b22;--text:#c9d8f0;--muted:#5a7090;--border:#21262d;--code-bg:#060a10;--code-text:#c9d8f0;--header-bg:#0a0e14;--analogy-bg:rgba(240,192,64,.07);--analogy-border:rgba(240,192,64,.3);--analogy-text:#e6d4a0;--analogy-head:#f0c040;--diagram-bg:#161b22;--diagram-border:#21262d;--note-bg:rgba(99,102,241,.1);--note-border:#818cf8;--note-head:#818cf8;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;font-size:16px;transition:background .25s,color .25s;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:300;height:45px;}
+.topbar-back{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);text-decoration:none;padding:5px 14px;border:1px solid var(--border);border-radius:999px;transition:all .15s;}
+.topbar-back:hover{color:var(--text);border-color:var(--muted);}
+.topbar-info{font-size:13px;color:var(--muted);}
+.theme-btn{margin-left:auto;background:none;border:1px solid var(--border);border-radius:999px;padding:4px 13px;font-size:13px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:.35rem;transition:all .15s;font-family:'DM Sans',sans-serif;}
+.theme-btn:hover{color:var(--text);border-color:var(--muted);}
+header{background:var(--header-bg);color:#f7f4ef;padding:3rem 2rem 2.25rem;text-align:center;position:relative;overflow:hidden;}
+header::before{content:'N17';position:absolute;font-family:'DM Mono',monospace;font-size:11rem;font-weight:900;color:rgba(255,255,255,.04);right:-1rem;top:-1.5rem;line-height:1;pointer-events:none;}
+.header-eyebrow{display:inline-flex;align-items:center;gap:.5rem;background:rgba(196,74,42,.25);border:1px solid rgba(196,74,42,.45);border-radius:20px;padding:3px 14px;font-size:.78rem;font-weight:700;color:#ffaa88;margin-bottom:.85rem;}
+header h1{font-size:2.5rem;font-weight:800;letter-spacing:-1px;color:#f7f4ef;line-height:1.2;}
+header h1 em{font-style:normal;color:#ff8a6a;}
+header p{font-size:1.05rem;opacity:.8;margin-top:.5rem;max-width:560px;margin-left:auto;margin-right:auto;}
+.header-chips{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-top:.9rem;}
+.header-chip{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:20px;padding:3px 13px;font-size:.76rem;color:rgba(255,255,255,.75);}
+.niveles-nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:45px;z-index:110;display:flex;align-items:center;height:38px;padding:0 1rem;}
+.nn-prev,.nn-next{flex-shrink:0;display:flex;align-items:center;gap:.3rem;padding:0 .75rem;height:100%;text-decoration:none;color:var(--muted);font-size:.78rem;font-weight:500;border-right:1px solid var(--border);transition:color .15s;white-space:nowrap;}
+.nn-next{border-right:none;border-left:1px solid var(--border);}
+.nn-prev:hover,.nn-next:hover{color:var(--primary);}
+.nn-list{flex:1;display:flex;align-items:center;justify-content:center;gap:.15rem;overflow-x:auto;padding:0 .5rem;}
+.nn-list::-webkit-scrollbar{display:none;}
+.nn-list a{flex-shrink:0;padding:2px 9px;border-radius:20px;text-decoration:none;font-size:.73rem;font-weight:600;color:var(--muted);font-family:'DM Mono',monospace;transition:color .15s,background .15s;}
+.nn-list a:hover{color:var(--text);background:var(--bg);}
+.nn-list a.activa{background:var(--primary-light);color:var(--primary);}
+.nn-list .sep{color:var(--border);font-size:.7rem;padding:0 1px;flex-shrink:0;pointer-events:none;}
+.sec-nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:83px;z-index:100;display:flex;overflow-x:auto;}
+.sec-nav::-webkit-scrollbar{display:none;}
+.sec-nav a{flex-shrink:0;padding:.75rem 1.1rem;text-decoration:none;color:var(--muted);font-size:.82rem;font-weight:500;border-bottom:2px solid transparent;white-space:nowrap;transition:color .2s,border-color .2s;}
+.sec-nav a:hover{color:var(--primary);border-bottom-color:var(--primary);}
+main{max-width:920px;margin:0 auto;padding:2rem 1.5rem;}
+.nivel-badge{display:inline-flex;align-items:center;gap:.5rem;background:var(--primary);color:white;border-radius:20px;padding:5px 16px;font-size:.82rem;font-weight:700;margin-bottom:1.75rem;}
+.module{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;margin-bottom:2.5rem;scroll-margin-top:135px;transition:background .25s,border-color .25s;}
+.module-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border);}
+.module-icon{font-size:1.8rem;flex-shrink:0;}
+.module-title{font-size:1.35rem;font-weight:700;}
+.module-sub{font-size:.85rem;color:var(--muted);margin-top:2px;}
+.module h2{font-size:1.15rem;font-weight:700;margin:1.75rem 0 .75rem;}
+.module p{margin-bottom:.85rem;font-size:.97rem;}
+.module ul,.module ol{padding-left:1.4rem;margin-bottom:.85rem;}
+.module li{margin-bottom:.4rem;font-size:.96rem;}
+.analogy{background:var(--analogy-bg);border:1px solid var(--analogy-border);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0;}
+.analogy h4{color:var(--analogy-head);font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+.analogy p{font-size:.95rem;color:var(--analogy-text);margin:0;}
+.concept,.tip,.warn,.note{border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0;border-left-width:4px;border-left-style:solid;}
+.concept h4,.tip h4,.warn h4,.note h4{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+.concept p,.tip p,.warn p,.note p{font-size:.95rem;margin:0;}
+.tip ul{font-size:.95rem;padding-left:1.2rem;margin-top:.3rem;}
+.concept{background:var(--primary-light);border-color:var(--primary);}.concept h4{color:var(--primary);}
+.tip{background:var(--secondary-light);border-color:var(--secondary);}.tip h4{color:var(--secondary);}
+.warn{background:var(--primary-light);border-color:var(--primary);}.warn h4{color:var(--primary);}
+.note{background:var(--note-bg);border-color:var(--note-border);}.note h4{color:var(--note-head);}
+.terminal{background:#0a0e14;border:1px solid #21262d;border-radius:10px;overflow:hidden;margin:1rem 0;}
+.term-bar{background:#161b22;padding:.42rem .85rem;display:flex;align-items:center;gap:.35rem;border-bottom:1px solid #21262d;}
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.dot-r{background:#ff5f57;}.dot-y{background:#ffbd2e;}.dot-g{background:#28c840;}
+.term-label{font-family:'DM Mono',monospace;font-size:.69rem;color:#3a5070;margin-left:.4rem;}
+.term-body{padding:1.1rem 1.3rem;font-family:'DM Mono',monospace;font-size:.85rem;line-height:2.1;color:#c9d8f0;}
+.t-p{color:#3ddc84;}.t-o{color:#5a7090;display:block;}.t-h{color:#253550;font-style:italic;display:block;}
+.diagram{background:var(--diagram-bg);border:1px solid var(--diagram-border);border-radius:12px;padding:1.5rem;margin:1.1rem 0;font-family:'DM Mono',monospace;font-size:.87rem;line-height:2;overflow-x:auto;}
+.d-r{color:var(--primary);font-weight:700;}.d-g{color:var(--secondary);font-weight:700;}.d-y{color:var(--accent);font-weight:700;}.d-b{color:#6366f1;font-weight:700;}.d-m{color:var(--muted);font-style:italic;}
+.tbl{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem;}
+.tbl th{background:var(--primary-light);color:var(--primary);padding:.65rem 1rem;text-align:left;font-weight:600;}
+.tbl td{padding:.65rem 1rem;border-bottom:1px solid var(--border);vertical-align:top;}
+.tbl td:first-child{font-family:'DM Mono',monospace;font-size:.85rem;color:var(--primary);font-weight:600;}
+.tbl tr:hover td{background:var(--bg);}
+.code-wrap{position:relative;margin:1rem 0;}
+.code-block{background:var(--code-bg);color:var(--code-text);border-radius:10px;padding:1.25rem 1.5rem;font-family:'DM Mono',monospace;font-size:.88rem;line-height:1.85;overflow-x:auto;white-space:pre;}
+.lang-tag{position:absolute;top:.6rem;right:.75rem;background:rgba(255,255,255,.1);color:rgba(255,255,255,.45);font-size:.68rem;padding:2px 8px;border-radius:4px;font-family:sans-serif;font-weight:700;}
+.ct{color:#89B4FA;}.cv{color:#A6E3A1;}.cs{color:#F9E2AF;}.cc{color:#585B70;font-style:italic;}.cn{color:#FAB387;}
+
+/* BOOT SEQUENCE */
+.boot-seq{display:flex;flex-direction:column;gap:3px;margin:1rem 0;}
+.bs-step{display:flex;align-items:flex-start;gap:.85rem;padding:.85rem 1.1rem;border-radius:12px;border:1px solid var(--border);transition:background .25s;}
+.bs-num{font-family:'DM Mono',monospace;font-size:.75rem;font-weight:800;color:white;min-width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.bs-icon{font-size:1.2rem;flex-shrink:0;margin-top:1px;}
+.bs-label{font-weight:700;font-size:.95rem;margin-bottom:2px;}
+.bs-desc{font-size:.83rem;color:var(--muted);line-height:1.5;}
+.bs-step.s1{background:rgba(176,112,16,.07);}.bs-step.s1 .bs-num{background:var(--accent);}
+.bs-step.s2{background:var(--primary-light);}.bs-step.s2 .bs-num{background:var(--primary);}
+.bs-step.s3{background:var(--note-bg);}.bs-step.s3 .bs-num{background:#6366f1;}
+.bs-step.s4{background:var(--secondary-light);}.bs-step.s4 .bs-num{background:var(--secondary);}
+.bs-step.s5{background:rgba(236,72,153,.07);}.bs-step.s5 .bs-num{background:#db2777;}
+.bs-step.s6{background:rgba(124,58,237,.07);}.bs-step.s6 .bs-num{background:#7c3aed;}
+
+/* SYSTEMD CMD GRID */
+.cmd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:.75rem;margin:1rem 0;}
+.cmd-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1rem;}
+.cmd-title{font-family:'DM Mono',monospace;font-size:.82rem;font-weight:700;color:var(--primary);margin-bottom:.3rem;}
+.cmd-desc{font-size:.83rem;color:var(--muted);margin-bottom:.5rem;}
+.cmd-ex{font-family:'DM Mono',monospace;font-size:.79rem;background:var(--code-bg);color:var(--code-text);padding:.45rem .75rem;border-radius:6px;display:block;}
+
+/* UNIT FILE */
+.unit-sections{display:flex;flex-direction:column;gap:.5rem;margin:1rem 0;}
+.us-row{display:flex;gap:.75rem;padding:.65rem 1rem;border-radius:8px;background:var(--bg);border:1px solid var(--border);font-size:.87rem;}
+.us-sec{font-family:'DM Mono',monospace;font-weight:700;min-width:100px;flex-shrink:0;}
+.us-row.s-unit .us-sec{color:var(--primary);}
+.us-row.s-service .us-sec{color:var(--secondary);}
+.us-row.s-install .us-sec{color:#6366f1;}
+.us-desc{color:var(--muted);font-size:.83rem;}
+
+.ejercicio{background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:1.5rem;margin:1.5rem 0;}
+[data-theme="dark"] .ejercicio{background:rgba(240,192,64,.06);border-color:rgba(240,192,64,.22);}
+.ej-hd{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;font-weight:700;font-size:1rem;color:#78350F;flex-wrap:wrap;}
+[data-theme="dark"] .ej-hd{color:#f0c040;}
+.ej-badge{background:var(--accent);color:#fff;font-size:.68rem;padding:2px 9px;border-radius:20px;font-weight:700;text-transform:uppercase;}
+.ejercicio ol{padding-left:1.4rem;}
+.ejercicio ol li{margin-bottom:.6rem;font-size:.95rem;}
+.ejercicio p{font-size:.95rem;margin-bottom:.6rem;}
+.resumen{background:var(--primary-light);border:1px solid var(--primary-mid);border-radius:14px;padding:1.6rem;margin-bottom:1.5rem;}
+.resumen h3{color:var(--primary);margin-bottom:.75rem;font-size:1.05rem;}
+.resumen ul{padding-left:1.4rem;}
+.resumen li{font-size:.92rem;margin-bottom:.45rem;}
+.next-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem 1.5rem;display:flex;align-items:center;gap:1rem;text-decoration:none;transition:border-color .2s;margin-bottom:2rem;}
+.next-card:hover{border-color:var(--primary);}
+.nc-label{font-size:.72rem;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.2rem;}
+.nc-name{font-weight:700;color:var(--text);font-size:.97rem;}
+.nc-arrow{font-size:1.4rem;color:var(--primary);margin-left:auto;}
+code{font-family:'DM Mono',monospace;background:#f0ece6;color:var(--primary);padding:1px 5px;border-radius:4px;font-size:.9em;}
+[data-theme="dark"] code{background:#1c2128;}
+strong{font-weight:700;}
+p{margin-bottom:.8rem;}ul,ol{padding-left:1.4rem;margin-bottom:.8rem;}li{margin-bottom:.4rem;font-size:.96rem;}
+h2{font-size:1.2rem;font-weight:700;margin:1.75rem 0 .75rem;}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.85rem;border-top:1px solid var(--border);margin-top:1rem;background:var(--bg);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="topbar-back" href="../index.html">← Café &lt;/&gt;</a>
+  <span class="topbar-info">🐧 Linux desde Cero · Nivel 17 de 23</span>
+  <button class="theme-btn" onclick="toggleTheme()">
+    <span id="themeIcon">🌙</span><span id="themeLabel">Oscuro</span>
+  </button>
+</div>
+
+<header>
+  <div class="header-eyebrow">🚀 Nivel 17 — Sistema</div>
+  <h1><em>Arranque</em> y Servicios</h1>
+  <p>UEFI, GRUB, kernel, initrd, systemd, units y journalctl — el viaje completo desde el botón de encendido hasta el escritorio</p>
+  <div class="header-chips">
+    <span class="header-chip">Nivel 17 de 23</span>
+    <span class="header-chip">🚀 Boot</span>
+    <span class="header-chip">8 subtemas</span>
+    <span class="header-chip">~30 min</span>
+  </div>
+</header>
+
+<div class="niveles-nav">
+  <a class="nn-prev" href="linux-nivel-16.html">← N16</a>
+  <div class="nn-list">
+    <a href="linux-nivel-01.html">N1</a><a href="linux-nivel-02.html">N2</a><a href="linux-nivel-03.html">N3</a>
+    <a href="linux-nivel-04.html">N4</a><a href="linux-nivel-05.html">N5</a><span class="sep">·</span>
+    <a href="linux-nivel-06.html">N6</a><a href="linux-nivel-07.html">N7</a><a href="linux-nivel-08.html">N8</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-09.html">N9</a><a href="linux-nivel-10.html">N10</a><a href="linux-nivel-11.html">N11</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-12.html">N12</a><a href="linux-nivel-13.html">N13</a><a href="linux-nivel-14.html">N14</a>
+    <a href="linux-nivel-15.html">N15</a><span class="sep">·</span>
+    <a href="linux-nivel-16.html">N16</a>
+    <a href="linux-nivel-17.html" class="activa">N17</a>
+    <a href="linux-nivel-18.html">N18</a><a href="linux-nivel-19.html">N19</a>
+    <a href="linux-nivel-20.html">N20</a><a href="linux-nivel-21.html">N21</a>
+    <a href="linux-nivel-22.html">N22</a><a href="linux-nivel-23.html">N23</a>
+  </div>
+  <a class="nn-next" href="linux-nivel-18.html">N18 →</a>
+</div>
+
+<nav class="sec-nav">
+  <a href="#secuencia">🗺️ Secuencia completa</a>
+  <a href="#uefi">🔩 UEFI / BIOS</a>
+  <a href="#grub">🥾 GRUB</a>
+  <a href="#kernel">🐧 Kernel + initrd</a>
+  <a href="#systemd">⚙️ systemd</a>
+  <a href="#units">📄 Units</a>
+  <a href="#servicios">🛠️ Gestión servicios</a>
+  <a href="#journalctl">📋 journalctl</a>
+  <a href="#ejercicio">✏️ Ejercicio</a>
+</nav>
+
+<main>
+<div class="nivel-badge">🚀 Nivel 17 — Arranque y Servicios</div>
+
+
+<!-- SECUENCIA COMPLETA -->
+<section class="module" id="secuencia">
+  <div class="module-header">
+    <div class="module-icon">🗺️</div>
+    <div>
+      <div class="module-title">La secuencia completa de arranque</div>
+      <div class="module-sub">Del botón de encendido al escritorio listo — 6 etapas bien diferenciadas</div>
+    </div>
+  </div>
+
+  <p>Cada vez que enciendes tu equipo Linux ocurre una secuencia precisa y ordenada de 6 etapas. Entenderla te permite diagnosticar dónde falla el sistema cuando no arranca y configurar el comportamiento del inicio.</p>
+
+  <div class="analogy">
+    <h4>🏗️ Analogía — Abrir una empresa cada mañana</h4>
+    <p>El arranque de Linux es como abrir una empresa cada mañana: el <strong>vigilante</strong> (UEFI) verifica que el edificio está en buen estado y abre la puerta principal. El <strong>portero</strong> (GRUB) pregunta a qué planta vas (qué SO arrancar). El <strong>ascensor</strong> (kernel + initrd) te sube a la planta correcta con el equipamiento mínimo. El <strong>director de operaciones</strong> (systemd) abre todas las oficinas en el orden correcto. Los <strong>empleados</strong> (servicios) van llegando y ocupando sus puestos. Finalmente el <strong>recepcionista</strong> (display manager) recibe a los usuarios.</p>
+  </div>
+
+  <div class="boot-seq">
+    <div class="bs-step s1">
+      <div class="bs-num">1</div>
+      <div class="bs-icon">🔩</div>
+      <div><div class="bs-label">UEFI / BIOS — firmware del hardware</div>
+      <div class="bs-desc">La CPU arranca y ejecuta el firmware de la placa base. Hace el POST (Power-On Self Test), inicializa RAM, detecta dispositivos y busca el bootloader en el disco. UEFI es el moderno, BIOS el clásico.</div></div>
+    </div>
+    <div class="bs-step s2">
+      <div class="bs-num">2</div>
+      <div class="bs-icon">🥾</div>
+      <div><div class="bs-label">GRUB — el gestor de arranque</div>
+      <div class="bs-desc">UEFI carga GRUB desde la partición EFI. GRUB muestra el menú (si hay varios SO), carga el kernel de Linux y el initrd en RAM, y transfiere el control al kernel.</div></div>
+    </div>
+    <div class="bs-step s3">
+      <div class="bs-num">3</div>
+      <div class="bs-icon">🐧</div>
+      <div><div class="bs-label">Kernel Linux — el núcleo toma el control</div>
+      <div class="bs-desc">El kernel se descomprime, detecta el hardware, carga los drivers esenciales, monta el initrd (un sistema de archivos temporal en RAM) y arranca el proceso PID 1.</div></div>
+    </div>
+    <div class="bs-step s4">
+      <div class="bs-num">4</div>
+      <div class="bs-icon">⚙️</div>
+      <div><div class="bs-label">systemd — PID 1, el director de todo</div>
+      <div class="bs-desc">systemd es el primer proceso de usuario. Lee sus units, calcula el orden y las dependencias entre servicios, y los arranca en paralelo donde puede. Monta el sistema de archivos raíz real.</div></div>
+    </div>
+    <div class="bs-step s5">
+      <div class="bs-num">5</div>
+      <div class="bs-icon">🛠️</div>
+      <div><div class="bs-label">Servicios — el sistema cobra vida</div>
+      <div class="bs-desc">systemd arranca los servicios en el orden correcto: red (NetworkManager), audio (PipeWire), Bluetooth, impresoras, base de datos… Cada servicio tiene sus dependencias declaradas.</div></div>
+    </div>
+    <div class="bs-step s6">
+      <div class="bs-num">6</div>
+      <div class="bs-icon">🖥️</div>
+      <div><div class="bs-label">Display Manager — la pantalla de login</div>
+      <div class="bs-desc">GDM (GNOME), SDDM (KDE) o LightDM muestra la pantalla de inicio de sesión. Al autenticarte, lanza la sesión del escritorio (GNOME Shell, Plasma, etc.).</div></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- UEFI / BIOS -->
+<section class="module" id="uefi">
+  <div class="module-header">
+    <div class="module-icon">🔩</div>
+    <div>
+      <div class="module-title">UEFI y BIOS — el firmware de la placa base</div>
+      <div class="module-sub">Lo primero que ejecuta la CPU — antes de cualquier sistema operativo</div>
+    </div>
+  </div>
+
+  <p>El <strong>firmware</strong> es software grabado en un chip de la placa base que se ejecuta antes que cualquier cosa en el disco. Tiene dos generaciones: el clásico <strong>BIOS</strong> (desde los años 80) y el moderno <strong>UEFI</strong> (desde 2005), que es el estándar actual.</p>
+
+  <table class="tbl">
+    <thead><tr><th>Característica</th><th>BIOS (Legacy)</th><th>UEFI (Moderno)</th></tr></thead>
+    <tbody>
+      <tr><td>Año</td><td>1975 — IBM PC original</td><td>2005+ — Intel EFI → UEFI Forum</td></tr>
+      <tr><td>Interfaz</td><td>Texto, solo teclado</td><td>Gráfica, ratón, color, 64-bit</td></tr>
+      <tr><td>Tabla de particiones</td><td>MBR (máx. 2 TB, 4 primarias)</td><td>GPT (máx. 9.4 ZB, 128 particiones)</td></tr>
+      <tr><td>Partición de boot</td><td>MBR en los primeros 512 bytes</td><td>Partición ESP (EFI System Partition) FAT32</td></tr>
+      <tr><td>Secure Boot</td><td>No existe</td><td>Verifica firma del bootloader</td></tr>
+      <tr><td>Velocidad de arranque</td><td>Lenta (inicialización secuencial)</td><td>Más rápida (inicialización paralela)</td></tr>
+      <tr><td>Red durante boot</td><td>Muy limitada</td><td>Stack de red completo (PXE avanzado)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">información UEFI desde Linux</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Verificar si el sistema arrancó en modo UEFI o BIOS legacy</span>
+<span class="t-p">$</span> ls /sys/firmware/efi
+<span class="t-o">efivars/  fw_platform_size  runtime  runtime-map  systab  vars</span>
+<span class="t-h"># Si existe /sys/firmware/efi → UEFI. Si no existe → BIOS legacy</span>
+
+<span class="t-h"># Ver las entradas de arranque UEFI</span>
+<span class="t-p">$</span> sudo efibootmgr
+<span class="t-o">BootCurrent: 0001</span>
+<span class="t-o">BootOrder: 0001,0000,0002</span>
+<span class="t-o">Boot0000* Windows Boot Manager</span>
+<span class="t-o">Boot0001* ubuntu</span>
+<span class="t-o">Boot0002* UEFI: USB SanDisk</span>
+
+<span class="t-h"># Ver la partición EFI montada</span>
+<span class="t-p">$</span> ls /boot/efi/EFI/
+<span class="t-o">BOOT/  ubuntu/  Microsoft/</span>
+
+<span class="t-h"># Ver los archivos del bootloader</span>
+<span class="t-p">$</span> ls /boot/efi/EFI/ubuntu/
+<span class="t-o">grubx64.efi  shimx64.efi  mmx64.efi  BOOTX64.CSV</span>
+    </div>
+  </div>
+
+  <div class="note">
+    <h4>📌 Secure Boot y Linux</h4>
+    <p>Secure Boot es una función de UEFI que verifica que el bootloader esté firmado digitalmente antes de ejecutarlo. Ubuntu y Fedora incluyen un shim (shimx64.efi) firmado por Microsoft que actúa de intermediario, permitiendo arrancar con Secure Boot activado. Si tienes problemas instalando Linux, desactivar Secure Boot en la UEFI suele resolver el conflicto — aunque es más seguro dejarlo activado si el sistema lo soporta.</p>
+  </div>
+</section>
+
+
+<!-- GRUB -->
+<section class="module" id="grub">
+  <div class="module-header">
+    <div class="module-icon">🥾</div>
+    <div>
+      <div class="module-title">GRUB — el gestor de arranque</div>
+      <div class="module-sub">El menú que aparece antes de que Linux cargue — y cómo configurarlo</div>
+    </div>
+  </div>
+
+  <p><strong>GRUB</strong> (GRand Unified Bootloader) es el gestor de arranque más usado en Linux. Es lo que muestra el menú con las opciones de SO, carga el kernel y le pasa parámetros de configuración. GRUB 2 es la versión actual.</p>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">GRUB — configuración y gestión</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># El archivo de configuración principal de GRUB</span>
+<span class="t-p">$</span> cat /etc/default/grub
+<span class="t-o">GRUB_DEFAULT=0</span>
+<span class="t-o">GRUB_TIMEOUT=5</span>
+<span class="t-o">GRUB_TIMEOUT_STYLE=hidden</span>
+<span class="t-o">GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"</span>
+<span class="t-o">GRUB_CMDLINE_LINUX=""</span>
+
+<span class="t-h"># Cambiar timeout del menú GRUB (en segundos)</span>
+<span class="t-h"># Editar /etc/default/grub:</span>
+<span class="t-h"># GRUB_TIMEOUT=10           → espera 10 segundos</span>
+<span class="t-h"># GRUB_TIMEOUT_STYLE=menu   → mostrar siempre el menú</span>
+
+<span class="t-h"># Aplicar cambios — SIEMPRE ejecutar después de editar /etc/default/grub</span>
+<span class="t-p">$</span> sudo update-grub
+<span class="t-o">Generating grub configuration file ...</span>
+<span class="t-o">Found linux image: /boot/vmlinuz-6.8.0-45-generic</span>
+<span class="t-o">Found initrd image: /boot/initrd.img-6.8.0-45-generic</span>
+<span class="t-o">Found Windows Boot Manager on /dev/nvme0n1p1</span>
+<span class="t-o">done</span>
+
+<span class="t-h"># Ver los kernels disponibles para arrancar</span>
+<span class="t-p">$</span> ls /boot/vmlinuz*
+<span class="t-o">/boot/vmlinuz-6.8.0-45-generic  /boot/vmlinuz-6.8.0-40-generic</span>
+
+<span class="t-h"># Ver los parámetros con los que arrancó el kernel actual</span>
+<span class="t-p">$</span> cat /proc/cmdline
+<span class="t-o">BOOT_IMAGE=/vmlinuz-6.8.0-45-generic root=/dev/nvme0n1p2 ro quiet splash</span>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Modo recovery desde GRUB</h4>
+    <p>Si Linux no arranca, mantén pulsado <strong>Shift</strong> (BIOS) o <strong>Escape</strong> (UEFI) durante el inicio para forzar la aparición del menú GRUB. Desde ahí puedes seleccionar <em>Advanced options for Ubuntu → recovery mode</em>. El modo recovery arranca el sistema con el mínimo indispensable y te da acceso a herramientas de reparación: comprobar el sistema de archivos, reparar el grub, resetear contraseñas o acceder a una shell de root.</p>
+  </div>
+</section>
+
+
+<!-- KERNEL + INITRD -->
+<section class="module" id="kernel">
+  <div class="module-header">
+    <div class="module-icon">🐧</div>
+    <div>
+      <div class="module-title">Kernel + initrd — el arranque real de Linux</div>
+      <div class="module-sub">Cómo el kernel se descomprime, detecta hardware y monta el sistema de archivos</div>
+    </div>
+  </div>
+
+  <p>GRUB carga dos archivos en RAM: el <strong>kernel</strong> (vmlinuz) comprimido y el <strong>initrd</strong> (Initial RAM Disk), un sistema de archivos temporal mínimo. Juntos permiten al kernel arrancar sin acceder aún al disco real.</p>
+
+  <div class="diagram">
+<span class="d-m"># Los archivos de arranque en /boot/</span>
+
+/boot/
+├── <span class="d-r">vmlinuz-6.8.0-45-generic</span>   ← el kernel comprimido (virt-mem linux zip)
+├── <span class="d-y">initrd.img-6.8.0-45-generic</span> ← initramfs — sistema de archivos temporal
+├── <span class="d-g">config-6.8.0-45-generic</span>     ← opciones con las que se compiló el kernel
+├── <span class="d-b">System.map-6.8.0-45-generic</span> ← tabla de símbolos del kernel (debugging)
+└── <span class="d-m">grub/</span>                        ← configuración y archivos de GRUB
+
+<span class="d-m"># Secuencia detallada kernel + initrd:</span>
+
+1. GRUB carga <span class="d-r">vmlinuz</span> + <span class="d-y">initrd</span> en RAM
+2. Kernel se descomprime y toma control de la CPU
+3. Kernel inicializa subsistemas: memoria, scheduler, drivers básicos
+4. Kernel monta el <span class="d-y">initrd</span> como sistema de archivos temporal (/)
+5. initrd contiene los drivers para acceder al disco real
+6. Con esos drivers, kernel monta el sistema de archivos raíz <span class="d-r">real</span> (/dev/nvme0n1p2)
+7. Kernel lanza <span class="d-g">/sbin/init</span> (que es systemd) — PID 1
+8. initrd se desmonta — el sistema raíz real toma el control</div>
+
+  <div class="concept">
+    <h4>💡 ¿Por qué existe el initrd?</h4>
+    <p>El kernel en disco no puede incluir drivers para todos los sistemas de archivos y controladoras de disco del mundo — sería enorme. El initrd resuelve este huevo-gallina: contiene los drivers mínimos para que el kernel pueda acceder al disco, donde están los drivers completos. Es un sistema de archivos bootstrap — existe solo para arrancar el sistema real.</p>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">información del kernel en ejecución</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Ver la versión del kernel en ejecución</span>
+<span class="t-p">$</span> uname -r
+<span class="t-o">6.8.0-45-generic</span>
+
+<span class="t-h"># Información completa del kernel</span>
+<span class="t-p">$</span> uname -a
+<span class="t-o">Linux ubuntu 6.8.0-45-generic #45~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC x86_64 GNU/Linux</span>
+
+<span class="t-h"># Ver los parámetros de arranque del kernel</span>
+<span class="t-p">$</span> cat /proc/cmdline
+<span class="t-o">BOOT_IMAGE=/boot/vmlinuz-6.8.0-45-generic root=UUID=a1b2c3d4 ro quiet splash</span>
+
+<span class="t-h"># Ver los módulos del kernel cargados</span>
+<span class="t-p">$</span> lsmod | wc -l
+<span class="t-o">89</span>
+<span class="t-p">$</span> lsmod | grep nvidia   <span class="t-h"># ver si el driver NVIDIA está cargado</span>
+
+<span class="t-h"># Cargar y descargar módulos del kernel manualmente</span>
+<span class="t-p">$</span> sudo modprobe bluetooth    <span class="t-h"># cargar módulo bluetooth</span>
+<span class="t-p">$</span> sudo rmmod bluetooth       <span class="t-h"># descargar módulo</span>
+
+<span class="t-h"># Ver los mensajes del kernel durante el arranque</span>
+<span class="t-p">$</span> dmesg | head -50
+<span class="t-p">$</span> dmesg | grep -i error
+<span class="t-p">$</span> dmesg --follow             <span class="t-h"># modo live — muestra mensajes en tiempo real</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- SYSTEMD -->
+<section class="module" id="systemd">
+  <div class="module-header">
+    <div class="module-icon">⚙️</div>
+    <div>
+      <div class="module-title">systemd — PID 1, el director de operaciones</div>
+      <div class="module-sub">El sistema de init moderno que gestiona el arranque y todos los servicios</div>
+    </div>
+  </div>
+
+  <p><strong>systemd</strong> es el sistema de init más usado en Linux moderno (Ubuntu, Fedora, Debian, Arch…). Es el PID 1 — el primer proceso de usuario que lanza el kernel. Se encarga de arrancar todos los servicios, gestionar el sistema de archivos, los sockets, los timers y los logs.</p>
+
+  <div class="analogy">
+    <h4>🎼 Analogía — El director de orquesta</h4>
+    <p>systemd es el <strong>director de orquesta</strong>. Tiene la partitura completa (sus archivos de configuración llamados units). Sabe qué músico (servicio) debe tocar antes que otro (dependencias). Puede hacer que varios toquen al mismo tiempo si no dependen entre sí (arranque paralelo). Si un músico falla, decide si parar la obra o continuar. Y si alguien abandona el escenario, puede reemplazarlo automáticamente (restart on failure).</p>
+  </div>
+
+  <div class="diagram">
+<span class="d-m"># systemd targets — como los "runlevels" del viejo init</span>
+
+<span class="d-y">poweroff.target</span>      → apagar el sistema
+<span class="d-y">rescue.target</span>        → modo rescate (shell de root, mínimo de servicios)
+<span class="d-y">multi-user.target</span>    → sistema multiusuario sin escritorio (servidores)
+<span class="d-y">graphical.target</span>     → sistema completo con escritorio (desktops) ← el habitual
+<span class="d-y">reboot.target</span>        → reiniciar el sistema
+<span class="d-y">emergency.target</span>     → emergencia — solo la shell root, sin nada más
+
+<span class="d-m"># Ver el target activo</span>
+<span class="t-p">$</span> systemctl get-default
+<span class="t-o">graphical.target</span>
+
+<span class="d-m"># Cambiar el target por defecto (útil en servidores)</span>
+<span class="t-p">$</span> sudo systemctl set-default multi-user.target</div>
+</section>
+
+
+<!-- UNITS -->
+<section class="module" id="units">
+  <div class="module-header">
+    <div class="module-icon">📄</div>
+    <div>
+      <div class="module-title">Unit files — los archivos de configuración de systemd</div>
+      <div class="module-sub">Cómo se define un servicio para que systemd lo gestione</div>
+    </div>
+  </div>
+
+  <p>Todo en systemd se describe mediante <strong>unit files</strong> — archivos de texto con formato INI que definen servicios, sockets, timers, dispositivos y más. Los encontrarás en <code>/lib/systemd/system/</code> (del sistema) y <code>/etc/systemd/system/</code> (personalizados).</p>
+
+  <div class="unit-sections">
+    <div class="us-row s-unit">
+      <div class="us-sec">[Unit]</div>
+      <div class="us-desc">Descripción del servicio, dependencias (After=, Requires=, Wants=) y condiciones de arranque.</div>
+    </div>
+    <div class="us-row s-service">
+      <div class="us-sec">[Service]</div>
+      <div class="us-desc">Cómo ejecutar el servicio: tipo (simple, forking, oneshot…), usuario, comando a ejecutar, política de reinicio.</div>
+    </div>
+    <div class="us-row s-install">
+      <div class="us-sec">[Install]</div>
+      <div class="us-desc">En qué target debe activarse este servicio. WantedBy=multi-user.target es lo más común.</div>
+    </div>
+  </div>
+
+  <div class="code-wrap">
+    <div class="code-block"><span class="cc"># /etc/systemd/system/mi-app.service</span>
+<span class="cc"># Ejemplo de unit file para una aplicación web</span>
+
+[<span class="ct">Unit</span>]
+<span class="cv">Description</span>=<span class="cs">Mi aplicación web Node.js</span>
+<span class="cv">After</span>=<span class="cs">network.target</span>          <span class="cc"># arrancar después de que la red esté lista</span>
+<span class="cv">Wants</span>=<span class="cs">network-online.target</span>
+
+[<span class="ct">Service</span>]
+<span class="cv">Type</span>=<span class="cs">simple</span>
+<span class="cv">User</span>=<span class="cs">hugo</span>                      <span class="cc"># ejecutar como usuario hugo, no como root</span>
+<span class="cv">WorkingDirectory</span>=<span class="cs">/home/hugo/mi-app</span>
+<span class="cv">ExecStart</span>=<span class="cs">/usr/bin/node server.js</span>
+<span class="cv">Restart</span>=<span class="cs">always</span>               <span class="cc"># reiniciar si el proceso cae</span>
+<span class="cv">RestartSec</span>=<span class="cs">5</span>                  <span class="cc"># esperar 5s antes de reintentar</span>
+<span class="cv">StandardOutput</span>=<span class="cs">journal</span>       <span class="cc"># logs → journald</span>
+<span class="cv">StandardError</span>=<span class="cs">journal</span>
+<span class="cv">Environment</span>=<span class="cs">NODE_ENV=production PORT=3000</span>
+
+[<span class="ct">Install</span>]
+<span class="cv">WantedBy</span>=<span class="cs">multi-user.target</span>    <span class="cc"># activar en arranque normal</span></div>
+    <div class="lang-tag">SYSTEMD UNIT</div>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">activar un unit file personalizado</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># 1. Crear el archivo de unit</span>
+<span class="t-p">$</span> sudo nano /etc/systemd/system/mi-app.service
+
+<span class="t-h"># 2. Recargar systemd para que lea el nuevo archivo</span>
+<span class="t-p">$</span> sudo systemctl daemon-reload
+
+<span class="t-h"># 3. Habilitar el servicio (lo añade al arranque automático)</span>
+<span class="t-p">$</span> sudo systemctl enable mi-app.service
+
+<span class="t-h"># 4. Iniciarlo ahora mismo</span>
+<span class="t-p">$</span> sudo systemctl start mi-app.service
+
+<span class="t-h"># 5. Verificar que corre correctamente</span>
+<span class="t-p">$</span> systemctl status mi-app.service
+    </div>
+  </div>
+</section>
+
+
+<!-- GESTIÓN DE SERVICIOS -->
+<section class="module" id="servicios">
+  <div class="module-header">
+    <div class="module-icon">🛠️</div>
+    <div>
+      <div class="module-title">systemctl — gestionar servicios en el día a día</div>
+      <div class="module-sub">Los comandos que más usarás para controlar servicios del sistema</div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">systemctl — todos los comandos esenciales</span>
+    </div>
+    <div class="term-body">
+<span class="t-h">## ESTADO E INFORMACIÓN</span>
+<span class="t-p">$</span> systemctl status nginx           <span class="t-h"># estado detallado + últimas líneas de log</span>
+<span class="t-p">$</span> systemctl is-active nginx        <span class="t-h"># "active" o "inactive"</span>
+<span class="t-p">$</span> systemctl is-enabled nginx       <span class="t-h"># "enabled" o "disabled"</span>
+<span class="t-p">$</span> systemctl list-units --type=service --state=running  <span class="t-h"># servicios activos</span>
+<span class="t-p">$</span> systemctl list-unit-files        <span class="t-h"># todos los unit files y su estado</span>
+
+<span class="t-h">## CONTROL BÁSICO</span>
+<span class="t-p">$</span> sudo systemctl start nginx       <span class="t-h"># iniciar</span>
+<span class="t-p">$</span> sudo systemctl stop nginx        <span class="t-h"># detener</span>
+<span class="t-p">$</span> sudo systemctl restart nginx     <span class="t-h"># reiniciar (para + inicia)</span>
+<span class="t-p">$</span> sudo systemctl reload nginx      <span class="t-h"># recargar config sin reiniciar</span>
+<span class="t-p">$</span> sudo systemctl reload-or-restart nginx  <span class="t-h"># recarga si puede, sino reinicia</span>
+
+<span class="t-h">## ARRANQUE AUTOMÁTICO</span>
+<span class="t-p">$</span> sudo systemctl enable nginx      <span class="t-h"># activar en el arranque del sistema</span>
+<span class="t-p">$</span> sudo systemctl disable nginx     <span class="t-h"># desactivar del arranque</span>
+<span class="t-p">$</span> sudo systemctl enable --now nginx <span class="t-h"># habilitar E iniciar ahora (atajo)</span>
+<span class="t-p">$</span> sudo systemctl mask nginx        <span class="t-h"># deshabilitar completamente (no puede iniciar)</span>
+<span class="t-p">$</span> sudo systemctl unmask nginx      <span class="t-h"># deshacer mask</span>
+
+<span class="t-h">## SISTEMA</span>
+<span class="t-p">$</span> sudo systemctl reboot            <span class="t-h"># reiniciar el sistema</span>
+<span class="t-p">$</span> sudo systemctl poweroff          <span class="t-h"># apagar</span>
+<span class="t-p">$</span> sudo systemctl suspend           <span class="t-h"># suspender</span>
+<span class="t-p">$</span> sudo systemctl hibernate         <span class="t-h"># hibernar</span>
+    </div>
+  </div>
+
+  <div class="cmd-grid">
+    <div class="cmd-card">
+      <div class="cmd-title">systemctl status</div>
+      <div class="cmd-desc">Muestra estado, PID, memoria usada, últimas líneas del log y si está habilitado para el arranque.</div>
+      <span class="cmd-ex">systemctl status ssh
+systemctl status nginx.service</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">enable vs start</div>
+      <div class="cmd-desc">enable = arranque automático en el boot (persistente). start = iniciar ahora mismo (solo esta vez).</div>
+      <span class="cmd-ex">sudo systemctl enable --now ssh
+# equivale a: enable + start</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">daemon-reload</div>
+      <div class="cmd-desc">Obligatorio después de crear o modificar un unit file. Recarga systemd sin reiniciar nada.</div>
+      <span class="cmd-ex">sudo systemctl daemon-reload</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">list-dependencies</div>
+      <div class="cmd-desc">Ver el árbol de dependencias de un servicio — qué necesita y qué necesita de él.</div>
+      <span class="cmd-ex">systemctl list-dependencies nginx
+systemctl list-dependencies --reverse ssh</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- JOURNALCTL -->
+<section class="module" id="journalctl">
+  <div class="module-header">
+    <div class="module-icon">📋</div>
+    <div>
+      <div class="module-title">journalctl — el sistema de logs de systemd</div>
+      <div class="module-sub">Consultar, filtrar y seguir los logs del sistema y de cada servicio</div>
+    </div>
+  </div>
+
+  <p><strong>journalctl</strong> es la herramienta para leer el journal de systemd — un log centralizado y estructurado que recoge mensajes del kernel, del sistema y de todos los servicios. Sustituye a los archivos de log dispersos de antes.</p>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">journalctl — todos los filtros importantes</span>
+    </div>
+    <div class="term-body">
+<span class="t-h">## VER LOGS</span>
+<span class="t-p">$</span> journalctl                      <span class="t-h"># todos los logs (paginado con less)</span>
+<span class="t-p">$</span> journalctl -n 50                <span class="t-h"># últimas 50 líneas</span>
+<span class="t-p">$</span> journalctl -f                   <span class="t-h"># follow — ver logs en tiempo real</span>
+<span class="t-p">$</span> journalctl -b                   <span class="t-h"># solo logs del boot actual</span>
+<span class="t-p">$</span> journalctl -b -1                <span class="t-h"># logs del boot anterior</span>
+
+<span class="t-h">## FILTRAR POR SERVICIO</span>
+<span class="t-p">$</span> journalctl -u nginx             <span class="t-h"># logs de nginx</span>
+<span class="t-p">$</span> journalctl -u nginx -f          <span class="t-h"># logs de nginx en tiempo real</span>
+<span class="t-p">$</span> journalctl -u nginx -n 100      <span class="t-h"># últimas 100 líneas de nginx</span>
+<span class="t-p">$</span> journalctl -u ssh -u nginx      <span class="t-h"># logs de ssh Y nginx juntos</span>
+
+<span class="t-h">## FILTRAR POR TIEMPO</span>
+<span class="t-p">$</span> journalctl --since "2025-01-15 10:00:00"
+<span class="t-p">$</span> journalctl --since "1 hour ago"
+<span class="t-p">$</span> journalctl --since yesterday --until today
+<span class="t-p">$</span> journalctl --since "2025-01-15" --until "2025-01-16"
+
+<span class="t-h">## FILTRAR POR PRIORIDAD (NIVEL)</span>
+<span class="t-p">$</span> journalctl -p err               <span class="t-h"># solo errores (err, crit, alert, emerg)</span>
+<span class="t-p">$</span> journalctl -p warning           <span class="t-h"># advertencias y superiores</span>
+<span class="t-p">$</span> journalctl -b -p err            <span class="t-h"># errores del boot actual</span>
+
+<span class="t-h">## FILTRAR POR KERNEL</span>
+<span class="t-p">$</span> journalctl -k                   <span class="t-h"># solo mensajes del kernel (dmesg)</span>
+<span class="t-p">$</span> journalctl -k --since "10 min ago"
+
+<span class="t-h">## GESTIÓN DEL JOURNAL</span>
+<span class="t-p">$</span> journalctl --disk-usage         <span class="t-h"># cuánto espacio usan los logs</span>
+<span class="t-p">$</span> sudo journalctl --vacuum-size=500M  <span class="t-h"># reducir logs a máx 500 MB</span>
+<span class="t-p">$</span> sudo journalctl --vacuum-time=30d  <span class="t-h"># eliminar logs de más de 30 días</span>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 El flujo de diagnóstico con journalctl</h4>
+    <p>Cuando un servicio falla, el flujo de diagnóstico es: primero <code>systemctl status nombre</code> para ver el estado y las últimas líneas. Si necesitas más detalle, <code>journalctl -u nombre -n 100</code> para ver el historial. Si el sistema no arrancó bien, <code>journalctl -b -p err</code> para ver los errores del último boot. Y <code>journalctl -f -u nombre</code> para seguir los logs en tiempo real mientras reproduces el problema.</p>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Nivel</th><th>Número</th><th>Significado</th></tr></thead>
+    <tbody>
+      <tr><td>emerg</td><td>0</td><td>Sistema inutilizable. Fallo catastrófico.</td></tr>
+      <tr><td>alert</td><td>1</td><td>Acción inmediata necesaria.</td></tr>
+      <tr><td>crit</td><td>2</td><td>Condición crítica.</td></tr>
+      <tr><td>err</td><td>3</td><td>Error. El servicio puede seguir corriendo pero con problemas.</td></tr>
+      <tr><td>warning</td><td>4</td><td>Advertencia. Algo inesperado pero no necesariamente un error.</td></tr>
+      <tr><td>notice</td><td>5</td><td>Evento normal pero significativo.</td></tr>
+      <tr><td>info</td><td>6</td><td>Información general del funcionamiento.</td></tr>
+      <tr><td>debug</td><td>7</td><td>Información detallada para depuración.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- EJERCICIO -->
+<div class="ejercicio" id="ejercicio">
+  <div class="ej-hd">
+    ✏️ Ejercicio del Nivel 17
+    <span class="ej-badge">Sistema</span>
+  </div>
+  <p>Explora el arranque y los servicios de tu sistema:</p>
+  <ol>
+    <li><strong>UEFI:</strong> ejecuta <code>ls /sys/firmware/efi 2>/dev/null && echo "UEFI" || echo "BIOS legacy"</code>. ¿En qué modo arrancó tu sistema?</li>
+    <li><strong>Kernel:</strong> ejecuta <code>uname -r</code> y <code>cat /proc/cmdline</code>. ¿Qué versión del kernel tienes? ¿Cuáles son los parámetros de arranque?</li>
+    <li><strong>systemd targets:</strong> ejecuta <code>systemctl get-default</code>. ¿Qué target está activo?</li>
+    <li><strong>Servicios activos:</strong> ejecuta <code>systemctl list-units --type=service --state=running | head -20</code>. ¿Cuántos servicios están corriendo?</li>
+    <li><strong>Estado de un servicio:</strong> ejecuta <code>systemctl status ssh</code> (o <code>sshd</code> en Fedora). ¿Está activo? ¿Habilitado para el arranque?</li>
+    <li><strong>journalctl:</strong> ejecuta <code>journalctl -b -p err</code>. ¿Hay errores en el arranque actual? Luego <code>journalctl -u NetworkManager -n 30</code>.</li>
+    <li><strong>Crear un servicio:</strong> escribe el unit file de ejemplo de la sección Units en <code>/etc/systemd/system/prueba.service</code>, ejecuta <code>sudo systemctl daemon-reload</code> y <code>systemctl status prueba.service</code>.</li>
+  </ol>
+  <p><strong>Análisis de arranque:</strong> ejecuta <code>systemd-analyze</code> para ver cuánto tardó el último arranque, y <code>systemd-analyze blame | head -15</code> para ver qué servicios tardaron más.</p>
+</div>
+
+<!-- RESUMEN -->
+<div class="resumen">
+  <h3>🟥 Resumen del Nivel 17</h3>
+  <ul>
+    <li>Secuencia de arranque: <strong>UEFI → GRUB → Kernel+initrd → systemd → Servicios → Display Manager</strong>.</li>
+    <li><strong>UEFI</strong> es el firmware moderno (reemplaza BIOS), usa partición ESP, soporta Secure Boot y GPT.</li>
+    <li><strong>GRUB</strong> muestra el menú de arranque, carga el kernel. Configuración en <code>/etc/default/grub</code>. Aplicar cambios con <code>update-grub</code>.</li>
+    <li>El kernel carga el <strong>initrd</strong> (RAM disk temporal) para acceder al disco real, luego lanza systemd como PID 1.</li>
+    <li><strong>systemd</strong> gestiona el arranque paralelo de servicios mediante <strong>unit files</strong> (.service, .socket, .timer…).</li>
+    <li>Un unit file tiene secciones <code>[Unit]</code> (descripción/deps), <code>[Service]</code> (cómo ejecutar) y <code>[Install]</code> (cuándo activar).</li>
+    <li><code>systemctl start/stop/restart/status/enable/disable nombre</code> — la interfaz diaria con los servicios.</li>
+    <li><code>systemctl daemon-reload</code> — siempre después de crear o modificar un unit file.</li>
+    <li><strong>journalctl</strong> — logs centralizados. <code>-u servicio</code> filtra por servicio, <code>-b</code> por boot, <code>-p err</code> por nivel, <code>-f</code> en tiempo real.</li>
+    <li><code>systemd-analyze blame</code> — identifica qué servicios ralentizan el arranque.</li>
+  </ul>
+</div>
+
+<a class="next-card" href="linux-nivel-18.html">
+  <div>
+    <div class="nc-label">Siguiente → Nivel 18</div>
+    <div class="nc-name">Almacenamiento — discos, particiones, sistemas de archivos, mount y fstab</div>
+  </div>
+  <div class="nc-arrow">→</div>
+</a>
+
+</main>
+
+<footer>
+  Linux desde Cero · Nivel 17 · Arranque y Servicios · Café &lt;/&gt; · Hugo 2025
+</footer>
+
+<script>
+(function(){const s=localStorage.getItem('cafe-theme');const sys=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';const t=s||sys;document.documentElement.setAttribute('data-theme',t);updateUI(t);})();
+function toggleTheme(){const c=document.documentElement.getAttribute('data-theme');const n=c==='light'?'dark':'light';document.documentElement.setAttribute('data-theme',n);localStorage.setItem('cafe-theme',n);updateUI(n);}
+function updateUI(t){const i=document.getElementById('themeIcon');const l=document.getElementById('themeLabel');if(!i||!l)return;i.textContent=t==='dark'?'☀️':'🌙';l.textContent=t==='dark'?'Claro':'Oscuro';}
+</script>
+</body>
+</html>

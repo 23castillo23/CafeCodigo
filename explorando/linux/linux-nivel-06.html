@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux desde Cero · N6 · Familia Debian</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root,[data-theme="light"]{--primary:#c44a2a;--primary-light:#fdf0ec;--primary-mid:rgba(196,74,42,.25);--secondary:#1a7a5a;--secondary-light:#edf7f3;--accent:#b07010;--accent-light:#fdf6e8;--bg:#f7f4ef;--surface:#ffffff;--text:#1a1814;--muted:#8a8480;--border:#e8e4de;--code-bg:#1a1814;--code-text:#e8e4de;--header-bg:#1a1814;--analogy-bg:#fff7ed;--analogy-border:#fde68a;--analogy-text:#78350f;--analogy-head:#92400e;--diagram-bg:#f0f4ff;--diagram-border:#c7d2fe;--note-bg:#f0f4ff;--note-border:#6366f1;--note-head:#4338ca;}
+[data-theme="dark"]{--primary:#ff7a57;--primary-light:rgba(255,122,87,.14);--primary-mid:rgba(255,122,87,.3);--secondary:#3ddc84;--secondary-light:rgba(61,220,132,.12);--accent:#f0c040;--accent-light:rgba(240,192,64,.12);--bg:#0d1117;--surface:#161b22;--text:#c9d8f0;--muted:#5a7090;--border:#21262d;--code-bg:#060a10;--code-text:#c9d8f0;--header-bg:#0a0e14;--analogy-bg:rgba(240,192,64,.07);--analogy-border:rgba(240,192,64,.3);--analogy-text:#e6d4a0;--analogy-head:#f0c040;--diagram-bg:#161b22;--diagram-border:#21262d;--note-bg:rgba(99,102,241,.1);--note-border:#818cf8;--note-head:#818cf8;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;font-size:16px;transition:background .25s,color .25s;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:300;height:45px;transition:background .25s,border-color .25s;}
+.topbar-back{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);text-decoration:none;padding:5px 14px;border:1px solid var(--border);border-radius:999px;transition:all .15s;}
+.topbar-back:hover{color:var(--text);border-color:var(--muted);}
+.topbar-info{font-size:13px;color:var(--muted);}
+.theme-btn{margin-left:auto;background:none;border:1px solid var(--border);border-radius:999px;padding:4px 13px;font-size:13px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:.35rem;transition:all .15s;font-family:'DM Sans',sans-serif;}
+.theme-btn:hover{color:var(--text);border-color:var(--muted);}
+header{background:var(--header-bg);color:#f7f4ef;padding:3rem 2rem 2.25rem;text-align:center;position:relative;overflow:hidden;}
+header::before{content:'N06';position:absolute;font-family:'DM Mono',monospace;font-size:11rem;font-weight:900;color:rgba(255,255,255,.04);right:-1rem;top:-1.5rem;line-height:1;pointer-events:none;}
+.header-eyebrow{display:inline-flex;align-items:center;gap:.5rem;background:rgba(196,74,42,.25);border:1px solid rgba(196,74,42,.45);border-radius:20px;padding:3px 14px;font-size:.78rem;font-weight:700;color:#ffaa88;margin-bottom:.85rem;}
+header h1{font-size:2.5rem;font-weight:800;letter-spacing:-1px;color:#f7f4ef;line-height:1.2;}
+header h1 em{font-style:normal;color:#ff8a6a;}
+header p{font-size:1.05rem;opacity:.8;margin-top:.5rem;max-width:540px;margin-left:auto;margin-right:auto;}
+.header-chips{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-top:.9rem;}
+.header-chip{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:20px;padding:3px 13px;font-size:.76rem;color:rgba(255,255,255,.75);}
+.niveles-nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:45px;z-index:110;display:flex;align-items:center;height:38px;padding:0 1rem;transition:background .25s;}
+.nn-prev,.nn-next{flex-shrink:0;display:flex;align-items:center;gap:.3rem;padding:0 .75rem;height:100%;text-decoration:none;color:var(--muted);font-size:.78rem;font-weight:500;border-right:1px solid var(--border);transition:color .15s;white-space:nowrap;}
+.nn-next{border-right:none;border-left:1px solid var(--border);}
+.nn-prev:hover,.nn-next:hover{color:var(--primary);}
+.nn-list{flex:1;display:flex;align-items:center;justify-content:center;gap:.15rem;overflow-x:auto;padding:0 .5rem;}
+.nn-list::-webkit-scrollbar{display:none;}
+.nn-list a{flex-shrink:0;padding:2px 9px;border-radius:20px;text-decoration:none;font-size:.73rem;font-weight:600;color:var(--muted);font-family:'DM Mono',monospace;transition:color .15s,background .15s;}
+.nn-list a:hover{color:var(--text);background:var(--bg);}
+.nn-list a.activa{background:var(--primary-light);color:var(--primary);}
+.nn-list .sep{color:var(--border);font-size:.7rem;padding:0 1px;flex-shrink:0;pointer-events:none;}
+.sec-nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:83px;z-index:100;display:flex;overflow-x:auto;transition:background .25s;}
+.sec-nav::-webkit-scrollbar{display:none;}
+.sec-nav a{flex-shrink:0;padding:.75rem 1.1rem;text-decoration:none;color:var(--muted);font-size:.82rem;font-weight:500;border-bottom:2px solid transparent;white-space:nowrap;transition:color .2s,border-color .2s;}
+.sec-nav a:hover{color:var(--primary);border-bottom-color:var(--primary);}
+main{max-width:920px;margin:0 auto;padding:2rem 1.5rem;}
+.nivel-badge{display:inline-flex;align-items:center;gap:.5rem;background:var(--primary);color:white;border-radius:20px;padding:5px 16px;font-size:.82rem;font-weight:700;margin-bottom:1.75rem;}
+.module{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;margin-bottom:2.5rem;scroll-margin-top:135px;transition:background .25s,border-color .25s;}
+.module-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border);}
+.module-icon{font-size:1.8rem;flex-shrink:0;}
+.module-title{font-size:1.35rem;font-weight:700;}
+.module-sub{font-size:.85rem;color:var(--muted);margin-top:2px;}
+.module h2{font-size:1.15rem;font-weight:700;margin:1.75rem 0 .75rem;}
+.module p{margin-bottom:.85rem;font-size:.97rem;}
+.module ul,.module ol{padding-left:1.4rem;margin-bottom:.85rem;}
+.module li{margin-bottom:.4rem;font-size:.96rem;}
+.analogy{background:var(--analogy-bg);border:1px solid var(--analogy-border);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0;}
+.analogy h4{color:var(--analogy-head);font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+.analogy p{font-size:.95rem;color:var(--analogy-text);margin:0;}
+.concept,.tip,.warn,.note{border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0;border-left-width:4px;border-left-style:solid;}
+.concept h4,.tip h4,.warn h4,.note h4{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+.concept p,.tip p,.warn p,.note p{font-size:.95rem;margin:0;}
+.tip ul{font-size:.95rem;padding-left:1.2rem;margin-top:.3rem;}
+.concept{background:var(--primary-light);border-color:var(--primary);}
+.concept h4{color:var(--primary);}
+.tip{background:var(--secondary-light);border-color:var(--secondary);}
+.tip h4{color:var(--secondary);}
+.warn{background:var(--primary-light);border-color:var(--primary);}
+.warn h4{color:var(--primary);}
+.note{background:var(--note-bg);border-color:var(--note-border);}
+.note h4{color:var(--note-head);}
+.code-wrap{position:relative;margin:1rem 0;}
+.code-block{background:var(--code-bg);color:var(--code-text);border-radius:10px;padding:1.25rem 1.5rem;font-family:'DM Mono',monospace;font-size:.88rem;line-height:1.85;overflow-x:auto;white-space:pre;}
+.lang-tag{position:absolute;top:.6rem;right:.75rem;background:rgba(255,255,255,.1);color:rgba(255,255,255,.45);font-size:.68rem;padding:2px 8px;border-radius:4px;font-family:sans-serif;font-weight:700;}
+.ct{color:#89B4FA;}.cv{color:#A6E3A1;}.cs{color:#F9E2AF;}.cc{color:#585B70;font-style:italic;}.cn{color:#FAB387;}
+.terminal{background:#0a0e14;border:1px solid #21262d;border-radius:10px;overflow:hidden;margin:1rem 0;}
+.term-bar{background:#161b22;padding:.42rem .85rem;display:flex;align-items:center;gap:.35rem;border-bottom:1px solid #21262d;}
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.dot-r{background:#ff5f57;}.dot-y{background:#ffbd2e;}.dot-g{background:#28c840;}
+.term-label{font-family:'DM Mono',monospace;font-size:.69rem;color:#3a5070;margin-left:.4rem;}
+.term-body{padding:1.1rem 1.3rem;font-family:'DM Mono',monospace;font-size:.85rem;line-height:2.1;color:#c9d8f0;}
+.t-p{color:#3ddc84;}.t-o{color:#5a7090;display:block;}.t-h{color:#253550;font-style:italic;display:block;}
+.diagram{background:var(--diagram-bg);border:1px solid var(--diagram-border);border-radius:12px;padding:1.5rem;margin:1.1rem 0;font-family:'DM Mono',monospace;font-size:.87rem;line-height:2;overflow-x:auto;transition:background .25s,border-color .25s;}
+.d-r{color:var(--primary);font-weight:700;}.d-g{color:var(--secondary);font-weight:700;}.d-y{color:var(--accent);font-weight:700;}.d-b{color:#6366f1;font-weight:700;}.d-m{color:var(--muted);font-style:italic;}
+.tbl{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem;}
+.tbl th{background:var(--primary-light);color:var(--primary);padding:.65rem 1rem;text-align:left;font-weight:600;}
+.tbl td{padding:.65rem 1rem;border-bottom:1px solid var(--border);vertical-align:top;}
+.tbl td:first-child{font-family:'DM Mono',monospace;font-size:.85rem;color:var(--primary);font-weight:600;}
+.tbl tr:hover td{background:var(--bg);}
+
+/* DISTRO CARDS compactas */
+.distro-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem;margin:1rem 0;}
+.distro-card{background:var(--bg);border:1px solid var(--border);border-radius:14px;padding:1.1rem;transition:border-color .2s,background .25s;}
+.distro-card:hover{border-color:var(--primary);}
+.dc-head{display:flex;align-items:center;gap:.65rem;margin-bottom:.5rem;}
+.dc-logo{font-size:1.75rem;flex-shrink:0;}
+.dc-name{font-weight:700;font-size:.97rem;}
+.dc-tag{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--muted);}
+.dc-desc{font-size:.85rem;color:var(--muted);line-height:1.55;}
+
+/* APT FLOW */
+.apt-flow{display:flex;flex-direction:column;gap:4px;margin:1rem 0;}
+.af-step{display:flex;align-items:center;gap:.85rem;padding:.65rem 1rem;border-radius:10px;background:var(--bg);border:1px solid var(--border);font-size:.88rem;transition:background .25s;}
+.af-num{width:28px;height:28px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:.75rem;font-weight:700;flex-shrink:0;}
+.af-arrow{color:var(--muted);font-size:.8rem;flex-shrink:0;}
+
+/* REPOSITORIOS */
+.repo-visual{background:var(--diagram-bg);border:1px solid var(--diagram-border);border-radius:12px;padding:1.5rem;margin:1rem 0;}
+.rv-row{display:flex;align-items:center;gap:.75rem;margin-bottom:.6rem;font-size:.88rem;}
+.rv-icon{font-size:1.2rem;flex-shrink:0;width:28px;text-align:center;}
+.rv-label{font-family:'DM Mono',monospace;font-weight:700;color:var(--primary);min-width:80px;}
+.rv-desc{color:var(--muted);}
+
+/* COMANDO CARDS */
+.cmd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.75rem;margin:1rem 0;}
+.cmd-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1rem;transition:background .25s;}
+.cmd-title{font-family:'DM Mono',monospace;font-size:.82rem;font-weight:700;color:var(--primary);margin-bottom:.3rem;}
+.cmd-desc{font-size:.83rem;color:var(--muted);margin-bottom:.5rem;}
+.cmd-ex{font-family:'DM Mono',monospace;font-size:.8rem;background:var(--code-bg);color:var(--code-text);padding:.45rem .75rem;border-radius:6px;display:block;}
+
+/* RAMAS DEBIAN */
+.branch-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin:1rem 0;}
+@media(max-width:560px){.branch-grid{grid-template-columns:1fr;}}
+.branch-box{border-radius:12px;padding:1.1rem;border:1px solid var(--border);text-align:center;}
+.branch-box.stable{background:var(--secondary-light);border-color:rgba(26,122,90,.3);}
+.branch-box.testing{background:var(--accent-light);border-color:rgba(176,112,16,.3);}
+.branch-box.unstable{background:var(--primary-light);border-color:rgba(196,74,42,.3);}
+.bb-name{font-weight:700;font-size:1rem;margin-bottom:.25rem;}
+.bb-codename{font-family:'DM Mono',monospace;font-size:.78rem;margin-bottom:.5rem;}
+.bb-desc{font-size:.82rem;color:var(--muted);line-height:1.5;}
+.branch-box.stable .bb-name{color:var(--secondary);}
+.branch-box.testing .bb-name{color:var(--accent);}
+.branch-box.unstable .bb-name{color:var(--primary);}
+
+/* EJERCICIO */
+.ejercicio{background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:1.5rem;margin:1.5rem 0;}
+[data-theme="dark"] .ejercicio{background:rgba(240,192,64,.06);border-color:rgba(240,192,64,.22);}
+.ej-hd{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;font-weight:700;font-size:1rem;color:#78350F;flex-wrap:wrap;}
+[data-theme="dark"] .ej-hd{color:#f0c040;}
+.ej-badge{background:var(--accent);color:#fff;font-size:.68rem;padding:2px 9px;border-radius:20px;font-weight:700;text-transform:uppercase;}
+.ejercicio ol{padding-left:1.4rem;}
+.ejercicio ol li{margin-bottom:.6rem;font-size:.95rem;}
+.ejercicio p{font-size:.95rem;margin-bottom:.6rem;}
+.resumen{background:var(--primary-light);border:1px solid var(--primary-mid);border-radius:14px;padding:1.6rem;margin-bottom:1.5rem;}
+.resumen h3{color:var(--primary);margin-bottom:.75rem;font-size:1.05rem;}
+.resumen ul{padding-left:1.4rem;}
+.resumen li{font-size:.92rem;margin-bottom:.45rem;}
+.next-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem 1.5rem;display:flex;align-items:center;gap:1rem;text-decoration:none;transition:border-color .2s;margin-bottom:2rem;}
+.next-card:hover{border-color:var(--primary);}
+.nc-label{font-size:.72rem;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.2rem;}
+.nc-name{font-weight:700;color:var(--text);font-size:.97rem;}
+.nc-arrow{font-size:1.4rem;color:var(--primary);margin-left:auto;}
+code{font-family:'DM Mono',monospace;background:#f0ece6;color:var(--primary);padding:1px 5px;border-radius:4px;font-size:.9em;}
+[data-theme="dark"] code{background:#1c2128;}
+strong{font-weight:700;}
+p{margin-bottom:.8rem;}ul,ol{padding-left:1.4rem;margin-bottom:.8rem;}li{margin-bottom:.4rem;font-size:.96rem;}
+h2{font-size:1.2rem;font-weight:700;margin:1.75rem 0 .75rem;}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.85rem;border-top:1px solid var(--border);margin-top:1rem;background:var(--bg);transition:background .25s;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="topbar-back" href="../index.html">← Café &lt;/&gt;</a>
+  <span class="topbar-info">🐧 Linux desde Cero · Nivel 6 de 23</span>
+  <button class="theme-btn" onclick="toggleTheme()">
+    <span id="themeIcon">🌙</span><span id="themeLabel">Oscuro</span>
+  </button>
+</div>
+
+<header>
+  <div class="header-eyebrow">📦 Nivel 6 — Familias de distros</div>
+  <h1>Familia <em>Debian</em></h1>
+  <p>Ubuntu, Linux Mint, APT en profundidad, repositorios, paquetes .deb y las ramas de Debian</p>
+  <div class="header-chips">
+    <span class="header-chip">Nivel 6 de 23</span>
+    <span class="header-chip">📦 Distros</span>
+    <span class="header-chip">8 subtemas</span>
+    <span class="header-chip">~25 min</span>
+  </div>
+</header>
+
+<div class="niveles-nav">
+  <a class="nn-prev" href="linux-nivel-05.html">← N5</a>
+  <div class="nn-list">
+    <a href="linux-nivel-01.html">N1</a>
+    <a href="linux-nivel-02.html">N2</a>
+    <a href="linux-nivel-03.html">N3</a>
+    <a href="linux-nivel-04.html">N4</a>
+    <a href="linux-nivel-05.html">N5</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-06.html" class="activa">N6</a>
+    <a href="linux-nivel-07.html">N7</a>
+    <a href="linux-nivel-08.html">N8</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-09.html">N9</a>
+    <a href="linux-nivel-10.html">N10</a>
+    <a href="linux-nivel-11.html">N11</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-12.html">N12</a>
+    <a href="linux-nivel-13.html">N13</a>
+    <a href="linux-nivel-14.html">N14</a>
+    <a href="linux-nivel-15.html">N15</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-16.html">N16</a>
+    <a href="linux-nivel-17.html">N17</a>
+    <a href="linux-nivel-18.html">N18</a>
+    <a href="linux-nivel-19.html">N19</a>
+    <a href="linux-nivel-20.html">N20</a>
+    <a href="linux-nivel-21.html">N21</a>
+    <a href="linux-nivel-22.html">N22</a>
+    <a href="linux-nivel-23.html">N23</a>
+  </div>
+  <a class="nn-next" href="linux-nivel-07.html">N7 →</a>
+</div>
+
+<nav class="sec-nav">
+  <a href="#debian">🌀 Debian</a>
+  <a href="#ramas">🌿 Ramas</a>
+  <a href="#familia">👨‍👩‍👧 La familia</a>
+  <a href="#deb">📦 Paquetes .deb</a>
+  <a href="#repositorios">🗄️ Repositorios</a>
+  <a href="#apt">⚙️ APT a fondo</a>
+  <a href="#comandos">📋 Comandos esenciales</a>
+  <a href="#dpkg">🔩 dpkg</a>
+  <a href="#ejercicio">✏️ Ejercicio</a>
+</nav>
+
+<main>
+<div class="nivel-badge">📦 Nivel 6 — Familia Debian</div>
+
+
+<!-- ═══════════════════════
+     DEBIAN
+═══════════════════════ -->
+<section class="module" id="debian">
+  <div class="module-header">
+    <div class="module-icon">🌀</div>
+    <div>
+      <div class="module-title">Debian — la madre de la familia</div>
+      <div class="module-sub">La distribución más influyente de la historia de Linux</div>
+    </div>
+  </div>
+
+  <p><strong>Debian</strong> nació en 1993 — solo 2 años después del kernel Linux — y se convirtió en la base sobre la que se construyeron cientos de distribuciones, incluyendo la más popular del mundo: Ubuntu. Su filosofía es simple: <strong>estabilidad extrema y software 100% libre</strong>.</p>
+
+  <div class="analogy">
+    <h4>🌳 Analogía — El árbol del que nacen los frutos</h4>
+    <p>Debian es como un árbol centenario que tardó décadas en afianzar sus raíces. Sus frutos (Ubuntu, Mint, Kali…) crecen más rápido y son más coloridos, pero todos sacan su nutrición del mismo tronco sólido. Sin Debian, la mayoría del ecosistema Linux de escritorio no existiría tal como lo conocemos hoy.</p>
+  </div>
+
+  <p>Lo que hace especial a Debian:</p>
+  <ul>
+    <li><strong>Gobernanza democrática</strong> — los desarrolladores votan las decisiones importantes. No hay una empresa detrás.</li>
+    <li><strong>Más de 59,000 paquetes</strong> en sus repositorios — el catálogo más grande de cualquier distro.</li>
+    <li><strong>Multiplataforma</strong> — soporta x86, x64, ARM, MIPS, PowerPC y más arquitecturas que ninguna otra distro.</li>
+    <li><strong>El Social Contract</strong> — un documento que compromete a Debian a permanecer siempre libre y para la comunidad.</li>
+  </ul>
+
+  <div class="note">
+    <h4>📌 ¿Por qué no usamos Debian directamente para aprender?</h4>
+    <p>Debian Stable usa versiones de software muy conservadoras — pueden tener 2–3 años de antigüedad. Para aprender, es más cómodo Ubuntu o Mint que tienen software más reciente y mejor soporte de hardware. Cuando trabajes en servidores de producción, Debian Stable será tu mejor amigo.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     RAMAS DE DEBIAN
+═══════════════════════ -->
+<section class="module" id="ramas">
+  <div class="module-header">
+    <div class="module-icon">🌿</div>
+    <div>
+      <div class="module-title">Las tres ramas de Debian</div>
+      <div class="module-sub">Stable, Testing e Unstable — tres niveles de estabilidad vs novedad</div>
+    </div>
+  </div>
+
+  <p>Debian mantiene tres ramas de desarrollo simultáneas con distintos niveles de madurez del software. Cada paquete entra por <em>Unstable</em>, migra a <em>Testing</em> tras pasar pruebas y llega a <em>Stable</em> solo cuando está completamente probado.</p>
+
+  <div class="branch-grid">
+    <div class="branch-box stable">
+      <div class="bb-name">Stable</div>
+      <div class="bb-codename">Codename: Bookworm (2023)</div>
+      <div class="bb-desc">Software muy probado. Puede tener versiones antiguas pero casi nunca falla. Ideal para servidores. Soporte de 5+ años.</div>
+    </div>
+    <div class="branch-box testing">
+      <div class="bb-name">Testing</div>
+      <div class="bb-codename">Codename: Trixie</div>
+      <div class="bb-desc">Software reciente que pasó pruebas básicas. Buen equilibrio entre novedad y estabilidad. Usada por desarrolladores Debian.</div>
+    </div>
+    <div class="branch-box unstable">
+      <div class="bb-name">Unstable (Sid)</div>
+      <div class="bb-codename">Siempre se llama "Sid"</div>
+      <div class="bb-desc">Las versiones más recientes sin casi pruebas. Puede romperse. Solo para desarrolladores que saben arreglarlo.</div>
+    </div>
+  </div>
+
+  <div class="diagram">
+<span class="d-m"># Flujo de paquetes en Debian:</span>
+
+<span class="d-r">Upstream</span>  →  <span class="d-r">Unstable (Sid)</span>  →  <span class="d-y">Testing (Trixie)</span>  →  <span class="d-g">Stable (Bookworm)</span>
+  autor        entra primero         10 días sin bugs        congelado y probado
+
+<span class="d-m"># Ubuntu toma un snapshot de Debian Testing cada 6 meses</span>
+<span class="d-m"># y lo pule con sus propias herramientas y configuración</span></div>
+
+  <div class="analogy">
+    <h4>🏭 Analogía — La línea de control de calidad</h4>
+    <p>Imagina una fábrica de coches: los prototipos salen del taller (Unstable), pasan por pruebas de choque y rendimiento (Testing) y solo los que superan todos los controles llegan a la sala de ventas (Stable). Ubuntu es como un concesionario que compra los coches en la fase Testing, les pone sus propios acabados y los vende antes de que lleguen a la sala principal de Debian.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     LA FAMILIA DEBIAN
+═══════════════════════ -->
+<section class="module" id="familia">
+  <div class="module-header">
+    <div class="module-icon">👨‍👩‍👧</div>
+    <div>
+      <div class="module-title">La familia Debian — las distros hijas</div>
+      <div class="module-sub">Las distribuciones más usadas del mundo nacen de Debian</div>
+    </div>
+  </div>
+
+  <p>Debian es la base de más de 120 distribuciones activas. Aquí las más relevantes para un estudiante de sistemas:</p>
+
+  <div class="distro-row">
+    <div class="distro-card">
+      <div class="dc-head">
+        <div class="dc-logo">🟠</div>
+        <div><div class="dc-name">Ubuntu</div><div class="dc-tag">Canonical · desde 2004</div></div>
+      </div>
+      <div class="dc-desc">La más popular del mundo. Sale cada 6 meses (versiones LTS cada 2 años con 5 años de soporte). Base de millones de servidores en la nube. GNOME por defecto.</div>
+    </div>
+    <div class="distro-card">
+      <div class="dc-head">
+        <div class="dc-logo">🍃</div>
+        <div><div class="dc-name">Linux Mint</div><div class="dc-tag">Basada en Ubuntu · desde 2006</div></div>
+      </div>
+      <div class="dc-desc">La favorita para migrar desde Windows. Escritorio Cinnamon muy familiar. Más conservadora que Ubuntu — no te fuerza a actualizaciones. Sin snaps por defecto.</div>
+    </div>
+    <div class="distro-card">
+      <div class="dc-head">
+        <div class="dc-logo">🚀</div>
+        <div><div class="dc-name">Pop!_OS</div><div class="dc-tag">System76 · desde 2017</div></div>
+      </div>
+      <div class="dc-desc">Optimizada para desarrollo y gaming. Excelente soporte NVIDIA out-of-the-box. Escritorio COSMIC propio en desarrollo. Muy popular entre programadores.</div>
+    </div>
+    <div class="distro-card">
+      <div class="dc-head">
+        <div class="dc-logo">🐉</div>
+        <div><div class="dc-name">Kali Linux</div><div class="dc-tag">Offensive Security · desde 2013</div></div>
+      </div>
+      <div class="dc-desc">Especializada en ciberseguridad. 600+ herramientas de pentesting preinstaladas. Basada en Debian Testing. No es para uso diario — es una herramienta profesional.</div>
+    </div>
+    <div class="distro-card">
+      <div class="dc-head">
+        <div class="dc-logo">🍓</div>
+        <div><div class="dc-name">Raspberry Pi OS</div><div class="dc-tag">Raspberry Pi Foundation · desde 2012</div></div>
+      </div>
+      <div class="dc-desc">Debian optimizada para la Raspberry Pi. Ligera, eficiente y con herramientas específicas para el hardware del Pi. La referencia para proyectos de hardware y IoT.</div>
+    </div>
+    <div class="distro-card">
+      <div class="dc-head">
+        <div class="dc-logo">🌙</div>
+        <div><div class="dc-name">elementary OS</div><div class="dc-tag">Basada en Ubuntu · desde 2011</div></div>
+      </div>
+      <div class="dc-desc">La distro más parecida a macOS en diseño. Escritorio Pantheon propio, muy pulido. Su App Center tiene apps de pago. Para usuarios que priorizan la estética.</div>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 ¿Por qué tanta distro basada en Debian/Ubuntu?</h4>
+    <p>Porque APT y el formato .deb son maduros, bien documentados y tienen el mayor repositorio de paquetes del mundo. Construir sobre Debian/Ubuntu significa heredar 30 años de trabajo en gestión de paquetes, seguridad y estabilidad. Es el camino de menor resistencia para crear una nueva distro.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     PAQUETES .DEB
+═══════════════════════ -->
+<section class="module" id="deb">
+  <div class="module-header">
+    <div class="module-icon">📦</div>
+    <div>
+      <div class="module-title">Paquetes .deb — el formato de software</div>
+      <div class="module-sub">Qué hay dentro de un paquete y cómo funciona la gestión de dependencias</div>
+    </div>
+  </div>
+
+  <p>Un <strong>paquete .deb</strong> es un archivo comprimido que contiene todo lo necesario para instalar un programa: los archivos binarios, las bibliotecas, la configuración, la documentación y los metadatos. Es el formato de instalación estándar de la familia Debian.</p>
+
+  <div class="analogy">
+    <h4>📦 Analogía — Un paquete de IKEA</h4>
+    <p>Un .deb es como un paquete de IKEA: dentro viene el mueble desmontado (archivos del programa), el manual de instrucciones (scripts de instalación), la lista de piezas (metadatos) y una nota que dice "necesitas un destornillador Phillips y cola de madera" (dependencias). APT es el empleado de IKEA que, antes de entregarte el paquete, ya fue al almacén a buscar el destornillador y la cola por ti.</p>
+  </div>
+
+  <div class="diagram">
+<span class="d-m"># Estructura interna de un archivo .deb</span>
+
+firefox_125.0_amd64.deb
+├── <span class="d-y">control.tar.xz</span>
+│   ├── control      <span class="d-m">→ nombre, versión, arquitectura, descripción</span>
+│   ├── depends      <span class="d-m">→ lista de dependencias requeridas</span>
+│   ├── preinst      <span class="d-m">→ script que corre ANTES de instalar</span>
+│   └── postinst     <span class="d-m">→ script que corre DESPUÉS de instalar</span>
+└── <span class="d-g">data.tar.xz</span>
+    ├── usr/bin/firefox          <span class="d-m">→ el ejecutable</span>
+    ├── usr/lib/firefox/         <span class="d-m">→ bibliotecas del programa</span>
+    ├── usr/share/applications/  <span class="d-m">→ acceso directo del escritorio</span>
+    └── usr/share/man/           <span class="d-m">→ páginas del manual</span></div>
+
+  <div class="concept">
+    <h4>💡 Las dependencias — el problema que APT resuelve</h4>
+    <p>Cada paquete puede depender de otros. Firefox necesita <code>libgtk-3</code>, que necesita <code>libglib2.0</code>, que necesita otras cosas. Instalar manualmente una cadena de 20 dependencias en el orden correcto sería imposible. <strong>APT lo hace automáticamente</strong> — calcula el árbol completo de dependencias y los instala todos en el orden correcto.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     REPOSITORIOS
+═══════════════════════ -->
+<section class="module" id="repositorios">
+  <div class="module-header">
+    <div class="module-icon">🗄️</div>
+    <div>
+      <div class="module-title">Repositorios — de dónde vienen los paquetes</div>
+      <div class="module-sub">Los servidores donde vive el software que instala APT</div>
+    </div>
+  </div>
+
+  <p>Un <strong>repositorio</strong> es un servidor (o red de servidores) donde están almacenados todos los paquetes .deb disponibles para instalar. Cuando ejecutas <code>apt install firefox</code>, APT busca Firefox en los repositorios configurados, lo descarga e instala.</p>
+
+  <div class="repo-visual">
+    <div class="rv-row"><div class="rv-icon">📡</div><div class="rv-label">main</div><div class="rv-desc">Software libre mantenido oficialmente por Ubuntu/Debian. El más confiable.</div></div>
+    <div class="rv-row"><div class="rv-icon">🔄</div><div class="rv-label">universe</div><div class="rv-desc">Software libre mantenido por la comunidad. Enorme catálogo, menos verificación.</div></div>
+    <div class="rv-row"><div class="rv-icon">🔒</div><div class="rv-label">restricted</div><div class="rv-desc">Software no libre pero necesario: drivers privativos de NVIDIA, WiFi broadcom.</div></div>
+    <div class="rv-row"><div class="rv-icon">🌐</div><div class="rv-label">multiverse</div><div class="rv-desc">Software privativo que no cumple políticas de Debian. Codecs, Flash (histórico).</div></div>
+    <div class="rv-row"><div class="rv-icon">➕</div><div class="rv-label">PPA</div><div class="rv-desc">Personal Package Archives — repositorios de terceros. Para software no oficial.</div></div>
+  </div>
+
+  <div class="code-wrap">
+    <div class="code-block"><span class="cc"># Ver los repositorios configurados en tu sistema</span>
+<span class="ct">cat</span> /etc/apt/sources.list
+
+<span class="cc"># Ejemplo de línea en sources.list (Ubuntu 24.04):</span>
+deb https://archive.ubuntu.com/ubuntu <span class="cv">noble</span> <span class="cs">main restricted universe multiverse</span>
+<span class="cc">#                                       ↑           ↑</span>
+<span class="cc">#                               codename distro    secciones habilitadas</span>
+
+<span class="cc"># Archivos adicionales de repositorios van en:</span>
+ls /etc/apt/sources.list.d/</div>
+    <div class="lang-tag">BASH</div>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ Cuidado con los PPAs de terceros</h4>
+    <p>Los PPAs (Personal Package Archives) permiten instalar software no oficial, pero también pueden instalar software malicioso o romper el sistema. Solo añade PPAs de fuentes confiables — proyectos conocidos o el propio desarrollador del software. Antes de añadir un PPA, busca si existe alternativa oficial.</p>
+  </div>
+
+  <h2>¿Cómo sabe APT qué hay disponible? — El índice</h2>
+
+  <div class="apt-flow">
+    <div class="af-step"><div class="af-num">1</div><span><code>apt update</code> — descarga la lista actualizada de paquetes de cada repositorio</span></div>
+    <div class="af-step"><div class="af-num">2</div><span>APT guarda el índice en <code>/var/lib/apt/lists/</code> — una "foto" de lo disponible</span></div>
+    <div class="af-step"><div class="af-num">3</div><span><code>apt install X</code> — busca X en el índice local, resuelve dependencias, descarga e instala</span></div>
+    <div class="af-step"><div class="af-num">4</div><span>Los .deb descargados van a <code>/var/cache/apt/archives/</code> (caché local)</span></div>
+    <div class="af-step"><div class="af-num">5</div><span>dpkg extrae e instala cada .deb en las rutas correctas del sistema</span></div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     APT A FONDO
+═══════════════════════ -->
+<section class="module" id="apt">
+  <div class="module-header">
+    <div class="module-icon">⚙️</div>
+    <div>
+      <div class="module-title">APT — Advanced Package Tool</div>
+      <div class="module-sub">La herramienta de gestión de paquetes de la familia Debian</div>
+    </div>
+  </div>
+
+  <p><strong>APT</strong> (Advanced Package Tool) es la interfaz de alto nivel para gestionar software en la familia Debian. Se encarga de todo el proceso: buscar paquetes, resolver dependencias, descargar, verificar integridad e instalar. Llama internamente a <strong>dpkg</strong> para hacer la instalación real.</p>
+
+  <div class="analogy">
+    <h4>🛒 Analogía — El asistente de compras inteligente</h4>
+    <p>APT es como un asistente personal de compras que conoce todas las tiendas de la ciudad (repositorios). Le dices "quiero hacer paella" (instalar un programa) y él identifica todos los ingredientes necesarios (dependencias), los busca en las mejores tiendas, verifica que no están caducados (firma GPG), los compra en el orden correcto y los pone en tu cocina (instala en las rutas correctas). Tú solo dices qué quieres.</p>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">APT — flujo completo de instalación</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Paso 1: actualizar índice de repositorios</span>
+<span class="t-p">$</span> sudo apt update
+<span class="t-o">Hit:1 https://archive.ubuntu.com/ubuntu noble InRelease</span>
+<span class="t-o">Get:2 https://archive.ubuntu.com/ubuntu noble-updates InRelease</span>
+<span class="t-o">Fetched 4.2 MB in 3s · Reading package lists... Done</span>
+
+<span class="t-h"># Paso 2: instalar un paquete (APT resuelve dependencias)</span>
+<span class="t-p">$</span> sudo apt install git
+<span class="t-o">Reading package lists... Done</span>
+<span class="t-o">Building dependency tree... Done</span>
+<span class="t-o">The following NEW packages will be installed: git git-man liberror-perl</span>
+<span class="t-o">0 upgraded, 3 newly installed, 0 to remove</span>
+<span class="t-o">Do you want to continue? [Y/n] Y</span>
+<span class="t-o">Setting up git (1:2.43.0-1ubuntu7) ...</span>
+
+<span class="t-h"># Paso 3: actualizar TODOS los paquetes instalados</span>
+<span class="t-p">$</span> sudo apt upgrade
+<span class="t-o">15 packages can be upgraded. Run with: apt list --upgradable</span>
+    </div>
+  </div>
+
+  <h2>apt vs apt-get — ¿cuál usar?</h2>
+  <p><code>apt</code> es la versión moderna pensada para uso interactivo en terminal: tiene barra de progreso, colores y mensajes más claros. <code>apt-get</code> es la versión antigua, más estable para scripts porque su salida no cambia entre versiones. En el día a día usa <code>apt</code>; en scripts de automatización usa <code>apt-get</code>.</p>
+</section>
+
+
+<!-- ═══════════════════════
+     COMANDOS ESENCIALES
+═══════════════════════ -->
+<section class="module" id="comandos">
+  <div class="module-header">
+    <div class="module-icon">📋</div>
+    <div>
+      <div class="module-title">Comandos APT esenciales</div>
+      <div class="module-sub">Los que usarás cada semana administrando tu sistema</div>
+    </div>
+  </div>
+
+  <div class="cmd-grid">
+    <div class="cmd-card">
+      <div class="cmd-title">apt update</div>
+      <div class="cmd-desc">Actualiza el índice local de paquetes disponibles. No instala nada, solo refresca la lista.</div>
+      <span class="cmd-ex">sudo apt update</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">apt upgrade</div>
+      <div class="cmd-desc">Actualiza todos los paquetes instalados a su versión más reciente disponible.</div>
+      <span class="cmd-ex">sudo apt upgrade -y</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">apt install</div>
+      <div class="cmd-desc">Instala uno o varios paquetes junto con sus dependencias automáticamente.</div>
+      <span class="cmd-ex">sudo apt install git curl wget</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">apt remove</div>
+      <div class="cmd-desc">Elimina un paquete pero conserva sus archivos de configuración.</div>
+      <span class="cmd-ex">sudo apt remove firefox</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">apt purge</div>
+      <div class="cmd-desc">Elimina un paquete Y sus archivos de configuración. Limpieza total.</div>
+      <span class="cmd-ex">sudo apt purge firefox</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">apt autoremove</div>
+      <div class="cmd-desc">Elimina paquetes instalados como dependencias que ya no son necesarios.</div>
+      <span class="cmd-ex">sudo apt autoremove</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">apt search</div>
+      <div class="cmd-desc">Busca paquetes por nombre o descripción en los repositorios configurados.</div>
+      <span class="cmd-ex">apt search "editor de texto"</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">apt show</div>
+      <div class="cmd-desc">Muestra información detallada de un paquete: versión, tamaño, dependencias.</div>
+      <span class="cmd-ex">apt show nodejs</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">apt list</div>
+      <div class="cmd-desc">Lista paquetes instalados, actualizables o disponibles según el filtro.</div>
+      <span class="cmd-ex">apt list --installed</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">apt full-upgrade</div>
+      <div class="cmd-desc">Como upgrade pero puede eliminar paquetes si es necesario para resolver conflictos.</div>
+      <span class="cmd-ex">sudo apt full-upgrade</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">add-apt-repository</div>
+      <div class="cmd-desc">Añade un PPA o repositorio de terceros a sources.list.</div>
+      <span class="cmd-ex">sudo add-apt-repository ppa:user/repo</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">apt clean</div>
+      <div class="cmd-desc">Elimina los .deb del caché local para liberar espacio en disco.</div>
+      <span class="cmd-ex">sudo apt clean</span>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">rutina semanal de mantenimiento recomendada</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># La rutina completa de mantenimiento — una línea</span>
+<span class="t-p">$</span> sudo apt update && sudo apt upgrade -y && sudo apt autoremove -y && sudo apt clean
+
+<span class="t-h"># Ver cuánto espacio liberaste</span>
+<span class="t-p">$</span> df -h /
+<span class="t-o">Filesystem      Size  Used Avail Use% Mounted on</span>
+<span class="t-o">/dev/sda2        49G   18G   29G  38% /</span>
+
+<span class="t-h"># Ver los últimos paquetes instalados</span>
+<span class="t-p">$</span> grep " install " /var/log/dpkg.log | tail -20
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     DPKG
+═══════════════════════ -->
+<section class="module" id="dpkg">
+  <div class="module-header">
+    <div class="module-icon">🔩</div>
+    <div>
+      <div class="module-title">dpkg — la herramienta de bajo nivel</div>
+      <div class="module-sub">El motor que APT usa internamente para instalar paquetes .deb</div>
+    </div>
+  </div>
+
+  <p><strong>dpkg</strong> (Debian Package) es la herramienta de bajo nivel que realmente instala, elimina y gestiona paquetes .deb. APT llama a dpkg internamente — tú normalmente usas APT, pero dpkg es útil cuando necesitas instalar un .deb descargado manualmente o consultar el estado del sistema de paquetes.</p>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">dpkg — casos de uso comunes</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Instalar un .deb descargado manualmente (ej: VS Code)</span>
+<span class="t-p">$</span> sudo dpkg -i code_1.89.1_amd64.deb
+
+<span class="t-h"># Si dpkg falla por dependencias, APT las resuelve:</span>
+<span class="t-p">$</span> sudo apt install -f
+
+<span class="t-h"># Ver si un paquete está instalado</span>
+<span class="t-p">$</span> dpkg -l | grep firefox
+<span class="t-o">ii  firefox  125.0.2+build1-0ubuntu0.24.04.1  amd64  Safe and easy web browser</span>
+<span class="t-h">#  ↑↑</span>
+<span class="t-h">#  ii = instalado correctamente</span>
+<span class="t-h">#  rc = eliminado pero quedan archivos de configuración</span>
+
+<span class="t-h"># Ver qué archivos instaló un paquete</span>
+<span class="t-p">$</span> dpkg -L git
+<span class="t-o">/usr/bin/git</span>
+<span class="t-o">/usr/share/man/man1/git.1.gz</span>
+
+<span class="t-h"># Saber a qué paquete pertenece un archivo</span>
+<span class="t-p">$</span> dpkg -S /usr/bin/git
+<span class="t-o">git: /usr/bin/git</span>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>💡 APT vs dpkg — la relación</h4>
+    <p><strong>dpkg</strong> es como un mecánico que sabe exactamente cómo montar y desmontar piezas de un motor — pero no sabe dónde conseguir las piezas. <strong>APT</strong> es el mecánico que además tiene acceso a todos los proveedores, sabe qué piezas son compatibles y cuáles necesitas antes de empezar. Para el uso diario usas APT siempre; dpkg solo cuando tienes un .deb suelto o necesitas consultar el estado del sistema.</p>
+  </div>
+</section>
+
+
+<!-- EJERCICIO -->
+<div class="ejercicio" id="ejercicio">
+  <div class="ej-hd">
+    ✏️ Ejercicio del Nivel 6
+    <span class="ej-badge">Terminal</span>
+  </div>
+  <p>Con tu Ubuntu o Linux Mint instalado (o VM), practica estos comandos en orden:</p>
+  <ol>
+    <li>Ejecuta <code>sudo apt update</code> — observa cuántos repositorios consulta y cuántos paquetes actualiza el índice.</li>
+    <li>Ejecuta <code>apt list --upgradable 2>/dev/null</code> — ¿cuántos paquetes tienes pendientes de actualizar?</li>
+    <li>Instala <code>htop</code>, <code>tree</code> y <code>ncdu</code>: <code>sudo apt install htop tree ncdu -y</code>. Son tres herramientas muy útiles.</li>
+    <li>Ejecuta <code>apt show htop</code> — lee las dependencias que tiene. ¿Ya estaban instaladas?</li>
+    <li>Ejecuta <code>dpkg -L htop</code> — ¿en qué ruta se instaló el ejecutable de htop?</li>
+    <li>Ejecuta <code>htop</code> — verás un monitor de procesos en tiempo real. Presiona <code>q</code> para salir.</li>
+    <li>Ejecuta <code>sudo apt remove htop && sudo apt autoremove</code> — desinstala htop y limpia.</li>
+    <li>Ejecuta la rutina de mantenimiento completa: <code>sudo apt update && sudo apt upgrade -y && sudo apt autoremove -y && sudo apt clean</code></li>
+  </ol>
+  <p><strong>Bonus:</strong> Añade el repositorio de VS Code con <code>sudo snap install code --classic</code> o siguiendo las instrucciones oficiales de code.visualstudio.com/docs/setup/linux para añadirlo vía APT.</p>
+</div>
+
+<!-- RESUMEN -->
+<div class="resumen">
+  <h3>🟥 Resumen del Nivel 6</h3>
+  <ul>
+    <li><strong>Debian</strong> (1993) es la madre de la familia: 59,000+ paquetes, gobernanza democrática, multiplataforma.</li>
+    <li>Debian tiene 3 ramas: <strong>Stable</strong> (muy probada), <strong>Testing</strong> y <strong>Unstable/Sid</strong> (más reciente, menos estable).</li>
+    <li>La familia incluye: Ubuntu, Linux Mint, Pop!_OS, Kali, Raspberry Pi OS, elementary OS y 100+ más.</li>
+    <li>Un <strong>.deb</strong> contiene: archivos del programa + metadatos + scripts de instalación + lista de dependencias.</li>
+    <li>Los <strong>repositorios</strong> son servidores donde viven los paquetes. Ubuntu tiene: main, universe, restricted, multiverse.</li>
+    <li><strong>APT</strong> gestiona el ciclo completo: busca en repositorios, resuelve dependencias, descarga e instala.</li>
+    <li>Rutina semanal: <code>sudo apt update && sudo apt upgrade -y && sudo apt autoremove -y</code></li>
+    <li><strong>dpkg</strong> es la herramienta de bajo nivel que APT usa internamente. Útil para instalar .deb manuales.</li>
+  </ul>
+</div>
+
+<a class="next-card" href="linux-nivel-07.html">
+  <div>
+    <div class="nc-label">Siguiente → Nivel 7</div>
+    <div class="nc-name">Familia Red Hat — Fedora, RHEL, Rocky Linux, DNF y paquetes RPM</div>
+  </div>
+  <div class="nc-arrow">→</div>
+</a>
+
+</main>
+
+<footer>
+  Linux desde Cero · Nivel 6 · Familia Debian · Café &lt;/&gt; · Hugo 2025
+</footer>
+
+<script>
+(function(){const s=localStorage.getItem('cafe-theme');const sys=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';const t=s||sys;document.documentElement.setAttribute('data-theme',t);updateUI(t);})();
+function toggleTheme(){const c=document.documentElement.getAttribute('data-theme');const n=c==='light'?'dark':'light';document.documentElement.setAttribute('data-theme',n);localStorage.setItem('cafe-theme',n);updateUI(n);}
+function updateUI(t){const i=document.getElementById('themeIcon');const l=document.getElementById('themeLabel');if(!i||!l)return;i.textContent=t==='dark'?'☀️':'🌙';l.textContent=t==='dark'?'Claro':'Oscuro';}
+</script>
+</body>
+</html>

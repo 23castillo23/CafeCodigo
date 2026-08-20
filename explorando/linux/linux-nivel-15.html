@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux desde Cero · N15 · Instalar Software</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root,[data-theme="light"]{--primary:#c44a2a;--primary-light:#fdf0ec;--primary-mid:rgba(196,74,42,.25);--secondary:#1a7a5a;--secondary-light:#edf7f3;--accent:#b07010;--accent-light:#fdf6e8;--bg:#f7f4ef;--surface:#ffffff;--text:#1a1814;--muted:#8a8480;--border:#e8e4de;--code-bg:#1a1814;--code-text:#e8e4de;--header-bg:#1a1814;--analogy-bg:#fff7ed;--analogy-border:#fde68a;--analogy-text:#78350f;--analogy-head:#92400e;--diagram-bg:#f0f4ff;--diagram-border:#c7d2fe;--note-bg:#f0f4ff;--note-border:#6366f1;--note-head:#4338ca;}
+[data-theme="dark"]{--primary:#ff7a57;--primary-light:rgba(255,122,87,.14);--primary-mid:rgba(255,122,87,.3);--secondary:#3ddc84;--secondary-light:rgba(61,220,132,.12);--accent:#f0c040;--accent-light:rgba(240,192,64,.12);--bg:#0d1117;--surface:#161b22;--text:#c9d8f0;--muted:#5a7090;--border:#21262d;--code-bg:#060a10;--code-text:#c9d8f0;--header-bg:#0a0e14;--analogy-bg:rgba(240,192,64,.07);--analogy-border:rgba(240,192,64,.3);--analogy-text:#e6d4a0;--analogy-head:#f0c040;--diagram-bg:#161b22;--diagram-border:#21262d;--note-bg:rgba(99,102,241,.1);--note-border:#818cf8;--note-head:#818cf8;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;font-size:16px;transition:background .25s,color .25s;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:300;height:45px;}
+.topbar-back{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);text-decoration:none;padding:5px 14px;border:1px solid var(--border);border-radius:999px;transition:all .15s;}
+.topbar-back:hover{color:var(--text);border-color:var(--muted);}
+.topbar-info{font-size:13px;color:var(--muted);}
+.theme-btn{margin-left:auto;background:none;border:1px solid var(--border);border-radius:999px;padding:4px 13px;font-size:13px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:.35rem;transition:all .15s;font-family:'DM Sans',sans-serif;}
+.theme-btn:hover{color:var(--text);border-color:var(--muted);}
+header{background:var(--header-bg);color:#f7f4ef;padding:3rem 2rem 2.25rem;text-align:center;position:relative;overflow:hidden;}
+header::before{content:'N15';position:absolute;font-family:'DM Mono',monospace;font-size:11rem;font-weight:900;color:rgba(255,255,255,.04);right:-1rem;top:-1.5rem;line-height:1;pointer-events:none;}
+.header-eyebrow{display:inline-flex;align-items:center;gap:.5rem;background:rgba(196,74,42,.25);border:1px solid rgba(196,74,42,.45);border-radius:20px;padding:3px 14px;font-size:.78rem;font-weight:700;color:#ffaa88;margin-bottom:.85rem;}
+header h1{font-size:2.5rem;font-weight:800;letter-spacing:-1px;color:#f7f4ef;line-height:1.2;}
+header h1 em{font-style:normal;color:#ff8a6a;}
+header p{font-size:1.05rem;opacity:.8;margin-top:.5rem;max-width:560px;margin-left:auto;margin-right:auto;}
+.header-chips{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-top:.9rem;}
+.header-chip{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:20px;padding:3px 13px;font-size:.76rem;color:rgba(255,255,255,.75);}
+.niveles-nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:45px;z-index:110;display:flex;align-items:center;height:38px;padding:0 1rem;}
+.nn-prev,.nn-next{flex-shrink:0;display:flex;align-items:center;gap:.3rem;padding:0 .75rem;height:100%;text-decoration:none;color:var(--muted);font-size:.78rem;font-weight:500;border-right:1px solid var(--border);transition:color .15s;white-space:nowrap;}
+.nn-next{border-right:none;border-left:1px solid var(--border);}
+.nn-prev:hover,.nn-next:hover{color:var(--primary);}
+.nn-list{flex:1;display:flex;align-items:center;justify-content:center;gap:.15rem;overflow-x:auto;padding:0 .5rem;}
+.nn-list::-webkit-scrollbar{display:none;}
+.nn-list a{flex-shrink:0;padding:2px 9px;border-radius:20px;text-decoration:none;font-size:.73rem;font-weight:600;color:var(--muted);font-family:'DM Mono',monospace;transition:color .15s,background .15s;}
+.nn-list a:hover{color:var(--text);background:var(--bg);}
+.nn-list a.activa{background:var(--primary-light);color:var(--primary);}
+.nn-list .sep{color:var(--border);font-size:.7rem;padding:0 1px;flex-shrink:0;pointer-events:none;}
+.sec-nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:83px;z-index:100;display:flex;overflow-x:auto;}
+.sec-nav::-webkit-scrollbar{display:none;}
+.sec-nav a{flex-shrink:0;padding:.75rem 1.1rem;text-decoration:none;color:var(--muted);font-size:.82rem;font-weight:500;border-bottom:2px solid transparent;white-space:nowrap;transition:color .2s,border-color .2s;}
+.sec-nav a:hover{color:var(--primary);border-bottom-color:var(--primary);}
+main{max-width:920px;margin:0 auto;padding:2rem 1.5rem;}
+.nivel-badge{display:inline-flex;align-items:center;gap:.5rem;background:var(--primary);color:white;border-radius:20px;padding:5px 16px;font-size:.82rem;font-weight:700;margin-bottom:1.75rem;}
+.module{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;margin-bottom:2.5rem;scroll-margin-top:135px;transition:background .25s,border-color .25s;}
+.module-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border);}
+.module-icon{font-size:1.8rem;flex-shrink:0;}
+.module-title{font-size:1.35rem;font-weight:700;}
+.module-sub{font-size:.85rem;color:var(--muted);margin-top:2px;}
+.module h2{font-size:1.15rem;font-weight:700;margin:1.75rem 0 .75rem;}
+.module p{margin-bottom:.85rem;font-size:.97rem;}
+.module ul,.module ol{padding-left:1.4rem;margin-bottom:.85rem;}
+.module li{margin-bottom:.4rem;font-size:.96rem;}
+.analogy{background:var(--analogy-bg);border:1px solid var(--analogy-border);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0;}
+.analogy h4{color:var(--analogy-head);font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+.analogy p{font-size:.95rem;color:var(--analogy-text);margin:0;}
+.concept,.tip,.warn,.note{border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0;border-left-width:4px;border-left-style:solid;}
+.concept h4,.tip h4,.warn h4,.note h4{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+.concept p,.tip p,.warn p,.note p{font-size:.95rem;margin:0;}
+.tip ul{font-size:.95rem;padding-left:1.2rem;margin-top:.3rem;}
+.concept{background:var(--primary-light);border-color:var(--primary);}.concept h4{color:var(--primary);}
+.tip{background:var(--secondary-light);border-color:var(--secondary);}.tip h4{color:var(--secondary);}
+.warn{background:var(--primary-light);border-color:var(--primary);}.warn h4{color:var(--primary);}
+.note{background:var(--note-bg);border-color:var(--note-border);}.note h4{color:var(--note-head);}
+.terminal{background:#0a0e14;border:1px solid #21262d;border-radius:10px;overflow:hidden;margin:1rem 0;}
+.term-bar{background:#161b22;padding:.42rem .85rem;display:flex;align-items:center;gap:.35rem;border-bottom:1px solid #21262d;}
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.dot-r{background:#ff5f57;}.dot-y{background:#ffbd2e;}.dot-g{background:#28c840;}
+.term-label{font-family:'DM Mono',monospace;font-size:.69rem;color:#3a5070;margin-left:.4rem;}
+.term-body{padding:1.1rem 1.3rem;font-family:'DM Mono',monospace;font-size:.85rem;line-height:2.1;color:#c9d8f0;}
+.t-p{color:#3ddc84;}.t-o{color:#5a7090;display:block;}.t-h{color:#253550;font-style:italic;display:block;}
+.code-wrap{position:relative;margin:1rem 0;}
+.code-block{background:var(--code-bg);color:var(--code-text);border-radius:10px;padding:1.25rem 1.5rem;font-family:'DM Mono',monospace;font-size:.88rem;line-height:1.85;overflow-x:auto;white-space:pre;}
+.lang-tag{position:absolute;top:.6rem;right:.75rem;background:rgba(255,255,255,.1);color:rgba(255,255,255,.45);font-size:.68rem;padding:2px 8px;border-radius:4px;font-family:sans-serif;font-weight:700;}
+.ct{color:#89B4FA;}.cv{color:#A6E3A1;}.cs{color:#F9E2AF;}.cc{color:#585B70;font-style:italic;}.cn{color:#FAB387;}
+.diagram{background:var(--diagram-bg);border:1px solid var(--diagram-border);border-radius:12px;padding:1.5rem;margin:1.1rem 0;font-family:'DM Mono',monospace;font-size:.87rem;line-height:2;overflow-x:auto;}
+.d-r{color:var(--primary);font-weight:700;}.d-g{color:var(--secondary);font-weight:700;}.d-y{color:var(--accent);font-weight:700;}.d-b{color:#6366f1;font-weight:700;}.d-m{color:var(--muted);font-style:italic;}
+.tbl{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem;}
+.tbl th{background:var(--primary-light);color:var(--primary);padding:.65rem 1rem;text-align:left;font-weight:600;}
+.tbl td{padding:.65rem 1rem;border-bottom:1px solid var(--border);vertical-align:top;}
+.tbl td:first-child{font-family:'DM Mono',monospace;font-size:.85rem;color:var(--primary);font-weight:600;}
+.tbl tr:hover td{background:var(--bg);}
+
+/* MÉTODO CARDS */
+.method-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.85rem;margin:1.1rem 0;}
+.method-card{border-radius:14px;padding:1.25rem;border:1px solid var(--border);transition:border-color .2s,background .25s;}
+.method-card:hover{border-color:var(--primary);}
+.mc-icon{font-size:2rem;margin-bottom:.5rem;}
+.mc-name{font-weight:800;font-size:1rem;margin-bottom:.25rem;}
+.mc-sub{font-family:'DM Mono',monospace;font-size:.72rem;color:var(--muted);margin-bottom:.5rem;}
+.mc-desc{font-size:.84rem;color:var(--muted);line-height:1.55;}
+.mc-badge{display:inline-flex;font-size:.68rem;padding:2px 8px;border-radius:20px;font-weight:700;margin-top:.5rem;}
+.badge-g{background:var(--secondary-light);color:var(--secondary);}
+.badge-r{background:var(--primary-light);color:var(--primary);}
+.badge-b{background:var(--note-bg);color:var(--note-border);}
+.badge-y{background:var(--accent-light);color:var(--accent);}
+
+/* FLUJO APT */
+.apt-flow{display:flex;flex-direction:column;gap:3px;margin:1rem 0;}
+.af-step{display:flex;align-items:flex-start;gap:.85rem;padding:.75rem 1rem;border-radius:10px;background:var(--bg);border:1px solid var(--border);font-size:.87rem;}
+.af-num{font-family:'DM Mono',monospace;font-size:.75rem;font-weight:800;color:white;background:var(--primary);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.af-label{font-weight:700;margin-bottom:2px;font-size:.9rem;}
+.af-desc{font-size:.83rem;color:var(--muted);}
+
+/* CMD GRID */
+.cmd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:.75rem;margin:1rem 0;}
+.cmd-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1rem;}
+.cmd-title{font-family:'DM Mono',monospace;font-size:.82rem;font-weight:700;color:var(--primary);margin-bottom:.3rem;}
+.cmd-desc{font-size:.83rem;color:var(--muted);margin-bottom:.5rem;}
+.cmd-ex{font-family:'DM Mono',monospace;font-size:.79rem;background:var(--code-bg);color:var(--code-text);padding:.45rem .75rem;border-radius:6px;display:block;}
+
+/* EJERCICIO */
+.ejercicio{background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:1.5rem;margin:1.5rem 0;}
+[data-theme="dark"] .ejercicio{background:rgba(240,192,64,.06);border-color:rgba(240,192,64,.22);}
+.ej-hd{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;font-weight:700;font-size:1rem;color:#78350F;flex-wrap:wrap;}
+[data-theme="dark"] .ej-hd{color:#f0c040;}
+.ej-badge{background:var(--accent);color:#fff;font-size:.68rem;padding:2px 9px;border-radius:20px;font-weight:700;text-transform:uppercase;}
+.ejercicio ol{padding-left:1.4rem;}
+.ejercicio ol li{margin-bottom:.6rem;font-size:.95rem;}
+.ejercicio p{font-size:.95rem;margin-bottom:.6rem;}
+.resumen{background:var(--primary-light);border:1px solid var(--primary-mid);border-radius:14px;padding:1.6rem;margin-bottom:1.5rem;}
+.resumen h3{color:var(--primary);margin-bottom:.75rem;font-size:1.05rem;}
+.resumen ul{padding-left:1.4rem;}
+.resumen li{font-size:.92rem;margin-bottom:.45rem;}
+.next-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem 1.5rem;display:flex;align-items:center;gap:1rem;text-decoration:none;transition:border-color .2s;margin-bottom:2rem;}
+.next-card:hover{border-color:var(--primary);}
+.nc-label{font-size:.72rem;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.2rem;}
+.nc-name{font-weight:700;color:var(--text);font-size:.97rem;}
+.nc-arrow{font-size:1.4rem;color:var(--primary);margin-left:auto;}
+code{font-family:'DM Mono',monospace;background:#f0ece6;color:var(--primary);padding:1px 5px;border-radius:4px;font-size:.9em;}
+[data-theme="dark"] code{background:#1c2128;}
+strong{font-weight:700;}
+p{margin-bottom:.8rem;}ul,ol{padding-left:1.4rem;margin-bottom:.8rem;}li{margin-bottom:.4rem;font-size:.96rem;}
+h2{font-size:1.2rem;font-weight:700;margin:1.75rem 0 .75rem;}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.85rem;border-top:1px solid var(--border);margin-top:1rem;background:var(--bg);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="topbar-back" href="../index.html">← Café &lt;/&gt;</a>
+  <span class="topbar-info">🐧 Linux desde Cero · Nivel 15 de 23</span>
+  <button class="theme-btn" onclick="toggleTheme()">
+    <span id="themeIcon">🌙</span><span id="themeLabel">Oscuro</span>
+  </button>
+</div>
+
+<header>
+  <div class="header-eyebrow">📦 Nivel 15 — La terminal</div>
+  <h1><em>Instalar Software</em></h1>
+  <p>dpkg, APT, Snap, Flatpak, AppImage y compilar desde fuente — todos los métodos de instalación en Linux</p>
+  <div class="header-chips">
+    <span class="header-chip">Nivel 15 de 23</span>
+    <span class="header-chip">📦 Paquetes</span>
+    <span class="header-chip">8 subtemas</span>
+    <span class="header-chip">~30 min</span>
+  </div>
+</header>
+
+<div class="niveles-nav">
+  <a class="nn-prev" href="linux-nivel-14.html">← N14</a>
+  <div class="nn-list">
+    <a href="linux-nivel-01.html">N1</a><a href="linux-nivel-02.html">N2</a><a href="linux-nivel-03.html">N3</a>
+    <a href="linux-nivel-04.html">N4</a><a href="linux-nivel-05.html">N5</a><span class="sep">·</span>
+    <a href="linux-nivel-06.html">N6</a><a href="linux-nivel-07.html">N7</a><a href="linux-nivel-08.html">N8</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-09.html">N9</a><a href="linux-nivel-10.html">N10</a><a href="linux-nivel-11.html">N11</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-12.html">N12</a><a href="linux-nivel-13.html">N13</a><a href="linux-nivel-14.html">N14</a>
+    <a href="linux-nivel-15.html" class="activa">N15</a><span class="sep">·</span>
+    <a href="linux-nivel-16.html">N16</a><a href="linux-nivel-17.html">N17</a>
+    <a href="linux-nivel-18.html">N18</a><a href="linux-nivel-19.html">N19</a>
+    <a href="linux-nivel-20.html">N20</a><a href="linux-nivel-21.html">N21</a>
+    <a href="linux-nivel-22.html">N22</a><a href="linux-nivel-23.html">N23</a>
+  </div>
+  <a class="nn-next" href="linux-nivel-16.html">N16 →</a>
+</div>
+
+<nav class="sec-nav">
+  <a href="#panorama">🗺️ Panorama</a>
+  <a href="#dpkg">📦 dpkg</a>
+  <a href="#apt">🚀 APT</a>
+  <a href="#repositorios">🗄️ Repositorios</a>
+  <a href="#snap">🔵 Snap</a>
+  <a href="#flatpak">🟣 Flatpak</a>
+  <a href="#appimage">💿 AppImage</a>
+  <a href="#fuente">🔧 Desde fuente</a>
+  <a href="#ejercicio">✏️ Ejercicio</a>
+</nav>
+
+<main>
+<div class="nivel-badge">📦 Nivel 15 — Instalar Software</div>
+
+
+<!-- PANORAMA -->
+<section class="module" id="panorama">
+  <div class="module-header">
+    <div class="module-icon">🗺️</div>
+    <div>
+      <div class="module-title">Los métodos para instalar software en Linux</div>
+      <div class="module-sub">No hay una sola forma — cada método tiene su propósito y sus ventajas</div>
+    </div>
+  </div>
+
+  <p>Una de las diferencias más notorias entre Linux y Windows/macOS es que en Linux <strong>no descargas un instalador .exe desde una web aleatoria</strong>. El software viene de fuentes verificadas y organizadas llamadas repositorios. Pero también existen formatos universales que funcionan en cualquier distro.</p>
+
+  <div class="analogy">
+    <h4>🏪 Analogía — Supermercado, tienda de especialidad y mercado</h4>
+    <p>Instalar software en Linux es como abastecerse de comida: <strong>APT</strong> es el supermercado del barrio — todo verificado, fresco, entrega a domicilio, lo más cómodo. <strong>Snap/Flatpak</strong> son tiendas de marca — el producto viene empaquetado directamente del fabricante, sin intermediarios. <strong>AppImage</strong> es la comida de tupper — el chef te manda todo listo, sin instalación. <strong>Compilar desde fuente</strong> es cocinar tú mismo — máximo control pero más trabajo.</p>
+  </div>
+
+  <div class="method-grid">
+    <div class="method-card">
+      <div class="mc-icon">📦</div>
+      <div class="mc-name">dpkg</div>
+      <div class="mc-sub">.deb packages</div>
+      <div class="mc-desc">La base del sistema. Instala, elimina e inspecciona paquetes .deb directamente. Sin gestión de dependencias.</div>
+      <span class="mc-badge badge-y">Bajo nivel</span>
+    </div>
+    <div class="method-card">
+      <div class="mc-icon">🚀</div>
+      <div class="mc-name">APT</div>
+      <div class="mc-sub">apt install</div>
+      <div class="mc-desc">El gestor estándar en Debian/Ubuntu. Resuelve dependencias automáticamente desde repositorios verificados.</div>
+      <span class="mc-badge badge-g">Recomendado</span>
+    </div>
+    <div class="method-card">
+      <div class="mc-icon">🔵</div>
+      <div class="mc-name">Snap</div>
+      <div class="mc-sub">snap install</div>
+      <div class="mc-desc">Paquetes universales sandboxeados de Canonical. Auto-actualizan. Más lentos al arrancar.</div>
+      <span class="mc-badge badge-b">Universal</span>
+    </div>
+    <div class="method-card">
+      <div class="mc-icon">🟣</div>
+      <div class="mc-name">Flatpak</div>
+      <div class="mc-sub">flatpak install</div>
+      <div class="mc-desc">Alternativa a Snap, más popular en la comunidad. Flathub es su tienda. Integración con GNOME/KDE.</div>
+      <span class="mc-badge badge-b">Universal</span>
+    </div>
+    <div class="method-card">
+      <div class="mc-icon">💿</div>
+      <div class="mc-name">AppImage</div>
+      <div class="mc-sub">.AppImage</div>
+      <div class="mc-desc">Un archivo, clic y corre. Sin instalación, sin root. Ideal para probar apps o versiones específicas.</div>
+      <span class="mc-badge badge-y">Portátil</span>
+    </div>
+    <div class="method-card">
+      <div class="mc-icon">🔧</div>
+      <div class="mc-name">Desde fuente</div>
+      <div class="mc-sub">./configure && make</div>
+      <div class="mc-desc">Compilas el programa tú mismo. Máximo control, versión exacta. Solo cuando no hay otra opción.</div>
+      <span class="mc-badge badge-r">Avanzado</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- DPKG -->
+<section class="module" id="dpkg">
+  <div class="module-header">
+    <div class="module-icon">📦</div>
+    <div>
+      <div class="module-title">dpkg — la base del sistema de paquetes Debian</div>
+      <div class="module-sub">El instalador de bajo nivel sobre el que se construye APT</div>
+    </div>
+  </div>
+
+  <p><strong>dpkg</strong> (Debian Package) es la herramienta de más bajo nivel para gestionar paquetes <code>.deb</code>. APT usa dpkg internamente — cuando APT instala algo, al final llama a dpkg para hacer el trabajo real. Tú usas dpkg directamente cuando tienes un archivo <code>.deb</code> descargado manualmente.</p>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">dpkg — comandos esenciales</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Instalar un .deb descargado manualmente</span>
+<span class="t-p">$</span> sudo dpkg -i google-chrome-stable_amd64.deb
+<span class="t-h"># Si hay errores de dependencias, arreglarlos con:</span>
+<span class="t-p">$</span> sudo apt install -f
+
+<span class="t-h"># Eliminar un paquete (mantiene archivos de configuración)</span>
+<span class="t-p">$</span> sudo dpkg -r google-chrome-stable
+
+<span class="t-h"># Purgar un paquete (elimina también la configuración)</span>
+<span class="t-p">$</span> sudo dpkg -P google-chrome-stable
+
+<span class="t-h"># Listar todos los paquetes instalados</span>
+<span class="t-p">$</span> dpkg -l | head -20
+<span class="t-o">||/ Name              Version       Architecture Description</span>
+<span class="t-o">ii  bash              5.2-2ubuntu4  amd64        GNU Bourne Again SHell</span>
+<span class="t-o">ii  git               1:2.43.0      amd64        fast, scalable, distributed revision control</span>
+
+<span class="t-h"># Ver si un paquete específico está instalado</span>
+<span class="t-p">$</span> dpkg -l git
+<span class="t-o">ii  git  1:2.43.0-1ubuntu7  amd64  fast, scalable...</span>
+<span class="t-h"># ii = instalado  rc = eliminado pero conf. aún presente  un = no instalado</span>
+
+<span class="t-h"># Ver qué archivos instaló un paquete</span>
+<span class="t-p">$</span> dpkg -L git | head -10
+<span class="t-o">/usr/bin/git</span>
+<span class="t-o">/usr/lib/git-core/git</span>
+<span class="t-o">/usr/share/man/man1/git.1.gz</span>
+
+<span class="t-h"># Saber a qué paquete pertenece un archivo</span>
+<span class="t-p">$</span> dpkg -S /usr/bin/git
+<span class="t-o">git: /usr/bin/git</span>
+
+<span class="t-h"># Inspeccionar un .deb sin instalarlo</span>
+<span class="t-p">$</span> dpkg -I programa.deb
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>💡 La diferencia entre -r y -P</h4>
+    <p><code>dpkg -r</code> (remove) elimina los archivos del programa pero deja los archivos de configuración — útil si quieres reinstalar después con la misma configuración. <code>dpkg -P</code> (purge) lo elimina todo incluyendo la configuración — limpieza completa. En APT se usan como <code>apt remove</code> y <code>apt purge</code>.</p>
+  </div>
+</section>
+
+
+<!-- APT -->
+<section class="module" id="apt">
+  <div class="module-header">
+    <div class="module-icon">🚀</div>
+    <div>
+      <div class="module-title">APT — el gestor de paquetes que usarás cada día</div>
+      <div class="module-sub">Advanced Package Tool — resolución automática de dependencias desde repositorios</div>
+    </div>
+  </div>
+
+  <p><strong>APT</strong> (Advanced Package Tool) es la capa de alto nivel sobre dpkg. Su superpoder: <strong>resolver dependencias automáticamente</strong>. Si quieres instalar Firefox y Firefox necesita libssl, libnss y otras 12 bibliotecas, APT las instala todas sin que tengas que preocuparte.</p>
+
+  <div class="apt-flow">
+    <div class="af-step">
+      <div class="af-num">1</div>
+      <div><div class="af-label">apt update</div><div class="af-desc">Descarga la lista actualizada de paquetes disponibles de todos los repositorios. No instala nada — solo actualiza el catálogo local.</div></div>
+    </div>
+    <div class="af-step">
+      <div class="af-num">2</div>
+      <div><div class="af-label">apt install nombre</div><div class="af-desc">Busca el paquete en el catálogo, calcula todas las dependencias necesarias, descarga todo y llama a dpkg para instalarlo.</div></div>
+    </div>
+    <div class="af-step">
+      <div class="af-num">3</div>
+      <div><div class="af-label">apt upgrade</div><div class="af-desc">Actualiza todos los paquetes instalados a su versión más reciente disponible en los repositorios. Siempre hacer update antes.</div></div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">APT — todos los comandos importantes</span>
+    </div>
+    <div class="term-body">
+<span class="t-h">## INSTALAR Y ELIMINAR</span>
+<span class="t-p">$</span> sudo apt install git              <span class="t-h"># instalar un paquete</span>
+<span class="t-p">$</span> sudo apt install git vim curl      <span class="t-h"># varios a la vez</span>
+<span class="t-p">$</span> sudo apt install git -y            <span class="t-h"># sin preguntar confirmación</span>
+<span class="t-p">$</span> sudo apt remove git               <span class="t-h"># eliminar (conserva config)</span>
+<span class="t-p">$</span> sudo apt purge git                <span class="t-h"># eliminar + borrar config</span>
+<span class="t-p">$</span> sudo apt autoremove               <span class="t-h"># eliminar dependencias huérfanas</span>
+
+<span class="t-h">## ACTUALIZAR</span>
+<span class="t-p">$</span> sudo apt update                   <span class="t-h"># actualizar el catálogo de paquetes</span>
+<span class="t-p">$</span> sudo apt upgrade                  <span class="t-h"># actualizar todos los paquetes instalados</span>
+<span class="t-p">$</span> sudo apt full-upgrade             <span class="t-h"># upgrade + elimina paquetes si es necesario</span>
+<span class="t-p">$</span> sudo apt update && sudo apt upgrade -y  <span class="t-h"># el comando de actualización completo</span>
+
+<span class="t-h">## BUSCAR Y EXPLORAR</span>
+<span class="t-p">$</span> apt search nodejs                 <span class="t-h"># buscar paquetes por nombre/descripción</span>
+<span class="t-p">$</span> apt show git                      <span class="t-h"># ver info detallada de un paquete</span>
+<span class="t-p">$</span> apt list --installed              <span class="t-h"># listar paquetes instalados</span>
+<span class="t-p">$</span> apt list --upgradable             <span class="t-h"># paquetes con actualización disponible</span>
+
+<span class="t-h">## LIMPIAR</span>
+<span class="t-p">$</span> sudo apt clean                    <span class="t-h"># borrar caché de paquetes descargados</span>
+<span class="t-p">$</span> sudo apt autoclean               <span class="t-h"># borrar solo paquetes obsoletos del caché</span>
+<span class="t-p">$</span> sudo apt autoremove --purge      <span class="t-h"># eliminar dependencias + config</span>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 apt vs apt-get — ¿cuál usar?</h4>
+    <p><code>apt</code> es la interfaz moderna con barra de progreso y salida más limpia — úsala en la terminal interactiva. <code>apt-get</code> es la interfaz clásica, más estable para scripts — úsala en scripts bash que necesitan output predecible. Ambas hacen lo mismo por debajo. En guías antiguas verás <code>apt-get</code> — funciona igual, solo es más verbose.</p>
+  </div>
+</section>
+
+
+<!-- REPOSITORIOS -->
+<section class="module" id="repositorios">
+  <div class="module-header">
+    <div class="module-icon">🗄️</div>
+    <div>
+      <div class="module-title">Repositorios — de dónde viene el software</div>
+      <div class="module-sub">PPAs, repositorios de terceros y cómo añadirlos correctamente</div>
+    </div>
+  </div>
+
+  <p>Un <strong>repositorio</strong> es un servidor que aloja paquetes .deb. APT mantiene una lista de repositorios en <code>/etc/apt/sources.list</code> y en archivos dentro de <code>/etc/apt/sources.list.d/</code>. Cuando ejecutas <code>apt install</code>, APT busca en todos los repositorios configurados.</p>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">repositorios — ver y añadir</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Ver los repositorios configurados</span>
+<span class="t-p">$</span> cat /etc/apt/sources.list
+<span class="t-o">deb http://archive.ubuntu.com/ubuntu noble main restricted</span>
+<span class="t-o">deb http://archive.ubuntu.com/ubuntu noble universe</span>
+<span class="t-o">deb http://archive.ubuntu.com/ubuntu noble-security main restricted</span>
+
+<span class="t-h"># Añadir un PPA (Personal Package Archive) — repositorio de terceros</span>
+<span class="t-p">$</span> sudo add-apt-repository ppa:papirus/papirus
+<span class="t-p">$</span> sudo apt update
+<span class="t-p">$</span> sudo apt install papirus-icon-theme
+
+<span class="t-h"># Añadir repositorio con clave GPG (método moderno, más seguro)</span>
+<span class="t-h"># Ejemplo: instalar Node.js desde el repo oficial de NodeSource</span>
+<span class="t-p">$</span> curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+<span class="t-p">$</span> sudo apt install nodejs
+
+<span class="t-h"># Eliminar un repositorio PPA</span>
+<span class="t-p">$</span> sudo add-apt-repository --remove ppa:papirus/papirus
+
+<span class="t-h"># Ver todos los repositorios extra añadidos</span>
+<span class="t-p">$</span> ls /etc/apt/sources.list.d/
+<span class="t-o">nodesource.list  papirus-ubuntu-papirus-noble.list  vscode.list</span>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Componente Ubuntu</th><th>Qué contiene</th></tr></thead>
+    <tbody>
+      <tr><td>main</td><td>Software libre con soporte oficial de Canonical. El más verificado.</td></tr>
+      <tr><td>restricted</td><td>Drivers propietarios (NVIDIA, Wi-Fi) con soporte oficial pero licencia no libre.</td></tr>
+      <tr><td>universe</td><td>Software libre mantenido por la comunidad. Gran variedad pero soporte limitado.</td></tr>
+      <tr><td>multiverse</td><td>Software propietario o con restricciones legales. No habilitado por defecto.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="warn">
+    <h4>⚠️ Cuidado con los PPAs</h4>
+    <p>Los PPAs son repositorios de terceros — no verificados por Canonical. Un PPA comprometido puede instalar software malicioso con privilegios de root. Usa solo PPAs de fuentes de confianza (proyectos conocidos, desarrolladores verificados). Antes de añadir un PPA busca opiniones de la comunidad.</p>
+  </div>
+</section>
+
+
+<!-- SNAP -->
+<section class="module" id="snap">
+  <div class="module-header">
+    <div class="module-icon">🔵</div>
+    <div>
+      <div class="module-title">Snap — paquetes universales sandboxeados</div>
+      <div class="module-sub">El formato universal de Canonical que funciona en cualquier distro con systemd</div>
+    </div>
+  </div>
+
+  <p><strong>Snap</strong> es un formato de paquete desarrollado por Canonical (la empresa detrás de Ubuntu). Los paquetes Snap incluyen la aplicación y todas sus dependencias en un único archivo comprimido. Corren en un sandbox aislado y se actualizan automáticamente.</p>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">snap — gestión completa</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Buscar e instalar snaps</span>
+<span class="t-p">$</span> snap find spotify
+<span class="t-p">$</span> sudo snap install spotify
+<span class="t-p">$</span> sudo snap install code --classic   <span class="t-h"># --classic rompe el sandbox (como una app normal)</span>
+
+<span class="t-h"># Ver snaps instalados</span>
+<span class="t-p">$</span> snap list
+<span class="t-o">Name     Version  Rev  Tracking       Publisher   Notes</span>
+<span class="t-o">core22   20240111 1122 latest/stable  canonical✓  base</span>
+<span class="t-o">spotify  1.2.31   78   latest/stable  spotify✓    -</span>
+
+<span class="t-h"># Actualizar snaps</span>
+<span class="t-p">$</span> sudo snap refresh              <span class="t-h"># actualizar todos los snaps</span>
+<span class="t-p">$</span> sudo snap refresh spotify      <span class="t-h"># actualizar solo spotify</span>
+
+<span class="t-h"># Eliminar un snap</span>
+<span class="t-p">$</span> sudo snap remove spotify
+
+<span class="t-h"># Ver información de un snap</span>
+<span class="t-p">$</span> snap info firefox
+    </div>
+  </div>
+
+  <div class="note">
+    <h4>📌 La controversia de Snap en la comunidad</h4>
+    <p>Snap tiene sus detractores: los snaps arrancan más lento que las apps nativas, el snap store es controlado exclusivamente por Canonical (no hay mirrors ni alternativas), y en Ubuntu 22.04+ Firefox viene como snap por defecto sin opción fácil de cambiarlo. La alternativa más popular en la comunidad es <strong>Flatpak</strong>.</p>
+  </div>
+</section>
+
+
+<!-- FLATPAK -->
+<section class="module" id="flatpak">
+  <div class="module-header">
+    <div class="module-icon">🟣</div>
+    <div>
+      <div class="module-title">Flatpak — el preferido de la comunidad</div>
+      <div class="module-sub">Paquetes universales con Flathub como tienda central y mejor integración de escritorio</div>
+    </div>
+  </div>
+
+  <p><strong>Flatpak</strong> es la alternativa comunitaria a Snap, impulsada por Red Hat y la comunidad GNOME. Su tienda principal es <strong>Flathub</strong> — un repositorio enorme con miles de aplicaciones. Tiene mejor integración con los temas del escritorio que Snap.</p>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">flatpak — instalación y gestión</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Instalar Flatpak (si no viene con tu distro)</span>
+<span class="t-p">$</span> sudo apt install flatpak
+<span class="t-p">$</span> sudo apt install gnome-software-plugin-flatpak   <span class="t-h"># integración con GNOME Software</span>
+
+<span class="t-h"># Añadir el repositorio Flathub (la tienda principal)</span>
+<span class="t-p">$</span> flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+
+<span class="t-h"># Buscar e instalar apps desde Flathub</span>
+<span class="t-p">$</span> flatpak search gimp
+<span class="t-p">$</span> flatpak install flathub org.gimp.GIMP
+<span class="t-p">$</span> flatpak install flathub com.spotify.Client
+<span class="t-p">$</span> flatpak install flathub org.videolan.VLC
+
+<span class="t-h"># Ejecutar una app Flatpak</span>
+<span class="t-p">$</span> flatpak run org.gimp.GIMP
+
+<span class="t-h"># Ver Flatpaks instalados</span>
+<span class="t-p">$</span> flatpak list
+<span class="t-o">Name              Application ID           Version  Branch</span>
+<span class="t-o">GIMP              org.gimp.GIMP            2.10.36  stable</span>
+<span class="t-o">Spotify           com.spotify.Client       1.2.31   stable</span>
+
+<span class="t-h"># Actualizar todos los Flatpaks</span>
+<span class="t-p">$</span> flatpak update
+
+<span class="t-h"># Eliminar un Flatpak</span>
+<span class="t-p">$</span> flatpak uninstall org.gimp.GIMP
+<span class="t-p">$</span> flatpak uninstall --unused        <span class="t-h"># eliminar runtimes no usados</span>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Aspecto</th><th>Snap</th><th>Flatpak</th></tr></thead>
+    <tbody>
+      <tr><td>Organización</td><td>Canonical (Ubuntu)</td><td>Comunidad / Red Hat</td></tr>
+      <tr><td>Tienda principal</td><td>Snap Store (solo Canonical)</td><td>Flathub (abierto)</td></tr>
+      <tr><td>Velocidad de arranque</td><td>Más lento (montaje squashfs)</td><td>Similar o más rápido</td></tr>
+      <tr><td>Integración temas</td><td>Limitada</td><td>Mejor (portals)</td></tr>
+      <tr><td>Distros que lo incluyen</td><td>Ubuntu por defecto</td><td>Fedora, openSUSE, manjaro</td></tr>
+      <tr><td>Popularidad comunidad</td><td>Controvertido</td><td>Preferido</td></tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- APPIMAGE -->
+<section class="module" id="appimage">
+  <div class="module-header">
+    <div class="module-icon">💿</div>
+    <div>
+      <div class="module-title">AppImage — sin instalación, sin root</div>
+      <div class="module-sub">Un archivo, doble clic y corre — la app más portable de Linux</div>
+    </div>
+  </div>
+
+  <p>Un <strong>AppImage</strong> es un archivo único autocontenido que incluye la aplicación y todas sus dependencias. No requiere instalación, no necesita root, no modifica el sistema. Perfecta para probar software, usar versiones específicas o en sistemas donde no tienes privilegios.</p>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">AppImage — descargar y ejecutar</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># 1. Descargar el AppImage (ejemplo: Obsidian)</span>
+<span class="t-p">$</span> wget https://github.com/obsidianmd/obsidian-releases/releases/download/v1.5.3/Obsidian-1.5.3.AppImage
+
+<span class="t-h"># 2. Darle permiso de ejecución</span>
+<span class="t-p">$</span> chmod +x Obsidian-1.5.3.AppImage
+
+<span class="t-h"># 3. Ejecutar directamente</span>
+<span class="t-p">$</span> ./Obsidian-1.5.3.AppImage
+
+<span class="t-h"># Opcional: mover a un directorio conveniente</span>
+<span class="t-p">$</span> mkdir -p ~/.local/bin/appimages
+<span class="t-p">$</span> mv Obsidian-1.5.3.AppImage ~/.local/bin/appimages/
+
+<span class="t-h"># Si falta libfuse2 (dependencia de AppImage en Ubuntu 22.04+)</span>
+<span class="t-p">$</span> sudo apt install libfuse2
+
+<span class="t-h"># AppImageLauncher — gestor visual de AppImages (opcional)</span>
+<span class="t-p">$</span> sudo add-apt-repository ppa:appimagelauncher-team/stable
+<span class="t-p">$</span> sudo apt install appimagelauncher
+<span class="t-h"># Integra los AppImages en el menú de apps automáticamente</span>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Dónde encontrar AppImages</h4>
+    <p><strong>AppImageHub</strong> (appimage.github.io) es el directorio principal. También muchos proyectos publican AppImages en sus releases de GitHub: GIMP, Inkscape, KeePass, Obsidian, DaVinci Resolve. Busca en la sección "Releases" del repositorio de GitHub del proyecto.</p>
+  </div>
+</section>
+
+
+<!-- COMPILAR DESDE FUENTE -->
+<section class="module" id="fuente">
+  <div class="module-header">
+    <div class="module-icon">🔧</div>
+    <div>
+      <div class="module-title">Compilar desde fuente — el método de los expertos</div>
+      <div class="module-sub">Cuando necesitas la versión exacta, con opciones específicas, que no está en ningún repositorio</div>
+    </div>
+  </div>
+
+  <p>Compilar desde fuente significa descargar el código fuente de un programa y compilarlo tú mismo para tu sistema. Es más lento y complejo, pero da control total: versión exacta, opciones de compilación personalizadas, parches específicos.</p>
+
+  <div class="analogy">
+    <h4>🍕 Analogía — Hacer la pizza desde cero</h4>
+    <p>Compilar desde fuente es como hacer una pizza desde cero: eliges exactamente la harina, el tomate, los ingredientes y el tiempo de horneado. Tarda más que comprar una pizza hecha (apt install) o semicongelada (AppImage), pero el resultado puede ser exactamente lo que necesitas — con esa feature experimental que ningún paquete de repositorio incluye todavía.</p>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">compilar desde fuente — el flujo estándar</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># 0. Instalar las herramientas de compilación</span>
+<span class="t-p">$</span> sudo apt install build-essential git cmake pkg-config
+<span class="t-h"># build-essential incluye: gcc, g++, make, libc-dev</span>
+
+<span class="t-h"># 1. Obtener el código fuente</span>
+<span class="t-p">$</span> git clone https://github.com/proyecto/programa.git
+<span class="t-p">$</span> cd programa/
+<span class="t-h"># O descargar tarball:</span>
+<span class="t-p">$</span> wget https://ejemplo.com/programa-2.1.tar.gz
+<span class="t-p">$</span> tar -xzf programa-2.1.tar.gz && cd programa-2.1/
+
+<span class="t-h"># 2. Instalar dependencias de compilación</span>
+<span class="t-p">$</span> sudo apt install libssl-dev libcurl4-openssl-dev zlib1g-dev
+<span class="t-h"># (las dependencias varían — consulta el README del proyecto)</span>
+
+<span class="t-h"># 3A. Flujo autoconf (./configure) — el clásico</span>
+<span class="t-p">$</span> ./configure --prefix=/usr/local   <span class="t-h"># configura y detecta el sistema</span>
+<span class="t-p">$</span> make -j$(nproc)                   <span class="t-h"># compila usando todos los núcleos CPU</span>
+<span class="t-p">$</span> sudo make install                 <span class="t-h"># instala en /usr/local/</span>
+
+<span class="t-h"># 3B. Flujo CMake — el moderno</span>
+<span class="t-p">$</span> mkdir build && cd build
+<span class="t-p">$</span> cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_BUILD_TYPE=Release
+<span class="t-p">$</span> make -j$(nproc)
+<span class="t-p">$</span> sudo make install
+
+<span class="t-h"># Desinstalar (si el proyecto lo soporta)</span>
+<span class="t-p">$</span> sudo make uninstall
+    </div>
+  </div>
+
+  <div class="cmd-grid">
+    <div class="cmd-card">
+      <div class="cmd-title">build-essential</div>
+      <div class="cmd-desc">Metapaquete con todo lo necesario para compilar: gcc, g++, make, headers de glibc.</div>
+      <span class="cmd-ex">sudo apt install build-essential</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">make -j$(nproc)</div>
+      <div class="cmd-desc">Compila usando todos los núcleos disponibles en paralelo. Mucho más rápido que make solo.</div>
+      <span class="cmd-ex">make -j$(nproc)
+# $(nproc) = número de núcleos CPU</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">checkinstall</div>
+      <div class="cmd-desc">En lugar de make install, crea un .deb del programa compilado. Permite desinstalarlo limpiamente con dpkg después.</div>
+      <span class="cmd-ex">sudo apt install checkinstall
+sudo checkinstall</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">apt build-dep</div>
+      <div class="cmd-desc">Instala automáticamente todas las dependencias de compilación de un paquete de los repos.</div>
+      <span class="cmd-ex">sudo apt build-dep ffmpeg</span>
+    </div>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ make install ensucia el sistema</h4>
+    <p><code>sudo make install</code> copia archivos directamente en <code>/usr/local/</code> sin registrarlos en ningún gestor de paquetes. Esto dificulta desinstalarlo después. La solución: usa <strong>checkinstall</strong> en lugar de <code>make install</code> — crea un .deb del programa compilado que puedes gestionar con dpkg normalmente. O usa <code>--prefix=$HOME/.local</code> para instalar solo en tu home sin root.</p>
+  </div>
+</section>
+
+
+<!-- EJERCICIO -->
+<div class="ejercicio" id="ejercicio">
+  <div class="ej-hd">
+    ✏️ Ejercicio del Nivel 15
+    <span class="ej-badge">Instalación real</span>
+  </div>
+  <p>Practica los principales métodos de instalación en tu sistema:</p>
+  <ol>
+    <li><strong>APT básico:</strong> ejecuta <code>sudo apt update && sudo apt install tree htop curl -y</code>. Luego prueba cada uno: <code>tree ~</code>, <code>htop</code> (q para salir), <code>curl https://example.com</code>.</li>
+    <li><strong>Explorar dpkg:</strong> ejecuta <code>dpkg -L git | head -10</code> — ¿ves dónde instaló cada archivo? Luego <code>dpkg -S /usr/bin/curl</code> — ¿a qué paquete pertenece curl?</li>
+    <li><strong>Buscar:</strong> ejecuta <code>apt search "text editor" | head -20</code>. ¿Cuántos editores de texto hay en los repos?</li>
+    <li><strong>Flatpak:</strong> si no tienes Flatpak: <code>sudo apt install flatpak && flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo</code>. Luego <code>flatpak search vlc</code>.</li>
+    <li><strong>AppImage:</strong> descarga un AppImage de tu elección desde appimage.github.io, dale permisos con <code>chmod +x *.AppImage</code> y ejecútalo.</li>
+    <li><strong>Desde fuente (rápido):</strong> instala <code>sudo apt install build-essential</code> y ejecuta <code>gcc --version</code>. ¿Qué versión de GCC tienes?</li>
+  </ol>
+  <p><strong>Reflexión:</strong> ¿Cuál método usarías para instalar cada uno de estos? Firefox, una versión beta de un juego indie, una app que solo publicó el dev como AppImage, y el kernel Linux con una patch específica.</p>
+</div>
+
+<!-- RESUMEN -->
+<div class="resumen">
+  <h3>🟥 Resumen del Nivel 15</h3>
+  <ul>
+    <li><strong>dpkg</strong> — instalador de bajo nivel para archivos .deb. Sin resolución de dependencias. Base de APT.</li>
+    <li><strong>APT</strong> — el gestor del día a día en Debian/Ubuntu. Resuelve dependencias, descarga de repositorios verificados. <code>apt update</code> → <code>apt install</code> → <code>apt upgrade</code>.</li>
+    <li><strong>Repositorios</strong> en <code>/etc/apt/sources.list</code>. PPAs para software de terceros — usar con cuidado.</li>
+    <li><strong>Snap</strong> — formato universal de Canonical. Auto-actualiza, sandboxed, más lento al arrancar. Controversia en la comunidad.</li>
+    <li><strong>Flatpak</strong> — alternativa comunitaria. Tienda: Flathub. Preferida por la comunidad. Mejor integración de temas.</li>
+    <li><strong>AppImage</strong> — un archivo, sin instalación, sin root. <code>chmod +x app.AppImage && ./app.AppImage</code>.</li>
+    <li><strong>Compilar desde fuente</strong> — máximo control, versión exacta. Flujo: instalar build-essential → ./configure o cmake → make -j$(nproc) → checkinstall.</li>
+    <li>Usar <strong>checkinstall</strong> en lugar de <code>make install</code> para poder desinstalar limpiamente después.</li>
+  </ul>
+</div>
+
+<a class="next-card" href="linux-nivel-16.html">
+  <div>
+    <div class="nc-label">Siguiente → Nivel 16</div>
+    <div class="nc-name">Procesos — PID, ps, top, htop, señales, jobs y la gestión de procesos en Linux</div>
+  </div>
+  <div class="nc-arrow">→</div>
+</a>
+
+</main>
+
+<footer>
+  Linux desde Cero · Nivel 15 · Instalar Software · Café &lt;/&gt; · Hugo 2025
+</footer>
+
+<script>
+(function(){const s=localStorage.getItem('cafe-theme');const sys=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';const t=s||sys;document.documentElement.setAttribute('data-theme',t);updateUI(t);})();
+function toggleTheme(){const c=document.documentElement.getAttribute('data-theme');const n=c==='light'?'dark':'light';document.documentElement.setAttribute('data-theme',n);localStorage.setItem('cafe-theme',n);updateUI(n);}
+function updateUI(t){const i=document.getElementById('themeIcon');const l=document.getElementById('themeLabel');if(!i||!l)return;i.textContent=t==='dark'?'☀️':'🌙';l.textContent=t==='dark'?'Claro':'Oscuro';}
+</script>
+</body>
+</html>

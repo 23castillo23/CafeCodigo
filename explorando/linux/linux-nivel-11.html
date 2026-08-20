@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux desde Cero · N11 · X11 y Wayland</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root,[data-theme="light"]{--primary:#c44a2a;--primary-light:#fdf0ec;--primary-mid:rgba(196,74,42,.25);--secondary:#1a7a5a;--secondary-light:#edf7f3;--accent:#b07010;--accent-light:#fdf6e8;--bg:#f7f4ef;--surface:#ffffff;--text:#1a1814;--muted:#8a8480;--border:#e8e4de;--code-bg:#1a1814;--code-text:#e8e4de;--header-bg:#1a1814;--analogy-bg:#fff7ed;--analogy-border:#fde68a;--analogy-text:#78350f;--analogy-head:#92400e;--diagram-bg:#f0f4ff;--diagram-border:#c7d2fe;--note-bg:#f0f4ff;--note-border:#6366f1;--note-head:#4338ca;}
+[data-theme="dark"]{--primary:#ff7a57;--primary-light:rgba(255,122,87,.14);--primary-mid:rgba(255,122,87,.3);--secondary:#3ddc84;--secondary-light:rgba(61,220,132,.12);--accent:#f0c040;--accent-light:rgba(240,192,64,.12);--bg:#0d1117;--surface:#161b22;--text:#c9d8f0;--muted:#5a7090;--border:#21262d;--code-bg:#060a10;--code-text:#c9d8f0;--header-bg:#0a0e14;--analogy-bg:rgba(240,192,64,.07);--analogy-border:rgba(240,192,64,.3);--analogy-text:#e6d4a0;--analogy-head:#f0c040;--diagram-bg:#161b22;--diagram-border:#21262d;--note-bg:rgba(99,102,241,.1);--note-border:#818cf8;--note-head:#818cf8;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;font-size:16px;transition:background .25s,color .25s;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:300;height:45px;transition:background .25s,border-color .25s;}
+.topbar-back{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);text-decoration:none;padding:5px 14px;border:1px solid var(--border);border-radius:999px;transition:all .15s;}
+.topbar-back:hover{color:var(--text);border-color:var(--muted);}
+.topbar-info{font-size:13px;color:var(--muted);}
+.theme-btn{margin-left:auto;background:none;border:1px solid var(--border);border-radius:999px;padding:4px 13px;font-size:13px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:.35rem;transition:all .15s;font-family:'DM Sans',sans-serif;}
+.theme-btn:hover{color:var(--text);border-color:var(--muted);}
+header{background:var(--header-bg);color:#f7f4ef;padding:3rem 2rem 2.25rem;text-align:center;position:relative;overflow:hidden;}
+header::before{content:'N11';position:absolute;font-family:'DM Mono',monospace;font-size:11rem;font-weight:900;color:rgba(255,255,255,.04);right:-1rem;top:-1.5rem;line-height:1;pointer-events:none;}
+.header-eyebrow{display:inline-flex;align-items:center;gap:.5rem;background:rgba(196,74,42,.25);border:1px solid rgba(196,74,42,.45);border-radius:20px;padding:3px 14px;font-size:.78rem;font-weight:700;color:#ffaa88;margin-bottom:.85rem;}
+header h1{font-size:2.5rem;font-weight:800;letter-spacing:-1px;color:#f7f4ef;line-height:1.2;}
+header h1 em{font-style:normal;color:#ff8a6a;}
+header p{font-size:1.05rem;opacity:.8;margin-top:.5rem;max-width:540px;margin-left:auto;margin-right:auto;}
+.header-chips{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-top:.9rem;}
+.header-chip{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:20px;padding:3px 13px;font-size:.76rem;color:rgba(255,255,255,.75);}
+.niveles-nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:45px;z-index:110;display:flex;align-items:center;height:38px;padding:0 1rem;transition:background .25s;}
+.nn-prev,.nn-next{flex-shrink:0;display:flex;align-items:center;gap:.3rem;padding:0 .75rem;height:100%;text-decoration:none;color:var(--muted);font-size:.78rem;font-weight:500;border-right:1px solid var(--border);transition:color .15s;white-space:nowrap;}
+.nn-next{border-right:none;border-left:1px solid var(--border);}
+.nn-prev:hover,.nn-next:hover{color:var(--primary);}
+.nn-list{flex:1;display:flex;align-items:center;justify-content:center;gap:.15rem;overflow-x:auto;padding:0 .5rem;}
+.nn-list::-webkit-scrollbar{display:none;}
+.nn-list a{flex-shrink:0;padding:2px 9px;border-radius:20px;text-decoration:none;font-size:.73rem;font-weight:600;color:var(--muted);font-family:'DM Mono',monospace;transition:color .15s,background .15s;}
+.nn-list a:hover{color:var(--text);background:var(--bg);}
+.nn-list a.activa{background:var(--primary-light);color:var(--primary);}
+.nn-list .sep{color:var(--border);font-size:.7rem;padding:0 1px;flex-shrink:0;pointer-events:none;}
+.sec-nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:83px;z-index:100;display:flex;overflow-x:auto;transition:background .25s;}
+.sec-nav::-webkit-scrollbar{display:none;}
+.sec-nav a{flex-shrink:0;padding:.75rem 1.1rem;text-decoration:none;color:var(--muted);font-size:.82rem;font-weight:500;border-bottom:2px solid transparent;white-space:nowrap;transition:color .2s,border-color .2s;}
+.sec-nav a:hover{color:var(--primary);border-bottom-color:var(--primary);}
+main{max-width:920px;margin:0 auto;padding:2rem 1.5rem;}
+.nivel-badge{display:inline-flex;align-items:center;gap:.5rem;background:var(--primary);color:white;border-radius:20px;padding:5px 16px;font-size:.82rem;font-weight:700;margin-bottom:1.75rem;}
+.module{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;margin-bottom:2.5rem;scroll-margin-top:135px;transition:background .25s,border-color .25s;}
+.module-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border);}
+.module-icon{font-size:1.8rem;flex-shrink:0;}
+.module-title{font-size:1.35rem;font-weight:700;}
+.module-sub{font-size:.85rem;color:var(--muted);margin-top:2px;}
+.module h2{font-size:1.15rem;font-weight:700;margin:1.75rem 0 .75rem;}
+.module p{margin-bottom:.85rem;font-size:.97rem;}
+.module ul,.module ol{padding-left:1.4rem;margin-bottom:.85rem;}
+.module li{margin-bottom:.4rem;font-size:.96rem;}
+.analogy{background:var(--analogy-bg);border:1px solid var(--analogy-border);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0;}
+.analogy h4{color:var(--analogy-head);font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+.analogy p{font-size:.95rem;color:var(--analogy-text);margin:0;}
+.concept,.tip,.warn,.note{border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0;border-left-width:4px;border-left-style:solid;}
+.concept h4,.tip h4,.warn h4,.note h4{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+.concept p,.tip p,.warn p,.note p{font-size:.95rem;margin:0;}
+.tip ul{font-size:.95rem;padding-left:1.2rem;margin-top:.3rem;}
+.concept{background:var(--primary-light);border-color:var(--primary);}
+.concept h4{color:var(--primary);}
+.tip{background:var(--secondary-light);border-color:var(--secondary);}
+.tip h4{color:var(--secondary);}
+.warn{background:var(--primary-light);border-color:var(--primary);}
+.warn h4{color:var(--primary);}
+.note{background:var(--note-bg);border-color:var(--note-border);}
+.note h4{color:var(--note-head);}
+.code-wrap{position:relative;margin:1rem 0;}
+.code-block{background:var(--code-bg);color:var(--code-text);border-radius:10px;padding:1.25rem 1.5rem;font-family:'DM Mono',monospace;font-size:.88rem;line-height:1.85;overflow-x:auto;white-space:pre;}
+.lang-tag{position:absolute;top:.6rem;right:.75rem;background:rgba(255,255,255,.1);color:rgba(255,255,255,.45);font-size:.68rem;padding:2px 8px;border-radius:4px;font-family:sans-serif;font-weight:700;}
+.ct{color:#89B4FA;}.cv{color:#A6E3A1;}.cs{color:#F9E2AF;}.cc{color:#585B70;font-style:italic;}.cn{color:#FAB387;}
+.terminal{background:#0a0e14;border:1px solid #21262d;border-radius:10px;overflow:hidden;margin:1rem 0;}
+.term-bar{background:#161b22;padding:.42rem .85rem;display:flex;align-items:center;gap:.35rem;border-bottom:1px solid #21262d;}
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.dot-r{background:#ff5f57;}.dot-y{background:#ffbd2e;}.dot-g{background:#28c840;}
+.term-label{font-family:'DM Mono',monospace;font-size:.69rem;color:#3a5070;margin-left:.4rem;}
+.term-body{padding:1.1rem 1.3rem;font-family:'DM Mono',monospace;font-size:.85rem;line-height:2.1;color:#c9d8f0;}
+.t-p{color:#3ddc84;}.t-o{color:#5a7090;display:block;}.t-h{color:#253550;font-style:italic;display:block;}
+.diagram{background:var(--diagram-bg);border:1px solid var(--diagram-border);border-radius:12px;padding:1.5rem;margin:1.1rem 0;font-family:'DM Mono',monospace;font-size:.87rem;line-height:2;overflow-x:auto;transition:background .25s,border-color .25s;}
+.d-r{color:var(--primary);font-weight:700;}.d-g{color:var(--secondary);font-weight:700;}.d-y{color:var(--accent);font-weight:700;}.d-b{color:#6366f1;font-weight:700;}.d-m{color:var(--muted);font-style:italic;}
+.tbl{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem;}
+.tbl th{background:var(--primary-light);color:var(--primary);padding:.65rem 1rem;text-align:left;font-weight:600;}
+.tbl td{padding:.65rem 1rem;border-bottom:1px solid var(--border);vertical-align:top;}
+.tbl td:first-child{font-family:'DM Mono',monospace;font-size:.85rem;color:var(--primary);font-weight:600;}
+.tbl tr:hover td{background:var(--bg);}
+
+/* COMPARATIVA X11 vs WAYLAND */
+.compare-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1rem 0;}
+@media(max-width:580px){.compare-2{grid-template-columns:1fr;}}
+.cmp-box{border-radius:14px;padding:1.35rem;border:1px solid var(--border);}
+.cmp-box.x11{background:var(--accent-light);border-color:rgba(176,112,16,.3);}
+.cmp-box.wl{background:var(--secondary-light);border-color:rgba(26,122,90,.3);}
+.cmp-head{font-weight:800;font-size:1.1rem;margin-bottom:.6rem;display:flex;align-items:center;gap:.5rem;}
+.cmp-box.x11 .cmp-head{color:var(--accent);}
+.cmp-box.wl .cmp-head{color:var(--secondary);}
+.cmp-year{font-family:'DM Mono',monospace;font-size:.7rem;font-weight:400;opacity:.7;}
+.cmp-item{font-size:.86rem;margin-bottom:.35rem;padding-left:.9rem;position:relative;line-height:1.5;}
+.cmp-item::before{content:'·';position:absolute;left:0;color:var(--muted);}
+.cmp-pro{color:var(--secondary);}
+.cmp-con{color:var(--primary);}
+
+/* FLUJO ARQUITECTURA */
+.arch-flow{display:flex;flex-direction:column;gap:3px;margin:1rem 0;}
+.af-row{display:flex;align-items:center;gap:.6rem;padding:.65rem 1rem;border-radius:10px;border:1px solid var(--border);font-size:.87rem;transition:background .25s;}
+.af-icon{font-size:1.1rem;flex-shrink:0;width:28px;text-align:center;}
+.af-label{font-weight:700;min-width:140px;flex-shrink:0;}
+.af-desc{color:var(--muted);font-size:.83rem;}
+.af-row.app{background:rgba(124,58,237,.07);}.af-row.app .af-label{color:#7c3aed;}
+.af-row.de{background:rgba(236,72,153,.07);}.af-row.de .af-label{color:#db2777;}
+.af-row.proto{background:var(--secondary-light);}.af-row.proto .af-label{color:var(--secondary);}
+.af-row.kern{background:var(--primary-light);}.af-row.kern .af-label{color:var(--primary);}
+.af-arrow{text-align:center;color:var(--muted);font-size:.8rem;font-family:'DM Mono',monospace;}
+
+/* COMPOSITOR VISUAL */
+.comp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.75rem;margin:1rem 0;}
+.comp-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1rem;transition:background .25s;}
+.cc-title{font-family:'DM Mono',monospace;font-size:.82rem;font-weight:700;color:var(--primary);margin-bottom:.25rem;}
+.cc-sub{font-size:.72rem;color:var(--muted);margin-bottom:.4rem;}
+.cc-desc{font-size:.83rem;color:var(--muted);line-height:1.5;}
+
+/* PROBLEMAS WAYLAND */
+.issue-list{display:flex;flex-direction:column;gap:.5rem;margin:1rem 0;}
+.issue-row{display:flex;align-items:flex-start;gap:.75rem;padding:.75rem 1rem;border-radius:10px;background:var(--bg);border:1px solid var(--border);font-size:.88rem;}
+.issue-icon{font-size:1.1rem;flex-shrink:0;margin-top:1px;}
+.issue-text strong{display:block;font-size:.9rem;margin-bottom:1px;}
+.issue-text span{font-size:.82rem;color:var(--muted);}
+
+/* EJERCICIO */
+.ejercicio{background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:1.5rem;margin:1.5rem 0;}
+[data-theme="dark"] .ejercicio{background:rgba(240,192,64,.06);border-color:rgba(240,192,64,.22);}
+.ej-hd{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;font-weight:700;font-size:1rem;color:#78350F;flex-wrap:wrap;}
+[data-theme="dark"] .ej-hd{color:#f0c040;}
+.ej-badge{background:var(--accent);color:#fff;font-size:.68rem;padding:2px 9px;border-radius:20px;font-weight:700;text-transform:uppercase;}
+.ejercicio ol{padding-left:1.4rem;}
+.ejercicio ol li{margin-bottom:.6rem;font-size:.95rem;}
+.ejercicio p{font-size:.95rem;margin-bottom:.6rem;}
+.resumen{background:var(--primary-light);border:1px solid var(--primary-mid);border-radius:14px;padding:1.6rem;margin-bottom:1.5rem;}
+.resumen h3{color:var(--primary);margin-bottom:.75rem;font-size:1.05rem;}
+.resumen ul{padding-left:1.4rem;}
+.resumen li{font-size:.92rem;margin-bottom:.45rem;}
+.next-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem 1.5rem;display:flex;align-items:center;gap:1rem;text-decoration:none;transition:border-color .2s;margin-bottom:2rem;}
+.next-card:hover{border-color:var(--primary);}
+.nc-label{font-size:.72rem;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.2rem;}
+.nc-name{font-weight:700;color:var(--text);font-size:.97rem;}
+.nc-arrow{font-size:1.4rem;color:var(--primary);margin-left:auto;}
+code{font-family:'DM Mono',monospace;background:#f0ece6;color:var(--primary);padding:1px 5px;border-radius:4px;font-size:.9em;}
+[data-theme="dark"] code{background:#1c2128;}
+strong{font-weight:700;}
+p{margin-bottom:.8rem;}ul,ol{padding-left:1.4rem;margin-bottom:.8rem;}li{margin-bottom:.4rem;font-size:.96rem;}
+h2{font-size:1.2rem;font-weight:700;margin:1.75rem 0 .75rem;}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.85rem;border-top:1px solid var(--border);margin-top:1rem;background:var(--bg);transition:background .25s;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="topbar-back" href="../index.html">← Café &lt;/&gt;</a>
+  <span class="topbar-info">🐧 Linux desde Cero · Nivel 11 de 23</span>
+  <button class="theme-btn" onclick="toggleTheme()">
+    <span id="themeIcon">🌙</span><span id="themeLabel">Oscuro</span>
+  </button>
+</div>
+
+<header>
+  <div class="header-eyebrow">📺 Nivel 11 — Arquitectura interna</div>
+  <h1><em>X11</em> y <em>Wayland</em></h1>
+  <p>Los dos protocolos de display de Linux — cómo funcionan, por qué nació Wayland y cuándo usar cada uno</p>
+  <div class="header-chips">
+    <span class="header-chip">Nivel 11 de 23</span>
+    <span class="header-chip">📺 Display</span>
+    <span class="header-chip">8 subtemas</span>
+    <span class="header-chip">~25 min</span>
+  </div>
+</header>
+
+<div class="niveles-nav">
+  <a class="nn-prev" href="linux-nivel-10.html">← N10</a>
+  <div class="nn-list">
+    <a href="linux-nivel-01.html">N1</a><a href="linux-nivel-02.html">N2</a><a href="linux-nivel-03.html">N3</a>
+    <a href="linux-nivel-04.html">N4</a><a href="linux-nivel-05.html">N5</a><span class="sep">·</span>
+    <a href="linux-nivel-06.html">N6</a><a href="linux-nivel-07.html">N7</a><a href="linux-nivel-08.html">N8</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-09.html">N9</a><a href="linux-nivel-10.html">N10</a>
+    <a href="linux-nivel-11.html" class="activa">N11</a><span class="sep">·</span>
+    <a href="linux-nivel-12.html">N12</a><a href="linux-nivel-13.html">N13</a>
+    <a href="linux-nivel-14.html">N14</a><a href="linux-nivel-15.html">N15</a><span class="sep">·</span>
+    <a href="linux-nivel-16.html">N16</a><a href="linux-nivel-17.html">N17</a>
+    <a href="linux-nivel-18.html">N18</a><a href="linux-nivel-19.html">N19</a>
+    <a href="linux-nivel-20.html">N20</a><a href="linux-nivel-21.html">N21</a>
+    <a href="linux-nivel-22.html">N22</a><a href="linux-nivel-23.html">N23</a>
+  </div>
+  <a class="nn-next" href="linux-nivel-12.html">N12 →</a>
+</div>
+
+<nav class="sec-nav">
+  <a href="#que-es">🎯 ¿Qué es un protocolo?</a>
+  <a href="#x11">🖥️ X11 / X.Org</a>
+  <a href="#problemas">⚠️ Problemas de X11</a>
+  <a href="#wayland">💧 Wayland</a>
+  <a href="#compositor">🪟 Compositores</a>
+  <a href="#xwayland">🔄 XWayland</a>
+  <a href="#comparativa">⚖️ Comparativa</a>
+  <a href="#estado">📊 Estado actual</a>
+  <a href="#ejercicio">✏️ Ejercicio</a>
+</nav>
+
+<main>
+<div class="nivel-badge">📺 Nivel 11 — X11 y Wayland</div>
+
+
+<!-- ═══════════════════════
+     ¿QUÉ ES UN PROTOCOLO DE DISPLAY?
+═══════════════════════ -->
+<section class="module" id="que-es">
+  <div class="module-header">
+    <div class="module-icon">🎯</div>
+    <div>
+      <div class="module-title">¿Qué es un protocolo de display?</div>
+      <div class="module-sub">El idioma que usan las aplicaciones para comunicarse con la pantalla</div>
+    </div>
+  </div>
+
+  <p>Cuando Firefox quiere mostrar una ventana en tu pantalla, necesita seguir unas reglas muy concretas para comunicarse con el sistema gráfico: ¿cómo pide espacio en pantalla? ¿cómo envía los píxeles? ¿cómo recibe eventos del teclado y el ratón? Esas reglas son el <strong>protocolo de display</strong>.</p>
+
+  <div class="analogy">
+    <h4>📬 Analogía — El idioma de la oficina de correos</h4>
+    <p>Para enviar un paquete necesitas seguir las reglas de la oficina de correos: cómo rellenar el formulario, dónde poner la dirección, qué etiquetas usar. No puedes inventarte tu propio formato — tienes que hablar el idioma que la oficina entiende. Un <strong>protocolo de display</strong> es exactamente eso: el idioma oficial que tanto las aplicaciones (remitentes) como el sistema gráfico (oficina) deben hablar para que los paquetes (imágenes, eventos) lleguen correctamente.</p>
+  </div>
+
+  <p>Linux ha tenido históricamente dos protocolos de display dominantes:</p>
+  <ul>
+    <li><strong>X11</strong> (también llamado X Window System o X.Org) — el clásico, creado en 1984, durante 40 años fue el estándar.</li>
+    <li><strong>Wayland</strong> — el moderno, diseñado desde 2008 para reemplazar a X11 con una arquitectura más limpia y segura.</li>
+  </ul>
+
+  <div class="note">
+    <h4>📌 No son sistemas operativos ni escritorios</h4>
+    <p>X11 y Wayland son <strong>protocolos</strong> — especificaciones de cómo debe funcionar la comunicación gráfica. Los escritorios (GNOME, KDE) y los compositores (Mutter, KWin) implementan esos protocolos. Es como la diferencia entre HTTP (el protocolo) y Apache/Nginx (los servidores que lo implementan).</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     X11
+═══════════════════════ -->
+<section class="module" id="x11">
+  <div class="module-header">
+    <div class="module-icon">🖥️</div>
+    <div>
+      <div class="module-title">X11 — 40 años de historia gráfica</div>
+      <div class="module-sub">El sistema que llevó la interfaz gráfica a Unix y definió el escritorio Linux durante décadas</div>
+    </div>
+  </div>
+
+  <p><strong>X11</strong> (X Window System versión 11) nació en el MIT en 1984 y fue diseñado con una filosofía radical para su época: <strong>separar el display de la aplicación</strong>. Una app podía correr en una máquina y mostrarse en otra a través de la red. Esto fue revolucionario — y también la raíz de muchos de sus problemas modernos.</p>
+
+  <div class="analogy">
+    <h4>📡 Analogía — El sistema diseñado para redes de los años 80</h4>
+    <p>X11 fue diseñado cuando los ordenadores personales no existían tal como los conocemos hoy. El modelo era: tienes un mainframe potente en la sala de servidores y terminales gráficas baratas en los escritorios. La terminal muestra lo que el mainframe procesa — todo viaja por la red. Esta arquitectura cliente-servidor fue brillante en 1984. En 2024, con GPUs dedicadas y usuarios locales, es innecesariamente compleja y tiene implicaciones de seguridad serias.</p>
+  </div>
+
+  <h2>Arquitectura de X11</h2>
+
+  <div class="arch-flow">
+    <div class="af-row app">
+      <div class="af-icon">📱</div>
+      <div class="af-label">Aplicación cliente</div>
+      <div class="af-desc">Firefox, VS Code… — envían comandos de dibujo al servidor X</div>
+    </div>
+    <div class="af-arrow">↕ protocolo X11 (puede ser en red)</div>
+    <div class="af-row proto">
+      <div class="af-icon">🖥️</div>
+      <div class="af-label">X Server (X.Org)</div>
+      <div class="af-desc">El servidor central — recibe comandos, gestiona ventanas, maneja input, accede a la GPU</div>
+    </div>
+    <div class="af-arrow">↕ extensiones (Composite, DRI, GLX…)</div>
+    <div class="af-row de">
+      <div class="af-icon">🪟</div>
+      <div class="af-label">Window Manager</div>
+      <div class="af-desc">Decora ventanas (bordes, títulos) y las posiciona — pero es un cliente más del X Server</div>
+    </div>
+    <div class="af-arrow">↕ drivers</div>
+    <div class="af-row kern">
+      <div class="af-icon">⚙️</div>
+      <div class="af-label">Kernel + GPU</div>
+      <div class="af-desc">DRM/KMS — acceso real al hardware gráfico</div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>💡 Nomenclatura — X, X11, X.Org, Xorg</h4>
+    <p><strong>X</strong> es el nombre del sistema. <strong>X11</strong> es la versión 11 del protocolo (desde 1987, sin cambios en el protocolo base). <strong>X.Org</strong> es la implementación open source del servidor X (la más usada). <strong>Xorg</strong> es el ejecutable. En la práctica se usan como sinónimos — "tengo X11", "corro sobre Xorg", "sessión X" significan lo mismo.</p>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">información sobre tu sesión X11</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Ver si estás en X11 o Wayland</span>
+<span class="t-p">$</span> echo $XDG_SESSION_TYPE
+<span class="t-o">x11</span>
+
+<span class="t-h"># Ver la variable DISPLAY (X11 la usa para identificar el servidor)</span>
+<span class="t-p">$</span> echo $DISPLAY
+<span class="t-o">:0</span>
+
+<span class="t-h"># Ver info del servidor X</span>
+<span class="t-p">$</span> xdpyinfo | head -10
+<span class="t-o">name of display: :0</span>
+<span class="t-o">version number: 11.0</span>
+<span class="t-o">vendor string: The X.Org Foundation</span>
+
+<span class="t-h"># Ver la resolución y monitores con xrandr</span>
+<span class="t-p">$</span> xrandr
+<span class="t-o">Screen 0: 1920x1080</span>
+<span class="t-o">HDMI-1 connected primary 1920x1080+0+0</span>
+
+<span class="t-h"># Captura de pantalla (solo funciona en X11)</span>
+<span class="t-p">$</span> scrot screenshot.png
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     PROBLEMAS DE X11
+═══════════════════════ -->
+<section class="module" id="problemas">
+  <div class="module-header">
+    <div class="module-icon">⚠️</div>
+    <div>
+      <div class="module-title">Los problemas de X11 — por qué necesitaba un sucesor</div>
+      <div class="module-sub">40 años de deuda técnica acumulada</div>
+    </div>
+  </div>
+
+  <p>X11 funcionó muy bien durante décadas, pero arrastra problemas de diseño originados en 1984 que son imposibles de corregir sin romper la compatibilidad. Estos problemas son los que motivaron la creación de Wayland.</p>
+
+  <div class="issue-list">
+    <div class="issue-row">
+      <div class="issue-icon">🔓</div>
+      <div class="issue-text">
+        <strong>Cualquier app puede leer la pantalla completa</strong>
+        <span>En X11, cualquier aplicación puede capturar la pantalla de cualquier otra — incluso sin permiso. Un keylogger puede leer lo que escribes en cualquier ventana. Esto es un problema de diseño fundamental: el modelo de seguridad de X11 es "confía en todo el User Space".</span>
+      </div>
+    </div>
+    <div class="issue-row">
+      <div class="issue-icon">🐌</div>
+      <div class="issue-text">
+        <strong>Arquitectura client-server innecesaria</strong>
+        <span>X11 fue diseñado para redes. Hoy el 99% de los usuarios tienen el display en la misma máquina. La capa extra de comunicación client-server añade latencia sin ningún beneficio en el caso de uso moderno.</span>
+      </div>
+    </div>
+    <div class="issue-row">
+      <div class="issue-icon">🎨</div>
+      <div class="issue-text">
+        <strong>Tearing y artefactos visuales</strong>
+        <span>X11 tiene dificultades para sincronizar el renderizado correctamente, lo que produce tearing (imágenes partidas) al hacer scroll o mover ventanas rápidamente. Los compositores modernos lo mitigan pero no eliminan el problema de raíz.</span>
+      </div>
+    </div>
+    <div class="issue-row">
+      <div class="issue-icon">📏</div>
+      <div class="issue-text">
+        <strong>Soporte HiDPI deficiente</strong>
+        <span>Los monitores 4K y Retina llegaron mucho después de X11. El soporte HiDPI en X11 es un parche sobre parche — apps antiguas se ven borrosas o tienen escala incorrecta en pantallas de alta resolución.</span>
+      </div>
+    </div>
+    <div class="issue-row">
+      <div class="issue-icon">🏋️</div>
+      <div class="issue-text">
+        <strong>Código hinchado y difícil de mantener</strong>
+        <span>El servidor X.Org tiene millones de líneas de código, mucho del cual es código legacy de los años 80-90 que nadie se atreve a tocar. Añadir funciones modernas (Wayland-style input isolation, etc.) es extremadamente difícil.</span>
+      </div>
+    </div>
+    <div class="issue-row">
+      <div class="issue-icon">🖱️</div>
+      <div class="issue-text">
+        <strong>Gestión de input insegura</strong>
+        <span>Los eventos de teclado y ratón son globales en X11 — cualquier app puede interceptar lo que escribes en otra ventana. Herramientas de accesibilidad y screencasting dependen de esto, pero también los keyloggers maliciosos.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <h4>🏚️ Analogía — El edificio con reformas infinitas</h4>
+    <p>X11 es como un edificio construido en 1984 que ha sido reformado constantemente: se añadieron ascensores donde no había espacio, se reforzaron vigas con parcheos, se instaló electricidad moderna en conductos diseñados para otra cosa. Funciona, pero cada reforma nueva es más difícil que la anterior porque choca con decisiones de hace 40 años. En algún momento es más eficiente construir un edificio nuevo desde los cimientos.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     WAYLAND
+═══════════════════════ -->
+<section class="module" id="wayland">
+  <div class="module-header">
+    <div class="module-icon">💧</div>
+    <div>
+      <div class="module-title">Wayland — el protocolo diseñado para el presente</div>
+      <div class="module-sub">Arquitectura limpia, seguridad por diseño, compositor unificado</div>
+    </div>
+  </div>
+
+  <p><strong>Wayland</strong> nació en 2008 como un proyecto de Kristian Høgsberg (entonces en Red Hat) con un objetivo claro: reemplazar X11 resolviendo sus problemas de raíz, no con parches. El nombre viene del pueblo de Wayland, Massachusetts, donde vivía el autor.</p>
+
+  <div class="analogy">
+    <h4>🏗️ Analogía — Construir desde cero con lo aprendido</h4>
+    <p>Wayland es como construir un edificio nuevo en 2024 sabiendo todo lo que salió mal en el de 1984: ascensores desde el principio, cableado correcto desde los cimientos, materiales modernos, regulaciones de seguridad actuales. No es una reforma — es una construcción nueva que aprovecha 40 años de experiencia sobre qué funciona y qué no.</p>
+  </div>
+
+  <h2>La diferencia clave — el compositor unificado</h2>
+  <p>En X11, el servidor X, el compositor y el gestor de ventanas son piezas separadas que se comunican. En Wayland, <strong>el compositor ES el servidor de display y el gestor de ventanas a la vez</strong> — todo en una sola pieza, sin comunicaciones intermedias.</p>
+
+  <div class="compare-2">
+    <div class="cmp-box x11">
+      <div class="cmp-head">🖥️ X11 <span class="cmp-year">1984</span></div>
+      <div class="cmp-item">App → X Server → Compositor → WM</div>
+      <div class="cmp-item">3 piezas separadas comunicándose</div>
+      <div class="cmp-item">Cualquier app lee cualquier ventana</div>
+      <div class="cmp-item">Input global — keyloggers posibles</div>
+      <div class="cmp-item">Tearing en scroll y movimiento</div>
+      <div class="cmp-item">HiDPI complejo y parcheado</div>
+      <div class="cmp-item cmp-pro">✓ Compatibilidad universal</div>
+      <div class="cmp-item cmp-pro">✓ Captura de pantalla fácil</div>
+      <div class="cmp-item cmp-pro">✓ Accesibilidad madura</div>
+    </div>
+    <div class="cmp-box wl">
+      <div class="cmp-head">💧 Wayland <span class="cmp-year">2008</span></div>
+      <div class="cmp-item">App → Compositor (todo en uno)</div>
+      <div class="cmp-item">Una sola pieza, comunicación directa</div>
+      <div class="cmp-item">Apps aisladas — no ven otras ventanas</div>
+      <div class="cmp-item">Input aislado por app — más seguro</div>
+      <div class="cmp-item">Sin tearing — vsync perfecto</div>
+      <div class="cmp-item">HiDPI nativo y por-monitor</div>
+      <div class="cmp-item cmp-pro">✓ Seguridad por diseño</div>
+      <div class="cmp-item cmp-pro">✓ Rendimiento GPU directo</div>
+      <div class="cmp-item cmp-pro">✓ Gestos táctiles perfectos</div>
+    </div>
+  </div>
+
+  <div class="diagram">
+<span class="d-m"># Arquitectura Wayland — mucho más simple</span>
+
+<span class="d-b">App 1</span>  ─────────────────────────────────────┐
+<span class="d-b">App 2</span>  ───────────────────────────────┐    │
+<span class="d-b">App 3</span>  ─────────────────────────┐    │    │
+                                 ↓    ↓    ↓
+                    <span class="d-g">Compositor Wayland</span>
+                    (Mutter / KWin / Sway)
+                    ┌─────────────────────┐
+                    │ • gestor de ventanas│
+                    │ • compositor visual │
+                    │ • servidor display  │
+                    │ • gestor de input   │
+                    └─────────────────────┘
+                                 ↓
+                    <span class="d-r">Kernel (DRM/KMS + GPU)</span>
+                                 ↓
+                         <span class="d-y">Monitor físico</span>
+
+<span class="d-m"># Cada app solo ve su propio buffer — no puede leer las demás</span></div>
+
+  <div class="tip">
+    <h4>🟢 Wayland y la seguridad por aislamiento</h4>
+    <p>En Wayland, cada aplicación tiene su propio buffer de renderizado y <strong>no puede ver el contenido de otras ventanas</strong>. Para hacer screencasting o compartir pantalla, la app necesita pedir permiso explícito a través de los protocolos xdg-desktop-portal. Esto rompe la compatibilidad con algunas herramientas antiguas, pero es un salto enorme en seguridad — un proceso malicioso ya no puede hacer keylogging ni screen capture sin permiso explícito del usuario.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     COMPOSITORES WAYLAND
+═══════════════════════ -->
+<section class="module" id="compositor">
+  <div class="module-header">
+    <div class="module-icon">🪟</div>
+    <div>
+      <div class="module-title">Compositores Wayland — los implementadores del protocolo</div>
+      <div class="module-sub">Cada entorno de escritorio tiene su propio compositor Wayland</div>
+    </div>
+  </div>
+
+  <p>Wayland es un protocolo — no un programa. Cada entorno de escritorio implementa su propio <strong>compositor Wayland</strong> que actúa como servidor de display, gestor de ventanas y compositor visual todo en uno.</p>
+
+  <div class="comp-grid">
+    <div class="comp-card">
+      <div class="cc-title">Mutter</div>
+      <div class="cc-sub">GNOME — GTK4</div>
+      <div class="cc-desc">El compositor de GNOME. Integra el gestor de ventanas de GNOME Shell. Wayland nativo desde GNOME 3.22. El más maduro y estable.</div>
+    </div>
+    <div class="comp-card">
+      <div class="cc-title">KWin</div>
+      <div class="cc-sub">KDE Plasma — Qt6</div>
+      <div class="cc-desc">El compositor de KDE. Soporte Wayland estable desde Plasma 6. También puede correr sobre X11. Muy configurable con efectos visuales.</div>
+    </div>
+    <div class="comp-card">
+      <div class="cc-title">Sway</div>
+      <div class="cc-sub">Tiling WM — i3 compatible</div>
+      <div class="cc-desc">El compositor Wayland más popular entre usuarios de tiling WM. Compatible con la configuración de i3. Muy estable y eficiente.</div>
+    </div>
+    <div class="comp-card">
+      <div class="cc-title">Hyprland</div>
+      <div class="cc-sub">Tiling WM — muy popular 2023+</div>
+      <div class="cc-desc">Compositor tiling moderno con animaciones suaves y efectos visuales. Muy de moda en r/unixporn. Altamente configurable.</div>
+    </div>
+    <div class="comp-card">
+      <div class="cc-title">wlroots</div>
+      <div class="cc-sub">Librería base</div>
+      <div class="cc-desc">No es un compositor en sí — es la librería que usan Sway, Hyprland y muchos otros para implementar Wayland sin escribir todo desde cero.</div>
+    </div>
+    <div class="comp-card">
+      <div class="cc-title">Weston</div>
+      <div class="cc-sub">Compositor de referencia</div>
+      <div class="cc-desc">El compositor oficial de referencia de Wayland. Minimalista, para pruebas y referencia. No es para uso diario — es el "Hola Mundo" de Wayland.</div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">información sobre tu sesión Wayland</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Confirmar que estás en Wayland</span>
+<span class="t-p">$</span> echo $XDG_SESSION_TYPE
+<span class="t-o">wayland</span>
+
+<span class="t-h"># Ver el compositor Wayland activo</span>
+<span class="t-p">$</span> echo $WAYLAND_DISPLAY
+<span class="t-o">wayland-0</span>
+
+<span class="t-h"># Ver resolución y monitores con wlr-randr (alternativa Wayland a xrandr)</span>
+<span class="t-p">$</span> wlr-randr
+<span class="t-o">HDMI-A-1 "LG ULTRAFINE (DP-1)"</span>
+<span class="t-o">  2560x1440 @ 144.001 Hz (preferred)</span>
+
+<span class="t-h"># Captura de pantalla en Wayland (herramienta específica)</span>
+<span class="t-p">$</span> grim screenshot.png                    <span class="t-h"># toda la pantalla</span>
+<span class="t-p">$</span> grim -g "$(slurp)" region.png          <span class="t-h"># región seleccionada</span>
+
+<span class="t-h"># Ver qué apps usan Wayland nativo vs XWayland</span>
+<span class="t-p">$</span> xlsclients                              <span class="t-h"># muestra clientes X11 (XWayland)</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     XWAYLAND
+═══════════════════════ -->
+<section class="module" id="xwayland">
+  <div class="module-header">
+    <div class="module-icon">🔄</div>
+    <div>
+      <div class="module-title">XWayland — la capa de compatibilidad</div>
+      <div class="module-sub">Cómo las apps X11 antiguas corren en una sesión Wayland</div>
+    </div>
+  </div>
+
+  <p>No todas las aplicaciones tienen soporte Wayland nativo — muchas siguen usando la API de X11. Para que funcionen en una sesión Wayland, existe <strong>XWayland</strong>: un servidor X11 especial que corre como cliente Wayland, actuando de puente entre las apps X11 y el compositor Wayland.</p>
+
+  <div class="analogy">
+    <h4>🌐 Analogía — El traductor simultáneo</h4>
+    <p>Imagina una conferencia donde todos hablan Wayland (el idioma nuevo) pero algunos ponentes solo saben X11 (el idioma viejo). <strong>XWayland es el traductor simultáneo</strong>: escucha lo que dice el ponente en X11 y lo traduce en tiempo real al Wayland que entiende el sistema. La sala entera (Wayland) funciona perfectamente, y los ponentes en X11 ni saben que hay un traductor — ellos creen que hablan directamente con la audiencia.</p>
+  </div>
+
+  <div class="diagram">
+<span class="d-m"># Cómo conviven X11 y Wayland en una sesión moderna</span>
+
+<span class="d-g">App con Wayland nativo</span>  <span class="d-m">──────────────────────────────┐</span>
+(Firefox, GNOME apps…)                                          │
+                                                                ↓
+<span class="d-b">App X11 (Steam, apps viejas)</span>  →  <span class="d-y">XWayland</span>  →  <span class="d-g">Compositor Wayland</span>
+                               (traduce X11         (Mutter, KWin…)
+                                a Wayland)                      │
+                                                                ↓
+                                                    <span class="d-r">Kernel / GPU / Monitor</span>
+
+<span class="d-m"># XWayland se inicia automáticamente cuando una app X11 lo necesita</span>
+<span class="d-m"># Las apps Wayland nativas van directamente al compositor — más eficiente</span></div>
+
+  <div class="warn">
+    <h4>⚠️ Apps X11 bajo XWayland — limitaciones</h4>
+    <p>Las apps que corren bajo XWayland pierden algunas ventajas de Wayland: no tienen aislamiento completo (XWayland es un servidor X11 completo, así que sus clientes pueden leerse entre sí), pueden tener problemas con la escala HiDPI y algunos efectos visuales pueden fallar. Pero para la mayoría de apps es transparente — funcionan igual que siempre.</p>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Forzar apps a usar Wayland nativo</h4>
+    <p>Muchas apps populares ya tienen soporte Wayland pero no lo activan por defecto. Puedes forzarlo:</p>
+  </div>
+
+  <div class="code-wrap">
+    <div class="code-block"><span class="cc"># Firefox — activar Wayland nativo</span>
+<span class="cv">MOZ_ENABLE_WAYLAND=1</span> firefox
+
+<span class="cc"># Electron (VS Code, Discord, Obsidian…) — activar Wayland</span>
+<span class="cc"># En ~/.config/code/argv.json:</span>
+{
+  <span class="cs">"enable-features"</span>: <span class="cs">"UseOzonePlatform"</span>,
+  <span class="cs">"ozone-platform"</span>: <span class="cs">"wayland"</span>
+}
+
+<span class="cc"># O como argumento en la línea de comandos:</span>
+code <span class="cv">--enable-features=UseOzonePlatform --ozone-platform=wayland</span>
+
+<span class="cc"># Verificar si una app usa Wayland nativo o XWayland</span>
+<span class="cc"># Si aparece en `xlsclients` → usa XWayland</span>
+<span class="cc"># Si NO aparece → usa Wayland nativo</span></div>
+    <div class="lang-tag">BASH</div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     COMPARATIVA DIRECTA
+═══════════════════════ -->
+<section class="module" id="comparativa">
+  <div class="module-header">
+    <div class="module-icon">⚖️</div>
+    <div>
+      <div class="module-title">X11 vs Wayland — comparativa directa</div>
+      <div class="module-sub">Tabla completa de diferencias técnicas y prácticas</div>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Aspecto</th><th>X11 (X.Org)</th><th>Wayland</th></tr></thead>
+    <tbody>
+      <tr><td>Año de creación</td><td>1984 (protocolo X11: 1987)</td><td>2008 (protocolo), 2012 (primera release)</td></tr>
+      <tr><td>Arquitectura</td><td>Cliente-servidor separado</td><td>Compositor unificado</td></tr>
+      <tr><td>Seguridad de ventanas</td><td>Cualquier app lee cualquier ventana</td><td>Aislamiento total por app</td></tr>
+      <tr><td>Seguridad de input</td><td>Input global — keyloggers posibles</td><td>Input aislado por app</td></tr>
+      <tr><td>Tearing</td><td>Posible en scroll y movimiento</td><td>Sin tearing — vsync perfecto</td></tr>
+      <tr><td>HiDPI / 4K</td><td>Soporte complejo y parcheado</td><td>HiDPI nativo por monitor</td></tr>
+      <tr><td>Pantallas mixtas (1x + 2x)</td><td>Muy difícil</td><td>Nativo, por monitor</td></tr>
+      <tr><td>Gestos táctiles</td><td>Soporte básico</td><td>Excelente soporte nativo</td></tr>
+      <tr><td>Captura de pantalla</td><td>Cualquier app puede hacerlo</td><td>Requiere permiso explícito</td></tr>
+      <tr><td>Compatibilidad apps antiguas</td><td>Total</td><td>Via XWayland</td></tr>
+      <tr><td>Rendimiento</td><td>Bueno con compositor</td><td>Mejor — menos capas</td></tr>
+      <tr><td>Herramientas de accesibilidad</td><td>Maduras y completas</td><td>En desarrollo, mejorando</td></tr>
+      <tr><td>Remote desktop / VNC</td><td>Nativo y maduro</td><td>En desarrollo (PipeWire + xdg-portal)</td></tr>
+      <tr><td>Soporte NVIDIA</td><td>Siempre funcionó</td><td>Problemático hasta 2023, ya mejora</td></tr>
+    </tbody>
+  </table>
+
+  <div class="concept">
+    <h4>💡 ¿Cuándo seguir usando X11?</h4>
+    <p>Usa X11 si: tienes GPU NVIDIA con drivers propietarios en una versión antigua del sistema, necesitas herramientas de accesibilidad que aún no funcionan en Wayland, usas aplicaciones muy específicas que no funcionan bien bajo XWayland, o tienes un sistema heredado que no puedes actualizar. En el 90% de los casos modernos, Wayland es la mejor opción.</p>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════
+     ESTADO ACTUAL
+═══════════════════════ -->
+<section class="module" id="estado">
+  <div class="module-header">
+    <div class="module-icon">📊</div>
+    <div>
+      <div class="module-title">Estado actual — la transición en marcha</div>
+      <div class="module-sub">Dónde estamos en 2025 en la migración de X11 a Wayland</div>
+    </div>
+  </div>
+
+  <p>La transición a Wayland ha sido lenta pero consistente. En 2025 Wayland es la opción por defecto en la mayoría de las distribuciones principales, aunque X11 sigue disponible como alternativa.</p>
+
+  <table class="tbl">
+    <thead><tr><th>Distro / DE</th><th>Estado en 2025</th></tr></thead>
+    <tbody>
+      <tr><td>Ubuntu 24.04 + GNOME</td><td>Wayland por defecto. X11 disponible al hacer login.</td></tr>
+      <tr><td>Fedora 40 + GNOME</td><td>Wayland por defecto desde Fedora 25 (2016). Pionero.</td></tr>
+      <tr><td>Fedora 40 + KDE</td><td>Wayland por defecto desde Fedora 40 (Plasma 6).</td></tr>
+      <tr><td>Debian 12 + GNOME</td><td>Wayland por defecto en sesión GNOME.</td></tr>
+      <tr><td>Arch + GNOME / KDE</td><td>Wayland por defecto en ambos.</td></tr>
+      <tr><td>NVIDIA (driver propietario)</td><td>Wayland funciona bien desde driver 545+ (2023).</td></tr>
+      <tr><td>X.Org Server</td><td>En mantenimiento mínimo — sin nuevas features. Solo correcciones de seguridad.</td></tr>
+      <tr><td>X11 en general</td><td>Disponible como opción legacy, pero cada vez más distros no lo instalan por defecto.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    <h4>📌 El fin de X.Org como lo conocemos</h4>
+    <p>En 2022, el equipo de X.Org anunció que el servidor X entraría en modo de "mantenimiento mínimo" — solo correcciones de seguridad críticas, sin nuevas funciones. Los desarrolladores redirigieron sus esfuerzos a Wayland. Esto no significa que X11 desaparezca mañana, pero la dirección es clara: Wayland es el futuro y X11 es la tecnología legacy que se mantendrá por compatibilidad.</p>
+  </div>
+
+  <div class="diagram">
+<span class="d-m"># Línea de tiempo de la transición</span>
+
+<span class="d-y">2008</span>  Kristian Høgsberg presenta Wayland
+<span class="d-y">2012</span>  Primera release de Wayland (v1.0)
+<span class="d-y">2016</span>  Fedora 25 activa Wayland por defecto en GNOME
+<span class="d-y">2018</span>  Ubuntu 18.04 activa Wayland por defecto (luego vuelve a X11 por NVIDIA)
+<span class="d-y">2021</span>  Ubuntu 21.04 vuelve a activar Wayland por defecto
+<span class="d-y">2022</span>  X.Org entra en mantenimiento mínimo
+<span class="d-y">2023</span>  NVIDIA mejora soporte Wayland — barrera principal eliminada
+<span class="d-y">2024</span>  KDE Plasma 6 — Wayland por defecto en Fedora KDE
+<span class="d-y">2025</span>  Wayland por defecto en la mayoría de distros principales
+<span class="d-m">????</span>  X11 disponible solo como capa de compatibilidad legacy</div>
+
+  <div class="tip">
+    <h4>🟢 ¿Qué usar si tienes problemas en Wayland?</h4>
+    <p>Si una app específica falla en Wayland — pantalla negra, crashes, pantalla compartida que no funciona — la solución temporal es cambiar a una sesión X11: en la pantalla de login, haz clic en el ícono de engranaje y selecciona "Ubuntu en X11" o equivalente. Mientras la app se actualiza con soporte Wayland, X11 sigue ahí como red de seguridad.</p>
+  </div>
+</section>
+
+
+<!-- EJERCICIO -->
+<div class="ejercicio" id="ejercicio">
+  <div class="ej-hd">
+    ✏️ Ejercicio del Nivel 11
+    <span class="ej-badge">Diagnóstico</span>
+  </div>
+  <p>Investiga tu propio sistema gráfico:</p>
+  <ol>
+    <li>Ejecuta <code>echo $XDG_SESSION_TYPE</code>. ¿Estás en X11 o Wayland? Si es Wayland, también ejecuta <code>echo $WAYLAND_DISPLAY</code>.</li>
+    <li>Si estás en Wayland, ejecuta <code>xlsclients 2>/dev/null</code>. Las apps que aparecen usan XWayland (compatibilidad X11). Las que no aparecen son Wayland nativas.</li>
+    <li>Si estás en X11, ejecuta <code>xdpyinfo | grep -E "version|vendor"</code>. ¿Qué versión de X.Org tienes?</li>
+    <li>Cierra la sesión y en la pantalla de login busca el ícono de engranaje. ¿Tienes opción de cambiar entre X11 y Wayland? ¿Cuál es la que usas por defecto?</li>
+    <li>Abre Firefox y en la barra de direcciones escribe <code>about:support</code>. Busca "Window Protocol" en la información. ¿Dice "wayland" o "x11"?</li>
+    <li>Si tienes GNOME, instala <code>sudo apt install grim slurp</code> y toma una captura de pantalla de región con <code>grim -g "$(slurp)" ~/screenshot.png</code>.</li>
+  </ol>
+  <p><strong>Reflexión:</strong> Ahora que entiendes la diferencia de seguridad entre X11 y Wayland, ¿qué implicaciones tiene para un sistema que uses para trabajo con datos sensibles? ¿Qué protocolo preferirías usar y por qué?</p>
+</div>
+
+<!-- RESUMEN -->
+<div class="resumen">
+  <h3>🟥 Resumen del Nivel 11</h3>
+  <ul>
+    <li>Un <strong>protocolo de display</strong> define cómo se comunican las apps con el sistema gráfico para mostrar ventanas y recibir input.</li>
+    <li><strong>X11</strong> (1984) — arquitectura cliente-servidor, 40 años de historia. Problemas: seguridad débil, tearing, HiDPI deficiente, código legacy.</li>
+    <li><strong>Wayland</strong> (2008) — compositor unificado, aislamiento por app, sin tearing, HiDPI nativo. Diseñado para resolver los problemas de X11.</li>
+    <li>En Wayland, el compositor (Mutter, KWin, Sway) es a la vez servidor de display, gestor de ventanas y compositor visual.</li>
+    <li><strong>XWayland</strong> — servidor X11 que corre como cliente Wayland, permite usar apps X11 antiguas en sesiones Wayland.</li>
+    <li>X.Org entró en mantenimiento mínimo en 2022 — Wayland es el futuro indiscutible.</li>
+    <li>En 2025: Ubuntu, Fedora, Arch y la mayoría de distros tienen Wayland por defecto. NVIDIA ya funciona bien con Wayland desde 2023.</li>
+    <li>Para verificar: <code>echo $XDG_SESSION_TYPE</code> — dice "x11" o "wayland".</li>
+  </ul>
+</div>
+
+<a class="next-card" href="linux-nivel-12.html">
+  <div>
+    <div class="nc-label">Siguiente → Nivel 12</div>
+    <div class="nc-name">Terminal y Bash — variables, PATH, alias, history, redirección y el poder de la línea de comandos</div>
+  </div>
+  <div class="nc-arrow">→</div>
+</a>
+
+</main>
+
+<footer>
+  Linux desde Cero · Nivel 11 · X11 y Wayland · Café &lt;/&gt; · Hugo 2025
+</footer>
+
+<script>
+(function(){const s=localStorage.getItem('cafe-theme');const sys=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';const t=s||sys;document.documentElement.setAttribute('data-theme',t);updateUI(t);})();
+function toggleTheme(){const c=document.documentElement.getAttribute('data-theme');const n=c==='light'?'dark':'light';document.documentElement.setAttribute('data-theme',n);localStorage.setItem('cafe-theme',n);updateUI(n);}
+function updateUI(t){const i=document.getElementById('themeIcon');const l=document.getElementById('themeLabel');if(!i||!l)return;i.textContent=t==='dark'?'☀️':'🌙';l.textContent=t==='dark'?'Claro':'Oscuro';}
+</script>
+</body>
+</html>
