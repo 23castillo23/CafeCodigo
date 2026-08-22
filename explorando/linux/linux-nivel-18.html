@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux desde Cero · N18 · Almacenamiento</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root,[data-theme="light"]{--primary:#c44a2a;--primary-light:#fdf0ec;--primary-mid:rgba(196,74,42,.25);--secondary:#1a7a5a;--secondary-light:#edf7f3;--accent:#b07010;--accent-light:#fdf6e8;--bg:#f7f4ef;--surface:#ffffff;--text:#1a1814;--muted:#8a8480;--border:#e8e4de;--code-bg:#1a1814;--code-text:#e8e4de;--header-bg:#1a1814;--analogy-bg:#fff7ed;--analogy-border:#fde68a;--analogy-text:#78350f;--analogy-head:#92400e;--diagram-bg:#f0f4ff;--diagram-border:#c7d2fe;--note-bg:#f0f4ff;--note-border:#6366f1;--note-head:#4338ca;}
+[data-theme="dark"]{--primary:#ff7a57;--primary-light:rgba(255,122,87,.14);--primary-mid:rgba(255,122,87,.3);--secondary:#3ddc84;--secondary-light:rgba(61,220,132,.12);--accent:#f0c040;--accent-light:rgba(240,192,64,.12);--bg:#0d1117;--surface:#161b22;--text:#c9d8f0;--muted:#5a7090;--border:#21262d;--code-bg:#060a10;--code-text:#c9d8f0;--header-bg:#0a0e14;--analogy-bg:rgba(240,192,64,.07);--analogy-border:rgba(240,192,64,.3);--analogy-text:#e6d4a0;--analogy-head:#f0c040;--diagram-bg:#161b22;--diagram-border:#21262d;--note-bg:rgba(99,102,241,.1);--note-border:#818cf8;--note-head:#818cf8;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;font-size:16px;transition:background .25s,color .25s;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:300;height:45px;}
+.topbar-back{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);text-decoration:none;padding:5px 14px;border:1px solid var(--border);border-radius:999px;transition:all .15s;}
+.topbar-back:hover{color:var(--text);border-color:var(--muted);}
+.topbar-info{font-size:13px;color:var(--muted);}
+.theme-btn{margin-left:auto;background:none;border:1px solid var(--border);border-radius:999px;padding:4px 13px;font-size:13px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:.35rem;transition:all .15s;font-family:'DM Sans',sans-serif;}
+.theme-btn:hover{color:var(--text);border-color:var(--muted);}
+header{background:var(--header-bg);color:#f7f4ef;padding:3rem 2rem 2.25rem;text-align:center;position:relative;overflow:hidden;}
+header::before{content:'N18';position:absolute;font-family:'DM Mono',monospace;font-size:11rem;font-weight:900;color:rgba(255,255,255,.04);right:-1rem;top:-1.5rem;line-height:1;pointer-events:none;}
+.header-eyebrow{display:inline-flex;align-items:center;gap:.5rem;background:rgba(196,74,42,.25);border:1px solid rgba(196,74,42,.45);border-radius:20px;padding:3px 14px;font-size:.78rem;font-weight:700;color:#ffaa88;margin-bottom:.85rem;}
+header h1{font-size:2.5rem;font-weight:800;letter-spacing:-1px;color:#f7f4ef;line-height:1.2;}
+header h1 em{font-style:normal;color:#ff8a6a;}
+header p{font-size:1.05rem;opacity:.8;margin-top:.5rem;max-width:560px;margin-left:auto;margin-right:auto;}
+.header-chips{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-top:.9rem;}
+.header-chip{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:20px;padding:3px 13px;font-size:.76rem;color:rgba(255,255,255,.75);}
+.niveles-nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:45px;z-index:110;display:flex;align-items:center;height:38px;padding:0 1rem;}
+.nn-prev,.nn-next{flex-shrink:0;display:flex;align-items:center;gap:.3rem;padding:0 .75rem;height:100%;text-decoration:none;color:var(--muted);font-size:.78rem;font-weight:500;border-right:1px solid var(--border);transition:color .15s;white-space:nowrap;}
+.nn-next{border-right:none;border-left:1px solid var(--border);}
+.nn-prev:hover,.nn-next:hover{color:var(--primary);}
+.nn-list{flex:1;display:flex;align-items:center;justify-content:center;gap:.15rem;overflow-x:auto;padding:0 .5rem;}
+.nn-list::-webkit-scrollbar{display:none;}
+.nn-list a{flex-shrink:0;padding:2px 9px;border-radius:20px;text-decoration:none;font-size:.73rem;font-weight:600;color:var(--muted);font-family:'DM Mono',monospace;transition:color .15s,background .15s;}
+.nn-list a:hover{color:var(--text);background:var(--bg);}
+.nn-list a.activa{background:var(--primary-light);color:var(--primary);}
+.nn-list .sep{color:var(--border);font-size:.7rem;padding:0 1px;flex-shrink:0;pointer-events:none;}
+.sec-nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:83px;z-index:100;display:flex;overflow-x:auto;}
+.sec-nav::-webkit-scrollbar{display:none;}
+.sec-nav a{flex-shrink:0;padding:.75rem 1.1rem;text-decoration:none;color:var(--muted);font-size:.82rem;font-weight:500;border-bottom:2px solid transparent;white-space:nowrap;transition:color .2s,border-color .2s;}
+.sec-nav a:hover{color:var(--primary);border-bottom-color:var(--primary);}
+main{max-width:920px;margin:0 auto;padding:2rem 1.5rem;}
+.nivel-badge{display:inline-flex;align-items:center;gap:.5rem;background:var(--primary);color:white;border-radius:20px;padding:5px 16px;font-size:.82rem;font-weight:700;margin-bottom:1.75rem;}
+.module{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;margin-bottom:2.5rem;scroll-margin-top:135px;transition:background .25s,border-color .25s;}
+.module-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border);}
+.module-icon{font-size:1.8rem;flex-shrink:0;}
+.module-title{font-size:1.35rem;font-weight:700;}
+.module-sub{font-size:.85rem;color:var(--muted);margin-top:2px;}
+.module h2{font-size:1.15rem;font-weight:700;margin:1.75rem 0 .75rem;}
+.module p{margin-bottom:.85rem;font-size:.97rem;}
+.module ul,.module ol{padding-left:1.4rem;margin-bottom:.85rem;}
+.module li{margin-bottom:.4rem;font-size:.96rem;}
+.analogy{background:var(--analogy-bg);border:1px solid var(--analogy-border);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0;}
+.analogy h4{color:var(--analogy-head);font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+.analogy p{font-size:.95rem;color:var(--analogy-text);margin:0;}
+.concept,.tip,.warn,.note{border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0;border-left-width:4px;border-left-style:solid;}
+.concept h4,.tip h4,.warn h4,.note h4{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+.concept p,.tip p,.warn p,.note p{font-size:.95rem;margin:0;}
+.tip ul{font-size:.95rem;padding-left:1.2rem;margin-top:.3rem;}
+.concept{background:var(--primary-light);border-color:var(--primary);}.concept h4{color:var(--primary);}
+.tip{background:var(--secondary-light);border-color:var(--secondary);}.tip h4{color:var(--secondary);}
+.warn{background:var(--primary-light);border-color:var(--primary);}.warn h4{color:var(--primary);}
+.note{background:var(--note-bg);border-color:var(--note-border);}.note h4{color:var(--note-head);}
+.terminal{background:#0a0e14;border:1px solid #21262d;border-radius:10px;overflow:hidden;margin:1rem 0;}
+.term-bar{background:#161b22;padding:.42rem .85rem;display:flex;align-items:center;gap:.35rem;border-bottom:1px solid #21262d;}
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.dot-r{background:#ff5f57;}.dot-y{background:#ffbd2e;}.dot-g{background:#28c840;}
+.term-label{font-family:'DM Mono',monospace;font-size:.69rem;color:#3a5070;margin-left:.4rem;}
+.term-body{padding:1.1rem 1.3rem;font-family:'DM Mono',monospace;font-size:.85rem;line-height:2.1;color:#c9d8f0;}
+.t-p{color:#3ddc84;}.t-o{color:#5a7090;display:block;}.t-h{color:#253550;font-style:italic;display:block;}
+.diagram{background:var(--diagram-bg);border:1px solid var(--diagram-border);border-radius:12px;padding:1.5rem;margin:1.1rem 0;font-family:'DM Mono',monospace;font-size:.87rem;line-height:2;overflow-x:auto;}
+.d-r{color:var(--primary);font-weight:700;}.d-g{color:var(--secondary);font-weight:700;}.d-y{color:var(--accent);font-weight:700;}.d-b{color:#6366f1;font-weight:700;}.d-m{color:var(--muted);font-style:italic;}
+.tbl{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem;}
+.tbl th{background:var(--primary-light);color:var(--primary);padding:.65rem 1rem;text-align:left;font-weight:600;}
+.tbl td{padding:.65rem 1rem;border-bottom:1px solid var(--border);vertical-align:top;}
+.tbl td:first-child{font-family:'DM Mono',monospace;font-size:.85rem;color:var(--primary);font-weight:600;}
+.tbl tr:hover td{background:var(--bg);}
+.code-wrap{position:relative;margin:1rem 0;}
+.code-block{background:var(--code-bg);color:var(--code-text);border-radius:10px;padding:1.25rem 1.5rem;font-family:'DM Mono',monospace;font-size:.88rem;line-height:1.85;overflow-x:auto;white-space:pre;}
+.lang-tag{position:absolute;top:.6rem;right:.75rem;background:rgba(255,255,255,.1);color:rgba(255,255,255,.45);font-size:.68rem;padding:2px 8px;border-radius:4px;font-family:sans-serif;font-weight:700;}
+.ct{color:#89B4FA;}.cv{color:#A6E3A1;}.cs{color:#F9E2AF;}.cc{color:#585B70;font-style:italic;}.cn{color:#FAB387;}
+
+/* DISK VISUAL */
+.disk-visual{background:var(--diagram-bg);border:1px solid var(--diagram-border);border-radius:14px;padding:1.5rem;margin:1rem 0;}
+.dv-disk{display:flex;gap:3px;margin-bottom:.85rem;border-radius:8px;overflow:hidden;height:48px;}
+.dv-part{display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:.72rem;font-weight:700;padding:0 .5rem;flex-shrink:0;}
+.dv-esp{background:rgba(176,112,16,.4);color:var(--accent);min-width:60px;}
+.dv-swap{background:rgba(99,102,241,.3);color:#818cf8;min-width:60px;}
+.dv-root{background:rgba(196,74,42,.3);color:var(--primary);flex:1;}
+.dv-home{background:rgba(26,122,90,.3);color:var(--secondary);flex:2;}
+.dv-legend{display:flex;flex-wrap:wrap;gap:.5rem;}
+.dv-item{display:flex;align-items:center;gap:.4rem;font-size:.8rem;}
+.dv-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0;}
+
+/* FS COMPARE */
+.fs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.75rem;margin:1rem 0;}
+.fs-card{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:1.1rem;}
+.fc-name{font-family:'DM Mono',monospace;font-size:.9rem;font-weight:800;color:var(--primary);margin-bottom:.3rem;}
+.fc-tag{font-size:.7rem;color:var(--muted);margin-bottom:.5rem;}
+.fc-item{font-size:.82rem;color:var(--muted);margin-bottom:.2rem;padding-left:.75rem;position:relative;}
+.fc-item::before{content:'·';position:absolute;left:0;}
+.fc-item.pro::before{content:'✓';color:var(--secondary);}
+.fc-item.con::before{content:'·';color:var(--muted);}
+
+/* CMD GRID */
+.cmd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:.75rem;margin:1rem 0;}
+.cmd-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1rem;}
+.cmd-title{font-family:'DM Mono',monospace;font-size:.82rem;font-weight:700;color:var(--primary);margin-bottom:.3rem;}
+.cmd-desc{font-size:.83rem;color:var(--muted);margin-bottom:.5rem;}
+.cmd-ex{font-family:'DM Mono',monospace;font-size:.79rem;background:var(--code-bg);color:var(--code-text);padding:.45rem .75rem;border-radius:6px;display:block;}
+
+.ejercicio{background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:1.5rem;margin:1.5rem 0;}
+[data-theme="dark"] .ejercicio{background:rgba(240,192,64,.06);border-color:rgba(240,192,64,.22);}
+.ej-hd{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;font-weight:700;font-size:1rem;color:#78350F;flex-wrap:wrap;}
+[data-theme="dark"] .ej-hd{color:#f0c040;}
+.ej-badge{background:var(--accent);color:#fff;font-size:.68rem;padding:2px 9px;border-radius:20px;font-weight:700;text-transform:uppercase;}
+.ejercicio ol{padding-left:1.4rem;}
+.ejercicio ol li{margin-bottom:.6rem;font-size:.95rem;}
+.ejercicio p{font-size:.95rem;margin-bottom:.6rem;}
+.resumen{background:var(--primary-light);border:1px solid var(--primary-mid);border-radius:14px;padding:1.6rem;margin-bottom:1.5rem;}
+.resumen h3{color:var(--primary);margin-bottom:.75rem;font-size:1.05rem;}
+.resumen ul{padding-left:1.4rem;}
+.resumen li{font-size:.92rem;margin-bottom:.45rem;}
+.next-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem 1.5rem;display:flex;align-items:center;gap:1rem;text-decoration:none;transition:border-color .2s;margin-bottom:2rem;}
+.next-card:hover{border-color:var(--primary);}
+.nc-label{font-size:.72rem;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.2rem;}
+.nc-name{font-weight:700;color:var(--text);font-size:.97rem;}
+.nc-arrow{font-size:1.4rem;color:var(--primary);margin-left:auto;}
+code{font-family:'DM Mono',monospace;background:#f0ece6;color:var(--primary);padding:1px 5px;border-radius:4px;font-size:.9em;}
+[data-theme="dark"] code{background:#1c2128;}
+strong{font-weight:700;}
+p{margin-bottom:.8rem;}ul,ol{padding-left:1.4rem;margin-bottom:.8rem;}li{margin-bottom:.4rem;font-size:.96rem;}
+h2{font-size:1.2rem;font-weight:700;margin:1.75rem 0 .75rem;}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.85rem;border-top:1px solid var(--border);margin-top:1rem;background:var(--bg);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="topbar-back" href="../explorando-capitulos.html">← Explorando</a>
+  <span class="topbar-info">🐧 Linux desde Cero · Nivel 18 de 23</span>
+  <button class="theme-btn" onclick="toggleTheme()">
+    <span id="themeIcon">🌙</span><span id="themeLabel">Oscuro</span>
+  </button>
+</div>
+
+<header>
+  <div class="header-eyebrow">💾 Nivel 18 — Sistema</div>
+  <h1><em>Almacenamiento</em></h1>
+  <p>Discos, particiones, sistemas de archivos, mount, fstab, LVM y cómo Linux gestiona el espacio de almacenamiento</p>
+  <div class="header-chips">
+    <span class="header-chip">Nivel 18 de 23</span>
+    <span class="header-chip">💾 Disco</span>
+    <span class="header-chip">8 subtemas</span>
+    <span class="header-chip">~30 min</span>
+  </div>
+</header>
+
+<div class="niveles-nav">
+  <a class="nn-prev" href="linux-nivel-17.html">← N17</a>
+  <div class="nn-list">
+    <a href="linux-nivel-01.html">N1</a><a href="linux-nivel-02.html">N2</a><a href="linux-nivel-03.html">N3</a>
+    <a href="linux-nivel-04.html">N4</a><a href="linux-nivel-05.html">N5</a><span class="sep">·</span>
+    <a href="linux-nivel-06.html">N6</a><a href="linux-nivel-07.html">N7</a><a href="linux-nivel-08.html">N8</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-09.html">N9</a><a href="linux-nivel-10.html">N10</a><a href="linux-nivel-11.html">N11</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-12.html">N12</a><a href="linux-nivel-13.html">N13</a><a href="linux-nivel-14.html">N14</a>
+    <a href="linux-nivel-15.html">N15</a><span class="sep">·</span>
+    <a href="linux-nivel-16.html">N16</a><a href="linux-nivel-17.html">N17</a>
+    <a href="linux-nivel-18.html" class="activa">N18</a>
+    <a href="linux-nivel-19.html">N19</a><a href="linux-nivel-20.html">N20</a>
+    <a href="linux-nivel-21.html">N21</a><a href="linux-nivel-22.html">N22</a><a href="linux-nivel-23.html">N23</a>
+  </div>
+  <a class="nn-next" href="linux-nivel-19.html">N19 →</a>
+</div>
+
+<nav class="sec-nav">
+  <a href="#discos">💾 Discos y nombres</a>
+  <a href="#particiones">✂️ Particiones</a>
+  <a href="#filesystems">📁 Sistemas de archivos</a>
+  <a href="#formatear">🔧 Formatear</a>
+  <a href="#mount">🔗 mount</a>
+  <a href="#fstab">📄 fstab</a>
+  <a href="#espacio">📊 Espacio</a>
+  <a href="#lvm">🧩 LVM</a>
+  <a href="#ejercicio">✏️ Ejercicio</a>
+</nav>
+
+<main>
+<div class="nivel-badge">💾 Nivel 18 — Almacenamiento</div>
+
+
+<!-- DISCOS Y NOMBRES -->
+<section class="module" id="discos">
+  <div class="module-header">
+    <div class="module-icon">💾</div>
+    <div>
+      <div class="module-title">Discos y su nomenclatura en Linux</div>
+      <div class="module-sub">Cómo Linux nombra los dispositivos de almacenamiento en /dev/</div>
+    </div>
+  </div>
+
+  <p>En Linux, los discos y sus particiones aparecen como archivos especiales en <code>/dev/</code>. El nombre del dispositivo sigue una convención que indica el tipo de interfaz y el orden de detección.</p>
+
+  <div class="analogy">
+    <h4>📪 Analogía — Las casillas de correo del edificio</h4>
+    <p>Imagina un edificio (tu sistema) con casillas de correo en la entrada (<code>/dev/</code>). Cada casilla tiene un número único: <code>sda</code> es la primera casilla SATA/USB, <code>sdb</code> la segunda, <code>nvme0n1</code> es la casilla NVMe especial. Dentro de cada casilla grande hay subdivisiones (<code>sda1</code>, <code>sda2</code>) — las particiones. El cartero (kernel) sabe exactamente a qué casilla entregar cada paquete de datos.</p>
+  </div>
+
+  <div class="diagram">
+<span class="d-m"># Nomenclatura de dispositivos en /dev/</span>
+
+<span class="d-r">SATA / USB / SCSI</span>
+  <span class="d-y">sda</span>       → primer disco SATA/USB
+  <span class="d-y">sda1</span>      → primera partición de sda
+  <span class="d-y">sda2</span>      → segunda partición de sda
+  <span class="d-y">sdb</span>       → segundo disco SATA/USB
+  <span class="d-y">sdb1</span>      → primera partición de sdb
+
+<span class="d-r">NVMe (SSDs modernos)</span>
+  <span class="d-b">nvme0n1</span>   → primer disco NVMe (nvme0 = controladora, n1 = namespace)
+  <span class="d-b">nvme0n1p1</span> → primera partición de nvme0n1
+  <span class="d-b">nvme0n1p2</span> → segunda partición
+  <span class="d-b">nvme1n1</span>   → segundo disco NVMe
+
+<span class="d-r">Loop devices (imágenes, Snaps)</span>
+  <span class="d-m">loop0</span>     → primer dispositivo loop (para montar imágenes .iso, Snaps)
+  <span class="d-m">loop1</span>     → segundo dispositivo loop
+
+<span class="d-r">Dispositivos especiales</span>
+  <span class="d-m">sr0</span>       → unidad de DVD/CD-ROM
+  <span class="d-m">mmcblk0</span>  → tarjeta SD o eMMC</div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">identificar discos en el sistema</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Ver todos los dispositivos de bloque</span>
+<span class="t-p">$</span> lsblk
+<span class="t-o">NAME        MAJ:MIN  RM   SIZE RO TYPE MOUNTPOINT</span>
+<span class="t-o">sda           8:0     0 500.1G  0 disk</span>
+<span class="t-o">├─sda1        8:1     0   512M  0 part /boot/efi</span>
+<span class="t-o">└─sda2        8:2     0 499.6G  0 part /</span>
+<span class="t-o">nvme0n1     259:0     0 953.9G  0 disk</span>
+<span class="t-o">├─nvme0n1p1 259:1     0   512M  0 part</span>
+<span class="t-o">└─nvme0n1p2 259:2     0 953.4G  0 part /home</span>
+
+<span class="t-h"># lsblk con sistema de archivos y UUID</span>
+<span class="t-p">$</span> lsblk -f
+<span class="t-o">NAME        FSTYPE LABEL  UUID                                 MOUNTPOINT</span>
+<span class="t-o">sda2        ext4          a1b2c3d4-e5f6-7890-abcd-ef1234567890 /</span>
+<span class="t-o">nvme0n1p2   ext4          f9e8d7c6-b5a4-3210-fedc-ba9876543210 /home</span>
+
+<span class="t-h"># Ver info detallada de un disco</span>
+<span class="t-p">$</span> sudo fdisk -l /dev/sda
+<span class="t-p">$</span> sudo parted /dev/sda print
+
+<span class="t-h"># Ver discos físicos con smartctl (salud del disco)</span>
+<span class="t-p">$</span> sudo smartctl -H /dev/sda
+<span class="t-o">SMART overall-health self-assessment test result: PASSED</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- PARTICIONES -->
+<section class="module" id="particiones">
+  <div class="module-header">
+    <div class="module-icon">✂️</div>
+    <div>
+      <div class="module-title">Particiones — dividir el disco</div>
+      <div class="module-sub">MBR vs GPT y el esquema de particiones típico de Linux</div>
+    </div>
+  </div>
+
+  <p>Una <strong>partición</strong> es una división lógica del disco físico. Cada partición actúa como un disco independiente con su propio sistema de archivos. El mapa de particiones (dónde empieza y termina cada una) se guarda en el disco mismo, en el MBR o la tabla GPT.</p>
+
+  <div class="disk-visual">
+    <p style="font-size:.82rem;color:var(--muted);margin-bottom:.75rem;font-family:'DM Mono',monospace;">Esquema típico de particiones en un disco de instalación Ubuntu UEFI:</p>
+    <div class="dv-disk">
+      <div class="dv-part dv-esp">ESP<br>512MB</div>
+      <div class="dv-part dv-swap">swap<br>8GB</div>
+      <div class="dv-part dv-root">/ (root)<br>50GB — ext4</div>
+      <div class="dv-part dv-home">/home<br>resto — ext4</div>
+    </div>
+    <div class="dv-legend">
+      <div class="dv-item"><div class="dv-dot" style="background:rgba(176,112,16,.6)"></div><span><strong>ESP</strong> — EFI System Partition, FAT32, bootloader GRUB</span></div>
+      <div class="dv-item"><div class="dv-dot" style="background:rgba(99,102,241,.5)"></div><span><strong>swap</strong> — memoria virtual cuando se agota la RAM</span></div>
+      <div class="dv-item"><div class="dv-dot" style="background:rgba(196,74,42,.5)"></div><span><strong>/ (root)</strong> — el sistema operativo, programas, configuración</span></div>
+      <div class="dv-item"><div class="dv-dot" style="background:rgba(26,122,90,.5)"></div><span><strong>/home</strong> — datos personales de los usuarios</span></div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">gestionar particiones</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># fdisk — el clásico para MBR y GPT</span>
+<span class="t-p">$</span> sudo fdisk /dev/sdb        <span class="t-h"># abre interfaz interactiva</span>
+<span class="t-h"># m = ayuda  n = nueva  d = eliminar  p = mostrar  w = guardar  q = salir</span>
+
+<span class="t-h"># parted — más potente, soporta GPT bien</span>
+<span class="t-p">$</span> sudo parted /dev/sdb
+<span class="t-h"># (parted) mklabel gpt       → crear tabla de particiones GPT</span>
+<span class="t-h"># (parted) mkpart primary 1MiB 512MiB  → crear partición</span>
+<span class="t-h"># (parted) print              → mostrar particiones</span>
+<span class="t-h"># (parted) quit               → salir</span>
+
+<span class="t-h"># gparted — versión gráfica de parted (la más fácil)</span>
+<span class="t-p">$</span> sudo apt install gparted
+<span class="t-p">$</span> sudo gparted
+
+<span class="t-h"># Ver tabla de particiones actual</span>
+<span class="t-p">$</span> sudo parted /dev/sda print
+<span class="t-o">Model: Samsung SSD 870 (scsi)</span>
+<span class="t-o">Disk /dev/sda: 500GB</span>
+<span class="t-o">Partition Table: gpt</span>
+<span class="t-o">Number  Start   End    Size   File system  Name  Flags</span>
+<span class="t-o"> 1      1049kB  538MB  537MB  fat32              boot, esp</span>
+<span class="t-o"> 2      538MB   500GB  499GB  ext4</span>
+    </div>
+  </div>
+
+  <div class="note">
+    <h4>📌 UUID vs nombre de dispositivo en fstab</h4>
+    <p>Los nombres como <code>/dev/sda1</code> pueden cambiar si añades otro disco — el que era <code>sda</code> puede convertirse en <code>sdb</code>. Por eso en <code>/etc/fstab</code> siempre se usa el <strong>UUID</strong> (Universally Unique Identifier) de cada partición — un número que identifica la partición de forma permanente independientemente del orden de detección. Obtenerlo: <code>lsblk -f</code> o <code>blkid</code>.</p>
+  </div>
+</section>
+
+
+<!-- SISTEMAS DE ARCHIVOS -->
+<section class="module" id="filesystems">
+  <div class="module-header">
+    <div class="module-icon">📁</div>
+    <div>
+      <div class="module-title">Sistemas de archivos — cómo organiza Linux los datos</div>
+      <div class="module-sub">ext4, btrfs, xfs, tmpfs y los demás — cuándo usar cada uno</div>
+    </div>
+  </div>
+
+  <p>Un <strong>sistema de archivos</strong> define cómo se organizan y almacenan los datos dentro de una partición: dónde va cada archivo, cómo se indexan, qué metadatos se guardan y cómo se recupera de fallos. Es como el sistema de organización de una biblioteca.</p>
+
+  <div class="fs-grid">
+    <div class="fs-card">
+      <div class="fc-name">ext4</div>
+      <div class="fc-tag">El estándar de facto en Linux</div>
+      <div class="fc-item pro">Estable y maduro (desde 2008)</div>
+      <div class="fc-item pro">Journaling — resistente a fallos</div>
+      <div class="fc-item pro">Soporte universal en todas las distros</div>
+      <div class="fc-item pro">Excelente rendimiento general</div>
+      <div class="fc-item">Sin snapshots nativos</div>
+      <div class="fc-item">Reducir tamaño es complicado</div>
+    </div>
+    <div class="fs-card">
+      <div class="fc-name">btrfs</div>
+      <div class="fc-tag">El moderno con snapshots</div>
+      <div class="fc-item pro">Snapshots instantáneos (CoW)</div>
+      <div class="fc-item pro">Compresión transparente</div>
+      <div class="fc-item pro">RAID integrado</div>
+      <div class="fc-item pro">Por defecto en Fedora y openSUSE</div>
+      <div class="fc-item">Más complejo de gestionar</div>
+      <div class="fc-item">Rendimiento variable en SSDs</div>
+    </div>
+    <div class="fs-card">
+      <div class="fc-name">xfs</div>
+      <div class="fc-tag">Alto rendimiento para servidores</div>
+      <div class="fc-item pro">Excelente con archivos grandes</div>
+      <div class="fc-item pro">Muy escalable (multi-TB)</div>
+      <div class="fc-item pro">Por defecto en RHEL/CentOS/Fedora</div>
+      <div class="fc-item">No se puede reducir</div>
+      <div class="fc-item">Overkill para uso doméstico</div>
+    </div>
+    <div class="fs-card">
+      <div class="fc-name">tmpfs</div>
+      <div class="fc-tag">Sistema de archivos en RAM</div>
+      <div class="fc-item pro">Ultrarrápido (todo en RAM)</div>
+      <div class="fc-item pro">Se borra al reiniciar</div>
+      <div class="fc-item pro">Usado en /tmp, /run, /dev/shm</div>
+      <div class="fc-item">Los datos no persisten</div>
+      <div class="fc-item">Limitado por la RAM disponible</div>
+    </div>
+    <div class="fs-card">
+      <div class="fc-name">vfat / FAT32</div>
+      <div class="fc-tag">Compatibilidad universal</div>
+      <div class="fc-item pro">Compatible con Windows y macOS</div>
+      <div class="fc-item pro">Obligatorio para partición ESP</div>
+      <div class="fc-item">Sin permisos Unix</div>
+      <div class="fc-item">Archivos máx. 4 GB</div>
+    </div>
+    <div class="fs-card">
+      <div class="fc-name">exfat / NTFS</div>
+      <div class="fc-tag">Para discos externos</div>
+      <div class="fc-item pro">exFAT: sin límite de 4GB, cross-platform</div>
+      <div class="fc-item pro">NTFS: compatible con Windows</div>
+      <div class="fc-item">Sin permisos Unix nativos</div>
+      <div class="fc-item">Necesitan paquetes extra en Linux</div>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Situación</th><th>Sistema de archivos recomendado</th></tr></thead>
+    <tbody>
+      <tr><td>Partición raíz / y /home en desktop/laptop</td><td>ext4 (estable) o btrfs (con snapshots)</td></tr>
+      <tr><td>Servidor de archivos con volúmenes grandes</td><td>xfs o btrfs</td></tr>
+      <tr><td>Partición ESP (boot UEFI)</td><td>FAT32 — obligatorio</td></tr>
+      <tr><td>USB para intercambiar archivos con Windows/Mac</td><td>exFAT</td></tr>
+      <tr><td>Disco externo solo para Linux</td><td>ext4</td></tr>
+      <tr><td>/tmp, /run — datos temporales</td><td>tmpfs (automático)</td></tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- FORMATEAR -->
+<section class="module" id="formatear">
+  <div class="module-header">
+    <div class="module-icon">🔧</div>
+    <div>
+      <div class="module-title">Formatear — crear un sistema de archivos</div>
+      <div class="module-sub">mkfs — el comando para preparar una partición para usar</div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">mkfs — crear sistemas de archivos</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># mkfs.ext4 — el más usado</span>
+<span class="t-p">$</span> sudo mkfs.ext4 /dev/sdb1
+<span class="t-p">$</span> sudo mkfs.ext4 -L "datos" /dev/sdb1   <span class="t-h"># -L = etiqueta</span>
+
+<span class="t-h"># mkfs.btrfs</span>
+<span class="t-p">$</span> sudo mkfs.btrfs /dev/sdb1
+<span class="t-p">$</span> sudo mkfs.btrfs -L "backup" /dev/sdb1
+
+<span class="t-h"># mkfs.xfs</span>
+<span class="t-p">$</span> sudo mkfs.xfs /dev/sdb1
+
+<span class="t-h"># mkfs.vfat (para USB o partición ESP)</span>
+<span class="t-p">$</span> sudo mkfs.vfat -F 32 /dev/sdb1
+<span class="t-p">$</span> sudo mkfs.vfat -F 32 -n "USB-HUGO" /dev/sdb1
+
+<span class="t-h"># mkfs.exfat (para USB compatibles con Windows)</span>
+<span class="t-p">$</span> sudo apt install exfatprogs
+<span class="t-p">$</span> sudo mkfs.exfat /dev/sdb1
+
+<span class="t-h"># mkswap — crear partición de swap</span>
+<span class="t-p">$</span> sudo mkswap /dev/sdb2
+<span class="t-p">$</span> sudo swapon /dev/sdb2   <span class="t-h"># activar el swap</span>
+<span class="t-p">$</span> free -h                  <span class="t-h"># verificar que el swap está activo</span>
+
+<span class="t-h"># Verificar y reparar sistema de archivos ext4</span>
+<span class="t-p">$</span> sudo fsck.ext4 -f /dev/sdb1  <span class="t-h"># solo con la partición DESMONTADA</span>
+    </div>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ mkfs borra todos los datos sin confirmación</h4>
+    <p><code>mkfs</code> formatea la partición inmediatamente — no hay "¿estás seguro?". Confirma siempre que el dispositivo que vas a formatear (<code>/dev/sdb1</code>) es el correcto antes de ejecutar. Un error aquí puede borrar el sistema operativo o todos tus datos. Verifica dos veces con <code>lsblk</code> y <code>df</code> antes de formatear.</p>
+  </div>
+</section>
+
+
+<!-- MOUNT -->
+<section class="module" id="mount">
+  <div class="module-header">
+    <div class="module-icon">🔗</div>
+    <div>
+      <div class="module-title">mount y umount — conectar sistemas de archivos al árbol</div>
+      <div class="module-sub">Cómo Linux "injerta" particiones y dispositivos en el árbol de directorios</div>
+    </div>
+  </div>
+
+  <p>En Linux, para acceder al contenido de una partición o dispositivo hay que <strong>montarla</strong> en un directorio del árbol. El directorio donde se monta se llama <strong>punto de montaje</strong>. Montar conecta la raíz de esa partición con ese directorio.</p>
+
+  <div class="analogy">
+    <h4>🌲 Analogía — Injertar una rama en el árbol</h4>
+    <p>El sistema de archivos de Linux es un árbol. Montar una partición es como <strong>injertar una rama nueva</strong> en ese árbol. Si montas un USB en <code>/media/hugo/usb</code>, esa rama crece desde ese punto con todo el contenido del USB. Si desmontás (<code>umount</code>), la rama desaparece del árbol — pero el USB sigue ahí con sus datos intactos.</p>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">mount y umount — uso completo</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Ver todos los sistemas de archivos montados actualmente</span>
+<span class="t-p">$</span> mount | grep "^/dev"
+<span class="t-o">/dev/nvme0n1p2 on / type ext4 (rw,relatime)</span>
+<span class="t-o">/dev/nvme0n1p1 on /boot/efi type vfat (rw,relatime)</span>
+<span class="t-o">/dev/sda1 on /media/hugo/datos type ext4 (rw,relatime)</span>
+
+<span class="t-h"># Montar una partición manualmente</span>
+<span class="t-p">$</span> sudo mkdir -p /mnt/disco-extra
+<span class="t-p">$</span> sudo mount /dev/sdb1 /mnt/disco-extra
+
+<span class="t-h"># Montar con opciones específicas</span>
+<span class="t-p">$</span> sudo mount -o ro /dev/sdb1 /mnt/disco-extra    <span class="t-h"># solo lectura</span>
+<span class="t-p">$</span> sudo mount -o rw,noatime /dev/sdb1 /mnt/datos  <span class="t-h"># no actualizar atime</span>
+<span class="t-p">$</span> sudo mount -t ntfs /dev/sdb1 /mnt/windows      <span class="t-h"># forzar tipo de FS</span>
+
+<span class="t-h"># Montar una imagen ISO sin quemarla</span>
+<span class="t-p">$</span> sudo mount -o loop ubuntu.iso /mnt/iso
+
+<span class="t-h"># Desmontar — siempre antes de desconectar el disco</span>
+<span class="t-p">$</span> sudo umount /mnt/disco-extra
+<span class="t-p">$</span> sudo umount /dev/sdb1    <span class="t-h"># también funciona con el dispositivo</span>
+
+<span class="t-h"># Si da "device is busy", ver qué proceso usa el punto de montaje</span>
+<span class="t-p">$</span> lsof /mnt/disco-extra
+<span class="t-p">$</span> fuser -v /mnt/disco-extra
+
+<span class="t-h"># Desmontar a la fuerza (cuidado con datos sin escribir)</span>
+<span class="t-p">$</span> sudo umount -l /mnt/disco-extra    <span class="t-h"># lazy unmount — espera a que liberen</span>
+    </div>
+  </div>
+
+  <div class="cmd-grid">
+    <div class="cmd-card">
+      <div class="cmd-title">findmnt</div>
+      <div class="cmd-desc">Vista en árbol de todos los puntos de montaje — más legible que mount.</div>
+      <span class="cmd-ex">findmnt
+findmnt /home
+findmnt --df</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">mount -a</div>
+      <div class="cmd-desc">Montar todos los sistemas de archivos definidos en /etc/fstab que no estén ya montados.</div>
+      <span class="cmd-ex">sudo mount -a
+# Útil para probar fstab sin reiniciar</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">udisksctl</div>
+      <div class="cmd-desc">Montar/desmontar sin sudo — para el usuario normal. El gestor automático del escritorio.</div>
+      <span class="cmd-ex">udisksctl mount -b /dev/sdb1
+udisksctl unmount -b /dev/sdb1</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">blkid</div>
+      <div class="cmd-desc">Mostrar UUID, tipo de FS y etiqueta de todas las particiones. Esencial para fstab.</div>
+      <span class="cmd-ex">sudo blkid
+sudo blkid /dev/sda2</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- FSTAB -->
+<section class="module" id="fstab">
+  <div class="module-header">
+    <div class="module-icon">📄</div>
+    <div>
+      <div class="module-title">/etc/fstab — montajes permanentes</div>
+      <div class="module-sub">El archivo que define qué se monta automáticamente en cada arranque</div>
+    </div>
+  </div>
+
+  <p><strong>/etc/fstab</strong> (File System TABle) es el archivo donde se definen todos los sistemas de archivos que deben montarse automáticamente al arrancar. systemd lo lee durante el boot y monta todo lo que encuentra ahí.</p>
+
+  <div class="code-wrap">
+    <div class="code-block"><span class="cc"># /etc/fstab — formato: dispositivo  punto_montaje  tipo  opciones  dump  pass</span>
+
+<span class="cc"># La partición raíz (UUID recomendado, no /dev/sdXY)</span>
+UUID=<span class="cs">a1b2c3d4-e5f6-7890-abcd-ef1234567890</span>  <span class="cv">/</span>        <span class="ct">ext4</span>   defaults        <span class="cn">0  1</span>
+
+<span class="cc"># La partición EFI</span>
+UUID=<span class="cs">1234-ABCD</span>                              <span class="cv">/boot/efi</span> <span class="ct">vfat</span>   umask=0077      <span class="cn">0  1</span>
+
+<span class="cc"># El home en una partición separada</span>
+UUID=<span class="cs">f9e8d7c6-b5a4-3210-fedc-ba9876543210</span>  <span class="cv">/home</span>    <span class="ct">ext4</span>   defaults        <span class="cn">0  2</span>
+
+<span class="cc"># Partición swap</span>
+UUID=<span class="cs">0a1b2c3d-4e5f-6789-abcd-ef0123456789</span>  <span class="cv">none</span>     <span class="ct">swap</span>   sw              <span class="cn">0  0</span>
+
+<span class="cc"># tmpfs para /tmp en RAM (más rápido, se borra al reiniciar)</span>
+<span class="ct">tmpfs</span>                                      <span class="cv">/tmp</span>     <span class="ct">tmpfs</span>  nosuid,nodev    <span class="cn">0  0</span>
+
+<span class="cc"># Disco externo de datos montado permanentemente</span>
+UUID=<span class="cs">b2c3d4e5-f6a7-8901-bcde-f12345678901</span>  <span class="cv">/datos</span>   <span class="ct">ext4</span>   defaults,nofail <span class="cn">0  2</span>
+<span class="cc"># nofail = si el disco no está, no falla el arranque</span></div>
+    <div class="lang-tag">FSTAB</div>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Campo</th><th>Significado</th><th>Valores comunes</th></tr></thead>
+    <tbody>
+      <tr><td>dispositivo</td><td>Qué montar — siempre UUID en producción</td><td>UUID=..., LABEL=..., /dev/sdXY</td></tr>
+      <tr><td>punto de montaje</td><td>Dónde montarlo en el árbol</td><td>/, /home, /boot/efi, none (swap)</td></tr>
+      <tr><td>tipo</td><td>Sistema de archivos</td><td>ext4, btrfs, vfat, swap, tmpfs, auto</td></tr>
+      <tr><td>opciones</td><td>Opciones de montaje</td><td>defaults, ro, noatime, nofail, user</td></tr>
+      <tr><td>dump</td><td>¿Hacer dump backup? (obsoleto)</td><td>0 = no (siempre)</td></tr>
+      <tr><td>pass</td><td>Orden de fsck al arrancar</td><td>0=no, 1=raíz primero, 2=resto</td></tr>
+    </tbody>
+  </table>
+
+  <div class="warn">
+    <h4>⚠️ Un fstab mal escrito puede impedir el arranque</h4>
+    <p>Si escribes mal el UUID o el tipo de sistema de archivos en fstab, el sistema puede no arrancar. Antes de reiniciar después de editar fstab, prueba con <code>sudo mount -a</code> — si da error, corrígelo antes de reiniciar. Usa siempre UUID en lugar de <code>/dev/sdXY</code> y añade <code>nofail</code> a los discos opcionales para que el sistema arranque aunque ese disco no esté presente.</p>
+  </div>
+</section>
+
+
+<!-- ESPACIO EN DISCO -->
+<section class="module" id="espacio">
+  <div class="module-header">
+    <div class="module-icon">📊</div>
+    <div>
+      <div class="module-title">Monitorizar el espacio en disco</div>
+      <div class="module-sub">df, du y cómo encontrar qué ocupa más espacio</div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">df y du — espacio disponible y ocupado</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># df — espacio libre en cada sistema de archivos montado</span>
+<span class="t-p">$</span> df -h
+<span class="t-o">Filesystem      Size  Used Avail Use% Mounted on</span>
+<span class="t-o">/dev/nvme0n1p2  468G   42G  402G  10% /</span>
+<span class="t-o">/dev/nvme0n1p1  511M  6.1M  505M   2% /boot/efi</span>
+<span class="t-o">/dev/sda1       932G  234G  698G  26% /home</span>
+<span class="t-h"># -h = human readable (GB, MB)</span>
+
+<span class="t-h"># df de un directorio específico</span>
+<span class="t-p">$</span> df -h /home
+<span class="t-p">$</span> df -h /var/log
+
+<span class="t-h"># du — espacio que ocupa un directorio</span>
+<span class="t-p">$</span> du -sh ~               <span class="t-h"># tamaño total del home</span>
+<span class="t-o">12G     /home/hugo</span>
+
+<span class="t-p">$</span> du -sh ~/*/             <span class="t-h"># tamaño de cada subdirectorio del home</span>
+<span class="t-o">4.2G    /home/hugo/Descargas/</span>
+<span class="t-o">3.1G    /home/hugo/proyectos/</span>
+<span class="t-o">1.8G    /home/hugo/.local/</span>
+
+<span class="t-h"># Encontrar los 20 directorios más grandes del sistema</span>
+<span class="t-p">$</span> sudo du -h / --max-depth=3 2>/dev/null | sort -rh | head -20
+
+<span class="t-h"># ncdu — explorador interactivo de espacio en disco</span>
+<span class="t-p">$</span> sudo apt install ncdu
+<span class="t-p">$</span> ncdu /              <span class="t-h"># navega interactivamente, d para borrar</span>
+
+<span class="t-h"># Ver el uso del swap</span>
+<span class="t-p">$</span> free -h
+<span class="t-o">              total   used    free    shared  buff/cache  available</span>
+<span class="t-o">Mem:           15Gi   4.2Gi   8.1Gi   234Mi    2.7Gi      10Gi</span>
+<span class="t-o">Swap:           8Gi      0B    8Gi</span>
+
+<span class="t-h"># Limpiar espacio fácilmente</span>
+<span class="t-p">$</span> sudo apt autoremove && sudo apt clean   <span class="t-h"># paquetes huérfanos + caché apt</span>
+<span class="t-p">$</span> sudo journalctl --vacuum-size=200M      <span class="t-h"># reducir logs del journal</span>
+<span class="t-p">$</span> rm -rf ~/.cache/thumbnails/*            <span class="t-h"># miniaturas de imágenes</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- LVM -->
+<section class="module" id="lvm">
+  <div class="module-header">
+    <div class="module-icon">🧩</div>
+    <div>
+      <div class="module-title">LVM — gestión de volúmenes lógicos</div>
+      <div class="module-sub">Cómo redimensionar particiones en caliente y combinar discos fácilmente</div>
+    </div>
+  </div>
+
+  <p><strong>LVM</strong> (Logical Volume Manager) añade una capa de abstracción entre los discos físicos y los sistemas de archivos. Con LVM puedes redimensionar particiones en caliente, combinar varios discos en uno lógico, y hacer snapshots sin reiniciar.</p>
+
+  <div class="analogy">
+    <h4>🧱 Analogía — LEGO en lugar de bloques fijos</h4>
+    <p>Las particiones normales son como bloques de madera cortados a medida — una vez cortados, redimensionarlos es difícil y arriesgado. LVM es como usar LEGO: tienes bloques físicos (Physical Volumes), los metes en un cubo grande (Volume Group), y de ese cubo sacas piezas del tamaño que necesitas (Logical Volumes). ¿Necesitas más espacio? Añades más bloques LEGO al cubo sin tocar las piezas ya construidas.</p>
+  </div>
+
+  <div class="diagram">
+<span class="d-m"># Capas de LVM</span>
+
+Discos físicos:   <span class="d-y">/dev/sda2</span>    <span class="d-y">/dev/sdb</span>    <span class="d-y">/dev/sdc</span>
+                       ↓              ↓            ↓
+PV (Physical     <span class="d-r">pv /dev/sda2</span>  <span class="d-r">pv /dev/sdb</span>  <span class="d-r">pv /dev/sdc</span>
+Volumes):         ← unidades físicas reconocidas por LVM →
+
+VG (Volume       ╔═══════════════════════════════════════╗
+Group):          ║         <span class="d-g">vg-sistema</span> (~2 TB total)       ║
+                 ╚═══════════════════════════════════════╝
+                       ↓              ↓            ↓
+LV (Logical      <span class="d-b">lv-root (50G)</span>  <span class="d-b">lv-home (500G)</span>  <span class="d-b">lv-datos (1TB)</span>
+Volumes):            /            /home          /datos
+                 sistemas de archivos normales por encima</div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">LVM — comandos esenciales</span>
+    </div>
+    <div class="term-body">
+<span class="t-h">## VER LVM ACTUAL</span>
+<span class="t-p">$</span> sudo pvs          <span class="t-h"># Physical Volumes</span>
+<span class="t-p">$</span> sudo vgs          <span class="t-h"># Volume Groups</span>
+<span class="t-p">$</span> sudo lvs          <span class="t-h"># Logical Volumes</span>
+<span class="t-p">$</span> sudo lvdisplay    <span class="t-h"># info detallada de los LVs</span>
+
+<span class="t-h">## CREAR LVM (flujo básico)</span>
+<span class="t-h"># 1. Crear Physical Volume sobre una partición</span>
+<span class="t-p">$</span> sudo pvcreate /dev/sdb
+
+<span class="t-h"># 2. Crear Volume Group con ese PV</span>
+<span class="t-p">$</span> sudo vgcreate vg-datos /dev/sdb
+
+<span class="t-h"># 3. Crear Logical Volume de 100GB dentro del VG</span>
+<span class="t-p">$</span> sudo lvcreate -L 100G -n lv-proyectos vg-datos
+
+<span class="t-h"># 4. Formatear y montar como siempre</span>
+<span class="t-p">$</span> sudo mkfs.ext4 /dev/vg-datos/lv-proyectos
+<span class="t-p">$</span> sudo mount /dev/vg-datos/lv-proyectos /mnt/proyectos
+
+<span class="t-h">## AMPLIAR UN VOLUMEN LÓGICO (la killer feature de LVM)</span>
+<span class="t-h"># Ampliar el LV en 50GB más</span>
+<span class="t-p">$</span> sudo lvextend -L +50G /dev/vg-datos/lv-proyectos
+<span class="t-h"># Ampliar el sistema de archivos ext4 para usar el nuevo espacio</span>
+<span class="t-p">$</span> sudo resize2fs /dev/vg-datos/lv-proyectos
+<span class="t-h"># (con btrfs): sudo btrfs filesystem resize max /mnt/proyectos</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- EJERCICIO -->
+<div class="ejercicio" id="ejercicio">
+  <div class="ej-hd">
+    ✏️ Ejercicio del Nivel 18
+    <span class="ej-badge">Almacenamiento</span>
+  </div>
+  <p>Explora el almacenamiento de tu sistema sin modificar nada:</p>
+  <ol>
+    <li><strong>Discos:</strong> ejecuta <code>lsblk</code> y <code>lsblk -f</code>. ¿Cuántos discos tienes? ¿Cuántas particiones? ¿Qué sistema de archivos usa cada una?</li>
+    <li><strong>UUID:</strong> ejecuta <code>sudo blkid</code>. Anota el UUID de tu partición raíz (<code>/</code>). Luego compara con lo que hay en <code>cat /etc/fstab</code> — ¿coinciden?</li>
+    <li><strong>Montajes:</strong> ejecuta <code>findmnt</code>. ¿Cuántos sistemas de archivos distintos hay montados? ¿Puedes ver tmpfs, devtmpfs y los de tu disco?</li>
+    <li><strong>Espacio:</strong> ejecuta <code>df -h</code>. ¿Cuánto espacio libre queda en tu partición raíz? ¿Y en home?</li>
+    <li><strong>Ocupación:</strong> ejecuta <code>du -sh ~/*/</code> y <code>du -sh ~/.cache</code>. ¿Qué carpeta ocupa más espacio?</li>
+    <li><strong>LVM:</strong> ejecuta <code>sudo lvs 2>/dev/null && echo "Tienes LVM" || echo "Sin LVM"</code>. ¿Tu instalación usa LVM?</li>
+    <li><strong>Limpieza:</strong> ejecuta <code>sudo apt clean && sudo apt autoremove -y</code>. Luego <code>df -h</code> de nuevo — ¿cuánto espacio liberaste?</li>
+  </ol>
+  <p><strong>Reto:</strong> usa <code>sudo apt install ncdu</code> y luego <code>sudo ncdu /</code>. Navega para encontrar los 3 directorios que más espacio ocupan en tu sistema.</p>
+</div>
+
+<!-- RESUMEN -->
+<div class="resumen">
+  <h3>🟥 Resumen del Nivel 18</h3>
+  <ul>
+    <li>Los discos aparecen en <code>/dev/</code>: <code>sda</code> (SATA/USB), <code>nvme0n1</code> (NVMe). Las particiones son <code>sda1</code>, <code>nvme0n1p1</code>…</li>
+    <li>Siempre usar <strong>UUID</strong> para identificar particiones en fstab — los nombres <code>/dev/sdXY</code> pueden cambiar.</li>
+    <li>Esquema típico en desktop: ESP (FAT32, 512MB) + swap + / (ext4) + /home (ext4).</li>
+    <li><strong>ext4</strong> — el estándar estable. <strong>btrfs</strong> — moderno con snapshots. <strong>xfs</strong> — para servidores grandes. <strong>tmpfs</strong> — en RAM.</li>
+    <li><code>mkfs.ext4 /dev/sdb1</code> formatea una partición — sin vuelta atrás. Verificar dos veces antes de ejecutar.</li>
+    <li><code>mount /dev/sdb1 /mnt/punto</code> conecta la partición al árbol. <code>umount</code> la desconecta.</li>
+    <li><code>/etc/fstab</code> define los montajes automáticos del arranque. Probar con <code>mount -a</code> antes de reiniciar.</li>
+    <li><code>df -h</code> — espacio libre por sistema de archivos. <code>du -sh directorio</code> — espacio que ocupa un directorio. <code>ncdu</code> — explorador interactivo.</li>
+    <li><strong>LVM</strong> añade flexibilidad: Physical Volumes → Volume Groups → Logical Volumes. Permite redimensionar en caliente con <code>lvextend</code> + <code>resize2fs</code>.</li>
+  </ul>
+</div>
+
+<a class="next-card" href="linux-nivel-19.html">
+  <div>
+    <div class="nc-label">Siguiente → Nivel 19</div>
+    <div class="nc-name">CPU, RAM y rendimiento — monitorizar, diagnosticar y optimizar el sistema</div>
+  </div>
+  <div class="nc-arrow">→</div>
+</a>
+
+</main>
+
+<footer>
+  Linux desde Cero · Nivel 18 · Almacenamiento · Café &lt;/&gt; · Hugo 2025
+</footer>
+
+<script>
+(function(){const s=localStorage.getItem('cafe-theme');const sys=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';const t=s||sys;document.documentElement.setAttribute('data-theme',t);updateUI(t);})();
+function toggleTheme(){const c=document.documentElement.getAttribute('data-theme');const n=c==='light'?'dark':'light';document.documentElement.setAttribute('data-theme',n);localStorage.setItem('cafe-theme',n);updateUI(n);}
+function updateUI(t){const i=document.getElementById('themeIcon');const l=document.getElementById('themeLabel');if(!i||!l)return;i.textContent=t==='dark'?'☀️':'🌙';l.textContent=t==='dark'?'Claro':'Oscuro';}
+</script>
+</body>
+</html>

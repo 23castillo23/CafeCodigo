@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux desde Cero · N19 · CPU, RAM y Rendimiento</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root,[data-theme="light"]{--primary:#c44a2a;--primary-light:#fdf0ec;--primary-mid:rgba(196,74,42,.25);--secondary:#1a7a5a;--secondary-light:#edf7f3;--accent:#b07010;--accent-light:#fdf6e8;--bg:#f7f4ef;--surface:#ffffff;--text:#1a1814;--muted:#8a8480;--border:#e8e4de;--code-bg:#1a1814;--code-text:#e8e4de;--header-bg:#1a1814;--analogy-bg:#fff7ed;--analogy-border:#fde68a;--analogy-text:#78350f;--analogy-head:#92400e;--diagram-bg:#f0f4ff;--diagram-border:#c7d2fe;--note-bg:#f0f4ff;--note-border:#6366f1;--note-head:#4338ca;}
+[data-theme="dark"]{--primary:#ff7a57;--primary-light:rgba(255,122,87,.14);--primary-mid:rgba(255,122,87,.3);--secondary:#3ddc84;--secondary-light:rgba(61,220,132,.12);--accent:#f0c040;--accent-light:rgba(240,192,64,.12);--bg:#0d1117;--surface:#161b22;--text:#c9d8f0;--muted:#5a7090;--border:#21262d;--code-bg:#060a10;--code-text:#c9d8f0;--header-bg:#0a0e14;--analogy-bg:rgba(240,192,64,.07);--analogy-border:rgba(240,192,64,.3);--analogy-text:#e6d4a0;--analogy-head:#f0c040;--diagram-bg:#161b22;--diagram-border:#21262d;--note-bg:rgba(99,102,241,.1);--note-border:#818cf8;--note-head:#818cf8;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;font-size:16px;transition:background .25s,color .25s;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:300;height:45px;}
+.topbar-back{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);text-decoration:none;padding:5px 14px;border:1px solid var(--border);border-radius:999px;transition:all .15s;}
+.topbar-back:hover{color:var(--text);border-color:var(--muted);}
+.topbar-info{font-size:13px;color:var(--muted);}
+.theme-btn{margin-left:auto;background:none;border:1px solid var(--border);border-radius:999px;padding:4px 13px;font-size:13px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:.35rem;transition:all .15s;font-family:'DM Sans',sans-serif;}
+.theme-btn:hover{color:var(--text);border-color:var(--muted);}
+header{background:var(--header-bg);color:#f7f4ef;padding:3rem 2rem 2.25rem;text-align:center;position:relative;overflow:hidden;}
+header::before{content:'N19';position:absolute;font-family:'DM Mono',monospace;font-size:11rem;font-weight:900;color:rgba(255,255,255,.04);right:-1rem;top:-1.5rem;line-height:1;pointer-events:none;}
+.header-eyebrow{display:inline-flex;align-items:center;gap:.5rem;background:rgba(196,74,42,.25);border:1px solid rgba(196,74,42,.45);border-radius:20px;padding:3px 14px;font-size:.78rem;font-weight:700;color:#ffaa88;margin-bottom:.85rem;}
+header h1{font-size:2.5rem;font-weight:800;letter-spacing:-1px;color:#f7f4ef;line-height:1.2;}
+header h1 em{font-style:normal;color:#ff8a6a;}
+header p{font-size:1.05rem;opacity:.8;margin-top:.5rem;max-width:560px;margin-left:auto;margin-right:auto;}
+.header-chips{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-top:.9rem;}
+.header-chip{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:20px;padding:3px 13px;font-size:.76rem;color:rgba(255,255,255,.75);}
+.niveles-nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:45px;z-index:110;display:flex;align-items:center;height:38px;padding:0 1rem;}
+.nn-prev,.nn-next{flex-shrink:0;display:flex;align-items:center;gap:.3rem;padding:0 .75rem;height:100%;text-decoration:none;color:var(--muted);font-size:.78rem;font-weight:500;border-right:1px solid var(--border);transition:color .15s;white-space:nowrap;}
+.nn-next{border-right:none;border-left:1px solid var(--border);}
+.nn-prev:hover,.nn-next:hover{color:var(--primary);}
+.nn-list{flex:1;display:flex;align-items:center;justify-content:center;gap:.15rem;overflow-x:auto;padding:0 .5rem;}
+.nn-list::-webkit-scrollbar{display:none;}
+.nn-list a{flex-shrink:0;padding:2px 9px;border-radius:20px;text-decoration:none;font-size:.73rem;font-weight:600;color:var(--muted);font-family:'DM Mono',monospace;transition:color .15s,background .15s;}
+.nn-list a:hover{color:var(--text);background:var(--bg);}
+.nn-list a.activa{background:var(--primary-light);color:var(--primary);}
+.nn-list .sep{color:var(--border);font-size:.7rem;padding:0 1px;flex-shrink:0;pointer-events:none;}
+.sec-nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:83px;z-index:100;display:flex;overflow-x:auto;}
+.sec-nav::-webkit-scrollbar{display:none;}
+.sec-nav a{flex-shrink:0;padding:.75rem 1.1rem;text-decoration:none;color:var(--muted);font-size:.82rem;font-weight:500;border-bottom:2px solid transparent;white-space:nowrap;transition:color .2s,border-color .2s;}
+.sec-nav a:hover{color:var(--primary);border-bottom-color:var(--primary);}
+main{max-width:920px;margin:0 auto;padding:2rem 1.5rem;}
+.nivel-badge{display:inline-flex;align-items:center;gap:.5rem;background:var(--primary);color:white;border-radius:20px;padding:5px 16px;font-size:.82rem;font-weight:700;margin-bottom:1.75rem;}
+.module{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;margin-bottom:2.5rem;scroll-margin-top:135px;transition:background .25s,border-color .25s;}
+.module-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border);}
+.module-icon{font-size:1.8rem;flex-shrink:0;}
+.module-title{font-size:1.35rem;font-weight:700;}
+.module-sub{font-size:.85rem;color:var(--muted);margin-top:2px;}
+.module h2{font-size:1.15rem;font-weight:700;margin:1.75rem 0 .75rem;}
+.module p{margin-bottom:.85rem;font-size:.97rem;}
+.module ul,.module ol{padding-left:1.4rem;margin-bottom:.85rem;}
+.module li{margin-bottom:.4rem;font-size:.96rem;}
+.analogy{background:var(--analogy-bg);border:1px solid var(--analogy-border);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0;}
+.analogy h4{color:var(--analogy-head);font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+.analogy p{font-size:.95rem;color:var(--analogy-text);margin:0;}
+.concept,.tip,.warn,.note{border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0;border-left-width:4px;border-left-style:solid;}
+.concept h4,.tip h4,.warn h4,.note h4{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+.concept p,.tip p,.warn p,.note p{font-size:.95rem;margin:0;}
+.tip ul{font-size:.95rem;padding-left:1.2rem;margin-top:.3rem;}
+.concept{background:var(--primary-light);border-color:var(--primary);}.concept h4{color:var(--primary);}
+.tip{background:var(--secondary-light);border-color:var(--secondary);}.tip h4{color:var(--secondary);}
+.warn{background:var(--primary-light);border-color:var(--primary);}.warn h4{color:var(--primary);}
+.note{background:var(--note-bg);border-color:var(--note-border);}.note h4{color:var(--note-head);}
+.terminal{background:#0a0e14;border:1px solid #21262d;border-radius:10px;overflow:hidden;margin:1rem 0;}
+.term-bar{background:#161b22;padding:.42rem .85rem;display:flex;align-items:center;gap:.35rem;border-bottom:1px solid #21262d;}
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.dot-r{background:#ff5f57;}.dot-y{background:#ffbd2e;}.dot-g{background:#28c840;}
+.term-label{font-family:'DM Mono',monospace;font-size:.69rem;color:#3a5070;margin-left:.4rem;}
+.term-body{padding:1.1rem 1.3rem;font-family:'DM Mono',monospace;font-size:.85rem;line-height:2.1;color:#c9d8f0;}
+.t-p{color:#3ddc84;}.t-o{color:#5a7090;display:block;}.t-h{color:#253550;font-style:italic;display:block;}
+.diagram{background:var(--diagram-bg);border:1px solid var(--diagram-border);border-radius:12px;padding:1.5rem;margin:1.1rem 0;font-family:'DM Mono',monospace;font-size:.87rem;line-height:2;overflow-x:auto;}
+.d-r{color:var(--primary);font-weight:700;}.d-g{color:var(--secondary);font-weight:700;}.d-y{color:var(--accent);font-weight:700;}.d-b{color:#6366f1;font-weight:700;}.d-m{color:var(--muted);font-style:italic;}
+.tbl{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem;}
+.tbl th{background:var(--primary-light);color:var(--primary);padding:.65rem 1rem;text-align:left;font-weight:600;}
+.tbl td{padding:.65rem 1rem;border-bottom:1px solid var(--border);vertical-align:top;}
+.tbl td:first-child{font-family:'DM Mono',monospace;font-size:.85rem;color:var(--primary);font-weight:600;}
+.tbl tr:hover td{background:var(--bg);}
+
+/* METRIC CARDS */
+.metric-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:.75rem;margin:1rem 0;}
+.metric-card{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:1.1rem;text-align:center;}
+.mc-val{font-family:'DM Mono',monospace;font-size:1.6rem;font-weight:900;line-height:1;margin-bottom:.3rem;}
+.mc-label{font-size:.8rem;color:var(--muted);margin-bottom:.2rem;}
+.mc-cmd{font-family:'DM Mono',monospace;font-size:.72rem;color:var(--primary);background:var(--primary-light);padding:2px 7px;border-radius:4px;display:inline-block;}
+.mc-r .mc-val{color:var(--primary);}
+.mc-g .mc-val{color:var(--secondary);}
+.mc-y .mc-val{color:var(--accent);}
+.mc-b .mc-val{color:#6366f1;}
+
+/* DIAGNÓSTICO FLOW */
+.diag-flow{display:flex;flex-direction:column;gap:.4rem;margin:1rem 0;}
+.df-step{display:flex;align-items:flex-start;gap:.85rem;padding:.75rem 1rem;border-radius:10px;background:var(--bg);border:1px solid var(--border);}
+.df-num{font-family:'DM Mono',monospace;font-size:.75rem;font-weight:800;color:white;background:var(--primary);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.df-label{font-weight:700;font-size:.9rem;margin-bottom:2px;}
+.df-cmd{font-family:'DM Mono',monospace;font-size:.8rem;color:var(--primary);}
+.df-desc{font-size:.82rem;color:var(--muted);margin-top:2px;}
+
+/* CMD GRID */
+.cmd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:.75rem;margin:1rem 0;}
+.cmd-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1rem;}
+.cmd-title{font-family:'DM Mono',monospace;font-size:.82rem;font-weight:700;color:var(--primary);margin-bottom:.3rem;}
+.cmd-desc{font-size:.83rem;color:var(--muted);margin-bottom:.5rem;}
+.cmd-ex{font-family:'DM Mono',monospace;font-size:.79rem;background:var(--code-bg);color:var(--code-text);padding:.45rem .75rem;border-radius:6px;display:block;}
+
+.ejercicio{background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:1.5rem;margin:1.5rem 0;}
+[data-theme="dark"] .ejercicio{background:rgba(240,192,64,.06);border-color:rgba(240,192,64,.22);}
+.ej-hd{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;font-weight:700;font-size:1rem;color:#78350F;flex-wrap:wrap;}
+[data-theme="dark"] .ej-hd{color:#f0c040;}
+.ej-badge{background:var(--accent);color:#fff;font-size:.68rem;padding:2px 9px;border-radius:20px;font-weight:700;text-transform:uppercase;}
+.ejercicio ol{padding-left:1.4rem;}
+.ejercicio ol li{margin-bottom:.6rem;font-size:.95rem;}
+.ejercicio p{font-size:.95rem;margin-bottom:.6rem;}
+.resumen{background:var(--primary-light);border:1px solid var(--primary-mid);border-radius:14px;padding:1.6rem;margin-bottom:1.5rem;}
+.resumen h3{color:var(--primary);margin-bottom:.75rem;font-size:1.05rem;}
+.resumen ul{padding-left:1.4rem;}
+.resumen li{font-size:.92rem;margin-bottom:.45rem;}
+.next-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem 1.5rem;display:flex;align-items:center;gap:1rem;text-decoration:none;transition:border-color .2s;margin-bottom:2rem;}
+.next-card:hover{border-color:var(--primary);}
+.nc-label{font-size:.72rem;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.2rem;}
+.nc-name{font-weight:700;color:var(--text);font-size:.97rem;}
+.nc-arrow{font-size:1.4rem;color:var(--primary);margin-left:auto;}
+code{font-family:'DM Mono',monospace;background:#f0ece6;color:var(--primary);padding:1px 5px;border-radius:4px;font-size:.9em;}
+[data-theme="dark"] code{background:#1c2128;}
+strong{font-weight:700;}
+p{margin-bottom:.8rem;}ul,ol{padding-left:1.4rem;margin-bottom:.8rem;}li{margin-bottom:.4rem;font-size:.96rem;}
+h2{font-size:1.2rem;font-weight:700;margin:1.75rem 0 .75rem;}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.85rem;border-top:1px solid var(--border);margin-top:1rem;background:var(--bg);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="topbar-back" href="../explorando-capitulos.html">← Explorando</a>
+  <span class="topbar-info">🐧 Linux desde Cero · Nivel 19 de 23</span>
+  <button class="theme-btn" onclick="toggleTheme()">
+    <span id="themeIcon">🌙</span><span id="themeLabel">Oscuro</span>
+  </button>
+</div>
+
+<header>
+  <div class="header-eyebrow">⚡ Nivel 19 — Sistema</div>
+  <h1><em>CPU, RAM</em> y Rendimiento</h1>
+  <p>Cómo monitorizar el hardware, diagnosticar cuellos de botella y optimizar el rendimiento de Linux</p>
+  <div class="header-chips">
+    <span class="header-chip">Nivel 19 de 23</span>
+    <span class="header-chip">⚡ Rendimiento</span>
+    <span class="header-chip">8 subtemas</span>
+    <span class="header-chip">~25 min</span>
+  </div>
+</header>
+
+<div class="niveles-nav">
+  <a class="nn-prev" href="linux-nivel-18.html">← N18</a>
+  <div class="nn-list">
+    <a href="linux-nivel-01.html">N1</a><a href="linux-nivel-02.html">N2</a><a href="linux-nivel-03.html">N3</a>
+    <a href="linux-nivel-04.html">N4</a><a href="linux-nivel-05.html">N5</a><span class="sep">·</span>
+    <a href="linux-nivel-06.html">N6</a><a href="linux-nivel-07.html">N7</a><a href="linux-nivel-08.html">N8</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-09.html">N9</a><a href="linux-nivel-10.html">N10</a><a href="linux-nivel-11.html">N11</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-12.html">N12</a><a href="linux-nivel-13.html">N13</a><a href="linux-nivel-14.html">N14</a>
+    <a href="linux-nivel-15.html">N15</a><span class="sep">·</span>
+    <a href="linux-nivel-16.html">N16</a><a href="linux-nivel-17.html">N17</a><a href="linux-nivel-18.html">N18</a>
+    <a href="linux-nivel-19.html" class="activa">N19</a>
+    <a href="linux-nivel-20.html">N20</a><a href="linux-nivel-21.html">N21</a>
+    <a href="linux-nivel-22.html">N22</a><a href="linux-nivel-23.html">N23</a>
+  </div>
+  <a class="nn-next" href="linux-nivel-20.html">N20 →</a>
+</div>
+
+<nav class="sec-nav">
+  <a href="#cpu">🧠 CPU</a>
+  <a href="#ram">💾 RAM</a>
+  <a href="#carga">📊 Carga del sistema</a>
+  <a href="#io">💿 I/O de disco</a>
+  <a href="#temperatura">🌡️ Temperatura</a>
+  <a href="#benchmarks">🏎️ Benchmarks</a>
+  <a href="#diagnostico">🔍 Diagnóstico</a>
+  <a href="#optimizar">🚀 Optimizar</a>
+  <a href="#ejercicio">✏️ Ejercicio</a>
+</nav>
+
+<main>
+<div class="nivel-badge">⚡ Nivel 19 — CPU, RAM y Rendimiento</div>
+
+
+<!-- CPU -->
+<section class="module" id="cpu">
+  <div class="module-header">
+    <div class="module-icon">🧠</div>
+    <div>
+      <div class="module-title">CPU — monitorizar el procesador</div>
+      <div class="module-sub">Núcleos, frecuencia, uso por núcleo y el governor de energía</div>
+    </div>
+  </div>
+
+  <p>El procesador es el recurso más contendido del sistema — múltiples procesos compiten por tiempo de CPU. Linux expone información detallada de la CPU en tiempo real a través de <code>/proc/cpuinfo</code>, <code>/sys/</code> y herramientas de monitorización.</p>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">información y monitorización de CPU</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Info básica del procesador</span>
+<span class="t-p">$</span> lscpu
+<span class="t-o">Architecture:          x86_64</span>
+<span class="t-o">CPU(s):                12</span>
+<span class="t-o">Thread(s) per core:    2</span>
+<span class="t-o">Core(s) per socket:    6</span>
+<span class="t-o">Model name:            Intel Core i7-10750H @ 2.60GHz</span>
+<span class="t-o">CPU MHz:               2600.000</span>
+<span class="t-o">CPU max MHz:           5000.000</span>
+<span class="t-o">L3 cache:              12288K</span>
+
+<span class="t-h"># Ver uso de CPU por núcleo en tiempo real (en top)</span>
+<span class="t-p">$</span> top     <span class="t-h"># luego pulsa '1' para ver cada núcleo</span>
+
+<span class="t-h"># mpstat — estadísticas detalladas por núcleo</span>
+<span class="t-p">$</span> sudo apt install sysstat
+<span class="t-p">$</span> mpstat -P ALL 2    <span class="t-h"># actualiza cada 2 segundos</span>
+<span class="t-o">CPU  %usr  %sys  %iowait  %idle</span>
+<span class="t-o">all   8.2   2.1      0.3   89.4</span>
+<span class="t-o">  0  12.5   3.2      0.0   84.3</span>
+<span class="t-o">  1   4.8   1.2      0.8   93.2</span>
+
+<span class="t-h"># Ver la frecuencia actual de cada núcleo</span>
+<span class="t-p">$</span> cat /sys/devices/system/cpu/cpu*/cpufreq/scaling_cur_freq | head -6
+<span class="t-o">2600000</span>
+<span class="t-o">4200000</span>
+<span class="t-h"># En Hz — divide entre 1000 para MHz</span>
+
+<span class="t-h"># Governor de energía — política de frecuencia de CPU</span>
+<span class="t-p">$</span> cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+<span class="t-o">powersave</span>
+<span class="t-h"># powersave = ahorra energía  performance = máxima frecuencia siempre</span>
+
+<span class="t-h"># Cambiar governor (temporal)</span>
+<span class="t-p">$</span> echo "performance" | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
+<span class="t-h"># O con herramienta:</span>
+<span class="t-p">$</span> sudo apt install cpufrequtils
+<span class="t-p">$</span> sudo cpufreq-set -g performance
+    </div>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Governor</th><th>Comportamiento</th><th>Mejor para</th></tr></thead>
+    <tbody>
+      <tr><td>powersave</td><td>Frecuencia mínima siempre. Ahorra mucha batería.</td><td>Laptops en batería, servidores con poca carga</td></tr>
+      <tr><td>ondemand</td><td>Sube la frecuencia cuando hay carga, baja cuando hay idle.</td><td>Uso general de escritorio</td></tr>
+      <tr><td>performance</td><td>Frecuencia máxima siempre. Máximo rendimiento.</td><td>Gaming, compilación, cargas intensas</td></tr>
+      <tr><td>schedutil</td><td>Basado en el scheduler del kernel. Moderno y eficiente.</td><td>Por defecto en kernels modernos</td></tr>
+      <tr><td>conservative</td><td>Como ondemand pero sube y baja más gradualmente.</td><td>Laptops con batería limitada</td></tr>
+    </tbody>
+  </table>
+
+  <div class="tip">
+    <h4>🟢 turbostat — ver el estado real de la CPU</h4>
+    <p><code>turbostat</code> (parte de linux-tools) muestra en tiempo real la frecuencia real de cada núcleo, temperatura, consumo de energía y estado de bajo consumo (C-states). Es la herramienta más detallada para entender qué hace realmente la CPU: <code>sudo apt install linux-tools-common linux-tools-$(uname -r) && sudo turbostat</code>.</p>
+  </div>
+</section>
+
+
+<!-- RAM -->
+<section class="module" id="ram">
+  <div class="module-header">
+    <div class="module-icon">💾</div>
+    <div>
+      <div class="module-title">RAM — cómo Linux gestiona la memoria</div>
+      <div class="module-sub">free, /proc/meminfo, caché, swap y el OOM killer</div>
+    </div>
+  </div>
+
+  <p>Linux gestiona la RAM de forma agresiva y eficiente: usa toda la RAM disponible para cachear datos del disco (page cache), lo que hace que el sistema sea más rápido. La RAM "libre" en Linux casi siempre aparece muy baja — eso es normal y deseable.</p>
+
+  <div class="analogy">
+    <h4>🗄️ Analogía — El escritorio del empleado eficiente</h4>
+    <p>Un empleado eficiente no deja el escritorio vacío — mantiene sobre él todos los documentos que ha usado recientemente por si los necesita de nuevo. Linux hace lo mismo: usa la RAM libre como caché del disco. Si un proceso necesita más RAM, Linux desaloja la caché más antigua para dársela. La RAM "libre" en Linux es RAM <em>disponible para caché</em> — no RAM desperdiciada.</p>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">monitorizar la RAM en profundidad</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># free — la vista rápida de RAM y swap</span>
+<span class="t-p">$</span> free -h
+<span class="t-o">              total    used    free   shared  buff/cache  available</span>
+<span class="t-o">Mem:           15Gi    4.8Gi   1.2Gi   312Mi      9.0Gi      10Gi</span>
+<span class="t-o">Swap:           8Gi       0B    8Gi</span>
+<span class="t-h"># "available" es lo que realmente importa — lo que queda para apps nuevas</span>
+<span class="t-h"># buff/cache = RAM usada como caché (liberable si hace falta)</span>
+
+<span class="t-h"># /proc/meminfo — desglose completo</span>
+<span class="t-p">$</span> cat /proc/meminfo | head -20
+<span class="t-o">MemTotal:       16189208 kB   ← RAM total</span>
+<span class="t-o">MemFree:         1234567 kB   ← libre real</span>
+<span class="t-o">MemAvailable:   10234567 kB   ← disponible para apps (la importante)</span>
+<span class="t-o">Buffers:          234567 kB   ← cache de metadatos del FS</span>
+<span class="t-o">Cached:          8765432 kB   ← page cache (datos de disco en RAM)</span>
+<span class="t-o">SwapTotal:       8388608 kB</span>
+<span class="t-o">SwapFree:        8388608 kB   ← swap sin usar = buen signo</span>
+<span class="t-o">Dirty:              4567 kB   ← datos en RAM pendientes de escribir a disco</span>
+
+<span class="t-h"># Ver el uso de RAM por proceso</span>
+<span class="t-p">$</span> ps aux --sort=-%mem | head -8
+<span class="t-o">USER    PID  %CPU %MEM    VSZ   RSS COMMAND</span>
+<span class="t-o">hugo   1847   3.2  8.4 3856204 685892 firefox</span>
+<span class="t-o">hugo   2341   1.1  5.2 2341568 424960 code</span>
+
+<span class="t-h"># smem — reporte de memoria más preciso (sin doble contar shared)</span>
+<span class="t-p">$</span> sudo apt install smem
+<span class="t-p">$</span> smem -s pss -r | head -10
+
+<span class="t-h"># Forzar al kernel a liberar la caché de página (raramente necesario)</span>
+<span class="t-p">$</span> sudo sync && echo 3 | sudo tee /proc/sys/vm/drop_caches
+
+<span class="t-h"># Monitorizar el swap en tiempo real</span>
+<span class="t-p">$</span> watch -n 1 free -h
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>💡 El OOM Killer — Linux cuando se queda sin RAM</h4>
+    <p>Si el sistema se queda sin RAM y sin swap, el kernel activa el <strong>OOM Killer</strong> (Out Of Memory Killer). El OOM Killer elige el proceso más "caro" para matar — normalmente el que usa más RAM y tiene menor prioridad. Puedes ver si ha matado procesos con <code>dmesg | grep -i "oom"</code> o <code>journalctl -k | grep -i oom</code>. Ver el OOM Killer actuar es señal clara de que necesitas más RAM o menos procesos.</p>
+  </div>
+
+  <div class="metric-grid">
+    <div class="metric-card mc-g">
+      <div class="mc-val">available</div>
+      <div class="mc-label">El valor real de RAM libre</div>
+      <div class="mc-cmd">free -h</div>
+    </div>
+    <div class="metric-card mc-y">
+      <div class="mc-val">SwapFree</div>
+      <div class="mc-label">Si se usa swap, el sistema va lento</div>
+      <div class="mc-cmd">free -h / swapon -s</div>
+    </div>
+    <div class="metric-card mc-r">
+      <div class="mc-val">Dirty</div>
+      <div class="mc-label">Datos en RAM sin escribir al disco</div>
+      <div class="mc-cmd">cat /proc/meminfo</div>
+    </div>
+    <div class="metric-card mc-b">
+      <div class="mc-val">VSZ vs RSS</div>
+      <div class="mc-label">Virtual vs real en RAM (RSS importa)</div>
+      <div class="mc-cmd">ps aux</div>
+    </div>
+  </div>
+</section>
+
+
+<!-- CARGA DEL SISTEMA -->
+<section class="module" id="carga">
+  <div class="module-header">
+    <div class="module-icon">📊</div>
+    <div>
+      <div class="module-title">Load Average — la carga del sistema</div>
+      <div class="module-sub">Qué significan esos tres números y cuándo preocuparse</div>
+    </div>
+  </div>
+
+  <p>El <strong>load average</strong> es una de las métricas más importantes de Linux. Aparece en <code>top</code>, <code>uptime</code> y <code>htop</code> como tres números. Representa el número promedio de procesos en estado R (ejecutándose) o D (esperando I/O) durante el último 1, 5 y 15 minutos.</p>
+
+  <div class="analogy">
+    <h4>🛣️ Analogía — Los carriles de una autopista</h4>
+    <p>El load average es como contar coches en una autopista. Si tu CPU tiene 4 núcleos, la autopista tiene 4 carriles. Un load de 4.0 significa que todos los carriles están llenos — el sistema está al 100% de capacidad. Un load de 2.0 en una CPU de 4 núcleos significa que solo el 50% de la capacidad está usada — bien. Un load de 8.0 en 4 núcleos significa que hay el doble de coches que carriles — hay cola, el sistema está sobrecargado.</p>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">load average — leer e interpretar</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Ver el load average</span>
+<span class="t-p">$</span> uptime
+<span class="t-o"> 10:45:32 up 1:23,  1 user,  load average: 1.42, 0.98, 0.75</span>
+<span class="t-h">#                                              ↑1min  ↑5min  ↑15min</span>
+
+<span class="t-p">$</span> cat /proc/loadavg
+<span class="t-o">1.42 0.98 0.75 3/287 14923</span>
+<span class="t-h"># 3/287 = 3 procesos corriendo de 287 totales</span>
+<span class="t-h"># 14923 = último PID asignado</span>
+
+<span class="t-h"># Número de núcleos para interpretar el load</span>
+<span class="t-p">$</span> nproc
+<span class="t-o">12</span>
+<span class="t-h"># Con 12 núcleos: load de 1.42 = 12% de uso → muy bien</span>
+<span class="t-h"># Con 2 núcleos: load de 1.42 = 71% de uso → aceptable</span>
+<span class="t-h"># Si load > nproc → sistema sobrecargado → investigar</span>
+
+<span class="t-h"># sar — historial de carga (del paquete sysstat)</span>
+<span class="t-p">$</span> sar -q 1 5    <span class="t-h"># muestra load cada segundo, 5 veces</span>
+<span class="t-p">$</span> sar -u 1 5    <span class="t-h"># uso de CPU cada segundo</span>
+    </div>
+  </div>
+
+  <div class="diagram">
+<span class="d-m"># Interpretar el load average según los núcleos</span>
+
+Sistema con <span class="d-b">4 núcleos</span>:
+  load 0.5  → <span class="d-g">excelente</span>   — 12% de uso
+  load 2.0  → <span class="d-g">bien</span>        — 50% de uso
+  load 4.0  → <span class="d-y">límite</span>      — 100% de uso, no hay cola
+  load 6.0  → <span class="d-r">sobrecargado</span> — hay cola, 50% de procesos esperando
+  load 12.0 → <span class="d-r">crítico</span>     — triplicado, investigar urgente
+
+<span class="d-m"># La tendencia importa más que el valor instantáneo:</span>
+  1.42, 0.98, 0.75 → <span class="d-g">bajando</span> — el pico pasó, el sistema se recupera
+  0.75, 0.98, 1.42 → <span class="d-r">subiendo</span> — el problema está creciendo, actúa ahora</div>
+</section>
+
+
+<!-- I/O DE DISCO -->
+<section class="module" id="io">
+  <div class="module-header">
+    <div class="module-icon">💿</div>
+    <div>
+      <div class="module-title">I/O de disco — el cuello de botella más común</div>
+      <div class="module-sub">iostat, iotop y cómo identificar qué proceso está saturando el disco</div>
+    </div>
+  </div>
+
+  <p>El disco es casi siempre el componente más lento del sistema — órdenes de magnitud más lento que la RAM o la CPU. Un sistema con CPU ociosa pero disco saturado se siente igualmente lento. Los procesos en estado D (Disk Sleep) son la señal.</p>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">monitorizar el I/O de disco</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># iostat — estadísticas de I/O por dispositivo</span>
+<span class="t-p">$</span> iostat -xh 2    <span class="t-h"># actualiza cada 2 segundos, formato human-readable</span>
+<span class="t-o">Device  r/s   w/s  rMB/s  wMB/s  await  %util</span>
+<span class="t-o">sda    12.3  45.2   0.8    3.2    4.2    23.5</span>
+<span class="t-o">nvme0  88.4 234.1   6.3   18.7    0.3     8.2</span>
+<span class="t-h"># %util → porcentaje de tiempo que el disco está ocupado</span>
+<span class="t-h"># await → tiempo promedio de espera en ms (debería ser <10ms SSD, <50ms HDD)</span>
+
+<span class="t-h"># iotop — qué proceso usa más I/O (como top pero para disco)</span>
+<span class="t-p">$</span> sudo apt install iotop
+<span class="t-p">$</span> sudo iotop
+<span class="t-p">$</span> sudo iotop -o      <span class="t-h"># -o = solo muestra procesos con I/O activo</span>
+<span class="t-o">  TID  PRIO  USER    DISK READ  DISK WRITE  COMMAND</span>
+<span class="t-o"> 2341  BE/4  hugo      0.00 B/s   4.23 M/s  code</span>
+<span class="t-o">  847  BE/4  root      1.24 M/s   0.00 B/s  updatedb</span>
+
+<span class="t-h"># /proc/diskstats — estadísticas en bruto del kernel</span>
+<span class="t-p">$</span> cat /proc/diskstats | grep nvme0
+
+<span class="t-h"># Ver velocidades de lectura/escritura del disco</span>
+<span class="t-p">$</span> sudo hdparm -t /dev/sda      <span class="t-h"># velocidad de lectura secuencial</span>
+<span class="t-o">Timing buffered disk reads: 402 MB in 3.01 seconds = 133.60 MB/sec</span>
+
+<span class="t-h"># Benchmark rápido de escritura/lectura con dd</span>
+<span class="t-p">$</span> dd if=/dev/zero of=/tmp/test bs=1G count=1 oflag=direct
+<span class="t-o">1073741824 bytes copied, 3.21 s, 334 MB/s</span>
+<span class="t-p">$</span> dd if=/tmp/test of=/dev/null bs=1G count=1 iflag=direct
+<span class="t-o">1073741824 bytes copied, 2.87 s, 374 MB/s</span>
+<span class="t-p">$</span> rm /tmp/test
+    </div>
+  </div>
+</section>
+
+
+<!-- TEMPERATURA -->
+<section class="module" id="temperatura">
+  <div class="module-header">
+    <div class="module-icon">🌡️</div>
+    <div>
+      <div class="module-title">Temperatura y throttling térmico</div>
+      <div class="module-sub">sensors, lm-sensors y cómo el calor afecta al rendimiento</div>
+    </div>
+  </div>
+
+  <p>Cuando una CPU o GPU supera su temperatura máxima segura, el sistema activa el <strong>thermal throttling</strong> — reduce automáticamente la frecuencia para bajar la temperatura. Un sistema que "va lento" a veces es simplemente un sistema que tiene demasiado calor.</p>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">monitorizar temperaturas</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># lm-sensors — temperaturas de CPU, GPU y placa base</span>
+<span class="t-p">$</span> sudo apt install lm-sensors
+<span class="t-p">$</span> sudo sensors-detect    <span class="t-h"># detectar sensores disponibles (solo una vez)</span>
+<span class="t-p">$</span> sensors
+<span class="t-o">coretemp-isa-0000</span>
+<span class="t-o">Core 0:      +52.0°C  (high = +100.0°C, crit = +100.0°C)</span>
+<span class="t-o">Core 1:      +49.0°C</span>
+<span class="t-o">Core 2:      +53.0°C</span>
+<span class="t-o">acpitz-acpi-0</span>
+<span class="t-o">temp1:       +47.0°C</span>
+
+<span class="t-h"># watch sensors — actualizar en tiempo real</span>
+<span class="t-p">$</span> watch -n 1 sensors
+
+<span class="t-h"># Temperatura de los discos (SMART)</span>
+<span class="t-p">$</span> sudo apt install smartmontools
+<span class="t-p">$</span> sudo smartctl -A /dev/sda | grep -i temp
+<span class="t-o">190 Airflow_Temperature_Cel  0x0022   070  049  045  Old_age   Always  -  30</span>
+
+<span class="t-h"># Ver si hay throttling térmico en el kernel</span>
+<span class="t-p">$</span> dmesg | grep -i "thermal\|throttl"
+<span class="t-o">[  1234.567] CPU0: Core temperature above threshold, cpu clock throttled</span>
+
+<span class="t-h"># Temperatura de GPU NVIDIA</span>
+<span class="t-p">$</span> nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader
+<span class="t-o">67</span>
+
+<span class="t-h"># Temperatura de GPU AMD</span>
+<span class="t-p">$</span> sensors | grep -i "edge\|junction"
+    </div>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Componente</th><th>Normal</th><th>Preocupante</th><th>Crítico (throttling)</th></tr></thead>
+    <tbody>
+      <tr><td>CPU Intel Core</td><td>&lt; 70°C en carga</td><td>75-90°C</td><td>&gt; 100°C (Tjmax)</td></tr>
+      <tr><td>CPU AMD Ryzen</td><td>&lt; 80°C en carga</td><td>85-95°C</td><td>&gt; 95°C (Tjmax)</td></tr>
+      <tr><td>GPU NVIDIA</td><td>&lt; 80°C en carga</td><td>85-90°C</td><td>&gt; 93°C</td></tr>
+      <tr><td>SSD NVMe</td><td>&lt; 60°C</td><td>60-70°C</td><td>&gt; 70°C</td></tr>
+      <tr><td>HDD SATA</td><td>&lt; 45°C</td><td>45-55°C</td><td>&gt; 60°C</td></tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- BENCHMARKS -->
+<section class="module" id="benchmarks">
+  <div class="module-header">
+    <div class="module-icon">🏎️</div>
+    <div>
+      <div class="module-title">Benchmarks rápidos desde la terminal</div>
+      <div class="module-sub">Medir el rendimiento real de CPU, RAM y disco sin instalar suites complejas</div>
+    </div>
+  </div>
+
+  <div class="cmd-grid">
+    <div class="cmd-card">
+      <div class="cmd-title">sysbench — CPU y RAM</div>
+      <div class="cmd-desc">Benchmark rápido de CPU con cálculo de números primos. También RAM y MySQL.</div>
+      <span class="cmd-ex">sudo apt install sysbench
+sysbench cpu --threads=$(nproc) run
+sysbench memory run</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">stress — generar carga</div>
+      <div class="cmd-desc">Saturar CPU, RAM o disco para comprobar estabilidad o el comportamiento térmico.</div>
+      <span class="cmd-ex">sudo apt install stress
+stress --cpu 8 --timeout 60s
+stress --vm 2 --vm-bytes 1G --timeout 30s</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">fio — benchmark de disco</div>
+      <div class="cmd-desc">El estándar para medir IOPS, latencia y throughput de un disco o SSD.</div>
+      <span class="cmd-ex">sudo apt install fio
+fio --name=test --rw=read \
+  --bs=4k --numjobs=4 \
+  --filename=/tmp/fiotest \
+  --size=1G --runtime=30</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">time — medir un comando</div>
+      <div class="cmd-desc">Medir cuánto tarda en ejecutarse cualquier comando — CPU real vs user vs sys.</div>
+      <span class="cmd-ex">time make -j$(nproc)
+time python3 script.py
+time tar -czf backup.tar.gz ~/</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">perf — profiling de CPU</div>
+      <div class="cmd-desc">Herramienta del kernel para profiling avanzado. Ver dónde gasta tiempo la CPU.</div>
+      <span class="cmd-ex">sudo apt install linux-perf
+perf top              # top por funciones
+perf stat ./programa  # estadísticas del programa</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">speedtest-cli</div>
+      <div class="cmd-desc">Medir la velocidad de red desde la terminal — útil para comparar con el disco local.</div>
+      <span class="cmd-ex">sudo apt install speedtest-cli
+speedtest-cli</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- DIAGNÓSTICO -->
+<section class="module" id="diagnostico">
+  <div class="module-header">
+    <div class="module-icon">🔍</div>
+    <div>
+      <div class="module-title">Flujo de diagnóstico — el sistema va lento</div>
+      <div class="module-sub">La metodología sistemática para encontrar el cuello de botella</div>
+    </div>
+  </div>
+
+  <p>Cuando el sistema va lento, la pregunta es siempre: ¿lento en qué? CPU, RAM, disco o red son los candidatos. Este flujo de diagnóstico te lleva del síntoma al culpable en minutos.</p>
+
+  <div class="diag-flow">
+    <div class="df-step">
+      <div class="df-num">1</div>
+      <div>
+        <div class="df-label">Comprobar la carga general</div>
+        <div class="df-cmd">uptime | top | htop</div>
+        <div class="df-desc">¿Es el load average mayor que el número de núcleos? Si es alto → hay procesos compitiendo. Si es bajo → el cuello de botella no es la CPU.</div>
+      </div>
+    </div>
+    <div class="df-step">
+      <div class="df-num">2</div>
+      <div>
+        <div class="df-label">Ver qué proceso consume más CPU</div>
+        <div class="df-cmd">ps aux --sort=-%cpu | head -8</div>
+        <div class="df-desc">¿Hay un proceso al 100%? ¿Es esperado (compilando) o inesperado (malware, loop infinito)? ¿Muchos procesos en estado D? → problema de I/O.</div>
+      </div>
+    </div>
+    <div class="df-step">
+      <div class="df-num">3</div>
+      <div>
+        <div class="df-label">Comprobar la RAM</div>
+        <div class="df-cmd">free -h</div>
+        <div class="df-desc">¿El valor "available" es muy bajo (< 200 MB)? ¿Se está usando swap? Si el swap está activo, la RAM está agotada y el sistema paginará — muy lento.</div>
+      </div>
+    </div>
+    <div class="df-step">
+      <div class="df-num">4</div>
+      <div>
+        <div class="df-label">Comprobar el disco</div>
+        <div class="df-cmd">iostat -xh 2 | sudo iotop -o</div>
+        <div class="df-desc">¿El %util del disco está al 100%? ¿El await es alto? ¿iotop muestra un proceso con I/O masivo? → el disco es el cuello de botella.</div>
+      </div>
+    </div>
+    <div class="df-step">
+      <div class="df-num">5</div>
+      <div>
+        <div class="df-label">Comprobar temperatura</div>
+        <div class="df-cmd">sensors | watch -n 1 sensors</div>
+        <div class="df-desc">CPU > 90°C, GPU > 85°C → hay throttling térmico. La CPU reduce su frecuencia para no quemarse. Revisar ventilación, pasta térmica y ventiladores.</div>
+      </div>
+    </div>
+    <div class="df-step">
+      <div class="df-num">6</div>
+      <div>
+        <div class="df-label">Revisar logs de errores</div>
+        <div class="df-cmd">journalctl -b -p err | dmesg | grep -i error</div>
+        <div class="df-desc">¿Hay errores de hardware? ¿Errores de disco (I/O error, EXT4-fs error)? ¿OOM killer activo? Los logs revelan problemas que las métricas no muestran.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- OPTIMIZAR -->
+<section class="module" id="optimizar">
+  <div class="module-header">
+    <div class="module-icon">🚀</div>
+    <div>
+      <div class="module-title">Optimizaciones prácticas</div>
+      <div class="module-sub">Ajustes concretos para hacer Linux más rápido y eficiente</div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">optimizaciones prácticas</span>
+    </div>
+    <div class="term-body">
+<span class="t-h">## SWAP — ajustar swappiness (cuándo Linux empieza a usar swap)</span>
+<span class="t-p">$</span> cat /proc/sys/vm/swappiness
+<span class="t-o">60</span>
+<span class="t-h"># 60 = valor por defecto. 0-100. Más bajo = usa menos swap</span>
+<span class="t-h"># Para sistemas con mucha RAM, bajar a 10:</span>
+<span class="t-p">$</span> sudo sysctl vm.swappiness=10
+<span class="t-h"># Para hacerlo permanente:</span>
+<span class="t-p">$</span> echo "vm.swappiness=10" | sudo tee -a /etc/sysctl.conf
+
+<span class="t-h">## SSD — habilitar TRIM para mantener el rendimiento</span>
+<span class="t-p">$</span> sudo systemctl enable fstrim.timer   <span class="t-h"># ejecuta TRIM semanalmente</span>
+<span class="t-p">$</span> sudo fstrim -v /                      <span class="t-h"># ejecutar TRIM ahora</span>
+
+<span class="t-h">## ARRANQUE — identificar y deshabilitar servicios lentos</span>
+<span class="t-p">$</span> systemd-analyze blame | head -15     <span class="t-h"># servicios que tardan más en arrancar</span>
+<span class="t-p">$</span> sudo systemctl disable bluetooth     <span class="t-h"># si no usas bluetooth</span>
+<span class="t-p">$</span> sudo systemctl disable cups          <span class="t-h"># si no usas impresoras</span>
+
+<span class="t-h">## OOM — ajustar cuándo mata procesos el OOM killer</span>
+<span class="t-h"># Proteger un proceso crítico del OOM killer (ej: postgres)</span>
+<span class="t-p">$</span> echo -1000 | sudo tee /proc/$(pidof postgres)/oom_score_adj
+
+<span class="t-h">## PRELOAD — precargar apps frecuentes en RAM</span>
+<span class="t-p">$</span> sudo apt install preload    <span class="t-h"># aprende tus patrones y precarga apps</span>
+
+<span class="t-h">## TRANSPARENT HUGEPAGES — mejora el rendimiento con bases de datos</span>
+<span class="t-p">$</span> cat /sys/kernel/mm/transparent_hugepage/enabled
+<span class="t-o">[always] madvise never</span>
+<span class="t-h"># Para bases de datos (MongoDB, Redis) mejor "madvise" o "never":</span>
+<span class="t-p">$</span> echo "madvise" | sudo tee /sys/kernel/mm/transparent_hugepage/enabled
+
+<span class="t-h">## I/O SCHEDULER — cambiar el schedulador del disco</span>
+<span class="t-p">$</span> cat /sys/block/nvme0n1/queue/scheduler
+<span class="t-o">[none] mq-deadline kyber bfq</span>
+<span class="t-h"># Para SSDs: "none" o "mq-deadline" es óptimo</span>
+<span class="t-h"># Para HDDs: "bfq" da mejor rendimiento interactivo</span>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 La regla de oro de la optimización</h4>
+    <p>Nunca optimices sin medir primero. El proceso es: <strong>medir → identificar el cuello de botella → aplicar UN cambio → medir de nuevo</strong>. Cambiar varias cosas a la vez impide saber qué ayudó y qué no. La mayoría de los sistemas Linux modernos ya están bien configurados por defecto — los casos donde optimizaciones manuales marcan una diferencia real son instalaciones de servidor bajo cargas específicas.</p>
+  </div>
+</section>
+
+
+<!-- EJERCICIO -->
+<div class="ejercicio" id="ejercicio">
+  <div class="ej-hd">
+    ✏️ Ejercicio del Nivel 19
+    <span class="ej-badge">Diagnóstico</span>
+  </div>
+  <p>Haz un diagnóstico completo del rendimiento de tu sistema:</p>
+  <ol>
+    <li><strong>CPU:</strong> ejecuta <code>lscpu | grep -E "CPU\(s\)|Thread|Model name|MHz"</code>. ¿Cuántos núcleos reales tienes? ¿Cuántos hilos?</li>
+    <li><strong>Load:</strong> ejecuta <code>uptime</code>. ¿Cuál es el load average? ¿Es mayor o menor que tu número de núcleos (<code>nproc</code>)?</li>
+    <li><strong>RAM:</strong> ejecuta <code>free -h</code>. ¿Cuánta RAM "available" tienes? ¿Se está usando swap? ¿Cuánto buff/cache hay?</li>
+    <li><strong>RAM por proceso:</strong> ejecuta <code>ps aux --sort=-%mem | head -6</code>. ¿Qué proceso consume más memoria?</li>
+    <li><strong>Temperatura:</strong> instala lm-sensors (<code>sudo apt install lm-sensors && sudo sensors-detect --auto</code>) y ejecuta <code>sensors</code>. ¿Cuál es la temperatura de tu CPU?</li>
+    <li><strong>Benchmark CPU:</strong> ejecuta <code>time dd if=/dev/zero bs=1M count=1024 | md5sum</code>. ¿Cuánto tarda en procesar 1 GB?</li>
+    <li><strong>Benchmark disco:</strong> ejecuta <code>dd if=/dev/zero of=/tmp/test bs=1G count=1 oflag=direct && rm /tmp/test</code>. ¿A qué velocidad escribe tu disco?</li>
+  </ol>
+  <p><strong>Análisis:</strong> con los datos recopilados, identifica el componente más lento de tu sistema. ¿CPU, RAM o disco? ¿Hay algún proceso que esté consumiendo recursos de forma desproporcionada?</p>
+</div>
+
+<!-- RESUMEN -->
+<div class="resumen">
+  <h3>🟥 Resumen del Nivel 19</h3>
+  <ul>
+    <li><code>lscpu</code> — info completa de la CPU. <code>mpstat -P ALL</code> — uso por núcleo. Governor: <strong>powersave</strong> (batería) vs <strong>performance</strong> (máximo rendimiento).</li>
+    <li><code>free -h</code> — el valor <strong>available</strong> es la RAM real disponible. buff/cache es caché desalojable — no es RAM perdida.</li>
+    <li>Si <strong>swap se usa activamente</strong>, la RAM está agotada y el sistema irá lento. Aumentar RAM o reducir procesos.</li>
+    <li>El <strong>OOM Killer</strong> mata procesos cuando se agota toda la memoria. <code>dmesg | grep oom</code> para detectarlo.</li>
+    <li><strong>Load average</strong> con 3 valores (1/5/15 min). Si es mayor que <code>nproc</code> → sobrecargado. Si la tendencia sube → actúa ahora.</li>
+    <li><code>iostat -xh 2</code> — rendimiento del disco. <code>sudo iotop -o</code> — qué proceso hace más I/O. Muchos procesos en estado D → I/O saturado.</li>
+    <li><code>sensors</code> — temperaturas en tiempo real. Si la CPU supera su Tjmax → throttling térmico → rendimiento reducido automáticamente.</li>
+    <li>Flujo de diagnóstico: uptime → ps CPU → free RAM → iostat disco → sensors temperatura → journalctl errores.</li>
+    <li>Optimizaciones clave: <strong>swappiness=10</strong> con mucha RAM, <strong>fstrim</strong> semanal en SSD, deshabilitar servicios no usados en el arranque.</li>
+  </ul>
+</div>
+
+<a class="next-card" href="linux-nivel-20.html">
+  <div>
+    <div class="nc-label">Siguiente → Nivel 20</div>
+    <div class="nc-name">Redes — IP, DNS, SSH, curl, ping y el stack de red de Linux</div>
+  </div>
+  <div class="nc-arrow">→</div>
+</a>
+
+</main>
+
+<footer>
+  Linux desde Cero · Nivel 19 · CPU, RAM y Rendimiento · Café &lt;/&gt; · Hugo 2025
+</footer>
+
+<script>
+(function(){const s=localStorage.getItem('cafe-theme');const sys=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';const t=s||sys;document.documentElement.setAttribute('data-theme',t);updateUI(t);})();
+function toggleTheme(){const c=document.documentElement.getAttribute('data-theme');const n=c==='light'?'dark':'light';document.documentElement.setAttribute('data-theme',n);localStorage.setItem('cafe-theme',n);updateUI(n);}
+function updateUI(t){const i=document.getElementById('themeIcon');const l=document.getElementById('themeLabel');if(!i||!l)return;i.textContent=t==='dark'?'☀️':'🌙';l.textContent=t==='dark'?'Claro':'Oscuro';}
+</script>
+</body>
+</html>

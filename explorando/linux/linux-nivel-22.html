@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux desde Cero · N22 · Linux Internamente</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root,[data-theme="light"]{--primary:#c44a2a;--primary-light:#fdf0ec;--primary-mid:rgba(196,74,42,.25);--secondary:#1a7a5a;--secondary-light:#edf7f3;--accent:#b07010;--accent-light:#fdf6e8;--bg:#f7f4ef;--surface:#ffffff;--text:#1a1814;--muted:#8a8480;--border:#e8e4de;--code-bg:#1a1814;--code-text:#e8e4de;--header-bg:#1a1814;--analogy-bg:#fff7ed;--analogy-border:#fde68a;--analogy-text:#78350f;--analogy-head:#92400e;--diagram-bg:#f0f4ff;--diagram-border:#c7d2fe;--note-bg:#f0f4ff;--note-border:#6366f1;--note-head:#4338ca;}
+[data-theme="dark"]{--primary:#ff7a57;--primary-light:rgba(255,122,87,.14);--primary-mid:rgba(255,122,87,.3);--secondary:#3ddc84;--secondary-light:rgba(61,220,132,.12);--accent:#f0c040;--accent-light:rgba(240,192,64,.12);--bg:#0d1117;--surface:#161b22;--text:#c9d8f0;--muted:#5a7090;--border:#21262d;--code-bg:#060a10;--code-text:#c9d8f0;--header-bg:#0a0e14;--analogy-bg:rgba(240,192,64,.07);--analogy-border:rgba(240,192,64,.3);--analogy-text:#e6d4a0;--analogy-head:#f0c040;--diagram-bg:#161b22;--diagram-border:#21262d;--note-bg:rgba(99,102,241,.1);--note-border:#818cf8;--note-head:#818cf8;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;font-size:16px;transition:background .25s,color .25s;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:300;height:45px;}
+.topbar-back{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);text-decoration:none;padding:5px 14px;border:1px solid var(--border);border-radius:999px;transition:all .15s;}
+.topbar-back:hover{color:var(--text);border-color:var(--muted);}
+.topbar-info{font-size:13px;color:var(--muted);}
+.theme-btn{margin-left:auto;background:none;border:1px solid var(--border);border-radius:999px;padding:4px 13px;font-size:13px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:.35rem;transition:all .15s;font-family:'DM Sans',sans-serif;}
+.theme-btn:hover{color:var(--text);border-color:var(--muted);}
+header{background:var(--header-bg);color:#f7f4ef;padding:3rem 2rem 2.25rem;text-align:center;position:relative;overflow:hidden;}
+header::before{content:'N22';position:absolute;font-family:'DM Mono',monospace;font-size:11rem;font-weight:900;color:rgba(255,255,255,.04);right:-1rem;top:-1.5rem;line-height:1;pointer-events:none;}
+.header-eyebrow{display:inline-flex;align-items:center;gap:.5rem;background:rgba(196,74,42,.25);border:1px solid rgba(196,74,42,.45);border-radius:20px;padding:3px 14px;font-size:.78rem;font-weight:700;color:#ffaa88;margin-bottom:.85rem;}
+header h1{font-size:2.5rem;font-weight:800;letter-spacing:-1px;color:#f7f4ef;line-height:1.2;}
+header h1 em{font-style:normal;color:#ff8a6a;}
+header p{font-size:1.05rem;opacity:.8;margin-top:.5rem;max-width:580px;margin-left:auto;margin-right:auto;}
+.header-chips{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-top:.9rem;}
+.header-chip{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:20px;padding:3px 13px;font-size:.76rem;color:rgba(255,255,255,.75);}
+.niveles-nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:45px;z-index:110;display:flex;align-items:center;height:38px;padding:0 1rem;}
+.nn-prev,.nn-next{flex-shrink:0;display:flex;align-items:center;gap:.3rem;padding:0 .75rem;height:100%;text-decoration:none;color:var(--muted);font-size:.78rem;font-weight:500;border-right:1px solid var(--border);transition:color .15s;white-space:nowrap;}
+.nn-next{border-right:none;border-left:1px solid var(--border);}
+.nn-prev:hover,.nn-next:hover{color:var(--primary);}
+.nn-list{flex:1;display:flex;align-items:center;justify-content:center;gap:.15rem;overflow-x:auto;padding:0 .5rem;}
+.nn-list::-webkit-scrollbar{display:none;}
+.nn-list a{flex-shrink:0;padding:2px 9px;border-radius:20px;text-decoration:none;font-size:.73rem;font-weight:600;color:var(--muted);font-family:'DM Mono',monospace;transition:color .15s,background .15s;}
+.nn-list a:hover{color:var(--text);background:var(--bg);}
+.nn-list a.activa{background:var(--primary-light);color:var(--primary);}
+.nn-list .sep{color:var(--border);font-size:.7rem;padding:0 1px;flex-shrink:0;pointer-events:none;}
+.sec-nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:83px;z-index:100;display:flex;overflow-x:auto;}
+.sec-nav::-webkit-scrollbar{display:none;}
+.sec-nav a{flex-shrink:0;padding:.75rem 1.1rem;text-decoration:none;color:var(--muted);font-size:.82rem;font-weight:500;border-bottom:2px solid transparent;white-space:nowrap;transition:color .2s,border-color .2s;}
+.sec-nav a:hover{color:var(--primary);border-bottom-color:var(--primary);}
+main{max-width:920px;margin:0 auto;padding:2rem 1.5rem;}
+.nivel-badge{display:inline-flex;align-items:center;gap:.5rem;background:var(--primary);color:white;border-radius:20px;padding:5px 16px;font-size:.82rem;font-weight:700;margin-bottom:1.75rem;}
+.module{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;margin-bottom:2.5rem;scroll-margin-top:135px;transition:background .25s,border-color .25s;}
+.module-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border);}
+.module-icon{font-size:1.8rem;flex-shrink:0;}
+.module-title{font-size:1.35rem;font-weight:700;}
+.module-sub{font-size:.85rem;color:var(--muted);margin-top:2px;}
+.module p{margin-bottom:.85rem;font-size:.97rem;}
+.module ul,.module ol{padding-left:1.4rem;margin-bottom:.85rem;}
+.module li{margin-bottom:.4rem;font-size:.96rem;}
+.analogy{background:var(--analogy-bg);border:1px solid var(--analogy-border);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0;}
+.analogy h4{color:var(--analogy-head);font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+.analogy p{font-size:.95rem;color:var(--analogy-text);margin:0;}
+.concept,.tip,.warn,.note{border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0;border-left-width:4px;border-left-style:solid;}
+.concept h4,.tip h4,.warn h4,.note h4{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+.concept p,.tip p,.warn p,.note p{font-size:.95rem;margin:0;}
+.tip ul{font-size:.95rem;padding-left:1.2rem;margin-top:.3rem;}
+.concept{background:var(--primary-light);border-color:var(--primary);}.concept h4{color:var(--primary);}
+.tip{background:var(--secondary-light);border-color:var(--secondary);}.tip h4{color:var(--secondary);}
+.warn{background:var(--primary-light);border-color:var(--primary);}.warn h4{color:var(--primary);}
+.note{background:var(--note-bg);border-color:var(--note-border);}.note h4{color:var(--note-head);}
+.terminal{background:#0a0e14;border:1px solid #21262d;border-radius:10px;overflow:hidden;margin:1rem 0;}
+.term-bar{background:#161b22;padding:.42rem .85rem;display:flex;align-items:center;gap:.35rem;border-bottom:1px solid #21262d;}
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.dot-r{background:#ff5f57;}.dot-y{background:#ffbd2e;}.dot-g{background:#28c840;}
+.term-label{font-family:'DM Mono',monospace;font-size:.69rem;color:#3a5070;margin-left:.4rem;}
+.term-body{padding:1.1rem 1.3rem;font-family:'DM Mono',monospace;font-size:.85rem;line-height:2.1;color:#c9d8f0;}
+.t-p{color:#3ddc84;}.t-o{color:#5a7090;display:block;}.t-h{color:#253550;font-style:italic;display:block;}
+.diagram{background:var(--diagram-bg);border:1px solid var(--diagram-border);border-radius:12px;padding:1.5rem;margin:1.1rem 0;font-family:'DM Mono',monospace;font-size:.87rem;line-height:2;overflow-x:auto;}
+.d-r{color:var(--primary);font-weight:700;}.d-g{color:var(--secondary);font-weight:700;}.d-y{color:var(--accent);font-weight:700;}.d-b{color:#6366f1;font-weight:700;}.d-m{color:var(--muted);font-style:italic;}
+.tbl{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem;}
+.tbl th{background:var(--primary-light);color:var(--primary);padding:.65rem 1rem;text-align:left;font-weight:600;}
+.tbl td{padding:.65rem 1rem;border-bottom:1px solid var(--border);vertical-align:top;}
+.tbl td:first-child{font-family:'DM Mono',monospace;font-size:.85rem;color:var(--primary);font-weight:600;}
+.tbl tr:hover td{background:var(--bg);}
+/* pseudo-fs grid */
+.pfs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.75rem;margin:1rem 0;}
+.pfs-card{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:1.1rem;}
+.pfs-name{font-family:'DM Mono',monospace;font-size:.95rem;font-weight:800;color:var(--primary);margin-bottom:.25rem;}
+.pfs-tag{font-size:.72rem;color:var(--muted);margin-bottom:.5rem;}
+.pfs-item{font-size:.82rem;color:var(--text);margin-bottom:.2rem;padding-left:.75rem;position:relative;}
+.pfs-item::before{content:'·';position:absolute;left:0;color:var(--muted);}
+/* module grid */
+.cmd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:.75rem;margin:1rem 0;}
+.cmd-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1rem;}
+.cmd-title{font-family:'DM Mono',monospace;font-size:.82rem;font-weight:700;color:var(--primary);margin-bottom:.3rem;}
+.cmd-desc{font-size:.83rem;color:var(--muted);margin-bottom:.5rem;}
+.cmd-ex{font-family:'DM Mono',monospace;font-size:.79rem;background:var(--code-bg);color:var(--code-text);padding:.45rem .75rem;border-radius:6px;display:block;white-space:pre;}
+.ejercicio{background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:1.5rem;margin:1.5rem 0;}
+[data-theme="dark"] .ejercicio{background:rgba(240,192,64,.06);border-color:rgba(240,192,64,.22);}
+.ej-hd{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;font-weight:700;font-size:1rem;color:#78350F;flex-wrap:wrap;}
+[data-theme="dark"] .ej-hd{color:#f0c040;}
+.ej-badge{background:var(--accent);color:#fff;font-size:.68rem;padding:2px 9px;border-radius:20px;font-weight:700;text-transform:uppercase;}
+.ejercicio ol{padding-left:1.4rem;}
+.ejercicio li{margin-bottom:.6rem;font-size:.95rem;}
+.ejercicio p{font-size:.95rem;margin-bottom:.6rem;}
+.resumen{background:var(--primary-light);border:1px solid var(--primary-mid);border-radius:14px;padding:1.6rem;margin-bottom:1.5rem;}
+.resumen h3{color:var(--primary);margin-bottom:.75rem;font-size:1.05rem;}
+.resumen ul{padding-left:1.4rem;}
+.resumen li{font-size:.92rem;margin-bottom:.45rem;}
+.next-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem 1.5rem;display:flex;align-items:center;gap:1rem;text-decoration:none;transition:border-color .2s;margin-bottom:2rem;}
+.next-card:hover{border-color:var(--primary);}
+.nc-label{font-size:.72rem;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.2rem;}
+.nc-name{font-weight:700;color:var(--text);font-size:.97rem;}
+.nc-arrow{font-size:1.4rem;color:var(--primary);margin-left:auto;}
+code{font-family:'DM Mono',monospace;background:#f0ece6;color:var(--primary);padding:1px 5px;border-radius:4px;font-size:.9em;}
+[data-theme="dark"] code{background:#1c2128;}
+strong{font-weight:700;}
+p{margin-bottom:.8rem;}ul,ol{padding-left:1.4rem;margin-bottom:.8rem;}li{margin-bottom:.4rem;font-size:.96rem;}
+h2{font-size:1.2rem;font-weight:700;margin:1.75rem 0 .75rem;}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.85rem;border-top:1px solid var(--border);margin-top:1rem;background:var(--bg);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="topbar-back" href="../explorando-capitulos.html">← Explorando</a>
+  <span class="topbar-info">🐧 Linux desde Cero · Nivel 22 de 23</span>
+  <button class="theme-btn" onclick="toggleTheme()">
+    <span id="themeIcon">🌙</span><span id="themeLabel">Oscuro</span>
+  </button>
+</div>
+
+<header>
+  <div class="header-eyebrow">⚙️ Nivel 22 — Kernel</div>
+  <h1>Linux <em>internamente</em></h1>
+  <p>/proc, /sys, /dev, módulos del kernel, drivers y las interfaces que expone el kernel para que el userspace lo controle</p>
+  <div class="header-chips">
+    <span class="header-chip">Nivel 22 de 23</span>
+    <span class="header-chip">⚙️ Kernel</span>
+    <span class="header-chip">7 subtemas</span>
+    <span class="header-chip">~30 min</span>
+  </div>
+</header>
+
+<div class="niveles-nav">
+  <a class="nn-prev" href="linux-nivel-21.html">← N21</a>
+  <div class="nn-list">
+    <a href="linux-nivel-01.html">N1</a><a href="linux-nivel-02.html">N2</a><a href="linux-nivel-03.html">N3</a>
+    <a href="linux-nivel-04.html">N4</a><a href="linux-nivel-05.html">N5</a><span class="sep">·</span>
+    <a href="linux-nivel-06.html">N6</a><a href="linux-nivel-07.html">N7</a><a href="linux-nivel-08.html">N8</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-09.html">N9</a><a href="linux-nivel-10.html">N10</a><a href="linux-nivel-11.html">N11</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-12.html">N12</a><a href="linux-nivel-13.html">N13</a><a href="linux-nivel-14.html">N14</a>
+    <a href="linux-nivel-15.html">N15</a><span class="sep">·</span>
+    <a href="linux-nivel-16.html">N16</a><a href="linux-nivel-17.html">N17</a><a href="linux-nivel-18.html">N18</a>
+    <a href="linux-nivel-19.html">N19</a><a href="linux-nivel-20.html">N20</a><a href="linux-nivel-21.html">N21</a>
+    <a href="linux-nivel-22.html" class="activa">N22</a>
+    <a href="linux-nivel-23.html">N23</a>
+  </div>
+  <a class="nn-next" href="linux-nivel-23.html">N23 →</a>
+</div>
+
+<nav class="sec-nav">
+  <a href="#pseudo-fs">📂 Pseudosistemas</a>
+  <a href="#proc">/proc</a>
+  <a href="#sys">/sys</a>
+  <a href="#dev">/dev</a>
+  <a href="#modulos">🧩 Módulos</a>
+  <a href="#drivers">🔌 Drivers</a>
+  <a href="#sysctl">🎛️ sysctl</a>
+  <a href="#ejercicio">✏️ Ejercicio</a>
+</nav>
+
+<main>
+<div class="nivel-badge">⚙️ Nivel 22 — Linux internamente</div>
+
+
+<!-- PSEUDOSISTEMAS -->
+<section class="module" id="pseudo-fs">
+  <div class="module-header">
+    <div class="module-icon">📂</div>
+    <div>
+      <div class="module-title">El kernel habla a través de archivos</div>
+      <div class="module-sub">Los pseudosistemas de archivos — la API del kernel para el userspace</div>
+    </div>
+  </div>
+
+  <p>El kernel de Linux no tiene una API de funciones que las aplicaciones llamen directamente para preguntarle cosas. En cambio, expone su estado interno y permite controlarlo a través de <strong>pseudosistemas de archivos</strong> — directorios especiales que parecen archivos pero son ventanas vivas al interior del kernel.</p>
+
+  <div class="analogy">
+    <h4>🎛️ Analogía — El panel de control de la central eléctrica</h4>
+    <p>Imagina el kernel como una central eléctrica enorme y compleja. <strong>/proc</strong> es el tablero de instrumentos con medidores en tiempo real: muestra qué pasa ahora mismo en cada proceso y en la CPU. <strong>/sys</strong> es el panel de control con palancas y perillas: puedes leer el estado del hardware y también ajustarlo. <strong>/dev</strong> es la sala de enchufes: los dispositivos de hardware aparecen aquí como enchufes a los que conectarte. No son archivos reales en disco — son interfaces vivas que el kernel actualiza al instante.</p>
+  </div>
+
+  <div class="pfs-grid">
+    <div class="pfs-card">
+      <div class="pfs-name">/proc</div>
+      <div class="pfs-tag">procfs — estado de procesos y kernel</div>
+      <div class="pfs-item">Un directorio por cada proceso (PID)</div>
+      <div class="pfs-item">Info del kernel: CPU, RAM, red</div>
+      <div class="pfs-item">Solo lectura en su mayoría</div>
+      <div class="pfs-item">Montado en tmpfs — no usa disco</div>
+    </div>
+    <div class="pfs-card">
+      <div class="pfs-name">/sys</div>
+      <div class="pfs-tag">sysfs — estado y control del hardware</div>
+      <div class="pfs-item">Árbol de dispositivos del kernel</div>
+      <div class="pfs-item">Leer Y escribir para controlar hardware</div>
+      <div class="pfs-item">CPU governors, LEDs, USB, bloques</div>
+      <div class="pfs-item">Más estructurado que /proc</div>
+    </div>
+    <div class="pfs-card">
+      <div class="pfs-name">/dev</div>
+      <div class="pfs-tag">devtmpfs — dispositivos como archivos</div>
+      <div class="pfs-item">Discos: /dev/sda, /dev/nvme0n1</div>
+      <div class="pfs-item">Terminal: /dev/tty, /dev/pts/*</div>
+      <div class="pfs-item">Nulos: /dev/null, /dev/zero, /dev/random</div>
+      <div class="pfs-item">Gestionado por udev automáticamente</div>
+    </div>
+    <div class="pfs-card">
+      <div class="pfs-name">/run</div>
+      <div class="pfs-tag">tmpfs — datos temporales del arranque</div>
+      <div class="pfs-item">PIDs de servicios en ejecución</div>
+      <div class="pfs-item">Sockets Unix de systemd</div>
+      <div class="pfs-item">Se borra en cada reinicio</div>
+      <div class="pfs-item">Reemplaza /var/run (ahora symlink)</div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">verificar los pseudosistemas montados</span>
+    </div>
+    <div class="term-body">
+<span class="t-p">$</span> findmnt -t proc,sysfs,devtmpfs,tmpfs
+<span class="t-o">TARGET  SOURCE   FSTYPE    OPTIONS</span>
+<span class="t-o">/proc   proc     proc      rw,nosuid,nodev,noexec,relatime</span>
+<span class="t-o">/sys    sysfs    sysfs     rw,nosuid,nodev,noexec,relatime</span>
+<span class="t-o">/dev    devtmpfs devtmpfs  rw,nosuid,relatime,size=8192k</span>
+<span class="t-o">/run    tmpfs    tmpfs     rw,nosuid,nodev,relatime</span>
+<span class="t-h"># No son particiones de disco — son interfaces del kernel</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- /proc -->
+<section class="module" id="proc">
+  <div class="module-header">
+    <div class="module-icon">🔬</div>
+    <div>
+      <div class="module-title">/proc — radiografía de los procesos y el kernel</div>
+      <div class="module-sub">Un directorio por proceso y ventanas al estado interno del sistema</div>
+    </div>
+  </div>
+
+  <p><code>/proc</code> contiene un directorio numerado por cada proceso vivo en el sistema — <code>/proc/1234/</code> corresponde al proceso con PID 1234. Además, los archivos directamente en <code>/proc/</code> muestran el estado global del kernel.</p>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">/proc — exploración completa</span>
+    </div>
+    <div class="term-body">
+<span class="t-h">## ARCHIVOS GLOBALES DE /proc</span>
+<span class="t-p">$</span> cat /proc/version
+<span class="t-o">Linux version 6.8.0-50-generic (buildd@...) (gcc version 13.2.0)</span>
+
+<span class="t-p">$</span> cat /proc/cpuinfo | grep -E "model name|cpu cores" | head -4
+<span class="t-o">model name : Intel(R) Core(TM) i7-10750H CPU @ 2.60GHz</span>
+<span class="t-o">cpu cores  : 6</span>
+
+<span class="t-p">$</span> cat /proc/meminfo | grep -E "MemTotal|MemAvailable|SwapTotal"
+<span class="t-o">MemTotal:       16189208 kB</span>
+<span class="t-o">MemAvailable:   10234567 kB</span>
+<span class="t-o">SwapTotal:       8388608 kB</span>
+
+<span class="t-p">$</span> cat /proc/loadavg
+<span class="t-o">1.24 0.87 0.65 3/312 18924</span>
+<span class="t-h"># 1min 5min 15min  running/total  último_PID</span>
+
+<span class="t-p">$</span> cat /proc/uptime
+<span class="t-o">5432.12 42187.34</span>
+<span class="t-h"># segundos desde el arranque  /  tiempo total de CPU en idle</span>
+
+<span class="t-p">$</span> cat /proc/mounts        <span class="t-h"># todos los sistemas de archivos montados</span>
+<span class="t-p">$</span> cat /proc/net/dev       <span class="t-h"># estadísticas de red por interfaz</span>
+<span class="t-p">$</span> cat /proc/diskstats     <span class="t-h"># estadísticas de I/O de discos</span>
+<span class="t-p">$</span> cat /proc/interrupts    <span class="t-h"># interrupciones de hardware por núcleo</span>
+<span class="t-p">$</span> cat /proc/sys/kernel/hostname   <span class="t-h"># hostname del sistema</span>
+
+<span class="t-h">## DIRECTORIO POR PROCESO — /proc/PID/</span>
+<span class="t-p">$</span> ls /proc/$$             <span class="t-h"># $$ = PID del shell actual</span>
+<span class="t-o">cmdline  cwd  environ  exe  fd  maps  mem  net  status  ...</span>
+
+<span class="t-p">$</span> cat /proc/$$/cmdline | tr '\0' ' '   <span class="t-h"># comando que lanzó el proceso</span>
+<span class="t-o">bash</span>
+
+<span class="t-p">$</span> cat /proc/$$/status | grep -E "Name|Pid|VmRSS|Threads"
+<span class="t-o">Name:   bash</span>
+<span class="t-o">Pid:    18924</span>
+<span class="t-o">VmRSS:  8344 kB    ← RAM real usada (Resident Set Size)</span>
+<span class="t-o">Threads: 1</span>
+
+<span class="t-p">$</span> ls -la /proc/$$/fd      <span class="t-h"># archivos abiertos por el proceso</span>
+<span class="t-o">lrwxrwxrwx 1 hugo hugo 64 ... 0 -> /dev/pts/0  ← stdin (terminal)</span>
+<span class="t-o">lrwxrwxrwx 1 hugo hugo 64 ... 1 -> /dev/pts/0  ← stdout</span>
+<span class="t-o">lrwxrwxrwx 1 hugo hugo 64 ... 2 -> /dev/pts/0  ← stderr</span>
+
+<span class="t-p">$</span> ls -la /proc/$$/exe     <span class="t-h"># el binario ejecutable del proceso</span>
+<span class="t-o">lrwxrwxrwx ... /proc/18924/exe -> /usr/bin/bash</span>
+
+<span class="t-p">$</span> cat /proc/$$/maps | head -5   <span class="t-h"># mapa de memoria virtual del proceso</span>
+<span class="t-o">55a1b2c3d000-55a1b2c5e000 r-xp /usr/bin/bash  ← código del ejecutable</span>
+<span class="t-o">7f8a1b2c3000-7f8a1b4c3000 r-xp /lib/x86_64/libc.so.6  ← libc</span>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Archivo en /proc/PID/</th><th>Qué contiene</th></tr></thead>
+    <tbody>
+      <tr><td>cmdline</td><td>El comando completo con que fue lanzado el proceso (separado por \0)</td></tr>
+      <tr><td>status</td><td>Estado detallado: nombre, PID, PPID, usuario, RAM, estado, hilos</td></tr>
+      <tr><td>fd/</td><td>Symlinks a cada archivo abierto (0=stdin, 1=stdout, 2=stderr, 3+=otros)</td></tr>
+      <tr><td>exe</td><td>Symlink al binario ejecutable en disco</td></tr>
+      <tr><td>maps</td><td>Mapa completo de la memoria virtual — qué está mapeado en qué dirección</td></tr>
+      <tr><td>environ</td><td>Variables de entorno con que fue lanzado el proceso</td></tr>
+      <tr><td>net/</td><td>Vista de red del proceso (conexiones, sockets)</td></tr>
+      <tr><td>cwd</td><td>Symlink al directorio de trabajo actual del proceso</td></tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- /sys -->
+<section class="module" id="sys">
+  <div class="module-header">
+    <div class="module-icon">🎛️</div>
+    <div>
+      <div class="module-title">/sys — el panel de control del hardware</div>
+      <div class="module-sub">sysfs: leer y escribir para controlar dispositivos en tiempo real</div>
+    </div>
+  </div>
+
+  <p><code>/sys</code> es el sistema de archivos del kernel más moderno. A diferencia de <code>/proc</code>, está organizado siguiendo la jerarquía del bus de hardware y permite tanto <strong>leer</strong> el estado del hardware como <strong>escribir</strong> para controlarlo en tiempo real sin reiniciar.</p>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">/sys — leer y controlar hardware en tiempo real</span>
+    </div>
+    <div class="term-body">
+<span class="t-h">## ESTRUCTURA DE /sys</span>
+<span class="t-p">$</span> ls /sys/
+<span class="t-o">block  bus  class  dev  devices  firmware  fs  kernel  module  power</span>
+
+<span class="t-h">## CPU — leer y cambiar el governor</span>
+<span class="t-p">$</span> cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+<span class="t-o">powersave</span>
+
+<span class="t-p">$</span> cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors
+<span class="t-o">performance powersave ondemand conservative schedutil</span>
+
+<span class="t-p">$</span> echo "performance" | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
+<span class="t-h"># Cambia AHORA el governor de TODOS los núcleos</span>
+
+<span class="t-p">$</span> cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq
+<span class="t-o">4200000   ← 4.2 GHz (en Hz)</span>
+
+<span class="t-h">## DISCOS — el scheduler de I/O</span>
+<span class="t-p">$</span> cat /sys/block/sda/queue/scheduler
+<span class="t-o">[mq-deadline] kyber bfq none</span>
+
+<span class="t-p">$</span> echo "bfq" | sudo tee /sys/block/sda/queue/scheduler
+<span class="t-h"># Cambia el scheduler de I/O del disco sda a bfq</span>
+
+<span class="t-h">## RED — activar/desactivar reenvío de paquetes IP</span>
+<span class="t-p">$</span> cat /sys/net/ipv4/ip_forward
+<span class="t-o">0   ← desactivado (un router lo pondría a 1)</span>
+
+<span class="t-h">## LEDs — controlar el LED de un portátil</span>
+<span class="t-p">$</span> ls /sys/class/leds/
+<span class="t-o">input3::capslock  input3::numlock  phy0-led  tpacpi::power</span>
+
+<span class="t-p">$</span> cat /sys/class/leds/input3::capslock/brightness
+<span class="t-o">0</span>
+<span class="t-p">$</span> echo 1 | sudo tee /sys/class/leds/input3::capslock/brightness
+<span class="t-h"># Enciende el LED de capslock desde la terminal</span>
+
+<span class="t-h">## BACKLIGHT — brillo de pantalla</span>
+<span class="t-p">$</span> cat /sys/class/backlight/intel_backlight/max_brightness
+<span class="t-o">1200</span>
+<span class="t-p">$</span> cat /sys/class/backlight/intel_backlight/brightness
+<span class="t-o">800</span>
+<span class="t-p">$</span> echo 600 | sudo tee /sys/class/backlight/intel_backlight/brightness
+<span class="t-h"># Baja el brillo a la mitad desde la terminal</span>
+
+<span class="t-h">## USB — ver dispositivos USB conectados via sysfs</span>
+<span class="t-p">$</span> ls /sys/bus/usb/devices/
+<span class="t-p">$</span> cat /sys/bus/usb/devices/1-1/manufacturer
+<span class="t-o">Logitech</span>
+    </div>
+  </div>
+
+  <div class="note">
+    <h4>📌 Los cambios en /sys son temporales</h4>
+    <p>Todo lo que escribes en <code>/sys</code> se aplica inmediatamente pero <strong>no persiste tras un reinicio</strong> — el kernel vuelve a sus valores por defecto. Para hacer permanentes los cambios de <code>/sys</code>, usa <code>/etc/sysctl.conf</code> (para parámetros del kernel) o reglas de <code>udev</code> (para hardware). Los governors y schedulers también se pueden fijar con <code>systemd-tmpfiles</code> o scripts de arranque.</p>
+  </div>
+</section>
+
+
+<!-- /dev -->
+<section class="module" id="dev">
+  <div class="module-header">
+    <div class="module-icon">🔌</div>
+    <div>
+      <div class="module-title">/dev — los dispositivos como archivos</div>
+      <div class="module-sub">udev, dispositivos especiales y la filosofía "todo es un archivo"</div>
+    </div>
+  </div>
+
+  <p>En Linux, el hardware se accede a través de <strong>archivos de dispositivo</strong> en <code>/dev/</code>. Leer de un archivo de dispositivo es leer del hardware. Escribir a él es enviar datos al hardware. Esta abstracción unificada es una de las ideas más elegantes de Unix.</p>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">/dev — dispositivos especiales en acción</span>
+    </div>
+    <div class="term-body">
+<span class="t-h">## DISPOSITIVOS ESPECIALES MÁS ÚTILES</span>
+
+<span class="t-h"># /dev/null — el agujero negro: descarta todo lo que le envíes</span>
+<span class="t-p">$</span> comando_ruidoso > /dev/null 2>&1    <span class="t-h"># silenciar stdout Y stderr</span>
+<span class="t-p">$</span> cat /dev/null                       <span class="t-h"># devuelve vacío inmediatamente</span>
+
+<span class="t-h"># /dev/zero — genera ceros infinitos</span>
+<span class="t-p">$</span> dd if=/dev/zero of=/tmp/archivo bs=1M count=100  <span class="t-h"># crear archivo de 100MB de ceros</span>
+<span class="t-p">$</span> dd if=/dev/zero of=/dev/sdb bs=4M     <span class="t-h"># BORRAR un disco (¡cuidado!)</span>
+
+<span class="t-h"># /dev/random y /dev/urandom — generadores de aleatoriedad</span>
+<span class="t-p">$</span> head -c 32 /dev/urandom | base64      <span class="t-h"># generar una clave aleatoria de 32 bytes</span>
+<span class="t-o">K7mP9qR2xN4vL8sA3wT6yB1cF5hE0jD+</span>
+<span class="t-p">$</span> od -An -N4 -tu4 /dev/urandom          <span class="t-h"># número aleatorio de 32 bits</span>
+
+<span class="t-h"># /dev/stdin, /dev/stdout, /dev/stderr — las E/S estándar como archivos</span>
+<span class="t-p">$</span> echo "hola" > /dev/stdout             <span class="t-h"># igual que echo "hola"</span>
+<span class="t-p">$</span> echo "error" > /dev/stderr            <span class="t-h"># escribe en stderr directamente</span>
+
+<span class="t-h"># /dev/tty — la terminal de control del proceso actual</span>
+<span class="t-p">$</span> echo "mensaje" > /dev/tty             <span class="t-h"># siempre va a la terminal, aunque redirigido</span>
+
+<span class="t-h"># /dev/pts/* — pseudoterminales (una por cada ventana de terminal abierta)</span>
+<span class="t-p">$</span> ls /dev/pts/
+<span class="t-o">0  1  2  ptmx</span>
+<span class="t-p">$</span> echo "¡Hola!" > /dev/pts/1           <span class="t-h"># enviar texto a otra terminal abierta</span>
+
+<span class="t-h"># Ver el tipo de un archivo de dispositivo (c=char, b=block)</span>
+<span class="t-p">$</span> ls -la /dev/sda /dev/null /dev/tty
+<span class="t-o">brw-rw---- ... /dev/sda     ← b = block device (disco)</span>
+<span class="t-o">crw-rw-rw- ... /dev/null    ← c = char device (carácter)</span>
+<span class="t-o">crw-rw-rw- ... /dev/tty     ← c = char device</span>
+
+<span class="t-h">## UDEV — el gestor dinámico de /dev</span>
+<span class="t-p">$</span> udevadm info /dev/sda           <span class="t-h"># info completa de un dispositivo</span>
+<span class="t-p">$</span> udevadm monitor                 <span class="t-h"># ver eventos de dispositivos en tiempo real</span>
+<span class="t-h"># Conecta un USB y verás los eventos UDEV aparecer aquí</span>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 /dev/urandom para generar contraseñas y tokens</h4>
+    <p><code>/dev/urandom</code> genera bytes aleatorios criptográficamente seguros. Es la fuente de aleatoriedad de todo el sistema — SSH, TLS, generadores de UUID. Para generar una contraseña aleatoria fuerte: <code>head -c 24 /dev/urandom | base64 | tr -d '+/=' | head -c 20</code>. O más simple aún: <code>openssl rand -base64 32</code>, que internamente usa <code>/dev/urandom</code>.</p>
+  </div>
+</section>
+
+
+<!-- MÓDULOS DEL KERNEL -->
+<section class="module" id="modulos">
+  <div class="module-header">
+    <div class="module-icon">🧩</div>
+    <div>
+      <div class="module-title">Módulos del kernel — extensiones cargables</div>
+      <div class="module-sub">lsmod, modprobe, insmod — cómo Linux carga y descarga funcionalidad en tiempo real</div>
+    </div>
+  </div>
+
+  <p>El kernel de Linux es <strong>modular</strong>: no tiene que incluir todo el soporte de hardware en el kernel base. En cambio, carga <strong>módulos</strong> (ficheros <code>.ko</code>) según los necesita — para un disco NVMe, una tarjeta WiFi, un sistema de archivos, etc. Puedes cargar y descargar módulos sin reiniciar.</p>
+
+  <div class="analogy">
+    <h4>🔌 Analogía — Enchufes de regleta</h4>
+    <p>El kernel base es una regleta con pocos enchufes. Los módulos son los adaptadores que enchufas según lo que necesitas: el módulo WiFi es el adaptador de WiFi, el módulo btrfs es el adaptador para ese sistema de archivos, el módulo usb-storage se enchufa al detectar un USB. Cuando ya no necesitas el adaptador, lo desenchufas (<code>rmmod</code>). La regleta no necesita apagarse para enchufar o desenchufar.</p>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">módulos del kernel — gestión completa</span>
+    </div>
+    <div class="term-body">
+<span class="t-h">## VER MÓDULOS CARGADOS</span>
+<span class="t-p">$</span> lsmod
+<span class="t-o">Module                  Size  Used by</span>
+<span class="t-o">nvidia              56832000  98</span>
+<span class="t-o">iwlwifi               417792  1 iwlmvm</span>
+<span class="t-o">btrfs                1613824  1</span>
+<span class="t-o">usb_storage            77824  2</span>
+<span class="t-h"># Size = tamaño en bytes  /  Used by = módulos que dependen de éste</span>
+
+<span class="t-h"># Ver cuántos módulos hay cargados</span>
+<span class="t-p">$</span> lsmod | wc -l
+
+<span class="t-h">## INFO DE UN MÓDULO</span>
+<span class="t-p">$</span> modinfo iwlwifi
+<span class="t-o">filename:    /lib/modules/6.8.0/kernel/drivers/net/wireless/intel/iwlwifi/iwlwifi.ko</span>
+<span class="t-o">description: Intel(R) Wireless WiFi driver for Linux</span>
+<span class="t-o">author:      Copyright(c) 2003-2015 Intel Corporation</span>
+<span class="t-o">depends:     cfg80211</span>
+<span class="t-o">parm:        debug:debug output mask (ulong)</span>
+
+<span class="t-h">## CARGAR Y DESCARGAR MÓDULOS</span>
+<span class="t-p">$</span> sudo modprobe bluetooth       <span class="t-h"># cargar módulo (con dependencias)</span>
+<span class="t-p">$</span> sudo modprobe -r bluetooth    <span class="t-h"># descargar módulo</span>
+
+<span class="t-h"># insmod / rmmod — versiones más simples (sin gestión de dependencias)</span>
+<span class="t-p">$</span> sudo insmod /lib/modules/$(uname -r)/kernel/drivers/bluetooth/bluetooth.ko
+<span class="t-p">$</span> sudo rmmod bluetooth
+
+<span class="t-h">## HACER UN MÓDULO PERSISTENTE (cargarse siempre al arrancar)</span>
+<span class="t-p">$</span> echo "bluetooth" | sudo tee /etc/modules-load.d/bluetooth.conf
+
+<span class="t-h">## BLACKLIST — evitar que un módulo se cargue</span>
+<span class="t-h"># Ej: el módulo pcspkr hace sonar el altavoz interno del PC (molesto)</span>
+<span class="t-p">$</span> echo "blacklist pcspkr" | sudo tee /etc/modprobe.d/nobeep.conf
+
+<span class="t-h">## VER LOS MÓDULOS DISPONIBLES PARA EL KERNEL ACTUAL</span>
+<span class="t-p">$</span> ls /lib/modules/$(uname -r)/kernel/drivers/ | head -10
+<span class="t-o">acpi  ata  bluetooth  char  cpufreq  gpu  hid  input  media  net</span>
+
+<span class="t-h"># Buscar un módulo por nombre</span>
+<span class="t-p">$</span> find /lib/modules/$(uname -r) -name "*.ko" | grep wifi | head -5
+    </div>
+  </div>
+</section>
+
+
+<!-- DRIVERS -->
+<section class="module" id="drivers">
+  <div class="module-header">
+    <div class="module-icon">🔌</div>
+    <div>
+      <div class="module-title">Drivers — cómo Linux habla con el hardware</div>
+      <div class="module-sub">dmesg, lspci, lsusb y el flujo de detección de hardware</div>
+    </div>
+  </div>
+
+  <p>Un <strong>driver</strong> (controlador) es el código que sabe hablar el "idioma" de un dispositivo de hardware concreto. En Linux, los drivers son módulos del kernel. Cuando conectas un dispositivo, udev detecta el evento, identifica el hardware y carga el módulo correspondiente automáticamente.</p>
+
+  <div class="diagram">
+<span class="d-m"># Flujo de detección de hardware en Linux</span>
+
+Hardware se conecta (USB, PCIe, etc.)
+      ↓
+<span class="d-r">Kernel detecta el evento</span> (interrupt / hotplug)
+      ↓
+<span class="d-y">udev</span> recibe el evento de kobject del kernel
+      ↓
+udev consulta sus reglas en <span class="d-b">/etc/udev/rules.d/</span>
+      ↓
+udev identifica Vendor ID + Product ID del dispositivo
+      ↓
+<span class="d-g">modprobe</span> carga el módulo del driver correcto
+      ↓
+El módulo inicializa el hardware
+      ↓
+Aparece el dispositivo en <span class="d-r">/dev/</span> con el nombre correcto
+      ↓
+<span class="d-m">Opcional: udev crea symlinks, ajusta permisos, lanza servicios</span></div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">diagnosticar hardware y drivers</span>
+    </div>
+    <div class="term-body">
+<span class="t-h">## dmesg — el log del kernel (eventos de hardware)</span>
+<span class="t-p">$</span> dmesg | tail -30              <span class="t-h"># últimos mensajes del kernel</span>
+<span class="t-p">$</span> dmesg --follow                <span class="t-h"># en tiempo real (conecta un USB)</span>
+<span class="t-p">$</span> dmesg | grep -i "error\|warn" <span class="t-h"># solo errores y advertencias</span>
+<span class="t-p">$</span> dmesg | grep -i usb           <span class="t-h"># eventos USB</span>
+<span class="t-o">[  2.345678] usb 1-1: new high-speed USB device number 2</span>
+<span class="t-o">[  2.456789] usb 1-1: New USB device found, idVendor=046d (Logitech)</span>
+<span class="t-o">[  2.567890] hid-generic 0003:046D:C52B: input,hidraw0: USB HID v1.11 Mouse</span>
+
+<span class="t-h">## lspci — listar dispositivos PCI/PCIe</span>
+<span class="t-p">$</span> lspci
+<span class="t-o">00:00.0 Host bridge: Intel Corporation...</span>
+<span class="t-o">00:02.0 VGA compatible controller: Intel Corporation Iris Xe Graphics</span>
+<span class="t-o">00:14.0 USB controller: Intel Corporation Tiger Lake-H USB 3.2 Gen 2x1</span>
+<span class="t-o">01:00.0 3D controller: NVIDIA Corporation GA107M [GeForce RTX 3050]</span>
+
+<span class="t-p">$</span> lspci -k | grep -A3 "VGA"    <span class="t-h"># ver el kernel driver de la GPU</span>
+<span class="t-o">01:00.0 3D controller: NVIDIA Corporation GA107M</span>
+<span class="t-o">        Kernel driver in use: nvidia</span>
+<span class="t-o">        Kernel modules: nvidiafb, nvidia_drm, nvidia</span>
+
+<span class="t-h">## lsusb — listar dispositivos USB</span>
+<span class="t-p">$</span> lsusb
+<span class="t-o">Bus 001 Device 001: ID 1d6b:0002 Linux Foundation 2.0 root hub</span>
+<span class="t-o">Bus 001 Device 003: ID 046d:c52b Logitech, Inc. Unifying Receiver</span>
+<span class="t-o">Bus 002 Device 004: ID 0951:1666 Kingston Technology DataTraveler 100</span>
+
+<span class="t-h">## hwinfo — info detallada de todo el hardware</span>
+<span class="t-p">$</span> sudo apt install hwinfo
+<span class="t-p">$</span> hwinfo --short                <span class="t-h"># resumen de todo el hardware</span>
+<span class="t-p">$</span> hwinfo --network              <span class="t-h"># solo tarjetas de red</span>
+<span class="t-p">$</span> hwinfo --gfxcard              <span class="t-h"># solo tarjetas gráficas</span>
+
+<span class="t-h">## Ver qué driver usa un dispositivo</span>
+<span class="t-p">$</span> udevadm info -a /dev/sda | grep driver | head -3
+<span class="t-p">$</span> readlink /sys/block/sda/device/driver
+<span class="t-o">../../../../../bus/scsi/drivers/sd    ← driver 'sd' (SCSI disk)</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- SYSCTL -->
+<section class="module" id="sysctl">
+  <div class="module-header">
+    <div class="module-icon">🎛️</div>
+    <div>
+      <div class="module-title">sysctl — parámetros del kernel en tiempo real</div>
+      <div class="module-sub">Ver y cambiar el comportamiento del kernel sin recompilar ni reiniciar</div>
+    </div>
+  </div>
+
+  <p><strong>sysctl</strong> es la interfaz para leer y modificar parámetros del kernel en tiempo real. Los parámetros viven en <code>/proc/sys/</code> como archivos, y <code>sysctl</code> es la herramienta que los gestiona de forma organizada. Son los mismos valores que ajustabas en /proc/sys antes, pero con una interfaz estándar y persistencia.</p>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">sysctl — leer, cambiar y hacer persistentes parámetros del kernel</span>
+    </div>
+    <div class="term-body">
+<span class="t-h">## VER PARÁMETROS</span>
+<span class="t-p">$</span> sysctl -a                         <span class="t-h"># todos los parámetros (muy largo)</span>
+<span class="t-p">$</span> sysctl -a | grep vm               <span class="t-h"># parámetros de memoria virtual</span>
+<span class="t-p">$</span> sysctl kernel.hostname             <span class="t-h"># ver un parámetro específico</span>
+<span class="t-o">kernel.hostname = mi-equipo</span>
+
+<span class="t-h">## PARÁMETROS IMPORTANTES</span>
+<span class="t-p">$</span> sysctl vm.swappiness
+<span class="t-o">vm.swappiness = 60</span>
+
+<span class="t-p">$</span> sysctl net.ipv4.ip_forward
+<span class="t-o">net.ipv4.ip_forward = 0</span>
+
+<span class="t-p">$</span> sysctl kernel.perf_event_paranoid
+<span class="t-o">kernel.perf_event_paranoid = 3</span>
+
+<span class="t-h">## CAMBIAR UN PARÁMETRO (temporal — se pierde al reiniciar)</span>
+<span class="t-p">$</span> sudo sysctl -w vm.swappiness=10
+<span class="t-o">vm.swappiness = 10</span>
+
+<span class="t-p">$</span> sudo sysctl -w net.ipv4.ip_forward=1    <span class="t-h"># activar routing IP (para VPNs)</span>
+<span class="t-p">$</span> sudo sysctl -w kernel.dmesg_restrict=0  <span class="t-h"># permitir dmesg sin sudo</span>
+
+<span class="t-h">## HACER PERSISTENTE — /etc/sysctl.conf o /etc/sysctl.d/</span>
+<span class="t-p">$</span> echo "vm.swappiness=10" | sudo tee -a /etc/sysctl.conf
+<span class="t-p">$</span> sudo sysctl -p                     <span class="t-h"># aplicar /etc/sysctl.conf ahora</span>
+
+<span class="t-h"># Mejor práctica: archivos separados en /etc/sysctl.d/</span>
+<span class="t-p">$</span> sudo nano /etc/sysctl.d/99-optimizaciones.conf
+<span class="t-h"># Contenido:</span>
+<span class="t-h"># vm.swappiness = 10</span>
+<span class="t-h"># net.core.somaxconn = 1024</span>
+<span class="t-h"># net.ipv4.tcp_syncookies = 1</span>
+<span class="t-p">$</span> sudo sysctl --system               <span class="t-h"># aplicar todos los archivos sysctl.d/</span>
+    </div>
+  </div>
+
+  <div class="cmd-grid">
+    <div class="cmd-card">
+      <div class="cmd-title">vm.swappiness</div>
+      <div class="cmd-desc">Cuándo usar swap: 0=nunca, 60=defecto, 100=agresivo. Bajar a 10 con mucha RAM.</div>
+      <span class="cmd-ex">sysctl vm.swappiness
+sudo sysctl -w vm.swappiness=10</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">net.ipv4.ip_forward</div>
+      <div class="cmd-desc">Reenvío de paquetes IP entre interfaces. Necesario para Docker, VPNs y routers.</div>
+      <span class="cmd-ex">sysctl net.ipv4.ip_forward
+sudo sysctl -w net.ipv4.ip_forward=1</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">kernel.hostname</div>
+      <div class="cmd-desc">El nombre del sistema. Cambiarlo aquí es temporal — usa hostnamectl para permanente.</div>
+      <span class="cmd-ex">sysctl kernel.hostname
+hostnamectl set-hostname nuevo-nombre</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">net.ipv4.tcp_syncookies</div>
+      <div class="cmd-desc">Protección contra ataques SYN flood. Debe estar siempre en 1 (activo por defecto).</div>
+      <span class="cmd-ex">sysctl net.ipv4.tcp_syncookies
+# Debe ser = 1</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- EJERCICIO -->
+<div class="ejercicio" id="ejercicio">
+  <div class="ej-hd">
+    ✏️ Ejercicio del Nivel 22
+    <span class="ej-badge">Kernel</span>
+  </div>
+  <p>Explora el interior del kernel de tu sistema:</p>
+  <ol>
+    <li><strong>/proc global:</strong> ejecuta <code>cat /proc/version</code>, <code>cat /proc/uptime</code> y <code>cat /proc/loadavg</code>. ¿Qué versión del kernel tienes? ¿Cuánto tiempo lleva encendido el sistema?</li>
+    <li><strong>/proc por proceso:</strong> ejecuta <code>ls /proc/$$</code> y <code>cat /proc/$$/status | head -10</code>. ¿Cuánta RAM real usa tu shell (<code>VmRSS</code>)?</li>
+    <li><strong>Archivos abiertos:</strong> ejecuta <code>ls -la /proc/$$/fd</code>. ¿A dónde apuntan los file descriptors 0, 1 y 2?</li>
+    <li><strong>/sys CPU:</strong> ejecuta <code>cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor</code>. ¿Qué governor usa tu CPU?</li>
+    <li><strong>Módulos:</strong> ejecuta <code>lsmod | wc -l</code> y <code>lsmod | head -10</code>. ¿Cuántos módulos hay cargados? ¿Reconoces alguno?</li>
+    <li><strong>Hardware:</strong> ejecuta <code>lspci | grep -iE "vga|3d|network|audio"</code>. ¿Qué GPU y tarjeta de red tiene tu equipo?</li>
+    <li><strong>dmesg:</strong> ejecuta <code>dmesg | grep -i "error" | tail -5</code>. ¿Hay errores de hardware en el log del kernel?</li>
+    <li><strong>sysctl:</strong> ejecuta <code>sysctl vm.swappiness net.ipv4.ip_forward kernel.hostname</code>. ¿Cuáles son los valores actuales?</li>
+  </ol>
+  <p><strong>Desafío:</strong> conecta un USB y ejecuta <code>sudo dmesg --follow</code> justo antes de conectarlo. ¿Ves el proceso de detección — el kernel reconociendo el VendorID, cargando el módulo usb-storage, creando el dispositivo en /dev/?</p>
+</div>
+
+<!-- RESUMEN -->
+<div class="resumen">
+  <h3>🟥 Resumen del Nivel 22</h3>
+  <ul>
+    <li>El kernel expone su estado y control a través de <strong>pseudosistemas de archivos</strong>: /proc, /sys, /dev — no son archivos en disco, son interfaces vivas del kernel.</li>
+    <li><strong>/proc</strong> — estado en tiempo real: <code>/proc/cpuinfo</code>, <code>/proc/meminfo</code>, <code>/proc/PID/</code> (un directorio por proceso con cmdline, fd, status, maps).</li>
+    <li><strong>/sys</strong> — leer Y controlar hardware: governors de CPU, schedulers de disco, brillo de pantalla, LEDs. Los cambios son temporales — usar sysctl.conf para persistencia.</li>
+    <li><strong>/dev</strong> — dispositivos como archivos: <code>/dev/null</code> (agujero negro), <code>/dev/zero</code> (ceros), <code>/dev/urandom</code> (aleatoriedad), discos, terminales. Gestionado por <strong>udev</strong>.</li>
+    <li><strong>Módulos</strong> — extensiones cargables del kernel: <code>lsmod</code> (ver), <code>modprobe nombre</code> (cargar), <code>modprobe -r nombre</code> (descargar). <code>/etc/modules-load.d/</code> para persistencia.</li>
+    <li>Flujo de detección de hardware: evento hardware → udev → modprobe → driver → /dev. <code>dmesg</code> registra todo este proceso.</li>
+    <li><code>lspci</code> — dispositivos PCIe. <code>lsusb</code> — dispositivos USB. <code>lspci -k</code> — qué driver usa cada dispositivo.</li>
+    <li><strong>sysctl</strong> — parámetros del kernel. <code>sysctl -a</code> (ver todos), <code>sysctl -w param=val</code> (cambiar), <code>/etc/sysctl.conf</code> (hacer persistente).</li>
+  </ul>
+</div>
+
+<a class="next-card" href="linux-nivel-23.html">
+  <div>
+    <div class="nc-label">Siguiente → Nivel 23 · FINAL</div>
+    <div class="nc-name">Programar y crear — scripts, Git, Docker, VMs y la mentalidad Linux</div>
+  </div>
+  <div class="nc-arrow">→</div>
+</a>
+
+</main>
+
+<footer>
+  Linux desde Cero · Nivel 22 · Linux Internamente · Café &lt;/&gt; · Hugo 2025
+</footer>
+
+<script>
+(function(){const s=localStorage.getItem('cafe-theme');const sys=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';const t=s||sys;document.documentElement.setAttribute('data-theme',t);updateUI(t);})();
+function toggleTheme(){const c=document.documentElement.getAttribute('data-theme');const n=c==='light'?'dark':'light';document.documentElement.setAttribute('data-theme',n);localStorage.setItem('cafe-theme',n);updateUI(n);}
+function updateUI(t){const i=document.getElementById('themeIcon');const l=document.getElementById('themeLabel');if(!i||!l)return;i.textContent=t==='dark'?'☀️':'🌙';l.textContent=t==='dark'?'Claro':'Oscuro';}
+</script>
+</body>
+</html>

@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Parte 4: conectarte al servidor desde Windows 11, Zorin OS, Linux Mint y Voyager, probar el recurso compartido, y usar SFTP.">
+<title>Servidor propio — Parte 4: Conectar tus PCs — Café &lt;/&gt;</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #c49a1a;
+    --primary-light:  #fdf6e0;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --danger:         #c44a2a;
+    --danger-light:   #fdf0ec;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1a1814;
+    --code-text:      #e8e4de;
+    color-scheme: light;
+  }
+
+  :root[data-theme="dark"] {
+    --primary:        #a48ce8;
+    --primary-light:  #2f2747;
+    --secondary:      #e08fc0;
+    --secondary-light:#3a2438;
+    --accent:         #e3b34d;
+    --accent-light:   #3a3324;
+    --danger:         #d9695f;
+    --danger-light:   #3a2420;
+    --bg:             #473b63;
+    --surface:        #574a76;
+    --text:           #f3f0fb;
+    --muted:          #c6bce2;
+    --border:         rgba(230,222,250,0.14);
+    --code-bg:        #211c33;
+    --code-text:      #f0eaf9;
+    color-scheme: dark;
+  }
+
+  body {
+    font-family: 'DM Sans', 'Segoe UI', sans-serif;
+    background: var(--bg); color: var(--text);
+    line-height: 1.7; font-size: 16px;
+    transition: background .25s ease, color .25s ease;
+  }
+
+  .cafe-bar {
+    background: var(--surface); border-bottom:1px solid var(--border);
+    padding:0 24px; display:flex; align-items:center; gap:14px;
+    position:sticky; top:0; z-index:200; height:45px;
+    transition: background .25s ease, border-color .25s ease;
+    overflow-x:auto; overflow-y:hidden; scrollbar-width:none; -ms-overflow-style:none;
+  }
+  .cafe-bar::-webkit-scrollbar { display:none; }
+  .cafe-bar a { flex-shrink:0; white-space:nowrap; display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--muted); text-decoration:none; padding:6px 14px; border:1px solid var(--border); border-radius:999px; transition:all 0.15s; }
+  .cafe-bar a:hover { color:var(--text); border-color:var(--muted); }
+  .cafe-bar span.crumb { flex-shrink:0; white-space:nowrap; font-size:13px; color:var(--muted); }
+  .cafe-bar .spacer { flex: 1 0 14px; }
+
+  .theme-toggle {
+    flex-shrink:0; white-space:nowrap;
+    display:inline-flex; align-items:center; gap:8px;
+    background: var(--bg); border:1px solid var(--border); color: var(--text);
+    border-radius:999px; padding:6px 14px 6px 10px; font-size:13px; font-weight:500;
+    cursor:pointer; transition: all .2s ease; font-family: inherit;
+  }
+  .theme-toggle:hover { border-color: var(--primary); color: var(--primary); }
+  .theme-toggle .icon { font-size: 15px; line-height:1; }
+
+  .partes-nav {
+    background: var(--bg); border-bottom:1px solid var(--border);
+    padding:10px 24px; display:flex; gap:8px; overflow-x:auto;    
+    scrollbar-width:none; -ms-overflow-style:none;
+    position:sticky; top:45px; z-index:150;
+    transition: background .25s ease, border-color .25s ease;
+    align-items:center; height:38px;
+  }
+  .partes-nav::-webkit-scrollbar { display:none; }
+  .partes-nav a { flex-shrink:0; white-space:nowrap; font-size:.78rem; font-weight:600; color:var(--muted); text-decoration:none; padding:6px 14px; border-radius:999px; border:1px solid var(--border); transition:all .15s; }
+  .partes-nav a:hover { color:var(--text); border-color:var(--muted); }
+  .partes-nav a.active { background:var(--primary); color:#1a1814; border-color:var(--primary); }
+
+  header {
+    background: #0c0c0c; color: #f3f0fb; padding: 3rem 2rem 2rem;
+    text-align: center; position: relative; overflow: hidden;
+  }
+  header::before { content: '>_'; position: absolute; font-size: 10rem; font-weight: 900; color: rgba(255,255,255,0.04); right: -1rem; top: -1rem; font-family: 'DM Mono', monospace; line-height: 1; }
+  header h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; font-family: 'Fraunces', serif; }
+  header p { font-size: 1.1rem; opacity: .85; margin-top: .5rem; max-width: 620px; margin-left: auto; margin-right: auto; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  nav {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    position: sticky; top: 83px; z-index: 100; display: flex; overflow-x: auto; gap: 0;
+    transition: background .25s ease, border-color .25s ease;
+  }
+  nav a { flex-shrink: 0; padding: .75rem 1rem; text-decoration: none; color: var(--muted); font-size: .78rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .module {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+    padding: 2rem; margin-bottom: 2.5rem; scroll-margin-top:135px;
+    transition: background .25s ease, border-color .25s ease;
+  }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-size: 1.35rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  .analogy { background: var(--accent-light); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: var(--accent); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; }
+
+  .concept { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p, .tip ul { font-size: .95rem; }
+  .tip ul { padding-left: 1.2rem; }
+
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  .glos { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .glos-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; }
+  .glos-item dt { font-weight: 700; color: var(--primary); font-size: .92rem; margin-bottom: .3rem; }
+  .glos-item dd { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: #1a1814; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  h2 { font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; color: var(--text); }
+  h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 .5rem; }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: var(--primary-light); color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+  strong { font-weight: 700; }
+
+  .code-block {
+    background: var(--code-bg); color: var(--code-text); border-radius: 10px;
+    padding: 1rem 1.25rem; font-family: 'DM Mono', monospace; font-size: .84rem;
+    overflow-x: auto; margin: 1rem 0; line-height: 1.65; white-space: pre;
+  }
+
+  .term-block {
+    background: #0c0c0c; color: var(--code-text); border-radius: 10px;
+    overflow: hidden; margin: 1rem 0;
+  }
+  .term-block-bar {
+    display: flex; align-items: center; gap: 8px;
+    padding: .6rem .9rem; background: rgba(255,255,255,.05);
+    font-family: 'DM Mono', monospace; font-size: .72rem; color: #a39d93;
+  }
+  .tdot { width: 8px; height: 8px; border-radius: 50%; }
+  .tdot.r { background: #d9695f; } .tdot.y { background: #e3b34d; } .tdot.g { background: #7fae6d; }
+  .term-block-body { padding: 1rem 1.25rem 1.2rem; font-family: 'DM Mono', monospace; font-size: .84rem; overflow-x: auto; line-height: 1.65; }
+  .term-block-body .l { margin-bottom: .5rem; white-space: pre; }
+  .term-block-body .prompt { color: #7fd8a8; }
+  .term-block-body .cmd { color: var(--code-text); }
+  .term-block-body .out { color: #a39d93; padding-left: 1.1rem; }
+  .term-block-body .cm { color: #a39d93; font-style: italic; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); transition: background .25s ease, border-color .25s ease; }
+</style>
+</head>
+<body>
+
+<div class="cafe-bar">
+  <a href="../explorando-capitulos.html">← Explorando</a>
+  <span class="crumb">🗄️ Servidor propio</span>
+  <div class="spacer"></div>
+  <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+    <span class="icon" id="themeIcon">🌙</span>
+    <span id="themeLabel">Modo oscuro</span>
+  </button>
+</div>
+
+<div class="partes-nav">
+  <a href="servidor-parte1.html">1. Instalar Debian</a>
+  <a href="servidor-parte2.html">2. Red y primeros pasos</a>
+  <a href="servidor-parte3.html">3. Samba</a>
+  <a href="servidor-parte4.html" class="active">4. Conectar tus PCs</a>
+  <a href="servidor-parte5.html">5. Seguridad y siguientes pasos</a>
+</div>
+
+<header>
+  <h1>Tu propio servidor de archivos</h1>
+  <p>Parte 4: conectarte al recurso compartido desde Windows 11, Zorin OS, Linux Mint y Voyager, también desde tu celular, tablet o Smart TV, probar que todo funciona de verdad, y aprender SFTP como alternativa por terminal.</p>
+  <span class="badge">🗄️ Proyecto práctico · Servidor propio</span>
+</header>
+
+<nav>
+  <a href="#windows">🪟 Windows 11</a>
+  <a href="#zorin">🌀 Zorin OS</a>
+  <a href="#mint">🌿 Linux Mint</a>
+  <a href="#voyager">🚀 Voyager</a>
+  <a href="#moviles-tv">📱 Celular, tablet y TV</a>
+  <a href="#prueba-real">🧪 La prueba real</a>
+  <a href="#video">🎬 Reproducir un video</a>
+  <a href="#sftp">📂 SFTP</a>
+  <a href="#comparacion">⚖️ SSH vs SFTP vs Samba</a>
+  <a href="#glosario">📖 Glosario</a>
+  <a href="#siguiente">➡️ Siguiente parte</a>
+</nav>
+
+<main>
+
+<div class="parte-badge">🗄️ Parte 4 de 5 — Servidor propio</div>
+
+<p style="margin: 0 0 1.5rem;">Necesitas la IP fija que dejaste configurada en la Parte 2 (en esta guía, <code>192.168.1.50</code> es solo un ejemplo — usa la tuya) y las credenciales de Samba que creaste en la Parte 3. A partir de aquí, cada sección es para un sistema distinto — puedes ir directo a la tuya con el menú de arriba.</p>
+
+<!-- WINDOWS -->
+<section class="module" id="windows">
+  <div class="module-header">
+    <div class="module-icon">🪟</div>
+    <div>
+      <div class="module-title">Conectarte desde Windows 11</div>
+      <div class="module-sub">Explorador de archivos, con doble diagonal invertida en vez de smb://</div>
+    </div>
+  </div>
+
+  <ol>
+    <li>Abre el <strong>Explorador de archivos</strong> (la tecla <code>Windows + E</code> lo abre directo).</li>
+    <li>Haz clic en la barra de direcciones, hasta arriba, donde normalmente ves la ruta de la carpeta.</li>
+    <li>Escribe <code>\\192.168.1.50\Archivos</code> — con diagonales invertidas <code>\</code>, no las diagonales normales que usa la web — y presiona Enter.</li>
+    <li>Te va a pedir usuario y contraseña: usa el usuario y contraseña de <strong>Samba</strong> que creaste con <code>smbpasswd</code> en la Parte 3, no la contraseña de Windows.</li>
+    <li>Marca "Recordar mis credenciales" si no quieres escribirlas cada vez.</li>
+  </ol>
+
+  <div class="concept">
+    <h4>🪟 ¿Por qué \\ y no smb://?</h4>
+    <p>Ambas notaciones apuntan al mismo protocolo SMB — solo que cada sistema operativo tiene su propia forma histórica de escribir la ruta. Windows usa <code>\\servidor\recurso</code>; Linux y Mac usan <code>smb://servidor/recurso</code>. Es el mismo Samba respondiendo del otro lado en los dos casos.</p>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Anclar el acceso para no escribirlo cada vez</h4>
+    <p>Una vez conectado, puedes hacer clic derecho sobre la carpeta "Archivos" en el panel izquierdo del Explorador y elegir "Anclar a Acceso rápido", o usar "Conectar a unidad de red" desde el menú superior para que aparezca como una unidad más (por ejemplo <code>Z:</code>).</p>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ Si Windows no encuentra el servidor por nombre</h4>
+    <p>Windows a veces no logra "descubrir" servidores Linux por su nombre de equipo sin un paquete adicional instalado en el servidor. Conectarte directamente por <strong>IP</strong>, como se muestra arriba, evita ese problema por completo — es la forma más confiable de conectarte desde Windows a este servidor.</p>
+  </div>
+</section>
+
+<!-- ZORIN -->
+<section class="module" id="zorin">
+  <div class="module-header">
+    <div class="module-icon">🌀</div>
+    <div>
+      <div class="module-title">Conectarte desde Zorin OS</div>
+      <div class="module-sub">Zorin usa GNOME por debajo, así que su gestor de archivos es Nautilus (Archivos)</div>
+    </div>
+  </div>
+
+  <ol>
+    <li>Abre la aplicación <strong>Archivos</strong>.</li>
+    <li>En el panel izquierdo, busca <strong>Otras ubicaciones</strong> y haz clic ahí.</li>
+    <li>Hasta abajo de la ventana va a aparecer un campo de texto que dice "Conectar al servidor". Escribe <code>smb://192.168.1.50/Archivos</code> y presiona Enter (o el botón "Conectar").</li>
+    <li>Te va a pedir usuario y contraseña de Samba — puedes elegir si quieres que se recuerden solo por esta sesión, o de forma permanente.</li>
+  </ol>
+
+  <p>Una vez conectado, el recurso queda disponible en el panel lateral bajo "Redes", y puedes arrastrar, crear y eliminar archivos exactamente igual que en cualquier carpeta local.</p>
+</section>
+
+<!-- MINT -->
+<section class="module" id="mint">
+  <div class="module-header">
+    <div class="module-icon">🌿</div>
+    <div>
+      <div class="module-title">Conectarte desde Linux Mint</div>
+      <div class="module-sub">Mint usa Cinnamon, y su gestor de archivos por defecto es Nemo</div>
+    </div>
+  </div>
+
+  <ol>
+    <li>Abre <strong>Archivos</strong> (Nemo).</li>
+    <li>En el menú superior, ve a <strong>Archivo → Conectar al servidor…</strong> (o busca esa misma opción en el panel lateral, dependiendo de la versión).</li>
+    <li>En "Tipo de servidor" elige <strong>Windows share</strong> (o "SMB", según la versión), y en el campo de servidor escribe solo la IP: <code>192.168.1.50</code>. En "Carpeta compartida" escribe <code>Archivos</code>.</li>
+    <li>Alternativamente, puedes escribir directamente en la barra de direcciones de Nemo (<code>Ctrl+L</code>): <code>smb://192.168.1.50/Archivos</code> y presionar Enter — es el atajo más rápido.</li>
+    <li>Ingresa el usuario y contraseña de Samba cuando se te pida.</li>
+  </ol>
+</section>
+
+<!-- VOYAGER -->
+<section class="module" id="voyager">
+  <div class="module-header">
+    <div class="module-icon">🚀</div>
+    <div>
+      <div class="module-title">Conectarte desde Voyager</div>
+      <div class="module-sub">Voyager está basado en Xfce, y su gestor de archivos es Thunar</div>
+    </div>
+  </div>
+
+  <ol>
+    <li>Abre el gestor de archivos <strong>Thunar</strong>.</li>
+    <li>Presiona <code>Ctrl + L</code> para que aparezca la barra de direcciones como texto editable.</li>
+    <li>Escribe <code>smb://192.168.1.50/Archivos</code> y presiona Enter.</li>
+    <li>Ingresa usuario y contraseña de Samba cuando se te solicite.</li>
+  </ol>
+
+  <div class="warn">
+    <h4>⚠️ Si Thunar no logra conectarse</h4>
+    <p>Thunar depende de un componente llamado <strong>gvfs</strong> (y específicamente de <code>gvfs-backends</code>) para entender direcciones <code>smb://</code>. La mayoría de las distribuciones basadas en Xfce, incluyendo Voyager, ya lo traen instalado, pero si al escribir la dirección no pasa nada, puedes instalarlo con <code>sudo apt install gvfs-backends</code> desde una terminal de Voyager.</p>
+  </div>
+</section>
+
+<!-- MOVILES Y TV -->
+<section class="module" id="moviles-tv">
+  <div class="module-header">
+    <div class="module-icon">📱</div>
+    <div>
+      <div class="module-title">Conectarte desde celular, tablet o TV</div>
+      <div class="module-sub">El mismo Samba de siempre, solo que desde una app en vez de un explorador de escritorio</div>
+    </div>
+  </div>
+
+  <p>El servidor no distingue entre una PC, un celular o una TV — a los tres les habla exactamente el mismo protocolo Samba, con las mismas credenciales que ya creaste en la Parte 3. Lo único que cambia es que celulares y TVs no traen, por defecto, un explorador de archivos con soporte de red como sí lo hacen Windows o Linux, así que necesitas una app puntual para cada caso.</p>
+
+  <p><strong>Android (celular o tablet):</strong></p>
+  <ol>
+    <li>Instala una app con soporte SMB desde la Play Store — <strong>Solid Explorer</strong>, <strong>X-plore</strong> o <strong>CX File Explorer</strong> son opciones confiables.</li>
+    <li>Dentro de la app, busca la opción para agregar una conexión de red nueva (suele decir "Nueva conexión" o "Agregar almacenamiento") y elige el tipo <strong>SMB/CIFS</strong> o <strong>Windows share</strong>.</li>
+    <li>Escribe la IP de tu servidor (la tuya, no <code>192.168.1.50</code>) y el nombre del recurso, <code>Archivos</code>.</li>
+    <li>Ingresa el usuario y la contraseña de Samba — las que creaste con <code>smbpasswd</code> en la Parte 3, no las de tu cuenta de Google ni las del teléfono.</li>
+  </ol>
+
+  <p><strong>iPhone o iPad (iOS / iPadOS):</strong></p>
+  <ol>
+    <li>Abre la app <strong>Archivos</strong>, que ya viene instalada de fábrica.</li>
+    <li>Toca "Examinar" abajo, y luego los tres puntos (•••) arriba a la derecha.</li>
+    <li>Elige <strong>Conectar a servidor</strong> y escribe <code>smb://192.168.1.50</code> (con tu propia IP).</li>
+    <li>Ingresa tu usuario y contraseña de Samba cuando se te pida.</li>
+    <li>El recurso "Archivos" queda disponible dentro de la app, y puedes agregarlo a "Ubicaciones" para no repetir estos pasos la próxima vez.</li>
+  </ol>
+
+  <p><strong>Smart TV:</strong> aquí varía más según la marca, porque no todas traen un cliente SMB igual de completo.</p>
+
+  <table class="tbl">
+    <tr><th>Tipo de TV</th><th>Cómo conectarte</th></tr>
+    <tr><td>Android TV / Google TV</td><td>Instala <strong>VLC</strong> o <strong>X-plore</strong> desde la Play Store de la TV — funcionan igual que en un celular Android.</td></tr>
+    <tr><td>Samsung (Tizen) / LG (webOS)</td><td>Busca "Mis archivos" o similar en el menú de fuentes de la TV; muchas veces detecta el recurso Samba solo, sin que tengas que escribir la IP a mano.</td></tr>
+    <tr><td>TV sin soporte SMB directo</td><td>Reproduce desde el celular con VLC y usa "Enviar a TV" (Chromecast o similar), en vez de conectar la TV directamente al servidor.</td></tr>
+  </table>
+
+  <div class="tip">
+    <h4>🟢 Regla general para cualquier dispositivo nuevo</h4>
+    <p>Si el dispositivo está en la misma red Wi-Fi que el servidor y soporta SMB de alguna forma, la dirección siempre es la misma fórmula: <code>smb://tu-ip/Archivos</code> más tu usuario y contraseña de Samba. Todo lo demás es solo la interfaz particular de cada app.</p>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ Solo funciona en la misma red Wi-Fi</h4>
+    <p>Igual que con las PCs, esto no funciona con datos móviles ni desde otra red — el celular o la TV necesitan estar conectados al mismo Wi-Fi de tu casa que el servidor. Más abajo, en la Parte 5, verás por qué mantenerlo así es justo lo que quieres por ahora.</p>
+  </div>
+</section>
+
+<!-- PRUEBA REAL -->
+<section class="module" id="prueba-real">
+  <div class="module-header">
+    <div class="module-icon">🧪</div>
+    <div>
+      <div class="module-title">La prueba que realmente confirma que todo funciona</div>
+      <div class="module-sub">No basta con "verse conectado" — hay que comprobarlo desde los dos lados</div>
+    </div>
+  </div>
+
+  <p>Desde cualquiera de tus sistemas ya conectado al recurso "Archivos", arrastra un archivo pequeño (por ejemplo, un PDF) hacia la carpeta <strong>Documentos</strong>. Espera a que la copia termine.</p>
+
+  <p>Ahora, desde tu sesión de SSH (Parte 2), confirma que ese archivo realmente llegó al disco del servidor:</p>
+
+  <div class="term-block">
+    <div class="term-block-bar">
+      <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
+      <span style="margin-left:6px;">servidor</span>
+    </div>
+    <div class="term-block-body">
+      <div class="l"><span class="prompt">$</span> <span class="cmd">ls -lh /srv/archivos/Documentos</span></div>
+      <div class="l out">-rw-r--r-- 1 victor victor 214K ago 20 12:03 prueba.pdf</div>
+    </div>
+  </div>
+
+  <p>Ya conoces la <code>-l</code> (formato largo) de la Parte 3. La <code>-h</code> es nueva y es de "human-readable" (legible para humanos): sin ella, el tamaño del archivo saldría en bytes exactos, algo como <code>219136</code>; con <code>-h</code>, <code>ls</code> lo redondea a una unidad fácil de leer como <code>214K</code>. Es puramente cosmética, no cambia el archivo — solo hace que la salida sea más cómoda de leer a simple vista.</p>
+
+  <div class="concept">
+    <h4>🧪 Qué acabas de demostrar</h4>
+    <p>Ese archivo no está "en algún lado de la red" de forma abstracta — está guardado físicamente en el disco SSD de la PC A6-5350. Tu PC principal solo le pidió a Samba que lo guardara ahí, y Samba lo hizo. Es la comprobación de que todo el camino, desde el clic en tu PC hasta el disco del servidor, funciona correctamente de punta a punta.</p>
+  </div>
+</section>
+
+<!-- VIDEO -->
+<section class="module" id="video">
+  <div class="module-header">
+    <div class="module-icon">🎬</div>
+    <div>
+      <div class="module-title">Reproducir un video directamente desde el servidor</div>
+      <div class="module-sub">Sin copiarlo primero a tu PC</div>
+    </div>
+  </div>
+
+  <p>Copia un archivo de video a la carpeta <strong>Videos</strong> del recurso compartido (igual que hiciste con el PDF). Después, dentro del explorador de archivos de tu sistema, simplemente haz doble clic sobre él, como si fuera un archivo local.</p>
+
+  <p>Si tienes VLC (u otro reproductor compatible) instalado, va a empezar a reproducirlo leyendo los datos por la red, sin necesidad de que primero se copie por completo a tu PC. El archivo original nunca se mueve de <code>/srv/archivos/Videos/</code> — solo viajan por la red los fragmentos de datos que el reproductor necesita en cada momento.</p>
+
+  <div class="tip">
+    <h4>🟢 Si el video se traba o carga a saltos</h4>
+    <p>Casi siempre es un tema de velocidad de red, no de Samba. Revisa si tanto el servidor como tu PC principal están usando cable Ethernet (recomendado en la Parte 2) en vez de Wi-Fi, sobre todo con archivos de video pesados.</p>
+  </div>
+</section>
+
+<!-- SFTP -->
+<section class="module" id="sftp">
+  <div class="module-header">
+    <div class="module-icon">📂</div>
+    <div>
+      <div class="module-title">SFTP: transferir archivos por terminal</div>
+      <div class="module-sub">Una alternativa a Samba que usa la misma conexión que SSH</div>
+    </div>
+  </div>
+
+  <p>SFTP (SSH File Transfer Protocol) reutiliza la misma conexión cifrada de SSH, pero en vez de darte una terminal completa, te da un modo especializado en subir y bajar archivos. Desde tu PC principal:</p>
+
+  <div class="term-block">
+    <div class="term-block-bar">
+      <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
+      <span style="margin-left:6px;">tu PC principal</span>
+    </div>
+    <div class="term-block-body">
+      <div class="l"><span class="prompt">$</span> <span class="cmd">sftp victor@192.168.1.50</span></div>
+      <div class="l out">sftp&gt;</div>
+      <div class="l"><span class="prompt">sftp&gt;</span> <span class="cmd">ls</span></div>
+      <div class="l out">// lista los archivos del servidor</div>
+      <div class="l"><span class="prompt">sftp&gt;</span> <span class="cmd">get archivo.txt</span></div>
+      <div class="l out">// descarga ese archivo a tu PC principal</div>
+      <div class="l"><span class="prompt">sftp&gt;</span> <span class="cmd">put otro.txt</span></div>
+      <div class="l out">// sube ese archivo al servidor</div>
+    </div>
+  </div>
+
+  <p>No necesita nada adicional instalado en el servidor: como ya tienes SSH funcionando desde la Parte 2, SFTP funciona automáticamente sobre esa misma conexión.</p>
+</section>
+
+<!-- COMPARACION -->
+<section class="module" id="comparacion">
+  <div class="module-header">
+    <div class="module-icon">⚖️</div>
+    <div>
+      <div class="module-title">SSH, SFTP y Samba — para no mezclarlos</div>
+      <div class="module-sub">Las tres formas de interactuar con tu servidor que ya tienes funcionando</div>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <tr><th>Herramienta</th><th>Para qué la usas</th><th>Cómo piensas en ella</th></tr>
+    <tr><td><span class="tag">SSH</span></td><td>Controlar el servidor: ejecutar comandos, instalar programas, editar configuración.</td><td>"Quiero manejar la computadora."</td></tr>
+    <tr><td><span class="tag">SFTP</span></td><td>Subir y bajar archivos puntuales desde una terminal.</td><td>"Quiero mover un archivo, sin más."</td></tr>
+    <tr><td><span class="tag">Samba</span></td><td>Que la carpeta del servidor se vea y se use como una carpeta más de tu explorador de archivos.</td><td>"Quiero usar la carpeta del servidor todos los días, con clics y arrastrando archivos."</td></tr>
+  </table>
+</section>
+
+<!-- GLOSARIO -->
+<section class="module" id="glosario">
+  <div class="module-header">
+    <div class="module-icon">📖</div>
+    <div>
+      <div class="module-title">Glosario</div>
+      <div class="module-sub">Términos nuevos de esta parte</div>
+    </div>
+  </div>
+
+  <dl class="glos">
+    <div class="glos-item"><dt>Nautilus</dt><dd>El gestor de archivos de GNOME, llamado simplemente "Archivos" — lo usan Zorin y otras distros basadas en GNOME.</dd></div>
+    <div class="glos-item"><dt>Nemo</dt><dd>El gestor de archivos de Cinnamon, usado por Linux Mint.</dd></div>
+    <div class="glos-item"><dt>Thunar</dt><dd>El gestor de archivos de Xfce, usado por Voyager.</dd></div>
+    <div class="glos-item"><dt>gvfs</dt><dd>El componente de Linux que permite a los gestores de archivos entender direcciones de red como smb:// o sftp://.</dd></div>
+    <div class="glos-item"><dt>SFTP</dt><dd>Protocolo de transferencia de archivos que usa la misma conexión cifrada que SSH.</dd></div>
+    <div class="glos-item"><dt>Unidad de red</dt><dd>Una forma de hacer que una carpeta compartida aparezca como si fuera un disco más en Windows, con su propia letra.</dd></div>
+  </dl>
+</section>
+
+<!-- SIGUIENTE -->
+<section class="module" id="siguiente">
+  <div class="module-header">
+    <div class="module-icon">➡️</div>
+    <div>
+      <div class="module-title">Siguiente: seguridad y hacia dónde seguir aprendiendo</div>
+      <div class="module-sub">Cerrar bien el proyecto, y una hoja de ruta de lo que puedes explorar después</div>
+    </div>
+  </div>
+
+  <p>Con Samba funcionando y probado desde tus cuatro sistemas, el proyecto ya cumple su objetivo principal. En la última parte vamos a dejar el servidor bien cerrado en cuanto a seguridad y energía, resolver los problemas más comunes que te puedes encontrar, y ver qué sigue si quieres seguir creciendo este proyecto.</p>
+
+  <p><a href="servidor-parte5.html"><strong>Continuar con la Parte 5: Seguridad y siguientes pasos →</strong></a></p>
+</section>
+
+</main>
+
+<footer>
+  Servidor propio · Parte 4 de 5 · un proyecto de Café &lt;/&gt;
+</footer>
+
+<script>
+  (function() {
+    var root = document.documentElement;
+    var icon = document.getElementById('themeIcon');
+    var label = document.getElementById('themeLabel');
+    var STORAGE_KEY = 'cafe-codigo-theme';
+
+    function applyTheme(theme) {
+      if (theme === 'dark') {
+        root.setAttribute('data-theme', 'dark');
+        icon.textContent = '☀️';
+        label.textContent = 'Modo claro';
+      } else {
+        root.removeAttribute('data-theme');
+        icon.textContent = '🌙';
+        label.textContent = 'Modo oscuro';
+      }
+    }
+
+    var saved = null;
+    try { saved = localStorage.getItem(STORAGE_KEY); } catch (e) {}
+
+    if (saved) {
+      applyTheme(saved);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      applyTheme('dark');
+    }
+
+    window.toggleTheme = function() {
+      var isDark = root.getAttribute('data-theme') === 'dark';
+      var next = isDark ? 'light' : 'dark';
+      applyTheme(next);
+      try { localStorage.setItem(STORAGE_KEY, next); } catch (e) {}
+    };
+  })();
+</script>
+
+</body>
+</html>

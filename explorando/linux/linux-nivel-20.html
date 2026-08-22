@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux desde Cero · N20 · Redes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root,[data-theme="light"]{--primary:#c44a2a;--primary-light:#fdf0ec;--primary-mid:rgba(196,74,42,.25);--secondary:#1a7a5a;--secondary-light:#edf7f3;--accent:#b07010;--accent-light:#fdf6e8;--bg:#f7f4ef;--surface:#ffffff;--text:#1a1814;--muted:#8a8480;--border:#e8e4de;--code-bg:#1a1814;--code-text:#e8e4de;--header-bg:#1a1814;--analogy-bg:#fff7ed;--analogy-border:#fde68a;--analogy-text:#78350f;--analogy-head:#92400e;--diagram-bg:#f0f4ff;--diagram-border:#c7d2fe;--note-bg:#f0f4ff;--note-border:#6366f1;--note-head:#4338ca;}
+[data-theme="dark"]{--primary:#ff7a57;--primary-light:rgba(255,122,87,.14);--primary-mid:rgba(255,122,87,.3);--secondary:#3ddc84;--secondary-light:rgba(61,220,132,.12);--accent:#f0c040;--accent-light:rgba(240,192,64,.12);--bg:#0d1117;--surface:#161b22;--text:#c9d8f0;--muted:#5a7090;--border:#21262d;--code-bg:#060a10;--code-text:#c9d8f0;--header-bg:#0a0e14;--analogy-bg:rgba(240,192,64,.07);--analogy-border:rgba(240,192,64,.3);--analogy-text:#e6d4a0;--analogy-head:#f0c040;--diagram-bg:#161b22;--diagram-border:#21262d;--note-bg:rgba(99,102,241,.1);--note-border:#818cf8;--note-head:#818cf8;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;font-size:16px;transition:background .25s,color .25s;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:300;height:45px;}
+.topbar-back{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);text-decoration:none;padding:5px 14px;border:1px solid var(--border);border-radius:999px;transition:all .15s;}
+.topbar-back:hover{color:var(--text);border-color:var(--muted);}
+.topbar-info{font-size:13px;color:var(--muted);}
+.theme-btn{margin-left:auto;background:none;border:1px solid var(--border);border-radius:999px;padding:4px 13px;font-size:13px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:.35rem;transition:all .15s;font-family:'DM Sans',sans-serif;}
+.theme-btn:hover{color:var(--text);border-color:var(--muted);}
+header{background:var(--header-bg);color:#f7f4ef;padding:3rem 2rem 2.25rem;text-align:center;position:relative;overflow:hidden;}
+header::before{content:'N20';position:absolute;font-family:'DM Mono',monospace;font-size:11rem;font-weight:900;color:rgba(255,255,255,.04);right:-1rem;top:-1.5rem;line-height:1;pointer-events:none;}
+.header-eyebrow{display:inline-flex;align-items:center;gap:.5rem;background:rgba(196,74,42,.25);border:1px solid rgba(196,74,42,.45);border-radius:20px;padding:3px 14px;font-size:.78rem;font-weight:700;color:#ffaa88;margin-bottom:.85rem;}
+header h1{font-size:2.5rem;font-weight:800;letter-spacing:-1px;color:#f7f4ef;line-height:1.2;}
+header h1 em{font-style:normal;color:#ff8a6a;}
+header p{font-size:1.05rem;opacity:.8;margin-top:.5rem;max-width:560px;margin-left:auto;margin-right:auto;}
+.header-chips{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-top:.9rem;}
+.header-chip{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:20px;padding:3px 13px;font-size:.76rem;color:rgba(255,255,255,.75);}
+.niveles-nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:45px;z-index:110;display:flex;align-items:center;height:38px;padding:0 1rem;}
+.nn-prev,.nn-next{flex-shrink:0;display:flex;align-items:center;gap:.3rem;padding:0 .75rem;height:100%;text-decoration:none;color:var(--muted);font-size:.78rem;font-weight:500;border-right:1px solid var(--border);transition:color .15s;white-space:nowrap;}
+.nn-next{border-right:none;border-left:1px solid var(--border);}
+.nn-prev:hover,.nn-next:hover{color:var(--primary);}
+.nn-list{flex:1;display:flex;align-items:center;justify-content:center;gap:.15rem;overflow-x:auto;padding:0 .5rem;}
+.nn-list::-webkit-scrollbar{display:none;}
+.nn-list a{flex-shrink:0;padding:2px 9px;border-radius:20px;text-decoration:none;font-size:.73rem;font-weight:600;color:var(--muted);font-family:'DM Mono',monospace;transition:color .15s,background .15s;}
+.nn-list a:hover{color:var(--text);background:var(--bg);}
+.nn-list a.activa{background:var(--primary-light);color:var(--primary);}
+.nn-list .sep{color:var(--border);font-size:.7rem;padding:0 1px;flex-shrink:0;pointer-events:none;}
+.sec-nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:83px;z-index:100;display:flex;overflow-x:auto;}
+.sec-nav::-webkit-scrollbar{display:none;}
+.sec-nav a{flex-shrink:0;padding:.75rem 1.1rem;text-decoration:none;color:var(--muted);font-size:.82rem;font-weight:500;border-bottom:2px solid transparent;white-space:nowrap;transition:color .2s,border-color .2s;}
+.sec-nav a:hover{color:var(--primary);border-bottom-color:var(--primary);}
+main{max-width:920px;margin:0 auto;padding:2rem 1.5rem;}
+.nivel-badge{display:inline-flex;align-items:center;gap:.5rem;background:var(--primary);color:white;border-radius:20px;padding:5px 16px;font-size:.82rem;font-weight:700;margin-bottom:1.75rem;}
+.module{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;margin-bottom:2.5rem;scroll-margin-top:135px;transition:background .25s,border-color .25s;}
+.module-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border);}
+.module-icon{font-size:1.8rem;flex-shrink:0;}
+.module-title{font-size:1.35rem;font-weight:700;}
+.module-sub{font-size:.85rem;color:var(--muted);margin-top:2px;}
+.module h2{font-size:1.15rem;font-weight:700;margin:1.75rem 0 .75rem;}
+.module p{margin-bottom:.85rem;font-size:.97rem;}
+.module ul,.module ol{padding-left:1.4rem;margin-bottom:.85rem;}
+.module li{margin-bottom:.4rem;font-size:.96rem;}
+.analogy{background:var(--analogy-bg);border:1px solid var(--analogy-border);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0;}
+.analogy h4{color:var(--analogy-head);font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+.analogy p{font-size:.95rem;color:var(--analogy-text);margin:0;}
+.concept,.tip,.warn,.note{border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0;border-left-width:4px;border-left-style:solid;}
+.concept h4,.tip h4,.warn h4,.note h4{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+.concept p,.tip p,.warn p,.note p{font-size:.95rem;margin:0;}
+.tip ul{font-size:.95rem;padding-left:1.2rem;margin-top:.3rem;}
+.concept{background:var(--primary-light);border-color:var(--primary);}.concept h4{color:var(--primary);}
+.tip{background:var(--secondary-light);border-color:var(--secondary);}.tip h4{color:var(--secondary);}
+.warn{background:var(--primary-light);border-color:var(--primary);}.warn h4{color:var(--primary);}
+.note{background:var(--note-bg);border-color:var(--note-border);}.note h4{color:var(--note-head);}
+.terminal{background:#0a0e14;border:1px solid #21262d;border-radius:10px;overflow:hidden;margin:1rem 0;}
+.term-bar{background:#161b22;padding:.42rem .85rem;display:flex;align-items:center;gap:.35rem;border-bottom:1px solid #21262d;}
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.dot-r{background:#ff5f57;}.dot-y{background:#ffbd2e;}.dot-g{background:#28c840;}
+.term-label{font-family:'DM Mono',monospace;font-size:.69rem;color:#3a5070;margin-left:.4rem;}
+.term-body{padding:1.1rem 1.3rem;font-family:'DM Mono',monospace;font-size:.85rem;line-height:2.1;color:#c9d8f0;}
+.t-p{color:#3ddc84;}.t-o{color:#5a7090;display:block;}.t-h{color:#253550;font-style:italic;display:block;}
+.diagram{background:var(--diagram-bg);border:1px solid var(--diagram-border);border-radius:12px;padding:1.5rem;margin:1.1rem 0;font-family:'DM Mono',monospace;font-size:.87rem;line-height:2;overflow-x:auto;}
+.d-r{color:var(--primary);font-weight:700;}.d-g{color:var(--secondary);font-weight:700;}.d-y{color:var(--accent);font-weight:700;}.d-b{color:#6366f1;font-weight:700;}.d-m{color:var(--muted);font-style:italic;}
+.tbl{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem;}
+.tbl th{background:var(--primary-light);color:var(--primary);padding:.65rem 1rem;text-align:left;font-weight:600;}
+.tbl td{padding:.65rem 1rem;border-bottom:1px solid var(--border);vertical-align:top;}
+.tbl td:first-child{font-family:'DM Mono',monospace;font-size:.85rem;color:var(--primary);font-weight:600;}
+.tbl tr:hover td{background:var(--bg);}
+.code-wrap{position:relative;margin:1rem 0;}
+.code-block{background:var(--code-bg);color:var(--code-text);border-radius:10px;padding:1.25rem 1.5rem;font-family:'DM Mono',monospace;font-size:.88rem;line-height:1.85;overflow-x:auto;white-space:pre;}
+.lang-tag{position:absolute;top:.6rem;right:.75rem;background:rgba(255,255,255,.1);color:rgba(255,255,255,.45);font-size:.68rem;padding:2px 8px;border-radius:4px;font-family:sans-serif;font-weight:700;}
+.ct{color:#89B4FA;}.cv{color:#A6E3A1;}.cs{color:#F9E2AF;}.cc{color:#585B70;font-style:italic;}.cn{color:#FAB387;}
+
+/* CMD GRID */
+.cmd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:.75rem;margin:1rem 0;}
+.cmd-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1rem;}
+.cmd-title{font-family:'DM Mono',monospace;font-size:.82rem;font-weight:700;color:var(--primary);margin-bottom:.3rem;}
+.cmd-desc{font-size:.83rem;color:var(--muted);margin-bottom:.5rem;}
+.cmd-ex{font-family:'DM Mono',monospace;font-size:.79rem;background:var(--code-bg);color:var(--code-text);padding:.45rem .75rem;border-radius:6px;display:block;}
+
+/* SSH CONFIG */
+.ssh-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.75rem;margin:1rem 0;}
+.ssh-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1rem;}
+.sc-title{font-weight:700;font-size:.9rem;margin-bottom:.3rem;color:var(--primary);}
+.sc-desc{font-size:.82rem;color:var(--muted);line-height:1.5;}
+
+.ejercicio{background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:1.5rem;margin:1.5rem 0;}
+[data-theme="dark"] .ejercicio{background:rgba(240,192,64,.06);border-color:rgba(240,192,64,.22);}
+.ej-hd{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;font-weight:700;font-size:1rem;color:#78350F;flex-wrap:wrap;}
+[data-theme="dark"] .ej-hd{color:#f0c040;}
+.ej-badge{background:var(--accent);color:#fff;font-size:.68rem;padding:2px 9px;border-radius:20px;font-weight:700;text-transform:uppercase;}
+.ejercicio ol{padding-left:1.4rem;}
+.ejercicio ol li{margin-bottom:.6rem;font-size:.95rem;}
+.ejercicio p{font-size:.95rem;margin-bottom:.6rem;}
+.resumen{background:var(--primary-light);border:1px solid var(--primary-mid);border-radius:14px;padding:1.6rem;margin-bottom:1.5rem;}
+.resumen h3{color:var(--primary);margin-bottom:.75rem;font-size:1.05rem;}
+.resumen ul{padding-left:1.4rem;}
+.resumen li{font-size:.92rem;margin-bottom:.45rem;}
+.next-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem 1.5rem;display:flex;align-items:center;gap:1rem;text-decoration:none;transition:border-color .2s;margin-bottom:2rem;}
+.next-card:hover{border-color:var(--primary);}
+.nc-label{font-size:.72rem;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.2rem;}
+.nc-name{font-weight:700;color:var(--text);font-size:.97rem;}
+.nc-arrow{font-size:1.4rem;color:var(--primary);margin-left:auto;}
+code{font-family:'DM Mono',monospace;background:#f0ece6;color:var(--primary);padding:1px 5px;border-radius:4px;font-size:.9em;}
+[data-theme="dark"] code{background:#1c2128;}
+strong{font-weight:700;}
+p{margin-bottom:.8rem;}ul,ol{padding-left:1.4rem;margin-bottom:.8rem;}li{margin-bottom:.4rem;font-size:.96rem;}
+h2{font-size:1.2rem;font-weight:700;margin:1.75rem 0 .75rem;}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.85rem;border-top:1px solid var(--border);margin-top:1rem;background:var(--bg);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="topbar-back" href="../explorando-capitulos.html">← Explorando</a>
+  <span class="topbar-info">🐧 Linux desde Cero · Nivel 20 de 23</span>
+  <button class="theme-btn" onclick="toggleTheme()">
+    <span id="themeIcon">🌙</span><span id="themeLabel">Oscuro</span>
+  </button>
+</div>
+
+<header>
+  <div class="header-eyebrow">🌐 Nivel 20 — Sistema</div>
+  <h1><em>Redes</em> en Linux</h1>
+  <p>IP, DNS, interfaces, ping, curl, wget, SSH, netstat y cómo diagnosticar problemas de red desde la terminal</p>
+  <div class="header-chips">
+    <span class="header-chip">Nivel 20 de 23</span>
+    <span class="header-chip">🌐 Redes</span>
+    <span class="header-chip">9 subtemas</span>
+    <span class="header-chip">~35 min</span>
+  </div>
+</header>
+
+<div class="niveles-nav">
+  <a class="nn-prev" href="linux-nivel-19.html">← N19</a>
+  <div class="nn-list">
+    <a href="linux-nivel-01.html">N1</a><a href="linux-nivel-02.html">N2</a><a href="linux-nivel-03.html">N3</a>
+    <a href="linux-nivel-04.html">N4</a><a href="linux-nivel-05.html">N5</a><span class="sep">·</span>
+    <a href="linux-nivel-06.html">N6</a><a href="linux-nivel-07.html">N7</a><a href="linux-nivel-08.html">N8</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-09.html">N9</a><a href="linux-nivel-10.html">N10</a><a href="linux-nivel-11.html">N11</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-12.html">N12</a><a href="linux-nivel-13.html">N13</a><a href="linux-nivel-14.html">N14</a>
+    <a href="linux-nivel-15.html">N15</a><span class="sep">·</span>
+    <a href="linux-nivel-16.html">N16</a><a href="linux-nivel-17.html">N17</a><a href="linux-nivel-18.html">N18</a>
+    <a href="linux-nivel-19.html">N19</a>
+    <a href="linux-nivel-20.html" class="activa">N20</a>
+    <a href="linux-nivel-21.html">N21</a><a href="linux-nivel-22.html">N22</a><a href="linux-nivel-23.html">N23</a>
+  </div>
+  <a class="nn-next" href="linux-nivel-21.html">N21 →</a>
+</div>
+
+<nav class="sec-nav">
+  <a href="#conceptos">🧱 Conceptos</a>
+  <a href="#interfaces">🔌 Interfaces</a>
+  <a href="#ip">📍 IP y rutas</a>
+  <a href="#dns">🔤 DNS</a>
+  <a href="#diagnostico">🩺 Diagnóstico</a>
+  <a href="#curl">🌐 curl y wget</a>
+  <a href="#ssh">🔐 SSH</a>
+  <a href="#puertos">🚪 Puertos</a>
+  <a href="#red-monitor">📡 Monitorizar red</a>
+  <a href="#ejercicio">✏️ Ejercicio</a>
+</nav>
+
+<main>
+<div class="nivel-badge">🌐 Nivel 20 — Redes en Linux</div>
+
+
+<!-- CONCEPTOS -->
+<section class="module" id="conceptos">
+  <div class="module-header">
+    <div class="module-icon">🧱</div>
+    <div>
+      <div class="module-title">Conceptos clave de redes</div>
+      <div class="module-sub">IP, máscara, gateway, DNS y puertos — la base que necesitas conocer</div>
+    </div>
+  </div>
+
+  <p>Antes de los comandos, hay cuatro conceptos que lo explican todo en redes. Entenderlos hace que diagnosticar problemas de red sea intuitivo en lugar de mágico.</p>
+
+  <div class="diagram">
+<span class="d-m"># El modelo de comunicación en red</span>
+
+Tu equipo (192.168.1.42)
+  │
+  ├── <span class="d-y">IP</span>          → tu dirección única en la red (como tu número de casa)
+  ├── <span class="d-y">Máscara</span>     → define el tamaño de tu red (192.168.1.0/24 = 254 vecinos)
+  ├── <span class="d-y">Gateway</span>     → la puerta de salida a internet (tu router: 192.168.1.1)
+  └── <span class="d-y">DNS</span>         → el traductor nombre→IP (8.8.8.8 = Google DNS)
+
+<span class="d-m"># Cuando abres github.com:</span>
+1. Tu equipo pregunta al <span class="d-g">DNS</span>: "¿qué IP es github.com?"
+2. DNS responde: <span class="d-b">140.82.114.4</span>
+3. Tu equipo envía paquetes a <span class="d-b">140.82.114.4</span> vía el <span class="d-r">gateway</span>
+4. El servidor responde, tu navegador renderiza la página
+
+<span class="d-m"># Puertos — el número de apartamento dentro de una IP</span>
+192.168.1.42:<span class="d-r">80</span>   → servidor web HTTP
+192.168.1.42:<span class="d-r">443</span>  → servidor web HTTPS
+192.168.1.42:<span class="d-r">22</span>   → servidor SSH
+192.168.1.42:<span class="d-r">3000</span> → tu app Node.js en desarrollo</div>
+
+  <table class="tbl">
+    <thead><tr><th>Concepto</th><th>Qué es</th><th>Ejemplo</th></tr></thead>
+    <tbody>
+      <tr><td>IP privada</td><td>Dirección dentro de tu red local. No visible desde internet.</td><td>192.168.1.42, 10.0.0.5</td></tr>
+      <tr><td>IP pública</td><td>Dirección visible desde internet. La tiene el router, no tu equipo.</td><td>189.247.134.82</td></tr>
+      <tr><td>Localhost</td><td>Tu propio equipo. Siempre 127.0.0.1 o la dirección ::1 en IPv6.</td><td>127.0.0.1, localhost</td></tr>
+      <tr><td>CIDR /24</td><td>Notación de máscara. /24 = 255.255.255.0 = 254 hosts en la red.</td><td>192.168.1.0/24</td></tr>
+      <tr><td>Gateway</td><td>La IP del router — el siguiente salto para salir a internet.</td><td>192.168.1.1</td></tr>
+      <tr><td>DNS</td><td>Domain Name System — traduce nombres a IPs.</td><td>8.8.8.8 (Google), 1.1.1.1 (Cloudflare)</td></tr>
+      <tr><td>Puerto</td><td>Número 0-65535 que identifica un servicio en una IP.</td><td>80 HTTP, 443 HTTPS, 22 SSH, 5432 PostgreSQL</td></tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- INTERFACES DE RED -->
+<section class="module" id="interfaces">
+  <div class="module-header">
+    <div class="module-icon">🔌</div>
+    <div>
+      <div class="module-title">Interfaces de red — las tarjetas de red como archivos</div>
+      <div class="module-sub">ip link, NetworkManager y la gestión de interfaces en Linux</div>
+    </div>
+  </div>
+
+  <p>En Linux, cada tarjeta de red (física o virtual) es una <strong>interfaz de red</strong> con un nombre. Las interfaces modernas usan nombres predecibles basados en su tipo y posición hardware.</p>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">ver y gestionar interfaces de red</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># ip link — ver todas las interfaces</span>
+<span class="t-p">$</span> ip link show
+<span class="t-o">1: lo: &lt;LOOPBACK,UP&gt; mtu 65536 state UNKNOWN</span>
+<span class="t-o">    link/loopback 00:00:00:00:00:00</span>
+<span class="t-o">2: enp3s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 state UP</span>
+<span class="t-o">    link/ether a0:b1:c2:d3:e4:f5</span>
+<span class="t-o">3: wlp2s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 state UP</span>
+<span class="t-o">    link/ether b0:c1:d2:e3:f4:05</span>
+
+<span class="t-h"># Nombres de interfaces explicados:</span>
+<span class="t-h"># lo      = loopback (127.0.0.1 - tu propio equipo)</span>
+<span class="t-h"># enp3s0  = Ethernet, bus PCI 3, slot 0</span>
+<span class="t-h"># wlp2s0  = WiFi (wireless LAN), PCI 2, slot 0</span>
+<span class="t-h"># eth0    = nombre clásico (todavía en contenedores y VMs)</span>
+<span class="t-h"># docker0 = interfaz del bridge de Docker</span>
+
+<span class="t-h"># Activar / desactivar una interfaz</span>
+<span class="t-p">$</span> sudo ip link set enp3s0 up
+<span class="t-p">$</span> sudo ip link set enp3s0 down
+
+<span class="t-h"># nmcli — controlar NetworkManager desde la terminal</span>
+<span class="t-p">$</span> nmcli device status
+<span class="t-o">DEVICE    TYPE      STATE      CONNECTION</span>
+<span class="t-o">enp3s0    ethernet  connected  Ethernet</span>
+<span class="t-o">wlp2s0    wifi      connected  MiRedWiFi</span>
+
+<span class="t-h"># Conectarse a una WiFi con nmcli</span>
+<span class="t-p">$</span> nmcli device wifi list                         <span class="t-h"># ver redes disponibles</span>
+<span class="t-p">$</span> nmcli device wifi connect "MiRed" password "clave123"
+
+<span class="t-h"># Ver MAC address de una interfaz</span>
+<span class="t-p">$</span> ip link show wlp2s0 | grep link/ether
+<span class="t-o">    link/ether b0:c1:d2:e3:f4:05 brd ff:ff:ff:ff:ff:ff</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- IP Y RUTAS -->
+<section class="module" id="ip">
+  <div class="module-header">
+    <div class="module-icon">📍</div>
+    <div>
+      <div class="module-title">Direcciones IP y tabla de rutas</div>
+      <div class="module-sub">ip addr, ip route — el comando ip reemplaza a ifconfig y route</div>
+    </div>
+  </div>
+
+  <p>El comando <code>ip</code> (del paquete iproute2) es la herramienta moderna para gestionar IPs y rutas en Linux. Reemplaza a los clásicos <code>ifconfig</code> y <code>route</code> que están obsoletos en distros modernas.</p>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">ip addr e ip route — IPs y tabla de rutas</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Ver todas las IPs asignadas</span>
+<span class="t-p">$</span> ip addr show
+<span class="t-o">2: enp3s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500</span>
+<span class="t-o">    inet 192.168.1.42/24 brd 192.168.1.255 scope global dynamic enp3s0</span>
+<span class="t-o">3: wlp2s0: ...</span>
+<span class="t-o">    inet 192.168.1.55/24 brd 192.168.1.255 scope global dynamic wlp2s0</span>
+
+<span class="t-h"># Ver solo la IP de una interfaz específica</span>
+<span class="t-p">$</span> ip addr show enp3s0
+<span class="t-p">$</span> ip -4 addr show wlp2s0   <span class="t-h"># solo IPv4</span>
+
+<span class="t-h"># Asignar IP estática temporal (se pierde al reiniciar)</span>
+<span class="t-p">$</span> sudo ip addr add 192.168.1.100/24 dev enp3s0
+<span class="t-p">$</span> sudo ip addr del 192.168.1.100/24 dev enp3s0
+
+<span class="t-h"># Ver la tabla de rutas</span>
+<span class="t-p">$</span> ip route show
+<span class="t-o">default via 192.168.1.1 dev enp3s0 proto dhcp  ← el gateway</span>
+<span class="t-o">192.168.1.0/24 dev enp3s0 proto kernel          ← red local directa</span>
+<span class="t-o">172.17.0.0/16 dev docker0 proto kernel          ← red de Docker</span>
+
+<span class="t-h"># Ver el gateway por defecto</span>
+<span class="t-p">$</span> ip route show default
+<span class="t-o">default via 192.168.1.1 dev enp3s0</span>
+
+<span class="t-h"># Ver tu IP pública (la que ve internet)</span>
+<span class="t-p">$</span> curl ifconfig.me
+<span class="t-o">189.247.134.82</span>
+<span class="t-p">$</span> curl https://ipinfo.io/ip
+
+<span class="t-h"># ifconfig — el clásico (obsoleto pero todavía instalable)</span>
+<span class="t-p">$</span> sudo apt install net-tools
+<span class="t-p">$</span> ifconfig
+    </div>
+  </div>
+</section>
+
+
+<!-- DNS -->
+<section class="module" id="dns">
+  <div class="module-header">
+    <div class="module-icon">🔤</div>
+    <div>
+      <div class="module-title">DNS — resolver nombres de dominio</div>
+      <div class="module-sub">dig, nslookup, host y cómo funciona la resolución de nombres</div>
+    </div>
+  </div>
+
+  <p><strong>DNS</strong> (Domain Name System) traduce nombres de dominio (github.com) a direcciones IP (140.82.114.4). Sin DNS tendrías que memorizar IPs para cada sitio que visitas. Linux consulta los servidores DNS configurados en <code>/etc/resolv.conf</code>.</p>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">DNS — consultar y diagnosticar</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Ver el DNS configurado</span>
+<span class="t-p">$</span> cat /etc/resolv.conf
+<span class="t-o">nameserver 127.0.0.53       ← systemd-resolved (proxy local)</span>
+<span class="t-o">nameserver 8.8.8.8          ← Google DNS (si configuras manualmente)</span>
+
+<span class="t-h"># resolvectl — ver configuración DNS de systemd-resolved</span>
+<span class="t-p">$</span> resolvectl status | head -20
+<span class="t-o">Current DNS Server: 192.168.1.1</span>
+<span class="t-o">DNS Servers: 8.8.8.8 8.8.4.4</span>
+
+<span class="t-h"># dig — la herramienta de diagnóstico DNS más potente</span>
+<span class="t-p">$</span> dig github.com
+<span class="t-o">;; ANSWER SECTION:</span>
+<span class="t-o">github.com.  60  IN  A  140.82.114.4</span>
+
+<span class="t-h"># Tipos de registros DNS</span>
+<span class="t-p">$</span> dig github.com A       <span class="t-h"># dirección IPv4</span>
+<span class="t-p">$</span> dig github.com AAAA    <span class="t-h"># dirección IPv6</span>
+<span class="t-p">$</span> dig github.com MX      <span class="t-h"># servidores de correo</span>
+<span class="t-p">$</span> dig github.com NS      <span class="t-h"># servidores de nombres</span>
+<span class="t-p">$</span> dig github.com TXT     <span class="t-h"># registros de texto (SPF, DKIM...)</span>
+
+<span class="t-h"># Usar un DNS específico para la consulta</span>
+<span class="t-p">$</span> dig @8.8.8.8 github.com
+<span class="t-p">$</span> dig @1.1.1.1 example.com
+
+<span class="t-h"># host — más simple que dig</span>
+<span class="t-p">$</span> host github.com
+<span class="t-o">github.com has address 140.82.114.4</span>
+<span class="t-o">github.com mail is handled by alt1.aspmx.l.google.com</span>
+
+<span class="t-h"># nslookup — clásico, interactivo</span>
+<span class="t-p">$</span> nslookup github.com
+<span class="t-p">$</span> nslookup github.com 8.8.8.8   <span class="t-h"># consultar servidor específico</span>
+
+<span class="t-h"># /etc/hosts — resolución local que tiene precedencia sobre DNS</span>
+<span class="t-p">$</span> cat /etc/hosts
+<span class="t-o">127.0.0.1    localhost</span>
+<span class="t-o">127.0.1.1    mi-equipo</span>
+<span class="t-h"># Puedes añadir entradas aquí para desarrollo local:</span>
+<span class="t-h"># 127.0.0.1    api.local  mi-app.local</span>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 /etc/hosts para desarrollo local</h4>
+    <p>Añadir entradas en <code>/etc/hosts</code> es la forma más rápida de crear dominios locales para desarrollo: <code>127.0.0.1 miapp.local</code> hace que <code>http://miapp.local</code> apunte a tu servidor local sin configurar DNS. Tiene precedencia sobre cualquier servidor DNS externo. Editar con <code>sudo nano /etc/hosts</code>.</p>
+  </div>
+</section>
+
+
+<!-- DIAGNÓSTICO DE RED -->
+<section class="module" id="diagnostico">
+  <div class="module-header">
+    <div class="module-icon">🩺</div>
+    <div>
+      <div class="module-title">Diagnóstico de red — ping, traceroute y más</div>
+      <div class="module-sub">Los comandos para encontrar dónde falla la conectividad</div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">diagnóstico completo de red</span>
+    </div>
+    <div class="term-body">
+<span class="t-h">## ping — comprobar conectividad básica</span>
+<span class="t-p">$</span> ping google.com            <span class="t-h"># ping continuo (Ctrl+C para parar)</span>
+<span class="t-p">$</span> ping -c 4 google.com       <span class="t-h"># solo 4 paquetes</span>
+<span class="t-p">$</span> ping -i 0.2 google.com     <span class="t-h"># cada 0.2 segundos (más rápido)</span>
+<span class="t-p">$</span> ping 192.168.1.1            <span class="t-h"># probar conectividad con el gateway</span>
+<span class="t-o">PING google.com (142.250.80.46): 56 bytes</span>
+<span class="t-o">64 bytes from 142.250.80.46: icmp_seq=1 ttl=113 time=18.4 ms</span>
+
+<span class="t-h">## traceroute — ver la ruta que siguen los paquetes</span>
+<span class="t-p">$</span> traceroute google.com
+<span class="t-o"> 1  192.168.1.1      2.341 ms   ← tu router</span>
+<span class="t-o"> 2  10.0.0.1         8.234 ms   ← router del ISP</span>
+<span class="t-o"> 3  72.14.238.114   14.123 ms   ← Google backbone</span>
+<span class="t-o"> 4  142.250.80.46   18.432 ms   ← destino</span>
+<span class="t-h"># * * * = el router no responde ICMP (firewall) pero los paquetes pasan</span>
+
+<span class="t-h">## mtr — traceroute + ping en tiempo real (el mejor)</span>
+<span class="t-p">$</span> sudo apt install mtr
+<span class="t-p">$</span> mtr google.com             <span class="t-h"># interactivo con estadísticas en vivo</span>
+<span class="t-p">$</span> mtr --report google.com    <span class="t-h"># genera un reporte y sale</span>
+
+<span class="t-h">## Flujo de diagnóstico paso a paso</span>
+<span class="t-p">$</span> ping 127.0.0.1             <span class="t-h"># 1. ¿funciona el loopback?</span>
+<span class="t-p">$</span> ping 192.168.1.1           <span class="t-h"># 2. ¿llego al gateway/router?</span>
+<span class="t-p">$</span> ping 8.8.8.8               <span class="t-h"># 3. ¿llego a internet (por IP)?</span>
+<span class="t-p">$</span> ping google.com            <span class="t-h"># 4. ¿funciona el DNS?</span>
+<span class="t-h"># Si falla el 3 pero no el 2 → problema en el router/ISP</span>
+<span class="t-h"># Si falla el 4 pero no el 3 → problema de DNS</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- CURL Y WGET -->
+<section class="module" id="curl">
+  <div class="module-header">
+    <div class="module-icon">🌐</div>
+    <div>
+      <div class="module-title">curl y wget — el navegador de la terminal</div>
+      <div class="module-sub">Descargar archivos, hacer peticiones HTTP y consumir APIs desde la línea de comandos</div>
+    </div>
+  </div>
+
+  <p><strong>curl</strong> y <strong>wget</strong> son las herramientas para hacer peticiones HTTP desde la terminal. curl es más versátil (APIs, autenticación, headers), wget es más simple para descargar archivos.</p>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">curl — el navaja suiza de HTTP</span>
+    </div>
+    <div class="term-body">
+<span class="t-h">## GET básico</span>
+<span class="t-p">$</span> curl https://example.com                    <span class="t-h"># muestra el HTML</span>
+<span class="t-p">$</span> curl -o pagina.html https://example.com     <span class="t-h"># guarda en archivo</span>
+<span class="t-p">$</span> curl -L https://t.co/abc                   <span class="t-h"># -L sigue redirecciones</span>
+<span class="t-p">$</span> curl -s https://api.github.com/zen          <span class="t-h"># -s silencioso (sin progreso)</span>
+
+<span class="t-h">## Ver headers HTTP de respuesta</span>
+<span class="t-p">$</span> curl -I https://example.com                 <span class="t-h"># solo headers</span>
+<span class="t-p">$</span> curl -v https://example.com                 <span class="t-h"># verbose — ver todo</span>
+<span class="t-o">* Connected to example.com port 443</span>
+<span class="t-o">> GET / HTTP/2</span>
+<span class="t-o">< HTTP/2 200</span>
+<span class="t-o">< content-type: text/html</span>
+
+<span class="t-h">## POST con JSON — consumir una API REST</span>
+<span class="t-p">$</span> curl -X POST https://api.ejemplo.com/users \
+     -H "Content-Type: application/json" \
+     -H "Authorization: Bearer TOKEN" \
+     -d '{"nombre": "Hugo", "email": "hugo@example.com"}'
+
+<span class="t-h">## Descargar archivo con progreso</span>
+<span class="t-p">$</span> curl -O -L https://nodejs.org/dist/v20.0.0/node-v20.0.0-linux-x64.tar.gz
+<span class="t-h"># -O = nombre del archivo igual que el original</span>
+
+<span class="t-h">## Medir el tiempo de respuesta de un servidor</span>
+<span class="t-p">$</span> curl -o /dev/null -s -w "tiempo: %{time_total}s\n" https://example.com
+<span class="t-o">tiempo: 0.234s</span>
+
+<span class="t-h">## wget — más simple, mejor para descargas recursivas</span>
+<span class="t-p">$</span> wget https://ejemplo.com/archivo.tar.gz     <span class="t-h"># descargar archivo</span>
+<span class="t-p">$</span> wget -c https://ejemplo.com/grande.iso      <span class="t-h"># -c reanudar descarga</span>
+<span class="t-p">$</span> wget -r -np https://docs.ejemplo.com/       <span class="t-h"># descargar sitio recursivo</span>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 curl para probar APIs desde la terminal</h4>
+    <p>curl es la herramienta estándar para probar APIs REST sin necesidad de Postman ni navegador. El truco básico: <code>curl -s https://api.github.com/repos/torvalds/linux | python3 -m json.tool</code> — la opción <code>-s</code> quita el progreso y <code>python3 -m json.tool</code> formatea el JSON para que sea legible.</p>
+  </div>
+</section>
+
+
+<!-- SSH -->
+<section class="module" id="ssh">
+  <div class="module-header">
+    <div class="module-icon">🔐</div>
+    <div>
+      <div class="module-title">SSH — administración remota segura</div>
+      <div class="module-sub">Claves SSH, túneles, config y las mejores prácticas de seguridad</div>
+    </div>
+  </div>
+
+  <p><strong>SSH</strong> (Secure Shell) permite controlar un servidor remoto como si fuera tu propia terminal, con tráfico completamente cifrado. Es la herramienta más importante para administración de servidores Linux.</p>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">SSH — uso básico y avanzado</span>
+    </div>
+    <div class="term-body">
+<span class="t-h">## CONEXIÓN BÁSICA</span>
+<span class="t-p">$</span> ssh usuario@192.168.1.100          <span class="t-h"># conectar por IP</span>
+<span class="t-p">$</span> ssh hugo@servidor.ejemplo.com       <span class="t-h"># conectar por dominio</span>
+<span class="t-p">$</span> ssh -p 2222 hugo@servidor.com       <span class="t-h"># puerto no estándar</span>
+
+<span class="t-h">## GENERAR CLAVE SSH (hacer UNA vez)</span>
+<span class="t-p">$</span> ssh-keygen -t ed25519 -C "hugo@miemail.com"
+<span class="t-h"># Genera: ~/.ssh/id_ed25519 (privada) y ~/.ssh/id_ed25519.pub (pública)</span>
+<span class="t-h"># ed25519 es más moderno y seguro que rsa</span>
+
+<span class="t-h">## COPIAR CLAVE PÚBLICA AL SERVIDOR (autenticación sin contraseña)</span>
+<span class="t-p">$</span> ssh-copy-id hugo@servidor.com
+<span class="t-h"># Añade tu clave pública a ~/.ssh/authorized_keys del servidor</span>
+<span class="t-h"># A partir de aquí no pide contraseña</span>
+
+<span class="t-h">## COPIAR ARCHIVOS CON SSH</span>
+<span class="t-p">$</span> scp archivo.txt hugo@servidor.com:/home/hugo/    <span class="t-h"># subir</span>
+<span class="t-p">$</span> scp hugo@servidor.com:/logs/app.log ./           <span class="t-h"># bajar</span>
+<span class="t-p">$</span> rsync -avz ./proyecto/ hugo@servidor.com:/app/   <span class="t-h"># sincronizar directorio</span>
+
+<span class="t-h">## TÚNELES SSH — magia de la red</span>
+<span class="t-h"># Tunnel local: acceder a un puerto remoto en local</span>
+<span class="t-p">$</span> ssh -L 8080:localhost:80 hugo@servidor.com
+<span class="t-h"># Ahora localhost:8080 apunta al puerto 80 del servidor</span>
+
+<span class="t-h"># Tunnel remoto: exponer un puerto local al servidor</span>
+<span class="t-p">$</span> ssh -R 3000:localhost:3000 hugo@servidor.com
+<span class="t-h"># El servidor puede acceder a tu app local en su puerto 3000</span>
+
+<span class="t-h">## EJECUTAR COMANDO SIN SHELL INTERACTIVA</span>
+<span class="t-p">$</span> ssh hugo@servidor.com "df -h"
+<span class="t-p">$</span> ssh hugo@servidor.com "sudo systemctl restart nginx"
+    </div>
+  </div>
+
+  <div class="code-wrap">
+    <div class="code-block"><span class="cc"># ~/.ssh/config — atajos para servidores frecuentes</span>
+
+Host <span class="cs">prod</span>
+    HostName <span class="cv">189.247.134.82</span>
+    User <span class="cv">hugo</span>
+    IdentityFile <span class="cs">~/.ssh/id_ed25519</span>
+    Port <span class="cn">22</span>
+
+Host <span class="cs">staging</span>
+    HostName <span class="cv">servidor-staging.ejemplo.com</span>
+    User <span class="cv">deploy</span>
+    IdentityFile <span class="cs">~/.ssh/deploy_key</span>
+
+Host <span class="cs">*.ejemplo.com</span>
+    User <span class="cv">hugo</span>
+    IdentityFile <span class="cs">~/.ssh/id_ed25519</span>
+    ServerAliveInterval <span class="cn">60</span>    <span class="cc"># mantener la conexión activa</span></div>
+    <div class="lang-tag">SSH CONFIG</div>
+  </div>
+
+  <p>Con este archivo puedes simplemente escribir <code>ssh prod</code> en lugar del comando completo — mucho más cómodo.</p>
+
+  <div class="ssh-grid">
+    <div class="ssh-card">
+      <div class="sc-title">🔑 Clave pública/privada</div>
+      <div class="sc-desc">La privada (<code>id_ed25519</code>) se queda en tu equipo. La pública (<code>id_ed25519.pub</code>) va al servidor. Nunca compartas la privada.</div>
+    </div>
+    <div class="ssh-card">
+      <div class="sc-title">🛡️ authorized_keys</div>
+      <div class="sc-desc"><code>~/.ssh/authorized_keys</code> en el servidor lista las claves públicas que pueden conectarse sin contraseña.</div>
+    </div>
+    <div class="ssh-card">
+      <div class="sc-title">🔒 known_hosts</div>
+      <div class="sc-desc"><code>~/.ssh/known_hosts</code> guarda la huella de los servidores conocidos para detectar ataques MITM.</div>
+    </div>
+    <div class="ssh-card">
+      <div class="sc-title">⚙️ sshd_config</div>
+      <div class="sc-desc"><code>/etc/ssh/sshd_config</code> configura el servidor SSH. Aquí se desactiva el login con contraseña y se permiten solo claves.</div>
+    </div>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ Deshabilitar el login por contraseña en SSH</h4>
+    <p>Una vez configuradas las claves SSH, desactiva el login por contraseña en <code>/etc/ssh/sshd_config</code>: <code>PasswordAuthentication no</code>. Esto hace que los ataques de fuerza bruta sean inútiles — sin clave privada no hay acceso. Recuerda reiniciar SSH: <code>sudo systemctl restart sshd</code>. Pero ANTES verifica que puedes conectarte con tu clave — si la bloqueas y no tienes clave, te quedas fuera.</p>
+  </div>
+</section>
+
+
+<!-- PUERTOS Y CONEXIONES -->
+<section class="module" id="puertos">
+  <div class="module-header">
+    <div class="module-icon">🚪</div>
+    <div>
+      <div class="module-title">Puertos y conexiones activas</div>
+      <div class="module-sub">ss, netstat y nmap — qué servicios escuchan y qué conexiones hay activas</div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">ss y netstat — puertos y conexiones</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># ss — el sucesor moderno de netstat</span>
+<span class="t-p">$</span> ss -tlnp                    <span class="t-h"># TCP, Listen, Numeric, Processes</span>
+<span class="t-o">State  Recv-Q Send-Q   Local Address:Port   Peer Address:Port  Process</span>
+<span class="t-o">LISTEN 0      128            0.0.0.0:22         0.0.0.0:*    users:(("sshd",pid=1234))</span>
+<span class="t-o">LISTEN 0      511            0.0.0.0:80         0.0.0.0:*    users:(("nginx",pid=2345))</span>
+<span class="t-o">LISTEN 0      128            0.0.0.0:443        0.0.0.0:*    users:(("nginx",pid=2345))</span>
+<span class="t-o">LISTEN 0      5            127.0.0.1:5432       0.0.0.0:*    users:(("postgres",pid=3456))</span>
+
+<span class="t-h"># Flags de ss:</span>
+<span class="t-h"># -t = TCP  -u = UDP  -l = listening  -n = numeric  -p = processes</span>
+
+<span class="t-h"># Ver TODAS las conexiones activas</span>
+<span class="t-p">$</span> ss -tnp                     <span class="t-h"># sin -l = todas, no solo las que escuchan</span>
+
+<span class="t-h"># Ver conexiones a un puerto específico</span>
+<span class="t-p">$</span> ss -tnp | grep :443
+
+<span class="t-h"># netstat — el clásico (necesita net-tools)</span>
+<span class="t-p">$</span> sudo apt install net-tools
+<span class="t-p">$</span> netstat -tlnp               <span class="t-h"># equivalente a ss -tlnp</span>
+
+<span class="t-h"># nmap — escáner de puertos (para descubrir servicios en la red)</span>
+<span class="t-p">$</span> sudo apt install nmap
+<span class="t-p">$</span> nmap localhost               <span class="t-h"># puertos abiertos en tu propia máquina</span>
+<span class="t-p">$</span> nmap 192.168.1.1             <span class="t-h"># puertos abiertos en el router</span>
+<span class="t-p">$</span> nmap -p 1-1000 192.168.1.42 <span class="t-h"># escanear puertos 1-1000</span>
+<span class="t-p">$</span> nmap -sV 192.168.1.100      <span class="t-h"># detectar versiones de servicios</span>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Puerto</th><th>Protocolo</th><th>Servicio</th></tr></thead>
+    <tbody>
+      <tr><td>22</td><td>TCP</td><td>SSH — acceso remoto seguro</td></tr>
+      <tr><td>80</td><td>TCP</td><td>HTTP — web sin cifrar</td></tr>
+      <tr><td>443</td><td>TCP</td><td>HTTPS — web cifrada</td></tr>
+      <tr><td>3306</td><td>TCP</td><td>MySQL / MariaDB</td></tr>
+      <tr><td>5432</td><td>TCP</td><td>PostgreSQL</td></tr>
+      <tr><td>6379</td><td>TCP</td><td>Redis</td></tr>
+      <tr><td>27017</td><td>TCP</td><td>MongoDB</td></tr>
+      <tr><td>3000</td><td>TCP</td><td>Node.js / desarrollo (convención)</td></tr>
+      <tr><td>8080</td><td>TCP</td><td>HTTP alternativo / desarrollo</td></tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- MONITORIZAR RED -->
+<section class="module" id="red-monitor">
+  <div class="module-header">
+    <div class="module-icon">📡</div>
+    <div>
+      <div class="module-title">Monitorizar el tráfico de red</div>
+      <div class="module-sub">nethogs, iftop, tcpdump y cómo ver qué datos circulan por la red</div>
+    </div>
+  </div>
+
+  <div class="cmd-grid">
+    <div class="cmd-card">
+      <div class="cmd-title">nethogs</div>
+      <div class="cmd-desc">Muestra el ancho de banda usado por cada proceso — el "top" de la red.</div>
+      <span class="cmd-ex">sudo apt install nethogs
+sudo nethogs
+sudo nethogs wlp2s0</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">iftop</div>
+      <div class="cmd-desc">Muestra el tráfico en tiempo real por conexión — las IPs que más tráfico generan.</div>
+      <span class="cmd-ex">sudo apt install iftop
+sudo iftop
+sudo iftop -i enp3s0</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">tcpdump</div>
+      <div class="cmd-desc">Captura paquetes de red en bruto. Esencial para diagnóstico avanzado.</div>
+      <span class="cmd-ex">sudo tcpdump -i enp3s0
+sudo tcpdump -i any port 80
+sudo tcpdump -i any host 8.8.8.8</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">vnstat</div>
+      <div class="cmd-desc">Estadísticas de uso de ancho de banda por día, semana y mes. Persistente.</div>
+      <span class="cmd-ex">sudo apt install vnstat
+vnstat -d   # uso diario
+vnstat -m   # uso mensual</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">ip -s link</div>
+      <div class="cmd-desc">Ver estadísticas de paquetes enviados/recibidos y errores por interfaz.</div>
+      <span class="cmd-ex">ip -s link show enp3s0
+# RX/TX packets, bytes, errors</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">watch ss</div>
+      <div class="cmd-desc">Monitorizar conexiones activas en tiempo real actualizando cada segundo.</div>
+      <span class="cmd-ex">watch -n 1 'ss -tnp | grep ESTAB'</span>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">tcpdump — captura de paquetes básica</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Capturar todo el tráfico HTTP (sin cifrar)</span>
+<span class="t-p">$</span> sudo tcpdump -i enp3s0 port 80 -A
+<span class="t-h"># -A = mostrar contenido como ASCII</span>
+
+<span class="t-h"># Capturar paquetes DNS</span>
+<span class="t-p">$</span> sudo tcpdump -i any port 53
+
+<span class="t-h"># Guardar captura para análisis en Wireshark</span>
+<span class="t-p">$</span> sudo tcpdump -i enp3s0 -w captura.pcap
+<span class="t-h"># Abrir el .pcap con Wireshark para análisis visual</span>
+
+<span class="t-h"># Ver cuánto tráfico genera tu sistema por interfaz</span>
+<span class="t-p">$</span> cat /proc/net/dev
+<span class="t-o">Inter-|  Receive              |  Transmit</span>
+<span class="t-o">face  | bytes    packets      | bytes    packets</span>
+<span class="t-o">enp3s0: 123456789  45678     |  9876543  23456</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- EJERCICIO -->
+<div class="ejercicio" id="ejercicio">
+  <div class="ej-hd">
+    ✏️ Ejercicio del Nivel 20
+    <span class="ej-badge">Redes</span>
+  </div>
+  <p>Explora la red de tu sistema desde la terminal:</p>
+  <ol>
+    <li><strong>Interfaces:</strong> ejecuta <code>ip link show</code> y <code>ip addr show</code>. ¿Cuántas interfaces tienes? ¿Cuál es tu IP local?</li>
+    <li><strong>Gateway y rutas:</strong> ejecuta <code>ip route show</code>. ¿Cuál es tu gateway? ¿Qué otras rutas hay (Docker, VPN…)?</li>
+    <li><strong>IP pública:</strong> ejecuta <code>curl -s ifconfig.me</code>. ¿Cuál es tu IP pública? ¿Coincide con lo que ves en whatismyip.com?</li>
+    <li><strong>DNS:</strong> ejecuta <code>dig github.com +short</code> y <code>dig @1.1.1.1 github.com +short</code>. ¿Obtienes la misma IP con ambos?</li>
+    <li><strong>Diagnóstico:</strong> ejecuta el flujo completo: <code>ping -c 2 127.0.0.1 && ping -c 2 $(ip route show default | awk '{print $3}') && ping -c 2 8.8.8.8 && ping -c 2 google.com</code>.</li>
+    <li><strong>Puertos:</strong> ejecuta <code>ss -tlnp</code>. ¿Qué servicios están escuchando? ¿Hay algo en el puerto 22 (SSH)?</li>
+    <li><strong>SSH:</strong> si tienes SSH instalado (<code>sudo apt install openssh-server</code>), conéctate a ti mismo: <code>ssh localhost</code>. ¿Funciona?</li>
+  </ol>
+  <p><strong>Reto curl:</strong> ejecuta <code>curl -s https://api.github.com/repos/torvalds/linux | python3 -m json.tool | grep -E '"name"|"stars"'</code>. ¿Cuántas estrellas tiene el repositorio del kernel de Linux?</p>
+</div>
+
+<!-- RESUMEN -->
+<div class="resumen">
+  <h3>🟥 Resumen del Nivel 20</h3>
+  <ul>
+    <li>Conceptos base: IP (dirección), máscara (tamaño de red), gateway (puerta de salida), DNS (nombre→IP), puerto (servicio en una IP).</li>
+    <li><code>ip link show</code> — interfaces. <code>ip addr show</code> — IPs asignadas. <code>ip route show</code> — tabla de rutas y gateway.</li>
+    <li><code>nmcli</code> — gestionar conexiones de NetworkManager desde la terminal. <code>nmcli device wifi connect</code> para WiFi.</li>
+    <li><code>dig dominio</code> — consulta DNS detallada. <code>host dominio</code> — simple. <code>/etc/hosts</code> tiene precedencia sobre DNS.</li>
+    <li>Flujo de diagnóstico: ping loopback → ping gateway → ping 8.8.8.8 → ping google.com. El paso que falla indica dónde está el problema.</li>
+    <li><code>mtr</code> — mejor que traceroute para diagnóstico de rutas. Muestra estadísticas en vivo por salto.</li>
+    <li><code>curl</code> — peticiones HTTP, APIs REST, descargas. <code>wget</code> — descargas simples y sitios completos.</li>
+    <li>SSH con claves: <code>ssh-keygen -t ed25519</code> → <code>ssh-copy-id usuario@servidor</code> → ya no necesitas contraseña.</li>
+    <li><code>~/.ssh/config</code> define atajos para servidores frecuentes. <code>ssh -L</code> para túneles locales.</li>
+    <li><code>ss -tlnp</code> — qué servicios escuchan en qué puertos. <code>nethogs</code> — qué proceso usa más red.</li>
+  </ul>
+</div>
+
+<a class="next-card" href="linux-nivel-21.html">
+  <div>
+    <div class="nc-label">Siguiente → Nivel 21</div>
+    <div class="nc-name">Seguridad — sudo seguro, firewall UFW, fail2ban y sandboxing en Linux</div>
+  </div>
+  <div class="nc-arrow">→</div>
+</a>
+
+</main>
+
+<footer>
+  Linux desde Cero · Nivel 20 · Redes · Café &lt;/&gt; · Hugo 2025
+</footer>
+
+<script>
+(function(){const s=localStorage.getItem('cafe-theme');const sys=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';const t=s||sys;document.documentElement.setAttribute('data-theme',t);updateUI(t);})();
+function toggleTheme(){const c=document.documentElement.getAttribute('data-theme');const n=c==='light'?'dark':'light';document.documentElement.setAttribute('data-theme',n);localStorage.setItem('cafe-theme',n);updateUI(n);}
+function updateUI(t){const i=document.getElementById('themeIcon');const l=document.getElementById('themeLabel');if(!i||!l)return;i.textContent=t==='dark'?'☀️':'🌙';l.textContent=t==='dark'?'Claro':'Oscuro';}
+</script>
+</body>
+</html>

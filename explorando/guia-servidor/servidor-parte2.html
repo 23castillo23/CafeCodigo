@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Parte 2: red, dirección IP fija, actualización del sistema, SSH y primeros comandos en el servidor.">
+<title>Servidor propio — Parte 2: Red y primeros pasos — Café &lt;/&gt;</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #c49a1a;
+    --primary-light:  #fdf6e0;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --danger:         #c44a2a;
+    --danger-light:   #fdf0ec;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1a1814;
+    --code-text:      #e8e4de;
+    color-scheme: light;
+  }
+
+  :root[data-theme="dark"] {
+    --primary:        #a48ce8;
+    --primary-light:  #2f2747;
+    --secondary:      #e08fc0;
+    --secondary-light:#3a2438;
+    --accent:         #e3b34d;
+    --accent-light:   #3a3324;
+    --danger:         #d9695f;
+    --danger-light:   #3a2420;
+    --bg:             #473b63;
+    --surface:        #574a76;
+    --text:           #f3f0fb;
+    --muted:          #c6bce2;
+    --border:         rgba(230,222,250,0.14);
+    --code-bg:        #211c33;
+    --code-text:      #f0eaf9;
+    color-scheme: dark;
+  }
+
+  body {
+    font-family: 'DM Sans', 'Segoe UI', sans-serif;
+    background: var(--bg); color: var(--text);
+    line-height: 1.7; font-size: 16px;
+    transition: background .25s ease, color .25s ease;
+  }
+
+  .cafe-bar {
+    background: var(--surface); border-bottom:1px solid var(--border);
+    padding:0 24px; display:flex; align-items:center; gap:14px;
+    position:sticky; top:0; z-index:200; height:45px;
+    transition: background .25s ease, border-color .25s ease;
+    overflow-x:auto; overflow-y:hidden; scrollbar-width:none; -ms-overflow-style:none;
+  }
+  .cafe-bar::-webkit-scrollbar { display:none; }
+  .cafe-bar a { flex-shrink:0; white-space:nowrap; display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--muted); text-decoration:none; padding:6px 14px; border:1px solid var(--border); border-radius:999px; transition:all 0.15s; }
+  .cafe-bar a:hover { color:var(--text); border-color:var(--muted); }
+  .cafe-bar span.crumb { flex-shrink:0; white-space:nowrap; font-size:13px; color:var(--muted); }
+  .cafe-bar .spacer { flex: 1 0 14px; }
+
+  .theme-toggle {
+    flex-shrink:0; white-space:nowrap;
+    display:inline-flex; align-items:center; gap:8px;
+    background: var(--bg); border:1px solid var(--border); color: var(--text);
+    border-radius:999px; padding:6px 14px 6px 10px; font-size:13px; font-weight:500;
+    cursor:pointer; transition: all .2s ease; font-family: inherit;
+  }
+  .theme-toggle:hover { border-color: var(--primary); color: var(--primary); }
+  .theme-toggle .icon { font-size: 15px; line-height:1; }
+
+  .partes-nav {
+    background: var(--bg); border-bottom:1px solid var(--border);
+    padding:10px 24px; display:flex; gap:8px; overflow-x:auto;
+    scrollbar-width:none; -ms-overflow-style:none;
+    position:sticky; top:45px; z-index:150;
+    transition: background .25s ease, border-color .25s ease;
+    align-items:center; height:38px;
+  }
+  .partes-nav::-webkit-scrollbar { display:none; }
+  .partes-nav a { flex-shrink:0; white-space:nowrap; font-size:.78rem; font-weight:600; color:var(--muted); text-decoration:none; padding:6px 14px; border-radius:999px; border:1px solid var(--border); transition:all .15s; }
+  .partes-nav a:hover { color:var(--text); border-color:var(--muted); }
+  .partes-nav a.active { background:var(--primary); color:#1a1814; border-color:var(--primary); }
+
+  header {
+    background: #0c0c0c; color: #f3f0fb; padding: 3rem 2rem 2rem;
+    text-align: center; position: relative; overflow: hidden;
+  }
+  header::before { content: '>_'; position: absolute; font-size: 10rem; font-weight: 900; color: rgba(255,255,255,0.04); right: -1rem; top: -1rem; font-family: 'DM Mono', monospace; line-height: 1; }
+  header h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; font-family: 'Fraunces', serif; }
+  header p { font-size: 1.1rem; opacity: .85; margin-top: .5rem; max-width: 620px; margin-left: auto; margin-right: auto; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  nav {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    position: sticky; top: 83px; z-index: 100; display: flex; overflow-x: auto; gap: 0;
+    transition: background .25s ease, border-color .25s ease;
+  }
+  nav a { flex-shrink: 0; padding: .75rem 1rem; text-decoration: none; color: var(--muted); font-size: .78rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .module {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+    padding: 2rem; margin-bottom: 2.5rem; scroll-margin-top:135px;
+    transition: background .25s ease, border-color .25s ease;
+  }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-size: 1.35rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  .analogy { background: var(--accent-light); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: var(--accent); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; }
+
+  .concept { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p, .tip ul { font-size: .95rem; }
+  .tip ul { padding-left: 1.2rem; }
+
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  .glos { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .glos-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; }
+  .glos-item dt { font-weight: 700; color: var(--primary); font-size: .92rem; margin-bottom: .3rem; }
+  .glos-item dd { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: #1a1814; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  h2 { font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; color: var(--text); }
+  h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 .5rem; }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: var(--primary-light); color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+  strong { font-weight: 700; }
+
+  .code-block {
+    background: var(--code-bg); color: var(--code-text); border-radius: 10px;
+    padding: 1rem 1.25rem; font-family: 'DM Mono', monospace; font-size: .84rem;
+    overflow-x: auto; margin: 1rem 0; line-height: 1.65; white-space: pre;
+  }
+
+  .term-block {
+    background: #0c0c0c; color: var(--code-text); border-radius: 10px;
+    overflow: hidden; margin: 1rem 0;
+  }
+  .term-block-bar {
+    display: flex; align-items: center; gap: 8px;
+    padding: .6rem .9rem; background: rgba(255,255,255,.05);
+    font-family: 'DM Mono', monospace; font-size: .72rem; color: #a39d93;
+  }
+  .tdot { width: 8px; height: 8px; border-radius: 50%; }
+  .tdot.r { background: #d9695f; } .tdot.y { background: #e3b34d; } .tdot.g { background: #7fae6d; }
+  .term-block-body { padding: 1rem 1.25rem 1.2rem; font-family: 'DM Mono', monospace; font-size: .84rem; overflow-x: auto; line-height: 1.65; }
+  .term-block-body .l { margin-bottom: .5rem; white-space: pre; }
+  .term-block-body .prompt { color: #7fd8a8; }
+  .term-block-body .cmd { color: var(--code-text); }
+  .term-block-body .out { color: #a39d93; padding-left: 1.1rem; }
+  .term-block-body .cm { color: #a39d93; font-style: italic; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); transition: background .25s ease, border-color .25s ease; }
+</style>
+</head>
+<body>
+
+<div class="cafe-bar">
+  <a href="../explorando-capitulos.html">← Explorando</a>
+  <span class="crumb">🗄️ Servidor propio</span>
+  <div class="spacer"></div>
+  <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+    <span class="icon" id="themeIcon">🌙</span>
+    <span id="themeLabel">Modo oscuro</span>
+  </button>
+</div>
+
+<div class="partes-nav">
+  <a href="servidor-parte1.html">1. Instalar Debian</a>
+  <a href="servidor-parte2.html" class="active">2. Red y primeros pasos</a>
+  <a href="servidor-parte3.html">3. Samba</a>
+  <a href="servidor-parte4.html">4. Conectar tus PCs</a>
+  <a href="servidor-parte5.html">5. Seguridad y siguientes pasos</a>
+</div>
+
+<header>
+  <h1>Tu propio servidor de archivos</h1>
+  <p>Parte 2: encontrar la IP del servidor, dejarla fija, actualizar el sistema y conectarte por SSH desde tu PC principal — el momento en que dejas de necesitar teclado y monitor en el servidor.</p>
+  <span class="badge">🗄️ Proyecto práctico · Servidor propio</span>
+</header>
+
+<nav>
+  <a href="#red-local">📡 Misma red local</a>
+  <a href="#encontrar-ip">🔎 Encontrar la IP</a>
+  <a href="#ip-fija">📌 Dejar la IP fija</a>
+  <a href="#actualizar">🔄 Actualizar el sistema</a>
+  <a href="#ssh">🔐 Conectarte por SSH</a>
+  <a href="#primeros-comandos">⌨️ Primeros comandos</a>
+  <a href="#firewall">🧱 Un primer vistazo al firewall</a>
+  <a href="#glosario">📖 Glosario</a>
+  <a href="#siguiente">➡️ Siguiente parte</a>
+</nav>
+
+<main>
+
+<div class="parte-badge">🗄️ Parte 2 de 5 — Servidor propio</div>
+
+<!-- RED LOCAL -->
+<section class="module" id="red-local">
+  <div class="module-header">
+    <div class="module-icon">📡</div>
+    <div>
+      <div class="module-title">Las dos PCs tienen que estar en la misma red local</div>
+      <div class="module-sub">Sin esto, nada de lo que sigue va a funcionar</div>
+    </div>
+  </div>
+
+  <p>Para que tu PC principal pueda "ver" al servidor, ambas computadoras necesitan estar conectadas al mismo router — ya sea por cable Ethernet o por Wi-Fi, pero dentro de la misma red doméstica.</p>
+
+  <div class="term-block">
+    <div class="term-block-bar">
+      <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
+      <span style="margin-left:6px;">tu red doméstica</span>
+    </div>
+    <div class="term-block-body">
+      <div class="l out">                  Router</div>
+      <div class="l out">                 /      \</div>
+      <div class="l cmd">   PC principal          PC servidor (A6-5350)</div>
+      <div class="l out">  Windows/Zorin/Mint/Voyager      Debian, sin pantalla</div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>🔌 Por qué te recomiendo cable en el servidor</h4>
+    <p>Puedes usar Wi-Fi si no tienes otra opción, pero conectar la PC servidor por <strong>cable Ethernet</strong> te da una conexión más estable y predecible: sin caídas por interferencia, sin fluctuaciones de velocidad. Es especialmente importante si planeas reproducir videos grandes directamente desde el servidor — lo vas a agradecer en la Parte 4.</p>
+  </div>
+</section>
+
+<!-- ENCONTRAR IP -->
+<section class="module" id="encontrar-ip">
+  <div class="module-header">
+    <div class="module-icon">🔎</div>
+    <div>
+      <div class="module-title">Encontrar la dirección IP del servidor</div>
+      <div class="module-sub">El "número de casa" de tu servidor dentro de la red</div>
+    </div>
+  </div>
+
+  <p>Todavía frente al monitor conectado al servidor (con el usuario que creaste en la Parte 1 ya iniciado), escribe:</p>
+
+  <div class="term-block">
+    <div class="term-block-bar">
+      <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
+      <span style="margin-left:6px;">servidor</span>
+    </div>
+    <div class="term-block-body">
+      <div class="l"><span class="prompt">$</span> <span class="cmd">whoami</span></div>
+      <div class="l out">victor</div>
+      <div class="l"><span class="prompt">$</span> <span class="cmd">hostname</span></div>
+      <div class="l out">servidor</div>
+      <div class="l"><span class="prompt">$</span> <span class="cmd">hostname -I</span></div>
+      <div class="l out">192.168.1.50</div>
+    </div>
+  </div>
+
+  <p><code>whoami</code> confirma tu usuario, <code>hostname</code> confirma el nombre que le diste a la máquina, y <code>hostname -I</code> muestra su dirección IP dentro de la red local. <strong>Anota esa IP</strong> — es diferente en tu red, así que usa exactamente lo que te muestre tu propia PC, no el ejemplo de esta guía.</p>
+
+  <div class="tip">
+    <h4>🟢 Confirma la conexión desde tu PC principal</h4>
+    <p>Antes de seguir, abre una terminal en tu PC principal (cualquiera de tus sistemas) y ejecuta <code>ping</code> seguido de esa IP, por ejemplo <code>ping 192.168.1.50</code>. Si recibes respuesta, las dos computadoras se están comunicando correctamente por la red.</p>
+  </div>
+</section>
+
+<!-- IP FIJA -->
+<section class="module" id="ip-fija">
+  <div class="module-header">
+    <div class="module-icon">📌</div>
+    <div>
+      <div class="module-title">Evitar que esa IP cambie sola</div>
+      <div class="module-sub">Un detalle que la mayoría de las guías se saltan, y que causa dolores de cabeza después</div>
+    </div>
+  </div>
+
+  <p>La IP que acabas de anotar normalmente se la asigna el router de forma automática mediante un sistema llamado <strong>DHCP</strong>, y por defecto puede cambiar con el tiempo — por ejemplo, después de reiniciar el router. Si eso pasa, un día vas a intentar conectarte a <code>192.168.1.50</code> y el servidor ya no va a estar ahí, aunque siga encendido y funcionando perfectamente.</p>
+
+  <div class="warn">
+    <h4>⚠️ Por qué esto importa más de lo que parece</h4>
+    <p>En la Parte 4 vas a guardar esta dirección IP en el explorador de archivos de tus sistemas para acceder rápido al servidor. Si la IP cambia, esos accesos guardados dejan de funcionar y vas a pensar que algo se rompió, cuando en realidad el servidor sigue perfectamente sano — solo cambió de dirección.</p>
+  </div>
+
+  <p>Hay dos formas de resolverlo. Elige la que te resulte más cómoda:</p>
+
+  <h2>Opción A — Reservar la IP en el router (la más simple)</h2>
+  <p>Entra a la configuración de tu router (normalmente escribiendo su propia IP, como <code>192.168.1.1</code>, en un navegador) y busca una sección llamada algo como <strong>"DHCP" o "Reserva de direcciones"</strong>. Ahí puedes indicarle: "a este dispositivo (identificado por su dirección MAC) siempre dale esta misma IP". Los pasos exactos varían según la marca del router, pero el concepto es siempre este.</p>
+
+  <h2>Opción B — IP estática directamente en Debian</h2>
+  <p>Si prefieres resolverlo desde el propio servidor, puedes configurar una IP fija con <code>nmcli</code> (el administrador de red de Debian):</p>
+
+  <div class="term-block">
+    <div class="term-block-bar">
+      <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
+      <span style="margin-left:6px;">servidor</span>
+    </div>
+    <div class="term-block-body">
+      <div class="l"><span class="prompt">$</span> <span class="cmd">nmcli connection show</span></div>
+      <div class="l out">// anota el nombre exacto de la conexión, ej. "Wired connection 1"</div>
+      <div class="l"><span class="prompt">$</span> <span class="cmd">sudo nmcli connection modify "Wired connection 1" ipv4.addresses 192.168.1.50/24 ipv4.gateway 192.168.1.1 ipv4.dns "192.168.1.1" ipv4.method manual</span></div>
+      <div class="l"><span class="prompt">$</span> <span class="cmd">sudo nmcli connection up "Wired connection 1"</span></div>
+    </div>
+  </div>
+
+  <p>Reemplaza <code>192.168.1.50</code> por la IP que ya estaba usando tu servidor (así no rompes nada más en tu red), y <code>192.168.1.1</code> por la IP de tu router, que normalmente coincide con la puerta de enlace que verías en la configuración de red de cualquiera de tus otras PCs.</p>
+
+  <div class="tip">
+    <h4>🟢 Si no estás seguro, usa la Opción A</h4>
+    <p>Reservar la IP desde el router es menos propenso a errores para alguien que empieza, y no requiere tocar la configuración de red del servidor directamente.</p>
+  </div>
+</section>
+
+<!-- ACTUALIZAR -->
+<section class="module" id="actualizar">
+  <div class="module-header">
+    <div class="module-icon">🔄</div>
+    <div>
+      <div class="module-title">Actualizar el sistema</div>
+      <div class="module-sub">Antes de instalar nada más, dejamos Debian al día</div>
+    </div>
+  </div>
+
+  <div class="term-block">
+    <div class="term-block-bar">
+      <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
+      <span style="margin-left:6px;">servidor</span>
+    </div>
+    <div class="term-block-body">
+      <div class="l"><span class="prompt">$</span> <span class="cmd">sudo apt update</span></div>
+      <div class="l out">// descarga la lista de versiones disponibles, no instala nada todavía</div>
+      <div class="l"><span class="prompt">$</span> <span class="cmd">sudo apt upgrade</span></div>
+      <div class="l out">// instala las actualizaciones disponibles — confirma con "Y" si te lo pide</div>
+    </div>
+  </div>
+
+  <p><code>apt update</code> y <code>apt upgrade</code> son dos pasos distintos: el primero solo revisa qué hay disponible, el segundo instala esas actualizaciones. Vas a usar esta misma pareja de comandos regularmente para mantener el servidor al día.</p>
+</section>
+
+<!-- SSH -->
+<section class="module" id="ssh">
+  <div class="module-header">
+    <div class="module-icon">🔐</div>
+    <div>
+      <div class="module-title">Conectarte por SSH desde tu PC principal</div>
+      <div class="module-sub">El momento en que dejas de necesitar el monitor y el teclado del servidor</div>
+    </div>
+  </div>
+
+  <p><strong>SSH</strong> (Secure Shell) es un protocolo que te permite abrir una terminal de una computadora remota, como si estuvieras sentado frente a ella, con toda la comunicación cifrada. Como en la Parte 1 dejaste marcada la opción "servidor SSH" durante la instalación, ya debería estar funcionando. Confírmalo desde el propio servidor:</p>
+
+  <div class="term-block">
+    <div class="term-block-bar">
+      <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
+      <span style="margin-left:6px;">servidor</span>
+    </div>
+    <div class="term-block-body">
+      <div class="l"><span class="prompt">$</span> <span class="cmd">systemctl status ssh</span></div>
+      <div class="l out">● ssh.service - OpenBSD Secure Shell server</div>
+      <div class="l out">   Active: active (running) ...</div>
+      <div class="l cm">// presiona "q" para salir de esta pantalla</div>
+    </div>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ Si en vez de eso te dice "Unit ssh.service could not be found"</h4>
+    <p>Eso significa que el servidor SSH no llegó a instalarse — lo más común es que la casilla <code>[✔] servidor SSH</code> de la Parte 1 se haya quedado sin marcar por accidente durante la instalación de Debian. No es un error grave ni tienes que reinstalar nada: se instala manualmente en dos comandos.</p>
+  </div>
+
+  <div class="term-block">
+    <div class="term-block-bar">
+      <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
+      <span style="margin-left:6px;">servidor</span>
+    </div>
+    <div class="term-block-body">
+      <div class="l"><span class="prompt">$</span> <span class="cmd">sudo apt install openssh-server</span></div>
+      <div class="l"><span class="prompt">$</span> <span class="cmd">sudo systemctl enable --now ssh</span></div>
+      <div class="l"><span class="prompt">$</span> <span class="cmd">systemctl status ssh</span></div>
+      <div class="l out">● ssh.service - OpenBSD Secure Shell server</div>
+      <div class="l out">   Active: active (running) ...</div>
+    </div>
+  </div>
+
+  <p><code>apt install openssh-server</code> descarga e instala el programa. <code>systemctl enable --now ssh</code> hace dos cosas en un solo comando: lo enciende ahora mismo (<code>--now</code>) y lo deja programado para arrancar solo cada vez que prendas el servidor (<code>enable</code>) — sin esto último, tendrías que volver a encenderlo a mano después de cada reinicio. Vuelve a correr <code>systemctl status ssh</code> para confirmar que ahora sí dice <code>active (running)</code>, y continúa con el resto de esta sección con toda confianza.</p>
+
+  <p>Ahora, desde tu <strong>PC principal</strong>, abre una terminal:</p>
+
+  <table class="tbl">
+    <tr><th>Sistema</th><th>Cómo abrir la terminal con SSH</th></tr>
+    <tr><td>Windows 11</td><td>Abre "Terminal" o "PowerShell" desde el menú Inicio. El comando <code>ssh</code> ya viene incluido en Windows 11 sin instalar nada extra.</td></tr>
+    <tr><td>Zorin OS, Linux Mint, Voyager</td><td>Abre la aplicación de Terminal de tu escritorio. <code>ssh</code> viene preinstalado en cualquier distribución basada en Debian/Ubuntu.</td></tr>
+  </table>
+
+  <p>Y en cualquiera de ellos, escribe:</p>
+
+  <div class="tip">
+    <h4>🟢 ¿De dónde saco mi usuario y mi IP exactos?</h4>
+    <p>Son los mismos dos datos que ya obtuviste más arriba, en <a href="#encontrar-ip">Encontrar la IP</a>, corriendo <code>whoami</code> y <code>hostname -I</code> directamente en el servidor. Por ejemplo, si tu usuario es <code>vikthor23</code> y tu IP es <code>192.168.1.72</code>, el comando completo sería <code>ssh vikthor23@192.168.1.72</code> — no copies <code>victor@192.168.1.50</code> tal cual, es solo un ejemplo para que veas el formato.</p>
+  </div>
+
+  <div class="term-block">
+    <div class="term-block-bar">
+      <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
+      <span style="margin-left:6px;">tu PC principal</span>
+    </div>
+    <div class="term-block-body">
+      <div class="l"><span class="prompt">$</span> <span class="cmd">ssh victor@192.168.1.50</span></div>
+      <div class="l out">The authenticity of host '192.168.1.50' can't be established.</div>
+      <div class="l out">Are you sure you want to continue connecting (yes/no)?</div>
+      <div class="l"><span class="prompt">$</span> <span class="cmd">yes</span></div>
+      <div class="l out">victor@192.168.1.50's password:</div>
+      <div class="l out">victor@servidor:~$</div>
+    </div>
+  </div>
+
+  <p>Reemplaza <code>victor</code> por tu propio usuario (el que te devolvió <code>whoami</code>) y la IP por la que te devolvió <code>hostname -I</code>. La primera vez, SSH te pregunta si confías en la identidad de ese equipo — responde <code>yes</code>. Después escribe tu contraseña (tampoco vas a ver asteriscos). En cuanto veas el símbolo de sistema del servidor, estás controlando la PC A6-5350 completamente desde tu PC principal.</p>
+
+  <div class="concept">
+    <h4>🔐 Ahora sí puedes desconectar el monitor del servidor</h4>
+    <p>A partir de este punto, cualquier comando que escribas dentro de esta sesión de SSH se ejecuta en el servidor, no en tu PC principal — aunque estés viendo la ventana en tu propia pantalla. Es exactamente lo que buscábamos con la instalación headless de la Parte 1.</p>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 SSH no es lo mismo que Samba — para no confundirlos desde ya</h4>
+    <p><strong>SSH</strong> te da control total del servidor por terminal: instalar programas, editar configuración, apagar, todo lo que harías sentado frente a él. <strong>Samba</strong>, que vas a instalar en la Parte 3, es algo distinto: es lo que hace que una carpeta del servidor se vea como una carpeta más en tu explorador de archivos, sin necesidad de terminal. Vas a usar los dos, pero para cosas diferentes — en la Parte 4 hay una tabla comparando SSH, Samba y una tercera herramienta (SFTP) lado a lado.</p>
+  </div>
+</section>
+
+<!-- PRIMEROS COMANDOS -->
+<section class="module" id="primeros-comandos">
+  <div class="module-header">
+    <div class="module-icon">⌨️</div>
+    <div>
+      <div class="module-title">Primeros comandos dentro del servidor</div>
+      <div class="module-sub">Un repaso rápido — la guía completa de terminal Linux vive en otra sección de Café &lt;/&gt;</div>
+    </div>
+  </div>
+
+  <p>Ya conectado por SSH, puedes practicar los comandos básicos de navegación y archivos directamente sobre el servidor:</p>
+
+  <table class="tbl">
+    <tr><th>Comando</th><th>Qué hace</th></tr>
+    <tr><td><span class="tag">pwd</span></td><td>Muestra en qué carpeta estás parado ahora mismo.</td></tr>
+    <tr><td><span class="tag">ls</span></td><td>Lista el contenido de la carpeta actual.</td></tr>
+    <tr><td><span class="tag">cd carpeta</span></td><td>Entra a esa carpeta.</td></tr>
+    <tr><td><span class="tag">mkdir nombre</span></td><td>Crea una carpeta nueva.</td></tr>
+    <tr><td><span class="tag">sudo comando</span></td><td>Ejecuta ese comando con permisos de administrador.</td></tr>
+  </table>
+
+  <div class="tip">
+    <h4>🟢 ¿Quieres la lista completa de comandos Linux?</h4>
+    <p>Navegación, permisos, procesos, gestión de paquetes y scripts de Bash — todo eso ya está cubierto a fondo en <a href="guia-linux.html"><strong>Linux a fondo</strong></a>, dentro de la sección de terminal. Aquí solo repasamos lo mínimo indispensable para seguir con el proyecto del servidor.</p>
+  </div>
+</section>
+
+<!-- FIREWALL -->
+<section class="module" id="firewall">
+  <div class="module-header">
+    <div class="module-icon">🧱</div>
+    <div>
+      <div class="module-title">Un primer vistazo al firewall</div>
+      <div class="module-sub">Instalarlo ahora, antes de que haya más servicios que proteger, para no olvidarlo después</div>
+    </div>
+  </div>
+
+  <p>Un <strong>firewall</strong> (cortafuegos) decide qué tipo de tráfico de red puede entrar o salir de tu servidor. Debian no trae uno activado por defecto. Vamos a instalar <code>ufw</code> ("Uncomplicated Firewall"), que es una versión simplificada pensada para principiantes, y a dejarlo listo para SSH desde ahora:</p>
+
+  <div class="term-block">
+    <div class="term-block-bar">
+      <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
+      <span style="margin-left:6px;">servidor</span>
+    </div>
+    <div class="term-block-body">
+      <div class="l"><span class="prompt">$</span> <span class="cmd">sudo apt install ufw</span></div>
+      <div class="l"><span class="prompt">$</span> <span class="cmd">sudo ufw allow ssh</span></div>
+      <div class="l out">Rule added</div>
+    </div>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ Por qué permitimos SSH antes de activar el firewall</h4>
+    <p>No vamos a activar <code>ufw</code> todavía — eso lo haremos hasta la Parte 5, después de agregar también la regla para Samba. Si activas el firewall <strong>sin</strong> haber permitido SSH primero, te quedarías fuera de tu propio servidor: como estás conectado por SSH, esa misma conexión se cortaría y no podrías volver a entrar de forma remota. Por eso, cada vez que instalemos un servicio nuevo en las siguientes partes, vamos a ir agregando su regla de firewall correspondiente antes de activarlo.</p>
+  </div>
+</section>
+
+<!-- GLOSARIO -->
+<section class="module" id="glosario">
+  <div class="module-header">
+    <div class="module-icon">📖</div>
+    <div>
+      <div class="module-title">Glosario</div>
+      <div class="module-sub">Términos nuevos de esta parte</div>
+    </div>
+  </div>
+
+  <dl class="glos">
+    <div class="glos-item"><dt>IP</dt><dd>La dirección numérica que identifica a un dispositivo dentro de una red.</dd></div>
+    <div class="glos-item"><dt>DHCP</dt><dd>El sistema con el que un router asigna direcciones IP automáticamente, y que puede cambiarlas con el tiempo.</dd></div>
+    <div class="glos-item"><dt>IP fija / reservada</dt><dd>Una dirección IP que se le asigna permanentemente a un dispositivo, para que nunca cambie.</dd></div>
+    <div class="glos-item"><dt>SSH</dt><dd>Protocolo para controlar una computadora remota mediante una terminal, con la comunicación cifrada.</dd></div>
+    <div class="glos-item"><dt>Firewall</dt><dd>Programa que filtra qué tráfico de red puede entrar o salir de un equipo.</dd></div>
+    <div class="glos-item"><dt>Puerta de enlace (gateway)</dt><dd>La dirección IP del router dentro de tu propia red, por donde sale todo el tráfico hacia internet.</dd></div>
+  </dl>
+</section>
+
+<!-- SIGUIENTE -->
+<section class="module" id="siguiente">
+  <div class="module-header">
+    <div class="module-icon">➡️</div>
+    <div>
+      <div class="module-title">Siguiente: instalar y configurar Samba</div>
+      <div class="module-sub">La parte que convierte a este servidor en, específicamente, un servidor de archivos</div>
+    </div>
+  </div>
+
+  <p>Con red, IP fija, actualizaciones y acceso remoto por SSH resueltos, ya tienes una base sólida de administración. Ahora sí, vamos a instalar el programa que va a compartir tus carpetas en la red: Samba.</p>
+
+  <p><a href="servidor-parte3.html"><strong>Continuar con la Parte 3: Samba →</strong></a></p>
+</section>
+
+</main>
+
+<footer>
+  Servidor propio · Parte 2 de 5 · un proyecto de Café &lt;/&gt;
+</footer>
+
+<script>
+  (function() {
+    var root = document.documentElement;
+    var icon = document.getElementById('themeIcon');
+    var label = document.getElementById('themeLabel');
+    var STORAGE_KEY = 'cafe-codigo-theme';
+
+    function applyTheme(theme) {
+      if (theme === 'dark') {
+        root.setAttribute('data-theme', 'dark');
+        icon.textContent = '☀️';
+        label.textContent = 'Modo claro';
+      } else {
+        root.removeAttribute('data-theme');
+        icon.textContent = '🌙';
+        label.textContent = 'Modo oscuro';
+      }
+    }
+
+    var saved = null;
+    try { saved = localStorage.getItem(STORAGE_KEY); } catch (e) {}
+
+    if (saved) {
+      applyTheme(saved);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      applyTheme('dark');
+    }
+
+    window.toggleTheme = function() {
+      var isDark = root.getAttribute('data-theme') === 'dark';
+      var next = isDark ? 'light' : 'dark';
+      applyTheme(next);
+      try { localStorage.setItem(STORAGE_KEY, next); } catch (e) {}
+    };
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Parte 5: seguridad, firewall, energía y arranque automático, troubleshooting, y hacia dónde seguir aprendiendo.">
+<title>Servidor propio — Parte 5: Seguridad y siguientes pasos — Café &lt;/&gt;</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #c49a1a;
+    --primary-light:  #fdf6e0;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --danger:         #c44a2a;
+    --danger-light:   #fdf0ec;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1a1814;
+    --code-text:      #e8e4de;
+    color-scheme: light;
+  }
+
+  :root[data-theme="dark"] {
+    --primary:        #a48ce8;
+    --primary-light:  #2f2747;
+    --secondary:      #e08fc0;
+    --secondary-light:#3a2438;
+    --accent:         #e3b34d;
+    --accent-light:   #3a3324;
+    --danger:         #d9695f;
+    --danger-light:   #3a2420;
+    --bg:             #473b63;
+    --surface:        #574a76;
+    --text:           #f3f0fb;
+    --muted:          #c6bce2;
+    --border:         rgba(230,222,250,0.14);
+    --code-bg:        #211c33;
+    --code-text:      #f0eaf9;
+    color-scheme: dark;
+  }
+
+  body {
+    font-family: 'DM Sans', 'Segoe UI', sans-serif;
+    background: var(--bg); color: var(--text);
+    line-height: 1.7; font-size: 16px;
+    transition: background .25s ease, color .25s ease;
+  }
+
+  .cafe-bar {
+    background: var(--surface); border-bottom:1px solid var(--border);
+    padding:0 24px; display:flex; align-items:center; gap:14px;
+    position:sticky; top:0; z-index:200; height:45px;
+    transition: background .25s ease, border-color .25s ease;
+    overflow-x:auto; overflow-y:hidden; scrollbar-width:none; -ms-overflow-style:none;
+  }
+  .cafe-bar::-webkit-scrollbar { display:none; }
+  .cafe-bar a { flex-shrink:0; white-space:nowrap; display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--muted); text-decoration:none; padding:6px 14px; border:1px solid var(--border); border-radius:999px; transition:all 0.15s; }
+  .cafe-bar a:hover { color:var(--text); border-color:var(--muted); }
+  .cafe-bar span.crumb { flex-shrink:0; white-space:nowrap; font-size:13px; color:var(--muted); }
+  .cafe-bar .spacer { flex: 1 0 14px; }
+
+  .theme-toggle {
+    flex-shrink:0; white-space:nowrap;
+    display:inline-flex; align-items:center; gap:8px;
+    background: var(--bg); border:1px solid var(--border); color: var(--text);
+    border-radius:999px; padding:6px 14px 6px 10px; font-size:13px; font-weight:500;
+    cursor:pointer; transition: all .2s ease; font-family: inherit;
+  }
+  .theme-toggle:hover { border-color: var(--primary); color: var(--primary); }
+  .theme-toggle .icon { font-size: 15px; line-height:1; }
+
+  .partes-nav {
+    background: var(--bg); border-bottom:1px solid var(--border);
+    padding:10px 24px; display:flex; gap:8px; overflow-x:auto;
+    scrollbar-width:none; -ms-overflow-style:none;
+    position:sticky; top:45px; z-index:150;
+    transition: background .25s ease, border-color .25s ease;
+    align-items:center; height:38px;
+  }
+  .partes-nav::-webkit-scrollbar { display:none; }
+  .partes-nav a { flex-shrink:0; white-space:nowrap; font-size:.78rem; font-weight:600; color:var(--muted); text-decoration:none; padding:6px 14px; border-radius:999px; border:1px solid var(--border); transition:all .15s; }
+  .partes-nav a:hover { color:var(--text); border-color:var(--muted); }
+  .partes-nav a.active { background:var(--primary); color:#1a1814; border-color:var(--primary); }
+
+  header {
+    background: #0c0c0c; color: #f3f0fb; padding: 3rem 2rem 2rem;
+    text-align: center; position: relative; overflow: hidden;
+  }
+  header::before { content: '>_'; position: absolute; font-size: 10rem; font-weight: 900; color: rgba(255,255,255,0.04); right: -1rem; top: -1rem; font-family: 'DM Mono', monospace; line-height: 1; }
+  header h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; font-family: 'Fraunces', serif; }
+  header p { font-size: 1.1rem; opacity: .85; margin-top: .5rem; max-width: 620px; margin-left: auto; margin-right: auto; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  nav {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    position: sticky; top: 83px; z-index: 100; display: flex; overflow-x: auto; gap: 0;
+    transition: background .25s ease, border-color .25s ease;
+  }
+  nav a { flex-shrink: 0; padding: .75rem 1rem; text-decoration: none; color: var(--muted); font-size: .78rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .module {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+    padding: 2rem; margin-bottom: 2.5rem; scroll-margin-top:135px;
+    transition: background .25s ease, border-color .25s ease;
+  }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-size: 1.35rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  .analogy { background: var(--accent-light); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: var(--accent); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; }
+
+  .concept { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p, .tip ul { font-size: .95rem; }
+  .tip ul { padding-left: 1.2rem; }
+
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  .glos { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .glos-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; }
+  .glos-item dt { font-weight: 700; color: var(--primary); font-size: .92rem; margin-bottom: .3rem; }
+  .glos-item dd { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: #1a1814; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  h2 { font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; color: var(--text); }
+  h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 .5rem; }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: var(--primary-light); color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+  strong { font-weight: 700; }
+
+  .code-block {
+    background: var(--code-bg); color: var(--code-text); border-radius: 10px;
+    padding: 1rem 1.25rem; font-family: 'DM Mono', monospace; font-size: .84rem;
+    overflow-x: auto; margin: 1rem 0; line-height: 1.65; white-space: pre;
+  }
+
+  .term-block {
+    background: #0c0c0c; color: var(--code-text); border-radius: 10px;
+    overflow: hidden; margin: 1rem 0;
+  }
+  .term-block-bar {
+    display: flex; align-items: center; gap: 8px;
+    padding: .6rem .9rem; background: rgba(255,255,255,.05);
+    font-family: 'DM Mono', monospace; font-size: .72rem; color: #a39d93;
+  }
+  .tdot { width: 8px; height: 8px; border-radius: 50%; }
+  .tdot.r { background: #d9695f; } .tdot.y { background: #e3b34d; } .tdot.g { background: #7fae6d; }
+  .term-block-body { padding: 1rem 1.25rem 1.2rem; font-family: 'DM Mono', monospace; font-size: .84rem; overflow-x: auto; line-height: 1.65; }
+  .term-block-body .l { margin-bottom: .5rem; white-space: pre; }
+  .term-block-body .prompt { color: #7fd8a8; }
+  .term-block-body .cmd { color: var(--code-text); }
+  .term-block-body .out { color: #a39d93; padding-left: 1.1rem; }
+  .term-block-body .cm { color: #a39d93; font-style: italic; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); transition: background .25s ease, border-color .25s ease; }
+</style>
+</head>
+<body>
+
+<div class="cafe-bar">
+  <a href="../explorando-capitulos.html">← Explorando</a>
+  <span class="crumb">🗄️ Servidor propio</span>
+  <div class="spacer"></div>
+  <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+    <span class="icon" id="themeIcon">🌙</span>
+    <span id="themeLabel">Modo oscuro</span>
+  </button>
+</div>
+
+<div class="partes-nav">
+  <a href="servidor-parte1.html">1. Instalar Debian</a>
+  <a href="servidor-parte2.html">2. Red y primeros pasos</a>
+  <a href="servidor-parte3.html">3. Samba</a>
+  <a href="servidor-parte4.html">4. Conectar tus PCs</a>
+  <a href="servidor-parte5.html" class="active">5. Seguridad y siguientes pasos</a>
+</div>
+
+<header>
+  <h1>Tu propio servidor de archivos</h1>
+  <p>Parte 5: cerrar el proyecto bien — firewall activo, arranque automático, energía, respaldo — resolver los problemas más comunes, y ver hacia dónde seguir aprendiendo.</p>
+  <span class="badge">🗄️ Proyecto práctico · Servidor propio</span>
+</header>
+
+<nav>
+  <a href="#arranque-automatico">🔁 Arranque automático</a>
+  <a href="#energia">🔋 Energía y suspensión</a>
+  <a href="#firewall-final">🧱 Activar el firewall</a>
+  <a href="#actualizaciones">🛡️ Actualizaciones de seguridad</a>
+  <a href="#respaldo">💾 Un servidor no es un respaldo</a>
+  <a href="#troubleshooting">🩺 Cuando algo no funciona</a>
+  <a href="#gui-vs-headless-resumen">🖥️ Con interfaz vs. sin interfaz — el resumen</a>
+  <a href="#segundo-disco">💽 Añadir un segundo disco</a>
+  <a href="#siguientes-niveles">🚀 Hacia dónde seguir</a>
+  <a href="#glosario">📖 Glosario</a>
+</nav>
+
+<main>
+
+<div class="parte-badge">🗄️ Parte 5 de 5 — Servidor propio</div>
+
+<!-- ARRANQUE AUTOMATICO -->
+<section class="module" id="arranque-automatico">
+  <div class="module-header">
+    <div class="module-icon">🔁</div>
+    <div>
+      <div class="module-title">Que Samba y SSH arranquen solos</div>
+      <div class="module-sub">Un servidor que necesita que tú lo enciendas a mano cada vez no es muy confiable</div>
+    </div>
+  </div>
+
+  <p>Hasta ahora hemos comprobado que los servicios están <code>active (running)</code>, pero eso solo dice que están corriendo <strong>en este momento</strong>. Si la PC servidor se reinicia — por un corte de luz, una actualización del sistema, lo que sea — necesitas que Samba y SSH vuelvan a levantarse solos, sin que tengas que conectar un teclado y encenderlos manualmente.</p>
+
+  <div class="term-block">
+    <div class="term-block-bar">
+      <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
+      <span style="margin-left:6px;">servidor</span>
+    </div>
+    <div class="term-block-body">
+      <div class="l"><span class="prompt">$</span> <span class="cmd">sudo systemctl enable smbd</span></div>
+      <div class="l"><span class="prompt">$</span> <span class="cmd">sudo systemctl enable ssh</span></div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>📍 "Active" y "Enabled" son dos cosas distintas</h4>
+    <p><code>active (running)</code> significa que el servicio está corriendo <strong>ahora mismo</strong>. <code>enabled</code> significa que ese servicio se va a iniciar automáticamente <strong>en cada arranque</strong> del sistema, sin que nadie lo pida. Necesitas las dos cosas para un servidor que se mantenga disponible por sí solo.</p>
+  </div>
+</section>
+
+<!-- ENERGIA -->
+<section class="module" id="energia">
+  <div class="module-header">
+    <div class="module-icon">🔋</div>
+    <div>
+      <div class="module-title">Energía: que el servidor nunca se duerma</div>
+      <div class="module-sub">Sin escritorio no hay configuración de "apagar pantalla tras 5 minutos" — pero eso no es toda la historia</div>
+    </div>
+  </div>
+
+  <p>Como instalaste Debian sin entorno gráfico, no existe la configuración típica de un escritorio que suspende la sesión por inactividad de mouse o teclado — eso ni siquiera está instalado. Aun así, vale la pena confirmar dos cosas más, porque la suspensión puede venir de otros lugares:</p>
+
+  <h2>1. Los objetivos de suspensión de systemd</h2>
+  <p>Linux, sin importar si tiene escritorio o no, tiene la capacidad interna de entrar en modos de bajo consumo. Puedes desactivarlos explícitamente para estar seguro:</p>
+
+  <div class="term-block">
+    <div class="term-block-bar">
+      <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
+      <span style="margin-left:6px;">servidor</span>
+    </div>
+    <div class="term-block-body">
+      <div class="l"><span class="prompt">$</span> <span class="cmd">sudo systemctl mask sleep.target suspend.target hibernate.target hybrid-sleep.target</span></div>
+    </div>
+  </div>
+
+  <p>Esto le indica al sistema que ignore por completo cualquier intento de entrar en esos modos, vengan de donde vengan.</p>
+
+  <h2>2. La configuración de energía del BIOS/UEFI</h2>
+  <p>Algunas placas madre (incluyendo modelos con procesadores A6-5350) traen configuraciones de ahorro de energía a nivel de hardware, independientes del sistema operativo — por ejemplo, apagar el equipo tras cierto tiempo sin actividad en el teclado conectado en ese momento. Vale la pena entrar al BIOS (normalmente presionando <code>Supr</code> o <code>F2</code> al encender) y revisar que no haya ninguna opción de "auto power off" o similar activada, ya que este comportamiento no depende de Debian ni de ningún ajuste que hagamos por software.</p>
+
+  <div class="tip">
+    <h4>🟢 Aprovecha y activa TRIM para el SSD</h4>
+    <p>Ya que estás revisando temas de hardware: los SSD se benefician de una operación de mantenimiento llamada TRIM, que ayuda a mantener su rendimiento con el tiempo. Debian moderno normalmente ya trae activado <code>fstrim.timer</code> por defecto; puedes confirmarlo con <code>systemctl status fstrim.timer</code>.</p>
+  </div>
+</section>
+
+<!-- FIREWALL FINAL -->
+<section class="module" id="firewall-final">
+  <div class="module-header">
+    <div class="module-icon">🧱</div>
+    <div>
+      <div class="module-title">Activar el firewall, por fin</div>
+      <div class="module-sub">Ya tienes las dos reglas que necesitas — SSH desde la Parte 2, Samba desde la Parte 3</div>
+    </div>
+  </div>
+
+  <div class="term-block">
+    <div class="term-block-bar">
+      <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
+      <span style="margin-left:6px;">servidor</span>
+    </div>
+    <div class="term-block-body">
+      <div class="l"><span class="prompt">$</span> <span class="cmd">sudo ufw status</span></div>
+      <div class="l out">// confirma que "ssh" y "samba" ya aparecen como reglas permitidas</div>
+      <div class="l"><span class="prompt">$</span> <span class="cmd">sudo ufw enable</span></div>
+      <div class="l out">Firewall is active and enabled on system startup</div>
+    </div>
+  </div>
+
+  <p>A partir de este momento, cualquier otro tipo de tráfico que no hayas permitido explícitamente queda bloqueado por defecto — justo el comportamiento que quieres en un servidor.</p>
+
+  <div class="concept">
+    <h4>🔒 Mantén el servidor dentro de tu red local</h4>
+    <p>Para este proyecto no necesitas ni debes abrir ningún puerto de tu router hacia internet. El servidor solo debe ser accesible dentro de tu red doméstica — es la configuración más segura para un uso como este, y evita por completo la superficie de ataque que implica exponer Samba o SSH directamente a internet.</p>
+  </div>
+</section>
+
+<!-- ACTUALIZACIONES -->
+<section class="module" id="actualizaciones">
+  <div class="module-header">
+    <div class="module-icon">🛡️</div>
+    <div>
+      <div class="module-title">Que las actualizaciones de seguridad lleguen solas</div>
+      <div class="module-sub">Vas a dejar esta PC encendida todo el tiempo — que se mantenga al día sin que tengas que acordarte</div>
+    </div>
+  </div>
+
+  <div class="term-block">
+    <div class="term-block-bar">
+      <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
+      <span style="margin-left:6px;">servidor</span>
+    </div>
+    <div class="term-block-body">
+      <div class="l"><span class="prompt">$</span> <span class="cmd">sudo apt install unattended-upgrades</span></div>
+      <div class="l"><span class="prompt">$</span> <span class="cmd">sudo dpkg-reconfigure unattended-upgrades</span></div>
+      <div class="l out">// elige "Yes" cuando te pregunte si quieres instalar actualizaciones automáticas</div>
+    </div>
+  </div>
+
+  <p>Con esto, los parches de seguridad se van a instalar solos, sin que tengas que ejecutar <code>apt upgrade</code> manualmente cada semana. Sigue siendo buena idea revisarlo de vez en cuando, pero ya no depende exclusivamente de tu memoria.</p>
+</section>
+
+<!-- RESPALDO -->
+<section class="module" id="respaldo">
+  <div class="module-header">
+    <div class="module-icon">💾</div>
+    <div>
+      <div class="module-title">Un servidor no es, por sí solo, un respaldo</div>
+      <div class="module-sub">Un dato importante que vale la pena tener claro desde ahora</div>
+    </div>
+  </div>
+
+  <p>Es fácil pensar "ya tengo mis archivos en el servidor, están seguros". Pero si ese SSD llegara a fallar (cualquier disco, sin importar su tipo, puede fallar eventualmente) y no existe una copia en otro lugar, esos archivos se pierden igual que si hubieran estado solo en una PC. Un servidor centraliza tus archivos, no los protege por sí mismo contra fallas de hardware.</p>
+
+  <div class="warn">
+    <h4>⚠️ La regla informal 3-2-1</h4>
+    <p>Una buena práctica de respaldo, ampliamente usada en administración de sistemas, es tener al menos <strong>3 copias</strong> de lo importante, en <strong>2 tipos de medio distintos</strong> (por ejemplo, este servidor y un disco externo), con al menos <strong>1 copia fuera de tu casa</strong> (en la nube, o físicamente en otro lugar) para el caso de robo, incendio o cualquier daño físico al lugar donde vives. No es obligatorio implementarlo todo de inmediato, pero es bueno tenerlo en mente al decidir qué tan importante es cada archivo que guardas aquí.</p>
+  </div>
+</section>
+
+<!-- TROUBLESHOOTING -->
+<section class="module" id="troubleshooting">
+  <div class="module-header">
+    <div class="module-icon">🩺</div>
+    <div>
+      <div class="module-title">Cuando algo no funciona</div>
+      <div class="module-sub">Los problemas más comunes de este tipo de proyecto, y por dónde empezar a diagnosticar</div>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <tr><th>Síntoma</th><th>Por dónde empezar</th></tr>
+    <tr><td>No aparece el recurso "Archivos" al explorar la red.</td><td>Revisa <code>systemctl status smbd</code> en el servidor, y que <code>sudo ufw status</code> muestre la regla de Samba permitida.</td></tr>
+    <tr><td>Conecta y pide contraseña, pero la rechaza aunque estés seguro de que es correcta.</td><td>Confirma que estás usando la contraseña de <strong>Samba</strong> (creada con <code>smbpasswd</code>), no la de tu usuario de Linux — son contraseñas distintas aunque el usuario se llame igual.</td></tr>
+    <tr><td>Conecta bien, pero no te deja crear ni guardar archivos.</td><td>Casi siempre son los permisos de Linux de la carpeta, no la configuración de Samba. Revisa <code>ls -ld /srv/archivos</code> en el servidor y confirma que el dueño sea tu usuario, como en la Parte 3.</td></tr>
+    <tr><td>Podías conectarte ayer, pero hoy la IP <code>\\192.168.1.50</code> ya no responde.</td><td>Confirma que reservaste la IP en el router o configuraste una IP estática, como en la Parte 2 — es la causa más común de este síntoma.</td></tr>
+    <tr><td>El servidor no responde a nada después de un reinicio o corte de luz.</td><td>Revisa que <code>smbd</code> y <code>ssh</code> estén <code>enabled</code>, no solo <code>active</code> (ver el primer módulo de esta parte).</td></tr>
+    <tr><td>Cambiaste <code>smb.conf</code> y ahora nada funciona.</td><td>Corre <code>testparm</code> para encontrar el error de sintaxis, o restaura con <code>sudo cp /etc/samba/smb.conf.backup /etc/samba/smb.conf</code> y vuelve a intentar con más calma.</td></tr>
+  </table>
+
+  <div class="tip">
+    <h4>🟢 La regla de oro al diagnosticar</h4>
+    <p>Antes de cambiar nada a ciegas, pregúntate: ¿el problema está del lado del servidor (¿el servicio corre?), de la red (¿responde al ping?), o del cliente (¿estás usando las credenciales correctas)? Separar esas tres capas casi siempre te lleva directo a la causa.</p>
+  </div>
+</section>
+
+<!-- RESUMEN GUI VS HEADLESS -->
+<section class="module" id="gui-vs-headless-resumen">
+  <div class="module-header">
+    <div class="module-icon">🖥️</div>
+    <div>
+      <div class="module-title">Con interfaz vs. sin interfaz — el resumen completo</div>
+      <div class="module-sub">Todo lo que vimos a lo largo del proyecto, junto, para tenerlo como referencia</div>
+    </div>
+  </div>
+
+  <p>Ya instalaste, configuraste y probaste un servidor completamente headless. Vale la pena cerrar con el panorama completo de lo que eso significó en la práctica:</p>
+
+  <table class="tbl">
+    <tr><th>Aspecto</th><th>Con interfaz gráfica</th><th>Sin interfaz (lo que hiciste)</th></tr>
+    <tr><td>RAM en reposo</td><td>~800 MB – 1.5 GB solo por el escritorio</td><td>~100 – 250 MB, el resto disponible para el propio servicio</td></tr>
+    <tr><td>Superficie de ataque</td><td>Mayor: más programas corriendo, más código expuesto</td><td>Menor: solo corren los servicios que instalaste a propósito</td></tr>
+    <tr><td>Forma de administrarlo</td><td>Localmente, con mouse y teclado conectados</td><td>100% remoto, por SSH, desde cualquier otra PC de tu red</td></tr>
+    <tr><td>¿Se puede suspender solo?</td><td>Sí, por defecto, pensado para ahorro de batería en laptops</td><td>No por defecto; y en la Parte 5 lo desactivamos explícitamente a nivel de sistema y BIOS por si acaso</td></tr>
+    <tr><td>Velocidad de arranque</td><td>Más lento — carga todo el entorno gráfico</td><td>Más rápido — solo carga los servicios base</td></tr>
+    <tr><td>Hardware de un A6-5350 con 8 GB</td><td>Se siente ajustado para uso de escritorio moderno</td><td>Sobra cómodamente para archivos + SSH + Samba</td></tr>
+  </table>
+
+  <div class="concept">
+    <h4>💡 La idea que te llevas de todo el proyecto</h4>
+    <p>Un servidor no es una computadora especial — es cualquier computadora a la que le quitas lo que no necesita (el escritorio) y le agregas lo que sí (los servicios de red), y que dejas encendida y bien configurada para responder cuando otra computadora se lo pida. El A6-5350 con 8 GB y SSD que usaste no es "poca cosa" para esto — es, de hecho, un punto de partida sólido para este tipo de proyecto.</p>
+  </div>
+</section>
+
+<!-- SEGUNDO DISCO -->
+<section class="module" id="segundo-disco">
+  <div class="module-header">
+    <div class="module-icon">💽</div>
+    <div>
+      <div class="module-title">Añadir un segundo disco: una carpeta para todos, otra solo para ti</div>
+      <div class="module-sub">El SSD de 120 GB se queda para el sistema; el disco mecánico de 1 TB se dedica solo a almacenar archivos</div>
+    </div>
+  </div>
+
+  <p>Tiene sentido separarlos así: el sistema operativo y sus programas viven en el SSD, donde arrancan y responden rápido, mientras que el disco mecánico de 1 TB — más lento pero mucho más barato por gigabyte — se dedica exclusivamente a guardar los archivos que vas a compartir por Samba. Esta sección conecta el disco, lo deja montado permanentemente, y crea dos tipos de carpeta compartida: una pública que cualquiera con acceso al servidor puede usar, y otra privada que solo tú puedes ver.</p>
+
+  <p><strong>1. Conecta el disco y encuéntralo</strong></p>
+  <p>Con el servidor apagado, conecta el disco mecánico internamente (SATA) o por USB si es una caja externa. Enciende el servidor y, ya conectado por SSH, identifícalo:</p>
+
+  <div class="term-block">
+    <div class="term-block-bar">
+      <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
+      <span style="margin-left:6px;">servidor</span>
+    </div>
+    <div class="term-block-body">
+      <div class="l"><span class="prompt">$</span> <span class="cmd">lsblk</span></div>
+      <div class="l out">sda      8:0    0 111.8G  0 disk</div>
+      <div class="l out">└─sda1   8:1    0 111.8G  0 part  /</div>
+      <div class="l out">sdb      8:16   0   931G  0 disk</div>
+    </div>
+  </div>
+
+  <p><code>sda</code> es tu SSD (ya con una partición montada en <code>/</code>, el sistema). <code>sdb</code>, sin particiones todavía, es casi seguro tu disco mecánico nuevo — confírmalo por el tamaño (931G ≈ 1 TB). A partir de aquí, todos los comandos usan <code>sdb</code> como ejemplo; reemplázalo por lo que te muestre tu propio <code>lsblk</code>.</p>
+
+  <div class="concept">
+    <h4>💡 Nota sobre los tamaños de este ejemplo</h4>
+    <p>Los números <code>111.8G</code> y <code>931G</code> de arriba corresponden al hardware específico de este proyecto: el SSD y el disco mecánico de 1 TB que se usan en la PC <strong>AMD A6-5350</strong> descrita desde la <a href="servidor-parte1.html">Parte 1</a>. Si tu disco es de otra capacidad (500 GB, 2 TB, etc.), vas a ver un número distinto en <code>lsblk</code>, y eso es normal — lo importante no es que coincida con este ejemplo, sino que el tamaño que veas se parezca al que trae anunciado tu propio disco.</p>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ Confirma el disco correcto antes de continuar</h4>
+    <p>Los siguientes pasos van a borrar cualquier dato que ya exista en ese disco. Si tienes la más mínima duda de cuál es <code>sda</code> y cuál es <code>sdb</code>, detente y confírmalo con <code>sudo lsblk -o NAME,SIZE,MODEL</code> antes de seguir — verás el modelo del disco, lo que suele despejar la duda.</p>
+  </div>
+
+  <p><strong>2. Crea una partición y formatéala</strong></p>
+
+  <div class="term-block">
+    <div class="term-block-bar">
+      <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
+      <span style="margin-left:6px;">servidor</span>
+    </div>
+    <div class="term-block-body">
+      <div class="l"><span class="prompt">$</span> <span class="cmd">sudo parted /dev/sdb --script mklabel gpt mkpart primary ext4 0% 100%</span></div>
+      <div class="l"><span class="prompt">$</span> <span class="cmd">sudo mkfs.ext4 /dev/sdb1</span></div>
+      <div class="l out">Creating filesystem with 244190464 4k blocks and 61054976 inodes</div>
+      <div class="l out">...</div>
+      <div class="l out">Allocating group tables: done</div>
+      <div class="l out">Writing inode tables: done</div>
+      <div class="l out">Writing superblocks and filesystem accounting information: done</div>
+    </div>
+  </div>
+
+  <p><code>parted</code> no imprime nada en pantalla si todo salió bien (por eso usa <code>--script</code>: corre en silencio). La salida que sí vas a ver es la de <code>mkfs.ext4</code>, con varias líneas terminando en <code>done</code> — esa es la confirmación de que el formateo terminó sin errores. El número exacto de bloques e inodos va a variar según el tamaño real de tu disco.</p>
+
+  <div class="tip">
+    <h4>🟢 ¿Te salió "orden no encontrada" al correr ese comando?</h4>
+    <p>Solo si te pasó eso: significa que <code>parted</code> no viene preinstalado en tu sistema (no todas las instalaciones de Debian lo traen por defecto). Instálalo con:</p>
+    <div class="term-block" style="margin-top:.75rem;">
+      <div class="term-block-bar">
+        <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
+        <span style="margin-left:6px;">servidor</span>
+      </div>
+      <div class="term-block-body">
+        <div class="l"><span class="prompt">$</span> <span class="cmd">sudo apt update</span></div>
+        <div class="l"><span class="prompt">$</span> <span class="cmd">sudo apt install parted</span></div>
+      </div>
+    </div>
+    <p style="margin-top:.75rem;"><code>sudo apt update</code> refresca la lista de paquetes disponibles antes de instalar, para asegurarte de que <code>apt</code> conoce la versión más reciente de <code>parted</code>. Si te pide confirmar la instalación, escribe <code>s</code> (o <code>y</code>, según el idioma del sistema) y da Enter. Ya instalado, vuelve a correr el comando de <code>parted</code> de arriba — ahora sí debería funcionar.</p>
+  </div>
+
+  <p><code>parted</code> crea una tabla de particiones nueva (<code>gpt</code>) y una sola partición que ocupa todo el disco. Desglosando el comando: <code>/dev/sdb</code> es el disco sobre el que trabajas; <code>--script</code> hace que <code>parted</code> ejecute las órdenes directamente sin detenerse a pedirte confirmación en cada paso (por eso la advertencia de arriba — sin <code>--script</code>, el propio programa te preguntaría antes de cada cambio, pero con él no hay pausas, así que confirma bien el disco antes de correrlo); <code>mklabel gpt</code> crea la tabla de particiones; <code>mkpart primary ext4 0% 100%</code> crea una partición que va del 0% al 100% del disco, es decir, todo el espacio disponible. <code>mkfs.ext4</code> le da formato a esa partición con el mismo sistema de archivos que usa el resto de tu Debian — es la opción más simple y confiable para este caso.</p>
+
+  <p><strong>3. Móntalo de forma permanente</strong></p>
+  <p>Primero crea la carpeta donde va a "aparecer" el disco, y anota su UUID — un identificador único que no cambia, a diferencia del nombre <code>sdb1</code>, que sí podría cambiar si algún día conectas otro disco más:</p>
+
+  <div class="term-block">
+    <div class="term-block-bar">
+      <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
+      <span style="margin-left:6px;">servidor</span>
+    </div>
+    <div class="term-block-body">
+      <div class="l"><span class="prompt">$</span> <span class="cmd">sudo mkdir /srv/discomecanico</span></div>
+      <div class="l"><span class="prompt">$</span> <span class="cmd">sudo blkid /dev/sdb1</span></div>
+      <div class="l out">/dev/sdb1: UUID="a1b2c3d4-e5f6-7890-abcd-1234567890ab" TYPE="ext4"</div>
+    </div>
+  </div>
+
+  <p>Copia ese UUID (el tuyo, no el de este ejemplo) — lo vas a necesitar en un momento. Ahora vas a abrir el archivo <code>/etc/fstab</code>, el archivo que le dice a Debian qué discos montar automáticamente en cada arranque:</p>
+
+  <div class="term-block">
+    <div class="term-block-bar">
+      <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
+      <span style="margin-left:6px;">servidor</span>
+    </div>
+    <div class="term-block-body">
+      <div class="l"><span class="prompt">$</span> <span class="cmd">sudo nano /etc/fstab</span></div>
+    </div>
+  </div>
+
+  <p>Esto abre el archivo dentro del editor de texto <code>nano</code>, ocupando toda la terminal. Vas a ver varias líneas que ya existen ahí desde que instalaste Debian — no las toques. Usa las flechas del teclado para bajar hasta el final de todo el texto, y en una línea nueva, vacía, escribe (o pega) esto — reemplazando el UUID por el tuyo:</p>
+
+  <div class="term-block">
+    <div class="term-block-bar">
+      <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
+      <span style="margin-left:6px;">nano — dentro del archivo /etc/fstab</span>
+    </div>
+    <div class="term-block-body">
+      <div class="l out">UUID=a1b2c3d4-e5f6-7890-abcd-1234567890ab /srv/discomecanico ext4 defaults 0 2</div>
+    </div>
+  </div>
+
+  <p>Con esa línea ya escrita, guarda y sal de <code>nano</code>: <code>Ctrl+O</code> para guardar (te va a pedir confirmar el nombre del archivo, solo da Enter), y luego <code>Ctrl+X</code> para salir del editor y regresar a la terminal normal.</p>
+
+  <p>Ya de vuelta en la terminal, prueba que la línea quedó bien escrita:</p>
+
+  <div class="term-block">
+    <div class="term-block-bar">
+      <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
+      <span style="margin-left:6px;">servidor</span>
+    </div>
+    <div class="term-block-body">
+      <div class="l"><span class="prompt">$</span> <span class="cmd">sudo mount -a</span></div>
+      <div class="l"><span class="prompt">$</span> <span class="cmd">df -h /srv/discomecanico</span></div>
+      <div class="l out">Sist.archivos   Tamaño Usados Disp Uso% Montado en</div>
+      <div class="l out">/dev/sdb1         916G    28K  870G   1% /srv/discomecanico</div>
+    </div>
+  </div>
+
+  <p>La <code>-a</code> de <code>mount -a</code> es de "all" (todo): monta absolutamente todo lo que esté listado en <code>fstab</code>, no solo tu disco nuevo — es una forma rápida de probar que la línea que acabas de agregar quedó bien escrita, sin necesidad de reiniciar el servidor para comprobarlo. Es normal que, al correr <code>mount -a</code>, aparezca un aviso como <em>"fstab ha sido modificado, pero systemd sigue utilizando la versión antigua"</em> — es solo informativo, no un error; si quieres quitártelo de encima, corre <code>sudo systemctl daemon-reload</code> (opcional). <code>df -h</code> muestra el espacio en disco de tus particiones montadas; la <code>-h</code> es la misma que ya conoces de <code>ls -lh</code> en la Parte 4 — legible para humanos.</p>
+
+  <div class="concept">
+    <h4>💡 ¿Cómo saber si el tamaño que ves es correcto?</h4>
+    <p>El número de <code>df -h</code> nunca va a coincidir exactamente con el de <code>lsblk</code> — es normal perder entre un 3% y un 8% del espacio bruto del disco por el formato (tablas de inodos, bloques reservados del sistema de archivos, etc.). En este ejemplo, un disco de <code>931G</code> en <code>lsblk</code> termina mostrando <code>~916G</code> en <code>df -h</code> — esa diferencia es esperable y no significa ningún problema.</p>
+    <p style="margin-top:.6rem;">Lo que <strong>no</strong> es normal es una diferencia mucho más grande, por ejemplo que un disco de 931G te muestre apenas 458G en <code>df -h</code> — ahí sí perdiste la mitad del disco, no solo el margen del formato. Si te pasa eso, antes de seguir corre <code>sudo lsblk /dev/sdb</code>: si ahí también ves que <code>sdb1</code> es de la mitad del tamaño del disco completo, es señal de que <code>parted</code> no tomó el <code>100%</code> del disco al crear la partición (por ejemplo, porque ya existía una tabla de particiones vieja con otra partición ocupando el resto). En ese caso, puedes revisar con <code>sudo parted /dev/sdb --script print</code> para ver cuántas particiones hay realmente, y si hace falta, borrar la partición existente y repetir el paso 2 desde cero.</p>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ Recuerda: el tamaño exacto depende de tu disco, no de este ejemplo</h4>
+    <p>Los <code>931G</code> / <code>916G</code> de este ejemplo son los de este proyecto en particular (el disco mecánico de 1 TB de la <a href="servidor-parte1.html">Parte 1</a>). Si tu disco es de otra capacidad, tu número de referencia va a ser distinto — lo que importa es que se acerque proporcionalmente a lo que anuncia tu propio disco, con ese mismo margen de 3%–8% por el formato.</p>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 ¿Por qué UUID y no simplemente /dev/sdb1?</h4>
+    <p>El nombre <code>/dev/sdb1</code> lo asigna Linux según el orden en que detecta los discos al arrancar, y ese orden puede cambiar si agregas o quitas hardware. El UUID es una huella única del sistema de archivos en sí, así que siempre apunta al disco correcto sin importar en qué orden lo detecte el sistema.</p>
+  </div>
+
+  <p><strong>4. Crea las dos carpetas: pública y privada</strong></p>
+
+  <div class="term-block">
+    <div class="term-block-bar">
+      <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
+      <span style="margin-left:6px;">servidor</span>
+    </div>
+    <div class="term-block-body">
+      <div class="l"><span class="prompt">$</span> <span class="cmd">sudo mkdir /srv/discomecanico/Publico /srv/discomecanico/Privado</span></div>
+      <div class="l"><span class="prompt">$</span> <span class="cmd">sudo groupadd compartido</span></div>
+      <div class="l cm">// cambia "victor" por tu propio usuario, el que te devolvió "whoami" en la Parte 2</div>
+      <div class="l"><span class="prompt">$</span> <span class="cmd">sudo usermod -aG compartido victor</span></div>
+      <div class="l"><span class="prompt">$</span> <span class="cmd">sudo chgrp -R compartido /srv/discomecanico/Publico</span></div>
+      <div class="l"><span class="prompt">$</span> <span class="cmd">sudo chmod -R 2770 /srv/discomecanico/Publico</span></div>
+      <div class="l"><span class="prompt">$</span> <span class="cmd">sudo chown -R victor:victor /srv/discomecanico/Privado</span></div>
+      <div class="l"><span class="prompt">$</span> <span class="cmd">sudo chmod -R 0700 /srv/discomecanico/Privado</span></div>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 ¿Cuál es "tu propio usuario"?</h4>
+    <p><code>victor</code> aquí es solo un ejemplo, igual que en las Partes 2 y 3 — no lo escribas tal cual. Es el nombre de usuario de Linux con el que entras al servidor por SSH: el mismo que ya usaste en <code>ssh victor@tu-ip</code>, y el mismo que te devuelve el comando <code>whoami</code> corrido directamente en el servidor. Si tienes dudas de cuál es, conéctate por SSH y corre <code>whoami</code> — la palabra que te regrese es la que va en <code>usermod</code> y <code>chown</code> de arriba, en las dos líneas donde aparece.</p>
+  </div>
+
+  <p>Aquí está la lógica de cada comando, línea por línea. <code>groupadd compartido</code> crea el grupo nuevo, sin flags que explicar. En <code>usermod -aG compartido victor</code>: la <code>G</code> mayúscula es de "groups" (grupos), y le dice a <code>usermod</code> que vas a modificar los grupos de ese usuario; la <code>-a</code> es de "append" (agregar) y es la parte más importante de recordar — sin ella, <code>usermod</code> reemplazaría todos los grupos existentes del usuario por únicamente <code>compartido</code>, sacándolo de cualquier otro grupo al que ya perteneciera. Con <code>-a</code>, simplemente lo suma al grupo nuevo sin tocar los demás.</p>
+
+  <p><code>chgrp</code> (de "change group") cambia el grupo dueño de una carpeta, igual que <code>chown</code> cambia el usuario dueño; la <code>-R</code> es la misma que ya viste en <code>chown -R</code> de la Parte 3 — recursiva, aplica a todo lo que haya adentro de la carpeta, no solo a la carpeta misma. La carpeta <code>Publico</code> queda con permisos <code>2770</code> — el <code>7</code> le da lectura/escritura al dueño y al grupo, el <code>0</code> le quita todo acceso a cualquier otro usuario del sistema, y el primer dígito (<code>2</code>) es el "bit setgid": hace que cualquier archivo nuevo que se cree ahí dentro herede automáticamente el grupo <code>compartido</code>, sin que tengas que corregirlo a mano cada vez. La <code>-R</code> en el <code>chmod</code> aplica esos permisos también a todo lo que haya adentro. La carpeta <code>Privado</code>, en cambio, queda en <code>0700</code>: solo tu propio usuario puede entrar, ni siquiera el grupo.</p>
+
+  <p><strong>5. Agrega las dos carpetas nuevas a Samba</strong></p>
+  <p>Edita el mismo archivo que ya conoces de la Parte 3:</p>
+
+  <div class="term-block">
+    <div class="term-block-bar">
+      <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
+      <span style="margin-left:6px;">servidor</span>
+    </div>
+    <div class="term-block-body">
+      <div class="l"><span class="prompt">$</span> <span class="cmd">sudo nano /etc/samba/smb.conf</span></div>
+      <div class="l cm">// agrega estos dos bloques nuevos al final del archivo:</div>
+      <div class="l out">[Publico]</div>
+      <div class="l out">   path = /srv/discomecanico/Publico</div>
+      <div class="l out">   valid users = @compartido</div>
+      <div class="l out">   read only = No</div>
+      <div class="l out">   create mask = 0660</div>
+      <div class="l out">   directory mask = 2770</div>
+      <div class="l out"></div>
+      <div class="l out">[Privado]</div>
+      <div class="l out">   path = /srv/discomecanico/Privado</div>
+      <div class="l out">   valid users = victor</div>
+      <div class="l out">   read only = No</div>
+      <div class="l"><span class="prompt">$</span> <span class="cmd">testparm</span></div>
+      <div class="l"><span class="prompt">$</span> <span class="cmd">sudo systemctl restart smbd</span></div>
+    </div>
+  </div>
+
+  <p>El <code>@</code> antes de <code>compartido</code> le dice a Samba "cualquier usuario que pertenezca a este grupo de Linux", en vez de nombrar personas una por una. Como ya restringiste el acceso por permisos de Linux en el paso anterior, esta línea es la capa de Samba que refuerza exactamente lo mismo. Corre <code>testparm</code> antes de reiniciar — si hay un error de sintaxis en lo que escribiste, te lo va a señalar ahí, sin haber roto nada todavía.</p>
+
+  <div class="concept">
+    <h4>📁 Cómo queda organizado, en resumen</h4>
+    <p><code>Archivos</code> (la Parte 3, en tu SSD) sigue siendo solo tuya. En el disco nuevo, <code>Publico</code> la ven y la usan todos los usuarios del grupo <code>compartido</code> — ideal para música, fotos familiares o videos que quieres que cualquiera en tu casa pueda abrir. <code>Privado</code> solo la ves tú, aunque esté físicamente en el mismo disco de 1 TB. Los tres recursos van a aparecer por separado al explorar el servidor desde cualquiera de tus dispositivos, exactamente como en la Parte 4.</p>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 ¿Por qué sigo viendo "Privado" en la lista si es solo mía?</h4>
+    <p>Es normal — <code>valid users = victor</code> controla <strong>quién puede entrar</strong>, no quién puede <strong>ver que existe</strong> en la lista de recursos. Cuando navegas a <code>smb://tu-ip</code> conectado con tu propio usuario, vas a seguir viendo <code>Privado</code> ahí listada porque eres precisamente el usuario autorizado — eso es lo esperado, no un error. Lo que sí importa es que <strong>otra persona</strong>, conectada con un usuario distinto al tuyo, no pueda entrar aunque la vea listada (le va a pedir credenciales y las va a rechazar).</p>
+    <p style="margin-top:.6rem;">Si además quieres que <code>Privado</code> ni siquiera aparezca en la lista de recursos al navegar (para ti tampoco, aunque tú sí podrías seguir accediendo escribiendo la ruta completa a mano), agrega esta línea dentro del bloque <code>[Privado]</code> de <code>smb.conf</code>:</p>
+    <div class="term-block" style="margin-top:.75rem;">
+      <div class="term-block-bar">
+        <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
+        <span style="margin-left:6px;">nano — dentro de /etc/samba/smb.conf</span>
+      </div>
+      <div class="term-block-body">
+        <div class="l out">[Privado]</div>
+        <div class="l out">   path = /srv/discomecanico/Privado</div>
+        <div class="l out">   valid users = victor</div>
+        <div class="l out">   read only = No</div>
+        <div class="l out">   browseable = no</div>
+      </div>
+    </div>
+    <p style="margin-top:.6rem;"><code>browseable = no</code> saca ese recurso del listado que se ve al explorar el servidor, aunque el acceso sigue funcionando igual si escribes la ruta completa (<code>smb://tu-ip/Privado</code>) directamente en tu explorador de archivos. Después de agregar la línea, guarda con <code>Ctrl+O</code> y <code>Ctrl+X</code>, y aplica el cambio con:</p>
+    <div class="term-block" style="margin-top:.75rem;">
+      <div class="term-block-bar">
+        <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
+        <span style="margin-left:6px;">servidor</span>
+      </div>
+      <div class="term-block-body">
+        <div class="l"><span class="prompt">$</span> <span class="cmd">testparm</span></div>
+        <div class="l"><span class="prompt">$</span> <span class="cmd">sudo systemctl restart smbd</span></div>
+      </div>
+    </div>
+  </div>
+
+  <p><strong>6. Si quieres agregar a otras personas de tu casa</strong></p>
+  <p>Por ahora <code>victor</code> (tu propio usuario) es el único que pertenece al grupo <code>compartido</code>, así que la carpeta pública solo la ves tú. Si más adelante quieres que otra persona de tu casa también tenga acceso a <code>Publico</code> (pero no necesariamente a controlar el servidor por SSH), créale una cuenta limitada solo para Samba:</p>
+
+  <div class="term-block">
+    <div class="term-block-bar">
+      <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
+      <span style="margin-left:6px;">servidor</span>
+    </div>
+    <div class="term-block-body">
+      <div class="l"><span class="prompt">$</span> <span class="cmd">sudo useradd -M -s /usr/sbin/nologin nuevo_usuario</span></div>
+      <div class="l"><span class="prompt">$</span> <span class="cmd">sudo smbpasswd -a nuevo_usuario</span></div>
+      <div class="l"><span class="prompt">$</span> <span class="cmd">sudo usermod -aG compartido nuevo_usuario</span></div>
+    </div>
+  </div>
+
+  <p><code>-M</code> significa que no se le crea una carpeta personal en <code>/home</code>, y <code>-s /usr/sbin/nologin</code> significa que esa cuenta nunca va a poder abrir una terminal ni conectarse por SSH — solo sirve para autenticarse contra Samba. Es la forma correcta de darle acceso a la carpeta compartida a alguien sin darle control del servidor.</p>
+
+  <div class="warn">
+    <h4>⚠️ No necesitas abrir ninguna regla nueva del firewall</h4>
+    <p>Las carpetas <code>Publico</code> y <code>Privado</code> viajan por el mismo Samba de siempre, en el mismo puerto que ya permitiste con <code>sudo ufw allow samba</code> en la Parte 3. No hay nada que tocar en <code>ufw</code> para esto.</p>
+  </div>
+
+  <div class="concept">
+    <h4>👥 La regla general: quién ve qué, carpeta por carpeta</h4>
+    <p>Ya tienes el patrón completo montado, aunque no lo hayas notado: cada bloque de <code>smb.conf</code> (<code>[Publico]</code>, <code>[Privado]</code>, o cualquiera que agregues después) tiene su propia línea <code>valid users</code>, independiente de las demás. Esa línea es la que decide quién entra a <em>esa</em> carpeta en particular — no existe un "acceso general" al servidor, cada recurso se controla por separado.</p>
+    <p style="margin-top:.6rem;">Tienes dos formas de escribir esa línea:</p>
+    <p style="margin-top:.6rem;"><strong>Por grupo</strong> — como ya usas en <code>Publico</code> con <code>valid users = @compartido</code>: cualquier usuario que metas a ese grupo con <code>usermod -aG</code> gana acceso automáticamente, sin tocar <code>smb.conf</code> de nuevo. Es lo más práctico cuando el acceso es "todos los que están en este grupo".</p>
+    <p style="margin-top:.6rem;"><strong>Por usuario específico</strong> — como ya usas en <code>Privado</code> con <code>valid users = victor</code>: puedes listar varios nombres separados por coma, sin necesidad de crear un grupo. Por ejemplo, si mañana quieres una tercera carpeta que solo vean tú y una persona en particular (pero nadie más del grupo <code>compartido</code>), el bloque quedaría así:</p>
+    <div class="term-block" style="margin-top:.75rem;">
+      <div class="term-block-bar">
+        <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
+        <span style="margin-left:6px;">dentro de /etc/samba/smb.conf</span>
+      </div>
+      <div class="term-block-body">
+        <div class="l out">[Familia]</div>
+        <div class="l out">   path = /srv/discomecanico/Familia</div>
+        <div class="l out">   valid users = victor, maria</div>
+        <div class="l out">   read only = No</div>
+      </div>
+    </div>
+    <p style="margin-top:.6rem;">En resumen: para decidir qué ve cada persona, la pregunta es siempre "¿en qué línea <code>valid users</code>, de qué carpeta, está su nombre (o el grupo al que pertenece)?" — eso es lo único que Samba revisa antes de dejarla entrar.</p>
+  </div>
+</section>
+
+<!-- SIGUIENTES NIVELES -->
+<section class="module" id="siguientes-niveles">
+  <div class="module-header">
+    <div class="module-icon">🚀</div>
+    <div>
+      <div class="module-title">Hacia dónde seguir aprendiendo</div>
+      <div class="module-sub">Ideas para cuando quieras seguir creciendo este proyecto — no es necesario hacerlas todas, ni pronto</div>
+    </div>
+  </div>
+
+  <p>Con las cinco partes de esta guía ya tienes un servidor de archivos real, funcionando, seguro y con arranque automático. A partir de aquí, estos son temas interesantes para seguir explorando cuando te sientas listo:</p>
+
+  <ul>
+    <li><strong>Más usuarios y grupos:</strong> ya viste lo básico arriba en <a href="#segundo-disco">Añadir un segundo disco</a> — de aquí puedes seguir creando cuentas más específicas, por ejemplo una por cada persona de tu casa con su propia carpeta privada.</li>
+    <li><strong>Permisos avanzados de Linux:</strong> la notación <code>rwx</code> y los permisos numéricos (<code>chmod 755</code>) que ya usaste arriba, para profundizar en un control más fino todavía.</li>
+    <li><strong>Discos adicionales:</strong> si más adelante agregas un tercer disco o una caja externa, es el mismo procedimiento que ya hiciste con el disco mecánico de 1 TB.</li>
+    <li><strong>Copias de seguridad automatizadas:</strong> herramientas como <code>rsync</code> o <code>borgbackup</code> para respaldar el contenido de <code>/srv/archivos</code> a otro disco de forma programada, retomando la idea de la regla 3-2-1.</li>
+    <li><strong>Autenticación por llaves SSH:</strong> conectarte por SSH sin escribir contraseña cada vez, usando un par de llaves criptográficas — más cómodo y, bien configurado, más seguro que una contraseña.</li>
+    <li><strong>Servicios adicionales sobre la misma base:</strong> una vez que domines este flujo, programas como Jellyfin (streaming de tu propia biblioteca de video, con interfaz tipo Netflix) o software de gestión tipo NAS pueden vivir en el mismo servidor, reutilizando exactamente lo que ya aprendiste aquí sobre redes, usuarios y permisos.</li>
+    <li><strong>Contenedores con Docker:</strong> una forma moderna y muy popular de instalar y aislar servicios adicionales en un servidor casero, sin que interfieran entre sí.</li>
+  </ul>
+
+  <div class="tip">
+    <h4>🟢 No hay prisa</h4>
+    <p>El servidor que ya tienes funcionando es completamente útil tal cual está. Estos siguientes niveles son para cuando la curiosidad te lleve ahí — cada uno es, en el fondo, la misma lógica de este proyecto aplicada a un problema nuevo.</p>
+  </div>
+</section>
+
+<!-- GLOSARIO -->
+<section class="module" id="glosario">
+  <div class="module-header">
+    <div class="module-icon">📖</div>
+    <div>
+      <div class="module-title">Glosario</div>
+      <div class="module-sub">Términos nuevos de esta parte</div>
+    </div>
+  </div>
+
+  <dl class="glos">
+    <div class="glos-item"><dt>parted</dt><dd>Programa para crear y modificar tablas de particiones en un disco. No siempre viene preinstalado en Debian, así que a veces hay que instalarlo con <code>apt</code>.</dd></div>
+    <div class="glos-item"><dt>enabled</dt><dd>Que un servicio arranque automáticamente en cada inicio del sistema, sin intervención manual.</dd></div>
+    <div class="glos-item"><dt>TRIM</dt><dd>Una operación de mantenimiento que ayuda a los SSD a conservar su rendimiento con el tiempo.</dd></div>
+    <div class="glos-item"><dt>unattended-upgrades</dt><dd>Programa que instala automáticamente las actualizaciones de seguridad de Debian.</dd></div>
+    <div class="glos-item"><dt>Regla 3-2-1</dt><dd>Práctica de respaldo: 3 copias, en 2 medios distintos, con 1 copia fuera del lugar donde vives.</dd></div>
+    <div class="glos-item"><dt>Headless</dt><dd>Un servidor administrado completamente a distancia, sin monitor ni teclado conectados de forma permanente.</dd></div>
+    <div class="glos-item"><dt>Contenedor (Docker)</dt><dd>Una forma de empaquetar y aislar un programa junto con todo lo que necesita para funcionar, sin interferir con el resto del sistema.</dd></div>
+    <div class="glos-item"><dt>UUID</dt><dd>Un identificador único de un disco o partición que no cambia, a diferencia de nombres como <code>sdb1</code> que pueden variar según el orden de detección del hardware.</dd></div>
+    <div class="glos-item"><dt>/etc/fstab</dt><dd>El archivo de Debian que define qué discos se montan automáticamente, y en qué carpeta, cada vez que arranca el sistema.</dd></div>
+    <div class="glos-item"><dt>Grupo (Linux)</dt><dd>Una forma de agrupar varios usuarios para darles el mismo permiso sobre una carpeta o archivo, sin tener que nombrarlos uno por uno.</dd></div>
+    <div class="glos-item"><dt>Bit setgid</dt><dd>Un permiso especial de carpeta que hace que los archivos nuevos creados dentro hereden automáticamente el grupo de esa carpeta.</dd></div>
+  </dl>
+
+  <hr>
+
+  <p style="text-align:center; color: var(--muted); font-size: .9rem;">Con esto termina el proyecto "Servidor propio" — de una PC A6-5350 apagada en una esquina, a un servidor de archivos real, seguro y funcionando en tu red.</p>
+</section>
+
+</main>
+
+<footer>
+  Servidor propio · Parte 5 de 5 · un proyecto de Café &lt;/&gt;
+</footer>
+
+<script>
+  (function() {
+    var root = document.documentElement;
+    var icon = document.getElementById('themeIcon');
+    var label = document.getElementById('themeLabel');
+    var STORAGE_KEY = 'cafe-codigo-theme';
+
+    function applyTheme(theme) {
+      if (theme === 'dark') {
+        root.setAttribute('data-theme', 'dark');
+        icon.textContent = '☀️';
+        label.textContent = 'Modo claro';
+      } else {
+        root.removeAttribute('data-theme');
+        icon.textContent = '🌙';
+        label.textContent = 'Modo oscuro';
+      }
+    }
+
+    var saved = null;
+    try { saved = localStorage.getItem(STORAGE_KEY); } catch (e) {}
+
+    if (saved) {
+      applyTheme(saved);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      applyTheme('dark');
+    }
+
+    window.toggleTheme = function() {
+      var isDark = root.getAttribute('data-theme') === 'dark';
+      var next = isDark ? 'light' : 'dark';
+      applyTheme(next);
+      try { localStorage.setItem(STORAGE_KEY, next); } catch (e) {}
+    };
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux desde Cero · N21 · Seguridad</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root,[data-theme="light"]{--primary:#c44a2a;--primary-light:#fdf0ec;--primary-mid:rgba(196,74,42,.25);--secondary:#1a7a5a;--secondary-light:#edf7f3;--accent:#b07010;--accent-light:#fdf6e8;--bg:#f7f4ef;--surface:#ffffff;--text:#1a1814;--muted:#8a8480;--border:#e8e4de;--code-bg:#1a1814;--code-text:#e8e4de;--header-bg:#1a1814;--analogy-bg:#fff7ed;--analogy-border:#fde68a;--analogy-text:#78350f;--analogy-head:#92400e;--diagram-bg:#f0f4ff;--diagram-border:#c7d2fe;--note-bg:#f0f4ff;--note-border:#6366f1;--note-head:#4338ca;}
+[data-theme="dark"]{--primary:#ff7a57;--primary-light:rgba(255,122,87,.14);--primary-mid:rgba(255,122,87,.3);--secondary:#3ddc84;--secondary-light:rgba(61,220,132,.12);--accent:#f0c040;--accent-light:rgba(240,192,64,.12);--bg:#0d1117;--surface:#161b22;--text:#c9d8f0;--muted:#5a7090;--border:#21262d;--code-bg:#060a10;--code-text:#c9d8f0;--header-bg:#0a0e14;--analogy-bg:rgba(240,192,64,.07);--analogy-border:rgba(240,192,64,.3);--analogy-text:#e6d4a0;--analogy-head:#f0c040;--diagram-bg:#161b22;--diagram-border:#21262d;--note-bg:rgba(99,102,241,.1);--note-border:#818cf8;--note-head:#818cf8;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;font-size:16px;transition:background .25s,color .25s;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:300;height:45px;}
+.topbar-back{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);text-decoration:none;padding:5px 14px;border:1px solid var(--border);border-radius:999px;transition:all .15s;}
+.topbar-back:hover{color:var(--text);border-color:var(--muted);}
+.topbar-info{font-size:13px;color:var(--muted);}
+.theme-btn{margin-left:auto;background:none;border:1px solid var(--border);border-radius:999px;padding:4px 13px;font-size:13px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:.35rem;transition:all .15s;font-family:'DM Sans',sans-serif;}
+.theme-btn:hover{color:var(--text);border-color:var(--muted);}
+header{background:var(--header-bg);color:#f7f4ef;padding:3rem 2rem 2.25rem;text-align:center;position:relative;overflow:hidden;}
+header::before{content:'N21';position:absolute;font-family:'DM Mono',monospace;font-size:11rem;font-weight:900;color:rgba(255,255,255,.04);right:-1rem;top:-1.5rem;line-height:1;pointer-events:none;}
+.header-eyebrow{display:inline-flex;align-items:center;gap:.5rem;background:rgba(196,74,42,.25);border:1px solid rgba(196,74,42,.45);border-radius:20px;padding:3px 14px;font-size:.78rem;font-weight:700;color:#ffaa88;margin-bottom:.85rem;}
+header h1{font-size:2.5rem;font-weight:800;letter-spacing:-1px;color:#f7f4ef;line-height:1.2;}
+header h1 em{font-style:normal;color:#ff8a6a;}
+header p{font-size:1.05rem;opacity:.8;margin-top:.5rem;max-width:560px;margin-left:auto;margin-right:auto;}
+.header-chips{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-top:.9rem;}
+.header-chip{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:20px;padding:3px 13px;font-size:.76rem;color:rgba(255,255,255,.75);}
+.niveles-nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:45px;z-index:110;display:flex;align-items:center;height:38px;padding:0 1rem;}
+.nn-prev,.nn-next{flex-shrink:0;display:flex;align-items:center;gap:.3rem;padding:0 .75rem;height:100%;text-decoration:none;color:var(--muted);font-size:.78rem;font-weight:500;border-right:1px solid var(--border);transition:color .15s;white-space:nowrap;}
+.nn-next{border-right:none;border-left:1px solid var(--border);}
+.nn-prev:hover,.nn-next:hover{color:var(--primary);}
+.nn-list{flex:1;display:flex;align-items:center;justify-content:center;gap:.15rem;overflow-x:auto;padding:0 .5rem;}
+.nn-list::-webkit-scrollbar{display:none;}
+.nn-list a{flex-shrink:0;padding:2px 9px;border-radius:20px;text-decoration:none;font-size:.73rem;font-weight:600;color:var(--muted);font-family:'DM Mono',monospace;transition:color .15s,background .15s;}
+.nn-list a:hover{color:var(--text);background:var(--bg);}
+.nn-list a.activa{background:var(--primary-light);color:var(--primary);}
+.nn-list .sep{color:var(--border);font-size:.7rem;padding:0 1px;flex-shrink:0;pointer-events:none;}
+.sec-nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:83px;z-index:100;display:flex;overflow-x:auto;}
+.sec-nav::-webkit-scrollbar{display:none;}
+.sec-nav a{flex-shrink:0;padding:.75rem 1.1rem;text-decoration:none;color:var(--muted);font-size:.82rem;font-weight:500;border-bottom:2px solid transparent;white-space:nowrap;transition:color .2s,border-color .2s;}
+.sec-nav a:hover{color:var(--primary);border-bottom-color:var(--primary);}
+main{max-width:920px;margin:0 auto;padding:2rem 1.5rem;}
+.nivel-badge{display:inline-flex;align-items:center;gap:.5rem;background:var(--primary);color:white;border-radius:20px;padding:5px 16px;font-size:.82rem;font-weight:700;margin-bottom:1.75rem;}
+.module{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;margin-bottom:2.5rem;scroll-margin-top:135px;transition:background .25s,border-color .25s;}
+.module-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border);}
+.module-icon{font-size:1.8rem;flex-shrink:0;}
+.module-title{font-size:1.35rem;font-weight:700;}
+.module-sub{font-size:.85rem;color:var(--muted);margin-top:2px;}
+.module h2{font-size:1.15rem;font-weight:700;margin:1.75rem 0 .75rem;}
+.module p{margin-bottom:.85rem;font-size:.97rem;}
+.module ul,.module ol{padding-left:1.4rem;margin-bottom:.85rem;}
+.module li{margin-bottom:.4rem;font-size:.96rem;}
+.analogy{background:var(--analogy-bg);border:1px solid var(--analogy-border);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0;}
+.analogy h4{color:var(--analogy-head);font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+.analogy p{font-size:.95rem;color:var(--analogy-text);margin:0;}
+.concept,.tip,.warn,.note{border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0;border-left-width:4px;border-left-style:solid;}
+.concept h4,.tip h4,.warn h4,.note h4{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+.concept p,.tip p,.warn p,.note p{font-size:.95rem;margin:0;}
+.tip ul{font-size:.95rem;padding-left:1.2rem;margin-top:.3rem;}
+.concept{background:var(--primary-light);border-color:var(--primary);}.concept h4{color:var(--primary);}
+.tip{background:var(--secondary-light);border-color:var(--secondary);}.tip h4{color:var(--secondary);}
+.warn{background:var(--primary-light);border-color:var(--primary);}.warn h4{color:var(--primary);}
+.note{background:var(--note-bg);border-color:var(--note-border);}.note h4{color:var(--note-head);}
+.terminal{background:#0a0e14;border:1px solid #21262d;border-radius:10px;overflow:hidden;margin:1rem 0;}
+.term-bar{background:#161b22;padding:.42rem .85rem;display:flex;align-items:center;gap:.35rem;border-bottom:1px solid #21262d;}
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.dot-r{background:#ff5f57;}.dot-y{background:#ffbd2e;}.dot-g{background:#28c840;}
+.term-label{font-family:'DM Mono',monospace;font-size:.69rem;color:#3a5070;margin-left:.4rem;}
+.term-body{padding:1.1rem 1.3rem;font-family:'DM Mono',monospace;font-size:.85rem;line-height:2.1;color:#c9d8f0;}
+.t-p{color:#3ddc84;}.t-o{color:#5a7090;display:block;}.t-h{color:#253550;font-style:italic;display:block;}
+.diagram{background:var(--diagram-bg);border:1px solid var(--diagram-border);border-radius:12px;padding:1.5rem;margin:1.1rem 0;font-family:'DM Mono',monospace;font-size:.87rem;line-height:2;overflow-x:auto;}
+.d-r{color:var(--primary);font-weight:700;}.d-g{color:var(--secondary);font-weight:700;}.d-y{color:var(--accent);font-weight:700;}.d-b{color:#6366f1;font-weight:700;}.d-m{color:var(--muted);font-style:italic;}
+.tbl{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem;}
+.tbl th{background:var(--primary-light);color:var(--primary);padding:.65rem 1rem;text-align:left;font-weight:600;}
+.tbl td{padding:.65rem 1rem;border-bottom:1px solid var(--border);vertical-align:top;}
+.tbl td:first-child{font-family:'DM Mono',monospace;font-size:.85rem;color:var(--primary);font-weight:600;}
+.tbl tr:hover td{background:var(--bg);}
+.code-wrap{position:relative;margin:1rem 0;}
+.code-block{background:var(--code-bg);color:var(--code-text);border-radius:10px;padding:1.25rem 1.5rem;font-family:'DM Mono',monospace;font-size:.88rem;line-height:1.85;overflow-x:auto;white-space:pre;}
+.lang-tag{position:absolute;top:.6rem;right:.75rem;background:rgba(255,255,255,.1);color:rgba(255,255,255,.45);font-size:.68rem;padding:2px 8px;border-radius:4px;font-family:sans-serif;font-weight:700;}
+.ct{color:#89B4FA;}.cv{color:#A6E3A1;}.cs{color:#F9E2AF;}.cc{color:#585B70;font-style:italic;}.cn{color:#FAB387;}
+
+/* SECURITY CHECKLIST */
+.checklist{display:flex;flex-direction:column;gap:.5rem;margin:1rem 0;}
+.cl-item{display:flex;align-items:flex-start;gap:.85rem;padding:.8rem 1rem;border-radius:10px;border:1px solid var(--border);background:var(--bg);}
+.cl-icon{font-size:1.1rem;flex-shrink:0;margin-top:2px;}
+.cl-label{font-weight:700;font-size:.9rem;margin-bottom:2px;}
+.cl-desc{font-size:.82rem;color:var(--muted);line-height:1.5;}
+.cl-critical{border-left:3px solid var(--primary);}
+.cl-important{border-left:3px solid var(--accent);}
+.cl-good{border-left:3px solid var(--secondary);}
+
+/* UFW VISUAL */
+.ufw-rules{display:flex;flex-direction:column;gap:.4rem;margin:1rem 0;}
+.ur-row{display:flex;align-items:center;gap:.75rem;padding:.6rem 1rem;border-radius:8px;font-size:.87rem;}
+.ur-allow{background:var(--secondary-light);border:1px solid rgba(26,122,90,.25);}
+.ur-deny{background:var(--primary-light);border:1px solid rgba(196,74,42,.25);}
+.ur-badge{font-family:'DM Mono',monospace;font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:20px;flex-shrink:0;}
+.ur-allow .ur-badge{background:var(--secondary);color:white;}
+.ur-deny .ur-badge{background:var(--primary);color:white;}
+.ur-desc{color:var(--muted);font-size:.83rem;}
+
+/* CMD GRID */
+.cmd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:.75rem;margin:1rem 0;}
+.cmd-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1rem;}
+.cmd-title{font-family:'DM Mono',monospace;font-size:.82rem;font-weight:700;color:var(--primary);margin-bottom:.3rem;}
+.cmd-desc{font-size:.83rem;color:var(--muted);margin-bottom:.5rem;}
+.cmd-ex{font-family:'DM Mono',monospace;font-size:.79rem;background:var(--code-bg);color:var(--code-text);padding:.45rem .75rem;border-radius:6px;display:block;}
+
+.ejercicio{background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:1.5rem;margin:1.5rem 0;}
+[data-theme="dark"] .ejercicio{background:rgba(240,192,64,.06);border-color:rgba(240,192,64,.22);}
+.ej-hd{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;font-weight:700;font-size:1rem;color:#78350F;flex-wrap:wrap;}
+[data-theme="dark"] .ej-hd{color:#f0c040;}
+.ej-badge{background:var(--accent);color:#fff;font-size:.68rem;padding:2px 9px;border-radius:20px;font-weight:700;text-transform:uppercase;}
+.ejercicio ol{padding-left:1.4rem;}
+.ejercicio ol li{margin-bottom:.6rem;font-size:.95rem;}
+.ejercicio p{font-size:.95rem;margin-bottom:.6rem;}
+.resumen{background:var(--primary-light);border:1px solid var(--primary-mid);border-radius:14px;padding:1.6rem;margin-bottom:1.5rem;}
+.resumen h3{color:var(--primary);margin-bottom:.75rem;font-size:1.05rem;}
+.resumen ul{padding-left:1.4rem;}
+.resumen li{font-size:.92rem;margin-bottom:.45rem;}
+.next-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem 1.5rem;display:flex;align-items:center;gap:1rem;text-decoration:none;transition:border-color .2s;margin-bottom:2rem;}
+.next-card:hover{border-color:var(--primary);}
+.nc-label{font-size:.72rem;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.2rem;}
+.nc-name{font-weight:700;color:var(--text);font-size:.97rem;}
+.nc-arrow{font-size:1.4rem;color:var(--primary);margin-left:auto;}
+code{font-family:'DM Mono',monospace;background:#f0ece6;color:var(--primary);padding:1px 5px;border-radius:4px;font-size:.9em;}
+[data-theme="dark"] code{background:#1c2128;}
+strong{font-weight:700;}
+p{margin-bottom:.8rem;}ul,ol{padding-left:1.4rem;margin-bottom:.8rem;}li{margin-bottom:.4rem;font-size:.96rem;}
+h2{font-size:1.2rem;font-weight:700;margin:1.75rem 0 .75rem;}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.85rem;border-top:1px solid var(--border);margin-top:1rem;background:var(--bg);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="topbar-back" href="../explorando-capitulos.html">← Explorando</a>
+  <span class="topbar-info">🐧 Linux desde Cero · Nivel 21 de 23</span>
+  <button class="theme-btn" onclick="toggleTheme()">
+    <span id="themeIcon">🌙</span><span id="themeLabel">Oscuro</span>
+  </button>
+</div>
+
+<header>
+  <div class="header-eyebrow">🛡️ Nivel 21 — Sistema</div>
+  <h1>Seguridad en <em>Linux</em></h1>
+  <p>sudo seguro, firewall UFW, fail2ban, actualizaciones, auditoría y sandboxing — los fundamentos de un sistema Linux seguro</p>
+  <div class="header-chips">
+    <span class="header-chip">Nivel 21 de 23</span>
+    <span class="header-chip">🛡️ Seguridad</span>
+    <span class="header-chip">8 subtemas</span>
+    <span class="header-chip">~30 min</span>
+  </div>
+</header>
+
+<div class="niveles-nav">
+  <a class="nn-prev" href="linux-nivel-20.html">← N20</a>
+  <div class="nn-list">
+    <a href="linux-nivel-01.html">N1</a><a href="linux-nivel-02.html">N2</a><a href="linux-nivel-03.html">N3</a>
+    <a href="linux-nivel-04.html">N4</a><a href="linux-nivel-05.html">N5</a><span class="sep">·</span>
+    <a href="linux-nivel-06.html">N6</a><a href="linux-nivel-07.html">N7</a><a href="linux-nivel-08.html">N8</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-09.html">N9</a><a href="linux-nivel-10.html">N10</a><a href="linux-nivel-11.html">N11</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-12.html">N12</a><a href="linux-nivel-13.html">N13</a><a href="linux-nivel-14.html">N14</a>
+    <a href="linux-nivel-15.html">N15</a><span class="sep">·</span>
+    <a href="linux-nivel-16.html">N16</a><a href="linux-nivel-17.html">N17</a><a href="linux-nivel-18.html">N18</a>
+    <a href="linux-nivel-19.html">N19</a><a href="linux-nivel-20.html">N20</a>
+    <a href="linux-nivel-21.html" class="activa">N21</a>
+    <a href="linux-nivel-22.html">N22</a><a href="linux-nivel-23.html">N23</a>
+  </div>
+  <a class="nn-next" href="linux-nivel-22.html">N22 →</a>
+</div>
+
+<nav class="sec-nav">
+  <a href="#principios">🧱 Principios</a>
+  <a href="#actualizaciones">🔄 Actualizaciones</a>
+  <a href="#sudo-seguro">🦸 sudo seguro</a>
+  <a href="#ssh-seguro">🔐 SSH seguro</a>
+  <a href="#ufw">🧱 UFW firewall</a>
+  <a href="#fail2ban">🚫 fail2ban</a>
+  <a href="#auditoria">🔍 Auditoría</a>
+  <a href="#sandboxing">📦 Sandboxing</a>
+  <a href="#ejercicio">✏️ Ejercicio</a>
+</nav>
+
+<main>
+<div class="nivel-badge">🛡️ Nivel 21 — Seguridad en Linux</div>
+
+
+<!-- PRINCIPIOS -->
+<section class="module" id="principios">
+  <div class="module-header">
+    <div class="module-icon">🧱</div>
+    <div>
+      <div class="module-title">Principios de seguridad en Linux</div>
+      <div class="module-sub">Los fundamentos que guían todas las decisiones de seguridad</div>
+    </div>
+  </div>
+
+  <p>La seguridad en Linux no es un producto que instalas — es una práctica continua basada en principios. Entenderlos te permite tomar buenas decisiones de seguridad en situaciones nuevas, no solo aplicar recetas.</p>
+
+  <div class="checklist">
+    <div class="cl-item cl-critical">
+      <div class="cl-icon">🎯</div>
+      <div>
+        <div class="cl-label">Principio de mínimo privilegio</div>
+        <div class="cl-desc">Cada proceso, usuario y servicio debe tener solo los permisos estrictamente necesarios para su función. Nada más. Un servidor web no necesita acceso a /home. Un script de backup no necesita sudo.</div>
+      </div>
+    </div>
+    <div class="cl-item cl-critical">
+      <div class="cl-icon">🔒</div>
+      <div>
+        <div class="cl-label">Defensa en profundidad</div>
+        <div class="cl-desc">No confíes en una sola capa de seguridad. Usa múltiples capas: firewall + autenticación por clave + fail2ban + actualizaciones + auditoría. Si una falla, las otras siguen protegiendo.</div>
+      </div>
+    </div>
+    <div class="cl-item cl-critical">
+      <div class="cl-icon">📦</div>
+      <div>
+        <div class="cl-label">Reducir la superficie de ataque</div>
+        <div class="cl-desc">Cada servicio que no necesitas es una puerta de entrada potencial. Desinstala software innecesario. Cierra puertos que no uses. Deshabilita servicios que no necesitas.</div>
+      </div>
+    </div>
+    <div class="cl-item cl-important">
+      <div class="cl-icon">🔄</div>
+      <div>
+        <div class="cl-label">Mantener el sistema actualizado</div>
+        <div class="cl-desc">La mayoría de los ataques explotan vulnerabilidades conocidas con parches disponibles. Actualizar regularmente es la medida de seguridad con mejor relación esfuerzo/resultado.</div>
+      </div>
+    </div>
+    <div class="cl-item cl-good">
+      <div class="cl-icon">📋</div>
+      <div>
+        <div class="cl-label">Auditar y monitorizar</div>
+        <div class="cl-desc">Lo que no se monitoriza, no se detecta. Los logs son tu fuente de verdad. Revisa auth.log regularmente. Configura alertas. Asume que intentarán entrar — prepárate para detectarlo.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <h4>🏰 Analogía — El castillo medieval</h4>
+    <p>Un sistema Linux seguro es como un castillo: tiene un <strong>foso</strong> (firewall — impide llegar a las puertas), <strong>puertas con guardia</strong> (SSH con claves — solo entran los autorizados), <strong>vigilantes en las torres</strong> (fail2ban — detectan ataques repetidos), <strong>diferentes salas con llave</strong> (permisos — cada habitante accede solo a su área) y un <strong>libro de visitas</strong> (logs de auditoría — queda registro de todo). Si una puerta cede, las demás siguen protegiendo.</p>
+  </div>
+</section>
+
+
+<!-- ACTUALIZACIONES -->
+<section class="module" id="actualizaciones">
+  <div class="module-header">
+    <div class="module-icon">🔄</div>
+    <div>
+      <div class="module-title">Actualizaciones de seguridad</div>
+      <div class="module-sub">La medida de seguridad más impactante y más fácil de implementar</div>
+    </div>
+  </div>
+
+  <p>La inmensa mayoría de los compromisos exitosos explotan vulnerabilidades conocidas para las que ya existe un parche. Mantener el sistema actualizado cierra esas puertas antes de que los atacantes las encuentren.</p>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">actualizaciones manuales y automáticas</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Actualización completa manual (Debian/Ubuntu)</span>
+<span class="t-p">$</span> sudo apt update && sudo apt upgrade -y && sudo apt autoremove -y
+
+<span class="t-h"># Ver qué actualizaciones de seguridad hay disponibles</span>
+<span class="t-p">$</span> sudo apt list --upgradable 2>/dev/null | grep -i security
+
+<span class="t-h"># unattended-upgrades — instalar automáticamente parches de seguridad</span>
+<span class="t-p">$</span> sudo apt install unattended-upgrades
+<span class="t-p">$</span> sudo dpkg-reconfigure --priority=low unattended-upgrades
+<span class="t-h"># Activa la descarga e instalación automática de parches de seguridad</span>
+
+<span class="t-h"># Ver configuración de unattended-upgrades</span>
+<span class="t-p">$</span> cat /etc/apt/apt.conf.d/50unattended-upgrades | grep -v "^//\|^$"
+
+<span class="t-h"># Ver historial de actualizaciones aplicadas</span>
+<span class="t-p">$</span> cat /var/log/unattended-upgrades/unattended-upgrades.log | tail -20
+
+<span class="t-h"># Verificar si el sistema necesita reiniciar tras una actualización</span>
+<span class="t-p">$</span> ls /var/run/reboot-required 2>/dev/null && echo "REINICIO NECESARIO" || echo "OK"
+
+<span class="t-h"># needrestart — detectar servicios que necesitan reiniciarse</span>
+<span class="t-p">$</span> sudo apt install needrestart
+<span class="t-p">$</span> sudo needrestart
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Actualizar el kernel requiere reiniciar</h4>
+    <p>Las actualizaciones de paquetes normales se aplican inmediatamente sin reiniciar. Las actualizaciones del <strong>kernel</strong> requieren reiniciar para que el nuevo kernel entre en efecto. Puedes verificar si hay un reinicio pendiente con <code>ls /var/run/reboot-required</code>. En servidores críticos, planifica ventanas de mantenimiento para los reinicios.</p>
+  </div>
+</section>
+
+
+<!-- SUDO SEGURO -->
+<section class="module" id="sudo-seguro">
+  <div class="module-header">
+    <div class="module-icon">🦸</div>
+    <div>
+      <div class="module-title">sudo seguro — mínimo privilegio en práctica</div>
+      <div class="module-sub">Configurar sudo correctamente para limitar el daño potencial</div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">sudo — buenas prácticas de seguridad</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Ver el log de sudo — quién usó sudo y qué ejecutó</span>
+<span class="t-p">$</span> sudo cat /var/log/auth.log | grep sudo | tail -20
+<span class="t-o">jan 15 10:23:45 ubuntu sudo: hugo : TTY=pts/0 ; COMMAND=/usr/bin/apt update</span>
+<span class="t-o">jan 15 10:24:01 ubuntu sudo: hugo : TTY=pts/0 ; COMMAND=/usr/bin/apt upgrade</span>
+
+<span class="t-h"># Limitar lo que puede hacer un usuario con sudo (en /etc/sudoers via visudo)</span>
+<span class="t-h"># Ejemplo: el usuario 'deploy' solo puede reiniciar nginx y node</span>
+<span class="t-p">$</span> sudo visudo
+<span class="t-h"># Añadir:</span>
+<span class="t-h"># deploy ALL=(ALL) NOPASSWD: /bin/systemctl restart nginx, /bin/systemctl restart node-app</span>
+
+<span class="t-h"># Reducir el timeout de sudo (por defecto 15 minutos)</span>
+<span class="t-h"># En /etc/sudoers:</span>
+<span class="t-h"># Defaults timestamp_timeout=5     → pide contraseña cada 5 minutos</span>
+<span class="t-h"># Defaults timestamp_timeout=0     → pide contraseña cada vez</span>
+
+<span class="t-h"># Ver qué usuarios tienen acceso sudo</span>
+<span class="t-p">$</span> grep -E '^sudo' /etc/group
+<span class="t-o">sudo:x:27:hugo</span>
+
+<span class="t-h"># Ver todos los archivos de sudoers</span>
+<span class="t-p">$</span> ls /etc/sudoers.d/
+
+<span class="t-h"># Revocar acceso sudo a un usuario</span>
+<span class="t-p">$</span> sudo gpasswd -d usuario sudo
+
+<span class="t-h"># Invalidar el caché de sudo (obliga a pedir contraseña de nuevo)</span>
+<span class="t-p">$</span> sudo -k
+    </div>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ NOPASSWD — con moderación</h4>
+    <p><code>NOPASSWD</code> en sudoers permite ejecutar comandos como root sin contraseña. Es útil para scripts de despliegue automático, pero peligroso si se abusa: cualquier proceso que se ejecute como ese usuario puede escalar a root sin barreras. Úsalo solo para comandos específicos y bien delimitados, nunca para <code>ALL</code>.</p>
+  </div>
+</section>
+
+
+<!-- SSH SEGURO -->
+<section class="module" id="ssh-seguro">
+  <div class="module-header">
+    <div class="module-icon">🔐</div>
+    <div>
+      <div class="module-title">SSH seguro — endurecer el acceso remoto</div>
+      <div class="module-sub">Las configuraciones de sshd_config que cierran las puertas más comunes</div>
+    </div>
+  </div>
+
+  <div class="code-wrap">
+    <div class="code-block"><span class="cc"># /etc/ssh/sshd_config — configuración de seguridad recomendada</span>
+
+<span class="cc"># 1. Deshabilitar login como root directamente</span>
+<span class="cv">PermitRootLogin</span> <span class="cs">no</span>
+
+<span class="cc"># 2. Deshabilitar autenticación por contraseña (solo claves)</span>
+<span class="cv">PasswordAuthentication</span> <span class="cs">no</span>
+<span class="cv">ChallengeResponseAuthentication</span> <span class="cs">no</span>
+
+<span class="cc"># 3. Cambiar el puerto por defecto (reduce el ruido de bots)</span>
+<span class="cv">Port</span> <span class="cn">2222</span>   <span class="cc"># cambia el 22 a otro número</span>
+
+<span class="cc"># 4. Limitar los usuarios que pueden hacer SSH</span>
+<span class="cv">AllowUsers</span> <span class="cs">hugo deploy</span>
+
+<span class="cc"># 5. Limitar los intentos de autenticación</span>
+<span class="cv">MaxAuthTries</span> <span class="cn">3</span>
+
+<span class="cc"># 6. Desconectar sesiones inactivas</span>
+<span class="cv">ClientAliveInterval</span> <span class="cn">300</span>
+<span class="cv">ClientAliveCountMax</span> <span class="cn">2</span>
+
+<span class="cc"># 7. Usar solo protocolo SSH v2 (v1 tiene vulnerabilidades conocidas)</span>
+<span class="cv">Protocol</span> <span class="cn">2</span>
+
+<span class="cc"># Después de editar, validar la configuración y reiniciar</span>
+<span class="cc"># $ sudo sshd -t && sudo systemctl restart sshd</span></div>
+    <div class="lang-tag">SSHD_CONFIG</div>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">aplicar y verificar la configuración SSH</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Validar la configuración antes de reiniciar (evita quedar sin acceso)</span>
+<span class="t-p">$</span> sudo sshd -t
+<span class="t-h"># Si no da error → la configuración es válida</span>
+
+<span class="t-h"># Reiniciar SSH con la nueva configuración</span>
+<span class="t-p">$</span> sudo systemctl restart sshd
+
+<span class="t-h"># Ver intentos de login fallidos (ataques de fuerza bruta)</span>
+<span class="t-p">$</span> sudo grep "Failed password" /var/log/auth.log | tail -20
+<span class="t-o">jan 15 03:45:12 ubuntu sshd: Failed password for root from 185.234.218.47</span>
+<span class="t-o">jan 15 03:45:14 ubuntu sshd: Failed password for root from 185.234.218.47</span>
+
+<span class="t-h"># Ver las IPs que más intentan entrar</span>
+<span class="t-p">$</span> sudo grep "Failed password" /var/log/auth.log | awk '{print $11}' | sort | uniq -c | sort -rn | head -10
+
+<span class="t-h"># Ver logins exitosos</span>
+<span class="t-p">$</span> sudo grep "Accepted" /var/log/auth.log | tail -10
+<span class="t-o">jan 15 10:30:22 ubuntu sshd: Accepted publickey for hugo from 192.168.1.50</span>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>💡 El orden de operaciones para endurecer SSH</h4>
+    <p>Hay un orden crítico al endurecer SSH: primero genera y copia las claves SSH, verifica que puedes conectarte sin contraseña, y SOLO ENTONCES desactiva <code>PasswordAuthentication</code>. Si lo haces al revés y algo falla con las claves, te quedas sin acceso al servidor. Mantén siempre una segunda sesión SSH abierta mientras haces cambios para poder revertir si algo sale mal.</p>
+  </div>
+</section>
+
+
+<!-- UFW -->
+<section class="module" id="ufw">
+  <div class="module-header">
+    <div class="module-icon">🧱</div>
+    <div>
+      <div class="module-title">UFW — firewall sencillo para Linux</div>
+      <div class="module-sub">Uncomplicated Firewall — la interfaz amigable sobre iptables</div>
+    </div>
+  </div>
+
+  <p><strong>UFW</strong> (Uncomplicated Firewall) es la interfaz más amigable para gestionar el firewall de Linux. Por debajo usa <code>iptables</code> o <code>nftables</code>, pero con una sintaxis legible y sencilla. Es el estándar en Ubuntu y Debian.</p>
+
+  <div class="analogy">
+    <h4>🚨 Analogía — El portero del club</h4>
+    <p>UFW es el portero de tu servidor. Tiene una lista de quién puede entrar (reglas ALLOW) y una lista negra (reglas DENY). Por defecto, el portero es muy restrictivo: nadie entra a menos que esté en la lista blanca. Tú defines las reglas: "dejar pasar solo por las puertas 22 (SSH), 80 (web) y 443 (web segura) — las demás puertas permanecen cerradas".</p>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">UFW — instalación, configuración y reglas</span>
+    </div>
+    <div class="term-body">
+<span class="t-h">## INSTALACIÓN Y ACTIVACIÓN</span>
+<span class="t-p">$</span> sudo apt install ufw
+
+<span class="t-h"># ANTES de activar, permite SSH para no quedarte bloqueado</span>
+<span class="t-p">$</span> sudo ufw allow ssh              <span class="t-h"># = allow 22/tcp</span>
+<span class="t-p">$</span> sudo ufw enable                 <span class="t-h"># activa el firewall</span>
+<span class="t-o">Command may disrupt existing ssh connections. Proceed with operation (y|n)? y</span>
+<span class="t-o">Firewall is active and enabled on system startup</span>
+
+<span class="t-h">## VER ESTADO Y REGLAS</span>
+<span class="t-p">$</span> sudo ufw status verbose
+<span class="t-o">Status: active</span>
+<span class="t-o">Default: deny (incoming), allow (outgoing), disabled (routed)</span>
+<span class="t-o">To                         Action      From</span>
+<span class="t-o">22/tcp                     ALLOW IN    Anywhere</span>
+<span class="t-o">80/tcp                     ALLOW IN    Anywhere</span>
+<span class="t-o">443/tcp                    ALLOW IN    Anywhere</span>
+
+<span class="t-h">## AÑADIR REGLAS</span>
+<span class="t-p">$</span> sudo ufw allow 80/tcp           <span class="t-h"># HTTP</span>
+<span class="t-p">$</span> sudo ufw allow 443/tcp          <span class="t-h"># HTTPS</span>
+<span class="t-p">$</span> sudo ufw allow 'Nginx Full'     <span class="t-h"># perfil de app (80 + 443)</span>
+<span class="t-p">$</span> sudo ufw allow from 192.168.1.0/24 to any port 5432  <span class="t-h"># PostgreSQL solo LAN</span>
+<span class="t-p">$</span> sudo ufw deny 3306              <span class="t-h"># bloquear MySQL desde el exterior</span>
+
+<span class="t-h">## ELIMINAR REGLAS</span>
+<span class="t-p">$</span> sudo ufw status numbered        <span class="t-h"># ver reglas numeradas</span>
+<span class="t-p">$</span> sudo ufw delete 3               <span class="t-h"># eliminar regla número 3</span>
+<span class="t-p">$</span> sudo ufw delete allow 80/tcp    <span class="t-h"># eliminar por nombre</span>
+
+<span class="t-h">## LIMITAR UN PUERTO (protección básica anti-bruteforce)</span>
+<span class="t-p">$</span> sudo ufw limit ssh              <span class="t-h"># bloquea IP tras 6 intentos en 30s</span>
+
+<span class="t-h">## DESACTIVAR Y RESETEAR</span>
+<span class="t-p">$</span> sudo ufw disable                <span class="t-h"># desactivar el firewall</span>
+<span class="t-p">$</span> sudo ufw reset                  <span class="t-h"># eliminar todas las reglas</span>
+    </div>
+  </div>
+
+  <div class="ufw-rules">
+    <div class="ur-row ur-allow">
+      <span class="ur-badge">ALLOW</span>
+      <span>22/tcp (SSH)</span>
+      <span class="ur-desc">— acceso remoto a administración</span>
+    </div>
+    <div class="ur-row ur-allow">
+      <span class="ur-badge">ALLOW</span>
+      <span>80/tcp (HTTP)</span>
+      <span class="ur-desc">— servidor web</span>
+    </div>
+    <div class="ur-row ur-allow">
+      <span class="ur-badge">ALLOW</span>
+      <span>443/tcp (HTTPS)</span>
+      <span class="ur-desc">— servidor web seguro</span>
+    </div>
+    <div class="ur-row ur-deny">
+      <span class="ur-badge">DENY</span>
+      <span>3306/tcp (MySQL)</span>
+      <span class="ur-desc">— base de datos solo accesible localmente</span>
+    </div>
+    <div class="ur-row ur-deny">
+      <span class="ur-badge">DENY</span>
+      <span>Todo lo demás</span>
+      <span class="ur-desc">— política por defecto: deny incoming</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- FAIL2BAN -->
+<section class="module" id="fail2ban">
+  <div class="module-header">
+    <div class="module-icon">🚫</div>
+    <div>
+      <div class="module-title">fail2ban — banear IPs atacantes automáticamente</div>
+      <div class="module-sub">Detección de ataques de fuerza bruta y bloqueo automático</div>
+    </div>
+  </div>
+
+  <p><strong>fail2ban</strong> monitoriza los logs del sistema en tiempo real. Cuando detecta un número excesivo de intentos fallidos de autenticación desde una IP, la bloquea automáticamente con iptables/UFW durante un tiempo configurable.</p>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">fail2ban — instalación y configuración</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Instalar fail2ban</span>
+<span class="t-p">$</span> sudo apt install fail2ban
+<span class="t-p">$</span> sudo systemctl enable --now fail2ban
+
+<span class="t-h"># Crear configuración personalizada (NUNCA editar jail.conf directamente)</span>
+<span class="t-p">$</span> sudo cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local
+<span class="t-p">$</span> sudo nano /etc/fail2ban/jail.local
+    </div>
+  </div>
+
+  <div class="code-wrap">
+    <div class="code-block"><span class="cc"># /etc/fail2ban/jail.local — configuración recomendada</span>
+
+[DEFAULT]
+<span class="cv">bantime</span>  = <span class="cn">1h</span>       <span class="cc"># banear por 1 hora</span>
+<span class="cv">findtime</span> = <span class="cn">10m</span>      <span class="cc"># ventana de detección: 10 minutos</span>
+<span class="cv">maxretry</span> = <span class="cn">5</span>        <span class="cc"># 5 intentos fallidos → ban</span>
+<span class="cv">ignoreip</span> = <span class="cs">127.0.0.1/8 192.168.1.0/24</span>   <span class="cc"># nunca banear localhost ni LAN</span>
+
+<span class="cc"># Activar protección para SSH</span>
+[sshd]
+<span class="cv">enabled</span>  = <span class="cs">true</span>
+<span class="cv">port</span>     = <span class="cs">ssh</span>
+<span class="cv">logpath</span>  = <span class="cs">%(sshd_log)s</span>
+<span class="cv">maxretry</span> = <span class="cn">3</span>      <span class="cc"># más estricto para SSH</span>
+<span class="cv">bantime</span>  = <span class="cn">24h</span>    <span class="cc"># 24 horas de ban</span>
+
+<span class="cc"># Protección para nginx (ataques a la web)</span>
+[nginx-http-auth]
+<span class="cv">enabled</span> = <span class="cs">true</span>
+
+[nginx-botsearch]
+<span class="cv">enabled</span>  = <span class="cs">true</span>
+<span class="cv">maxretry</span> = <span class="cn">2</span></div>
+    <div class="lang-tag">FAIL2BAN</div>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">fail2ban — monitorización y gestión de bans</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Ver el estado de todos los jails activos</span>
+<span class="t-p">$</span> sudo fail2ban-client status
+<span class="t-o">Status</span>
+<span class="t-o">|- Number of jail:      2</span>
+<span class="t-o">`- Jail list:   nginx-botsearch, sshd</span>
+
+<span class="t-h"># Ver IPs baneadas por el jail SSH</span>
+<span class="t-p">$</span> sudo fail2ban-client status sshd
+<span class="t-o">Status for the jail: sshd</span>
+<span class="t-o">|- Filter</span>
+<span class="t-o">|  |- Currently failed: 3</span>
+<span class="t-o">|  `- Total failed: 1247</span>
+<span class="t-o">`- Actions</span>
+<span class="t-o">   |- Currently banned: 12</span>
+<span class="t-o">   `- Banned IP list: 185.234.218.47 103.99.0.122 ...</span>
+
+<span class="t-h"># Desbanear una IP específica (si baneaste la tuya accidentalmente)</span>
+<span class="t-p">$</span> sudo fail2ban-client set sshd unbanip 192.168.1.50
+
+<span class="t-h"># Ver el log de fail2ban</span>
+<span class="t-p">$</span> sudo tail -f /var/log/fail2ban.log
+<span class="t-o">2025-01-15 03:45:14 INFO    [sshd] Ban 185.234.218.47</span>
+
+<span class="t-h"># Recargar configuración después de cambios</span>
+<span class="t-p">$</span> sudo systemctl restart fail2ban
+    </div>
+  </div>
+</section>
+
+
+<!-- AUDITORÍA -->
+<section class="module" id="auditoria">
+  <div class="module-header">
+    <div class="module-icon">🔍</div>
+    <div>
+      <div class="module-title">Auditoría del sistema — ¿qué ha pasado aquí?</div>
+      <div class="module-sub">Los logs de seguridad más importantes y cómo analizarlos</div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">logs de seguridad — análisis rápido</span>
+    </div>
+    <div class="term-body">
+<span class="t-h">## AUTH.LOG — el log de seguridad más importante</span>
+<span class="t-p">$</span> sudo tail -50 /var/log/auth.log
+
+<span class="t-h"># Intentos de login fallidos</span>
+<span class="t-p">$</span> sudo grep "Failed password" /var/log/auth.log | wc -l
+<span class="t-o">1247</span>
+<span class="t-h"># ¡1247 intentos! fail2ban los está bloqueando</span>
+
+<span class="t-h"># Logins exitosos — verificar que son todos legítimos</span>
+<span class="t-p">$</span> sudo grep "Accepted" /var/log/auth.log
+
+<span class="t-h"># Uso de sudo — auditar quién hizo qué como root</span>
+<span class="t-p">$</span> sudo grep "sudo:" /var/log/auth.log | grep -v "pam_\|session" | tail -20
+
+<span class="t-h"># Cuentas creadas/modificadas</span>
+<span class="t-p">$</span> sudo grep "useradd\|usermod\|groupadd" /var/log/auth.log
+
+<span class="t-h">## LAST — historial de logins</span>
+<span class="t-p">$</span> last | head -20            <span class="t-h"># últimos logins exitosos</span>
+<span class="t-p">$</span> lastb | head -20           <span class="t-h"># últimos logins fallidos</span>
+<span class="t-p">$</span> lastlog                    <span class="t-h"># último login de cada usuario</span>
+
+<span class="t-h">## WHO — quién está conectado AHORA</span>
+<span class="t-p">$</span> who
+<span class="t-p">$</span> w                          <span class="t-h"># más detallado — qué comando ejecuta cada usuario</span>
+
+<span class="t-h">## LYNIS — auditoría completa del sistema</span>
+<span class="t-p">$</span> sudo apt install lynis
+<span class="t-p">$</span> sudo lynis audit system    <span class="t-h"># análisis de seguridad completo</span>
+<span class="t-h"># Genera un informe con sugerencias de mejora de seguridad</span>
+<span class="t-h"># Hardening index: 0-100 (cuánto de seguro está el sistema)</span>
+    </div>
+  </div>
+
+  <div class="cmd-grid">
+    <div class="cmd-card">
+      <div class="cmd-title">rkhunter</div>
+      <div class="cmd-desc">Rootkit Hunter — busca rootkits, backdoors y archivos sospechosos en el sistema.</div>
+      <span class="cmd-ex">sudo apt install rkhunter
+sudo rkhunter --update
+sudo rkhunter --checkall</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">chkrootkit</div>
+      <div class="cmd-desc">Alternativa a rkhunter para detección de rootkits. Más simple y rápido.</div>
+      <span class="cmd-ex">sudo apt install chkrootkit
+sudo chkrootkit</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">auditd</div>
+      <div class="cmd-desc">El demonio de auditoría del kernel. Registra accesos a archivos, llamadas al sistema y cambios de privilegios.</div>
+      <span class="cmd-ex">sudo apt install auditd
+sudo auditctl -w /etc/passwd -p wa
+sudo ausearch -f /etc/passwd</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">debsums</div>
+      <div class="cmd-desc">Verifica la integridad de los archivos de paquetes instalados comparando con sus checksums originales.</div>
+      <span class="cmd-ex">sudo apt install debsums
+sudo debsums -c  # solo archivos modificados</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- SANDBOXING -->
+<section class="module" id="sandboxing">
+  <div class="module-header">
+    <div class="module-icon">📦</div>
+    <div>
+      <div class="module-title">Sandboxing — aislar lo que no confías</div>
+      <div class="module-sub">AppArmor, Firejail, namespaces y cómo Linux aísla procesos</div>
+    </div>
+  </div>
+
+  <p>El <strong>sandboxing</strong> aisla un proceso para que, si es comprometido, el daño se contenga. En lugar de confiar en que el software es perfecto, asumes que puede ser vulnerable y limitas lo que puede hacer incluso si lo explotan.</p>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">AppArmor y Firejail — sandboxing práctico</span>
+    </div>
+    <div class="term-body">
+<span class="t-h">## AppArmor — control de acceso obligatorio (MAC)</span>
+<span class="t-h"># Ubuntu lo incluye por defecto</span>
+<span class="t-p">$</span> sudo apt install apparmor-utils
+
+<span class="t-h"># Ver el estado de AppArmor</span>
+<span class="t-p">$</span> sudo aa-status
+<span class="t-o">apparmor module is loaded.</span>
+<span class="t-o">34 profiles are loaded.</span>
+<span class="t-o">34 profiles are in enforce mode.</span>
+<span class="t-o">   /usr/bin/evince</span>
+<span class="t-o">   /usr/sbin/nginx</span>
+
+<span class="t-h"># Ver qué perfil tiene un proceso</span>
+<span class="t-p">$</span> sudo aa-status | grep nginx
+<span class="t-h"># nginx tiene un perfil que limita qué archivos puede leer/escribir</span>
+
+<span class="t-h">## Firejail — sandbox para apps de escritorio</span>
+<span class="t-p">$</span> sudo apt install firejail
+
+<span class="t-h"># Ejecutar Firefox en sandbox (sin acceso a tu home completo)</span>
+<span class="t-p">$</span> firejail firefox
+<span class="t-p">$</span> firejail --private firefox     <span class="t-h"># home temporal y vacío</span>
+<span class="t-p">$</span> firejail --net=none firefox    <span class="t-h"># sin acceso a la red</span>
+
+<span class="t-h"># Ejecutar un script desconocido de forma segura</span>
+<span class="t-p">$</span> firejail --private --net=none bash script-sospechoso.sh
+
+<span class="t-h">## seccomp — filtrar llamadas al sistema (nivel kernel)</span>
+<span class="t-h"># Docker lo usa automáticamente para sus contenedores</span>
+<span class="t-h"># systemd lo soporta en los unit files:</span>
+<span class="t-h"># SystemCallFilter=@system-service  (en el [Service] del unit file)</span>
+
+<span class="t-h">## Namespaces — el corazón del aislamiento en contenedores</span>
+<span class="t-h"># Crear un proceso con su propio espacio de PIDs</span>
+<span class="t-p">$</span> unshare --fork --pid --mount-proc bash
+<span class="t-p">$</span> ps aux    <span class="t-h"># ¡solo ves los procesos de este namespace!</span>
+<span class="t-o">PID  USER  COMMAND</span>
+<span class="t-o">  1  hugo  bash</span>
+<span class="t-o">  2  hugo  ps aux</span>
+    </div>
+  </div>
+
+  <div class="note">
+    <h4>📌 Docker es sandboxing de alto nivel</h4>
+    <p>Los contenedores Docker usan exactamente estas tecnologías del kernel: <strong>namespaces</strong> para aislar PIDs, red, usuarios y sistema de archivos; <strong>cgroups</strong> para limitar CPU y RAM; y <strong>seccomp</strong> para filtrar syscalls. Cuando ejecutas <code>docker run</code>, el kernel crea un namespace completamente aislado del sistema host. Por eso Docker es tan popular en producción — combina aislamiento de seguridad con portabilidad.</p>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Mecanismo</th><th>Nivel</th><th>Uso típico</th></tr></thead>
+    <tbody>
+      <tr><td>AppArmor / SELinux</td><td>Kernel (MAC)</td><td>Perfiles para servicios del sistema: nginx, sshd, Firefox</td></tr>
+      <tr><td>Firejail</td><td>Userspace</td><td>Apps de escritorio no confiadas, scripts desconocidos</td></tr>
+      <tr><td>seccomp</td><td>Kernel (syscalls)</td><td>Filtrar syscalls peligrosas — Docker, Chrome lo usan</td></tr>
+      <tr><td>Namespaces</td><td>Kernel</td><td>Base de Docker y contenedores — aislamiento completo</td></tr>
+      <tr><td>cgroups</td><td>Kernel</td><td>Limitar recursos (CPU, RAM) — systemd y Docker lo usan</td></tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- EJERCICIO -->
+<div class="ejercicio" id="ejercicio">
+  <div class="ej-hd">
+    ✏️ Ejercicio del Nivel 21
+    <span class="ej-badge">Seguridad</span>
+  </div>
+  <p>Audita y refuerza la seguridad de tu sistema:</p>
+  <ol>
+    <li><strong>Actualizaciones:</strong> ejecuta <code>sudo apt update && sudo apt list --upgradable 2>/dev/null | wc -l</code>. ¿Cuántos paquetes tienen actualización disponible?</li>
+    <li><strong>Usuarios sudo:</strong> ejecuta <code>grep -E '^sudo' /etc/group</code>. ¿Quién tiene acceso sudo? ¿Hay usuarios inesperados?</li>
+    <li><strong>Intentos SSH:</strong> ejecuta <code>sudo grep "Failed password" /var/log/auth.log 2>/dev/null | wc -l</code>. ¿Cuántos intentos fallidos hay?</li>
+    <li><strong>UFW:</strong> instala y activa UFW: <code>sudo apt install ufw && sudo ufw allow ssh && sudo ufw enable</code>. Luego <code>sudo ufw status</code>.</li>
+    <li><strong>fail2ban:</strong> instala fail2ban y verifica que está activo: <code>sudo apt install fail2ban && sudo fail2ban-client status</code>.</li>
+    <li><strong>Logins:</strong> ejecuta <code>last | head -10</code> y <code>lastlog | grep -v "Never"</code>. ¿Ves solo tus propios logins?</li>
+    <li><strong>AppArmor:</strong> ejecuta <code>sudo aa-status | head -10</code>. ¿Cuántos perfiles están en enforce mode?</li>
+  </ol>
+  <p><strong>Auditoría con Lynis:</strong> <code>sudo apt install lynis && sudo lynis audit system 2>&1 | tail -30</code>. ¿Cuál es tu Hardening Index? ¿Qué sugerencias da?</p>
+</div>
+
+<!-- RESUMEN -->
+<div class="resumen">
+  <h3>🟥 Resumen del Nivel 21</h3>
+  <ul>
+    <li>Principios: <strong>mínimo privilegio</strong>, <strong>defensa en profundidad</strong>, <strong>reducir superficie de ataque</strong> y mantener el sistema actualizado.</li>
+    <li><strong>unattended-upgrades</strong> — instala parches de seguridad automáticamente. La medida de mayor impacto con menor esfuerzo.</li>
+    <li>sudo seguro: limitar comandos en <code>/etc/sudoers</code> con <code>visudo</code>, revisar <code>/var/log/auth.log</code>, revocar acceso cuando no es necesario.</li>
+    <li>SSH seguro: <code>PermitRootLogin no</code>, <code>PasswordAuthentication no</code> (solo claves), <code>AllowUsers</code>, cambiar puerto. Validar con <code>sshd -t</code> antes de reiniciar.</li>
+    <li><strong>UFW</strong> — firewall sencillo. Política por defecto: deny incoming. Abrir solo los puertos necesarios. <code>ufw limit ssh</code> para protección básica.</li>
+    <li><strong>fail2ban</strong> — banea automáticamente IPs con demasiados intentos fallidos. Esencial en cualquier servidor público.</li>
+    <li>Auditoría: <code>auth.log</code>, <code>last</code>, <code>lastb</code>, <code>who</code>. Lynis para análisis completo. rkhunter para detectar rootkits.</li>
+    <li>Sandboxing: <strong>AppArmor</strong> (perfiles de acceso por proceso), <strong>Firejail</strong> (sandbox de escritorio), <strong>namespaces + cgroups</strong> (base de Docker).</li>
+  </ul>
+</div>
+
+<a class="next-card" href="linux-nivel-22.html">
+  <div>
+    <div class="nc-label">Siguiente → Nivel 22</div>
+    <div class="nc-name">Linux internamente — /proc, /sys, /dev, módulos del kernel y drivers</div>
+  </div>
+  <div class="nc-arrow">→</div>
+</a>
+
+</main>
+
+<footer>
+  Linux desde Cero · Nivel 21 · Seguridad · Café &lt;/&gt; · Hugo 2025
+</footer>
+
+<script>
+(function(){const s=localStorage.getItem('cafe-theme');const sys=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';const t=s||sys;document.documentElement.setAttribute('data-theme',t);updateUI(t);})();
+function toggleTheme(){const c=document.documentElement.getAttribute('data-theme');const n=c==='light'?'dark':'light';document.documentElement.setAttribute('data-theme',n);localStorage.setItem('cafe-theme',n);updateUI(n);}
+function updateUI(t){const i=document.getElementById('themeIcon');const l=document.getElementById('themeLabel');if(!i||!l)return;i.textContent=t==='dark'?'☀️':'🌙';l.textContent=t==='dark'?'Claro':'Oscuro';}
+</script>
+</body>
+</html>

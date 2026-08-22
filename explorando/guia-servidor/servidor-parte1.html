@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Parte 1: qué es un servidor, interfaz gráfica vs. modo headless, e instalación de Debian en la PC servidor.">
+<title>Servidor propio — Parte 1: Instalando Debian — Café &lt;/&gt;</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #c49a1a;
+    --primary-light:  #fdf6e0;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --danger:         #c44a2a;
+    --danger-light:   #fdf0ec;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1a1814;
+    --code-text:      #e8e4de;
+    color-scheme: light;
+  }
+
+  :root[data-theme="dark"] {
+    --primary:        #a48ce8;
+    --primary-light:  #2f2747;
+    --secondary:      #e08fc0;
+    --secondary-light:#3a2438;
+    --accent:         #e3b34d;
+    --accent-light:   #3a3324;
+    --danger:         #d9695f;
+    --danger-light:   #3a2420;
+    --bg:             #473b63;
+    --surface:        #574a76;
+    --text:           #f3f0fb;
+    --muted:          #c6bce2;
+    --border:         rgba(230,222,250,0.14);
+    --code-bg:        #211c33;
+    --code-text:      #f0eaf9;
+    color-scheme: dark;
+  }
+
+  body {
+    font-family: 'DM Sans', 'Segoe UI', sans-serif;
+    background: var(--bg); color: var(--text);
+    line-height: 1.7; font-size: 16px;
+    transition: background .25s ease, color .25s ease;
+  }
+
+  .cafe-bar {
+    background: var(--surface); border-bottom:1px solid var(--border);
+    padding:0 24px; display:flex; align-items:center; gap:14px;
+    position:sticky; top:0; z-index:200; height:45px;
+    transition: background .25s ease, border-color .25s ease;
+    overflow-x:auto; overflow-y:hidden; scrollbar-width:none; -ms-overflow-style:none;
+  }
+  .cafe-bar::-webkit-scrollbar { display:none; }
+  .cafe-bar a { flex-shrink:0; white-space:nowrap; display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--muted); text-decoration:none; padding:6px 14px; border:1px solid var(--border); border-radius:999px; transition:all 0.15s; }
+  .cafe-bar a:hover { color:var(--text); border-color:var(--muted); }
+  .cafe-bar span.crumb { flex-shrink:0; white-space:nowrap; font-size:13px; color:var(--muted); }
+  .cafe-bar .spacer { flex: 1 0 14px; }
+
+  .theme-toggle {
+    flex-shrink:0; white-space:nowrap;
+    display:inline-flex; align-items:center; gap:8px;
+    background: var(--bg); border:1px solid var(--border); color: var(--text);
+    border-radius:999px; padding:6px 14px 6px 10px; font-size:13px; font-weight:500;
+    cursor:pointer; transition: all .2s ease; font-family: inherit;
+  }
+  .theme-toggle:hover { border-color: var(--primary); color: var(--primary); }
+  .theme-toggle .icon { font-size: 15px; line-height:1; }
+
+  .partes-nav {
+    background: var(--bg); border-bottom:1px solid var(--border);
+    padding:10px 24px; display:flex; gap:8px; overflow-x:auto;
+    scrollbar-width:none; -ms-overflow-style:none;
+    position:sticky; top:45px; z-index:150;
+    transition: background .25s ease, border-color .25s ease;
+    align-items:center; height:38px;
+  }
+  .partes-nav::-webkit-scrollbar { display:none; }
+  .partes-nav a { flex-shrink:0; white-space:nowrap; font-size:.78rem; font-weight:600; color:var(--muted); text-decoration:none; padding:6px 14px; border-radius:999px; border:1px solid var(--border); transition:all .15s; }
+  .partes-nav a:hover { color:var(--text); border-color:var(--muted); }
+  .partes-nav a.active { background:var(--primary); color:#1a1814; border-color:var(--primary); }
+
+  header {
+    background: #0c0c0c; color: #f3f0fb; padding: 3rem 2rem 2rem;
+    text-align: center; position: relative; overflow: hidden;
+  }
+  header::before { content: '>_'; position: absolute; font-size: 10rem; font-weight: 900; color: rgba(255,255,255,0.04); right: -1rem; top: -1rem; font-family: 'DM Mono', monospace; line-height: 1; }
+  header h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; font-family: 'Fraunces', serif; }
+  header p { font-size: 1.1rem; opacity: .85; margin-top: .5rem; max-width: 620px; margin-left: auto; margin-right: auto; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  nav {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    position: sticky; top: 83px; z-index: 100; display: flex; overflow-x: auto; gap: 0;
+    transition: background .25s ease, border-color .25s ease;
+  }
+  nav a { flex-shrink: 0; padding: .75rem 1rem; text-decoration: none; color: var(--muted); font-size: .78rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .module {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+    padding: 2rem; margin-bottom: 2.5rem; scroll-margin-top:135px;
+    transition: background .25s ease, border-color .25s ease;
+  }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-size: 1.35rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  .analogy { background: var(--accent-light); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: var(--accent); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; }
+
+  .concept { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p, .tip ul { font-size: .95rem; }
+  .tip ul { padding-left: 1.2rem; }
+
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  .glos { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .glos-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; }
+  .glos-item dt { font-weight: 700; color: var(--primary); font-size: .92rem; margin-bottom: .3rem; }
+  .glos-item dd { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: #1a1814; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  h2 { font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; color: var(--text); }
+  h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 .5rem; }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: var(--primary-light); color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+  strong { font-weight: 700; }
+
+  .code-block {
+    background: var(--code-bg); color: var(--code-text); border-radius: 10px;
+    padding: 1rem 1.25rem; font-family: 'DM Mono', monospace; font-size: .84rem;
+    overflow-x: auto; margin: 1rem 0; line-height: 1.65; white-space: pre;
+  }
+
+  .term-block {
+    background: #0c0c0c; color: var(--code-text); border-radius: 10px;
+    overflow: hidden; margin: 1rem 0;
+  }
+  .term-block-bar {
+    display: flex; align-items: center; gap: 8px;
+    padding: .6rem .9rem; background: rgba(255,255,255,.05);
+    font-family: 'DM Mono', monospace; font-size: .72rem; color: #a39d93;
+  }
+  .tdot { width: 8px; height: 8px; border-radius: 50%; }
+  .tdot.r { background: #d9695f; } .tdot.y { background: #e3b34d; } .tdot.g { background: #7fae6d; }
+  .term-block-body { padding: 1rem 1.25rem 1.2rem; font-family: 'DM Mono', monospace; font-size: .84rem; overflow-x: auto; line-height: 1.65; }
+  .term-block-body .l { margin-bottom: .5rem; white-space: pre; }
+  .term-block-body .prompt { color: #7fd8a8; }
+  .term-block-body .cmd { color: var(--code-text); }
+  .term-block-body .out { color: #a39d93; padding-left: 1.1rem; }
+  .term-block-body .cm { color: #a39d93; font-style: italic; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); transition: background .25s ease, border-color .25s ease; }
+</style>
+</head>
+<body>
+
+<div class="cafe-bar">
+  <a href="../explorando-capitulos.html">← Explorando</a>
+  <span class="crumb">🗄️ Servidor propio</span>
+  <div class="spacer"></div>
+  <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+    <span class="icon" id="themeIcon">🌙</span>
+    <span id="themeLabel">Modo oscuro</span>
+  </button>
+</div>
+
+<div class="partes-nav">
+  <a href="servidor-parte1.html" class="active">1. Instalar Debian</a>
+  <a href="servidor-parte2.html">2. Red y primeros pasos</a>
+  <a href="servidor-parte3.html">3. Samba</a>
+  <a href="servidor-parte4.html">4. Conectar tus PCs</a>
+  <a href="servidor-parte5.html">5. Seguridad y siguientes pasos</a>
+</div>
+
+<header>
+  <h1>Tu propio servidor de archivos</h1>
+  <p>Parte 1: qué es exactamente un servidor, por qué lo vamos a instalar <strong>sin interfaz gráfica</strong>, y cómo dejar Debian funcionando en la PC que va a hacer ese trabajo.</p>
+  <span class="badge">🗄️ Proyecto práctico · Servidor propio</span>
+</header>
+
+<nav>
+  <a href="#que-es-servidor">🗄️ ¿Qué es un servidor?</a>
+  <a href="#gui-vs-headless">🖥️ Interfaz vs. sin interfaz</a>
+  <a href="#preparar">💿 Preparar la instalación</a>
+  <a href="#instalacion">⚙️ Instalando Debian</a>
+  <a href="#primer-arranque">✅ Primer arranque</a>
+  <a href="#glosario">📖 Glosario</a>
+  <a href="#siguiente">➡️ Siguiente parte</a>
+</nav>
+
+<main>
+
+<div class="parte-badge">🗄️ Parte 1 de 5 — Servidor propio</div>
+
+<!-- QUÉ ES UN SERVIDOR -->
+<section class="module" id="que-es-servidor">
+  <div class="module-header">
+    <div class="module-icon">🗄️</div>
+    <div>
+      <div class="module-title">¿Qué es exactamente un servidor?</div>
+      <div class="module-sub">Una computadora que trabaja para otras computadoras, no para una persona sentada frente a ella</div>
+    </div>
+  </div>
+
+  <p>Todos los días usas dos tipos de computadora sin darte cuenta: la que tienes enfrente, en la que haces clic, escribes y ves una pantalla — a esa se le llama <strong>cliente</strong> — y otra computadora, en algún lado, que recibe peticiones de esa primera y responde con datos: una página web, un archivo, un correo. A esa segunda computadora se le llama <strong>servidor</strong>.</p>
+
+  <p>Un servidor no es un tipo especial de hardware ni una máquina mágica. Es, literalmente, cualquier computadora a la que le instalas un programa que se queda esperando peticiones (como Samba, del que hablaremos más adelante) y que normalmente se deja <strong>encendida de forma constante</strong> para que esas peticiones se puedan atender en cualquier momento.</p>
+
+  <div class="term-block">
+    <div class="term-block-bar">
+      <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
+      <span style="margin-left:6px;">modelo cliente-servidor</span>
+    </div>
+    <div class="term-block-body">
+      <div class="l"><span class="cmd">TU PC PRINCIPAL (cliente)  ──── pide un archivo ────►  PC SERVIDOR (A6-5350)</span></div>
+      <div class="l out">Windows 11 / Zorin / Mint / Voyager                     Debian, sin pantalla, siempre encendida</div>
+      <div class="l"><span class="cmd">TU PC PRINCIPAL (cliente)  ◄─── responde con el archivo ───  PC SERVIDOR</span></div>
+    </div>
+  </div>
+
+  <p>En este proyecto, la PC con procesador <strong>AMD A6-5350</strong>, 8 GB de RAM y un SSD va a cumplir el papel de servidor. Tu computadora principal — la que tiene Windows 11, Zorin OS, Linux Mint y Voyager en modo multi-arranque — va a ser el cliente, la que <strong>pide</strong> los archivos.</p>
+
+  <h2>Ventajas de tener tu propio servidor en casa</h2>
+  <ul>
+    <li><strong>Control total:</strong> tus archivos están en un disco que es tuyo, no en la nube de una empresa, sin límites de almacenamiento ni mensualidades.</li>
+    <li><strong>Aprendizaje real:</strong> es de las formas más directas de aprender Linux, redes, permisos y administración de sistemas — todo lo que ves aquí aplica igual en un servidor profesional en la nube.</li>
+    <li><strong>Reaprovechas hardware:</strong> una PC vieja que ya no sirve para uso diario es más que suficiente para tareas de servidor, que piden mucho menos CPU y memoria que un escritorio moderno.</li>
+    <li><strong>Velocidad en tu propia red:</strong> transferir archivos dentro de tu casa por red local suele ser más rápido que subir y bajar de un servicio en la nube, y no depende de tu velocidad de internet.</li>
+    <li><strong>Privacidad:</strong> nadie más que tú administra ese disco.</li>
+  </ul>
+
+  <h2>Desventajas — y son reales, no las voy a esconder</h2>
+  <ul>
+    <li><strong>Tiene que quedarse encendida:</strong> a diferencia de tu PC principal, este equipo debería permanecer prendido para que puedas acceder a él cuando quieras, lo que implica un consumo eléctrico constante (aunque en un equipo de estas características es bajo comparado con una PC de escritorio moderna en uso activo).</li>
+    <li><strong>Tú eres el soporte técnico:</strong> no hay una empresa detrás resolviéndote problemas. Si algo falla, el manual eres tú — por eso esta guía explica el porqué de cada paso, no solo el qué.</li>
+    <li><strong>La seguridad es tu responsabilidad:</strong> nadie va a parchar el sistema por ti; hay que mantenerlo actualizado (lo veremos en la Parte 5).</li>
+    <li><strong>Es un punto único de falla:</strong> si el disco del servidor muere y no tienes copia de seguridad en otro lado, esos archivos se pierden. Un servidor no es, por sí solo, un respaldo — lo veremos también más adelante.</li>
+    <li><strong>Ruido y espacio físico:</strong> una PC de torre generalmente hace algo de ruido y ocupa un lugar físico permanente en la casa.</li>
+  </ul>
+
+  <div class="concept">
+    <h4>💻 Sobre tu hardware específico</h4>
+    <p>El AMD A6-5350 es un procesador modesto para uso de escritorio moderno, pero para las tareas de este proyecto — compartir archivos por red y aceptar conexiones SSH — sobra por mucho. Samba y SSH son programas ligeros que no exigen procesamiento intensivo; lo que más importa aquí es el disco. Que sea un <strong>SSD</strong> (en vez de un disco mecánico tradicional) es una ventaja real: arranca más rápido, responde con menos latencia a cada petición de archivo, y hace que copiar o abrir muchos archivos pequeños se sienta notablemente más ágil. Los 8 GB de RAM son más que suficientes para este uso, sobre todo porque —como vas a ver en el siguiente módulo— no vamos a cargar ninguna interfaz gráfica que consuma esa memoria de fondo.</p>
+  </div>
+</section>
+
+<!-- GUI VS HEADLESS -->
+<section class="module" id="gui-vs-headless">
+  <div class="module-header">
+    <div class="module-icon">🖥️</div>
+    <div>
+      <div class="module-title">Interfaz gráfica vs. servidor sin cabeza (headless)</div>
+      <div class="module-sub">La decisión más importante de esta guía, y por qué la tomamos así</div>
+    </div>
+  </div>
+
+  <p>Cuando instalas Linux normalmente, instalas también un <strong>entorno de escritorio</strong>: el fondo de pantalla, los íconos, las ventanas, el menú de aplicaciones. GNOME (que usa Zorin), Cinnamon (que usa Mint) y Xfce (que usa Voyager) son ejemplos de entornos de escritorio. Todo eso es software adicional que se ejecuta constantemente, consumiendo memoria RAM y procesador, incluso si nadie está tocando el mouse.</p>
+
+  <p>Un servidor, en cambio, casi nunca necesita que alguien esté sentado frente a él mirando una pantalla. Se administra <strong>a distancia</strong>, desde otra computadora, mediante la terminal (por SSH, que instalaremos en la Parte 2). A esta forma de trabajar — una computadora sin monitor, sin mouse, sin entorno gráfico, controlada completamente desde otra PC — se le llama <strong>headless</strong> ("sin cabeza").</p>
+
+  <div class="concept">
+    <h4>🖥️ Por qué esta guía instala Debian sin escritorio</h4>
+    <p>Vamos a instalar <strong>Debian en modo servidor</strong>: sin GNOME, sin ningún entorno gráfico. Después de la instalación inicial (que sí necesita un monitor y teclado conectados una sola vez), el servidor va a funcionar completamente a ciegas — sin pantalla conectada — y tú lo vas a controlar por completo desde tu PC principal, usando la red.</p>
+  </div>
+
+  <table class="tbl">
+    <tr><th>Con interfaz gráfica</th><th>Sin interfaz (headless / servidor)</th></tr>
+    <tr><td>Consume entre ~800 MB y 1.5 GB de RAM solo por tener el escritorio abierto, antes de hacer nada más.</td><td>Consume entre ~100 MB y 250 MB de RAM en reposo — el resto queda libre para el propio trabajo del servidor.</td></tr>
+    <tr><td>Cada programa gráfico corriendo (gestor de ventanas, notificaciones, salvapantallas) es un servicio más que puede tener errores o vulnerabilidades.</td><td>Menos programas corriendo significa menos superficie de ataque: hay literalmente menos software que alguien podría intentar explotar.</td></tr>
+    <tr><td>Necesitas monitor, teclado y mouse conectados permanentemente si quieres usarla localmente.</td><td>Solo necesitas monitor/teclado el día de la instalación. Después puedes desconectarlos y guardar la PC donde quieras — hasta en un clóset, si la ventilación lo permite.</td></tr>
+    <tr><td>Suele traer configuraciones de <strong>ahorro de energía pensadas para un escritorio personal</strong>: apagar pantalla, suspender la sesión tras minutos de inactividad.</td><td>No trae ese tipo de configuraciones de escritorio, así que por defecto no hay sesión gráfica que "se duerma" por inactividad de mouse o teclado.</td></tr>
+    <tr><td>Arranca más lento porque tiene que cargar todo el entorno gráfico además del sistema base.</td><td>Arranca considerablemente más rápido: solo carga los servicios base y los que tú instalaste (SSH, Samba).</td></tr>
+  </table>
+
+  <div class="warn">
+    <h4>⚠️ "Sin interfaz" no es lo mismo que "no se puede suspender solo"</h4>
+    <p>Que no exista un escritorio no significa que el sistema no pueda entrar en reposo. El propio Linux tiene sus propios objetivos de suspensión a nivel de sistema operativo (<code>sleep.target</code>), y algunas placas madre tienen configuraciones de ahorro de energía en el BIOS que pueden apagar el equipo tras cierto tiempo sin actividad, sin que eso tenga nada que ver con GNOME o cualquier escritorio. Vamos a revisar y desactivar explícitamente ambas cosas en la <strong>Parte 5</strong>, para asegurarnos de que tu servidor esté siempre disponible y nunca se quede "dormido" cuando alguien intente conectarse.</p>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 ¿Y si algún día sí necesitas ver la pantalla del servidor?</h4>
+    <p>No pierdes nada por no tener escritorio instalado. Si algún día necesitas revisar algo directamente en el equipo, siempre puedes conectar un monitor y teclado temporalmente y trabajar desde la terminal en texto — no hace falta un entorno gráfico para diagnosticar casi ningún problema de un servidor de archivos.</p>
+  </div>
+</section>
+
+<!-- PREPARAR -->
+<section class="module" id="preparar">
+  <div class="module-header">
+    <div class="module-icon">💿</div>
+    <div>
+      <div class="module-title">Preparar la instalación</div>
+      <div class="module-sub">Descargar Debian y crear el USB de arranque desde tu PC principal</div>
+    </div>
+  </div>
+
+  <p>Todo este paso se hace desde tu <strong>PC principal</strong> (la que tiene Windows 11 / Zorin / Mint / Voyager), no desde la PC servidor todavía.</p>
+
+  <h2>1. Descarga el instalador de Debian</h2>
+  <p>Ve al sitio oficial de Debian (<code>debian.org</code>) y descarga la imagen <strong>netinst</strong> ("network install") para arquitectura <code>amd64</code>. Es un archivo <code>.iso</code> relativamente pequeño porque descarga el resto de los paquetes durante la instalación, directamente desde internet — por eso es importante que la PC servidor esté conectada a internet (por cable, si es posible) durante este proceso.</p>
+
+  <h2>2. Crea el USB de arranque</h2>
+  <p>Necesitas una memoria USB de al menos 2 GB (se borrará todo su contenido). El programa que uses depende del sistema desde el que estés trabajando en ese momento:</p>
+
+  <table class="tbl">
+    <tr><th>Si estás en</th><th>Usa</th></tr>
+    <tr><td>Windows 11</td><td>Rufus (gratuito) — selecciona el .iso descargado y la memoria USB, y crea la unidad en modo "estándar de escritura ISO".</td></tr>
+    <tr><td>Zorin OS, Linux Mint o Voyager</td><td>La herramienta "Creador de discos de inicio" (Startup Disk Creator / gnome-disk-utility), que suele venir preinstalada, o balenaEtcher si la prefieres con interfaz más simple.</td></tr>
+  </table>
+
+  <div class="warn">
+    <h4>⚠️ Verifica qué unidad seleccionas</h4>
+    <p>Estas herramientas borran por completo el contenido de la memoria USB que elijas. Revisa dos veces que estás seleccionando la memoria USB correcta y no algún otro disco conectado a tu PC principal.</p>
+  </div>
+
+  <h2>3. Arranca la PC servidor desde el USB</h2>
+  <p>Conecta el USB a la PC A6-5350, enciéndela, y presiona repetidamente la tecla que abre el menú de arranque (<strong>Boot Menu</strong>) antes de que cargue el sistema — normalmente <code>F12</code>, <code>F11</code>, <code>F8</code> o <code>Supr/Delete</code>, dependiendo de la placa madre. Elige ahí la memoria USB como dispositivo de arranque.</p>
+</section>
+
+<!-- INSTALACIÓN -->
+<section class="module" id="instalacion">
+  <div class="module-header">
+    <div class="module-icon">⚙️</div>
+    <div>
+      <div class="module-title">Instalando Debian, paso por paso</div>
+      <div class="module-sub">La única parte de todo el proyecto donde vas a usar el mouse y el teclado directamente en el servidor</div>
+    </div>
+  </div>
+
+  <p>El instalador de Debian te va guiando con pantallas de texto simples. Estas son las decisiones importantes, en orden:</p>
+
+  <h2>Idioma, ubicación y teclado</h2>
+  <p>Elige tu idioma (Español), tu país (México) y la distribución de teclado (Latinoamericano, salvo que tu teclado físico sea de otro tipo). Esto solo afecta el idioma del instalador y algunos valores regionales, no cómo vas a usar el servidor después.</p>
+
+  <h2>Nombre de la máquina (hostname)</h2>
+  <p>Te va a pedir un nombre para identificar esta computadora dentro de tu red. Puedes poner algo simple y descriptivo, por ejemplo <code>servidor</code> o <code>servidor-archivos</code>. Vas a usar (o al menos reconocer) este nombre más adelante.</p>
+  <p>Cuando pregunte por el "dominio", puedes dejarlo en blanco — eso es para redes de oficina más grandes, no aplica en una red doméstica.</p>
+
+  <h2>Usuario y contraseñas</h2>
+  <p>Te va a pedir una contraseña para el usuario <code>root</code> (el superusuario, con permisos totales) y luego los datos de un usuario normal: nombre completo, nombre de usuario (por ejemplo <code>victor</code>) y su contraseña. <strong>Anota ambas contraseñas en un lugar seguro</strong> — las vas a necesitar constantemente.</p>
+
+  <div class="tip">
+    <h4>🟢 Puedes dejar la contraseña de root vacía</h4>
+    <p>Si dejas la contraseña de <code>root</code> en blanco, Debian automáticamente le da a tu usuario normal permiso para usar <code>sudo</code> (ejecutar comandos como administrador anteponiendo esa palabra), que es la forma recomendada de trabajar hoy en día. Cualquiera de las dos formas funciona para esta guía.</p>
+  </div>
+
+  <h2>Particionado del disco</h2>
+  <p>Como el SSD de esta PC va a estar dedicado por completo al servidor, la opción más simple y recomendable para alguien que empieza es <strong>"Guiado - utilizar todo el disco"</strong>, y después <strong>"Todos los archivos en una partición"</strong> (la opción recomendada para equipos de un solo usuario). El instalador te muestra un resumen antes de aplicar cualquier cambio — revísalo y confirma.</p>
+
+  <div class="warn">
+    <h4>⚠️ Esto borra todo lo que tenga esa PC actualmente</h4>
+    <p>Confirma que estás instalando en el disco correcto, especialmente si esa PC llegó a tener otro sistema operativo antes. El particionado guiado va a formatear el disco completo.</p>
+  </div>
+
+  <h2>Selección de software — el paso más importante de esta guía</h2>
+  <p>En algún punto vas a llegar a una pantalla llamada <strong>"Selección de software"</strong> con una lista de casillas. Ahí es exactamente donde se decide si tu servidor va a tener interfaz gráfica o no. La lista suele verse así:</p>
+
+  <div class="code-block">[ ] Entorno de escritorio Debian
+[ ] ... GNOME
+[ ] ... Xfce
+[✔] Utilidades estándar del sistema
+[✔] servidor SSH</div>
+
+  <div class="concept">
+    <h4>✅ Deja marcadas solo estas dos</h4>
+    <p><strong>"Utilidades estándar del sistema"</strong> y <strong>"servidor SSH"</strong>. Desmarca cualquier entorno de escritorio (GNOME, Xfce, cualquiera que aparezca marcado por defecto) y cualquier otro servidor que no vayas a usar (servidor de impresión, servidor web, etc.). Esto es justamente lo que convierte esta instalación en un servidor headless, tal como lo explicamos arriba.</p>
+  </div>
+
+  <h2>Instalar el gestor de arranque (GRUB)</h2>
+  <p>Cuando pregunte si quieres instalar GRUB (el programa que arranca el sistema operativo al encender la PC) en el disco principal, confirma que sí, y selecciona el único disco disponible (tu SSD).</p>
+
+  <p>Al terminar, el instalador te va a pedir retirar el USB y reiniciar.</p>
+</section>
+
+<!-- PRIMER ARRANQUE -->
+<section class="module" id="primer-arranque">
+  <div class="module-header">
+    <div class="module-icon">✅</div>
+    <div>
+      <div class="module-title">El primer arranque — y por qué una pantalla negra es buena señal</div>
+      <div class="module-sub">Aquí es donde ves, por primera vez, la diferencia con una instalación normal de Linux</div>
+    </div>
+  </div>
+
+  <p>Cuando la PC reinicie, no vas a ver un fondo de pantalla ni íconos. Vas a ver una pantalla de texto negra con algo como esto:</p>
+
+  <div class="term-block">
+    <div class="term-block-bar">
+      <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
+      <span style="margin-left:6px;">servidor — primer arranque</span>
+    </div>
+    <div class="term-block-body">
+      <div class="l out">Debian GNU/Linux 12 servidor tty1</div>
+      <div class="l"><span class="cmd">servidor login:</span></div>
+    </div>
+  </div>
+
+  <p>Eso es exactamente lo que esperamos ver. No hay error, no falta nada — así es como se ve un servidor Linux sin interfaz gráfica. Escribe tu nombre de usuario, presiona Enter, escribe tu contraseña (no vas a ver ningún asterisco mientras escribes, es normal) y presiona Enter de nuevo.</p>
+
+  <p>En cuanto veas el símbolo del sistema (algo como <code>victor@servidor:~$</code>), tu servidor Debian ya está instalado y funcionando. A partir de este punto, todo lo que hagamos en la <strong>Parte 2</strong> lo vamos a poder hacer también de forma remota, desde tu PC principal, sin volver a tocar físicamente esta máquina.</p>
+
+  <div class="tip">
+    <h4>🟢 No desconectes el monitor todavía</h4>
+    <p>Déjalo conectado un poco más — en la Parte 2 vamos a anotar la dirección IP del servidor y confirmar que la conexión remota por SSH funciona antes de guardar el equipo sin pantalla.</p>
+  </div>
+</section>
+
+<!-- GLOSARIO -->
+<section class="module" id="glosario">
+  <div class="module-header">
+    <div class="module-icon">📖</div>
+    <div>
+      <div class="module-title">Glosario</div>
+      <div class="module-sub">Términos nuevos de esta parte</div>
+    </div>
+  </div>
+
+  <dl class="glos">
+    <div class="glos-item"><dt>Servidor</dt><dd>Computadora que ofrece un servicio (archivos, páginas web, correo) a otras computadoras a través de una red.</dd></div>
+    <div class="glos-item"><dt>Cliente</dt><dd>La computadora que pide o consume ese servicio — en este proyecto, tu PC principal.</dd></div>
+    <div class="glos-item"><dt>Headless</dt><dd>Un servidor sin monitor, teclado ni entorno gráfico, administrado completamente a distancia.</dd></div>
+    <div class="glos-item"><dt>Entorno de escritorio</dt><dd>El conjunto de programas que dan la interfaz gráfica: ventanas, íconos, menús (GNOME, Cinnamon, Xfce).</dd></div>
+    <div class="glos-item"><dt>ISO</dt><dd>Un archivo que contiene una copia exacta del contenido de un disco de instalación.</dd></div>
+    <div class="glos-item"><dt>Hostname</dt><dd>El nombre con el que una computadora se identifica dentro de una red.</dd></div>
+    <div class="glos-item"><dt>GRUB</dt><dd>El programa (bootloader) que arranca el sistema operativo cuando enciendes la PC.</dd></div>
+    <div class="glos-item"><dt>root</dt><dd>El usuario superadministrador de Linux, con permisos sobre absolutamente todo el sistema.</dd></div>
+  </dl>
+</section>
+
+<!-- SIGUIENTE -->
+<section class="module" id="siguiente">
+  <div class="module-header">
+    <div class="module-icon">➡️</div>
+    <div>
+      <div class="module-title">Siguiente: red, usuario y primeros comandos</div>
+      <div class="module-sub">Vamos a encontrar la IP del servidor y conectarnos por SSH desde tu PC principal</div>
+    </div>
+  </div>
+
+  <p>Con Debian ya instalado y funcionando en modo headless, el siguiente paso es averiguar en qué dirección de tu red vive el servidor, asegurarnos de que esa dirección no vaya a cambiar sola, y dejar de depender del teclado conectado directamente a la PC servidor.</p>
+
+  <p><a href="servidor-parte2.html"><strong>Continuar con la Parte 2: Red y primeros pasos →</strong></a></p>
+</section>
+
+</main>
+
+<footer>
+  Servidor propio · Parte 1 de 5 · un proyecto de Café &lt;/&gt;
+</footer>
+
+<script>
+  (function() {
+    var root = document.documentElement;
+    var icon = document.getElementById('themeIcon');
+    var label = document.getElementById('themeLabel');
+    var STORAGE_KEY = 'cafe-codigo-theme';
+
+    function applyTheme(theme) {
+      if (theme === 'dark') {
+        root.setAttribute('data-theme', 'dark');
+        icon.textContent = '☀️';
+        label.textContent = 'Modo claro';
+      } else {
+        root.removeAttribute('data-theme');
+        icon.textContent = '🌙';
+        label.textContent = 'Modo oscuro';
+      }
+    }
+
+    var saved = null;
+    try { saved = localStorage.getItem(STORAGE_KEY); } catch (e) {}
+
+    if (saved) {
+      applyTheme(saved);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      applyTheme('dark');
+    }
+
+    window.toggleTheme = function() {
+      var isDark = root.getAttribute('data-theme') === 'dark';
+      var next = isDark ? 'light' : 'dark';
+      applyTheme(next);
+      try { localStorage.setItem(STORAGE_KEY, next); } catch (e) {}
+    };
+  })();
+</script>
+
+</body>
+</html>

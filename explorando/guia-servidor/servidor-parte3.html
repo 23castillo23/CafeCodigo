@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Parte 3: instalación de Samba, carpeta compartida, permisos y configuración de smb.conf.">
+<title>Servidor propio — Parte 3: Samba — Café &lt;/&gt;</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #c49a1a;
+    --primary-light:  #fdf6e0;
+    --secondary:      #1a7a5a;
+    --secondary-light:#edf7f3;
+    --accent:         #b07010;
+    --accent-light:   #fdf6e8;
+    --danger:         #c44a2a;
+    --danger-light:   #fdf0ec;
+    --bg:             #f7f4ef;
+    --surface:        #ffffff;
+    --text:           #1a1814;
+    --muted:          #8a8480;
+    --border:         #e8e4de;
+    --code-bg:        #1a1814;
+    --code-text:      #e8e4de;
+    color-scheme: light;
+  }
+
+  :root[data-theme="dark"] {
+    --primary:        #a48ce8;
+    --primary-light:  #2f2747;
+    --secondary:      #e08fc0;
+    --secondary-light:#3a2438;
+    --accent:         #e3b34d;
+    --accent-light:   #3a3324;
+    --danger:         #d9695f;
+    --danger-light:   #3a2420;
+    --bg:             #473b63;
+    --surface:        #574a76;
+    --text:           #f3f0fb;
+    --muted:          #c6bce2;
+    --border:         rgba(230,222,250,0.14);
+    --code-bg:        #211c33;
+    --code-text:      #f0eaf9;
+    color-scheme: dark;
+  }
+
+  body {
+    font-family: 'DM Sans', 'Segoe UI', sans-serif;
+    background: var(--bg); color: var(--text);
+    line-height: 1.7; font-size: 16px;
+    transition: background .25s ease, color .25s ease;
+  }
+
+  .cafe-bar {
+    background: var(--surface); border-bottom:1px solid var(--border);
+    padding:0 24px; display:flex; align-items:center; gap:14px;
+    position:sticky; top:0; z-index:200; height:45px;
+    transition: background .25s ease, border-color .25s ease;
+    overflow-x:auto; overflow-y:hidden; scrollbar-width:none; -ms-overflow-style:none;
+  }
+  .cafe-bar::-webkit-scrollbar { display:none; }
+  .cafe-bar a { flex-shrink:0; white-space:nowrap; display:inline-flex; align-items:center; gap:6px; font-size:13px; color:var(--muted); text-decoration:none; padding:6px 14px; border:1px solid var(--border); border-radius:999px; transition:all 0.15s; }
+  .cafe-bar a:hover { color:var(--text); border-color:var(--muted); }
+  .cafe-bar span.crumb { flex-shrink:0; white-space:nowrap; font-size:13px; color:var(--muted); }
+  .cafe-bar .spacer { flex: 1 0 14px; }
+
+  .theme-toggle {
+    flex-shrink:0; white-space:nowrap;
+    display:inline-flex; align-items:center; gap:8px;
+    background: var(--bg); border:1px solid var(--border); color: var(--text);
+    border-radius:999px; padding:6px 14px 6px 10px; font-size:13px; font-weight:500;
+    cursor:pointer; transition: all .2s ease; font-family: inherit;
+  }
+  .theme-toggle:hover { border-color: var(--primary); color: var(--primary); }
+  .theme-toggle .icon { font-size: 15px; line-height:1; }
+
+  .partes-nav {
+    background: var(--bg); border-bottom:1px solid var(--border);
+    padding:10px 24px; display:flex; gap:8px; overflow-x:auto;
+    scrollbar-width:none; -ms-overflow-style:none;
+    position:sticky; top:45px; z-index:150;
+    transition: background .25s ease, border-color .25s ease;
+    align-items:center; height:38px;
+  }
+  .partes-nav::-webkit-scrollbar { display:none; }
+  .partes-nav a { flex-shrink:0; white-space:nowrap; font-size:.78rem; font-weight:600; color:var(--muted); text-decoration:none; padding:6px 14px; border-radius:999px; border:1px solid var(--border); transition:all .15s; }
+  .partes-nav a:hover { color:var(--text); border-color:var(--muted); }
+  .partes-nav a.active { background:var(--primary); color:#1a1814; border-color:var(--primary); }
+
+  header {
+    background: #0c0c0c; color: #f3f0fb; padding: 3rem 2rem 2rem;
+    text-align: center; position: relative; overflow: hidden;
+  }
+  header::before { content: '>_'; position: absolute; font-size: 10rem; font-weight: 900; color: rgba(255,255,255,0.04); right: -1rem; top: -1rem; font-family: 'DM Mono', monospace; line-height: 1; }
+  header h1 { font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; font-family: 'Fraunces', serif; }
+  header p { font-size: 1.1rem; opacity: .85; margin-top: .5rem; max-width: 620px; margin-left: auto; margin-right: auto; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  nav {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    position: sticky; top: 83px; z-index: 100; display: flex; overflow-x: auto; gap: 0;
+    transition: background .25s ease, border-color .25s ease;
+  }
+  nav a { flex-shrink: 0; padding: .75rem 1rem; text-decoration: none; color: var(--muted); font-size: .78rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .module {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+    padding: 2rem; margin-bottom: 2.5rem; scroll-margin-top:135px;
+    transition: background .25s ease, border-color .25s ease;
+  }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-size: 1.35rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  .analogy { background: var(--accent-light); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: var(--accent); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; }
+
+  .concept { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p, .tip ul { font-size: .95rem; }
+  .tip ul { padding-left: 1.2rem; }
+
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  .glos { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .glos-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; }
+  .glos-item dt { font-weight: 700; color: var(--primary); font-size: .92rem; margin-bottom: .3rem; }
+  .glos-item dd { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: #1a1814; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  h2 { font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; color: var(--text); }
+  h3 { font-size: 1rem; font-weight: 700; margin: 1.25rem 0 .5rem; }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: var(--primary-light); color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+  strong { font-weight: 700; }
+
+  .code-block {
+    background: var(--code-bg); color: var(--code-text); border-radius: 10px;
+    padding: 1rem 1.25rem; font-family: 'DM Mono', monospace; font-size: .84rem;
+    overflow-x: auto; margin: 1rem 0; line-height: 1.65; white-space: pre;
+  }
+
+  .term-block {
+    background: #0c0c0c; color: var(--code-text); border-radius: 10px;
+    overflow: hidden; margin: 1rem 0;
+  }
+  .term-block-bar {
+    display: flex; align-items: center; gap: 8px;
+    padding: .6rem .9rem; background: rgba(255,255,255,.05);
+    font-family: 'DM Mono', monospace; font-size: .72rem; color: #a39d93;
+  }
+  .tdot { width: 8px; height: 8px; border-radius: 50%; }
+  .tdot.r { background: #d9695f; } .tdot.y { background: #e3b34d; } .tdot.g { background: #7fae6d; }
+  .term-block-body { padding: 1rem 1.25rem 1.2rem; font-family: 'DM Mono', monospace; font-size: .84rem; overflow-x: auto; line-height: 1.65; }
+  .term-block-body .l { margin-bottom: .5rem; white-space: pre; }
+  .term-block-body .prompt { color: #7fd8a8; }
+  .term-block-body .cmd { color: var(--code-text); }
+  .term-block-body .out { color: #a39d93; padding-left: 1.1rem; }
+  .term-block-body .cm { color: #a39d93; font-style: italic; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); transition: background .25s ease, border-color .25s ease; }
+</style>
+</head>
+<body>
+
+<div class="cafe-bar">
+  <a href="../explorando-capitulos.html">← Explorando</a>
+  <span class="crumb">🗄️ Servidor propio</span>
+  <div class="spacer"></div>
+  <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+    <span class="icon" id="themeIcon">🌙</span>
+    <span id="themeLabel">Modo oscuro</span>
+  </button>
+</div>
+
+<div class="partes-nav">
+  <a href="servidor-parte1.html">1. Instalar Debian</a>
+  <a href="servidor-parte2.html">2. Red y primeros pasos</a>
+  <a href="servidor-parte3.html" class="active">3. Samba</a>
+  <a href="servidor-parte4.html">4. Conectar tus PCs</a>
+  <a href="servidor-parte5.html">5. Seguridad y siguientes pasos</a>
+</div>
+
+<header>
+  <h1>Tu propio servidor de archivos</h1>
+  <p>Parte 3: instalar Samba, crear la carpeta compartida, entender permisos, y dejar configurado el recurso de red que vas a usar desde tus otras computadoras.</p>
+  <span class="badge">🗄️ Proyecto práctico · Servidor propio</span>
+</header>
+
+<nav>
+  <a href="#que-es-samba">🌉 ¿Qué es Samba?</a>
+  <a href="#instalar-samba">📦 Instalar Samba</a>
+  <a href="#carpeta">📁 Crear la carpeta compartida</a>
+  <a href="#permisos">🔐 Propietario y permisos</a>
+  <a href="#usuario-samba">🔑 Usuario y contraseña de Samba</a>
+  <a href="#smbconf">📝 Editar smb.conf</a>
+  <a href="#reiniciar">🔄 Aplicar y comprobar</a>
+  <a href="#glosario">📖 Glosario</a>
+  <a href="#siguiente">➡️ Siguiente parte</a>
+</nav>
+
+<main>
+
+<div class="parte-badge">🗄️ Parte 3 de 5 — Servidor propio</div>
+
+<!-- QUÉ ES SAMBA -->
+<section class="module" id="que-es-samba">
+  <div class="module-header">
+    <div class="module-icon">🌉</div>
+    <div>
+      <div class="module-title">¿Qué es Samba y por qué lo necesitas?</div>
+      <div class="module-sub">El puente entre el sistema de archivos de Linux y el resto de tus computadoras</div>
+    </div>
+  </div>
+
+  <p>Linux y Windows guardan y organizan archivos de forma distinta por dentro, y no "hablan" el mismo idioma de red para compartir carpetas de manera nativa. <strong>Samba</strong> es el programa que resuelve exactamente ese problema: hace que una carpeta de Linux se pueda ofrecer en la red usando <strong>SMB</strong>, el protocolo que Windows entiende de forma nativa desde hace décadas — y que Linux y Mac también saben leer perfectamente.</p>
+
+  <div class="analogy">
+    <h4>🌉 Piénsalo como un mesero, no como una puerta abierta</h4>
+    <p>Tu PC principal nunca entra directamente al sistema de archivos del servidor. En vez de eso, le pide a Samba: "quiero ver lo que hay en el recurso llamado Archivos". Samba recibe esa petición, revisa si el usuario y la contraseña son correctos, revisa los permisos, y solo entonces entrega (o niega) lo que se pidió. Nunca hay una conexión directa sin pasar por ese "mesero".</p>
+  </div>
+
+  <p>Gracias a esto, vas a poder ver la carpeta del servidor como si fuera una carpeta más de tu propia computadora — sin importar si estás en Windows 11, Zorin, Mint o Voyager — arrastrar archivos hacia ella, crear carpetas nuevas, y abrir documentos y videos directamente, sin copiarlos primero a tu disco local.</p>
+</section>
+
+<!-- INSTALAR SAMBA -->
+<section class="module" id="instalar-samba">
+  <div class="module-header">
+    <div class="module-icon">📦</div>
+    <div>
+      <div class="module-title">Instalar Samba</div>
+      <div class="module-sub">Conectado por SSH desde tu PC principal, como en toda la Parte 2</div>
+    </div>
+  </div>
+
+  <div class="term-block">
+    <div class="term-block-bar">
+      <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
+      <span style="margin-left:6px;">servidor</span>
+    </div>
+    <div class="term-block-body">
+      <div class="l"><span class="prompt">$</span> <span class="cmd">sudo apt install samba</span></div>
+      <div class="l"><span class="prompt">$</span> <span class="cmd">systemctl status smbd</span></div>
+      <div class="l out">● smbd.service - Samba SMB Daemon</div>
+      <div class="l out">   Active: active (running) ...</div>
+      <div class="l cm">// "smbd" es el nombre del proceso de Samba que atiende las peticiones — presiona "q" para salir</div>
+    </div>
+  </div>
+</section>
+
+<!-- CARPETA -->
+<section class="module" id="carpeta">
+  <div class="module-header">
+    <div class="module-icon">📁</div>
+    <div>
+      <div class="module-title">Crear la carpeta que vas a compartir</div>
+      <div class="module-sub">Un lugar dedicado, no todo el sistema</div>
+    </div>
+  </div>
+
+  <p>No vamos a compartir todo el disco ni la carpeta personal del usuario. Vamos a crear una ubicación específica para este propósito: <code>/srv/archivos</code>. <code>/srv</code> es, por convención en Linux, el lugar donde viven los datos que un servidor ofrece a otras máquinas.</p>
+
+  <div class="term-block">
+    <div class="term-block-bar">
+      <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
+      <span style="margin-left:6px;">servidor</span>
+    </div>
+    <div class="term-block-body">
+      <div class="l"><span class="prompt">$</span> <span class="cmd">sudo mkdir -p /srv/archivos/Documentos /srv/archivos/Videos /srv/archivos/Musica /srv/archivos/Fotos</span></div>
+      <div class="l"><span class="prompt">$</span> <span class="cmd">ls -l /srv/archivos</span></div>
+      <div class="l out">Documentos  Fotos  Musica  Videos</div>
+    </div>
+  </div>
+
+  <p>Un par de detalles sobre estos comandos, para que ningún carácter se quede como misterio: la <code>-p</code> de <code>mkdir -p</code> significa "crea también cualquier carpeta intermedia que haga falta" — en este caso te deja crear <code>/srv/archivos</code> y las cuatro subcarpetas de un solo golpe, aunque <code>/srv/archivos</code> todavía no existiera. Sin <code>-p</code>, <code>mkdir</code> se hubiera quejado de que <code>/srv/archivos</code> no existe. La <code>-l</code> de <code>ls -l</code> es de "formato largo": en vez de solo listar los nombres, muestra una línea por elemento con más información (dueño, permisos, tamaño) — la vas a usar todo el tiempo de aquí en adelante.</p>
+</section>
+
+<!-- PERMISOS -->
+<section class="module" id="permisos">
+  <div class="module-header">
+    <div class="module-icon">🔐</div>
+    <div>
+      <div class="module-title">Propietario y permisos, antes de seguir</div>
+      <div class="module-sub">La causa número uno de "Samba dice que sí, pero no me deja escribir"</div>
+    </div>
+  </div>
+
+  <p>En Linux, cada archivo y carpeta tiene un <strong>propietario</strong>, y ese propietario decide quién puede leer, escribir o ejecutar sobre ellos. Revisa quién es el dueño actual de la carpeta que acabas de crear:</p>
+
+  <div class="term-block">
+    <div class="term-block-bar">
+      <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
+      <span style="margin-left:6px;">servidor</span>
+    </div>
+    <div class="term-block-body">
+      <div class="l"><span class="prompt">$</span> <span class="cmd">ls -ld /srv/archivos</span></div>
+      <div class="l out">drwxr-xr-x 2 root root ... /srv/archivos</div>
+    </div>
+  </div>
+
+  <p>Ya conoces la <code>-l</code> de la sección anterior (formato largo, con dueño y permisos). La <code>-d</code> es nueva: le dice a <code>ls</code> que te muestre información <em>de la carpeta en sí</em>, no de lo que hay adentro. Sin <code>-d</code>, <code>ls -l /srv/archivos</code> te listaría el contenido de la carpeta (que todavía está vacía); con <code>-d</code>, ves los datos de <code>/srv/archivos</code> como objeto — que es justo lo que queremos aquí, saber quién es su dueño.</p>
+
+  <p>Ves <code>root root</code>: el dueño de esa carpeta es el superusuario, no tu propio usuario. Queremos que tu usuario pueda trabajar cómodamente sobre ella, así que le cambiamos el dueño:</p>
+
+  <div class="term-block">
+    <div class="term-block-bar">
+      <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
+      <span style="margin-left:6px;">servidor</span>
+    </div>
+    <div class="term-block-body">
+      <div class="l"><span class="prompt">$</span> <span class="cmd">sudo chown -R victor:victor /srv/archivos</span></div>
+      <div class="l cm">// cambia "victor" por tu propio usuario, el que te devolvió "whoami" en la Parte 2</div>
+      <div class="l"><span class="prompt">$</span> <span class="cmd">ls -ld /srv/archivos</span></div>
+      <div class="l out">drwxr-xr-x 2 victor victor ... /srv/archivos</div>
+    </div>
+  </div>
+
+  <p><code>chown</code> (de "change owner") es el comando que cambia el dueño de un archivo o carpeta; <code>victor:victor</code> significa "usuario:grupo", así que aquí le estás dando la carpeta al usuario <code>victor</code> y también al grupo <code>victor</code> (todo usuario nuevo en Debian recibe automáticamente un grupo con su mismo nombre). La <code>-R</code> es de "recursivo": aplica el cambio no solo a <code>/srv/archivos</code>, sino a absolutamente todo lo que haya adentro — carpetas y subcarpetas incluidas. Sin <code>-R</code>, solo la carpeta <code>archivos</code> cambiaría de dueño, y las subcarpetas <code>Documentos</code>, <code>Videos</code>, etc. seguirían siendo de <code>root</code>.</p>
+
+  <div class="warn">
+    <h4>⚠️ Esto es exactamente lo que causa la mayoría de los "no puedo guardar archivos" más adelante</h4>
+    <p>Samba tiene su propia configuración de permisos (<code>read only = no</code>, que vamos a ver en un momento), pero eso solo controla si Samba <em>intenta</em> escribir. Si los permisos de Linux de la carpeta no lo permiten, la escritura va a fallar de todas formas, sin importar qué diga <code>smb.conf</code>. Vale la pena recordar este paso si algún día algo no cuadra.</p>
+  </div>
+</section>
+
+<!-- USUARIO SAMBA -->
+<section class="module" id="usuario-samba">
+  <div class="module-header">
+    <div class="module-icon">🔑</div>
+    <div>
+      <div class="module-title">Crear tu usuario y contraseña de Samba</div>
+      <div class="module-sub">Tu usuario de Linux y tu usuario de Samba están relacionados, pero no son la misma contraseña</div>
+    </div>
+  </div>
+
+  <p>Samba mantiene su propia base de datos de autenticación, separada de la de Linux. Necesitas registrar ahí a tu usuario y darle una contraseña específica para Samba — puede ser la misma que usas para SSH o una distinta, tú decides:</p>
+
+  <div class="term-block">
+    <div class="term-block-bar">
+      <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
+      <span style="margin-left:6px;">servidor</span>
+    </div>
+    <div class="term-block-body">
+      <div class="l"><span class="prompt">$</span> <span class="cmd">sudo smbpasswd -a victor</span></div>
+      <div class="l out">New SMB password:</div>
+      <div class="l out">Retype new SMB password:</div>
+      <div class="l out">Added user victor.</div>
+    </div>
+  </div>
+
+  <p>La <code>-a</code> es de "add" (agregar): le dice a <code>smbpasswd</code> que este es un usuario nuevo que quieres dar de alta en la base de datos de Samba, no uno que ya existe. Reemplaza <code>victor</code> por tu propio usuario de Linux — Samba necesita que ya exista como usuario del sistema antes de poder registrarlo, así que tiene que ser exactamente el mismo nombre que usas para SSH.</p>
+
+  <p>Esta va a ser la contraseña que uses cuando cualquiera de tus otras computadoras se conecte al recurso compartido — no confundirla con la contraseña de tu usuario de Linux, aunque el nombre de usuario sea el mismo.</p>
+</section>
+
+<!-- SMB.CONF -->
+<section class="module" id="smbconf">
+  <div class="module-header">
+    <div class="module-icon">📝</div>
+    <div>
+      <div class="module-title">Configurar Samba: el archivo smb.conf</div>
+      <div class="module-sub">Aquí es donde le dices a Samba qué carpeta compartir y con qué reglas</div>
+    </div>
+  </div>
+
+  <p>Todo Samba se configura desde un único archivo de texto: <code>/etc/samba/smb.conf</code>. Antes de tocarlo, hazle una copia de seguridad — así, si algo sale mal, siempre puedes volver al punto de partida:</p>
+
+  <div class="term-block">
+    <div class="term-block-bar">
+      <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
+      <span style="margin-left:6px;">servidor</span>
+    </div>
+    <div class="term-block-body">
+      <div class="l"><span class="prompt">$</span> <span class="cmd">sudo cp /etc/samba/smb.conf /etc/samba/smb.conf.backup</span></div>
+    </div>
+  </div>
+
+  <h2>Revisa el bloque [global] antes de agregar nada</h2>
+  <p>Abre el archivo con el editor de terminal <code>nano</code>:</p>
+
+  <div class="term-block">
+    <div class="term-block-bar">
+      <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
+      <span style="margin-left:6px;">servidor</span>
+    </div>
+    <div class="term-block-body">
+      <div class="l"><span class="prompt">$</span> <span class="cmd">sudo nano /etc/samba/smb.conf</span></div>
+    </div>
+  </div>
+
+  <p>Cerca del inicio del archivo vas a encontrar una sección <code>[global]</code> que ya trae valores por defecto. Busca la línea <code>workgroup</code> — normalmente dice <code>WORKGROUP</code>. Ese es el nombre del "grupo de trabajo" de red que usa Windows por convención. Si nunca cambiaste ese valor en tu PC con Windows 11, déjalo tal cual — coinciden por defecto.</p>
+
+  <div class="concept">
+    <h4>📍 ¿Para qué sirve el workgroup?</h4>
+    <p>Es una forma antigua, previa a las redes modernas, de agrupar equipos dentro de una misma red local para que se puedan "descubrir" entre sí más fácilmente al explorar la red. Hoy en día no es estrictamente necesario que coincida para que la conexión funcione (sobre todo si te conectas directamente por IP, como vamos a hacer en la Parte 4), pero es buena práctica dejarlo consistente.</p>
+  </div>
+
+  <h2>Agrega el recurso compartido</h2>
+  <p>Ve hasta el final del archivo (con las flechas del teclado, o <code>Ctrl+_</code> seguido del número de línea si <code>nano</code> te lo permite) y agrega este bloque:</p>
+
+  <div class="code-block">[Archivos]
+   path = /srv/archivos
+   browseable = yes
+   read only = no
+   valid users = victor</div>
+
+  <p>Cambia <code>victor</code> por tu propio usuario. Cada línea significa algo específico:</p>
+
+  <table class="tbl">
+    <tr><th>Línea</th><th>Qué significa</th></tr>
+    <tr><td><code>[Archivos]</code></td><td>El nombre del recurso — así es como va a aparecer cuando lo veas desde tus otras computadoras.</td></tr>
+    <tr><td><code>path</code></td><td>La ruta real, dentro del servidor, donde están físicamente los archivos.</td></tr>
+    <tr><td><code>browseable = yes</code></td><td>Permite que el recurso aparezca al explorar la red, en vez de tener que conocer su nombre exacto de antemano.</td></tr>
+    <tr><td><code>read only = no</code></td><td>Permite escribir: crear, copiar, modificar y borrar archivos, no solo verlos.</td></tr>
+    <tr><td><code>valid users</code></td><td>Qué usuario de Samba puede acceder a este recurso — puedes separar varios nombres con comas si más adelante quieres agregar más usuarios.</td></tr>
+  </table>
+
+  <p>Guarda el archivo con <code>Ctrl+O</code>, confirma con <code>Enter</code>, y sal del editor con <code>Ctrl+X</code>.</p>
+</section>
+
+<!-- REINICIAR -->
+<section class="module" id="reiniciar">
+  <div class="module-header">
+    <div class="module-icon">🔄</div>
+    <div>
+      <div class="module-title">Aplicar los cambios y comprobar que todo esté bien</div>
+      <div class="module-sub">Nunca reinicies Samba sin antes validar la configuración</div>
+    </div>
+  </div>
+
+  <div class="term-block">
+    <div class="term-block-bar">
+      <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
+      <span style="margin-left:6px;">servidor</span>
+    </div>
+    <div class="term-block-body">
+      <div class="l"><span class="prompt">$</span> <span class="cmd">testparm</span></div>
+      <div class="l cm">// revisa la sintaxis de smb.conf sin aplicar nada todavía</div>
+      <div class="l out">...</div>
+      <div class="l out">Loaded services file OK.</div>
+    </div>
+  </div>
+
+  <p>La línea que de verdad importa al final es <code>Loaded services file OK.</code> — esa es la confirmación de que no hay errores de sintaxis. Antes de esa línea vas a ver un resumen largo de toda tu configuración (secciones <code>[global]</code>, <code>[Publico]</code>, etc.); no hace falta revisarlo línea por línea, solo confirma que termine con ese "OK".</p>
+
+  <div class="warn">
+    <h4>⚠️ Si testparm muestra un error, no sigas</h4>
+    <p>Detente ahí y revisa el bloque que acabas de agregar — normalmente el error es un espacio de más, una llave o corchete que no cierra, o una línea mal escrita. Si todo se ve bien y no encuentras el problema, siempre puedes restaurar la copia de seguridad con <code>sudo cp /etc/samba/smb.conf.backup /etc/samba/smb.conf</code> y volver a intentar.</p>
+  </div>
+
+  <p>Si <code>testparm</code> no reporta errores graves, reinicia el servicio y confirma que sigue activo:</p>
+
+  <div class="term-block">
+    <div class="term-block-bar">
+      <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
+      <span style="margin-left:6px;">servidor</span>
+    </div>
+    <div class="term-block-body">
+      <div class="l"><span class="prompt">$</span> <span class="cmd">sudo systemctl restart smbd</span></div>
+      <div class="l"><span class="prompt">$</span> <span class="cmd">systemctl status smbd</span></div>
+      <div class="l out">Active: active (running)</div>
+    </div>
+  </div>
+
+  <p>Y, ya que instalamos <code>ufw</code> en la Parte 2, agrega ahora la regla para que el firewall permita el tráfico de Samba (todavía sin activar el firewall — eso queda para la Parte 5):</p>
+
+  <div class="term-block">
+    <div class="term-block-bar">
+      <span class="tdot r"></span><span class="tdot y"></span><span class="tdot g"></span>
+      <span style="margin-left:6px;">servidor</span>
+    </div>
+    <div class="term-block-body">
+      <div class="l"><span class="prompt">$</span> <span class="cmd">sudo ufw allow samba</span></div>
+      <div class="l out">Rules updated</div>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>🟢 Comprueba que Samba esté escuchando en la red</h4>
+    <p>Como confirmación extra, puedes correr <code>sudo ss -tulpn | grep -E '445|139'</code>. Si ves esos números de puerto en la lista, Samba está correctamente a la espera de conexiones — <code>445</code> es el puerto que usa el SMB moderno.</p>
+  </div>
+</section>
+
+<!-- GLOSARIO -->
+<section class="module" id="glosario">
+  <div class="module-header">
+    <div class="module-icon">📖</div>
+    <div>
+      <div class="module-title">Glosario</div>
+      <div class="module-sub">Términos nuevos de esta parte</div>
+    </div>
+  </div>
+
+  <dl class="glos">
+    <div class="glos-item"><dt>Samba</dt><dd>El programa que permite a Linux compartir carpetas usando el protocolo SMB.</dd></div>
+    <div class="glos-item"><dt>SMB</dt><dd>El protocolo de red que usan Windows, Mac y Linux para compartir carpetas y archivos.</dd></div>
+    <div class="glos-item"><dt>smbd</dt><dd>El proceso (demonio) de Samba que atiende las peticiones que llegan por la red.</dd></div>
+    <div class="glos-item"><dt>Recurso compartido</dt><dd>Una carpeta que Samba ofrece con un nombre propio a través de la red — en esta guía, "Archivos".</dd></div>
+    <div class="glos-item"><dt>Propietario</dt><dd>El usuario de Linux al que pertenece un archivo o carpeta, y que controla quién puede acceder a él.</dd></div>
+    <div class="glos-item"><dt>Workgroup</dt><dd>Un nombre de agrupación de red heredado de Windows, usado para descubrir equipos en la misma red local.</dd></div>
+  </dl>
+</section>
+
+<!-- SIGUIENTE -->
+<section class="module" id="siguiente">
+  <div class="module-header">
+    <div class="module-icon">➡️</div>
+    <div>
+      <div class="module-title">Siguiente: conectarte desde tus 4 sistemas</div>
+      <div class="module-sub">Windows 11, Zorin OS, Linux Mint y Voyager — cada uno con su propio explorador de archivos</div>
+    </div>
+  </div>
+
+  <p>El servidor ya está compartiendo la carpeta <code>/srv/archivos</code> en tu red. Ahora vamos a conectarnos a ella desde cada uno de tus sistemas operativos, y a comprobar que puedes ver, crear, copiar y reproducir archivos directamente desde el servidor.</p>
+
+  <p><a href="servidor-parte4.html"><strong>Continuar con la Parte 4: Conectar tus PCs →</strong></a></p>
+</section>
+
+</main>
+
+<footer>
+  Servidor propio · Parte 3 de 5 · un proyecto de Café &lt;/&gt;
+</footer>
+
+<script>
+  (function() {
+    var root = document.documentElement;
+    var icon = document.getElementById('themeIcon');
+    var label = document.getElementById('themeLabel');
+    var STORAGE_KEY = 'cafe-codigo-theme';
+
+    function applyTheme(theme) {
+      if (theme === 'dark') {
+        root.setAttribute('data-theme', 'dark');
+        icon.textContent = '☀️';
+        label.textContent = 'Modo claro';
+      } else {
+        root.removeAttribute('data-theme');
+        icon.textContent = '🌙';
+        label.textContent = 'Modo oscuro';
+      }
+    }
+
+    var saved = null;
+    try { saved = localStorage.getItem(STORAGE_KEY); } catch (e) {}
+
+    if (saved) {
+      applyTheme(saved);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      applyTheme('dark');
+    }
+
+    window.toggleTheme = function() {
+      var isDark = root.getAttribute('data-theme') === 'dark';
+      var next = isDark ? 'light' : 'dark';
+      applyTheme(next);
+      try { localStorage.setItem(STORAGE_KEY, next); } catch (e) {}
+    };
+  })();
+</script>
+
+</body>
+</html>
