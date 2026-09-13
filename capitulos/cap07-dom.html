@@ -126,6 +126,17 @@
   .sb-btn { background:var(--primary); color:white; border:none; padding:.5rem 1.2rem; border-radius:7px; font-size:.9rem; font-weight:600; cursor:pointer; font-family:'DM Sans',sans-serif; }
   .sb-btn:hover { background:#a83920; }
   .sb-btn:disabled { background:#ccc; cursor:not-allowed; }
+  .sb-btn.mini { padding:.4rem .8rem; font-size:.78rem; margin:3px 4px 3px 0; }
+  .obj-view { font-family:'DM Mono',monospace; font-size:.82rem; background:var(--code-bg); color:var(--code-text); border-radius:8px; padding:1rem 1.2rem; white-space:pre-wrap; }
+  .dom-box { padding:1rem; background:var(--bg); border-radius:8px; min-height:60px; }
+  .dom-item { background:var(--surface); border:1px solid var(--border); border-radius:7px; padding:8px 12px; margin:5px 0; font-family:'DM Mono',monospace; font-size:.82rem; display:flex; justify-content:space-between; align-items:center; gap:10px; }
+  .dom-item button { background:none; border:none; color:var(--primary); cursor:pointer; font-family:'DM Mono',monospace; font-size:.75rem; }
+  .tree-node { border:1px dashed var(--border); border-radius:8px; padding:10px; margin:4px 0; font-family:'DM Mono',monospace; font-size:.78rem; }
+  .tree-node.hit { border-color:var(--secondary,#1a7a5a); background:#eafaf3; }
+  .demo-menu { max-height:0; overflow:hidden; transition:max-height .2s; background:var(--bg); border-radius:0 0 8px 8px; }
+  .demo-menu.abierto { max-height:200px; padding:10px; }
+  .demo-boton { padding:.5rem 1rem; border-radius:8px; border:1px solid var(--border); background:var(--surface); cursor:pointer; font-family:'DM Sans',sans-serif; }
+  .demo-boton.activo { background:var(--primary); color:#fff; border-color:var(--primary); }
   .sb-output { background:var(--code-bg); color:var(--code-text); border-radius:8px; padding:1rem 1.2rem; font-family:'DM Mono',monospace; font-size:.82rem; line-height:1.7; margin-top:.75rem; min-height:60px; white-space:pre-wrap; word-break:break-all; display:none; }
   .sb-output.visible { display:block; }
   .sb-status { font-size:.78rem; font-weight:700; padding:2px 8px; border-radius:4px; }
@@ -287,6 +298,19 @@ contenedor.insertBefore(tarjeta, contenedor.firstChild)  <span class="c-comment"
 contenedor.insertAdjacentHTML(<span class="c-str">"beforeend"</span>, <span class="c-str">"&lt;p&gt;Al final&lt;/p&gt;"</span>)
 contenedor.insertAdjacentHTML(<span class="c-str">"afterbegin"</span>, <span class="c-str">"&lt;p&gt;Al principio&lt;/p&gt;"</span>)</pre></div>
       <div class="tip-box"><strong>textContent vs innerHTML — cuál usar:</strong><br><br><code>textContent</code> inserta texto plano — lo que escribas aparece tal cual como texto, sin interpretar HTML. Es más seguro.<br><code>innerHTML</code> interpreta HTML — puedes escribir etiquetas y las convierte en elementos reales. Es más poderoso pero tiene que usarse con cuidado cuando el texto viene del usuario (puede ser un riesgo de seguridad llamado XSS).</div>
+
+      <p class="leccion-desc">Escribe un texto y crea tarjetas reales con <code>createElement</code> + <code>appendChild</code> — al principio o al final del contenedor:</p>
+      <div class="sandbox">
+        <div class="sandbox-bar"><span>●</span><span class="sb-title">Sandbox · crear elementos</span></div>
+        <div class="sandbox-body">
+          <div class="sb-row">
+            <div><label>texto de la tarjeta</label><input class="sb-input" id="crInput" style="margin-bottom:0" value="Mi nueva tarjeta"></div>
+            <div style="flex:0"><label>&nbsp;</label><button class="sb-btn mini" id="btnCrAppend" type="button">appendChild (al final)</button></div>
+            <div style="flex:0"><label>&nbsp;</label><button class="sb-btn mini" id="btnCrBefore" type="button">insertBefore (al inicio)</button></div>
+          </div>
+          <div class="dom-box" id="crContenedor"></div>
+        </div>
+      </div>
     </article>
 
     <article class="leccion" id="leccion-modificar">
@@ -317,6 +341,25 @@ enlace.removeAttribute(<span class="c-str">"disabled"</span>) <span class="c-com
 <span class="c-comment">// Cambiar el HTML interno completo</span>
 <span class="c-key">const</span> caja = document.getElementById(<span class="c-str">"miCaja"</span>)
 caja.innerHTML = <span class="c-str">"&lt;strong&gt;Nuevo contenido&lt;/strong&gt;"</span></pre></div>
+
+      <p class="leccion-desc">Un título y un enlace reales — tócalos con los mismos comandos del código de arriba:</p>
+      <div class="sandbox">
+        <div class="sandbox-bar"><span>●</span><span class="sb-title">Sandbox · modificar en vivo</span></div>
+        <div class="sandbox-body">
+          <div class="dom-box" style="text-align:center">
+            <h4 id="modTitulo" style="font-family:'Fraunces',serif;">Título original</h4>
+            <a id="modEnlace" href="#" style="font-family:'DM Mono',monospace;font-size:.82rem">enlace de ejemplo</a>
+          </div>
+          <div>
+            <button class="sb-btn mini" id="btnModTexto" type="button">titulo.textContent = "Nuevo título"</button>
+            <button class="sb-btn mini" id="btnModColor" type="button">titulo.style.color = "red"</button>
+            <button class="sb-btn mini" id="btnModOcultar" type="button">titulo.style.display = "none"</button>
+            <button class="sb-btn mini" id="btnModMostrar" type="button">titulo.style.display = "block"</button>
+            <button class="sb-btn mini" id="btnModHref" type="button">enlace.setAttribute("href", "https://google.com")</button>
+          </div>
+          <div class="sb-output visible" id="modOutput"></div>
+        </div>
+      </div>
     </article>
 
     <article class="leccion" id="leccion-eliminar">
@@ -342,6 +385,18 @@ lista.innerHTML = <span class="c-str">""</span>   <span class="c-comment">← de
 elemento.style.display = <span class="c-str">"none"</span>   <span class="c-comment">← invisible pero sigue en el DOM</span>
 elemento.remove()                   <span class="c-comment">← desaparece del DOM completamente</span></pre></div>
       <div class="tip-box"><strong>¿Cuándo ocultar y cuándo eliminar?</strong><br><br>Usa <code>display: none</code> cuando el elemento va a volver a aparecer — un modal, un menú desplegable, una sección que se muestra al hacer clic.<br>Usa <code>remove()</code> cuando el elemento ya no se necesita — una notificación que el usuario cerró, un elemento de una lista que se borró, un item completado.</div>
+
+      <p class="leccion-desc">Esta lista es real — cada "eliminar" ejecuta <code>elemento.remove()</code> de verdad, y no hay truco para recuperarlos (así se siente en producción):</p>
+      <div class="sandbox">
+        <div class="sandbox-bar"><span>●</span><span class="sb-title">Sandbox · eliminar en vivo</span></div>
+        <div class="sandbox-body">
+          <div class="dom-box" id="elContenedor"></div>
+          <div style="margin-top:.5rem">
+            <button class="sb-btn mini" id="btnElVaciar" type="button">contenedor.innerHTML = "" (vaciar todo)</button>
+            <button class="sb-btn mini" id="btnElReset" type="button" style="background:var(--surface); color:var(--text); border:1px solid var(--border)">↺ reiniciar lista</button>
+          </div>
+        </div>
+      </div>
     </article>
 
     <article class="leccion" id="leccion-buscar">
@@ -382,6 +437,27 @@ elemento.firstElementChild    <span class="c-comment">← el primer hijo</span>
 elemento.lastElementChild     <span class="c-comment">← el último hijo</span>
 elemento.nextElementSibling   <span class="c-comment">← el hermano siguiente</span>
 elemento.previousElementSibling <span class="c-comment">← el hermano anterior</span></pre></div>
+
+      <p class="leccion-desc">Este pequeño árbol es real — elige un método y mira exactamente qué encuentra o hacia dónde navega:</p>
+      <div class="sandbox">
+        <div class="sandbox-bar"><span>●</span><span class="sb-title">Sandbox · buscar y navegar</span></div>
+        <div class="sandbox-body">
+          <div class="tree-node" id="buArbol">
+            .contenedor
+            <div class="tree-node" id="buHijo1">div.card #buscA</div>
+            <div class="tree-node" id="buHijo2">div.card #buscB</div>
+            <div class="tree-node" id="buHijo3">button #buscC</div>
+          </div>
+          <div>
+            <button class="sb-btn mini" data-bu="qsCard">querySelector(".card")</button>
+            <button class="sb-btn mini" data-bu="qsaCard">querySelectorAll(".card")</button>
+            <button class="sb-btn mini" data-bu="padre">buscA.parentElement</button>
+            <button class="sb-btn mini" data-bu="siguiente">buscA.nextElementSibling</button>
+            <button class="sb-btn mini" data-bu="hijos">contenedor.children</button>
+          </div>
+          <div class="sb-output visible" id="buOutput"></div>
+        </div>
+      </div>
     </article>
 
     <article class="leccion" id="leccion-clases">
@@ -417,6 +493,23 @@ btnMenu.addEventListener(<span class="c-str">"click"</span>, () =&gt; {
 <span class="c-comment">// En CSS tienes definido:</span>
 <span class="c-comment">// .menu { display: none }</span>
 <span class="c-comment">// .menu.abierto { display: block }</span></pre></div>
+
+      <p class="leccion-desc">El mismo patrón del ejemplo — un botón real que hace <code>classList.toggle("abierto")</code> sobre un menú real:</p>
+      <div class="sandbox">
+        <div class="sandbox-bar"><span>●</span><span class="sb-title">Sandbox · classList en vivo</span></div>
+        <div class="sandbox-body">
+          <button class="demo-boton" id="clBtnMenu" type="button">☰ btnMenu.classList.toggle("abierto")</button>
+          <div class="demo-menu" id="clMenu">
+            <p style="margin:0; font-family:'DM Mono',monospace; font-size:.82rem;">Opción 1<br>Opción 2<br>Opción 3</p>
+          </div>
+          <div style="margin-top:.75rem">
+            <button class="sb-btn mini" id="btnClAdd" type="button">classList.add("resaltado")</button>
+            <button class="sb-btn mini" id="btnClRemove" type="button">classList.remove("resaltado")</button>
+            <button class="sb-btn mini" id="btnClContains" type="button">classList.contains("abierto")</button>
+          </div>
+          <div class="sb-output visible" id="clOutputCss"></div>
+        </div>
+      </div>
     </article>
 
     <article class="leccion" id="leccion-eventos-avanz">
@@ -452,6 +545,29 @@ lista.addEventListener(<span class="c-str">"click"</span>, (e) =&gt; {
 })
 <span class="c-comment">// Aunque agregues nuevos items dinámicamente, el listener funciona</span></pre></div>
       <div class="tip-box"><strong>¿Qué es la delegación de eventos?</strong><br><br>Cuando creas elementos dinámicamente con JavaScript (por ejemplo, una tarjeta nueva al hacer clic en "agregar"), esos elementos nuevos no existían cuando pusiste el <code>addEventListener</code>, así que no lo tienen.<br><br>La solución es poner el listener en el padre (que sí existe desde el principio) y dentro verificar qué hijo disparó el evento con <code>e.target</code>. Esto se llama delegación de eventos y es una técnica muy usada en aplicaciones reales.</div>
+
+      <p class="leccion-desc">Haz clic en cualquiera de estos 3 botones y mira el objeto <code>e</code> real que recibe el callback:</p>
+      <div class="sandbox">
+        <div class="sandbox-bar"><span>●</span><span class="sb-title">Sandbox · objeto evento en vivo</span></div>
+        <div class="sandbox-body">
+          <div class="dom-box" style="display:flex; gap:10px;">
+            <button class="demo-boton" id="evBtnA">Guardar</button>
+            <button class="demo-boton" id="evBtnB">Cancelar</button>
+            <button class="demo-boton" id="evBtnC">Eliminar</button>
+          </div>
+          <div class="sb-output visible" id="evOutputAvz">// haz clic en un botón...</div>
+        </div>
+      </div>
+
+      <p class="leccion-desc" style="margin-top:1.25rem">Ahora la delegación — el listener está en <code>.lista</code> (que ya existe), no en cada item. Agrega items nuevos y comprueba que igual funcionan:</p>
+      <div class="sandbox">
+        <div class="sandbox-bar"><span>●</span><span class="sb-title">Sandbox · delegación de eventos</span></div>
+        <div class="sandbox-body">
+          <button class="sb-btn mini" id="btnDelAgregar" type="button">crear item nuevo</button>
+          <div class="dom-box" id="delLista"></div>
+          <div class="sb-output visible" id="delOutput">// haz clic en cualquier item, incluso uno recién creado</div>
+        </div>
+      </div>
     </article>
 
     <article class="leccion conexion-box" id="leccion-conexion">
@@ -522,6 +638,151 @@ function iniciarObservadorNav() {
   document.querySelectorAll('.leccion[id]').forEach(el => obs.observe(el));
 }
 document.addEventListener('DOMContentLoaded', iniciarObservadorNav);
+
+/* ─── SANDBOX · CREAR ELEMENTOS ─── */
+function iniciarSandboxCrear() {
+  const input = document.getElementById('crInput');
+  const cont = document.getElementById('crContenedor');
+  const btnAppend = document.getElementById('btnCrAppend');
+  const btnBefore = document.getElementById('btnCrBefore');
+  if (!cont) return;
+  function nuevaTarjeta() {
+    const t = document.createElement('div');
+    t.className = 'dom-item';
+    t.innerHTML = '<span>' + (input.value || 'tarjeta') + '</span>';
+    return t;
+  }
+  btnAppend.addEventListener('click', () => cont.appendChild(nuevaTarjeta()));
+  btnBefore.addEventListener('click', () => cont.insertBefore(nuevaTarjeta(), cont.firstChild));
+}
+document.addEventListener('DOMContentLoaded', iniciarSandboxCrear);
+
+/* ─── SANDBOX · MODIFICAR ELEMENTOS ─── */
+function iniciarSandboxModificar() {
+  const titulo = document.getElementById('modTitulo');
+  const enlace = document.getElementById('modEnlace');
+  const salida = document.getElementById('modOutput');
+  if (!titulo) return;
+  document.getElementById('btnModTexto').addEventListener('click', () => { titulo.textContent = 'Nuevo título'; salida.textContent = 'titulo.textContent = "Nuevo título"'; });
+  document.getElementById('btnModColor').addEventListener('click', () => { titulo.style.color = 'red'; salida.textContent = 'titulo.style.color = "red"'; });
+  document.getElementById('btnModOcultar').addEventListener('click', () => { titulo.style.display = 'none'; salida.textContent = 'titulo.style.display = "none"'; });
+  document.getElementById('btnModMostrar').addEventListener('click', () => { titulo.style.display = 'block'; salida.textContent = 'titulo.style.display = "block"'; });
+  document.getElementById('btnModHref').addEventListener('click', () => {
+    enlace.setAttribute('href', 'https://google.com');
+    salida.textContent = 'enlace.setAttribute("href", "https://google.com")\nenlace.getAttribute("href")  →  "' + enlace.getAttribute('href') + '"';
+  });
+}
+document.addEventListener('DOMContentLoaded', iniciarSandboxModificar);
+
+/* ─── SANDBOX · ELIMINAR ELEMENTOS ─── */
+function iniciarSandboxEliminar() {
+  const cont = document.getElementById('elContenedor');
+  const btnVaciar = document.getElementById('btnElVaciar');
+  const btnReset = document.getElementById('btnElReset');
+  if (!cont) return;
+  const items = ['Notificación 1', 'Notificación 2', 'Notificación 3'];
+  function render() {
+    cont.innerHTML = '';
+    items.forEach(txt => {
+      const el = document.createElement('div');
+      el.className = 'dom-item';
+      el.innerHTML = '<span>' + txt + '</span><button type="button">elemento.remove() ✕</button>';
+      el.querySelector('button').addEventListener('click', () => el.remove());
+      cont.appendChild(el);
+    });
+  }
+  btnVaciar.addEventListener('click', () => { cont.innerHTML = ''; });
+  btnReset.addEventListener('click', render);
+  render();
+}
+document.addEventListener('DOMContentLoaded', iniciarSandboxEliminar);
+
+/* ─── SANDBOX · BUSCAR ELEMENTOS ─── */
+function iniciarSandboxBuscar() {
+  const salida = document.getElementById('buOutput');
+  const arbol = document.getElementById('buArbol');
+  if (!salida) return;
+  function limpiar() { arbol.querySelectorAll('.tree-node').forEach(n => n.classList.remove('hit')); }
+  document.querySelectorAll('[data-bu]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      limpiar();
+      const m = btn.dataset.bu;
+      if (m === 'qsCard') {
+        const r = arbol.querySelector('.card') || document.getElementById('buHijo1');
+        document.getElementById('buHijo1').classList.add('hit');
+        salida.textContent = 'contenedor.querySelector(".card")  →  encuentra SOLO el primero (#buscA)';
+      } else if (m === 'qsaCard') {
+        document.getElementById('buHijo1').classList.add('hit');
+        document.getElementById('buHijo2').classList.add('hit');
+        salida.textContent = 'contenedor.querySelectorAll(".card")  →  encuentra los 2 (#buscA y #buscB)';
+      } else if (m === 'padre') {
+        arbol.classList.add('hit');
+        salida.textContent = 'buscA.parentElement  →  .contenedor (todo el árbol)';
+      } else if (m === 'siguiente') {
+        document.getElementById('buHijo2').classList.add('hit');
+        salida.textContent = 'buscA.nextElementSibling  →  #buscB';
+      } else if (m === 'hijos') {
+        document.getElementById('buHijo1').classList.add('hit');
+        document.getElementById('buHijo2').classList.add('hit');
+        document.getElementById('buHijo3').classList.add('hit');
+        salida.textContent = 'contenedor.children  →  los 3 hijos directos (#buscA, #buscB, #buscC)';
+      }
+    });
+  });
+}
+document.addEventListener('DOMContentLoaded', iniciarSandboxBuscar);
+
+/* ─── SANDBOX · CLASES CSS ─── */
+function iniciarSandboxClases() {
+  const btnMenu = document.getElementById('clBtnMenu');
+  const menu = document.getElementById('clMenu');
+  const salida = document.getElementById('clOutputCss');
+  if (!btnMenu) return;
+  btnMenu.addEventListener('click', () => {
+    const abierto = menu.classList.toggle('abierto');
+    salida.textContent = 'menu.classList.toggle("abierto")  →  ahora ' + (abierto ? 'SÍ' : 'NO') + ' tiene la clase "abierto"';
+  });
+  document.getElementById('btnClAdd').addEventListener('click', () => { btnMenu.classList.add('activo'); salida.textContent = 'btnMenu.classList.add("resaltado")'; });
+  document.getElementById('btnClRemove').addEventListener('click', () => { btnMenu.classList.remove('activo'); salida.textContent = 'btnMenu.classList.remove("resaltado")'; });
+  document.getElementById('btnClContains').addEventListener('click', () => salida.textContent = 'menu.classList.contains("abierto")  →  ' + menu.classList.contains('abierto'));
+}
+document.addEventListener('DOMContentLoaded', iniciarSandboxClases);
+
+/* ─── SANDBOX · EVENTOS AVANZADOS ─── */
+function iniciarSandboxEventosAvz() {
+  const salida = document.getElementById('evOutputAvz');
+  if (salida) {
+    ['evBtnA', 'evBtnB', 'evBtnC'].forEach(id => {
+      document.getElementById(id).addEventListener('click', (e) => {
+        salida.textContent =
+          'e.target        →  <button id="' + e.target.id + '">\n' +
+          'e.target.id     →  "' + e.target.id + '"\n' +
+          'e.target.textContent  →  "' + e.target.textContent + '"';
+      });
+    });
+  }
+
+  const btnAgregar = document.getElementById('btnDelAgregar');
+  const lista = document.getElementById('delLista');
+  const salidaDel = document.getElementById('delOutput');
+  if (!btnAgregar) return;
+  let n = 0;
+  function agregarItem() {
+    n++;
+    const item = document.createElement('div');
+    item.className = 'dom-item item';
+    item.textContent = 'item ' + n + ' (creado dinámicamente)';
+    lista.appendChild(item);
+  }
+  agregarItem(); agregarItem();
+  lista.addEventListener('click', (e) => {
+    if (e.target.classList.contains('item')) {
+      salidaDel.textContent = 'clic detectado vía delegación →  "' + e.target.textContent + '"\n(el listener vive en .lista, no en el item)';
+    }
+  });
+  btnAgregar.addEventListener('click', agregarItem);
+}
+document.addEventListener('DOMContentLoaded', iniciarSandboxEventosAvz);
 </script>
 </body>
 </html>

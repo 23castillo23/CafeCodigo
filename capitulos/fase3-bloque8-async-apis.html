@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Fase 3, Bloque 8 — JavaScript: async/fetch, desde cero, con demo en vivo de una API real.">
+<title>Bloque 8 — Async y APIs | JavaScript desde cero</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #4338ca;
+    --primary-light:  #eef0fd;
+    --secondary:      #0f766e;
+    --secondary-light:#eafaf7;
+    --accent:         #b45309;
+    --accent-light:   #fdf3e5;
+    --danger:         #b91c1c;
+    --danger-light:   #fdf0f0;
+    --bg:             #f6f5fb;
+    --surface:        #ffffff;
+    --text:           #1c1a2e;
+    --muted:          #85819c;
+    --border:         #e5e3f3;
+    --code-bg:        #1c1a2e;
+    --code-text:      #ece9fb;
+  }
+
+  body { font-family: 'DM Sans', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  header { background: #1c1a2e; color: #f6f5fb; padding: 3rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: '☁'; position: absolute; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 11rem; right: -.5rem; top: -2.5rem; opacity: .07; line-height: 1; }
+  header .ex-label { display: inline-block; background: var(--primary); color: white; border-radius: 20px; padding: 4px 16px; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 1rem; }
+  header h1 { font-family: 'Space Grotesk', sans-serif; font-size: 2.4rem; font-weight: 700; letter-spacing: -1px; }
+  header p.sub { font-size: 1.05rem; opacity: .8; margin-top: .5rem; font-style: italic; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  /* BARRA CAFÉ */
+  .cafe-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; gap: 14px; position: sticky; top: 0; z-index: 200; height: 45px; }
+  .cafe-bar a { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); text-decoration: none; padding: 6px 14px; border: 1px solid var(--border); border-radius: 999px; transition: all 0.15s; }
+  .cafe-bar a:hover { color: var(--text); border-color: var(--muted); }
+  .cafe-bar span { font-size: 13px; color: var(--muted); }
+
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 45px; z-index: 100; display: flex; overflow-x: auto; gap: 0; }
+  nav a { flex-shrink: 0; padding: .75rem 1.1rem; text-decoration: none; color: var(--muted); font-size: .82rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 1000px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: white; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2.5rem; scroll-margin-top:80px; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.3rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  .analogy { background: #FFF7ED; border: 1px solid #FDE68A; border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: #92400E; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; color: #78350F; }
+
+  .concept { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p, .tip ul { font-size: .95rem; }
+  .tip ul { padding-left: 1.2rem; }
+  .tip li { margin-bottom: .3rem; }
+
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  .code-block { background: var(--code-bg); color: var(--code-text); border-radius: 10px; padding: 1.25rem 1.5rem; font-family: 'DM Mono', 'Courier New', monospace; font-size: .88rem; line-height: 1.9; overflow-x: auto; margin: 1rem 0; position: relative; white-space: pre; }
+  .code-block .ck { color: #c4b5fd; }
+  .code-block .cv { color: #86efac; }
+  .code-block .cs { color: #fde68a; }
+  .code-block .cn { color: #93c5fd; }
+  .code-block .cf { color: #67e8f9; }
+  .code-block .cc { color: #8b87a8; font-style: italic; }
+  .code-block .co { color: #ece9fb; }
+  .lang { position: absolute; top: .6rem; right: .75rem; background: rgba(255,255,255,.1); color: rgba(255,255,255,.5); font-size: .68rem; padding: 2px 8px; border-radius: 4px; font-family: sans-serif; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  .glos { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .glos-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; }
+  .glos-item dt { font-weight: 700; color: var(--primary); font-size: .92rem; margin-bottom: .3rem; }
+  .glos-item dd { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+  .glos-item .emoji { font-size: 1.4rem; display: block; margin-bottom: .4rem; }
+
+  /* DEMO DE API REAL EN VIVO */
+  .api-demo { border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; background: var(--bg); margin: 1.1rem 0; text-align: center; }
+  .api-demo button { background: var(--primary); color: white; border: none; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: .88rem; padding: 10px 20px; border-radius: 20px; cursor: pointer; }
+  .api-result { margin-top: 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.25rem; font-family: 'DM Mono', monospace; font-size: .9rem; min-height: 50px; display: flex; align-items: center; justify-content: center; color: var(--text); }
+  .api-result.loading { color: var(--muted); font-style: italic; }
+
+  /* LABORATORIO DE 3 PANELES */
+  .lab3-holder { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 1rem 0; }
+  @media (max-width: 800px) { .lab3-holder { grid-template-columns: 1fr; } }
+  .lab3-editors { display: flex; flex-direction: column; gap: 10px; }
+  .lab-panel { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .lab-panel-label { background: #1c1a2e; color: #ece9fb; font-family: 'DM Mono', monospace; font-size: .7rem; padding: 5px 12px; letter-spacing: .04em; }
+  .lab-panel textarea { width: 100%; height: 150px; border: none; resize: vertical; background: var(--code-bg); color: var(--code-text); font-family: 'DM Mono', monospace; font-size: .82rem; line-height: 1.6; padding: .8rem 1rem; outline: none; }
+  .lab-preview-label { background: var(--bg); color: var(--muted); font-family: 'DM Mono', monospace; font-size: .72rem; padding: 6px 12px; letter-spacing: .04em; border-bottom: 1px solid var(--border); }
+  .lab-preview iframe { width: 100%; height: 320px; border: none; background: #fff; }
+
+  .lab-reset { display: block; margin-top: .7rem; font-size: .78rem; color: var(--muted); background: none; border: none; text-decoration: underline; cursor: pointer; padding: 0; }
+
+  .reto-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin: 1.25rem 0; }
+  .reto-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+  .reto-card .nivel { display: inline-block; font-size: .72rem; font-weight: 700; padding: 2px 10px; border-radius: 20px; margin-bottom: .6rem; text-transform: uppercase; letter-spacing: .06em; }
+  .nivel-f { background: #FEF3C7; color: #92400E; }
+  .nivel-m { background: #FFEDD5; color: #C2410C; }
+  .nivel-a { background: #FEE2E2; color: #B91C1C; }
+  .reto-card h4 { font-size: .95rem; font-weight: 700; margin-bottom: .5rem; }
+  .reto-card p { font-size: .88rem; color: var(--muted); margin-bottom: .5rem; }
+
+  .chip { display: inline-block; background: var(--primary-light); color: var(--primary); font-size: .8rem; padding: 3px 12px; border-radius: 20px; font-weight: 600; margin: 3px; font-family: 'DM Mono', monospace; }
+
+  h2 { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; color: var(--text); }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: #ecebf7; color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  strong { font-weight: 700; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+
+  .final-banner { background: linear-gradient(135deg, #4338ca, #0f766e); color: white; border-radius: 16px; padding: 2.5rem 2rem; text-align: center; margin-top: 1rem; }
+  .final-banner h2 { color: white; font-size: 1.6rem; margin-top: 0; }
+  .final-banner p { color: rgba(255,255,255,.9); max-width: 600px; margin: 0 auto .5rem; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); }
+</style>
+<style>
+  .course-nav { background: #100f1c; display: flex; overflow-x: auto; gap: 6px; padding: 10px 14px; align-items: center; }
+  .course-nav a { flex-shrink: 0; font-family: 'DM Mono', monospace; font-size: .74rem; font-weight: 700; color: #a5a1c4; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 14px; padding: 5px 11px; text-decoration: none; white-space: nowrap; transition: background .15s, color .15s; }
+  .course-nav a:hover { background: rgba(255,255,255,.14); color: #ece9fb; }
+  .course-nav a.current { background: #4338ca; color: white; border-color: #4338ca; }
+  .course-nav .sep { color: #4a4766; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<!-- BARRA CAFÉ -->
+<div class="cafe-bar">
+  <a href="../capitulos.html">← Capítulos</a>
+  <span>☕ Fase 3 · Bloque 8 · Async y APIs</span>
+</div>
+
+<header>
+  <div class="ex-label">✏️ Fase 3 · Bloque 8 (final)</div>
+  <h1>Async y APIs</h1>
+  <p class="sub">Trae datos reales de internet a tu página</p>
+  <span class="badge">🎯 JavaScript · fetch · async/await · JSON</span>
+</header>
+
+<div class="course-nav">
+  <a href="fase1-bloque1-estructura-texto.html">F1.1</a>
+  <a href="fase1-bloque2-listas-enlaces-imagenes.html">F1.2</a>
+  <a href="fase1-bloque3-div-section.html">F1.3</a>
+  <a href="fase2-bloque1-selectores-colores.html">F2.1</a>
+  <a href="fase2-bloque2-espaciado-cajas.html">F2.2</a>
+  <a href="fase2-bloque3-id-flexbox-responsive.html">F2.3</a>
+  <a href="fase3-bloque1-variables-tipos.html">F3.1</a>
+  <a href="fase3-bloque2-operadores-condicionales.html">F3.2</a>
+  <a href="fase3-bloque3-bucles.html">F3.3</a>
+  <a href="fase3-bloque4-funciones.html">F3.4</a>
+  <a href="fase3-bloque5-arreglos-objetos.html">F3.5</a>
+  <a href="fase3-bloque6-dom.html">F3.6</a>
+  <a href="fase3-bloque7-formularios-validacion.html">F3.7</a>
+  <a href="fase3-bloque8-async-apis.html" class="current">F3.8</a>
+  <a href="fase4-bloque1-arrow-template-literals.html">F4.1</a>
+  <a href="mi-lista-de-tareas.html">🏁 Proyecto</a>
+</div>
+
+
+<nav>
+  <a href="#recordatorio">🔁 Recordatorio</a>
+  <a href="#vocabulario">📖 Vocabulario nuevo</a>
+  <a href="#fetch">📡 fetch y async/await</a>
+  <a href="#demo">🐱 Demo con una API real</a>
+  <a href="#laboratorio">🧪 Laboratorio</a>
+  <a href="#retos">🏆 Retos</a>
+  <a href="#final">🎉 Fin de la ruta</a>
+</nav>
+
+<main>
+
+<div class="parte-badge">☁ Fase 3 · Bloque 8 — JavaScript desde cero: async y APIs</div>
+
+<section class="module" id="recordatorio">
+  <div class="module-header">
+    <div class="module-icon">🔁</div>
+    <div>
+      <div class="module-title">Antes de empezar: recordatorio rápido</div>
+      <div class="module-sub">El último bloque de esta ruta</div>
+    </div>
+  </div>
+  <p>Ya sabes conectar JavaScript con tu HTML (el DOM) y trabajar con formularios. Todo tu código hasta ahora se ejecuta al instante. Pero traer datos de internet toma tiempo (aunque sea poco) — y ahí es donde entra el código <strong>asíncrono</strong>.</p>
+</section>
+
+<section class="module" id="vocabulario">
+  <div class="module-header">
+    <div class="module-icon">📖</div>
+    <div>
+      <div class="module-title">Vocabulario nuevo</div>
+      <div class="module-sub">Las piezas para trabajar con datos externos</div>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <h4>🧠 Piénsalo así</h4>
+    <p>Pedir comida a domicilio: haces el pedido (<code>fetch</code>), y mientras esperas, NO te quedas parado sin hacer nada — sigues con tu vida. Cuando la comida llega (la respuesta), la recibes y la usas. Eso es exactamente "asíncrono": no bloquea el resto de tu código mientras espera.</p>
+  </div>
+
+  <div class="glos">
+    <div class="glos-item">
+      <span class="emoji">☁</span>
+      <dt>API</dt>
+      <dd>Un servicio en internet al que le puedes pedir datos</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">📡</span>
+      <dt>fetch</dt>
+      <dd>La función de JavaScript para pedir datos a una API</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">⏳</span>
+      <dt>Asíncrono</dt>
+      <dd>Código que toma tiempo en completarse, sin bloquear lo demás</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">⏸</span>
+      <dt>await</dt>
+      <dd>"Espera aquí a que esto termine, antes de seguir"</dd>
+    </div>
+  </div>
+</section>
+
+<section class="module" id="fetch">
+  <div class="module-header">
+    <div class="module-icon">📡</div>
+    <div>
+      <div class="module-title">PARTE 1 — fetch y async/await</div>
+      <div class="module-sub">La forma moderna y más legible de pedir datos</div>
+    </div>
+  </div>
+
+  <div class="code-block"><span class="lang">JS</span><span class="ck">async function</span> <span class="cf">obtenerDato</span><span class="co">() {</span>
+  <span class="ck">const</span> <span class="cv">respuesta</span> <span class="co">=</span> <span class="ck">await</span> <span class="cf">fetch</span><span class="co">(</span><span class="cs">"https://catfact.ninja/fact"</span><span class="co">);</span>
+  <span class="ck">const</span> <span class="cv">datos</span> <span class="co">=</span> <span class="ck">await</span> <span class="cv">respuesta</span><span class="co">.</span><span class="cf">json</span><span class="co">();</span>
+  <span class="cf">console.log</span><span class="co">(</span><span class="cv">datos</span><span class="co">.</span><span class="cf">fact</span><span class="co">);</span>
+<span class="co">}</span>
+
+<span class="cf">obtenerDato</span><span class="co">();</span></div>
+
+  <table class="tbl">
+    <thead><tr><th>Parte</th><th>¿Qué hace?</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">async function</span></td><td>Marca la función como "puede tener esperas adentro". Es obligatorio para poder usar <code>await</code>.</td></tr>
+      <tr><td><span class="tag">await fetch(url)</span></td><td>Pide los datos a esa dirección, y ESPERA la respuesta antes de continuar a la siguiente línea.</td></tr>
+      <tr><td><span class="tag">.json()</span></td><td>Convierte la respuesta cruda en un objeto de JavaScript normal, que ya sabes usar.</td></tr>
+      <tr><td><span class="tag">datos.fact</span></td><td>Una vez que tienes el objeto, accedes a sus propiedades exactamente como aprendiste con objetos.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="tip">
+    <h4>💡 JSON no es nuevo para ti</h4>
+    <p>JSON es básicamente la misma sintaxis que ya conoces de los objetos de JavaScript (<code>{ clave: valor }</code>). Por eso <code>.json()</code> se siente natural: convierte texto en algo con la forma que ya sabes recorrer.</p>
+  </div>
+</section>
+
+<section class="module" id="demo">
+  <div class="module-header">
+    <div class="module-icon">🐱</div>
+    <div>
+      <div class="module-title">PARTE 2 — Pruébalo con una API real</div>
+      <div class="module-sub">Este botón hace un fetch de verdad a internet, ahora mismo</div>
+    </div>
+  </div>
+
+  <p>Presiona el botón: tu navegador va a pedir un dato real a una API pública de datos curiosos de gatos.</p>
+
+  <div class="api-demo">
+    <button onclick="fetchCatFact()">🐱 Traer un dato curioso</button>
+    <div class="api-result" id="apiResult">Presiona el botón para traer un dato</div>
+  </div>
+
+  <div class="concept">
+    <h4>💡 Qué está pasando cuando lo presionas</h4>
+    <p>Exactamente lo del código de la Parte 1: se hace <code>fetch</code> a la API, se espera la respuesta con <code>await</code>, se convierte con <code>.json()</code>, y el resultado se muestra con <code>textContent</code> — todo lo que ya aprendiste, trabajando junto.</p>
+  </div>
+</section>
+
+<section class="module" id="laboratorio">
+  <div class="module-header">
+    <div class="module-icon">🧪</div>
+    <div>
+      <div class="module-title">PARTE 3 — Laboratorio: tu propia mini app con fetch</div>
+      <div class="module-sub">Ya tienes un botón que trae un dato — modifícalo a tu gusto</div>
+    </div>
+  </div>
+
+  <div class="lab3-holder">
+    <div class="lab3-editors">
+      <div class="lab-panel">
+        <div class="lab-panel-label">📄 HTML</div>
+        <textarea id="labHtml" spellcheck="false"></textarea>
+      </div>
+      <div class="lab-panel">
+        <div class="lab-panel-label">🎨 CSS</div>
+        <textarea id="labCss" spellcheck="false"></textarea>
+      </div>
+      <div class="lab-panel">
+        <div class="lab-panel-label">⚙️ JavaScript</div>
+        <textarea id="labJs" spellcheck="false"></textarea>
+      </div>
+    </div>
+    <div class="lab-panel">
+      <div class="lab-preview-label">🖥 RESULTADO EN VIVO (necesita internet)</div>
+      <div class="lab-preview"><iframe id="labFrame"></iframe></div>
+    </div>
+  </div>
+
+  <button class="lab-reset" onclick="labReset()">↺ Restaurar código original</button>
+</section>
+
+<section class="module" id="retos">
+  <div class="module-header">
+    <div class="module-icon">🏆</div>
+    <div>
+      <div class="module-title">PARTE 4 — Retos para practicar</div>
+      <div class="module-sub">Resuélvelos directo en el laboratorio de arriba</div>
+    </div>
+  </div>
+
+  <div class="reto-grid">
+    <div class="reto-card">
+      <span class="nivel nivel-f">🟡 Fácil</span>
+      <h4>Reto 1 — Muestra un contador de carga</h4>
+      <p>Antes de hacer el <code>fetch</code>, cambia el texto a "Cargando..." — y reemplázalo con el dato real cuando llegue.</p>
+    </div>
+    <div class="reto-card">
+      <span class="nivel nivel-m">🟠 Medio</span>
+      <h4>Reto 2 — Varios datos en una lista</h4>
+      <p>Haz 3 <code>fetch</code> seguidos (puedes repetir la misma función 3 veces) y agrega cada resultado como un <code>&lt;li&gt;</code> nuevo a una lista, usando lo que aprendiste del DOM.</p>
+    </div>
+    <div class="reto-card">
+      <span class="nivel nivel-a">🔴 Avanzado</span>
+      <h4>Reto 3 — Maneja errores</h4>
+      <p>Investiga y envuelve tu código en un bloque <code>try { ... } catch (error) { ... }</code> para mostrar un mensaje amigable si el fetch falla (por ejemplo, sin internet).</p>
+    </div>
+  </div>
+</section>
+
+<section class="module" id="final">
+  <div class="final-banner">
+    <h2>🎉 ¡Completaste la ruta completa: HTML + CSS + JavaScript desde cero!</h2>
+    <p>Estructura, estilo, lógica, el DOM, formularios y ahora datos reales de internet. Ya tienes las piezas para construir páginas web interactivas de verdad, desde cero.</p>
+    <p><strong>Siguiente paso sugerido:</strong> arma un proyecto propio pequeño (una lista de tareas guardada, una app de clima usando una API real, o una tarjeta de presentación interactiva) uniendo todo lo que ya aprendiste. Dime cuál te gustaría construir y lo hacemos paso a paso, igual que hasta ahora.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Fase 3 · Bloque 8 — Async y APIs · JavaScript desde cero · Jacqui 2026
+</footer>
+
+<script>
+async function fetchCatFact() {
+  const resultEl = document.getElementById('apiResult');
+  resultEl.className = 'api-result loading';
+  resultEl.textContent = 'Cargando...';
+  try {
+    const respuesta = await fetch('https://catfact.ninja/fact');
+    const datos = await respuesta.json();
+    resultEl.className = 'api-result';
+    resultEl.textContent = datos.fact;
+  } catch (error) {
+    resultEl.className = 'api-result';
+    resultEl.textContent = 'No se pudo traer el dato (revisa tu conexión a internet).';
+  }
+}
+
+const STARTER_HTML = `<h2>Dato curioso</h2>
+<button id="btnTraer">Traer dato</button>
+<p id="resultado">Presiona el botón</p>`;
+
+const STARTER_CSS = `body { font-family: sans-serif; padding: 16px; }
+button { background: #4338ca; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; }
+#resultado { margin-top: 10px; font-family: monospace; }`;
+
+const STARTER_JS = `const boton = document.querySelector("#btnTraer");
+const resultado = document.querySelector("#resultado");
+
+async function traerDato() {
+  resultado.textContent = "Cargando...";
+  const respuesta = await fetch("https://catfact.ninja/fact");
+  const datos = await respuesta.json();
+  resultado.textContent = datos.fact;
+}
+
+boton.addEventListener("click", traerDato);`;
+
+function renderLab() {
+  const html = document.getElementById('labHtml').value;
+  const css = document.getElementById('labCss').value;
+  const js = document.getElementById('labJs').value;
+  const doc = '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>' + css + '</style></head><body>' + html + '<script>' + js + '<' + '/script></body></html>';
+  document.getElementById('labFrame').srcdoc = doc;
+}
+
+function labReset() {
+  document.getElementById('labHtml').value = STARTER_HTML;
+  document.getElementById('labCss').value = STARTER_CSS;
+  document.getElementById('labJs').value = STARTER_JS;
+  renderLab();
+}
+
+['labHtml','labCss','labJs'].forEach(id => {
+  document.getElementById(id).addEventListener('input', renderLab);
+});
+labReset();
+</script>
+
+</body>
+</html>

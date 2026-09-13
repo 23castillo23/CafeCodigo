@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Ejercicio 1, Bloque 3 — HTML: organizar el contenido con div y section, desde cero.">
+<title>Bloque 3 — Organizar el Contenido | HTML desde cero</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #b45309;
+    --primary-light:  #fdf3e5;
+    --secondary:      #0f766e;
+    --secondary-light:#ecfaf8;
+    --accent:         #4338ca;
+    --accent-light:   #eef0fd;
+    --danger:         #b91c1c;
+    --danger-light:   #fdf0f0;
+    --bg:             #f7f5f1;
+    --surface:        #ffffff;
+    --text:           #211c17;
+    --muted:          #837b70;
+    --border:         #e9e2d6;
+    --code-bg:        #211c17;
+    --code-text:      #f1ece2;
+  }
+
+  body { font-family: 'DM Sans', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  header { background: #211c17; color: #f7f5f1; padding: 3rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: '<>'; position: absolute; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 11rem; right: -.5rem; top: -2.5rem; opacity: .06; line-height: 1; }
+  header .ex-label { display: inline-block; background: var(--primary); color: white; border-radius: 20px; padding: 4px 16px; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 1rem; }
+  header h1 { font-family: 'Space Grotesk', sans-serif; font-size: 2.4rem; font-weight: 700; letter-spacing: -1px; }
+  header p.sub { font-size: 1.05rem; opacity: .8; margin-top: .5rem; font-style: italic; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  /* BARRA CAFÉ */
+  .cafe-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; gap: 14px; position: sticky; top: 0; z-index: 200; height: 45px; }
+  .cafe-bar a { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); text-decoration: none; padding: 6px 14px; border: 1px solid var(--border); border-radius: 999px; transition: all 0.15s; }
+  .cafe-bar a:hover { color: var(--text); border-color: var(--muted); }
+  .cafe-bar span { font-size: 13px; color: var(--muted); }
+
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 45px; z-index: 100; display: flex; overflow-x: auto; gap: 0; }
+  nav a { flex-shrink: 0; padding: .75rem 1.1rem; text-decoration: none; color: var(--muted); font-size: .82rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: white; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2.5rem; scroll-margin-top:100px; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.3rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  .analogy { background: #FFF7ED; border: 1px solid #FDE68A; border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: #92400E; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; color: #78350F; }
+
+  .concept { background: var(--accent-light); border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--accent); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p, .tip ul { font-size: .95rem; }
+  .tip ul { padding-left: 1.2rem; }
+  .tip li { margin-bottom: .3rem; }
+
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  .code-block { background: var(--code-bg); color: var(--code-text); border-radius: 10px; padding: 1.25rem 1.5rem; font-family: 'DM Mono', 'Courier New', monospace; font-size: .88rem; line-height: 1.9; overflow-x: auto; margin: 1rem 0; position: relative; white-space: pre; }
+  .code-block .ct { color: #7dd3fc; }
+  .code-block .ca { color: #c4b5fd; }
+  .code-block .cv { color: #86efac; }
+  .code-block .cs { color: #fde68a; }
+  .code-block .cc { color: #6b7280; font-style: italic; }
+  .lang { position: absolute; top: .6rem; right: .75rem; background: rgba(255,255,255,.1); color: rgba(255,255,255,.5); font-size: .68rem; padding: 2px 8px; border-radius: 4px; font-family: sans-serif; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  /* COMPARACIÓN VISUAL BLOQUE VS LÍNEA */
+  .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.1rem 0; }
+  @media (max-width: 640px) { .compare-grid { grid-template-columns: 1fr; } }
+  .compare-card { border: 1px solid var(--border); border-radius: 10px; padding: 1rem; background: var(--bg); }
+  .compare-card h4 { font-size: .82rem; font-weight: 700; margin-bottom: .6rem; }
+  .compare-demo { background: var(--surface); border: 1px dashed var(--muted); border-radius: 6px; padding: 10px; }
+  .compare-demo .blk { display: block; background: var(--accent-light); color: var(--accent); border: 1px solid var(--accent); border-radius: 4px; padding: 4px 8px; margin-bottom: 4px; font-family: 'DM Mono', monospace; font-size: .78rem; }
+  .compare-demo .inl { display: inline; background: var(--secondary-light); color: var(--secondary); border: 1px solid var(--secondary); border-radius: 4px; padding: 4px 8px; font-family: 'DM Mono', monospace; font-size: .78rem; }
+
+  .lab-intro { font-size: .95rem; color: var(--muted); margin-bottom: 1rem; }
+  .lab-holder { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 720px) { .lab-holder { grid-template-columns: 1fr; } }
+  .lab-panel { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .lab-panel-label { background: #211c17; color: #f1ece2; font-family: 'DM Mono', monospace; font-size: .72rem; padding: 6px 12px; letter-spacing: .04em; }
+  .lab-panel textarea { width: 100%; height: 280px; border: none; resize: vertical; background: var(--code-bg); color: var(--code-text); font-family: 'DM Mono', monospace; font-size: .85rem; line-height: 1.7; padding: 1rem; outline: none; }
+  .lab-preview-label { background: var(--bg); color: var(--muted); font-family: 'DM Mono', monospace; font-size: .72rem; padding: 6px 12px; letter-spacing: .04em; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+  .lab-preview-label .toggle-outlines { font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: .72rem; cursor: pointer; padding: 3px 10px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface); color: var(--text); }
+  .lab-preview-label .toggle-outlines.active { background: var(--primary); color: white; border-color: var(--primary); }
+  .lab-preview iframe { width: 100%; height: 280px; border: none; background: #fff; }
+  .lab-try-row { display: flex; flex-wrap: wrap; gap: 8px; margin: .9rem 0; }
+  .lab-try-row button { font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: .8rem; cursor: pointer; padding: 7px 14px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface); color: var(--text); }
+  .lab-try-row button:hover { border-color: var(--primary); color: var(--primary); }
+  .lab-reset { display: block; margin-top: .7rem; font-size: .78rem; color: var(--muted); background: none; border: none; text-decoration: underline; cursor: pointer; padding: 0; }
+
+  .reto-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin: 1.25rem 0; }
+  .reto-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+  .reto-card .nivel { display: inline-block; font-size: .72rem; font-weight: 700; padding: 2px 10px; border-radius: 20px; margin-bottom: .6rem; text-transform: uppercase; letter-spacing: .06em; }
+  .nivel-f { background: #FEF3C7; color: #92400E; }
+  .nivel-m { background: #FFEDD5; color: #C2410C; }
+  .nivel-a { background: #FEE2E2; color: #B91C1C; }
+  .reto-card h4 { font-size: .95rem; font-weight: 700; margin-bottom: .5rem; }
+  .reto-card p { font-size: .88rem; color: var(--muted); margin-bottom: .5rem; }
+
+  .glos { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .glos-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; }
+  .glos-item dt { font-weight: 700; color: var(--primary); font-size: .92rem; margin-bottom: .3rem; }
+  .glos-item dd { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+  .glos-item .emoji { font-size: 1.4rem; display: block; margin-bottom: .4rem; }
+
+  .chip { display: inline-block; background: var(--primary-light); color: var(--primary); font-size: .8rem; padding: 3px 12px; border-radius: 20px; font-weight: 600; margin: 3px; font-family: 'DM Mono', monospace; }
+
+  h2 { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; color: var(--text); }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: #efe9dc; color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  strong { font-weight: 700; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); }
+</style>
+<style>
+  .course-nav { background: #100f1c; display: flex; overflow-x: auto; gap: 6px; padding: 10px 14px; align-items: center; }
+  .course-nav a { flex-shrink: 0; font-family: 'DM Mono', monospace; font-size: .74rem; font-weight: 700; color: #a5a1c4; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 14px; padding: 5px 11px; text-decoration: none; white-space: nowrap; transition: background .15s, color .15s; }
+  .course-nav a:hover { background: rgba(255,255,255,.14); color: #ece9fb; }
+  .course-nav a.current { background: #4338ca; color: white; border-color: #4338ca; }
+  .course-nav .sep { color: #4a4766; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<!-- BARRA CAFÉ -->
+<div class="cafe-bar">
+  <a href="../capitulos.html">← Capítulos</a>
+  <span>☕ Fase 1 · Bloque 3 · Organizar el Contenido</span>
+</div>
+
+<header>
+  <div class="ex-label">✏️ Bloque 3</div>
+  <h1>Organizar el Contenido</h1>
+  <p class="sub">El último paso de HTML antes de pasar a CSS</p>
+  <span class="badge">🎯 HTML · div · section · bloque vs línea · ver contornos</span>
+</header>
+
+<div class="course-nav">
+  <a href="fase1-bloque1-estructura-texto.html">F1.1</a>
+  <a href="fase1-bloque2-listas-enlaces-imagenes.html">F1.2</a>
+  <a href="fase1-bloque3-div-section.html" class="current">F1.3</a>
+  <a href="fase2-bloque1-selectores-colores.html">F2.1</a>
+  <a href="fase2-bloque2-espaciado-cajas.html">F2.2</a>
+  <a href="fase2-bloque3-id-flexbox-responsive.html">F2.3</a>
+  <a href="fase3-bloque1-variables-tipos.html">F3.1</a>
+  <a href="fase3-bloque2-operadores-condicionales.html">F3.2</a>
+  <a href="fase3-bloque3-bucles.html">F3.3</a>
+  <a href="fase3-bloque4-funciones.html">F3.4</a>
+  <a href="fase3-bloque5-arreglos-objetos.html">F3.5</a>
+  <a href="fase3-bloque6-dom.html">F3.6</a>
+  <a href="fase3-bloque7-formularios-validacion.html">F3.7</a>
+  <a href="fase3-bloque8-async-apis.html">F3.8</a>
+  <a href="fase4-bloque1-arrow-template-literals.html">F4.1</a>
+  <a href="mi-lista-de-tareas.html">🏁 Proyecto</a>
+</div>
+
+
+<nav>
+  <a href="#recordatorio">🔁 Recordatorio</a>
+  <a href="#vocabulario">📖 Vocabulario nuevo</a>
+  <a href="#bloque-linea">🧩 Bloque vs línea</a>
+  <a href="#div-section">📦 div y section</a>
+  <a href="#laboratorio">🧪 Laboratorio en vivo</a>
+  <a href="#retos">🏆 Retos</a>
+  <a href="#resumen">📋 Resumen</a>
+</nav>
+
+<main>
+
+<div class="parte-badge">📦 Fase 1 · Bloque 3 — HTML desde cero: organizar el contenido</div>
+
+<section class="module" id="recordatorio">
+  <div class="module-header">
+    <div class="module-icon">🔁</div>
+    <div>
+      <div class="module-title">Antes de empezar: recordatorio rápido</div>
+      <div class="module-sub">Todo lo que ya sabes, y que vas a seguir usando en este bloque</div>
+    </div>
+  </div>
+  <p>Ya sabes escribir la estructura base, títulos (<code>&lt;h1&gt;</code>, <code>&lt;h2&gt;</code>), párrafos (<code>&lt;p&gt;</code>), listas (<code>&lt;ul&gt;</code>/<code>&lt;ol&gt;</code>/<code>&lt;li&gt;</code>), enlaces (<code>&lt;a href=""&gt;</code>) e imágenes (<code>&lt;img src="" alt=""&gt;</code>). En este bloque no vamos a dejar nada de eso atrás — vamos a aprender a <strong>agruparlo</strong> de forma ordenada.</p>
+</section>
+
+<section class="module" id="vocabulario">
+  <div class="module-header">
+    <div class="module-icon">📖</div>
+    <div>
+      <div class="module-title">Vocabulario nuevo</div>
+      <div class="module-sub">La última pieza conceptual de HTML</div>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <h4>🧠 Piénsalo así</h4>
+    <p>Hasta ahora tu página es como una lista de cosas sueltas en una mesa: un título, un párrafo, una lista, una imagen. <code>&lt;div&gt;</code> y <code>&lt;section&gt;</code> son como <strong>cajas</strong> donde metes varias cosas relacionadas juntas — por ejemplo, todo lo de "sobre mí" en una caja, y todo lo de "mis lugares favoritos" en otra caja distinta.</p>
+  </div>
+
+  <div class="glos">
+    <div class="glos-item">
+      <span class="emoji">📦</span>
+      <dt>div</dt>
+      <dd>Una caja genérica, sin significado especial, para agrupar y luego darle estilos</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">📑</span>
+      <dt>section</dt>
+      <dd>Una caja que SÍ significa algo: "aquí hay un bloque de contenido con un tema propio"</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🧩</span>
+      <dt>Bloque vs línea</dt>
+      <dd>Cómo se acomodan los elementos: uno debajo del otro, o uno junto al otro</dd>
+    </div>
+  </div>
+</section>
+
+<section class="module" id="bloque-linea">
+  <div class="module-header">
+    <div class="module-icon">🧩</div>
+    <div>
+      <div class="module-title">PARTE 1 — Elementos de bloque vs en línea</div>
+      <div class="module-sub">Esto explica por qué unas etiquetas "saltan de renglón" y otras no</div>
+    </div>
+  </div>
+
+  <p>Cada etiqueta de HTML se comporta de una de estas dos formas por defecto:</p>
+
+  <div class="compare-grid">
+    <div class="compare-card">
+      <h4>🧱 DE BLOQUE — ocupa todo el ancho</h4>
+      <div class="compare-demo">
+        <div class="blk">&lt;div&gt;</div>
+        <div class="blk">&lt;p&gt;</div>
+        <div class="blk">&lt;h1&gt;</div>
+      </div>
+    </div>
+    <div class="compare-card">
+      <h4>➡️ EN LÍNEA — solo ocupa su propio texto</h4>
+      <div class="compare-demo">
+        <span class="inl">&lt;span&gt;</span> <span class="inl">&lt;a&gt;</span> <span class="inl">&lt;strong&gt;</span>
+      </div>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Tipo</th><th>¿Cómo se comporta?</th><th>Ejemplos</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">Bloque</span></td><td>Empieza en una línea nueva y ocupa todo el ancho disponible, aunque el contenido sea corto.</td><td><code>div</code>, <code>p</code>, <code>h1</code>-<code>h6</code>, <code>ul</code>, <code>li</code>, <code>section</code></td></tr>
+      <tr><td><span class="tag">En línea</span></td><td>Se acomoda junto al contenido de al lado, como una palabra más dentro del texto.</td><td><code>span</code>, <code>a</code>, <code>strong</code>, <code>em</code>, <code>img</code></td></tr>
+    </tbody>
+  </table>
+
+  <div class="tip">
+    <h4>💡 ¿Ya habías visto esto?</h4>
+    <p>Sí — en el Bloque 1 ya lo notaste sin saber el nombre: cada <code>&lt;h1&gt;</code> y <code>&lt;p&gt;</code> que agregabas caía en su propia línea. Eso es porque ambos son elementos <strong>de bloque</strong>. Ahora ya sabes por qué.</p>
+  </div>
+</section>
+
+<section class="module" id="div-section">
+  <div class="module-header">
+    <div class="module-icon">📦</div>
+    <div>
+      <div class="module-title">PARTE 2 — div y section</div>
+      <div class="module-sub">Dos formas de agrupar, con un uso distinto</div>
+    </div>
+  </div>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="ct">&lt;section&gt;</span>
+  <span class="ct">&lt;h2&gt;</span><span class="cs">Sobre mí</span><span class="ct">&lt;/h2&gt;</span>
+  <span class="ct">&lt;p&gt;</span><span class="cs">Estoy aprendiendo a programar desde cero.</span><span class="ct">&lt;/p&gt;</span>
+<span class="ct">&lt;/section&gt;</span>
+
+<span class="ct">&lt;div&gt;</span>
+  <span class="ct">&lt;p&gt;</span><span class="cs">Este texto solo necesita un contenedor genérico.</span><span class="ct">&lt;/p&gt;</span>
+<span class="ct">&lt;/div&gt;</span></div>
+
+  <table class="tbl">
+    <thead><tr><th>Etiqueta</th><th>¿Cuándo se usa?</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">&lt;section&gt;</span></td><td>Cuando el grupo de contenido tiene un tema propio, como un capítulo de un libro (ej: "Ingredientes", "Sobre mí"). Le da significado real a la estructura de tu página.</td></tr>
+      <tr><td><span class="tag">&lt;div&gt;</span></td><td>Cuando solo necesitas agrupar cosas para poder aplicarles estilos juntas más adelante, sin que ese grupo tenga un "tema" específico. Es la caja neutra de HTML.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="concept">
+    <h4>💡 Regla simple para decidir</h4>
+    <p>Pregúntate: "¿este grupo de contenido tiene un tema claro que podría ir en el índice de la página?" Si sí → usa <code>&lt;section&gt;</code>. Si es solo una agrupación técnica (por ejemplo, para centrar algo con CSS) → usa <code>&lt;div&gt;</code>.</p>
+  </div>
+</section>
+
+<section class="module" id="laboratorio">
+  <div class="module-header">
+    <div class="module-icon">🧪</div>
+    <div>
+      <div class="module-title">PARTE 3 — Laboratorio en vivo</div>
+      <div class="module-sub">Nuevo: ahora puedes activar los contornos para VER las cajas</div>
+    </div>
+  </div>
+
+  <p class="lab-intro">Ya tienes tu página organizada en dos secciones. Activa "Ver contornos" para que cada elemento se dibuje con un borde de color — así vas a ver físicamente dónde empieza y termina cada caja, y cuáles son de bloque y cuáles en línea.</p>
+
+  <div class="lab-holder">
+    <div class="lab-panel">
+      <div class="lab-panel-label">✏️ TU CÓDIGO (edítalo aquí)</div>
+      <textarea id="labCode" spellcheck="false"></textarea>
+    </div>
+    <div class="lab-panel">
+      <div class="lab-preview-label">
+        <span>🖥 RESULTADO EN VIVO</span>
+        <button class="toggle-outlines" id="btnOutlines" onclick="toggleOutlines()">👁 Ver contornos</button>
+      </div>
+      <div class="lab-preview"><iframe id="labFrame"></iframe></div>
+    </div>
+  </div>
+
+  <p style="margin-top:1rem; font-size:.85rem; color:var(--muted); font-weight:600;">Prueba agregar estas líneas y observa qué cambia:</p>
+  <div class="lab-try-row">
+    <button onclick="labAdd('&lt;section&gt;\n  &lt;h2&gt;Mis lugares favoritos&lt;/h2&gt;\n  &lt;ul&gt;\n    &lt;li&gt;Orizaba&lt;/li&gt;\n  &lt;/ul&gt;\n&lt;/section&gt;')">+ una section nueva</button>
+    <button onclick="labAdd('&lt;div&gt;\n  &lt;p&gt;Texto dentro de un div&lt;/p&gt;\n&lt;/div&gt;')">+ un div nuevo</button>
+    <button onclick="labAdd('&lt;p&gt;Un &lt;span&gt;span en línea&lt;/span&gt; dentro de un párrafo&lt;/p&gt;')">+ span en línea</button>
+  </div>
+  <button class="lab-reset" onclick="labReset()">↺ Restaurar código original</button>
+
+  <div class="tip" style="margin-top:1.25rem">
+    <h4>💡 Qué observar con "Ver contornos" activado</h4>
+    <ul>
+      <li>Cada <code>&lt;section&gt;</code> y <code>&lt;div&gt;</code> se ve como una caja completa que ocupa todo el ancho — son de bloque.</li>
+      <li>El <code>&lt;span&gt;</code> que agregues se va a ver como un contorno pequeño, ajustado solo al texto — porque es en línea.</li>
+      <li>Vas a notar que las cajas de <code>&lt;section&gt;</code> y <code>&lt;div&gt;</code> "contienen" a las demás — eso es exactamente lo que significa agrupar.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="module" id="retos">
+  <div class="module-header">
+    <div class="module-icon">🏆</div>
+    <div>
+      <div class="module-title">PARTE 4 — Retos para practicar</div>
+      <div class="module-sub">Resuélvelos directo en el laboratorio de arriba</div>
+    </div>
+  </div>
+
+  <div class="reto-grid">
+    <div class="reto-card">
+      <span class="nivel nivel-f">🟡 Fácil</span>
+      <h4>Reto 1 — Dos secciones</h4>
+      <p>Organiza tu página en 2 <code>&lt;section&gt;</code>: una de "Sobre mí" y otra de "Lo que estoy aprendiendo", cada una con su <code>&lt;h2&gt;</code> y contenido.</p>
+    </div>
+    <div class="reto-card">
+      <span class="nivel nivel-m">🟠 Medio</span>
+      <h4>Reto 2 — Un div contenedor</h4>
+      <p>Mete tus 2 secciones dentro de un solo <code>&lt;div&gt;</code> exterior que las agrupe a ambas. Activa "Ver contornos" y confirma que el div envuelve a las dos.</p>
+    </div>
+    <div class="reto-card">
+      <span class="nivel nivel-a">🔴 Avanzado</span>
+      <h4>Reto 3 — Explica la diferencia</h4>
+      <p>Con "Ver contornos" activado, agrega un <code>&lt;span&gt;</code> y un <code>&lt;div&gt;</code>, ambos con la misma palabra adentro. Describe con tus palabras qué diferencia ves en cómo se dibuja cada contorno.</p>
+    </div>
+  </div>
+</section>
+
+<section class="module" id="resumen">
+  <div class="module-header">
+    <div class="module-icon">📋</div>
+    <div>
+      <div class="module-title">Resumen: lo que aprendiste en este bloque</div>
+      <div class="module-sub">Con esto, ya terminaste toda la Fase 1 — HTML</div>
+    </div>
+  </div>
+
+  <div>
+    <span class="chip">&lt;div&gt;</span>
+    <span class="chip">&lt;section&gt;</span>
+    <span class="chip">display: block</span>
+    <span class="chip">display: inline</span>
+    <span class="chip">&lt;span&gt;</span>
+  </div>
+
+  <div class="concept" style="margin-top:1.5rem">
+    <h4>🎉 ¿Qué sigue?</h4>
+    <p>¡Terminaste toda la <strong>Fase 1 — HTML</strong>! Ya sabes estructura, texto, listas, enlaces, imágenes y cómo organizar todo en secciones. Ahora sigue la <strong>Fase 2 — CSS</strong>, donde vas a darle color, tamaño y espaciado a todo lo que ya construiste. Vamos a empezar por los selectores y las propiedades básicas.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Bloque 3 — Organizar el Contenido · HTML desde cero · Jacqui 2026
+</footer>
+
+<script>
+const STARTER_CODE = `<section>
+  <h1>Hola, soy Jacqui</h1>
+  <p>Estoy aprendiendo a programar desde cero.</p>
+</section>
+
+<section>
+  <h2>Mis bebidas favoritas</h2>
+  <ul>
+    <li>Café</li>
+    <li>Té</li>
+  </ul>
+  <a href="https://www.google.com">Ir a Google</a>
+</section>`;
+
+let outlinesOn = false;
+
+function renderLab() {
+  const code = document.getElementById('labCode').value;
+  const outlineCss = outlinesOn
+    ? 'div{outline:2px solid #4338ca}section{outline:2px solid #b45309}p{outline:1px dashed #0f766e}span{outline:2px solid #be185d}'
+    : '';
+  const doc = '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{font-family:sans-serif;padding:16px;color:#211c17;line-height:1.6}' + outlineCss + '</style></head><body>' + code + '</body></html>';
+  document.getElementById('labFrame').srcdoc = doc;
+}
+
+function toggleOutlines() {
+  outlinesOn = !outlinesOn;
+  document.getElementById('btnOutlines').classList.toggle('active', outlinesOn);
+  renderLab();
+}
+
+function labAdd(snippet) {
+  const ta = document.getElementById('labCode');
+  ta.value = ta.value + '\n' + snippet;
+  renderLab();
+}
+
+function labReset() {
+  document.getElementById('labCode').value = STARTER_CODE;
+  renderLab();
+}
+
+document.getElementById('labCode').value = STARTER_CODE;
+document.getElementById('labCode').addEventListener('input', renderLab);
+renderLab();
+</script>
+
+</body>
+</html>

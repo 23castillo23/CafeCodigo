@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Fase 3, Bloque 3 — JavaScript: bucles for, desde cero, con visualizador paso a paso.">
+<title>Bloque 3 — Bucles (for) | JavaScript desde cero</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #4338ca;
+    --primary-light:  #eef0fd;
+    --secondary:      #0f766e;
+    --secondary-light:#eafaf7;
+    --accent:         #b45309;
+    --accent-light:   #fdf3e5;
+    --danger:         #b91c1c;
+    --danger-light:   #fdf0f0;
+    --bg:             #f6f5fb;
+    --surface:        #ffffff;
+    --text:           #1c1a2e;
+    --muted:          #85819c;
+    --border:         #e5e3f3;
+    --code-bg:        #1c1a2e;
+    --code-text:      #ece9fb;
+  }
+
+  body { font-family: 'DM Sans', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  header { background: #1c1a2e; color: #f6f5fb; padding: 3rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: '↻'; position: absolute; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 12rem; right: -.5rem; top: -3rem; opacity: .07; line-height: 1; }
+  header .ex-label { display: inline-block; background: var(--primary); color: white; border-radius: 20px; padding: 4px 16px; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 1rem; }
+  header h1 { font-family: 'Space Grotesk', sans-serif; font-size: 2.4rem; font-weight: 700; letter-spacing: -1px; }
+  header p.sub { font-size: 1.05rem; opacity: .8; margin-top: .5rem; font-style: italic; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  /* BARRA CAFÉ */
+  .cafe-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; gap: 14px; position: sticky; top: 0; z-index: 200; height: 45px; }
+  .cafe-bar a { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); text-decoration: none; padding: 6px 14px; border: 1px solid var(--border); border-radius: 999px; transition: all 0.15s; }
+  .cafe-bar a:hover { color: var(--text); border-color: var(--muted); }
+  .cafe-bar span { font-size: 13px; color: var(--muted); }
+
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 45px; z-index: 100; display: flex; overflow-x: auto; gap: 0; }
+  nav a { flex-shrink: 0; padding: .75rem 1.1rem; text-decoration: none; color: var(--muted); font-size: .82rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: white; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2.5rem; scroll-margin-top:80px; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.3rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  .analogy { background: #FFF7ED; border: 1px solid #FDE68A; border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: #92400E; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; color: #78350F; }
+
+  .concept { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p, .tip ul { font-size: .95rem; }
+  .tip ul { padding-left: 1.2rem; }
+  .tip li { margin-bottom: .3rem; }
+
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  .code-block { background: var(--code-bg); color: var(--code-text); border-radius: 10px; padding: 1.25rem 1.5rem; font-family: 'DM Mono', 'Courier New', monospace; font-size: .88rem; line-height: 1.9; overflow-x: auto; margin: 1rem 0; position: relative; white-space: pre; }
+  .code-block .ck { color: #c4b5fd; }
+  .code-block .cv { color: #86efac; }
+  .code-block .cs { color: #fde68a; }
+  .code-block .cn { color: #93c5fd; }
+  .code-block .cf { color: #67e8f9; }
+  .code-block .cc { color: #8b87a8; font-style: italic; }
+  .code-block .co { color: #ece9fb; }
+  .lang { position: absolute; top: .6rem; right: .75rem; background: rgba(255,255,255,.1); color: rgba(255,255,255,.5); font-size: .68rem; padding: 2px 8px; border-radius: 4px; font-family: sans-serif; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  .anatomy { background: var(--code-bg); border-radius: 10px; padding: 1.5rem; margin: 1rem 0; overflow-x: auto; }
+  .anatomy-line { font-family: 'DM Mono', monospace; font-size: 1rem; color: var(--code-text); text-align: center; margin-bottom: .5rem; white-space: nowrap; }
+  .anatomy-line .p1 { color: #93c5fd; }
+  .anatomy-line .p2 { color: #86efac; }
+  .anatomy-line .p3 { color: #f9a8d4; }
+  .anatomy-labels { display: flex; justify-content: center; gap: 1.6rem; font-family: 'DM Sans'; font-size: .7rem; color: var(--muted); margin-top: .3rem; }
+  .anatomy-labels span { display: block; text-align: center; }
+  .anatomy-labels .l1 { color: #93c5fd; font-weight: 700; }
+  .anatomy-labels .l2 { color: #86efac; font-weight: 700; }
+  .anatomy-labels .l3 { color: #f9a8d4; font-weight: 700; }
+
+  .glos { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .glos-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; }
+  .glos-item dt { font-weight: 700; color: var(--primary); font-size: .92rem; margin-bottom: .3rem; }
+  .glos-item dd { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+  .glos-item .emoji { font-size: 1.4rem; display: block; margin-bottom: .4rem; }
+
+  /* VISUALIZADOR PASO A PASO DEL BUCLE */
+  .stepper { border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; background: var(--bg); margin: 1.1rem 0; }
+  .stepper-row { display: flex; gap: 10px; margin-bottom: 1rem; flex-wrap: wrap; }
+  .stepper-row button { font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: .82rem; cursor: pointer; padding: 8px 16px; border-radius: 20px; border: none; background: var(--primary); color: white; }
+  .stepper-row button.secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+  .stepper-row button:disabled { opacity: .4; cursor: not-allowed; }
+  .stepper-state { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 1rem; }
+  .stepper-state .sv { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 10px 16px; font-family: 'DM Mono', monospace; font-size: .85rem; text-align: center; min-width: 110px; }
+  .stepper-state .sv .lbl { display: block; color: var(--muted); font-size: .68rem; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 3px; }
+  .stepper-state .sv .val { font-weight: 700; font-size: 1.1rem; color: var(--primary); }
+  .stepper-state .sv.cond-true .val { color: #15803d; }
+  .stepper-state .sv.cond-false .val { color: #b91c1c; }
+  .stepper-track { display: flex; gap: 6px; flex-wrap: wrap; }
+  .stepper-pill { padding: 6px 12px; border-radius: 20px; background: var(--surface); border: 1px solid var(--border); font-family: 'DM Mono', monospace; font-size: .78rem; color: var(--muted); }
+  .stepper-pill.done { background: var(--primary-light); border-color: var(--primary); color: var(--primary); font-weight: 700; }
+
+  .console-wrap { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin: 1rem 0; }
+  .console-editor-label, .console-output-label { background: #1c1a2e; color: #ece9fb; font-family: 'DM Mono', monospace; font-size: .72rem; padding: 6px 12px; letter-spacing: .04em; display: flex; justify-content: space-between; align-items: center; }
+  .console-wrap textarea { width: 100%; height: 210px; border: none; resize: vertical; background: var(--code-bg); color: var(--code-text); font-family: 'DM Mono', monospace; font-size: .87rem; line-height: 1.7; padding: 1rem; outline: none; border-bottom: 1px solid #34314f; }
+  .run-btn { background: var(--primary); color: white; border: none; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: .76rem; padding: 4px 12px; border-radius: 20px; cursor: pointer; }
+  .console-output { background: #100f1c; min-height: 90px; max-height: 260px; overflow-y: auto; padding: 1rem; font-family: 'DM Mono', monospace; font-size: .85rem; }
+  .console-line { color: #86efac; padding: 2px 0; }
+  .console-line.error { color: #fca5a5; }
+  .console-line.muted { color: #6b6886; font-style: italic; }
+
+  .lab-try-row { display: flex; flex-wrap: wrap; gap: 8px; margin: .9rem 0; }
+  .lab-try-row button { font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: .8rem; cursor: pointer; padding: 7px 14px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface); color: var(--text); }
+  .lab-try-row button:hover { border-color: var(--primary); color: var(--primary); }
+  .lab-reset { display: block; margin-top: .7rem; font-size: .78rem; color: var(--muted); background: none; border: none; text-decoration: underline; cursor: pointer; padding: 0; }
+
+  .reto-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin: 1.25rem 0; }
+  .reto-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+  .reto-card .nivel { display: inline-block; font-size: .72rem; font-weight: 700; padding: 2px 10px; border-radius: 20px; margin-bottom: .6rem; text-transform: uppercase; letter-spacing: .06em; }
+  .nivel-f { background: #FEF3C7; color: #92400E; }
+  .nivel-m { background: #FFEDD5; color: #C2410C; }
+  .nivel-a { background: #FEE2E2; color: #B91C1C; }
+  .reto-card h4 { font-size: .95rem; font-weight: 700; margin-bottom: .5rem; }
+  .reto-card p { font-size: .88rem; color: var(--muted); margin-bottom: .5rem; }
+
+  .chip { display: inline-block; background: var(--primary-light); color: var(--primary); font-size: .8rem; padding: 3px 12px; border-radius: 20px; font-weight: 600; margin: 3px; font-family: 'DM Mono', monospace; }
+
+  h2 { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; color: var(--text); }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: #ecebf7; color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  strong { font-weight: 700; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); }
+</style>
+<style>
+  .course-nav { background: #100f1c; display: flex; overflow-x: auto; gap: 6px; padding: 10px 14px; align-items: center; }
+  .course-nav a { flex-shrink: 0; font-family: 'DM Mono', monospace; font-size: .74rem; font-weight: 700; color: #a5a1c4; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 14px; padding: 5px 11px; text-decoration: none; white-space: nowrap; transition: background .15s, color .15s; }
+  .course-nav a:hover { background: rgba(255,255,255,.14); color: #ece9fb; }
+  .course-nav a.current { background: #4338ca; color: white; border-color: #4338ca; }
+  .course-nav .sep { color: #4a4766; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<!-- BARRA CAFÉ -->
+<div class="cafe-bar">
+  <a href="../capitulos.html">← Capítulos</a>
+  <span>☕ Fase 3 · Bloque 3 · Bucles (for)</span>
+</div>
+
+<header>
+  <div class="ex-label">✏️ Fase 3 · Bloque 3</div>
+  <h1>Bucles (for)</h1>
+  <p class="sub">Repite código sin copiar y pegar la misma línea</p>
+  <span class="badge">🎯 JavaScript · for · while · FizzBuzz</span>
+</header>
+
+<div class="course-nav">
+  <a href="fase1-bloque1-estructura-texto.html">F1.1</a>
+  <a href="fase1-bloque2-listas-enlaces-imagenes.html">F1.2</a>
+  <a href="fase1-bloque3-div-section.html">F1.3</a>
+  <a href="fase2-bloque1-selectores-colores.html">F2.1</a>
+  <a href="fase2-bloque2-espaciado-cajas.html">F2.2</a>
+  <a href="fase2-bloque3-id-flexbox-responsive.html">F2.3</a>
+  <a href="fase3-bloque1-variables-tipos.html">F3.1</a>
+  <a href="fase3-bloque2-operadores-condicionales.html">F3.2</a>
+  <a href="fase3-bloque3-bucles.html" class="current">F3.3</a>
+  <a href="fase3-bloque4-funciones.html">F3.4</a>
+  <a href="fase3-bloque5-arreglos-objetos.html">F3.5</a>
+  <a href="fase3-bloque6-dom.html">F3.6</a>
+  <a href="fase3-bloque7-formularios-validacion.html">F3.7</a>
+  <a href="fase3-bloque8-async-apis.html">F3.8</a>
+  <a href="fase4-bloque1-arrow-template-literals.html">F4.1</a>
+  <a href="mi-lista-de-tareas.html">🏁 Proyecto</a>
+</div>
+
+
+<nav>
+  <a href="#recordatorio">🔁 Recordatorio</a>
+  <a href="#vocabulario">📖 Vocabulario nuevo</a>
+  <a href="#for">🔂 El bucle for</a>
+  <a href="#pasoapaso">👣 Paso a paso</a>
+  <a href="#while">🔁 while</a>
+  <a href="#consola">🧪 Consola en vivo</a>
+  <a href="#retos">🏆 Retos</a>
+  <a href="#resumen">📋 Resumen</a>
+</nav>
+
+<main>
+
+<div class="parte-badge">🔂 Fase 3 · Bloque 3 — JavaScript desde cero: bucles</div>
+
+<section class="module" id="recordatorio">
+  <div class="module-header">
+    <div class="module-icon">🔁</div>
+    <div>
+      <div class="module-title">Antes de empezar: recordatorio rápido</div>
+      <div class="module-sub">Lo que ya sabes de los bloques anteriores</div>
+    </div>
+  </div>
+  <p>Ya sabes crear variables, comparar valores y usar <code>if</code>/<code>else</code> para que tu código decida. Imagina que quieres imprimir los números del 1 al 100 — copiar <code>console.log</code> cien veces sería absurdo. Los bucles resuelven exactamente eso: repetir una acción varias veces con una sola instrucción.</p>
+</section>
+
+<section class="module" id="vocabulario">
+  <div class="module-header">
+    <div class="module-icon">📖</div>
+    <div>
+      <div class="module-title">Vocabulario nuevo</div>
+      <div class="module-sub">Tres palabras para entender la repetición</div>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <h4>🧠 Piénsalo así</h4>
+    <p>Un bucle es como darle instrucciones a alguien para que suba escaleras: "sube un escalón, revisa si ya llegaste arriba, si no, sube otro". La variable que cuenta los escalones (normalmente llamada <code>i</code>) es el <strong>contador</strong>.</p>
+  </div>
+
+  <div class="glos">
+    <div class="glos-item">
+      <span class="emoji">🔂</span>
+      <dt>Bucle</dt>
+      <dd>Una estructura que repite un bloque de código varias veces</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🔢</span>
+      <dt>Contador (i)</dt>
+      <dd>La variable que lleva la cuenta de en qué repetición vas</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🔁</span>
+      <dt>Iteración</dt>
+      <dd>Cada una de las vueltas que da el bucle</dd>
+    </div>
+  </div>
+</section>
+
+<section class="module" id="for">
+  <div class="module-header">
+    <div class="module-icon">🔂</div>
+    <div>
+      <div class="module-title">PARTE 1 — El bucle for</div>
+      <div class="module-sub">Tiene tres partes, siempre en el mismo orden</div>
+    </div>
+  </div>
+
+  <div class="code-block"><span class="lang">JS</span><span class="ck">for</span> <span class="co">(</span><span class="ck">let</span> <span class="cv">i</span> <span class="co">=</span> <span class="cn">1</span><span class="co">;</span> <span class="cv">i</span> <span class="co">&lt;=</span> <span class="cn">5</span><span class="co">;</span> <span class="cv">i</span><span class="co">++)</span> <span class="co">{</span>
+  <span class="cf">console.log</span><span class="co">(</span><span class="cv">i</span><span class="co">);</span>
+<span class="co">}</span></div>
+
+  <div class="anatomy">
+    <div class="anatomy-line">for (<span class="p1">let i = 1</span>; <span class="p2">i &lt;= 5</span>; <span class="p3">i++</span>)</div>
+    <div class="anatomy-labels">
+      <span class="l1">inicio<br>(una vez)</span>
+      <span class="l2">condición<br>(se revisa cada vuelta)</span>
+      <span class="l3">incremento<br>(al final de cada vuelta)</span>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Parte</th><th>¿Qué hace?</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">let i = 1</span></td><td>Se ejecuta UNA sola vez, al principio: crea el contador y lo pone en 1.</td></tr>
+      <tr><td><span class="tag">i &lt;= 5</span></td><td>Se revisa ANTES de cada vuelta. Mientras sea <code>true</code>, el bucle continúa.</td></tr>
+      <tr><td><span class="tag">i++</span></td><td>Se ejecuta DESPUÉS de cada vuelta: suma 1 a <code>i</code>. Es lo mismo que escribir <code>i = i + 1</code>.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="warn">
+    <h4>⚠️ Bucle infinito</h4>
+    <p>Si te olvidas del <code>i++</code>, la condición <code>i &lt;= 5</code> siempre va a ser verdadera y el bucle nunca termina — esto puede trabar tu navegador. Siempre revisa que tu contador avance hacia la condición de salida.</p>
+  </div>
+</section>
+
+<section class="module" id="pasoapaso">
+  <div class="module-header">
+    <div class="module-icon">👣</div>
+    <div>
+      <div class="module-title">PARTE 2 — Míralo paso a paso</div>
+      <div class="module-sub">Presiona "Siguiente vuelta" y observa exactamente qué hace el bucle en cada momento</div>
+    </div>
+  </div>
+
+  <p>Este visualizador ejecuta <code>for (let i = 1; i &lt;= 5; i++) { console.log(i); }</code> una vuelta a la vez.</p>
+
+  <div class="stepper">
+    <div class="stepper-row">
+      <button id="btnStep" onclick="stepLoop()">▶ Siguiente vuelta</button>
+      <button class="secondary" onclick="resetStepper()">↺ Reiniciar</button>
+    </div>
+    <div class="stepper-state">
+      <div class="sv"><span class="lbl">i (contador)</span><span class="val" id="stI">—</span></div>
+      <div class="sv" id="stCondBox"><span class="lbl">i &lt;= 5 ?</span><span class="val" id="stCond">—</span></div>
+      <div class="sv"><span class="lbl">acción</span><span class="val" id="stAction" style="font-size:.78rem;">esperando...</span></div>
+    </div>
+    <div class="stepper-track" id="stepTrack"></div>
+  </div>
+
+  <div class="tip">
+    <h4>💡 Qué observar</h4>
+    <p>Fíjate que la condición <code>i &lt;= 5</code> se revisa ANTES de imprimir, y el <code>i++</code> ocurre DESPUÉS de imprimir — cuando <code>i</code> llegue a 6, la condición se vuelve falsa y el bucle se detiene sin imprimir ese 6.</p>
+  </div>
+</section>
+
+<section class="module" id="while">
+  <div class="module-header">
+    <div class="module-icon">🔁</div>
+    <div>
+      <div class="module-title">PARTE 3 — El bucle while (versión corta)</div>
+      <div class="module-sub">Hace lo mismo que for, pero con las tres partes separadas</div>
+    </div>
+  </div>
+
+  <div class="code-block"><span class="lang">JS</span><span class="ck">let</span> <span class="cv">i</span> <span class="co">=</span> <span class="cn">1</span><span class="co">;</span>
+
+<span class="ck">while</span> <span class="co">(</span><span class="cv">i</span> <span class="co">&lt;=</span> <span class="cn">5</span><span class="co">)</span> <span class="co">{</span>
+  <span class="cf">console.log</span><span class="co">(</span><span class="cv">i</span><span class="co">);</span>
+  <span class="cv">i</span><span class="co">++;</span>
+<span class="co">}</span></div>
+
+  <div class="concept">
+    <h4>💡 ¿Cuándo usar cada uno?</h4>
+    <p>Usa <code>for</code> cuando SABES cuántas veces quieres repetir (ej: "del 1 al 100"). Usa <code>while</code> cuando NO sabes de antemano cuántas vueltas va a dar — depende de que algo se cumpla (ej: "hasta que el usuario adivine el número").</p>
+  </div>
+</section>
+
+<section class="module" id="consola">
+  <div class="module-header">
+    <div class="module-icon">🧪</div>
+    <div>
+      <div class="module-title">PARTE 4 — Consola interactiva</div>
+      <div class="module-sub">Aquí vas a resolver el clásico FizzBuzz</div>
+    </div>
+  </div>
+
+  <div class="console-wrap">
+    <div class="console-editor-label">
+      <span>✏️ TU CÓDIGO</span>
+      <button class="run-btn" onclick="runConsole()">▶ Ejecutar</button>
+    </div>
+    <textarea id="consoleCode" spellcheck="false"></textarea>
+    <div class="console-output-label"><span>▸ SALIDA (console.log)</span></div>
+    <div class="console-output" id="consoleOutput"></div>
+  </div>
+
+  <p style="margin-top:1rem; font-size:.85rem; color:var(--muted); font-weight:600;">Prueba agregar estas líneas y presiona Ejecutar otra vez:</p>
+  <div class="lab-try-row">
+    <button onclick="consoleAdd('if (numero % 3 === 0) {\n  console.log(\"Fizz\");\n}')">+ revisar múltiplo de 3</button>
+    <button onclick="consoleAdd('if (numero % 5 === 0) {\n  console.log(\"Buzz\");\n}')">+ revisar múltiplo de 5</button>
+  </div>
+  <button class="lab-reset" onclick="consoleReset()">↺ Restaurar código original</button>
+</section>
+
+<section class="module" id="retos">
+  <div class="module-header">
+    <div class="module-icon">🏆</div>
+    <div>
+      <div class="module-title">PARTE 5 — Retos para practicar</div>
+      <div class="module-sub">Resuélvelos directo en la consola de arriba</div>
+    </div>
+  </div>
+
+  <div class="reto-grid">
+    <div class="reto-card">
+      <span class="nivel nivel-f">🟡 Fácil</span>
+      <h4>Reto 1 — Del 1 al 20</h4>
+      <p>Escribe un <code>for</code> que imprima los números del 1 al 20.</p>
+    </div>
+    <div class="reto-card">
+      <span class="nivel nivel-m">🟠 Medio</span>
+      <h4>Reto 2 — Solo los pares</h4>
+      <p>Dentro de tu bucle, usa un <code>if</code> con <code>% 2 === 0</code> para imprimir SOLO los números pares del 1 al 20.</p>
+    </div>
+    <div class="reto-card">
+      <span class="nivel nivel-a">🔴 Avanzado</span>
+      <h4>Reto 3 — FizzBuzz completo</h4>
+      <p>Del 1 al 30: si es múltiplo de 3 imprime "Fizz", si es múltiplo de 5 imprime "Buzz", si es múltiplo de AMBOS imprime "FizzBuzz", si no, imprime el número normal. (Pista: revisa primero si es múltiplo de ambos con <code>&amp;&amp;</code>.)</p>
+    </div>
+  </div>
+</section>
+
+<section class="module" id="resumen">
+  <div class="module-header">
+    <div class="module-icon">📋</div>
+    <div>
+      <div class="module-title">Resumen: lo que aprendiste — y fin de esta ruta base</div>
+      <div class="module-sub">¡Gran avance!</div>
+    </div>
+  </div>
+
+  <div>
+    <span class="chip">for (inicio; condición; incremento)</span>
+    <span class="chip">i++</span>
+    <span class="chip">while</span>
+    <span class="chip">% (módulo)</span>
+  </div>
+
+  <div class="concept" style="margin-top:1.5rem">
+    <h4>🎉 ¿Qué sigue?</h4>
+    <p>Con esto completaste HTML, CSS, y las bases de lógica en JavaScript: variables, condicionales y bucles — el núcleo real de la programación. El siguiente nivel natural son <strong>funciones</strong> (empaquetar código reutilizable) y <strong>arreglos</strong> (listas de datos), que son justo lo que necesitas para empezar a conectar JavaScript con tu HTML y hacer páginas interactivas de verdad. Dime cuando quieras seguir con eso.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Fase 3 · Bloque 3 — Bucles (for) · JavaScript desde cero · Jacqui 2026
+</footer>
+
+<script>
+/* Visualizador paso a paso del bucle */
+let stepState = { phase: 'init', i: null, results: [] };
+
+function renderStepper() {
+  document.getElementById('stI').textContent = stepState.i === null ? '—' : stepState.i;
+  const condBox = document.getElementById('stCondBox');
+  const condEl = document.getElementById('stCond');
+  if (stepState.i === null) {
+    condEl.textContent = '—';
+    condBox.className = 'sv';
+  } else {
+    const cond = stepState.i <= 5;
+    condEl.textContent = cond ? 'true' : 'false';
+    condBox.className = 'sv ' + (cond ? 'cond-true' : 'cond-false');
+  }
+  const track = document.getElementById('stepTrack');
+  track.innerHTML = '';
+  for (let n = 1; n <= 5; n++) {
+    const pill = document.createElement('span');
+    pill.className = 'stepper-pill' + (stepState.results.includes(n) ? ' done' : '');
+    pill.textContent = n;
+    track.appendChild(pill);
+  }
+}
+
+function stepLoop() {
+  const actionEl = document.getElementById('stAction');
+  if (stepState.phase === 'init') {
+    stepState.i = 1;
+    stepState.phase = 'check';
+    actionEl.textContent = 'i se inicializó en 1';
+  } else if (stepState.phase === 'check') {
+    if (stepState.i <= 5) {
+      stepState.results.push(stepState.i);
+      actionEl.textContent = 'console.log(' + stepState.i + ') → se imprimió';
+      stepState.phase = 'increment';
+    } else {
+      actionEl.textContent = 'condición falsa → el bucle terminó';
+      document.getElementById('btnStep').disabled = true;
+    }
+  } else if (stepState.phase === 'increment') {
+    stepState.i++;
+    actionEl.textContent = 'i++ → ahora i vale ' + stepState.i;
+    stepState.phase = 'check';
+  }
+  renderStepper();
+}
+
+function resetStepper() {
+  stepState = { phase: 'init', i: null, results: [] };
+  document.getElementById('btnStep').disabled = false;
+  document.getElementById('stAction').textContent = 'esperando...';
+  renderStepper();
+}
+resetStepper();
+
+/* Consola interactiva */
+const CONSOLE_STARTER = `let numero = 15;
+
+if (numero % 3 === 0) {
+  console.log("Es múltiplo de 3");
+}`;
+
+function runConsole() {
+  const code = document.getElementById('consoleCode').value;
+  const outputDiv = document.getElementById('consoleOutput');
+  outputDiv.innerHTML = '';
+  const logs = [];
+  const originalLog = console.log;
+  console.log = function(...args) {
+    logs.push(args.map(a => {
+      try { return typeof a === 'string' ? a : JSON.stringify(a); }
+      catch(e) { return String(a); }
+    }).join(' '));
+  };
+  try {
+    new Function(code)();
+    if (logs.length === 0) {
+      const div = document.createElement('div');
+      div.className = 'console-line muted';
+      div.textContent = '(no hubo console.log — agrega uno para ver resultados)';
+      outputDiv.appendChild(div);
+    } else {
+      logs.forEach(line => {
+        const div = document.createElement('div');
+        div.className = 'console-line';
+        div.textContent = '▸ ' + line;
+        outputDiv.appendChild(div);
+      });
+    }
+  } catch (err) {
+    logs.forEach(line => {
+      const div = document.createElement('div');
+      div.className = 'console-line';
+      div.textContent = '▸ ' + line;
+      outputDiv.appendChild(div);
+    });
+    const errDiv = document.createElement('div');
+    errDiv.className = 'console-line error';
+    errDiv.textContent = '⚠ ' + err.message;
+    outputDiv.appendChild(errDiv);
+  }
+  console.log = originalLog;
+}
+
+function consoleAdd(snippet) {
+  const ta = document.getElementById('consoleCode');
+  ta.value = ta.value + '\n' + snippet;
+}
+
+function consoleReset() {
+  document.getElementById('consoleCode').value = CONSOLE_STARTER;
+  document.getElementById('consoleOutput').innerHTML = '';
+}
+
+document.getElementById('consoleCode').value = CONSOLE_STARTER;
+</script>
+
+</body>
+</html>

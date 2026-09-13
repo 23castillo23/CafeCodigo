@@ -176,6 +176,175 @@ const TEMAS = [
         bloqueado: false
       }
     ]
+  },
+  {
+    id:     'desde-cero',
+    numero: '04',
+    titulo: 'Desde Cero — Paso a Paso',
+    desc:   'Una segunda ruta, más lenta y detallada, con laboratorios interactivos: HTML, CSS y JavaScript explicados bloque por bloque.',
+    bloqueado: false,
+    capitulos: [
+      {
+        id:        'cap14-estructura-texto',
+        numero:    '14',
+        titulo:    'Estructura y Texto',
+        desc:      'Tu primera página HTML, explicada y en vivo — estructura del documento, títulos y párrafos, con laboratorio interactivo.',
+        lang:      'html',
+        archivo:   'capitulos/fase1-bloque1-estructura-texto.html',
+        lecciones: ['🏗️ Estructura', '📄 Títulos', '📝 Párrafos', '🧪 Laboratorio'],
+        bloqueado: false
+      },
+      {
+        id:        'cap15-listas-enlaces-imagenes',
+        numero:    '15',
+        titulo:    'Listas, Enlaces e Imágenes',
+        desc:      'Ahora tu página va a poder mostrar más que solo texto — listas, enlaces, imágenes y atributos.',
+        lang:      'html',
+        archivo:   'capitulos/fase1-bloque2-listas-enlaces-imagenes.html',
+        lecciones: ['📋 Listas', '🔗 Enlaces', '🖼️ Imágenes', '📎 Atributos'],
+        bloqueado: false
+      },
+      {
+        id:        'cap16-organizar-contenido',
+        numero:    '16',
+        titulo:    'Organizar el Contenido',
+        desc:      'El último paso de HTML antes de pasar a CSS — div, section, bloque vs línea y cómo ver los contornos.',
+        lang:      'html',
+        archivo:   'capitulos/fase1-bloque3-div-section.html',
+        lecciones: ['📦 div', '📑 section', '🧱 Bloque vs línea', '🔲 Contornos'],
+        bloqueado: false
+      },
+      {
+        id:        'cap17-selectores-colores',
+        numero:    '17',
+        titulo:    'Selectores y Colores',
+        desc:      'Ahora tu HTML por fin va a tener estilo — conectar CSS, selectores, color y font-size.',
+        lang:      'css',
+        archivo:   'capitulos/fase2-bloque1-selectores-colores.html',
+        lecciones: ['🔌 Conectar CSS', '🎯 Selectores', '🎨 Color', '🔤 font-size'],
+        bloqueado: false
+      },
+      {
+        id:        'cap18-espaciado-cajas',
+        numero:    '18',
+        titulo:    'Espaciado y Cajas',
+        desc:      'El modelo de caja: por qué cada elemento tiene aire a su alrededor — margin, padding, border y box model.',
+        lang:      'css',
+        archivo:   'capitulos/fase2-bloque2-espaciado-cajas.html',
+        lecciones: ['↔️ margin', '📥 padding', '🖼️ border', '📦 Box model'],
+        bloqueado: false
+      },
+      {
+        id:        'cap19-flexbox-responsive',
+        numero:    '19',
+        titulo:    'id, Flexbox y Responsive',
+        desc:      'El último bloque de CSS: acomodar y adaptar tu página — #id, display: flex y media queries.',
+        lang:      'css',
+        archivo:   'capitulos/fase2-bloque3-id-flexbox-responsive.html',
+        lecciones: ['🏷️ #id', '↔️ Flexbox', '📱 Media queries', '📐 Responsive'],
+        bloqueado: false
+      },
+      {
+        id:        'cap20-variables-tipos',
+        numero:    '20',
+        titulo:    'Variables y Tipos de Datos',
+        desc:      'Empieza la lógica real: tu primer código JavaScript — let/const, tipos de datos y consola interactiva.',
+        lang:      'js',
+        archivo:   'capitulos/fase3-bloque1-variables-tipos.html',
+        lecciones: ['📦 let/const', '🔢 Tipos de datos', '🧪 Consola', '⚙️ Lógica real'],
+        bloqueado: false
+      },
+      {
+        id:        'cap21-operadores-condicionales',
+        numero:    '21',
+        titulo:    'Operadores y Condicionales',
+        desc:      'Tu código empieza a tomar decisiones — comparaciones, if/else y operadores lógicos.',
+        lang:      'js',
+        archivo:   'capitulos/fase3-bloque2-operadores-condicionales.html',
+        lecciones: ['⚖️ Comparaciones', '🔀 if/else', '🔗 Operadores lógicos', '🎯 Decisiones'],
+        bloqueado: false
+      },
+      {
+        id:        'cap22-bucles',
+        numero:    '22',
+        titulo:    'Bucles (for)',
+        desc:      'Repite código sin copiar y pegar la misma línea — bucles for, while y el clásico ejercicio FizzBuzz.',
+        lang:      'js',
+        archivo:   'capitulos/fase3-bloque3-bucles.html',
+        lecciones: ['🔁 for', '🔂 while', '🎯 FizzBuzz', '🧪 Visualizador paso a paso'],
+        bloqueado: false
+      },
+      {
+        id:        'cap23-funciones',
+        numero:    '23',
+        titulo:    'Funciones',
+        desc:      'Empaqueta código para reutilizarlo cuando quieras — function, parámetros y return.',
+        lang:      'js',
+        archivo:   'capitulos/fase3-bloque4-funciones.html',
+        lecciones: ['📋 function', '📥 Parámetros', '📤 return', '🧪 Visualizador interactivo'],
+        bloqueado: false
+      },
+      {
+        id:        'cap24-arreglos-objetos',
+        numero:    '24',
+        titulo:    'Arreglos y Objetos',
+        desc:      'Guarda varios datos juntos, organizados — arrays, índices, objetos y propiedades.',
+        lang:      'js',
+        archivo:   'capitulos/fase3-bloque5-arreglos-objetos.html',
+        lecciones: ['📚 Array', '🔢 Índices', '🗃️ Objetos', '📌 Propiedades'],
+        bloqueado: false
+      },
+      {
+        id:        'cap25-dom',
+        numero:    '25',
+        titulo:    'El DOM',
+        desc:      'Por fin: JavaScript tomando control de tu HTML y CSS — querySelector, addEventListener y el DOM.',
+        lang:      'js',
+        archivo:   'capitulos/fase3-bloque6-dom.html',
+        lecciones: ['🔍 querySelector', '🔔 addEventListener', '🗺️ DOM', '🧪 Laboratorio de 3 paneles'],
+        bloqueado: false
+      },
+      {
+        id:        'cap26-formularios-validacion',
+        numero:    '26',
+        titulo:    'Formularios y Validación',
+        desc:      'Captura lo que escribe el usuario, y revísalo antes de aceptarlo — submit, preventDefault y validación.',
+        lang:      'js',
+        archivo:   'capitulos/fase3-bloque7-formularios-validacion.html',
+        lecciones: ['📝 submit', '🚫 preventDefault', '✅ Validación', '🧪 Laboratorio'],
+        bloqueado: false
+      },
+      {
+        id:        'cap27-async-apis',
+        numero:    '27',
+        titulo:    'Async y APIs',
+        desc:      'Trae datos reales de internet a tu página — fetch, async/await y JSON.',
+        lang:      'js',
+        archivo:   'capitulos/fase3-bloque8-async-apis.html',
+        lecciones: ['🌐 fetch', '⏱️ async/await', '📦 JSON', '🔴 Demo en vivo'],
+        bloqueado: false
+      },
+      {
+        id:        'cap28-arrow-template-literals',
+        numero:    '28',
+        titulo:    'Arrow Functions y Template Literals',
+        desc:      'Las mismas ideas que ya sabes, escritas de forma más corta y moderna — arrow functions y template literals.',
+        lang:      'js',
+        archivo:   'capitulos/fase4-bloque1-arrow-template-literals.html',
+        lecciones: ['➡️ Arrow functions', '📝 Template literals', '🔤 Backticks', '🧪 Laboratorio'],
+        bloqueado: false
+      },
+      {
+        id:        'cap29-proyecto-final',
+        numero:    '29',
+        titulo:    'Proyecto Final — Lista de Tareas',
+        desc:      'Tu proyecto final — HTML, CSS y JavaScript trabajando juntos en una app completa con localStorage.',
+        lang:      'js',
+        archivo:   'capitulos/mi-lista-de-tareas.html',
+        lecciones: ['✅ Tareas', '💾 localStorage', '🎯 Proyecto integrador'],
+        bloqueado: false
+      }
+    ]
   }
 ]
 

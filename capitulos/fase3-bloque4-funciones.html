@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Fase 3, Bloque 4 — JavaScript: funciones, desde cero, con visualizador interactivo.">
+<title>Bloque 4 — Funciones | JavaScript desde cero</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #4338ca;
+    --primary-light:  #eef0fd;
+    --secondary:      #0f766e;
+    --secondary-light:#eafaf7;
+    --accent:         #b45309;
+    --accent-light:   #fdf3e5;
+    --danger:         #b91c1c;
+    --danger-light:   #fdf0f0;
+    --bg:             #f6f5fb;
+    --surface:        #ffffff;
+    --text:           #1c1a2e;
+    --muted:          #85819c;
+    --border:         #e5e3f3;
+    --code-bg:        #1c1a2e;
+    --code-text:      #ece9fb;
+  }
+
+  body { font-family: 'DM Sans', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  header { background: #1c1a2e; color: #f6f5fb; padding: 3rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: 'ƒ(x)'; position: absolute; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 9rem; right: -.5rem; top: -2rem; opacity: .07; line-height: 1; }
+  header .ex-label { display: inline-block; background: var(--primary); color: white; border-radius: 20px; padding: 4px 16px; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 1rem; }
+  header h1 { font-family: 'Space Grotesk', sans-serif; font-size: 2.4rem; font-weight: 700; letter-spacing: -1px; }
+  header p.sub { font-size: 1.05rem; opacity: .8; margin-top: .5rem; font-style: italic; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  /* BARRA CAFÉ */
+  .cafe-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; gap: 14px; position: sticky; top: 0; z-index: 200; height: 45px; }
+  .cafe-bar a { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); text-decoration: none; padding: 6px 14px; border: 1px solid var(--border); border-radius: 999px; transition: all 0.15s; }
+  .cafe-bar a:hover { color: var(--text); border-color: var(--muted); }
+  .cafe-bar span { font-size: 13px; color: var(--muted); }
+
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 45px; z-index: 100; display: flex; overflow-x: auto; gap: 0; }
+  nav a { flex-shrink: 0; padding: .75rem 1.1rem; text-decoration: none; color: var(--muted); font-size: .82rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: white; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2.5rem; scroll-margin-top:80px; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.3rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  .analogy { background: #FFF7ED; border: 1px solid #FDE68A; border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: #92400E; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; color: #78350F; }
+
+  .concept { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p, .tip ul { font-size: .95rem; }
+  .tip ul { padding-left: 1.2rem; }
+  .tip li { margin-bottom: .3rem; }
+
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  .code-block { background: var(--code-bg); color: var(--code-text); border-radius: 10px; padding: 1.25rem 1.5rem; font-family: 'DM Mono', 'Courier New', monospace; font-size: .88rem; line-height: 1.9; overflow-x: auto; margin: 1rem 0; position: relative; white-space: pre; }
+  .code-block .ck { color: #c4b5fd; }
+  .code-block .cv { color: #86efac; }
+  .code-block .cs { color: #fde68a; }
+  .code-block .cn { color: #93c5fd; }
+  .code-block .cf { color: #67e8f9; }
+  .code-block .cc { color: #8b87a8; font-style: italic; }
+  .code-block .co { color: #ece9fb; }
+  .lang { position: absolute; top: .6rem; right: .75rem; background: rgba(255,255,255,.1); color: rgba(255,255,255,.5); font-size: .68rem; padding: 2px 8px; border-radius: 4px; font-family: sans-serif; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  .glos { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .glos-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; }
+  .glos-item dt { font-weight: 700; color: var(--primary); font-size: .92rem; margin-bottom: .3rem; }
+  .glos-item dd { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+  .glos-item .emoji { font-size: 1.4rem; display: block; margin-bottom: .4rem; }
+
+  /* MÁQUINA DE FUNCIONES */
+  .machine-wrap { border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; background: var(--bg); margin: 1.1rem 0; }
+  .machine-flow { display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; margin-bottom: 1.2rem; }
+  .machine-inputs { display: flex; flex-direction: column; gap: 8px; }
+  .machine-inputs .min-row { display: flex; align-items: center; gap: 8px; }
+  .machine-inputs label { font-family: 'DM Mono', monospace; font-size: .78rem; font-weight: 700; min-width: 60px; }
+  .machine-inputs input { padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); font-family: 'DM Mono', monospace; font-size: .88rem; width: 90px; }
+  .machine-box { background: var(--primary); color: white; border-radius: 12px; padding: 1.1rem 1.6rem; text-align: center; font-family: 'DM Mono', monospace; }
+  .machine-box .fname { font-weight: 700; font-size: .95rem; }
+  .machine-box .fdesc { font-size: .72rem; opacity: .8; margin-top: 2px; }
+  .machine-arrow { font-size: 1.4rem; color: var(--muted); }
+  .machine-output { background: var(--surface); border: 2px solid var(--primary); border-radius: 10px; padding: 10px 20px; font-family: 'DM Mono', monospace; font-weight: 700; color: var(--primary); font-size: 1.05rem; min-width: 90px; text-align: center; }
+
+  .console-wrap { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin: 1rem 0; }
+  .console-editor-label, .console-output-label { background: #1c1a2e; color: #ece9fb; font-family: 'DM Mono', monospace; font-size: .72rem; padding: 6px 12px; letter-spacing: .04em; display: flex; justify-content: space-between; align-items: center; }
+  .console-wrap textarea { width: 100%; height: 210px; border: none; resize: vertical; background: var(--code-bg); color: var(--code-text); font-family: 'DM Mono', monospace; font-size: .87rem; line-height: 1.7; padding: 1rem; outline: none; border-bottom: 1px solid #34314f; }
+  .run-btn { background: var(--primary); color: white; border: none; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: .76rem; padding: 4px 12px; border-radius: 20px; cursor: pointer; }
+  .console-output { background: #100f1c; min-height: 90px; padding: 1rem; font-family: 'DM Mono', monospace; font-size: .85rem; }
+  .console-line { color: #86efac; padding: 2px 0; }
+  .console-line.error { color: #fca5a5; }
+  .console-line.muted { color: #6b6886; font-style: italic; }
+
+  .lab-try-row { display: flex; flex-wrap: wrap; gap: 8px; margin: .9rem 0; }
+  .lab-try-row button { font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: .8rem; cursor: pointer; padding: 7px 14px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface); color: var(--text); }
+  .lab-try-row button:hover { border-color: var(--primary); color: var(--primary); }
+  .lab-reset { display: block; margin-top: .7rem; font-size: .78rem; color: var(--muted); background: none; border: none; text-decoration: underline; cursor: pointer; padding: 0; }
+
+  .reto-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin: 1.25rem 0; }
+  .reto-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+  .reto-card .nivel { display: inline-block; font-size: .72rem; font-weight: 700; padding: 2px 10px; border-radius: 20px; margin-bottom: .6rem; text-transform: uppercase; letter-spacing: .06em; }
+  .nivel-f { background: #FEF3C7; color: #92400E; }
+  .nivel-m { background: #FFEDD5; color: #C2410C; }
+  .nivel-a { background: #FEE2E2; color: #B91C1C; }
+  .reto-card h4 { font-size: .95rem; font-weight: 700; margin-bottom: .5rem; }
+  .reto-card p { font-size: .88rem; color: var(--muted); margin-bottom: .5rem; }
+
+  .chip { display: inline-block; background: var(--primary-light); color: var(--primary); font-size: .8rem; padding: 3px 12px; border-radius: 20px; font-weight: 600; margin: 3px; font-family: 'DM Mono', monospace; }
+
+  h2 { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; color: var(--text); }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: #ecebf7; color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  strong { font-weight: 700; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); }
+</style>
+<style>
+  .course-nav { background: #100f1c; display: flex; overflow-x: auto; gap: 6px; padding: 10px 14px; align-items: center; }
+  .course-nav a { flex-shrink: 0; font-family: 'DM Mono', monospace; font-size: .74rem; font-weight: 700; color: #a5a1c4; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 14px; padding: 5px 11px; text-decoration: none; white-space: nowrap; transition: background .15s, color .15s; }
+  .course-nav a:hover { background: rgba(255,255,255,.14); color: #ece9fb; }
+  .course-nav a.current { background: #4338ca; color: white; border-color: #4338ca; }
+  .course-nav .sep { color: #4a4766; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<!-- BARRA CAFÉ -->
+<div class="cafe-bar">
+  <a href="../capitulos.html">← Capítulos</a>
+  <span>☕ Fase 3 · Bloque 4 · Funciones</span>
+</div>
+
+<header>
+  <div class="ex-label">✏️ Fase 3 · Bloque 4</div>
+  <h1>Funciones</h1>
+  <p class="sub">Empaqueta código para reutilizarlo cuando quieras</p>
+  <span class="badge">🎯 JavaScript · function · parámetros · return</span>
+</header>
+
+<div class="course-nav">
+  <a href="fase1-bloque1-estructura-texto.html">F1.1</a>
+  <a href="fase1-bloque2-listas-enlaces-imagenes.html">F1.2</a>
+  <a href="fase1-bloque3-div-section.html">F1.3</a>
+  <a href="fase2-bloque1-selectores-colores.html">F2.1</a>
+  <a href="fase2-bloque2-espaciado-cajas.html">F2.2</a>
+  <a href="fase2-bloque3-id-flexbox-responsive.html">F2.3</a>
+  <a href="fase3-bloque1-variables-tipos.html">F3.1</a>
+  <a href="fase3-bloque2-operadores-condicionales.html">F3.2</a>
+  <a href="fase3-bloque3-bucles.html">F3.3</a>
+  <a href="fase3-bloque4-funciones.html" class="current">F3.4</a>
+  <a href="fase3-bloque5-arreglos-objetos.html">F3.5</a>
+  <a href="fase3-bloque6-dom.html">F3.6</a>
+  <a href="fase3-bloque7-formularios-validacion.html">F3.7</a>
+  <a href="fase3-bloque8-async-apis.html">F3.8</a>
+  <a href="fase4-bloque1-arrow-template-literals.html">F4.1</a>
+  <a href="mi-lista-de-tareas.html">🏁 Proyecto</a>
+</div>
+
+
+<nav>
+  <a href="#recordatorio">🔁 Recordatorio</a>
+  <a href="#vocabulario">📖 Vocabulario nuevo</a>
+  <a href="#funciones">ƒ Declarar una función</a>
+  <a href="#maquina">⚙️ Máquina de funciones</a>
+  <a href="#consola">🧪 Consola en vivo</a>
+  <a href="#retos">🏆 Retos</a>
+  <a href="#resumen">📋 Resumen</a>
+</nav>
+
+<main>
+
+<div class="parte-badge">ƒ Fase 3 · Bloque 4 — JavaScript desde cero: funciones</div>
+
+<section class="module" id="recordatorio">
+  <div class="module-header">
+    <div class="module-icon">🔁</div>
+    <div>
+      <div class="module-title">Antes de empezar: recordatorio rápido</div>
+      <div class="module-sub">Lo que ya sabes de los bloques anteriores</div>
+    </div>
+  </div>
+  <p>Ya sabes crear variables, comparar valores, usar <code>if/else</code> y repetir código con <code>for</code>. Ahora imagina que necesitas repetir ese MISMO bloque de lógica en varias partes distintas de tu programa, pero con datos diferentes cada vez. Copiar y pegar sería un desastre de mantener — para eso existen las funciones.</p>
+</section>
+
+<section class="module" id="vocabulario">
+  <div class="module-header">
+    <div class="module-icon">📖</div>
+    <div>
+      <div class="module-title">Vocabulario nuevo</div>
+      <div class="module-sub">Cuatro palabras que van a aparecer todo el tiempo de aquí en adelante</div>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <h4>🧠 Piénsalo así</h4>
+    <p>Una función es como una <strong>máquina expendedora</strong>: le metes algo (una moneda, tu selección), la máquina hace su proceso interno, y te da un resultado. No te importa cómo funciona por dentro cada vez que la usas — solo le das lo que pide y recibes lo que devuelve.</p>
+  </div>
+
+  <div class="glos">
+    <div class="glos-item">
+      <span class="emoji">ƒ</span>
+      <dt>Función</dt>
+      <dd>Un bloque de código con nombre, que puedes usar ("llamar") cuando quieras</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">📥</span>
+      <dt>Parámetro</dt>
+      <dd>El nombre que la función le da a los datos que recibe</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">📮</span>
+      <dt>Argumento</dt>
+      <dd>El valor real que le pasas a la función cuando la usas</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">↩️</span>
+      <dt>return</dt>
+      <dd>El resultado que la función te entrega de vuelta</dd>
+    </div>
+  </div>
+</section>
+
+<section class="module" id="funciones">
+  <div class="module-header">
+    <div class="module-icon">ƒ</div>
+    <div>
+      <div class="module-title">PARTE 1 — Declarar y usar una función</div>
+      <div class="module-sub">Dos pasos: crearla, y luego llamarla</div>
+    </div>
+  </div>
+
+  <div class="code-block"><span class="lang">JS</span><span class="ck">function</span> <span class="cf">sumar</span><span class="co">(</span><span class="cv">a</span><span class="co">,</span> <span class="cv">b</span><span class="co">)</span> <span class="co">{</span>
+  <span class="ck">return</span> <span class="cv">a</span> <span class="co">+</span> <span class="cv">b</span><span class="co">;</span>
+<span class="co">}</span>
+
+<span class="cf">console.log</span><span class="co">(</span><span class="cf">sumar</span><span class="co">(</span><span class="cn">3</span><span class="co">,</span> <span class="cn">5</span><span class="co">));</span> <span class="cc">// 8</span></div>
+
+  <table class="tbl">
+    <thead><tr><th>Parte</th><th>¿Qué hace?</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">function</span></td><td>La palabra que le dice a JavaScript "voy a crear una función".</td></tr>
+      <tr><td><span class="tag">sumar</span></td><td>El nombre que tú eliges — así vas a "llamarla" después.</td></tr>
+      <tr><td><span class="tag">(a, b)</span></td><td>Los parámetros: nombres para los datos que la función espera recibir.</td></tr>
+      <tr><td><span class="tag">return a + b;</span></td><td><code>return</code> entrega el resultado y TERMINA la función ahí mismo — nada después de un return se ejecuta.</td></tr>
+      <tr><td><span class="tag">sumar(3, 5)</span></td><td>Aquí "llamas" a la función, pasándole 3 y 5 como argumentos — esos valores reales reemplazan a <code>a</code> y <code>b</code>.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="warn">
+    <h4>⚠️ Parámetro vs argumento</h4>
+    <p>Es una confusión común: <code>a</code> y <code>b</code> en la declaración son <strong>parámetros</strong> (nombres genéricos). <code>3</code> y <code>5</code> cuando la llamas son <strong>argumentos</strong> (valores reales). Es la misma idea, distinto momento.</p>
+  </div>
+</section>
+
+<section class="module" id="maquina">
+  <div class="module-header">
+    <div class="module-icon">⚙️</div>
+    <div>
+      <div class="module-title">PARTE 2 — Máquina de funciones en vivo</div>
+      <div class="module-sub">Cambia los valores de entrada y mira el resultado salir al instante</div>
+    </div>
+  </div>
+
+  <div class="machine-wrap">
+    <div class="machine-flow">
+      <div class="machine-inputs">
+        <div class="min-row">
+          <label for="mA">a =</label>
+          <input type="text" id="mA" value="3">
+        </div>
+        <div class="min-row">
+          <label for="mB">b =</label>
+          <input type="text" id="mB" value="5">
+        </div>
+      </div>
+      <div class="machine-arrow">→</div>
+      <div class="machine-box">
+        <div class="fname">sumar(a, b)</div>
+        <div class="fdesc">return a + b;</div>
+      </div>
+      <div class="machine-arrow">→</div>
+      <div class="machine-output" id="mOut">8</div>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>💡 Qué observar</h4>
+    <p>Cambia <code>a</code> o <code>b</code> a valores de texto entre comillas (ej. <code>"3"</code>) en vez de números, y mira qué le pasa al resultado — recuerda lo que aprendiste sobre <code>+</code> con strings.</p>
+  </div>
+</section>
+
+<section class="module" id="consola">
+  <div class="module-header">
+    <div class="module-icon">🧪</div>
+    <div>
+      <div class="module-title">PARTE 3 — Consola interactiva</div>
+      <div class="module-sub">Escribe y prueba tus propias funciones</div>
+    </div>
+  </div>
+
+  <div class="console-wrap">
+    <div class="console-editor-label">
+      <span>✏️ TU CÓDIGO</span>
+      <button class="run-btn" onclick="runConsole()">▶ Ejecutar</button>
+    </div>
+    <textarea id="consoleCode" spellcheck="false"></textarea>
+    <div class="console-output-label"><span>▸ SALIDA (console.log)</span></div>
+    <div class="console-output" id="consoleOutput"></div>
+  </div>
+
+  <p style="margin-top:1rem; font-size:.85rem; color:var(--muted); font-weight:600;">Prueba agregar esto y presiona Ejecutar otra vez:</p>
+  <div class="lab-try-row">
+    <button onclick="consoleAdd('function esMayorDeEdad(edad) {\n  return edad >= 18;\n}\nconsole.log(esMayorDeEdad(20));')">+ función con if implícito</button>
+    <button onclick="consoleAdd('function saludar(nombre) {\n  console.log(\"Hola \" + nombre);\n}\nsaludar(\"Jacqui\");')">+ función sin return</button>
+  </div>
+  <button class="lab-reset" onclick="consoleReset()">↺ Restaurar código original</button>
+
+  <div class="tip" style="margin-top:1.25rem">
+    <h4>💡 ¿Una función siempre necesita return?</h4>
+    <p>No. Si solo quieres que HAGA algo (como imprimir un saludo) y no necesitas usar un resultado después, puedes omitir el <code>return</code>. Pero si vas a usar lo que la función calculó (como guardarlo en una variable), sí necesitas <code>return</code>.</p>
+  </div>
+</section>
+
+<section class="module" id="retos">
+  <div class="module-header">
+    <div class="module-icon">🏆</div>
+    <div>
+      <div class="module-title">PARTE 4 — Retos para practicar</div>
+      <div class="module-sub">Resuélvelos directo en la consola de arriba</div>
+    </div>
+  </div>
+
+  <div class="reto-grid">
+    <div class="reto-card">
+      <span class="nivel nivel-f">🟡 Fácil</span>
+      <h4>Reto 1 — El mayor de dos</h4>
+      <p>Crea una función <code>mayor(a, b)</code> que regrese el número más grande de los dos, usando un <code>if</code> adentro (sin usar Math.max).</p>
+    </div>
+    <div class="reto-card">
+      <span class="nivel nivel-m">🟠 Medio</span>
+      <h4>Reto 2 — Es par</h4>
+      <p>Crea <code>esPar(numero)</code> que regrese <code>true</code> o <code>false</code> usando <code>numero % 2 === 0</code>.</p>
+    </div>
+    <div class="reto-card">
+      <span class="nivel nivel-a">🔴 Avanzado</span>
+      <h4>Reto 3 — FizzBuzz como función</h4>
+      <p>Convierte tu FizzBuzz del bloque anterior en una función <code>fizzBuzz(numero)</code> que haga <code>return</code> del texto correcto ("Fizz", "Buzz", "FizzBuzz" o el número), y luego llámala dentro de un <code>for</code> del 1 al 30.</p>
+    </div>
+  </div>
+</section>
+
+<section class="module" id="resumen">
+  <div class="module-header">
+    <div class="module-icon">📋</div>
+    <div>
+      <div class="module-title">Resumen: lo que aprendiste en este bloque</div>
+      <div class="module-sub">Todo en un vistazo</div>
+    </div>
+  </div>
+
+  <div>
+    <span class="chip">function nombre() {}</span>
+    <span class="chip">parámetro</span>
+    <span class="chip">argumento</span>
+    <span class="chip">return</span>
+  </div>
+
+  <div class="concept" style="margin-top:1.5rem">
+    <h4>💡 ¿Qué sigue?</h4>
+    <p>En el <strong>Bloque 5</strong> vamos a ver <strong>arreglos y objetos</strong> — cómo guardar varios datos juntos (una lista de tareas, un contacto con nombre y teléfono) y recorrerlos con los bucles que ya sabes usar.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Fase 3 · Bloque 4 — Funciones · JavaScript desde cero · Jacqui 2026
+</footer>
+
+<script>
+/* Máquina de funciones en vivo */
+function updateMachine() {
+  const rawA = document.getElementById('mA').value;
+  const rawB = document.getElementById('mB').value;
+  const outEl = document.getElementById('mOut');
+  try {
+    const a = new Function('return (' + rawA + ')')();
+    const b = new Function('return (' + rawB + ')')();
+    const result = a + b;
+    outEl.textContent = JSON.stringify(result);
+  } catch(e) {
+    outEl.textContent = '⚠';
+  }
+}
+document.getElementById('mA').addEventListener('input', updateMachine);
+document.getElementById('mB').addEventListener('input', updateMachine);
+updateMachine();
+
+/* Consola interactiva */
+const CONSOLE_STARTER = `function sumar(a, b) {
+  return a + b;
+}
+
+console.log(sumar(3, 5));`;
+
+function runConsole() {
+  const code = document.getElementById('consoleCode').value;
+  const outputDiv = document.getElementById('consoleOutput');
+  outputDiv.innerHTML = '';
+  const logs = [];
+  const originalLog = console.log;
+  console.log = function(...args) {
+    logs.push(args.map(a => {
+      try { return typeof a === 'string' ? a : JSON.stringify(a); }
+      catch(e) { return String(a); }
+    }).join(' '));
+  };
+  try {
+    new Function(code)();
+    if (logs.length === 0) {
+      const div = document.createElement('div');
+      div.className = 'console-line muted';
+      div.textContent = '(no hubo console.log — agrega uno para ver resultados)';
+      outputDiv.appendChild(div);
+    } else {
+      logs.forEach(line => {
+        const div = document.createElement('div');
+        div.className = 'console-line';
+        div.textContent = '▸ ' + line;
+        outputDiv.appendChild(div);
+      });
+    }
+  } catch (err) {
+    logs.forEach(line => {
+      const div = document.createElement('div');
+      div.className = 'console-line';
+      div.textContent = '▸ ' + line;
+      outputDiv.appendChild(div);
+    });
+    const errDiv = document.createElement('div');
+    errDiv.className = 'console-line error';
+    errDiv.textContent = '⚠ ' + err.message;
+    outputDiv.appendChild(errDiv);
+  }
+  console.log = originalLog;
+}
+
+function consoleAdd(snippet) {
+  const ta = document.getElementById('consoleCode');
+  ta.value = ta.value + '\n' + snippet;
+}
+
+function consoleReset() {
+  document.getElementById('consoleCode').value = CONSOLE_STARTER;
+  document.getElementById('consoleOutput').innerHTML = '';
+}
+
+document.getElementById('consoleCode').value = CONSOLE_STARTER;
+</script>
+
+</body>
+</html>

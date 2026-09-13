@@ -126,6 +126,14 @@
   .sb-btn { background:var(--primary); color:white; border:none; padding:.5rem 1.2rem; border-radius:7px; font-size:.9rem; font-weight:600; cursor:pointer; font-family:'DM Sans',sans-serif; }
   .sb-btn:hover { background:#a83920; }
   .sb-btn:disabled { background:#ccc; cursor:not-allowed; }
+  .sb-btn.mini { padding:.4rem .8rem; font-size:.78rem; margin:3px 4px 3px 0; }
+  .obj-view { font-family:'DM Mono',monospace; font-size:.82rem; background:var(--code-bg); color:var(--code-text); border-radius:8px; padding:1rem 1.2rem; white-space:pre-wrap; min-height:1.4em; max-height:280px; overflow-y:auto; }
+  .fb-nota { background:#fff6e0; border-left:3px solid #d9a441; border-radius:0 8px 8px 0; padding:10px 14px; font-size:.8rem; color:#6b5417; margin:12px 0; }
+  .fb-cliente { border:1px solid var(--border); border-radius:10px; padding:12px; }
+  .fb-cliente h4 { margin:0 0 8px; font-family:'DM Mono',monospace; font-size:.8rem; color:var(--muted); }
+  .fb-doc { background:var(--surface); border:1px solid var(--border); border-radius:7px; padding:6px 10px; margin:4px 0; font-family:'DM Mono',monospace; font-size:.78rem; }
+  .fb-2col { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  @media(max-width:600px){ .fb-2col{ grid-template-columns:1fr; } }
   .sb-output { background:var(--code-bg); color:var(--code-text); border-radius:8px; padding:1rem 1.2rem; font-family:'DM Mono',monospace; font-size:.82rem; line-height:1.7; margin-top:.75rem; min-height:60px; white-space:pre-wrap; word-break:break-all; display:none; }
   .sb-output.visible { display:block; }
   .sb-status { font-size:.78rem; font-weight:700; padding:2px 8px; border-radius:4px; }
@@ -341,6 +349,7 @@ tabla: usuarios              coleccion: usuarios
       <p class="leccion-desc">En Firestore no hay tablas ni filas. Hay <strong>colecciones</strong> (como carpetas) que
         contienen <strong>documentos</strong> (como fichas). Cada documento es un objeto con sus propiedades. Los
         documentos pueden tener subcolecciones dentro de ellos, lo que permite estructuras muy flexibles.</p>
+      <div class="fb-nota">⚠️ Los sandboxes de las siguientes 4 lecciones usan una <strong>simulación de Firestore en memoria</strong> — mismo código, mismas funciones (<code>addDoc</code>, <code>getDocs</code>, <code>onSnapshot</code>...), pero corriendo en tu navegador en vez de la nube de Google. La diferencia real: esto se borra al recargar la página; Firestore de verdad lo guarda para siempre.</div>
     </article>
 
     <article class="leccion" id="fb-leer">
@@ -380,6 +389,15 @@ tabla: usuarios              coleccion: usuarios
   console.log(<span class="c-str">"No existe ese documento"</span>)
 }</pre>
       </div>
+
+      <p class="leccion-desc">La colección "usuarios" ya tiene 2 documentos guardados — léelos con el mismo código de arriba:</p>
+      <div class="sandbox">
+        <div class="sandbox-bar"><span>●</span><span class="sb-title">Sandbox · leerUsuarios() simulado</span></div>
+        <div class="sandbox-body">
+          <button class="sb-btn mini" id="btnFbLeer" type="button">leerUsuarios()</button>
+          <div class="obj-view" id="fbLeerOutput">// presiona el botón...</div>
+        </div>
+      </div>
     </article>
 
     <article class="leccion" id="fb-escribir">
@@ -412,6 +430,24 @@ console.log(<span class="c-str">"ID creado:"</span>, docCreado.id)
 <span class="c-comment">// ELIMINAR un documento</span>
 <span class="c-key">await</span> deleteDoc(doc(db, <span class="c-str">"usuarios"</span>, <span class="c-str">"abc123"</span>))</pre>
       </div>
+
+      <p class="leccion-desc">Misma colección "usuarios" de la lección anterior — agrega, actualiza y elimina de verdad (dentro de la simulación):</p>
+      <div class="sandbox">
+        <div class="sandbox-bar"><span>●</span><span class="sb-title">Sandbox · addDoc / updateDoc / deleteDoc</span></div>
+        <div class="sandbox-body">
+          <div class="sb-row">
+            <div><label>nombre</label><input class="sb-input" id="fbNombre" style="margin-bottom:0" value="Marcos"></div>
+            <div><label>edad</label><input class="sb-input" id="fbEdad" style="margin-bottom:0" value="20"></div>
+          </div>
+          <div>
+            <button class="sb-btn mini" id="btnFbAdd" type="button">addDoc(usuarios, {...})</button>
+            <button class="sb-btn mini" id="btnFbUpdate" type="button">updateDoc(primero, {edad: edad+1})</button>
+            <button class="sb-btn mini" id="btnFbDelete" type="button">deleteDoc(primero)</button>
+          </div>
+          <div id="fbColeccion" style="margin-top:.5rem"></div>
+          <div class="sb-output visible" id="fbEscribirOutput"></div>
+        </div>
+      </div>
     </article>
 
     <article class="leccion" id="fb-tiempo-real">
@@ -443,6 +479,21 @@ console.log(<span class="c-str">"ID creado:"</span>, docCreado.id)
 <span class="c-comment">// cuando alguien manda un mensaje a Firestore,</span>
 <span class="c-comment">// todos los que tienen onSnapshot activo reciben la actualizacion</span>
 <span class="c-comment">// sin necesidad de recargar la pagina</span></pre>
+      </div>
+
+      <p class="leccion-desc">Esta es la magia de Firebase, sentida de verdad: dos "clientes" (como si fueran 2 celulares distintos), cada uno con su propio <code>onSnapshot</code> escuchando. Manda un mensaje desde cualquiera — el otro se actualiza <strong>solo</strong>, sin que nadie lo recargue:</p>
+      <div class="sandbox">
+        <div class="sandbox-bar"><span>●</span><span class="sb-title">Sandbox · onSnapshot en tiempo real</span></div>
+        <div class="sandbox-body">
+          <div class="sb-row">
+            <div><input class="sb-input" id="fbMensaje" style="margin-bottom:0" value="Hola!"></div>
+            <div style="flex:0"><button class="sb-btn mini" id="btnFbEnviar" type="button">addDoc(mensajes, {...})</button></div>
+          </div>
+          <div class="fb-2col" style="margin-top:.75rem">
+            <div class="fb-cliente"><h4>📱 Cliente A (escuchando)</h4><div id="fbClienteA"></div></div>
+            <div class="fb-cliente"><h4>💻 Cliente B (escuchando)</h4><div id="fbClienteB"></div></div>
+          </div>
+        </div>
       </div>
     </article>
 
@@ -490,6 +541,24 @@ onAuthStateChanged(auth, (usuario) =&gt; {
     console.log(<span class="c-str">"Sin sesion"</span>)
   }
 })</pre>
+      </div>
+
+      <p class="leccion-desc">Regístrate, inicia sesión y cierra sesión — el indicador de abajo está conectado a <code>onAuthStateChanged</code> igual que en el código, así que se actualiza solo:</p>
+      <div class="sandbox">
+        <div class="sandbox-bar"><span>●</span><span class="sb-title">Sandbox · Firebase Auth simulado</span></div>
+        <div class="sandbox-body">
+          <div class="sb-row">
+            <div><label>correo</label><input class="sb-input" id="fbCorreo" style="margin-bottom:0" value="ana@correo.com"></div>
+            <div><label>contraseña</label><input class="sb-input" type="password" id="fbPass" style="margin-bottom:0" value="123456"></div>
+          </div>
+          <div>
+            <button class="sb-btn mini" id="btnFbRegistrar" type="button">registrar(correo, contraseña)</button>
+            <button class="sb-btn mini" id="btnFbLogin" type="button">login(correo, contraseña)</button>
+            <button class="sb-btn mini" id="btnFbLogout" type="button">signOut(auth)</button>
+          </div>
+          <div class="obj-view" id="fbAuthOutput" style="margin-top:.5rem"></div>
+          <div class="sb-output visible" id="fbAuthEstado">onAuthStateChanged →  Sin sesión</div>
+        </div>
       </div>
     </article>
 
@@ -554,6 +623,148 @@ function iniciarObservadorNav() {
   document.querySelectorAll('.leccion[id]').forEach(el => obs.observe(el));
 }
 document.addEventListener('DOMContentLoaded', iniciarObservadorNav);
+
+/* ─── MOTOR SIMULADO DE FIRESTORE (misma API que Firebase real) ─── */
+const fakeDB = { usuarios: {}, mensajes: {} };
+let fakeIdSeq = 1;
+function fakeId() { return 'doc' + (fakeIdSeq++); }
+const snapshotListeners = { mensajes: [] };
+
+function addDoc(coleccion, data) {
+  const id = fakeId();
+  fakeDB[coleccion][id] = data;
+  notificar(coleccion);
+  return { id };
+}
+function getDocs(coleccion) {
+  const docs = Object.entries(fakeDB[coleccion]).map(([id, data]) => ({ id, data: () => data }));
+  return { docs };
+}
+function updateDoc(coleccion, id, cambios) {
+  fakeDB[coleccion][id] = { ...fakeDB[coleccion][id], ...cambios };
+  notificar(coleccion);
+}
+function deleteDoc(coleccion, id) {
+  delete fakeDB[coleccion][id];
+  notificar(coleccion);
+}
+function onSnapshot(coleccion, callback) {
+  snapshotListeners[coleccion].push(callback);
+  callback(getDocs(coleccion));
+  return () => { snapshotListeners[coleccion] = snapshotListeners[coleccion].filter(cb => cb !== callback); };
+}
+function notificar(coleccion) {
+  (snapshotListeners[coleccion] || []).forEach(cb => cb(getDocs(coleccion)));
+}
+/* seed inicial */
+fakeDB.usuarios['abc123'] = { nombre: 'Ana', edad: 25 };
+fakeDB.usuarios['def456'] = { nombre: 'Luis', edad: 17 };
+
+/* ─── SANDBOX · LEER DATOS ─── */
+function iniciarSandboxFbLeer() {
+  const btn = document.getElementById('btnFbLeer');
+  const salida = document.getElementById('fbLeerOutput');
+  if (!btn) return;
+  btn.addEventListener('click', () => {
+    const snap = getDocs('usuarios');
+    const usuarios = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    salida.textContent = 'instantanea.docs.forEach(...)\n\n' + usuarios.map(u => u.id + '  →  ' + JSON.stringify(u)).join('\n');
+  });
+}
+document.addEventListener('DOMContentLoaded', iniciarSandboxFbLeer);
+
+/* ─── SANDBOX · ESCRIBIR / ACTUALIZAR / ELIMINAR ─── */
+function iniciarSandboxFbEscribir() {
+  const cont = document.getElementById('fbColeccion');
+  const salida = document.getElementById('fbEscribirOutput');
+  if (!cont) return;
+  function render() {
+    const snap = getDocs('usuarios');
+    cont.innerHTML = snap.docs.map(d => '<div class="fb-doc">' + d.id + '  →  ' + JSON.stringify(d.data()) + '</div>').join('') || '<div class="fb-doc">(colección vacía)</div>';
+  }
+  document.getElementById('btnFbAdd').addEventListener('click', () => {
+    const nombre = document.getElementById('fbNombre').value;
+    const edad = Number(document.getElementById('fbEdad').value);
+    const creado = addDoc('usuarios', { nombre, edad, activo: true });
+    salida.textContent = 'addDoc(usuarios, { nombre: "' + nombre + '", edad: ' + edad + ', activo: true })\n→ ID creado: "' + creado.id + '"';
+    render();
+  });
+  document.getElementById('btnFbUpdate').addEventListener('click', () => {
+    const primero = Object.keys(fakeDB.usuarios)[0];
+    if (!primero) { salida.textContent = 'no hay documentos'; return; }
+    const nuevaEdad = (fakeDB.usuarios[primero].edad || 0) + 1;
+    updateDoc('usuarios', primero, { edad: nuevaEdad });
+    salida.textContent = 'updateDoc(doc(db,"usuarios","' + primero + '"), { edad: ' + nuevaEdad + ' })\n→ solo cambió "edad", el resto quedó igual';
+    render();
+  });
+  document.getElementById('btnFbDelete').addEventListener('click', () => {
+    const primero = Object.keys(fakeDB.usuarios)[0];
+    if (!primero) { salida.textContent = 'no hay documentos'; return; }
+    deleteDoc('usuarios', primero);
+    salida.textContent = 'deleteDoc(doc(db,"usuarios","' + primero + '"))\n→ documento "' + primero + '" eliminado';
+    render();
+  });
+  render();
+}
+document.addEventListener('DOMContentLoaded', iniciarSandboxFbEscribir);
+
+/* ─── SANDBOX · TIEMPO REAL CON onSnapshot ─── */
+function iniciarSandboxFbTiempoReal() {
+  const btn = document.getElementById('btnFbEnviar');
+  if (!btn) return;
+  function renderCliente(elId) {
+    return (snap) => {
+      const el = document.getElementById(elId);
+      el.innerHTML = snap.docs.map(d => '<div class="fb-doc">' + d.data().texto + '</div>').join('') || '<div class="fb-doc">(sin mensajes todavía)</div>';
+    };
+  }
+  onSnapshot('mensajes', renderCliente('fbClienteA'));
+  onSnapshot('mensajes', renderCliente('fbClienteB'));
+  btn.addEventListener('click', () => {
+    const texto = document.getElementById('fbMensaje').value;
+    addDoc('mensajes', { texto });
+  });
+}
+document.addEventListener('DOMContentLoaded', iniciarSandboxFbTiempoReal);
+
+/* ─── SANDBOX · AUTH SIMULADO ─── */
+function iniciarSandboxFbAuth() {
+  const btn = document.getElementById('btnFbRegistrar');
+  if (!btn) return;
+  const usuariosRegistrados = {};
+  let sesionActual = null;
+  const authListeners = [];
+  function onAuthStateChanged(cb) { authListeners.push(cb); cb(sesionActual); }
+  function notificarAuth() { authListeners.forEach(cb => cb(sesionActual)); }
+
+  const salida = document.getElementById('fbAuthOutput');
+  const estado = document.getElementById('fbAuthEstado');
+
+  btn.addEventListener('click', () => {
+    const correo = document.getElementById('fbCorreo').value;
+    const pass = document.getElementById('fbPass').value;
+    if (usuariosRegistrados[correo]) { salida.textContent = 'Error: el correo ya está registrado'; return; }
+    usuariosRegistrados[correo] = pass;
+    salida.textContent = 'createUserWithEmailAndPassword(auth, "' + correo + '", ...)\n→ Usuario creado: uid_' + Object.keys(usuariosRegistrados).length;
+  });
+  document.getElementById('btnFbLogin').addEventListener('click', () => {
+    const correo = document.getElementById('fbCorreo').value;
+    const pass = document.getElementById('fbPass').value;
+    if (usuariosRegistrados[correo] !== pass) { salida.textContent = 'Error: correo o contraseña incorrectos'; return; }
+    sesionActual = { email: correo };
+    salida.textContent = 'signInWithEmailAndPassword(auth, "' + correo + '", ...)\n→ Bienvenido: ' + correo;
+    notificarAuth();
+  });
+  document.getElementById('btnFbLogout').addEventListener('click', () => {
+    sesionActual = null;
+    salida.textContent = 'signOut(auth)\n→ sesión cerrada';
+    notificarAuth();
+  });
+  onAuthStateChanged((usuario) => {
+    estado.textContent = 'onAuthStateChanged →  ' + (usuario ? 'Sesión activa: ' + usuario.email : 'Sin sesión');
+  });
+}
+document.addEventListener('DOMContentLoaded', iniciarSandboxFbAuth);
 </script>
 </body>
 </html>

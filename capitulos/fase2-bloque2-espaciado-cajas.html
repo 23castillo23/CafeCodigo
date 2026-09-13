@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Fase 2, Bloque 2 — CSS: espaciado y el modelo de caja, desde cero, con laboratorio interactivo.">
+<title>Bloque 2 — Espaciado y Cajas | CSS desde cero</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #0f766e;
+    --primary-light:  #eafaf7;
+    --secondary:      #4338ca;
+    --secondary-light:#eef0fd;
+    --accent:         #b45309;
+    --accent-light:   #fdf3e5;
+    --danger:         #b91c1c;
+    --danger-light:   #fdf0f0;
+    --bg:             #f5f7f6;
+    --surface:        #ffffff;
+    --text:           #16211d;
+    --muted:          #7c8c86;
+    --border:         #e1ece8;
+    --code-bg:        #16211d;
+    --code-text:      #e9f3ef;
+  }
+
+  body { font-family: 'DM Sans', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  header { background: #16211d; color: #f5f7f6; padding: 3rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: '▢'; position: absolute; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 11rem; right: -.5rem; top: -2.5rem; opacity: .06; line-height: 1; }
+  header .ex-label { display: inline-block; background: var(--primary); color: white; border-radius: 20px; padding: 4px 16px; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 1rem; }
+  header h1 { font-family: 'Space Grotesk', sans-serif; font-size: 2.4rem; font-weight: 700; letter-spacing: -1px; }
+  header p.sub { font-size: 1.05rem; opacity: .8; margin-top: .5rem; font-style: italic; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  /* BARRA CAFÉ */
+  .cafe-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; gap: 14px; position: sticky; top: 0; z-index: 200; height: 45px; }
+  .cafe-bar a { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); text-decoration: none; padding: 6px 14px; border: 1px solid var(--border); border-radius: 999px; transition: all 0.15s; }
+  .cafe-bar a:hover { color: var(--text); border-color: var(--muted); }
+  .cafe-bar span { font-size: 13px; color: var(--muted); }
+
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 45px; z-index: 100; display: flex; overflow-x: auto; gap: 0; }
+  nav a { flex-shrink: 0; padding: .75rem 1.1rem; text-decoration: none; color: var(--muted); font-size: .82rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: white; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2.5rem; scroll-margin-top:100px; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.3rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  .analogy { background: #FFF7ED; border: 1px solid #FDE68A; border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: #92400E; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; color: #78350F; }
+
+  .concept { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+
+  .tip { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p, .tip ul { font-size: .95rem; }
+  .tip ul { padding-left: 1.2rem; }
+  .tip li { margin-bottom: .3rem; }
+
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  .code-block { background: var(--code-bg); color: var(--code-text); border-radius: 10px; padding: 1.25rem 1.5rem; font-family: 'DM Mono', 'Courier New', monospace; font-size: .88rem; line-height: 1.9; overflow-x: auto; margin: 1rem 0; position: relative; white-space: pre; }
+  .code-block .ct { color: #7dd3fc; }
+  .code-block .ca { color: #c4b5fd; }
+  .code-block .cv { color: #86efac; }
+  .code-block .cs { color: #fde68a; }
+  .code-block .cc { color: #6b7280; font-style: italic; }
+  .code-block .cp { color: #fca5a5; }
+  .lang { position: absolute; top: .6rem; right: .75rem; background: rgba(255,255,255,.1); color: rgba(255,255,255,.5); font-size: .68rem; padding: 2px 8px; border-radius: 4px; font-family: sans-serif; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  /* DIAGRAMA VISUAL DEL BOX MODEL */
+  .boxmodel { display: flex; justify-content: center; margin: 1.5rem 0; }
+  .bm-margin { background: #fdf3e5; border: 2px dashed var(--accent); padding: 28px; position: relative; }
+  .bm-margin::before { content: 'margin'; position: absolute; top: 4px; left: 8px; font-size: .65rem; color: var(--accent); font-weight: 700; font-family: 'DM Mono', monospace; }
+  .bm-border { background: #fdf0f0; border: 6px solid var(--danger); padding: 22px; position: relative; }
+  .bm-border::before { content: 'border'; position: absolute; top: -20px; left: 8px; font-size: .65rem; color: var(--danger); font-weight: 700; font-family: 'DM Mono', monospace; }
+  .bm-padding { background: #eef0fd; border: 2px dashed var(--secondary); padding: 22px; position: relative; }
+  .bm-padding::before { content: 'padding'; position: absolute; top: -18px; left: 8px; font-size: .65rem; color: var(--secondary); font-weight: 700; font-family: 'DM Mono', monospace; }
+  .bm-content { background: var(--primary); color: white; padding: 16px 28px; border-radius: 4px; font-family: 'DM Mono', monospace; font-size: .82rem; font-weight: 700; }
+
+  /* VISUALIZADOR DINÁMICO DEL BOX MODEL */
+  .bm-live-wrap { display: grid; grid-template-columns: 1fr 1.1fr; gap: 1.5rem; align-items: center; margin: 1.5rem 0; }
+  @media (max-width: 700px) { .bm-live-wrap { grid-template-columns: 1fr; } }
+  .bm-live-stage { display: flex; justify-content: center; align-items: center; min-height: 220px; }
+  .bm-live-margin { background: #fdf3e5; padding: 10px; transition: padding .12s; }
+  .bm-live-border-box { background: #211c17; transition: padding .12s; }
+  .bm-live-padding { background: #d9f0e8; transition: padding .12s; }
+  .bm-live-content { background: #c7d6fb; color: #16211d; display: flex; align-items: center; justify-content: center; width: 110px; height: 60px; font-family: 'DM Mono', monospace; font-size: .78rem; font-weight: 700; border-radius: 3px; }
+  .bm-controls { display: flex; flex-direction: column; gap: 1rem; }
+  .bm-slider-row { display: grid; grid-template-columns: 70px 1fr 52px; align-items: center; gap: .7rem; }
+  .bm-slider-row label { font-family: 'DM Mono', monospace; font-size: .82rem; font-weight: 700; color: var(--text); }
+  .bm-slider-row input[type="range"] { width: 100%; accent-color: var(--secondary); }
+  .bm-slider-row .bm-val { background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .78rem; font-weight: 700; padding: 3px 8px; border-radius: 6px; text-align: center; }
+  .bm-legend { list-style: none; margin-top: .5rem; display: flex; flex-direction: column; gap: .4rem; }
+  .bm-legend li { display: flex; align-items: center; gap: .55rem; font-size: .84rem; color: var(--text); }
+  .bm-swatch { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
+
+  .lab-intro { font-size: .95rem; color: var(--muted); margin-bottom: 1rem; }
+  .lab-holder { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 720px) { .lab-holder { grid-template-columns: 1fr; } }
+  .lab-panel { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .lab-panel-label { background: #16211d; color: #e9f3ef; font-family: 'DM Mono', monospace; font-size: .72rem; padding: 6px 12px; letter-spacing: .04em; }
+  .lab-panel textarea { width: 100%; height: 260px; border: none; resize: vertical; background: var(--code-bg); color: var(--code-text); font-family: 'DM Mono', monospace; font-size: .85rem; line-height: 1.7; padding: 1rem; outline: none; }
+  .lab-panel textarea.short { height: 210px; }
+  .lab-preview-label { background: var(--bg); color: var(--muted); font-family: 'DM Mono', monospace; font-size: .72rem; padding: 6px 12px; letter-spacing: .04em; border-bottom: 1px solid var(--border); }
+  .lab-preview iframe { width: 100%; height: 440px; border: none; background: #fff; }
+  .lab-stack { display: flex; flex-direction: column; gap: 14px; }
+  .lab-try-row { display: flex; flex-wrap: wrap; gap: 8px; margin: .9rem 0; }
+  .lab-try-row button { font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: .8rem; cursor: pointer; padding: 7px 14px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface); color: var(--text); }
+  .lab-try-row button:hover { border-color: var(--primary); color: var(--primary); }
+  .lab-reset { display: block; margin-top: .7rem; font-size: .78rem; color: var(--muted); background: none; border: none; text-decoration: underline; cursor: pointer; padding: 0; }
+
+  .reto-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin: 1.25rem 0; }
+  .reto-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+  .reto-card .nivel { display: inline-block; font-size: .72rem; font-weight: 700; padding: 2px 10px; border-radius: 20px; margin-bottom: .6rem; text-transform: uppercase; letter-spacing: .06em; }
+  .nivel-f { background: #FEF3C7; color: #92400E; }
+  .nivel-m { background: #FFEDD5; color: #C2410C; }
+  .nivel-a { background: #FEE2E2; color: #B91C1C; }
+  .reto-card h4 { font-size: .95rem; font-weight: 700; margin-bottom: .5rem; }
+  .reto-card p { font-size: .88rem; color: var(--muted); margin-bottom: .5rem; }
+
+  .glos { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .glos-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; }
+  .glos-item dt { font-weight: 700; color: var(--primary); font-size: .92rem; margin-bottom: .3rem; }
+  .glos-item dd { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+  .glos-item .emoji { font-size: 1.4rem; display: block; margin-bottom: .4rem; }
+
+  .chip { display: inline-block; background: var(--primary-light); color: var(--primary); font-size: .8rem; padding: 3px 12px; border-radius: 20px; font-weight: 600; margin: 3px; font-family: 'DM Mono', monospace; }
+
+  h2 { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; color: var(--text); }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: #e3ede9; color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  strong { font-weight: 700; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); }
+</style>
+<style>
+  .course-nav { background: #100f1c; display: flex; overflow-x: auto; gap: 6px; padding: 10px 14px; align-items: center; }
+  .course-nav a { flex-shrink: 0; font-family: 'DM Mono', monospace; font-size: .74rem; font-weight: 700; color: #a5a1c4; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 14px; padding: 5px 11px; text-decoration: none; white-space: nowrap; transition: background .15s, color .15s; }
+  .course-nav a:hover { background: rgba(255,255,255,.14); color: #ece9fb; }
+  .course-nav a.current { background: #4338ca; color: white; border-color: #4338ca; }
+  .course-nav .sep { color: #4a4766; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<!-- BARRA CAFÉ -->
+<div class="cafe-bar">
+  <a href="../capitulos.html">← Capítulos</a>
+  <span>☕ Fase 2 · Bloque 2 · Espaciado y Cajas</span>
+</div>
+
+<header>
+  <div class="ex-label">✏️ Fase 2 · Bloque 2</div>
+  <h1>Espaciado y Cajas</h1>
+  <p class="sub">El modelo de caja: por qué cada elemento tiene aire a su alrededor</p>
+  <span class="badge">🎯 CSS · margin · padding · border · box model</span>
+</header>
+
+<div class="course-nav">
+  <a href="fase1-bloque1-estructura-texto.html">F1.1</a>
+  <a href="fase1-bloque2-listas-enlaces-imagenes.html">F1.2</a>
+  <a href="fase1-bloque3-div-section.html">F1.3</a>
+  <a href="fase2-bloque1-selectores-colores.html">F2.1</a>
+  <a href="fase2-bloque2-espaciado-cajas.html" class="current">F2.2</a>
+  <a href="fase2-bloque3-id-flexbox-responsive.html">F2.3</a>
+  <a href="fase3-bloque1-variables-tipos.html">F3.1</a>
+  <a href="fase3-bloque2-operadores-condicionales.html">F3.2</a>
+  <a href="fase3-bloque3-bucles.html">F3.3</a>
+  <a href="fase3-bloque4-funciones.html">F3.4</a>
+  <a href="fase3-bloque5-arreglos-objetos.html">F3.5</a>
+  <a href="fase3-bloque6-dom.html">F3.6</a>
+  <a href="fase3-bloque7-formularios-validacion.html">F3.7</a>
+  <a href="fase3-bloque8-async-apis.html">F3.8</a>
+  <a href="fase4-bloque1-arrow-template-literals.html">F4.1</a>
+  <a href="mi-lista-de-tareas.html">🏁 Proyecto</a>
+</div>
+
+
+<nav>
+  <a href="#recordatorio">🔁 Recordatorio</a>
+  <a href="#vocabulario">📖 Vocabulario nuevo</a>
+  <a href="#boxmodel">📦 El modelo de caja</a>
+  <a href="#propiedades">🔧 margin, padding, border</a>
+  <a href="#laboratorio">🧪 Laboratorio en vivo</a>
+  <a href="#retos">🏆 Retos</a>
+  <a href="#resumen">📋 Resumen</a>
+</nav>
+
+<main>
+
+<div class="parte-badge">📦 Fase 2 · Bloque 2 — CSS desde cero: espaciado y cajas</div>
+
+<section class="module" id="recordatorio">
+  <div class="module-header">
+    <div class="module-icon">🔁</div>
+    <div>
+      <div class="module-title">Antes de empezar: recordatorio rápido</div>
+      <div class="module-sub">Lo que ya sabes del Bloque 1</div>
+    </div>
+  </div>
+  <p>Ya sabes escribir reglas de CSS con selectores de etiqueta (<code>p</code>) y de clase (<code>.destacado</code>), y darles <code>color</code>, <code>background-color</code> y <code>font-size</code>. En este bloque no vamos a tocar el color — vamos a controlar el <strong>espacio</strong> alrededor y dentro de cada elemento.</p>
+</section>
+
+<section class="module" id="vocabulario">
+  <div class="module-header">
+    <div class="module-icon">📖</div>
+    <div>
+      <div class="module-title">Vocabulario nuevo</div>
+      <div class="module-sub">Tres propiedades que siempre van juntas</div>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <h4>🧠 Piénsalo así</h4>
+    <p>Imagina un cuadro colgado en la pared: el <strong>cuadro en sí</strong> es tu contenido. El <strong>marco de madera</strong> alrededor del cuadro es el <code>border</code>. El espacio entre la foto y el marco (el paspartú) es el <code>padding</code>. Y el espacio entre el marco y los otros cuadros de la pared es el <code>margin</code>.</p>
+  </div>
+
+  <div class="glos">
+    <div class="glos-item">
+      <span class="emoji">📏</span>
+      <dt>padding</dt>
+      <dd>Espacio DENTRO del elemento, entre el contenido y su borde</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🖼</span>
+      <dt>border</dt>
+      <dd>La línea/marco alrededor del elemento</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">↔️</span>
+      <dt>margin</dt>
+      <dd>Espacio FUERA del elemento, entre él y sus vecinos</dd>
+    </div>
+  </div>
+</section>
+
+<section class="module" id="boxmodel">
+  <div class="module-header">
+    <div class="module-icon">📦</div>
+    <div>
+      <div class="module-title">PARTE 1 — El modelo de caja (box model)</div>
+      <div class="module-sub">Todo elemento HTML es, en el fondo, una caja rectangular con estas cuatro capas</div>
+    </div>
+  </div>
+
+  <p style="text-align:center; font-size:.85rem; color:var(--muted); margin-bottom:.25rem;">De adentro hacia afuera: contenido → padding → border → margin</p>
+
+  <div class="bm-live-wrap">
+    <div class="bm-live-stage">
+      <div class="bm-live-margin" id="bmMargin">
+        <div class="bm-live-border-box" id="bmBorder">
+          <div class="bm-live-padding" id="bmPadding">
+            <div class="bm-live-content">contenido</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="bm-controls">
+        <div class="bm-slider-row">
+          <label for="rMargin">margin</label>
+          <input type="range" id="rMargin" min="0" max="50" value="20">
+          <span class="bm-val" id="vMargin">20px</span>
+        </div>
+        <div class="bm-slider-row">
+          <label for="rBorder">border</label>
+          <input type="range" id="rBorder" min="0" max="16" value="5">
+          <span class="bm-val" id="vBorder">5px</span>
+        </div>
+        <div class="bm-slider-row">
+          <label for="rPadding">padding</label>
+          <input type="range" id="rPadding" min="0" max="50" value="18">
+          <span class="bm-val" id="vPadding">18px</span>
+        </div>
+      </div>
+
+      <ul class="bm-legend">
+        <li><span class="bm-swatch" style="background:#fdf3e5;"></span> <strong>margin</strong> — empuja a los vecinos, es transparente en la vida real</li>
+        <li><span class="bm-swatch" style="background:#211c17;"></span> <strong>border</strong> — la línea/marco visible</li>
+        <li><span class="bm-swatch" style="background:#d9f0e8;"></span> <strong>padding</strong> — aire entre el borde y el contenido</li>
+        <li><span class="bm-swatch" style="background:#c7d6fb;"></span> <strong>content</strong> — el texto o elementos de adentro</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>💡 Por qué esto importa</h4>
+    <p>Mueve los tres controles y observa: <code>margin</code> solo cambia el aire por FUERA (color durazno), <code>border</code> es la línea intermedia, y <code>padding</code> es el aire por DENTRO (color verde), entre el marco y el contenido. Cuando algo se ve "pegado" o "muy apretado" en tu página, casi siempre es uno de estos tres el responsable, no el tamaño de la fuente.</p>
+  </div>
+</section>
+
+<section class="module" id="propiedades">
+  <div class="module-header">
+    <div class="module-icon">🔧</div>
+    <div>
+      <div class="module-title">PARTE 2 — Las tres propiedades</div>
+      <div class="module-sub">Cada una acepta un número con unidad, casi siempre px</div>
+    </div>
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">.tarjeta</span> <span class="ct">{</span>
+  <span class="ca">padding</span>: <span class="cv">20px</span><span class="ct">;</span>
+  <span class="ca">border</span>: <span class="cv">2px solid #0f766e</span><span class="ct">;</span>
+  <span class="ca">margin</span>: <span class="cv">16px</span><span class="ct">;</span>
+<span class="ct">}</span></div>
+
+  <table class="tbl">
+    <thead><tr><th>Propiedad</th><th>Valor de ejemplo</th><th>¿Qué hace?</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">padding</span></td><td>20px</td><td>Agrega 20 píxeles de espacio entre el borde de la caja y su contenido, en los 4 lados.</td></tr>
+      <tr><td><span class="tag">border</span></td><td>2px solid #0f766e</td><td>Tres valores juntos: grosor (2px), estilo (solid = línea continua) y color. Dibuja un marco.</td></tr>
+      <tr><td><span class="tag">margin</span></td><td>16px</td><td>Agrega 16 píxeles de espacio FUERA de la caja, empujando a los elementos vecinos.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="tip">
+    <h4>💡 Un valor para cada lado</h4>
+    <p>Si escribes <code>margin: 10px 20px;</code> (dos valores), el primero es arriba/abajo y el segundo es izquierda/derecha. Con <code>margin-top</code>, <code>margin-bottom</code>, <code>margin-left</code> y <code>margin-right</code> puedes controlar cada lado por separado — lo mismo aplica para <code>padding</code>.</p>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ Confusión común: margin vs padding</h4>
+    <p>Si quieres separar dos cajas entre sí, usa <code>margin</code>. Si quieres separar el contenido del borde de SU PROPIA caja, usa <code>padding</code>. Vas a poder ver la diferencia clarísima en el laboratorio de abajo.</p>
+  </div>
+</section>
+
+<section class="module" id="laboratorio">
+  <div class="module-header">
+    <div class="module-icon">🧪</div>
+    <div>
+      <div class="module-title">PARTE 3 — Laboratorio en vivo</div>
+      <div class="module-sub">Cambia los valores y observa cómo se mueve cada capa de la caja</div>
+    </div>
+  </div>
+
+  <p class="lab-intro">Ya tienes 2 tarjetas de ejemplo con CSS básico. Modifica los valores de padding, border y margin, o usa los botones para ver el efecto de cada uno por separado.</p>
+
+  <div class="lab-holder">
+    <div class="lab-stack">
+      <div class="lab-panel">
+        <div class="lab-panel-label">📄 TU HTML (fijo, no se edita)</div>
+        <textarea id="labHtml" class="short" spellcheck="false" readonly></textarea>
+      </div>
+      <div class="lab-panel">
+        <div class="lab-panel-label">🎨 TU CSS (edítalo aquí)</div>
+        <textarea id="labCss" class="short" spellcheck="false"></textarea>
+      </div>
+    </div>
+    <div class="lab-panel">
+      <div class="lab-preview-label">🖥 RESULTADO EN VIVO</div>
+      <div class="lab-preview"><iframe id="labFrame"></iframe></div>
+    </div>
+  </div>
+
+  <p style="margin-top:1rem; font-size:.85rem; color:var(--muted); font-weight:600;">Prueba agregar estas reglas y observa qué cambia:</p>
+  <div class="lab-try-row">
+    <button onclick="labAdd('.tarjeta {\n  padding: 40px;\n}')">Sube el padding a 40px</button>
+    <button onclick="labAdd('.tarjeta {\n  margin: 40px;\n}')">Sube el margin a 40px</button>
+    <button onclick="labAdd('.tarjeta {\n  border: 4px dashed #b45309;\n}')">Borde punteado grueso</button>
+    <button onclick="labAdd('.tarjeta {\n  padding: 0;\n  margin: 0;\n}')">Quita todo el espacio (0)</button>
+  </div>
+  <button class="lab-reset" onclick="labReset()">↺ Restaurar código original</button>
+
+  <div class="tip" style="margin-top:1.25rem">
+    <h4>💡 Qué observar</h4>
+    <ul>
+      <li>Cuando subes el <code>padding</code>, la caja crece porque el contenido se aleja del borde — pero las dos tarjetas se quedan en el mismo lugar entre sí.</li>
+      <li>Cuando subes el <code>margin</code>, las tarjetas se alejan una de otra, pero el espacio interno (entre el texto y el borde) no cambia.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="module" id="retos">
+  <div class="module-header">
+    <div class="module-icon">🏆</div>
+    <div>
+      <div class="module-title">PARTE 4 — Retos para practicar</div>
+      <div class="module-sub">Resuélvelos directo en el laboratorio de arriba</div>
+    </div>
+  </div>
+
+  <div class="reto-grid">
+    <div class="reto-card">
+      <span class="nivel nivel-f">🟡 Fácil</span>
+      <h4>Reto 1 — Dale aire a tus tarjetas</h4>
+      <p>Ponle a <code>.tarjeta</code> un <code>padding</code> de 24px y un <code>margin</code> de 20px.</p>
+    </div>
+    <div class="reto-card">
+      <span class="nivel nivel-m">🟠 Medio</span>
+      <h4>Reto 2 — Bordes redondeados</h4>
+      <p>Investiga y agrega la propiedad <code>border-radius: 12px;</code> a <code>.tarjeta</code> junto con tu <code>border</code>. Observa qué le pasa a las esquinas (esta propiedad no la vimos, es tu primer mini-reto de exploración).</p>
+    </div>
+    <div class="reto-card">
+      <span class="nivel nivel-a">🔴 Avanzado</span>
+      <h4>Reto 3 — Explica la diferencia con tus palabras</h4>
+      <p>Sube el padding a 50px y el margin a 0. Después haz lo contrario: padding en 0 y margin en 50px. Describe con tus palabras qué diferencia visual notas entre los dos casos.</p>
+    </div>
+  </div>
+</section>
+
+<section class="module" id="resumen">
+  <div class="module-header">
+    <div class="module-icon">📋</div>
+    <div>
+      <div class="module-title">Resumen: lo que aprendiste en este bloque</div>
+      <div class="module-sub">Todo en un vistazo</div>
+    </div>
+  </div>
+
+  <div>
+    <span class="chip">padding</span>
+    <span class="chip">border</span>
+    <span class="chip">margin</span>
+    <span class="chip">box model</span>
+  </div>
+
+  <div class="concept" style="margin-top:1.5rem">
+    <h4>💡 ¿Qué sigue?</h4>
+    <p>En el <strong>Bloque 3</strong> (el último de CSS) vamos a ver <strong>id, flexbox y diseño responsive</strong> — cómo centrar elementos y hacer que tu página se vea bien tanto en computadora como en celular. Después de eso, ¡empezamos con JavaScript!</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Fase 2 · Bloque 2 — Espaciado y Cajas · CSS desde cero · Jacqui 2026
+</footer>
+
+<script>
+const STARTER_HTML = `<div class="tarjeta">
+  <h2>Tarjeta 1</h2>
+  <p>Este es el contenido de la tarjeta.</p>
+</div>
+
+<div class="tarjeta">
+  <h2>Tarjeta 2</h2>
+  <p>Otra tarjeta más, igual de sencilla.</p>
+</div>`;
+
+const STARTER_CSS = `.tarjeta {
+  background-color: #eafaf7;
+  padding: 16px;
+  border: 2px solid #0f766e;
+  margin: 12px;
+}`;
+
+function renderLab() {
+  const html = document.getElementById('labHtml').value;
+  const css = document.getElementById('labCss').value;
+  const doc = '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{font-family:sans-serif;padding:16px;color:#16211d;line-height:1.6}' + css + '</style></head><body>' + html + '</body></html>';
+  document.getElementById('labFrame').srcdoc = doc;
+}
+
+function labAdd(snippet) {
+  const ta = document.getElementById('labCss');
+  ta.value = ta.value + '\n\n' + snippet;
+  renderLab();
+}
+
+function labReset() {
+  document.getElementById('labHtml').value = STARTER_HTML;
+  document.getElementById('labCss').value = STARTER_CSS;
+  renderLab();
+}
+
+document.getElementById('labHtml').value = STARTER_HTML;
+document.getElementById('labCss').value = STARTER_CSS;
+document.getElementById('labCss').addEventListener('input', renderLab);
+renderLab();
+
+/* Visualizador dinámico del box model */
+function updateBoxModel() {
+  const m = document.getElementById('rMargin').value;
+  const b = document.getElementById('rBorder').value;
+  const p = document.getElementById('rPadding').value;
+
+  document.getElementById('bmMargin').style.padding = m + 'px';
+  document.getElementById('bmBorder').style.padding = b + 'px';
+  document.getElementById('bmPadding').style.padding = p + 'px';
+
+  document.getElementById('vMargin').textContent = m + 'px';
+  document.getElementById('vBorder').textContent = b + 'px';
+  document.getElementById('vPadding').textContent = p + 'px';
+}
+['rMargin', 'rBorder', 'rPadding'].forEach(id => {
+  document.getElementById(id).addEventListener('input', updateBoxModel);
+});
+updateBoxModel();
+</script>
+
+</body>
+</html>

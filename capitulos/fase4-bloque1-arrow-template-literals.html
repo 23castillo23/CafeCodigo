@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Fase 4, Bloque 1 — JavaScript moderno: arrow functions y template literals, con laboratorio interactivo.">
+<title>Bloque 1 — Arrow Functions y Template Literals | JavaScript moderno</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #be185d;
+    --primary-light:  #fdf0f6;
+    --secondary:      #4338ca;
+    --secondary-light:#eef0fd;
+    --accent:         #b45309;
+    --accent-light:   #fdf3e5;
+    --danger:         #b91c1c;
+    --danger-light:   #fdf0f0;
+    --bg:             #fbf5f8;
+    --surface:        #ffffff;
+    --text:           #241220;
+    --muted:          #8c7a89;
+    --border:         #f0e2ec;
+    --code-bg:        #241220;
+    --code-text:      #f8ecf5;
+  }
+
+  body { font-family: 'DM Sans', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  header { background: #241220; color: #fbf5f8; padding: 3rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: '=>'; position: absolute; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 10rem; right: -.5rem; top: -2rem; opacity: .08; line-height: 1; }
+  header .ex-label { display: inline-block; background: var(--primary); color: white; border-radius: 20px; padding: 4px 16px; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 1rem; }
+  header h1 { font-family: 'Space Grotesk', sans-serif; font-size: 2.4rem; font-weight: 700; letter-spacing: -1px; }
+  header p.sub { font-size: 1.05rem; opacity: .8; margin-top: .5rem; font-style: italic; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  /* BARRA CAFÉ */
+  .cafe-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; gap: 14px; position: sticky; top: 0; z-index: 200; height: 45px; }
+  .cafe-bar a { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); text-decoration: none; padding: 6px 14px; border: 1px solid var(--border); border-radius: 999px; transition: all 0.15s; }
+  .cafe-bar a:hover { color: var(--text); border-color: var(--muted); }
+  .cafe-bar span { font-size: 13px; color: var(--muted); }
+
+  .course-nav { background: #150a13; display: flex; overflow-x: auto; gap: 6px; padding: 10px 14px; align-items: center; }
+  .course-nav a { flex-shrink: 0; font-family: 'DM Mono', monospace; font-size: .74rem; font-weight: 700; color: #c9a9c1; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 14px; padding: 5px 11px; text-decoration: none; white-space: nowrap; transition: background .15s, color .15s; }
+  .course-nav a:hover { background: rgba(255,255,255,.14); color: #fff; }
+  .course-nav a.current { background: var(--primary); color: white; border-color: var(--primary); }
+
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 45px; z-index: 100; display: flex; overflow-x: auto; gap: 0; }
+  nav a { flex-shrink: 0; padding: .75rem 1.1rem; text-decoration: none; color: var(--muted); font-size: .82rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: white; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2.5rem; scroll-margin-top:80px; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.3rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  .analogy { background: #FFF7ED; border: 1px solid #FDE68A; border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: #92400E; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; color: #78350F; }
+
+  .concept { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+
+  .tip { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p, .tip ul { font-size: .95rem; }
+  .tip ul { padding-left: 1.2rem; }
+  .tip li { margin-bottom: .3rem; }
+
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  .code-block { background: var(--code-bg); color: var(--code-text); border-radius: 10px; padding: 1.25rem 1.5rem; font-family: 'DM Mono', 'Courier New', monospace; font-size: .88rem; line-height: 1.9; overflow-x: auto; margin: 1rem 0; position: relative; white-space: pre; }
+  .code-block .ck { color: #c4b5fd; }
+  .code-block .cv { color: #86efac; }
+  .code-block .cs { color: #fde68a; }
+  .code-block .cn { color: #93c5fd; }
+  .code-block .cf { color: #67e8f9; }
+  .code-block .cc { color: #9a8697; font-style: italic; }
+  .code-block .co { color: #f8ecf5; }
+  .lang { position: absolute; top: .6rem; right: .75rem; background: rgba(255,255,255,.1); color: rgba(255,255,255,.5); font-size: .68rem; padding: 2px 8px; border-radius: 4px; font-family: sans-serif; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  .glos { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .glos-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; }
+  .glos-item dt { font-weight: 700; color: var(--primary); font-size: .92rem; margin-bottom: .3rem; }
+  .glos-item dd { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+  .glos-item .emoji { font-size: 1.4rem; display: block; margin-bottom: .4rem; }
+
+  /* CONVERTIDOR ARROW FUNCTION */
+  .convert-wrap { border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; background: var(--bg); margin: 1.1rem 0; }
+  .convert-toggle { display: flex; gap: 8px; margin-bottom: 1rem; }
+  .convert-toggle button { flex: 1; padding: 9px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: .85rem; cursor: pointer; color: var(--text); }
+  .convert-toggle button.active { background: var(--primary); color: white; border-color: var(--primary); }
+  .convert-code { background: var(--code-bg); color: var(--code-text); border-radius: 8px; padding: 1rem 1.25rem; font-family: 'DM Mono', monospace; font-size: .88rem; white-space: pre; }
+
+  /* TEMPLATE LITERAL BUILDER */
+  .tpl-wrap { border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; background: var(--bg); margin: 1.1rem 0; }
+  .tpl-inputs { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 1rem; }
+  .tpl-inputs .tin { flex: 1; min-width: 120px; }
+  .tpl-inputs label { display: block; font-family: 'DM Mono', monospace; font-size: .74rem; font-weight: 700; margin-bottom: .3rem; }
+  .tpl-inputs input { width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); font-family: 'DM Mono', monospace; font-size: .85rem; }
+  .tpl-code { background: var(--code-bg); color: var(--code-text); border-radius: 8px; padding: .9rem 1.1rem; font-family: 'DM Mono', monospace; font-size: .85rem; margin-bottom: .6rem; }
+  .tpl-code .hl { color: #fde68a; }
+  .tpl-out { background: var(--surface); border: 2px solid var(--primary); border-radius: 8px; padding: .8rem 1.1rem; font-family: 'DM Mono', monospace; font-size: .9rem; color: var(--primary); font-weight: 700; }
+
+  .console-wrap { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin: 1rem 0; }
+  .console-editor-label, .console-output-label { background: #241220; color: #f8ecf5; font-family: 'DM Mono', monospace; font-size: .72rem; padding: 6px 12px; letter-spacing: .04em; display: flex; justify-content: space-between; align-items: center; }
+  .console-wrap textarea { width: 100%; height: 200px; border: none; resize: vertical; background: var(--code-bg); color: var(--code-text); font-family: 'DM Mono', monospace; font-size: .87rem; line-height: 1.7; padding: 1rem; outline: none; border-bottom: 1px solid #3d2438; }
+  .run-btn { background: var(--primary); color: white; border: none; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: .76rem; padding: 4px 12px; border-radius: 20px; cursor: pointer; }
+  .console-output { background: #180c16; min-height: 90px; padding: 1rem; font-family: 'DM Mono', monospace; font-size: .85rem; }
+  .console-line { color: #86efac; padding: 2px 0; }
+  .console-line.error { color: #fca5a5; }
+  .console-line.muted { color: #6b6068; font-style: italic; }
+
+  .lab-try-row { display: flex; flex-wrap: wrap; gap: 8px; margin: .9rem 0; }
+  .lab-try-row button { font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: .8rem; cursor: pointer; padding: 7px 14px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface); color: var(--text); }
+  .lab-try-row button:hover { border-color: var(--primary); color: var(--primary); }
+  .lab-reset { display: block; margin-top: .7rem; font-size: .78rem; color: var(--muted); background: none; border: none; text-decoration: underline; cursor: pointer; padding: 0; }
+
+  .reto-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin: 1.25rem 0; }
+  .reto-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+  .reto-card .nivel { display: inline-block; font-size: .72rem; font-weight: 700; padding: 2px 10px; border-radius: 20px; margin-bottom: .6rem; text-transform: uppercase; letter-spacing: .06em; }
+  .nivel-f { background: #FEF3C7; color: #92400E; }
+  .nivel-m { background: #FFEDD5; color: #C2410C; }
+  .nivel-a { background: #FEE2E2; color: #B91C1C; }
+  .reto-card h4 { font-size: .95rem; font-weight: 700; margin-bottom: .5rem; }
+  .reto-card p { font-size: .88rem; color: var(--muted); margin-bottom: .5rem; }
+
+  .chip { display: inline-block; background: var(--primary-light); color: var(--primary); font-size: .8rem; padding: 3px 12px; border-radius: 20px; font-weight: 600; margin: 3px; font-family: 'DM Mono', monospace; }
+
+  h2 { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; color: var(--text); }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: #f5e7f0; color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  strong { font-weight: 700; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); }
+</style>
+</head>
+<body>
+
+<!-- BARRA CAFÉ -->
+<div class="cafe-bar">
+  <a href="../capitulos.html">← Capítulos</a>
+  <span>☕ Fase 4 · Bloque 1 · Arrow Functions y Template Literals</span>
+</div>
+
+<header>
+  <div class="ex-label">✏️ Fase 4 · Bloque 1</div>
+  <h1>Arrow Functions y Template Literals</h1>
+  <p class="sub">Las mismas ideas que ya sabes, escritas de forma más corta y moderna</p>
+  <span class="badge">🎯 JavaScript moderno · => · texto con backticks</span>
+</header>
+
+<div class="course-nav">
+  <a href="fase1-bloque1-estructura-texto.html">F1.1</a>
+  <a href="fase1-bloque2-listas-enlaces-imagenes.html">F1.2</a>
+  <a href="fase1-bloque3-div-section.html">F1.3</a>
+  <a href="fase2-bloque1-selectores-colores.html">F2.1</a>
+  <a href="fase2-bloque2-espaciado-cajas.html">F2.2</a>
+  <a href="fase2-bloque3-id-flexbox-responsive.html">F2.3</a>
+  <a href="fase3-bloque1-variables-tipos.html">F3.1</a>
+  <a href="fase3-bloque2-operadores-condicionales.html">F3.2</a>
+  <a href="fase3-bloque3-bucles.html">F3.3</a>
+  <a href="fase3-bloque4-funciones.html">F3.4</a>
+  <a href="fase3-bloque5-arreglos-objetos.html">F3.5</a>
+  <a href="fase3-bloque6-dom.html">F3.6</a>
+  <a href="fase3-bloque7-formularios-validacion.html">F3.7</a>
+  <a href="fase3-bloque8-async-apis.html">F3.8</a>
+  <a href="fase4-bloque1-arrow-template-literals.html" class="current">F4.1</a>
+  <a href="mi-lista-de-tareas.html">🏁 Proyecto</a>
+</div>
+
+<nav>
+  <a href="#recordatorio">🔁 Recordatorio</a>
+  <a href="#vocabulario">📖 Vocabulario nuevo</a>
+  <a href="#arrow">➡️ Arrow functions</a>
+  <a href="#template">🧵 Template literals</a>
+  <a href="#consola">🧪 Consola en vivo</a>
+  <a href="#retos">🏆 Retos</a>
+  <a href="#resumen">📋 Resumen</a>
+</nav>
+
+<main>
+
+<div class="parte-badge">➡️ Fase 4 · Bloque 1 — JavaScript moderno: arrow functions y template literals</div>
+
+<section class="module" id="recordatorio">
+  <div class="module-header">
+    <div class="module-icon">🔁</div>
+    <div>
+      <div class="module-title">Antes de empezar: recordatorio rápido</div>
+      <div class="module-sub">Completaste toda la ruta base — este es un nivel extra</div>
+    </div>
+  </div>
+  <p>Ya sabes construir páginas completas con HTML, CSS y JavaScript: variables, funciones, arreglos, el DOM, formularios y fetch. Todo lo que viene ahora NO son conceptos nuevos — son <strong>formas más cortas de escribir cosas que ya sabes hacer</strong>. Vas a reconocerlas constantemente si lees código de otras personas, tutoriales o documentación.</p>
+</section>
+
+<section class="module" id="vocabulario">
+  <div class="module-header">
+    <div class="module-icon">📖</div>
+    <div>
+      <div class="module-title">Vocabulario nuevo</div>
+      <div class="module-sub">Dos atajos de sintaxis muy usados</div>
+    </div>
+  </div>
+
+  <div class="glos">
+    <div class="glos-item">
+      <span class="emoji">➡️</span>
+      <dt>Arrow function</dt>
+      <dd>Una forma más corta de escribir <code>function</code>, con <code>=&gt;</code></dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🧵</span>
+      <dt>Template literal</dt>
+      <dd>Texto entre comillas invertidas (`) que permite meter variables adentro</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">💉</span>
+      <dt>Interpolación</dt>
+      <dd>Insertar el valor de una variable directo dentro de un texto</dd>
+    </div>
+  </div>
+</section>
+
+<section class="module" id="arrow">
+  <div class="module-header">
+    <div class="module-icon">➡️</div>
+    <div>
+      <div class="module-title">PARTE 1 — Arrow functions</div>
+      <div class="module-sub">Cambia entre las dos formas y compara</div>
+    </div>
+  </div>
+
+  <div class="code-block"><span class="lang">JS — forma tradicional</span><span class="ck">function</span> <span class="cf">sumar</span><span class="co">(</span><span class="cv">a</span><span class="co">,</span> <span class="cv">b</span><span class="co">) {</span>
+  <span class="ck">return</span> <span class="cv">a</span> <span class="co">+</span> <span class="cv">b</span><span class="co">;</span>
+<span class="co">}</span></div>
+
+  <div class="code-block"><span class="lang">JS — arrow function</span><span class="ck">const</span> <span class="cf">sumar</span> <span class="co">=</span> <span class="co">(</span><span class="cv">a</span><span class="co">,</span> <span class="cv">b</span><span class="co">)</span> <span class="co">=&gt;</span> <span class="cv">a</span> <span class="co">+</span> <span class="cv">b</span><span class="co">;</span></div>
+
+  <table class="tbl">
+    <thead><tr><th>Cambio</th><th>¿Qué pasó?</th></tr></thead>
+    <tbody>
+      <tr><td>Se quita <span class="tag">function</span></td><td>Ya no se escribe la palabra <code>function</code>.</td></tr>
+      <tr><td>Se agrega <span class="tag">=&gt;</span></td><td>La "flecha" va después de los parámetros — de ahí el nombre "arrow function".</td></tr>
+      <tr><td>Se quitan <span class="tag">{ } y return</span></td><td>Si la función es UNA sola línea que solo regresa un valor, puedes quitar las llaves y el <code>return</code> — el resultado se regresa automáticamente ("return implícito").</td></tr>
+    </tbody>
+  </table>
+
+  <div class="convert-wrap">
+    <div class="convert-toggle">
+      <button class="active" id="btnTrad" onclick="showConvert('trad')">Forma tradicional</button>
+      <button id="btnArrow" onclick="showConvert('arrow')">Arrow function</button>
+    </div>
+    <div class="convert-code" id="convertCode"></div>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ ¿Cuándo SÍ necesitas las llaves?</h4>
+    <p>Si tu función tiene MÁS de una línea (por ejemplo, un <code>if</code> adentro), sí necesitas <code>{ }</code> y <code>return</code> explícito, igual que antes:</p>
+  </div>
+
+  <div class="code-block"><span class="lang">JS</span><span class="ck">const</span> <span class="cf">esMayorDeEdad</span> <span class="co">=</span> <span class="co">(</span><span class="cv">edad</span><span class="co">)</span> <span class="co">=&gt; {</span>
+  <span class="ck">return</span> <span class="cv">edad</span> <span class="co">&gt;=</span> <span class="cn">18</span><span class="co">;</span>
+<span class="co">};</span></div>
+
+  <div class="tip">
+    <h4>💡 ¿Debo dejar de usar function?</h4>
+    <p>No es obligatorio — ambas formas funcionan igual. Pero las arrow functions son hoy el estilo más común, sobre todo para funciones cortas. Vale la pena que sepas LEERLAS aunque sigas escribiendo <code>function</code> cuando te sientas más cómoda.</p>
+  </div>
+</section>
+
+<section class="module" id="template">
+  <div class="module-header">
+    <div class="module-icon">🧵</div>
+    <div>
+      <div class="module-title">PARTE 2 — Template literals</div>
+      <div class="module-sub">Escribe valores y mira el texto armarse en vivo</div>
+    </div>
+  </div>
+
+  <div class="code-block"><span class="lang">JS — forma tradicional (+)</span><span class="ck">let</span> <span class="cv">nombre</span> <span class="co">=</span> <span class="cs">"Jacqui"</span><span class="co">;</span>
+<span class="ck">let</span> <span class="cv">edad</span> <span class="co">=</span> <span class="cn">25</span><span class="co">;</span>
+
+<span class="cf">console.log</span><span class="co">(</span><span class="cs">"Hola, me llamo "</span> <span class="co">+</span> <span class="cv">nombre</span> <span class="co">+</span> <span class="cs">" y tengo "</span> <span class="co">+</span> <span class="cv">edad</span> <span class="co">+</span> <span class="cs">" años."</span><span class="co">);</span></div>
+
+  <div class="code-block"><span class="lang">JS — template literal</span><span class="cf">console.log</span><span class="co">(`</span>Hola, me llamo <span class="cs">${</span><span class="cv">nombre</span><span class="cs">}</span> y tengo <span class="cs">${</span><span class="cv">edad</span><span class="cs">}</span> años.<span class="co">`);</span></div>
+
+  <table class="tbl">
+    <thead><tr><th>Parte</th><th>¿Qué hace?</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">` `</span></td><td>Comillas invertidas (backticks) — la tecla suele estar junto al 1, arriba del Tab. Reemplazan las comillas normales.</td></tr>
+      <tr><td><span class="tag">${ }</span></td><td>Adentro de esto puedes poner CUALQUIER variable o expresión de JavaScript, y su valor se inserta directo en el texto.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="tpl-wrap">
+    <div class="tpl-inputs">
+      <div class="tin">
+        <label>nombre</label>
+        <input type="text" id="tplNombre" value="Jacqui">
+      </div>
+      <div class="tin">
+        <label>edad</label>
+        <input type="text" id="tplEdad" value="25">
+      </div>
+    </div>
+    <div class="tpl-code" id="tplCodeDisplay"></div>
+    <div class="tpl-out" id="tplOut"></div>
+  </div>
+
+  <div class="concept">
+    <h4>💡 Por qué es mejor que +</h4>
+    <p>Con <code>+</code> es fácil perder un espacio o una comilla. Con template literals escribes el texto casi normal, y solo marcas dónde va cada variable — más fácil de leer y de corregir.</p>
+  </div>
+</section>
+
+<section class="module" id="consola">
+  <div class="module-header">
+    <div class="module-icon">🧪</div>
+    <div>
+      <div class="module-title">PARTE 3 — Consola interactiva</div>
+      <div class="module-sub">Combina arrow functions y template literals aquí mismo</div>
+    </div>
+  </div>
+
+  <div class="console-wrap">
+    <div class="console-editor-label">
+      <span>✏️ TU CÓDIGO</span>
+      <button class="run-btn" onclick="runConsole()">▶ Ejecutar</button>
+    </div>
+    <textarea id="consoleCode" spellcheck="false"></textarea>
+    <div class="console-output-label"><span>▸ SALIDA (console.log)</span></div>
+    <div class="console-output" id="consoleOutput"></div>
+  </div>
+
+  <p style="margin-top:1rem; font-size:.85rem; color:var(--muted); font-weight:600;">Prueba agregar esto y presiona Ejecutar otra vez:</p>
+  <div class="lab-try-row">
+    <button onclick="consoleAdd('const doble = (n) =&gt; n * 2;\nconsole.log(doble(4));')">+ arrow function de una línea</button>
+    <button onclick="consoleAdd('let ciudad = &quot;Orizaba&quot;;\nconsole.log(`Vivo en ${ciudad}`);')">+ template literal</button>
+  </div>
+  <button class="lab-reset" onclick="consoleReset()">↺ Restaurar código original</button>
+</section>
+
+<section class="module" id="retos">
+  <div class="module-header">
+    <div class="module-icon">🏆</div>
+    <div>
+      <div class="module-title">PARTE 4 — Retos para practicar</div>
+      <div class="module-sub">Resuélvelos directo en la consola de arriba</div>
+    </div>
+  </div>
+
+  <div class="reto-grid">
+    <div class="reto-card">
+      <span class="nivel nivel-f">🟡 Fácil</span>
+      <h4>Reto 1 — Convierte tus funciones viejas</h4>
+      <p>Toma tu función <code>sumar(a, b)</code> del Bloque 4 de la Fase 3 y reescríbela como arrow function.</p>
+    </div>
+    <div class="reto-card">
+      <span class="nivel nivel-m">🟠 Medio</span>
+      <h4>Reto 2 — Preséntate con template literal</h4>
+      <p>Crea variables <code>nombre</code>, <code>edad</code> y <code>ciudad</code>, e imprime una presentación completa usando UN SOLO template literal (sin ningún <code>+</code>).</p>
+    </div>
+    <div class="reto-card">
+      <span class="nivel nivel-a">🔴 Avanzado</span>
+      <h4>Reto 3 — FizzBuzz con arrow function</h4>
+      <p>Reescribe tu función <code>fizzBuzz(numero)</code> de la Fase 3 como arrow function con llaves y <code>return</code> explícito (no cabe en una sola línea, así que necesitas la versión con <code>{ }</code>).</p>
+    </div>
+  </div>
+</section>
+
+<section class="module" id="resumen">
+  <div class="module-header">
+    <div class="module-icon">📋</div>
+    <div>
+      <div class="module-title">Resumen: lo que aprendiste en este bloque</div>
+      <div class="module-sub">Todo en un vistazo</div>
+    </div>
+  </div>
+
+  <div>
+    <span class="chip">(a, b) =&gt; a + b</span>
+    <span class="chip">return implícito</span>
+    <span class="chip">` `</span>
+    <span class="chip">${ }</span>
+  </div>
+
+  <div class="concept" style="margin-top:1.5rem">
+    <h4>💡 ¿Qué sigue?</h4>
+    <p>En el <strong>Bloque 2</strong> vamos a ver los <strong>métodos modernos de arreglos</strong>: <code>.map()</code>, <code>.filter()</code> y <code>.reduce()</code> — formas más cortas y usadas hoy en día para recorrer y transformar arrays, en vez de siempre escribir un <code>for</code>.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Fase 4 · Bloque 1 — Arrow Functions y Template Literals · JavaScript moderno · Jacqui 2026
+</footer>
+
+<script>
+/* Convertidor arrow function */
+const TRAD_CODE = `function sumar(a, b) {
+  return a + b;
+}`;
+const ARROW_CODE = `const sumar = (a, b) => a + b;`;
+
+function showConvert(mode) {
+  document.getElementById('btnTrad').classList.toggle('active', mode === 'trad');
+  document.getElementById('btnArrow').classList.toggle('active', mode === 'arrow');
+  document.getElementById('convertCode').textContent = mode === 'trad' ? TRAD_CODE : ARROW_CODE;
+}
+showConvert('trad');
+
+/* Template literal builder en vivo */
+function updateTpl() {
+  const nombre = document.getElementById('tplNombre').value || '...';
+  const edad = document.getElementById('tplEdad').value || '...';
+  document.getElementById('tplCodeDisplay').innerHTML =
+    '`Hola, me llamo <span class="hl">${nombre}</span> y tengo <span class="hl">${edad}</span> años.`';
+  document.getElementById('tplOut').textContent = 'Hola, me llamo ' + nombre + ' y tengo ' + edad + ' años.';
+}
+document.getElementById('tplNombre').addEventListener('input', updateTpl);
+document.getElementById('tplEdad').addEventListener('input', updateTpl);
+updateTpl();
+
+/* Consola interactiva */
+const CONSOLE_STARTER = `const saludar = (nombre) => \`Hola, \${nombre}!\`;
+console.log(saludar("Jacqui"));`;
+
+function runConsole() {
+  const code = document.getElementById('consoleCode').value;
+  const outputDiv = document.getElementById('consoleOutput');
+  outputDiv.innerHTML = '';
+  const logs = [];
+  const originalLog = console.log;
+  console.log = function(...args) {
+    logs.push(args.map(a => {
+      try { return typeof a === 'string' ? a : JSON.stringify(a); }
+      catch(e) { return String(a); }
+    }).join(' '));
+  };
+  try {
+    new Function(code)();
+    if (logs.length === 0) {
+      const div = document.createElement('div');
+      div.className = 'console-line muted';
+      div.textContent = '(no hubo console.log — agrega uno para ver resultados)';
+      outputDiv.appendChild(div);
+    } else {
+      logs.forEach(line => {
+        const div = document.createElement('div');
+        div.className = 'console-line';
+        div.textContent = '▸ ' + line;
+        outputDiv.appendChild(div);
+      });
+    }
+  } catch (err) {
+    logs.forEach(line => {
+      const div = document.createElement('div');
+      div.className = 'console-line';
+      div.textContent = '▸ ' + line;
+      outputDiv.appendChild(div);
+    });
+    const errDiv = document.createElement('div');
+    errDiv.className = 'console-line error';
+    errDiv.textContent = '⚠ ' + err.message;
+    outputDiv.appendChild(errDiv);
+  }
+  console.log = originalLog;
+}
+
+function consoleAdd(snippet) {
+  const ta = document.getElementById('consoleCode');
+  ta.value = ta.value + '\n' + snippet;
+}
+
+function consoleReset() {
+  document.getElementById('consoleCode').value = CONSOLE_STARTER;
+  document.getElementById('consoleOutput').innerHTML = '';
+}
+
+document.getElementById('consoleCode').value = CONSOLE_STARTER;
+</script>
+
+</body>
+</html>

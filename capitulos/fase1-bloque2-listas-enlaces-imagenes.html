@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Ejercicio 1, Bloque 2 — HTML: listas, enlaces e imágenes, desde cero, con laboratorio interactivo.">
+<title>Bloque 2 — Listas, Enlaces e Imágenes | HTML desde cero</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #b45309;
+    --primary-light:  #fdf3e5;
+    --secondary:      #0f766e;
+    --secondary-light:#ecfaf8;
+    --accent:         #4338ca;
+    --accent-light:   #eef0fd;
+    --danger:         #b91c1c;
+    --danger-light:   #fdf0f0;
+    --bg:             #f7f5f1;
+    --surface:        #ffffff;
+    --text:           #211c17;
+    --muted:          #837b70;
+    --border:         #e9e2d6;
+    --code-bg:        #211c17;
+    --code-text:      #f1ece2;
+  }
+
+  body { font-family: 'DM Sans', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  header { background: #211c17; color: #f7f5f1; padding: 3rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: '<>'; position: absolute; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 11rem; right: -.5rem; top: -2.5rem; opacity: .06; line-height: 1; }
+  header .ex-label { display: inline-block; background: var(--primary); color: white; border-radius: 20px; padding: 4px 16px; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 1rem; }
+  header h1 { font-family: 'Space Grotesk', sans-serif; font-size: 2.4rem; font-weight: 700; letter-spacing: -1px; }
+  header p.sub { font-size: 1.05rem; opacity: .8; margin-top: .5rem; font-style: italic; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  /* BARRA CAFÉ */
+  .cafe-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; gap: 14px; position: sticky; top: 0; z-index: 200; height: 45px; }
+  .cafe-bar a { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); text-decoration: none; padding: 6px 14px; border: 1px solid var(--border); border-radius: 999px; transition: all 0.15s; }
+  .cafe-bar a:hover { color: var(--text); border-color: var(--muted); }
+  .cafe-bar span { font-size: 13px; color: var(--muted); }
+
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 45px; z-index: 100; display: flex; overflow-x: auto; gap: 0; }
+  nav a { flex-shrink: 0; padding: .75rem 1.1rem; text-decoration: none; color: var(--muted); font-size: .82rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: white; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2.5rem; scroll-margin-top:100px; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.3rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  .analogy { background: #FFF7ED; border: 1px solid #FDE68A; border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: #92400E; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; color: #78350F; }
+
+  .concept { background: var(--accent-light); border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--accent); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p, .tip ul { font-size: .95rem; }
+  .tip ul { padding-left: 1.2rem; }
+  .tip li { margin-bottom: .3rem; }
+
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  .code-block { background: var(--code-bg); color: var(--code-text); border-radius: 10px; padding: 1.25rem 1.5rem; font-family: 'DM Mono', 'Courier New', monospace; font-size: .88rem; line-height: 1.9; overflow-x: auto; margin: 1rem 0; position: relative; white-space: pre; }
+  .code-block .ct { color: #7dd3fc; }
+  .code-block .ca { color: #c4b5fd; }
+  .code-block .cv { color: #86efac; }
+  .code-block .cs { color: #fde68a; }
+  .code-block .cc { color: #6b7280; font-style: italic; }
+  .lang { position: absolute; top: .6rem; right: .75rem; background: rgba(255,255,255,.1); color: rgba(255,255,255,.5); font-size: .68rem; padding: 2px 8px; border-radius: 4px; font-family: sans-serif; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  .lab-intro { font-size: .95rem; color: var(--muted); margin-bottom: 1rem; }
+  .lab-holder { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 720px) { .lab-holder { grid-template-columns: 1fr; } }
+  .lab-panel { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .lab-panel-label { background: #211c17; color: #f1ece2; font-family: 'DM Mono', monospace; font-size: .72rem; padding: 6px 12px; letter-spacing: .04em; }
+  .lab-panel textarea { width: 100%; height: 240px; border: none; resize: vertical; background: var(--code-bg); color: var(--code-text); font-family: 'DM Mono', monospace; font-size: .85rem; line-height: 1.7; padding: 1rem; outline: none; }
+  .lab-preview-label { background: var(--bg); color: var(--muted); font-family: 'DM Mono', monospace; font-size: .72rem; padding: 6px 12px; letter-spacing: .04em; border-bottom: 1px solid var(--border); }
+  .lab-preview iframe { width: 100%; height: 240px; border: none; background: #fff; }
+  .lab-try-row { display: flex; flex-wrap: wrap; gap: 8px; margin: .9rem 0; }
+  .lab-try-row button { font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: .8rem; cursor: pointer; padding: 7px 14px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface); color: var(--text); }
+  .lab-try-row button:hover { border-color: var(--primary); color: var(--primary); }
+  .lab-reset { display: block; margin-top: .7rem; font-size: .78rem; color: var(--muted); background: none; border: none; text-decoration: underline; cursor: pointer; padding: 0; }
+
+  .reto-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin: 1.25rem 0; }
+  .reto-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+  .reto-card .nivel { display: inline-block; font-size: .72rem; font-weight: 700; padding: 2px 10px; border-radius: 20px; margin-bottom: .6rem; text-transform: uppercase; letter-spacing: .06em; }
+  .nivel-f { background: #FEF3C7; color: #92400E; }
+  .nivel-m { background: #FFEDD5; color: #C2410C; }
+  .nivel-a { background: #FEE2E2; color: #B91C1C; }
+  .reto-card h4 { font-size: .95rem; font-weight: 700; margin-bottom: .5rem; }
+  .reto-card p { font-size: .88rem; color: var(--muted); margin-bottom: .5rem; }
+
+  .glos { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .glos-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; }
+  .glos-item dt { font-weight: 700; color: var(--primary); font-size: .92rem; margin-bottom: .3rem; }
+  .glos-item dd { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+  .glos-item .emoji { font-size: 1.4rem; display: block; margin-bottom: .4rem; }
+
+  .chip { display: inline-block; background: var(--primary-light); color: var(--primary); font-size: .8rem; padding: 3px 12px; border-radius: 20px; font-weight: 600; margin: 3px; font-family: 'DM Mono', monospace; }
+
+  h2 { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; color: var(--text); }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: #efe9dc; color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  strong { font-weight: 700; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); }
+</style>
+<style>
+  .course-nav { background: #100f1c; display: flex; overflow-x: auto; gap: 6px; padding: 10px 14px; align-items: center; }
+  .course-nav a { flex-shrink: 0; font-family: 'DM Mono', monospace; font-size: .74rem; font-weight: 700; color: #a5a1c4; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 14px; padding: 5px 11px; text-decoration: none; white-space: nowrap; transition: background .15s, color .15s; }
+  .course-nav a:hover { background: rgba(255,255,255,.14); color: #ece9fb; }
+  .course-nav a.current { background: #4338ca; color: white; border-color: #4338ca; }
+  .course-nav .sep { color: #4a4766; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<!-- BARRA CAFÉ -->
+<div class="cafe-bar">
+  <a href="../capitulos.html">← Capítulos</a>
+  <span>☕ Fase 1 · Bloque 2 · Listas, Enlaces e Imágenes</span>
+</div>
+
+<header>
+  <div class="ex-label">✏️ Bloque 2</div>
+  <h1>Listas, Enlaces e Imágenes</h1>
+  <p class="sub">Ahora tu página va a poder mostrar más que solo texto</p>
+  <span class="badge">🎯 HTML · listas · enlaces · imágenes · atributos</span>
+</header>
+
+<div class="course-nav">
+  <a href="fase1-bloque1-estructura-texto.html">F1.1</a>
+  <a href="fase1-bloque2-listas-enlaces-imagenes.html" class="current">F1.2</a>
+  <a href="fase1-bloque3-div-section.html">F1.3</a>
+  <a href="fase2-bloque1-selectores-colores.html">F2.1</a>
+  <a href="fase2-bloque2-espaciado-cajas.html">F2.2</a>
+  <a href="fase2-bloque3-id-flexbox-responsive.html">F2.3</a>
+  <a href="fase3-bloque1-variables-tipos.html">F3.1</a>
+  <a href="fase3-bloque2-operadores-condicionales.html">F3.2</a>
+  <a href="fase3-bloque3-bucles.html">F3.3</a>
+  <a href="fase3-bloque4-funciones.html">F3.4</a>
+  <a href="fase3-bloque5-arreglos-objetos.html">F3.5</a>
+  <a href="fase3-bloque6-dom.html">F3.6</a>
+  <a href="fase3-bloque7-formularios-validacion.html">F3.7</a>
+  <a href="fase3-bloque8-async-apis.html">F3.8</a>
+  <a href="fase4-bloque1-arrow-template-literals.html">F4.1</a>
+  <a href="mi-lista-de-tareas.html">🏁 Proyecto</a>
+</div>
+
+
+<nav>
+  <a href="#recordatorio">🔁 Recordatorio</a>
+  <a href="#vocabulario">📖 Vocabulario nuevo</a>
+  <a href="#listas">📋 Listas</a>
+  <a href="#enlaces">🔗 Enlaces</a>
+  <a href="#imagenes">🖼 Imágenes</a>
+  <a href="#laboratorio">🧪 Laboratorio en vivo</a>
+  <a href="#retos">🏆 Retos</a>
+  <a href="#resumen">📋 Resumen</a>
+</nav>
+
+<main>
+
+<div class="parte-badge">📋 Fase 1 · Bloque 2 — HTML desde cero: listas, enlaces e imágenes</div>
+
+<section class="module" id="recordatorio">
+  <div class="module-header">
+    <div class="module-icon">🔁</div>
+    <div>
+      <div class="module-title">Antes de empezar: recordatorio rápido</div>
+      <div class="module-sub">Lo que ya sabes del Bloque 1, porque lo vas a seguir usando</div>
+    </div>
+  </div>
+  <p>Ya sabes que todo documento HTML necesita su estructura base (<code>&lt;!DOCTYPE html&gt;</code>, <code>&lt;html&gt;</code>, <code>&lt;head&gt;</code>, <code>&lt;body&gt;</code>), y que dentro del <code>&lt;body&gt;</code> usas <code>&lt;h1&gt;</code> para el título principal y <code>&lt;p&gt;</code> para párrafos. En este bloque vamos a seguir agregando cosas <strong>dentro del <code>&lt;body&gt;</code></strong>, después de tu título y tus párrafos.</p>
+</section>
+
+<section class="module" id="vocabulario">
+  <div class="module-header">
+    <div class="module-icon">📖</div>
+    <div>
+      <div class="module-title">Vocabulario nuevo</div>
+      <div class="module-sub">Tres palabras que vas a necesitar en este bloque</div>
+    </div>
+  </div>
+
+  <div class="glos">
+    <div class="glos-item">
+      <span class="emoji">📋</span>
+      <dt>Lista</dt>
+      <dd>Un conjunto de elementos, con orden (numerados) o sin orden (con puntos)</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🔗</span>
+      <dt>Enlace</dt>
+      <dd>Texto que, al hacer clic, te lleva a otra página o sitio</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🖼</span>
+      <dt>Imagen</dt>
+      <dd>Una etiqueta especial que muestra una foto en vez de texto</dd>
+    </div>
+  </div>
+</section>
+
+<section class="module" id="listas">
+  <div class="module-header">
+    <div class="module-icon">📋</div>
+    <div>
+      <div class="module-title">PARTE 1 — Listas</div>
+      <div class="module-sub">Hay dos tipos: sin orden (puntos) y con orden (números)</div>
+    </div>
+  </div>
+
+  <h2>Lista sin orden</h2>
+  <p>Se usa cuando el orden de los elementos no importa — por ejemplo, una lista de ingredientes o de gustos.</p>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="ct">&lt;ul&gt;</span>
+  <span class="ct">&lt;li&gt;</span><span class="cs">Café</span><span class="ct">&lt;/li&gt;</span>
+  <span class="ct">&lt;li&gt;</span><span class="cs">Té</span><span class="ct">&lt;/li&gt;</span>
+  <span class="ct">&lt;li&gt;</span><span class="cs">Chocolate</span><span class="ct">&lt;/li&gt;</span>
+<span class="ct">&lt;/ul&gt;</span></div>
+
+  <table class="tbl">
+    <thead><tr><th>Etiqueta</th><th>¿Qué hace?</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">&lt;ul&gt;</span></td><td>"Unordered list" — el contenedor de toda la lista sin orden. El navegador le pone un punto (•) a cada elemento automáticamente.</td></tr>
+      <tr><td><span class="tag">&lt;li&gt;</span></td><td>"List item" — cada elemento individual de la lista. SIEMPRE va dentro de un <code>&lt;ul&gt;</code> o de un <code>&lt;ol&gt;</code>, nunca solo.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Lista con orden</h2>
+  <p>Se usa cuando el orden SÍ importa — por ejemplo, los pasos de una receta.</p>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="ct">&lt;ol&gt;</span>
+  <span class="ct">&lt;li&gt;</span><span class="cs">Abrir el navegador</span><span class="ct">&lt;/li&gt;</span>
+  <span class="ct">&lt;li&gt;</span><span class="cs">Presionar F12</span><span class="ct">&lt;/li&gt;</span>
+  <span class="ct">&lt;li&gt;</span><span class="cs">Escribir código</span><span class="ct">&lt;/li&gt;</span>
+<span class="ct">&lt;/ol&gt;</span></div>
+
+  <div class="concept">
+    <h4>💡 ¿Por qué &lt;li&gt; es el mismo en ambas?</h4>
+    <p>Porque <code>&lt;li&gt;</code> siempre significa "un elemento de lista", sin importar el tipo. Lo único que cambia es el contenedor de afuera: <code>&lt;ul&gt;</code> le pone puntos, <code>&lt;ol&gt;</code> le pone números automáticamente — tú nunca escribes los números a mano.</p>
+  </div>
+</section>
+
+<section class="module" id="enlaces">
+  <div class="module-header">
+    <div class="module-icon">🔗</div>
+    <div>
+      <div class="module-title">PARTE 2 — Enlaces</div>
+      <div class="module-sub">Aquí aparece tu primer atributo importante: href</div>
+    </div>
+  </div>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"https://www.google.com"</span><span class="ct">&gt;</span><span class="cs">Ir a Google</span><span class="ct">&lt;/a&gt;</span></div>
+
+  <table class="tbl">
+    <thead><tr><th>Parte</th><th>¿Qué hace?</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">&lt;a&gt;</span></td><td>"Anchor" (ancla) — convierte el texto de adentro en un enlace clicable.</td></tr>
+      <tr><td><span class="tag">href</span></td><td>El atributo que indica A DÓNDE va el enlace. Sin <code>href</code>, el <code>&lt;a&gt;</code> no lleva a ningún lado.</td></tr>
+      <tr><td><span class="tag">"https://..."</span></td><td>La URL de destino, siempre entre comillas.</td></tr>
+      <tr><td><span class="tag">Ir a Google</span></td><td>El texto visible y clicable — puede ser cualquier palabra, no tiene que ser la URL.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="tip">
+    <h4>💡 Atributo extra útil: target="_blank"</h4>
+    <p>Si agregas <code>target="_blank"</code> dentro de la etiqueta <code>&lt;a&gt;</code>, el enlace se abre en una pestaña nueva en vez de reemplazar tu página actual. Lo vas a probar en el laboratorio de abajo.</p>
+  </div>
+</section>
+
+<section class="module" id="imagenes">
+  <div class="module-header">
+    <div class="module-icon">🖼</div>
+    <div>
+      <div class="module-title">PARTE 3 — Imágenes</div>
+      <div class="module-sub">La primera etiqueta que NO lleva cierre</div>
+    </div>
+  </div>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="ct">&lt;img</span> <span class="ca">src</span>=<span class="cv">"https://placehold.co/300x200"</span> <span class="ca">alt</span>=<span class="cv">"Imagen de ejemplo"</span><span class="ct">&gt;</span></div>
+
+  <table class="tbl">
+    <thead><tr><th>Parte</th><th>¿Qué hace?</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">&lt;img&gt;</span></td><td>Muestra una imagen. Fíjate que NO tiene <code>&lt;/img&gt;</code> — es una etiqueta que se cierra sola, porque no envuelve texto ni otros elementos.</td></tr>
+      <tr><td><span class="tag">src</span></td><td>"Source" — la ruta o URL de la imagen que se va a mostrar. Sin esto, no hay imagen.</td></tr>
+      <tr><td><span class="tag">alt</span></td><td>Texto alternativo. Se muestra si la imagen no carga, y lo usan los lectores de pantalla para describirla a personas con discapacidad visual. <strong>Nunca lo omitas.</strong></td></tr>
+    </tbody>
+  </table>
+
+  <div class="warn">
+    <h4>⚠️ Etiquetas que no se cierran</h4>
+    <p><code>&lt;img&gt;</code> es la primera etiqueta "solitaria" que ves — no envuelve nada, así que no necesita <code>&lt;/img&gt;</code>. Más adelante verás otra parecida: <code>&lt;br&gt;</code> (salto de línea).</p>
+  </div>
+</section>
+
+<section class="module" id="laboratorio">
+  <div class="module-header">
+    <div class="module-icon">🧪</div>
+    <div>
+      <div class="module-title">PARTE 4 — Laboratorio en vivo</div>
+      <div class="module-sub">Combina todo lo del Bloque 1 y el Bloque 2 aquí mismo</div>
+    </div>
+  </div>
+
+  <p class="lab-intro">Ya tienes una página de ejemplo cargada con título, párrafo, lista, enlace e imagen. Edita el código y mira el resultado a la derecha, o usa los botones para probar variantes.</p>
+
+  <div class="lab-holder">
+    <div class="lab-panel">
+      <div class="lab-panel-label">✏️ TU CÓDIGO (edítalo aquí)</div>
+      <textarea id="labCode" spellcheck="false"></textarea>
+    </div>
+    <div class="lab-panel">
+      <div class="lab-preview-label">🖥 RESULTADO EN VIVO</div>
+      <div class="lab-preview"><iframe id="labFrame"></iframe></div>
+    </div>
+  </div>
+
+  <p style="margin-top:1rem; font-size:.85rem; color:var(--muted); font-weight:600;">Prueba agregar estas líneas y observa qué cambia:</p>
+  <div class="lab-try-row">
+    <button onclick="labAdd('&lt;ol&gt;\n  &lt;li&gt;Paso uno&lt;/li&gt;\n  &lt;li&gt;Paso dos&lt;/li&gt;\n&lt;/ol&gt;')">+ ol (lista con orden)</button>
+    <button onclick="labAdd('&lt;a href=&quot;https://www.wikipedia.org&quot; target=&quot;_blank&quot;&gt;Ir a Wikipedia&lt;/a&gt;')">+ enlace con target="_blank"</button>
+    <button onclick="labAdd('&lt;img src=&quot;https://placehold.co/200x120&quot; alt=&quot;otra imagen&quot;&gt;')">+ otra imagen</button>
+    <button onclick="labAdd('&lt;li&gt;Elemento suelto sin ul&lt;/li&gt;')">+ li sin ul (mira el error visual)</button>
+  </div>
+  <button class="lab-reset" onclick="labReset()">↺ Restaurar código original</button>
+
+  <div class="tip" style="margin-top:1.25rem">
+    <h4>💡 Qué observar</h4>
+    <ul>
+      <li>Si agregas un <code>&lt;li&gt;</code> suelto (sin <code>&lt;ul&gt;</code> u <code>&lt;ol&gt;</code> alrededor), el navegador igual intenta mostrarlo, pero sin el punto ni el formato de lista — porque le falta su contenedor correcto.</li>
+      <li>Un enlace con <code>target="_blank"</code> normalmente abriría una pestaña nueva; aquí dentro del laboratorio puede comportarse distinto porque está en un iframe, pero en tu propio archivo HTML sí vas a ver la pestaña nueva.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="module" id="retos">
+  <div class="module-header">
+    <div class="module-icon">🏆</div>
+    <div>
+      <div class="module-title">PARTE 5 — Retos para practicar</div>
+      <div class="module-sub">Resuélvelos directo en el laboratorio de arriba</div>
+    </div>
+  </div>
+
+  <div class="reto-grid">
+    <div class="reto-card">
+      <span class="nivel nivel-f">🟡 Fácil</span>
+      <h4>Reto 1 — Mis 5 lugares favoritos</h4>
+      <p>Crea un <code>&lt;h2&gt;</code> que diga "Mis lugares favoritos" y debajo una lista <code>&lt;ul&gt;</code> con 5 lugares.</p>
+    </div>
+    <div class="reto-card">
+      <span class="nivel nivel-m">🟠 Medio</span>
+      <h4>Reto 2 — Una fuente confiable</h4>
+      <p>Agrega un párrafo que diga "Aprendí esto en:" seguido de un enlace <code>&lt;a&gt;</code> a cualquier página real, con <code>target="_blank"</code>.</p>
+    </div>
+    <div class="reto-card">
+      <span class="nivel nivel-a">🔴 Avanzado</span>
+      <h4>Reto 3 — Combínalo todo</h4>
+      <p>Crea una sección con: un <code>&lt;h2&gt;</code>, una imagen con <code>&lt;img&gt;</code>, una lista <code>&lt;ol&gt;</code> de 3 pasos, y un enlace al final. Todo en el orden que tú decidas.</p>
+    </div>
+  </div>
+</section>
+
+<section class="module" id="resumen">
+  <div class="module-header">
+    <div class="module-icon">📋</div>
+    <div>
+      <div class="module-title">Resumen: lo que aprendiste en este bloque</div>
+      <div class="module-sub">Todo en un vistazo</div>
+    </div>
+  </div>
+
+  <div>
+    <span class="chip">&lt;ul&gt;</span>
+    <span class="chip">&lt;ol&gt;</span>
+    <span class="chip">&lt;li&gt;</span>
+    <span class="chip">&lt;a href=""&gt;</span>
+    <span class="chip">target="_blank"</span>
+    <span class="chip">&lt;img src="" alt=""&gt;</span>
+  </div>
+
+  <div class="concept" style="margin-top:1.5rem">
+    <h4>💡 ¿Qué sigue?</h4>
+    <p>En el <strong>Bloque 3</strong> vamos a aprender a <strong>agrupar</strong> todo lo que ya sabes usando <code>&lt;div&gt;</code> y <code>&lt;section&gt;</code>, y a entender la diferencia entre elementos de bloque y en línea — así vas a poder organizar tu página como secciones claras, antes de pasar a CSS.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Bloque 2 — Listas, Enlaces e Imágenes · HTML desde cero · Jacqui 2026
+</footer>
+
+<script>
+const STARTER_CODE = `<h1>Hola, soy Jacqui</h1>
+<p>Estoy aprendiendo a programar desde cero.</p>
+
+<ul>
+  <li>Café</li>
+  <li>Té</li>
+</ul>
+
+<a href="https://www.google.com">Ir a Google</a>
+
+<img src="https://placehold.co/300x200" alt="Imagen de ejemplo">`;
+
+function renderLab() {
+  const code = document.getElementById('labCode').value;
+  const doc = '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{font-family:sans-serif;padding:16px;color:#211c17;line-height:1.6}</style></head><body>' + code + '</body></html>';
+  document.getElementById('labFrame').srcdoc = doc;
+}
+
+function labAdd(snippet) {
+  const ta = document.getElementById('labCode');
+  ta.value = ta.value + '\n' + snippet;
+  renderLab();
+}
+
+function labReset() {
+  document.getElementById('labCode').value = STARTER_CODE;
+  renderLab();
+}
+
+document.getElementById('labCode').value = STARTER_CODE;
+document.getElementById('labCode').addEventListener('input', renderLab);
+renderLab();
+</script>
+
+</body>
+</html>

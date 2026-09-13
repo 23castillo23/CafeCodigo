@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Fase 3, Bloque 1 — JavaScript: variables y tipos de datos, desde cero, con consola interactiva.">
+<title>Bloque 1 — Variables y Tipos de Datos | JavaScript desde cero</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #4338ca;
+    --primary-light:  #eef0fd;
+    --secondary:      #0f766e;
+    --secondary-light:#eafaf7;
+    --accent:         #b45309;
+    --accent-light:   #fdf3e5;
+    --danger:         #b91c1c;
+    --danger-light:   #fdf0f0;
+    --bg:             #f6f5fb;
+    --surface:        #ffffff;
+    --text:           #1c1a2e;
+    --muted:          #85819c;
+    --border:         #e5e3f3;
+    --code-bg:        #1c1a2e;
+    --code-text:      #ece9fb;
+  }
+
+  body { font-family: 'DM Sans', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  header { background: #1c1a2e; color: #f6f5fb; padding: 3rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: '{ }'; position: absolute; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 11rem; right: -1rem; top: -2.5rem; opacity: .07; line-height: 1; }
+  header .ex-label { display: inline-block; background: var(--primary); color: white; border-radius: 20px; padding: 4px 16px; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 1rem; }
+  header h1 { font-family: 'Space Grotesk', sans-serif; font-size: 2.4rem; font-weight: 700; letter-spacing: -1px; }
+  header p.sub { font-size: 1.05rem; opacity: .8; margin-top: .5rem; font-style: italic; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  /* BARRA CAFÉ */
+  .cafe-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; gap: 14px; position: sticky; top: 0; z-index: 200; height: 45px; }
+  .cafe-bar a { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); text-decoration: none; padding: 6px 14px; border: 1px solid var(--border); border-radius: 999px; transition: all 0.15s; }
+  .cafe-bar a:hover { color: var(--text); border-color: var(--muted); }
+  .cafe-bar span { font-size: 13px; color: var(--muted); }
+
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 45px; z-index: 100; display: flex; overflow-x: auto; gap: 0; }
+  nav a { flex-shrink: 0; padding: .75rem 1.1rem; text-decoration: none; color: var(--muted); font-size: .82rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: white; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2.5rem; scroll-margin-top:100px; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.3rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  .analogy { background: #FFF7ED; border: 1px solid #FDE68A; border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: #92400E; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; color: #78350F; }
+
+  .concept { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+
+  .tip { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p, .tip ul { font-size: .95rem; }
+  .tip ul { padding-left: 1.2rem; }
+  .tip li { margin-bottom: .3rem; }
+
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  .code-block { background: var(--code-bg); color: var(--code-text); border-radius: 10px; padding: 1.25rem 1.5rem; font-family: 'DM Mono', 'Courier New', monospace; font-size: .88rem; line-height: 1.9; overflow-x: auto; margin: 1rem 0; position: relative; white-space: pre; }
+  .code-block .ck { color: #c4b5fd; }
+  .code-block .cv { color: #86efac; }
+  .code-block .cs { color: #fde68a; }
+  .code-block .cn { color: #93c5fd; }
+  .code-block .cb { color: #f9a8d4; }
+  .code-block .cf { color: #67e8f9; }
+  .code-block .cc { color: #8b87a8; font-style: italic; }
+  .code-block .co { color: #ece9fb; }
+  .lang { position: absolute; top: .6rem; right: .75rem; background: rgba(255,255,255,.1); color: rgba(255,255,255,.5); font-size: .68rem; padding: 2px 8px; border-radius: 4px; font-family: sans-serif; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  .glos { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .glos-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; }
+  .glos-item dt { font-weight: 700; color: var(--primary); font-size: .92rem; margin-bottom: .3rem; }
+  .glos-item dd { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+  .glos-item .emoji { font-size: 1.4rem; display: block; margin-bottom: .4rem; }
+
+  /* EXPLORADOR DE TIPOS EN VIVO */
+  .type-explorer { border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; background: var(--bg); margin: 1.1rem 0; }
+  .type-explorer label { display: block; font-family: 'DM Mono', monospace; font-size: .78rem; font-weight: 700; margin-bottom: .4rem; }
+  .type-explorer input { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border); font-family: 'DM Mono', monospace; font-size: .92rem; background: var(--surface); color: var(--text); }
+  .type-result { display: flex; gap: 10px; margin-top: .9rem; flex-wrap: wrap; }
+  .type-result .trs { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; font-family: 'DM Mono', monospace; font-size: .82rem; }
+  .type-result .trs b { color: var(--primary); }
+  .type-quick { display: flex; gap: 8px; margin-top: .8rem; flex-wrap: wrap; }
+  .type-quick button { font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: .78rem; cursor: pointer; padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface); color: var(--text); }
+  .type-quick button:hover { border-color: var(--primary); color: var(--primary); }
+
+  /* CONSOLA INTERACTIVA */
+  .console-wrap { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin: 1rem 0; }
+  .console-editor-label, .console-output-label { background: #1c1a2e; color: #ece9fb; font-family: 'DM Mono', monospace; font-size: .72rem; padding: 6px 12px; letter-spacing: .04em; display: flex; justify-content: space-between; align-items: center; }
+  .console-wrap textarea { width: 100%; height: 170px; border: none; resize: vertical; background: var(--code-bg); color: var(--code-text); font-family: 'DM Mono', monospace; font-size: .87rem; line-height: 1.7; padding: 1rem; outline: none; border-bottom: 1px solid #34314f; }
+  .run-btn { background: var(--primary); color: white; border: none; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: .76rem; padding: 4px 12px; border-radius: 20px; cursor: pointer; }
+  .console-output { background: #100f1c; min-height: 90px; padding: 1rem; font-family: 'DM Mono', monospace; font-size: .85rem; }
+  .console-line { color: #86efac; padding: 2px 0; }
+  .console-line.error { color: #fca5a5; }
+  .console-line.muted { color: #6b6886; font-style: italic; }
+
+  .lab-try-row { display: flex; flex-wrap: wrap; gap: 8px; margin: .9rem 0; }
+  .lab-try-row button { font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: .8rem; cursor: pointer; padding: 7px 14px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface); color: var(--text); }
+  .lab-try-row button:hover { border-color: var(--primary); color: var(--primary); }
+  .lab-reset { display: block; margin-top: .7rem; font-size: .78rem; color: var(--muted); background: none; border: none; text-decoration: underline; cursor: pointer; padding: 0; }
+
+  .reto-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin: 1.25rem 0; }
+  .reto-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+  .reto-card .nivel { display: inline-block; font-size: .72rem; font-weight: 700; padding: 2px 10px; border-radius: 20px; margin-bottom: .6rem; text-transform: uppercase; letter-spacing: .06em; }
+  .nivel-f { background: #FEF3C7; color: #92400E; }
+  .nivel-m { background: #FFEDD5; color: #C2410C; }
+  .nivel-a { background: #FEE2E2; color: #B91C1C; }
+  .reto-card h4 { font-size: .95rem; font-weight: 700; margin-bottom: .5rem; }
+  .reto-card p { font-size: .88rem; color: var(--muted); margin-bottom: .5rem; }
+
+  .chip { display: inline-block; background: var(--primary-light); color: var(--primary); font-size: .8rem; padding: 3px 12px; border-radius: 20px; font-weight: 600; margin: 3px; font-family: 'DM Mono', monospace; }
+
+  h2 { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; color: var(--text); }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: #ecebf7; color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  strong { font-weight: 700; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); }
+</style>
+<style>
+  .course-nav { background: #100f1c; display: flex; overflow-x: auto; gap: 6px; padding: 10px 14px; align-items: center; }
+  .course-nav a { flex-shrink: 0; font-family: 'DM Mono', monospace; font-size: .74rem; font-weight: 700; color: #a5a1c4; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 14px; padding: 5px 11px; text-decoration: none; white-space: nowrap; transition: background .15s, color .15s; }
+  .course-nav a:hover { background: rgba(255,255,255,.14); color: #ece9fb; }
+  .course-nav a.current { background: #4338ca; color: white; border-color: #4338ca; }
+  .course-nav .sep { color: #4a4766; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<!-- BARRA CAFÉ -->
+<div class="cafe-bar">
+  <a href="../capitulos.html">← Capítulos</a>
+  <span>☕ Fase 3 · Bloque 1 · Variables y Tipos de Datos</span>
+</div>
+
+<header>
+  <div class="ex-label">✏️ Fase 3 · Bloque 1</div>
+  <h1>Variables y Tipos de Datos</h1>
+  <p class="sub">Empieza la lógica real: tu primer código JavaScript</p>
+  <span class="badge">🎯 JavaScript · let / const · tipos de datos · consola interactiva</span>
+</header>
+
+<div class="course-nav">
+  <a href="fase1-bloque1-estructura-texto.html">F1.1</a>
+  <a href="fase1-bloque2-listas-enlaces-imagenes.html">F1.2</a>
+  <a href="fase1-bloque3-div-section.html">F1.3</a>
+  <a href="fase2-bloque1-selectores-colores.html">F2.1</a>
+  <a href="fase2-bloque2-espaciado-cajas.html">F2.2</a>
+  <a href="fase2-bloque3-id-flexbox-responsive.html">F2.3</a>
+  <a href="fase3-bloque1-variables-tipos.html" class="current">F3.1</a>
+  <a href="fase3-bloque2-operadores-condicionales.html">F3.2</a>
+  <a href="fase3-bloque3-bucles.html">F3.3</a>
+  <a href="fase3-bloque4-funciones.html">F3.4</a>
+  <a href="fase3-bloque5-arreglos-objetos.html">F3.5</a>
+  <a href="fase3-bloque6-dom.html">F3.6</a>
+  <a href="fase3-bloque7-formularios-validacion.html">F3.7</a>
+  <a href="fase3-bloque8-async-apis.html">F3.8</a>
+  <a href="fase4-bloque1-arrow-template-literals.html">F4.1</a>
+  <a href="mi-lista-de-tareas.html">🏁 Proyecto</a>
+</div>
+
+
+<nav>
+  <a href="#recordatorio">🔁 Recordatorio</a>
+  <a href="#vocabulario">📖 Vocabulario nuevo</a>
+  <a href="#variables">📦 Variables</a>
+  <a href="#tipos">🏷 Tipos de datos</a>
+  <a href="#explorador">🔎 Explorador de tipos</a>
+  <a href="#consola">🧪 Consola en vivo</a>
+  <a href="#retos">🏆 Retos</a>
+  <a href="#resumen">📋 Resumen</a>
+</nav>
+
+<main>
+
+<div class="parte-badge">📦 Fase 3 · Bloque 1 — JavaScript desde cero: variables y tipos de datos</div>
+
+<section class="module" id="recordatorio">
+  <div class="module-header">
+    <div class="module-icon">🔁</div>
+    <div>
+      <div class="module-title">Antes de empezar: recordatorio rápido</div>
+      <div class="module-sub">Terminaste HTML y CSS — esto es lo que ya sabes construir</div>
+    </div>
+  </div>
+  <p>Ya sabes estructurar una página, darle estilo con colores y espaciado, y acomodarla con flexbox. Lo que le falta a todo eso es <strong>lógica</strong>: que la página tome decisiones, reaccione a clics, o calcule algo. Eso es exactamente lo que JavaScript agrega — y este bloque es tu punto de partida.</p>
+</section>
+
+<section class="module" id="vocabulario">
+  <div class="module-header">
+    <div class="module-icon">📖</div>
+    <div>
+      <div class="module-title">Vocabulario esencial</div>
+      <div class="module-sub">Estas palabras las vas a escuchar todo el tiempo</div>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <h4>🧠 Piénsalo así</h4>
+    <p>Una <strong>variable</strong> es como una caja de zapatos con una etiqueta pegada. La etiqueta es el <strong>nombre</strong> de la variable (por ejemplo, <code>edad</code>), y lo que guardas adentro de la caja es el <strong>valor</strong> (por ejemplo, <code>25</code>). Cuando quieres usar ese dato después, solo buscas la caja por su nombre.</p>
+  </div>
+
+  <div class="glos">
+    <div class="glos-item">
+      <span class="emoji">📦</span>
+      <dt>Variable</dt>
+      <dd>Un espacio con nombre donde guardas un dato para usarlo después</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🏷</span>
+      <dt>Tipo de dato</dt>
+      <dd>Qué clase de valor es: número, texto o verdadero/falso</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🧪</span>
+      <dt>Consola</dt>
+      <dd>Donde ejecutas código JavaScript y ves resultados al instante</dd>
+    </div>
+  </div>
+</section>
+
+<section class="module" id="variables">
+  <div class="module-header">
+    <div class="module-icon">📦</div>
+    <div>
+      <div class="module-title">PARTE 1 — Crea tu primera variable</div>
+      <div class="module-sub">Dos formas de guardar un valor</div>
+    </div>
+  </div>
+
+  <div class="code-block"><span class="lang">JS</span><span class="ck">let</span> <span class="cv">miNombre</span> <span class="co">=</span> <span class="cs">"Jacqui"</span><span class="co">;</span>
+<span class="ck">const</span> <span class="cv">meGustaProgramar</span> <span class="co">=</span> <span class="cb">true</span><span class="co">;</span></div>
+
+  <table class="tbl">
+    <thead><tr><th>Parte</th><th>¿Qué hace?</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">let</span></td><td>Crea una variable cuyo valor SÍ puede cambiar más adelante.</td></tr>
+      <tr><td><span class="tag">const</span></td><td>Crea una variable cuyo valor NUNCA debe cambiar. Si lo intentas, JavaScript te da un error a propósito, como protección.</td></tr>
+      <tr><td><span class="tag">miNombre</span></td><td>El nombre que tú eliges para la variable. Sin espacios ni acentos.</td></tr>
+      <tr><td><span class="tag">=</span></td><td>Aquí NO pregunta si son iguales — significa "asigna este valor a esta variable".</td></tr>
+      <tr><td><span class="tag">;</span></td><td>Marca el final de la instrucción, como el punto final de una oración.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="tip">
+    <h4>💡 ¿Cuál uso: let o const?</h4>
+    <p><code>const</code> es la opción por defecto en JavaScript moderno. Usa <code>let</code> solo cuando SEPAS que ese valor va a cambiar después (ej. un contador, una edad que aumenta).</p>
+  </div>
+</section>
+
+<section class="module" id="tipos">
+  <div class="module-header">
+    <div class="module-icon">🏷</div>
+    <div>
+      <div class="module-title">PARTE 2 — Los tres tipos básicos</div>
+      <div class="module-sub">Todo valor en JavaScript "es" de un tipo, y eso importa</div>
+    </div>
+  </div>
+
+  <div class="code-block"><span class="lang">JS</span><span class="cc">// number — un número, sin comillas</span>
+<span class="ck">let</span> <span class="cv">edad</span> <span class="co">=</span> <span class="cn">25</span><span class="co">;</span>
+
+<span class="cc">// string — texto, siempre con comillas</span>
+<span class="ck">let</span> <span class="cv">ciudad</span> <span class="co">=</span> <span class="cs">"Orizaba"</span><span class="co">;</span>
+
+<span class="cc">// boolean — solo true o false</span>
+<span class="ck">let</span> <span class="cv">esDeNoche</span> <span class="co">=</span> <span class="cb">false</span><span class="co">;</span></div>
+
+  <table class="tbl">
+    <thead><tr><th>Tipo</th><th>¿Cómo se ve?</th><th>¿Para qué sirve?</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">number</span></td><td>25, 3.14, -10</td><td>Cantidades: edades, precios, resultados matemáticos.</td></tr>
+      <tr><td><span class="tag">string</span></td><td>"Orizaba"</td><td>Texto: nombres, mensajes. Siempre entre comillas.</td></tr>
+      <tr><td><span class="tag">boolean</span></td><td>true / false</td><td>Solo dos opciones — para responder preguntas de sí/no en el código.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="warn">
+    <h4>⚠️ Un error muy común al empezar</h4>
+    <p><code>"5" + "3"</code> da como resultado <code>"53"</code> (dos textos que se pegan), pero <code>5 + 3</code> da <code>8</code> (dos números que se suman). Confundir número con texto es de los errores más frecuentes — pruébalo tú misma en el explorador de abajo.</p>
+  </div>
+</section>
+
+<section class="module" id="explorador">
+  <div class="module-header">
+    <div class="module-icon">🔎</div>
+    <div>
+      <div class="module-title">PARTE 3 — Explorador de tipos en vivo</div>
+      <div class="module-sub">Escribe un valor y mira su tipo actualizarse al instante</div>
+    </div>
+  </div>
+
+  <div class="type-explorer">
+    <label for="typeInput">Escribe cualquier valor de JavaScript (con comillas si es texto):</label>
+    <input type="text" id="typeInput" value='"Jacqui"' spellcheck="false">
+    <div class="type-result">
+      <div class="trs">typeof → <b id="typeOut">string</b></div>
+      <div class="trs">valor → <b id="valOut">Jacqui</b></div>
+    </div>
+    <div class="type-quick">
+      <button onclick="setTypeInput('25')">25</button>
+      <button onclick="setTypeInput('3.14')">3.14</button>
+      <button onclick="setTypeInput('&quot;hola&quot;')">"hola"</button>
+      <button onclick="setTypeInput('true')">true</button>
+      <button onclick="setTypeInput('&quot;5&quot; + &quot;3&quot;')">"5" + "3"</button>
+      <button onclick="setTypeInput('5 + 3')">5 + 3</button>
+    </div>
+  </div>
+
+  <div class="concept">
+    <h4>💡 Qué observar</h4>
+    <p>Prueba los botones "5" + "3" contra 5 + 3 — vas a ver que el <code>typeof</code> y el resultado cambian completamente según si hay comillas o no, aunque los números se vean iguales a simple vista.</p>
+  </div>
+</section>
+
+<section class="module" id="consola">
+  <div class="module-header">
+    <div class="module-icon">🧪</div>
+    <div>
+      <div class="module-title">PARTE 4 — Consola interactiva</div>
+      <div class="module-sub">Escribe código real y ejecútalo aquí mismo, sin salir de la página</div>
+    </div>
+  </div>
+
+  <p>Ya tienes código de ejemplo cargado. Presiona <strong>"▶ Ejecutar"</strong> para correrlo y ver qué imprime.</p>
+
+  <div class="console-wrap">
+    <div class="console-editor-label">
+      <span>✏️ TU CÓDIGO</span>
+      <button class="run-btn" onclick="runConsole()">▶ Ejecutar</button>
+    </div>
+    <textarea id="consoleCode" spellcheck="false"></textarea>
+    <div class="console-output-label"><span>▸ SALIDA (console.log)</span></div>
+    <div class="console-output" id="consoleOutput"></div>
+  </div>
+
+  <p style="margin-top:1rem; font-size:.85rem; color:var(--muted); font-weight:600;">Prueba agregar estas líneas y presiona Ejecutar otra vez:</p>
+  <div class="lab-try-row">
+    <button onclick="consoleAdd('console.log(typeof edad);')">+ typeof edad</button>
+    <button onclick="consoleAdd('const precio = 100;\nprecio = 200; // esto va a dar error')">+ error a propósito (const)</button>
+    <button onclick="consoleAdd('console.log(\"5\" + \"3\");\nconsole.log(5 + 3);')">+ comparar texto vs número</button>
+  </div>
+  <button class="lab-reset" onclick="consoleReset()">↺ Restaurar código original</button>
+
+  <div class="tip" style="margin-top:1.25rem">
+    <h4>💡 Sobre esta consola</h4>
+    <p>Esta consola integrada funciona exactamente igual que la del navegador (F12 → Console) que usaste al principio — la diferencia es que aquí no necesitas salir de la guía. Cuando trabajes en tus propios archivos <code>.html</code>, vas a seguir usando la consola real del navegador para revisar tu código.</p>
+  </div>
+</section>
+
+<section class="module" id="retos">
+  <div class="module-header">
+    <div class="module-icon">🏆</div>
+    <div>
+      <div class="module-title">PARTE 5 — Retos para practicar</div>
+      <div class="module-sub">Resuélvelos directo en la consola de arriba</div>
+    </div>
+  </div>
+
+  <div class="reto-grid">
+    <div class="reto-card">
+      <span class="nivel nivel-f">🟡 Fácil</span>
+      <h4>Reto 1 — Tus propios datos</h4>
+      <p>Crea 3 variables con <code>let</code>: tu nombre (string), tu edad (number) y si vives en tu ciudad natal (boolean). Muestra las tres con <code>console.log</code>.</p>
+    </div>
+    <div class="reto-card">
+      <span class="nivel nivel-m">🟠 Medio</span>
+      <h4>Reto 2 — Usa typeof</h4>
+      <p>Para cada variable del Reto 1, imprime su tipo con <code>console.log(typeof variable)</code>.</p>
+    </div>
+    <div class="reto-card">
+      <span class="nivel nivel-a">🔴 Avanzado</span>
+      <h4>Reto 3 — Lee el error</h4>
+      <p>Crea <code>const precio = 100;</code> y luego intenta <code>precio = 200;</code>. Ejecuta y copia el mensaje de error exacto que aparece en la salida. Explica con tus palabras qué significa.</p>
+    </div>
+  </div>
+</section>
+
+<section class="module" id="resumen">
+  <div class="module-header">
+    <div class="module-icon">📋</div>
+    <div>
+      <div class="module-title">Resumen: lo que aprendiste en este bloque</div>
+      <div class="module-sub">Todo en un vistazo</div>
+    </div>
+  </div>
+
+  <div>
+    <span class="chip">let</span>
+    <span class="chip">const</span>
+    <span class="chip">=</span>
+    <span class="chip">;</span>
+    <span class="chip">number</span>
+    <span class="chip">string</span>
+    <span class="chip">boolean</span>
+    <span class="chip">console.log()</span>
+    <span class="chip">typeof</span>
+  </div>
+
+  <div class="concept" style="margin-top:1.5rem">
+    <h4>💡 ¿Qué sigue?</h4>
+    <p>En el <strong>Bloque 2</strong> vamos a aprender <strong>operadores y condicionales</strong> (<code>if</code>/<code>else</code>) — para que tu código empiece a tomar decisiones usando las variables que ya sabes crear.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Fase 3 · Bloque 1 — Variables y Tipos de Datos · JavaScript desde cero · Jacqui 2026
+</footer>
+
+<script>
+/* Explorador de tipos en vivo */
+function updateTypeExplorer() {
+  const raw = document.getElementById('typeInput').value;
+  const typeOut = document.getElementById('typeOut');
+  const valOut = document.getElementById('valOut');
+  try {
+    const result = new Function('return (' + raw + ')')();
+    typeOut.textContent = typeof result;
+    valOut.textContent = String(result);
+  } catch (e) {
+    typeOut.textContent = '(código inválido)';
+    valOut.textContent = '—';
+  }
+}
+function setTypeInput(val) {
+  document.getElementById('typeInput').value = val;
+  updateTypeExplorer();
+}
+document.getElementById('typeInput').addEventListener('input', updateTypeExplorer);
+updateTypeExplorer();
+
+/* Consola interactiva */
+const CONSOLE_STARTER = `let miNombre = "Jacqui";
+let edad = 25;
+console.log(miNombre);
+console.log(edad);`;
+
+function runConsole() {
+  const code = document.getElementById('consoleCode').value;
+  const outputDiv = document.getElementById('consoleOutput');
+  outputDiv.innerHTML = '';
+  const logs = [];
+  const originalLog = console.log;
+  console.log = function(...args) {
+    logs.push(args.map(a => {
+      try { return typeof a === 'string' ? a : JSON.stringify(a); }
+      catch(e) { return String(a); }
+    }).join(' '));
+  };
+  try {
+    new Function(code)();
+    if (logs.length === 0) {
+      const div = document.createElement('div');
+      div.className = 'console-line muted';
+      div.textContent = '(no hubo console.log — agrega uno para ver resultados)';
+      outputDiv.appendChild(div);
+    } else {
+      logs.forEach(line => {
+        const div = document.createElement('div');
+        div.className = 'console-line';
+        div.textContent = '▸ ' + line;
+        outputDiv.appendChild(div);
+      });
+    }
+  } catch (err) {
+    logs.forEach(line => {
+      const div = document.createElement('div');
+      div.className = 'console-line';
+      div.textContent = '▸ ' + line;
+      outputDiv.appendChild(div);
+    });
+    const errDiv = document.createElement('div');
+    errDiv.className = 'console-line error';
+    errDiv.textContent = '⚠ ' + err.message;
+    outputDiv.appendChild(errDiv);
+  }
+  console.log = originalLog;
+}
+
+function consoleAdd(snippet) {
+  const ta = document.getElementById('consoleCode');
+  ta.value = ta.value + '\n' + snippet;
+}
+
+function consoleReset() {
+  document.getElementById('consoleCode').value = CONSOLE_STARTER;
+  document.getElementById('consoleOutput').innerHTML = '';
+}
+
+document.getElementById('consoleCode').value = CONSOLE_STARTER;
+</script>
+
+</body>
+</html>

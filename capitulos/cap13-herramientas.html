@@ -126,6 +126,31 @@
   .sb-btn { background:var(--primary); color:white; border:none; padding:.5rem 1.2rem; border-radius:7px; font-size:.9rem; font-weight:600; cursor:pointer; font-family:'DM Sans',sans-serif; }
   .sb-btn:hover { background:#a83920; }
   .sb-btn:disabled { background:#ccc; cursor:not-allowed; }
+  .sb-btn.mini { padding:.4rem .8rem; font-size:.78rem; margin:3px 4px 3px 0; }
+  .obj-view { font-family:'DM Mono',monospace; font-size:.82rem; background:var(--code-bg); color:var(--code-text); border-radius:8px; padding:1rem 1.2rem; white-space:pre-wrap; min-height:1.4em; }
+
+  .consola-caja { background:#1a1814; border-radius:8px; overflow:hidden; }
+  .consola-log { padding:.9rem 1rem; font-family:'DM Mono',monospace; font-size:.82rem; color:#e8e4de; min-height:80px; max-height:220px; overflow-y:auto; }
+  .consola-log .linea-in { color:#8ab4f8; }
+  .consola-log .linea-out { color:#e8e4de; }
+  .consola-log .linea-error { color:#f28b82; }
+  .consola-input-row { display:flex; align-items:center; gap:8px; padding:.6rem .9rem; border-top:1px solid #33302b; }
+  .consola-input-row span { color:#8ab4f8; font-family:'DM Mono',monospace; }
+  .consola-input-row input { flex:1; background:transparent; border:none; outline:none; color:#e8e4de; font-family:'DM Mono',monospace; font-size:.82rem; }
+
+  .insp-target { background:#DEB887; border-radius:8px; padding:26px; margin:22px; text-align:center; font-family:'DM Sans',sans-serif; font-weight:600; color:#4a2c0f; cursor:pointer; position:relative; }
+  .insp-wrap { border:1px dashed var(--border); border-radius:8px; padding:0; }
+  .insp-target.hover-margin { outline:14px solid rgba(246,178,107,.55); outline-offset:0; }
+  .insp-target.hover-border { box-shadow:0 0 0 4px #4a2c0f; }
+  .insp-target.hover-padding { box-shadow:inset 0 0 0 18px rgba(147,196,125,.55); }
+  .insp-tag { position:absolute; top:-24px; left:0; background:#292524; color:#fff; font-family:'DM Mono',monospace; font-size:.68rem; padding:2px 6px; border-radius:4px; }
+
+  .atajo-row { display:flex; justify-content:space-between; align-items:center; padding:8px 12px; border:1px solid var(--border); border-radius:8px; margin-bottom:6px; font-family:'DM Mono',monospace; font-size:.82rem; }
+  .atajo-row.hecho { border-color:#1a7a5a; background:#eafaf3; }
+  .atajo-row .check { color:#1a7a5a; font-weight:700; opacity:0; }
+  .atajo-row.hecho .check { opacity:1; }
+  .atajo-zona { border:2px dashed var(--border); border-radius:10px; padding:1.2rem; text-align:center; font-family:'DM Sans',sans-serif; color:var(--muted); outline:none; }
+  .atajo-zona:focus { border-color:var(--primary); color:var(--text); }
   .sb-output { background:var(--code-bg); color:var(--code-text); border-radius:8px; padding:1rem 1.2rem; font-family:'DM Mono',monospace; font-size:.82rem; line-height:1.7; margin-top:.75rem; min-height:60px; white-space:pre-wrap; word-break:break-all; display:none; }
   .sb-output.visible { display:block; }
   .sb-status { font-size:.78rem; font-weight:700; padding:2px 8px; border-radius:4px; }
@@ -549,6 +574,17 @@ localStorage.clear()                      <span class="c-comment">← borra el l
         Leer el mensaje del error (aunque parezca raro) casi siempre
         te dice exactamente qué está mal y en qué línea.</p>
       </div>
+
+      <p class="leccion-desc">Esta es una consola real — escribe JavaScript y presiona Enter. Prueba <code>2 + 2</code>, <code>document.title</code>, o hasta <code>document.body.style.background = "pink"</code>:</p>
+      <div class="sandbox">
+        <div class="sandbox-bar"><span>●</span><span class="sb-title">Sandbox · consola en vivo</span></div>
+        <div class="sandbox-body" style="padding:0">
+          <div class="consola-caja">
+            <div class="consola-log" id="consolaLog">// escribe algo abajo y presiona Enter</div>
+            <div class="consola-input-row"><span>&gt;</span><input type="text" id="consolaInput" placeholder="2 + 2"></div>
+          </div>
+        </div>
+      </div>
     </article>
 
     <!-- EL INSPECTOR -->
@@ -607,6 +643,19 @@ localStorage.clear()                      <span class="c-comment">← borra el l
         5. Guarda y verifica con Live Server<br><br>
         Esto evita el ciclo de editar el archivo → guardar → ver → repetir.
         Pruebas en el inspector y copias cuando estás seguro.
+      </div>
+
+      <p class="leccion-desc">Pasa el mouse por cada botón — así se ve exactamente en DevTools cuando resaltas margin (naranja), border (marco oscuro) o padding (verde) de un elemento real:</p>
+      <div class="sandbox">
+        <div class="sandbox-bar"><span>●</span><span class="sb-title">Sandbox · resaltado del inspector</span></div>
+        <div class="sandbox-body">
+          <button class="sb-btn mini" id="btnInspMargin" type="button" onmouseenter="document.getElementById('inspTarget').className='insp-target hover-margin'" onmouseleave="document.getElementById('inspTarget').className='insp-target'">pasa aquí → margin</button>
+          <button class="sb-btn mini" id="btnInspBorder" type="button" onmouseenter="document.getElementById('inspTarget').className='insp-target hover-border'" onmouseleave="document.getElementById('inspTarget').className='insp-target'">pasa aquí → border</button>
+          <button class="sb-btn mini" id="btnInspPadding" type="button" onmouseenter="document.getElementById('inspTarget').className='insp-target hover-padding'" onmouseleave="document.getElementById('inspTarget').className='insp-target'">pasa aquí → padding</button>
+          <div class="insp-wrap">
+            <div class="insp-target" id="inspTarget"><span class="insp-tag">div.tarjeta</span>elemento de prueba</div>
+          </div>
+        </div>
       </div>
     </article>
 
@@ -732,6 +781,21 @@ Ctrl + W              <span class="c-comment">← cerrar pestaña</span>
 Ctrl + Shift + T      <span class="c-comment">← reabrir pestaña cerrada</span>
 Ctrl + F              <span class="c-comment">← buscar texto en la página</span></pre>
       </div>
+
+      <p class="leccion-desc">Haz clic en la zona de abajo y practica estos 5 atajos de verdad con tu teclado (en Mac usa Cmd en lugar de Ctrl) — se van marcando solos conforme los presionas bien:</p>
+      <div class="sandbox">
+        <div class="sandbox-bar"><span>●</span><span class="sb-title">Sandbox · practica los atajos</span></div>
+        <div class="sandbox-body">
+          <div class="atajo-zona" id="atajoZona" tabindex="0">haz clic aquí y empieza a presionar los atajos de la lista</div>
+          <div style="margin-top:.75rem">
+            <div class="atajo-row" data-atajo="guardar"><span>Ctrl/Cmd + S — guardar</span><span class="check">✓</span></div>
+            <div class="atajo-row" data-atajo="comentar"><span>Ctrl/Cmd + / — comentar línea</span><span class="check">✓</span></div>
+            <div class="atajo-row" data-atajo="deshacer"><span>Ctrl/Cmd + Z — deshacer</span><span class="check">✓</span></div>
+            <div class="atajo-row" data-atajo="buscar"><span>Ctrl/Cmd + F — buscar</span><span class="check">✓</span></div>
+            <div class="atajo-row" data-atajo="devtools"><span>Ctrl/Cmd + Shift + I — abrir DevTools</span><span class="check">✓</span></div>
+          </div>
+        </div>
+      </div>
     </article>
 
     <!-- FLUJO DE TRABAJO -->
@@ -849,6 +913,59 @@ function iniciarObservadorNav() {
   document.querySelectorAll('.leccion[id]').forEach(el => obs.observe(el));
 }
 document.addEventListener('DOMContentLoaded', iniciarObservadorNav);
+
+/* ─── SANDBOX · CONSOLA REAL ─── */
+function iniciarSandboxConsola() {
+  const input = document.getElementById('consolaInput');
+  const log = document.getElementById('consolaLog');
+  if (!input) return;
+  let limpio = true;
+  function agregar(clase, texto) {
+    if (limpio) { log.innerHTML = ''; limpio = false; }
+    const linea = document.createElement('div');
+    linea.className = clase;
+    linea.textContent = texto;
+    log.appendChild(linea);
+    log.scrollTop = log.scrollHeight;
+  }
+  input.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter' || !input.value.trim()) return;
+    const codigo = input.value;
+    agregar('linea-in', '> ' + codigo);
+    try {
+      const resultado = Function('"use strict";return (' + codigo + ')')();
+      agregar('linea-out', resultado === undefined ? 'undefined' : (typeof resultado === 'object' ? JSON.stringify(resultado) : String(resultado)));
+    } catch (err) {
+      agregar('linea-error', '❌ Uncaught ' + err.constructor.name + ': ' + err.message);
+    }
+    input.value = '';
+  });
+}
+document.addEventListener('DOMContentLoaded', iniciarSandboxConsola);
+
+/* ─── SANDBOX · ATAJOS DE TECLADO ─── */
+function iniciarSandboxAtajos() {
+  const zona = document.getElementById('atajoZona');
+  if (!zona) return;
+  const mapa = {
+    guardar: (e) => (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's',
+    comentar: (e) => (e.ctrlKey || e.metaKey) && e.key === '/',
+    deshacer: (e) => (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && !e.shiftKey,
+    buscar: (e) => (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f',
+    devtools: (e) => (e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'i'
+  };
+  zona.addEventListener('keydown', (e) => {
+    Object.entries(mapa).forEach(([nombre, test]) => {
+      if (test(e)) {
+        e.preventDefault();
+        const fila = document.querySelector('[data-atajo="' + nombre + '"]');
+        if (fila) fila.classList.add('hecho');
+        zona.textContent = '¡bien! sigue con el siguiente atajo de la lista';
+      }
+    });
+  });
+}
+document.addEventListener('DOMContentLoaded', iniciarSandboxAtajos);
 </script>
 </body>
 </html>

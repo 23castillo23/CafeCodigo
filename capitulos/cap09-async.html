@@ -126,6 +126,8 @@
   .sb-btn { background:var(--primary); color:white; border:none; padding:.5rem 1.2rem; border-radius:7px; font-size:.9rem; font-weight:600; cursor:pointer; font-family:'DM Sans',sans-serif; }
   .sb-btn:hover { background:#a83920; }
   .sb-btn:disabled { background:#ccc; cursor:not-allowed; }
+  .sb-btn.mini { padding:.4rem .8rem; font-size:.78rem; margin:3px 4px 3px 0; }
+  .obj-view { font-family:'DM Mono',monospace; font-size:.82rem; background:var(--code-bg); color:var(--code-text); border-radius:8px; padding:1rem 1.2rem; white-space:pre-wrap; min-height:1.4em; }
   .sb-output { background:var(--code-bg); color:var(--code-text); border-radius:8px; padding:1rem 1.2rem; font-family:'DM Mono',monospace; font-size:.82rem; line-height:1.7; margin-top:.75rem; min-height:60px; white-space:pre-wrap; word-break:break-all; display:none; }
   .sb-output.visible { display:block; }
   .sb-status { font-size:.78rem; font-weight:700; padding:2px 8px; border-radius:4px; }
@@ -280,6 +282,16 @@ pedirDatosAlServidor()   <span class="c-comment">// asincrono</span>
 
 console.log(datos)   <span class="c-comment">// null — los datos no llegaron todavia!</span></pre></div>
       <div class="tip-box"><strong>Por que JavaScript es asincrono:</strong><br><br>JavaScript corre en el navegador en un solo hilo (thread) &mdash; solo puede hacer una cosa a la vez. Si tuviera que esperar cada peticion a internet antes de continuar, el navegador se congelaria completamente mientras espera la respuesta del servidor. El modelo asincrono permite que la pagina siga respondiendo al usuario mientras espera en segundo plano.</div>
+
+      <p class="leccion-desc">Corre los dos ejemplos — el orden en que aparecen las líneas es el tiempo real, no simulado:</p>
+      <div class="sandbox">
+        <div class="sandbox-bar"><span>●</span><span class="sb-title">Sandbox · sincrono vs asincrono en vivo</span></div>
+        <div class="sandbox-body">
+          <button class="sb-btn mini" id="btnSincrono" type="button">ejecutar código síncrono</button>
+          <button class="sb-btn mini" id="btnAsincrono" type="button">ejecutar código asíncrono</button>
+          <div class="obj-view" id="syncOutput">// elige uno...</div>
+        </div>
+      </div>
     </article>
 
     <article class="leccion" id="leccion-callback-async">
@@ -310,6 +322,16 @@ cargarUsuario(id, (usuario) =&gt; {
   })
 })
 <span class="c-comment">// Por eso se inventaron las Promises</span></pre></div>
+
+      <p class="leccion-desc">El primer ejemplo tarda 2 segundos de verdad — mira el reloj mientras esperas. El segundo simula el "callback hell" con 3 pasos anidados, cada uno con su propia espera:</p>
+      <div class="sandbox">
+        <div class="sandbox-bar"><span>●</span><span class="sb-title">Sandbox · callbacks en vivo</span></div>
+        <div class="sandbox-body">
+          <button class="sb-btn mini" id="btnCargarDatos" type="button">cargarDatos(url, callback)</button>
+          <button class="sb-btn mini" id="btnCallbackHell" type="button">simular callback hell</button>
+          <div class="obj-view" id="cbAsyncOutput">// elige uno...</div>
+        </div>
+      </div>
     </article>
 
     <article class="leccion" id="leccion-promise">
@@ -351,6 +373,20 @@ cargarUsuario(id)
   .then(posts   =&gt; cargarComentarios(posts[0].id))
   .then(comentarios =&gt; console.log(comentarios))
   .catch(error  =&gt; console.log(<span class="c-str">"Error en algun paso:"</span>, error))</pre></div>
+
+      <p class="leccion-desc">Elige si la Promise debe cumplirse o fallar, y mira <code>.then()</code>, <code>.catch()</code> y <code>.finally()</code> reaccionar de verdad (1 segundo de espera real):</p>
+      <div class="sandbox">
+        <div class="sandbox-bar"><span>●</span><span class="sb-title">Sandbox · Promise en vivo</span></div>
+        <div class="sandbox-body">
+          <label>al resolverse</label>
+          <select class="sb-select" id="promModo">
+            <option value="exito">resolve("Operación exitosa")</option>
+            <option value="error">reject("Algo salió mal")</option>
+          </select>
+          <button class="sb-btn mini" id="btnPromiseRun" type="button" style="margin-top:8px">crear y usar la Promise</button>
+          <div class="obj-view" id="promOutput">// elige un modo y presiona el botón</div>
+        </div>
+      </div>
     </article>
 
     <article class="leccion" id="leccion-async-await">
@@ -384,6 +420,15 @@ cargarUsuario(id)
   <span class="c-key">return</span> <span class="c-key">await</span> respuesta.json()
 }</pre></div>
       <div class="tip-box"><strong>Regla importante:</strong><br><br><code>await</code> solo puede usarse dentro de una funcion marcada con <code>async</code>. Si intentas usarlo fuera, JavaScript da un error. Esta es la razon por la que veras <code>async</code> antes de la funcion cuando hay <code>await</code> adentro.</div>
+
+      <p class="leccion-desc">Presiona el botón y mira las líneas aparecer una por una — cada <code>await</code> real detiene la función hasta que la Promise anterior termina:</p>
+      <div class="sandbox">
+        <div class="sandbox-bar"><span>●</span><span class="sb-title">Sandbox · async/await en vivo</span></div>
+        <div class="sandbox-body">
+          <button class="sb-btn mini" id="btnAsyncAwait" type="button">await cargarDatos()</button>
+          <div class="obj-view" id="awaitOutput">// presiona el botón...</div>
+        </div>
+      </div>
     </article>
 
     <article class="leccion" id="leccion-errores-async">
@@ -415,6 +460,20 @@ cargarUsuario(id)
     console.log(<span class="c-str">"Operacion terminada"</span>)
   }
 }</pre></div>
+
+      <p class="leccion-desc">Elige si el servidor simulado responde bien o falla, y mira cuál bloque se ejecuta — nota que <code>finally</code> corre siempre, sin importar cuál camino tomó:</p>
+      <div class="sandbox">
+        <div class="sandbox-bar"><span>●</span><span class="sb-title">Sandbox · try / catch / finally en vivo</span></div>
+        <div class="sandbox-body">
+          <label>el servidor simulado va a</label>
+          <select class="sb-select" id="errModo">
+            <option value="ok">responder bien (200 OK)</option>
+            <option value="fail">fallar (error 500)</option>
+          </select>
+          <button class="sb-btn mini" id="btnErrRun" type="button" style="margin-top:8px">cargarDatos()</button>
+          <div class="obj-view" id="errOutput">// elige un modo y presiona el botón</div>
+        </div>
+      </div>
     </article>
 
     <article class="leccion conexion-box" id="leccion-conexion">
@@ -471,6 +530,138 @@ function iniciarObservadorNav() {
   document.querySelectorAll('.leccion[id]').forEach(el => obs.observe(el));
 }
 document.addEventListener('DOMContentLoaded', iniciarObservadorNav);
+
+/* ─── SANDBOX · SÍNCRONO VS ASÍNCRONO ─── */
+function iniciarSandboxSyncAsync() {
+  const salida = document.getElementById('syncOutput');
+  if (!salida) return;
+  document.getElementById('btnSincrono').addEventListener('click', () => {
+    salida.textContent = 'console.log("1")\nconsole.log("2")\nconsole.log("3")\n\n→ 1\n→ 2\n→ 3   (instantáneo, en orden)';
+  });
+  document.getElementById('btnAsincrono').addEventListener('click', () => {
+    salida.textContent = 'console.log("1")\nsetTimeout(() => console.log("2"), 1000)\nconsole.log("3")\n\n→ 1\n→ 3   (no esperó al setTimeout)\n⏳ esperando 1 segundo...';
+    setTimeout(() => { salida.textContent += '\n→ 2   (llegó tarde, tal como se esperaba)'; }, 1000);
+  });
+}
+document.addEventListener('DOMContentLoaded', iniciarSandboxSyncAsync);
+
+/* ─── SANDBOX · CALLBACKS ASÍNCRONOS ─── */
+function iniciarSandboxCallbackAsync() {
+  const salida = document.getElementById('cbAsyncOutput');
+  if (!salida) return;
+  const btnCargar = document.getElementById('btnCargarDatos');
+  const btnHell = document.getElementById('btnCallbackHell');
+
+  function cargarDatos(url, callback) {
+    salida.textContent = 'cargarDatos("' + url + '", callback)\n⏳ esperando 2 segundos (respuesta simulada del servidor)...';
+    setTimeout(() => {
+      const datos = { nombre: 'Ana', edad: 25 };
+      callback(datos);
+    }, 2000);
+  }
+  btnCargar.addEventListener('click', () => {
+    btnCargar.disabled = true;
+    cargarDatos('https://api.ejemplo.com', (datos) => {
+      salida.textContent += '\nDatos recibidos: ' + JSON.stringify(datos);
+      btnCargar.disabled = false;
+    });
+  });
+
+  btnHell.addEventListener('click', () => {
+    btnHell.disabled = true;
+    salida.textContent = 'cargarUsuario(id, usuario => {\n⏳ esperando...';
+    setTimeout(() => {
+      salida.textContent += '\n  ✓ usuario = { id: 1, nombre: "Ana" }\n  cargarPosts(usuario.id, posts => {\n  ⏳ esperando...';
+      setTimeout(() => {
+        salida.textContent += '\n    ✓ posts = [{ id: 9, titulo: "Hola" }]\n    cargarComentarios(posts[0].id, comentarios => {\n    ⏳ esperando...';
+        setTimeout(() => {
+          salida.textContent += '\n      ✓ comentarios = ["Buen post!"]\n      // 3 niveles de anidamiento — esto es "callback hell"';
+          btnHell.disabled = false;
+        }, 700);
+      }, 700);
+    }, 700);
+  });
+}
+document.addEventListener('DOMContentLoaded', iniciarSandboxCallbackAsync);
+
+/* ─── SANDBOX · PROMISES ─── */
+function iniciarSandboxPromise() {
+  const salida = document.getElementById('promOutput');
+  if (!salida) return;
+  const modo = document.getElementById('promModo');
+  const btn = document.getElementById('btnPromiseRun');
+
+  btn.addEventListener('click', () => {
+    btn.disabled = true;
+    const exito = modo.value === 'exito';
+    salida.textContent = 'const miPromise = new Promise((resolve, reject) => { ... })\n⏳ pending — esperando 1 segundo...';
+    const miPromise = new Promise((resolve, reject) => {
+      setTimeout(() => exito ? resolve('Operación exitosa') : reject('Algo salió mal'), 1000);
+    });
+    miPromise
+      .then(resultado => { salida.textContent += '\n.then() → fulfilled\nÉxito: ' + resultado; })
+      .catch(error => { salida.textContent += '\n.catch() → rejected\nError: ' + error; })
+      .finally(() => { salida.textContent += '\n.finally() → esto siempre se ejecuta'; btn.disabled = false; });
+  });
+}
+document.addEventListener('DOMContentLoaded', iniciarSandboxPromise);
+
+/* ─── SANDBOX · ASYNC/AWAIT ─── */
+function iniciarSandboxAsyncAwait() {
+  const salida = document.getElementById('awaitOutput');
+  const btn = document.getElementById('btnAsyncAwait');
+  if (!btn) return;
+
+  function fetchSimulado() {
+    return new Promise(resolve => setTimeout(() => resolve({ nombre: 'Ana', edad: 25 }), 1200));
+  }
+  async function cargarDatos() {
+    salida.textContent = 'async function cargarDatos() {';
+    salida.textContent += '\n  const respuesta = await fetch(...)\n  ⏳ pausado aquí hasta que la Promise resuelva...';
+    const datos = await fetchSimulado();
+    salida.textContent += '\n  ✓ continuó — respuesta llegó';
+    salida.textContent += '\n  console.log(datos)  →  ' + JSON.stringify(datos);
+    salida.textContent += '\n}';
+  }
+  btn.addEventListener('click', async () => {
+    btn.disabled = true;
+    await cargarDatos();
+    btn.disabled = false;
+  });
+}
+document.addEventListener('DOMContentLoaded', iniciarSandboxAsyncAwait);
+
+/* ─── SANDBOX · TRY/CATCH/FINALLY ─── */
+function iniciarSandboxErroresAsync() {
+  const salida = document.getElementById('errOutput');
+  const btn = document.getElementById('btnErrRun');
+  const modo = document.getElementById('errModo');
+  if (!btn) return;
+
+  function fetchSimulado(falla) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => falla ? reject(new Error('Error del servidor: 500')) : resolve({ ok: true, datos: { nombre: 'Ana' } }), 1000);
+    });
+  }
+  async function cargarDatos() {
+    const falla = modo.value === 'fail';
+    salida.textContent = 'try {\n  const respuesta = await fetch(...)\n  ⏳ esperando...';
+    try {
+      const respuesta = await fetchSimulado(falla);
+      salida.textContent += '\n  ✓ respuesta.ok\n  const datos = await respuesta.json()\n  console.log("Datos:", ' + JSON.stringify(respuesta.datos) + ')\n}';
+    } catch (error) {
+      salida.textContent += '\n} catch (error) {\n  Algo salió mal: ' + error.message + '\n}';
+    } finally {
+      salida.textContent += '\nfinally {\n  Operación terminada   ← esto SIEMPRE se ejecuta\n}';
+    }
+  }
+  btn.addEventListener('click', async () => {
+    btn.disabled = true;
+    await cargarDatos();
+    btn.disabled = false;
+  });
+}
+document.addEventListener('DOMContentLoaded', iniciarSandboxErroresAsync);
 </script>
 </body>
 </html>

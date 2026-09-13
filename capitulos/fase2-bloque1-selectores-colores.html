@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Fase 2, Bloque 1 — CSS: selectores y colores, desde cero, con laboratorio interactivo.">
+<title>Bloque 1 — Selectores y Colores | CSS desde cero</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #0f766e;
+    --primary-light:  #eafaf7;
+    --secondary:      #4338ca;
+    --secondary-light:#eef0fd;
+    --accent:         #b45309;
+    --accent-light:   #fdf3e5;
+    --danger:         #b91c1c;
+    --danger-light:   #fdf0f0;
+    --bg:             #f5f7f6;
+    --surface:        #ffffff;
+    --text:           #16211d;
+    --muted:          #7c8c86;
+    --border:         #e1ece8;
+    --code-bg:        #16211d;
+    --code-text:      #e9f3ef;
+  }
+
+  body { font-family: 'DM Sans', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  header { background: #16211d; color: #f5f7f6; padding: 3rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: '#'; position: absolute; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 13rem; right: -.5rem; top: -3.5rem; opacity: .06; line-height: 1; }
+  header .ex-label { display: inline-block; background: var(--primary); color: white; border-radius: 20px; padding: 4px 16px; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 1rem; }
+  header h1 { font-family: 'Space Grotesk', sans-serif; font-size: 2.4rem; font-weight: 700; letter-spacing: -1px; }
+  header p.sub { font-size: 1.05rem; opacity: .8; margin-top: .5rem; font-style: italic; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  /* BARRA CAFÉ */
+  .cafe-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; gap: 14px; position: sticky; top: 0; z-index: 200; height: 45px; }
+  .cafe-bar a { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); text-decoration: none; padding: 6px 14px; border: 1px solid var(--border); border-radius: 999px; transition: all 0.15s; }
+  .cafe-bar a:hover { color: var(--text); border-color: var(--muted); }
+  .cafe-bar span { font-size: 13px; color: var(--muted); }
+
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 45px; z-index: 100; display: flex; overflow-x: auto; gap: 0; }
+  nav a { flex-shrink: 0; padding: .75rem 1.1rem; text-decoration: none; color: var(--muted); font-size: .82rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: white; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2.5rem; scroll-margin-top:100px; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.3rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  .analogy { background: #FFF7ED; border: 1px solid #FDE68A; border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: #92400E; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; color: #78350F; }
+
+  .concept { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+
+  .tip { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p, .tip ul { font-size: .95rem; }
+  .tip ul { padding-left: 1.2rem; }
+  .tip li { margin-bottom: .3rem; }
+
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  .code-block { background: var(--code-bg); color: var(--code-text); border-radius: 10px; padding: 1.25rem 1.5rem; font-family: 'DM Mono', 'Courier New', monospace; font-size: .88rem; line-height: 1.9; overflow-x: auto; margin: 1rem 0; position: relative; white-space: pre; }
+  .code-block .ct { color: #7dd3fc; }
+  .code-block .ca { color: #c4b5fd; }
+  .code-block .cv { color: #86efac; }
+  .code-block .cs { color: #fde68a; }
+  .code-block .cc { color: #6b7280; font-style: italic; }
+  .code-block .cp { color: #fca5a5; }
+  .lang { position: absolute; top: .6rem; right: .75rem; background: rgba(255,255,255,.1); color: rgba(255,255,255,.5); font-size: .68rem; padding: 2px 8px; border-radius: 4px; font-family: sans-serif; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  .anatomy { background: var(--code-bg); border-radius: 10px; padding: 1.5rem; margin: 1rem 0; }
+  .anatomy-line { font-family: 'DM Mono', monospace; font-size: 1.05rem; color: var(--code-text); text-align: center; margin-bottom: .5rem; }
+  .anatomy-line .p1 { color: #86efac; }
+  .anatomy-line .p2 { color: #7dd3fc; }
+  .anatomy-line .p3 { color: #fde68a; }
+  .anatomy-labels { display: flex; justify-content: center; gap: 2.2rem; font-family: 'DM Sans'; font-size: .72rem; color: var(--muted); margin-top: .3rem; }
+  .anatomy-labels span { display: block; text-align: center; }
+  .anatomy-labels .l1 { color: #86efac; font-weight: 700; }
+  .anatomy-labels .l2 { color: #7dd3fc; font-weight: 700; }
+  .anatomy-labels .l3 { color: #fde68a; font-weight: 700; }
+
+  .lab-intro { font-size: .95rem; color: var(--muted); margin-bottom: 1rem; }
+  .lab-holder { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 720px) { .lab-holder { grid-template-columns: 1fr; } }
+  .lab-panel { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .lab-panel-label { background: #16211d; color: #e9f3ef; font-family: 'DM Mono', monospace; font-size: .72rem; padding: 6px 12px; letter-spacing: .04em; }
+  .lab-panel textarea { width: 100%; height: 260px; border: none; resize: vertical; background: var(--code-bg); color: var(--code-text); font-family: 'DM Mono', monospace; font-size: .85rem; line-height: 1.7; padding: 1rem; outline: none; }
+  .lab-panel textarea.short { height: 210px; }
+  .lab-preview-label { background: var(--bg); color: var(--muted); font-family: 'DM Mono', monospace; font-size: .72rem; padding: 6px 12px; letter-spacing: .04em; border-bottom: 1px solid var(--border); }
+  .lab-preview iframe { width: 100%; height: 210px; border: none; background: #fff; }
+  .lab-stack { display: flex; flex-direction: column; gap: 14px; }
+  .lab-try-row { display: flex; flex-wrap: wrap; gap: 8px; margin: .9rem 0; }
+  .lab-try-row button { font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: .8rem; cursor: pointer; padding: 7px 14px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface); color: var(--text); }
+  .lab-try-row button:hover { border-color: var(--primary); color: var(--primary); }
+  .lab-reset { display: block; margin-top: .7rem; font-size: .78rem; color: var(--muted); background: none; border: none; text-decoration: underline; cursor: pointer; padding: 0; }
+
+  .reto-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin: 1.25rem 0; }
+  .reto-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+  .reto-card .nivel { display: inline-block; font-size: .72rem; font-weight: 700; padding: 2px 10px; border-radius: 20px; margin-bottom: .6rem; text-transform: uppercase; letter-spacing: .06em; }
+  .nivel-f { background: #FEF3C7; color: #92400E; }
+  .nivel-m { background: #FFEDD5; color: #C2410C; }
+  .nivel-a { background: #FEE2E2; color: #B91C1C; }
+  .reto-card h4 { font-size: .95rem; font-weight: 700; margin-bottom: .5rem; }
+  .reto-card p { font-size: .88rem; color: var(--muted); margin-bottom: .5rem; }
+
+  .glos { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .glos-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; }
+  .glos-item dt { font-weight: 700; color: var(--primary); font-size: .92rem; margin-bottom: .3rem; }
+  .glos-item dd { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+  .glos-item .emoji { font-size: 1.4rem; display: block; margin-bottom: .4rem; }
+
+  .chip { display: inline-block; background: var(--primary-light); color: var(--primary); font-size: .8rem; padding: 3px 12px; border-radius: 20px; font-weight: 600; margin: 3px; font-family: 'DM Mono', monospace; }
+
+  h2 { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; color: var(--text); }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: #e3ede9; color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  strong { font-weight: 700; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); }
+</style>
+<style>
+  .course-nav { background: #100f1c; display: flex; overflow-x: auto; gap: 6px; padding: 10px 14px; align-items: center; }
+  .course-nav a { flex-shrink: 0; font-family: 'DM Mono', monospace; font-size: .74rem; font-weight: 700; color: #a5a1c4; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 14px; padding: 5px 11px; text-decoration: none; white-space: nowrap; transition: background .15s, color .15s; }
+  .course-nav a:hover { background: rgba(255,255,255,.14); color: #ece9fb; }
+  .course-nav a.current { background: #4338ca; color: white; border-color: #4338ca; }
+  .course-nav .sep { color: #4a4766; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<!-- BARRA CAFÉ -->
+<div class="cafe-bar">
+  <a href="../capitulos.html">← Capítulos</a>
+  <span>☕ Fase 2 · Bloque 1 · Selectores y Colores</span>
+</div>
+
+<header>
+  <div class="ex-label">✏️ Fase 2 · Bloque 1</div>
+  <h1>Selectores y Colores</h1>
+  <p class="sub">Ahora tu HTML por fin va a tener estilo</p>
+  <span class="badge">🎯 CSS · conectar CSS · selectores · color · font-size</span>
+</header>
+
+<div class="course-nav">
+  <a href="fase1-bloque1-estructura-texto.html">F1.1</a>
+  <a href="fase1-bloque2-listas-enlaces-imagenes.html">F1.2</a>
+  <a href="fase1-bloque3-div-section.html">F1.3</a>
+  <a href="fase2-bloque1-selectores-colores.html" class="current">F2.1</a>
+  <a href="fase2-bloque2-espaciado-cajas.html">F2.2</a>
+  <a href="fase2-bloque3-id-flexbox-responsive.html">F2.3</a>
+  <a href="fase3-bloque1-variables-tipos.html">F3.1</a>
+  <a href="fase3-bloque2-operadores-condicionales.html">F3.2</a>
+  <a href="fase3-bloque3-bucles.html">F3.3</a>
+  <a href="fase3-bloque4-funciones.html">F3.4</a>
+  <a href="fase3-bloque5-arreglos-objetos.html">F3.5</a>
+  <a href="fase3-bloque6-dom.html">F3.6</a>
+  <a href="fase3-bloque7-formularios-validacion.html">F3.7</a>
+  <a href="fase3-bloque8-async-apis.html">F3.8</a>
+  <a href="fase4-bloque1-arrow-template-literals.html">F4.1</a>
+  <a href="mi-lista-de-tareas.html">🏁 Proyecto</a>
+</div>
+
+
+<nav>
+  <a href="#recordatorio">🔁 Recordatorio</a>
+  <a href="#vocabulario">📖 Vocabulario nuevo</a>
+  <a href="#conectar">🔌 Conectar CSS</a>
+  <a href="#selectores">🎯 Selectores</a>
+  <a href="#propiedades">🎨 Propiedades de color</a>
+  <a href="#laboratorio">🧪 Laboratorio en vivo</a>
+  <a href="#retos">🏆 Retos</a>
+  <a href="#resumen">📋 Resumen</a>
+</nav>
+
+<main>
+
+<div class="parte-badge">🎨 Fase 2 · Bloque 1 — CSS desde cero: selectores y colores</div>
+
+<section class="module" id="recordatorio">
+  <div class="module-header">
+    <div class="module-icon">🔁</div>
+    <div>
+      <div class="module-title">Antes de empezar: recordatorio rápido</div>
+      <div class="module-sub">Terminaste toda la Fase 1 — esto es lo que ya sabes construir</div>
+    </div>
+  </div>
+  <p>Ya sabes armar la estructura de una página con <code>&lt;section&gt;</code> y <code>&lt;div&gt;</code>, con títulos, párrafos, listas, enlaces e imágenes adentro. El problema: hasta ahora todo se ve "plano" — texto negro, sin colores ni espaciados. Eso es exactamente lo que CSS viene a resolver.</p>
+</section>
+
+<section class="module" id="vocabulario">
+  <div class="module-header">
+    <div class="module-icon">📖</div>
+    <div>
+      <div class="module-title">Vocabulario nuevo</div>
+      <div class="module-sub">Las palabras que vas a usar en cada línea de CSS</div>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <h4>🧠 Piénsalo así</h4>
+    <p>Si HTML es como los muebles de una casa (una mesa, una silla), CSS es la decoración: de qué color pintas cada mueble, qué tan grande lo haces, cuánto espacio dejas entre ellos. El mueble (HTML) sigue siendo el mismo — CSS solo cambia cómo se ve.</p>
+  </div>
+
+  <div class="glos">
+    <div class="glos-item">
+      <span class="emoji">🎯</span>
+      <dt>Selector</dt>
+      <dd>A QUÉ elemento de tu HTML le vas a aplicar el estilo</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🏷</span>
+      <dt>Propiedad</dt>
+      <dd>QUÉ característica vas a cambiar: color, tamaño, etc.</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🎨</span>
+      <dt>Valor</dt>
+      <dd>A qué cambia esa propiedad, ej. "azul" o "20px"</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">📏</span>
+      <dt>Regla CSS</dt>
+      <dd>El selector + sus propiedades y valores, todo junto</dd>
+    </div>
+  </div>
+</section>
+
+<section class="module" id="conectar">
+  <div class="module-header">
+    <div class="module-icon">🔌</div>
+    <div>
+      <div class="module-title">PARTE 1 — Cómo conectar CSS a tu HTML</div>
+      <div class="module-sub">La forma más simple: escribirlo directo en el head</div>
+    </div>
+  </div>
+
+  <p>Por ahora vamos a escribir el CSS dentro de una etiqueta <code>&lt;style&gt;</code>, colocada en el <code>&lt;head&gt;</code> de tu documento:</p>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="ct">&lt;head&gt;</span>
+  <span class="ct">&lt;meta</span> <span class="ca">charset</span>=<span class="cv">"UTF-8"</span><span class="ct">&gt;</span>
+  <span class="ct">&lt;title&gt;</span><span class="cs">Mi página</span><span class="ct">&lt;/title&gt;</span>
+  <span class="ct">&lt;style&gt;</span>
+    <span class="cc">/* aquí va todo tu CSS */</span>
+  <span class="ct">&lt;/style&gt;</span>
+<span class="ct">&lt;/head&gt;</span></div>
+
+  <table class="tbl">
+    <thead><tr><th>Etiqueta</th><th>¿Qué hace?</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">&lt;style&gt;</span></td><td>Todo lo que escribas adentro se interpreta como CSS, no como HTML. Va dentro del <code>&lt;head&gt;</code>.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="concept">
+    <h4>💡 ¿Y el archivo .css separado?</h4>
+    <p>Más adelante, cuando tus páginas crezcan, vas a mover el CSS a un archivo aparte (ej. <code>estilos.css</code>) y conectarlo con <code>&lt;link rel="stylesheet" href="estilos.css"&gt;</code>. Por ahora, usar <code>&lt;style&gt;</code> directo en el head es perfecto para aprender — es exactamente lo mismo, solo cambia dónde vive el código.</p>
+  </div>
+</section>
+
+<section class="module" id="selectores">
+  <div class="module-header">
+    <div class="module-icon">🎯</div>
+    <div>
+      <div class="module-title">PARTE 2 — Selectores básicos</div>
+      <div class="module-sub">Cómo le dices a CSS A QUÉ elemento le hablas</div>
+    </div>
+  </div>
+
+  <h2>Selector de etiqueta</h2>
+  <p>Le aplica el estilo a TODAS las etiquetas de ese tipo en la página:</p>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">p</span> <span class="ct">{</span>
+  <span class="ca">color</span>: <span class="cv">blue</span><span class="ct">;</span>
+<span class="ct">}</span></div>
+
+  <div class="anatomy">
+    <div class="anatomy-line"><span class="p1">p</span> { <span class="p2">color</span>: <span class="p3">blue</span>; }</div>
+    <div class="anatomy-labels">
+      <span class="l1">selector<br>(a quién)</span>
+      <span class="l2">propiedad<br>(qué cambio)</span>
+      <span class="l3">valor<br>(a qué)</span>
+    </div>
+  </div>
+
+  <table class="tbl">
+    <thead><tr><th>Parte</th><th>¿Qué hace?</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">p</span></td><td>El selector — dice "esto le aplica a TODOS los &lt;p&gt; de la página".</td></tr>
+      <tr><td><span class="tag">{ }</span></td><td>Las llaves envuelven todas las propiedades que le vas a dar a ese selector.</td></tr>
+      <tr><td><span class="tag">color: blue;</span></td><td>Una declaración: la propiedad <code>color</code> con el valor <code>blue</code>. Siempre termina en punto y coma.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Selector de clase</h2>
+  <p>Para aplicar un estilo solo a ALGUNOS elementos específicos, les pones una clase en el HTML:</p>
+
+  <div class="code-block"><span class="lang">HTML</span><span class="ct">&lt;p</span> <span class="ca">class</span>=<span class="cv">"destacado"</span><span class="ct">&gt;</span><span class="cs">Este párrafo es especial</span><span class="ct">&lt;/p&gt;</span></div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">.destacado</span> <span class="ct">{</span>
+  <span class="ca">color</span>: <span class="cv">red</span><span class="ct">;</span>
+<span class="ct">}</span></div>
+
+  <table class="tbl">
+    <thead><tr><th>Parte</th><th>¿Qué hace?</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">class="destacado"</span></td><td>En el HTML, le pones una etiqueta con nombre a un elemento específico.</td></tr>
+      <tr><td><span class="tag">.destacado</span></td><td>En el CSS, el PUNTO antes del nombre le dice a CSS "esto es una clase, no una etiqueta". Solo afecta a los elementos que tengan <code>class="destacado"</code>.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="warn">
+    <h4>⚠️ El punto no es opcional</h4>
+    <p>Si escribes <code>destacado { color: red; }</code> sin el punto, CSS va a buscar una etiqueta HTML llamada <code>&lt;destacado&gt;</code> (que no existe) y tu estilo simplemente no va a aplicar. El punto es lo que conecta con el atributo <code>class</code>.</p>
+  </div>
+</section>
+
+<section class="module" id="propiedades">
+  <div class="module-header">
+    <div class="module-icon">🎨</div>
+    <div>
+      <div class="module-title">PARTE 3 — Propiedades de color y tamaño</div>
+      <div class="module-sub">Las tres que más vas a usar al principio</div>
+    </div>
+  </div>
+
+  <div class="code-block"><span class="lang">CSS</span><span class="cp">h1</span> <span class="ct">{</span>
+  <span class="ca">color</span>: <span class="cv">#4338ca</span><span class="ct">;</span>
+  <span class="ca">background-color</span>: <span class="cv">#eef0fd</span><span class="ct">;</span>
+  <span class="ca">font-size</span>: <span class="cv">32px</span><span class="ct">;</span>
+<span class="ct">}</span></div>
+
+  <table class="tbl">
+    <thead><tr><th>Propiedad</th><th>¿Qué controla?</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">color</span></td><td>El color del TEXTO.</td></tr>
+      <tr><td><span class="tag">background-color</span></td><td>El color de FONDO detrás del elemento.</td></tr>
+      <tr><td><span class="tag">font-size</span></td><td>El tamaño de la letra. <code>px</code> significa "píxeles", una unidad fija.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="tip">
+    <h4>💡 Formas de escribir un color</h4>
+    <ul>
+      <li><strong>Por nombre:</strong> <code>blue</code>, <code>red</code>, <code>tomato</code> — fácil de leer, pocas opciones.</li>
+      <li><strong>Por código hexadecimal:</strong> <code>#4338ca</code> — el símbolo <code>#</code> seguido de 6 caracteres. Te da control exacto sobre el color. Es el que más vas a usar en proyectos reales.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="module" id="laboratorio">
+  <div class="module-header">
+    <div class="module-icon">🧪</div>
+    <div>
+      <div class="module-title">PARTE 4 — Laboratorio en vivo</div>
+      <div class="module-sub">Ahora tienes DOS cajas de código: tu HTML y tu CSS por separado</div>
+    </div>
+  </div>
+
+  <p class="lab-intro">Ya tienes tu HTML de la Fase 1 cargado (no lo vas a tocar) y una caja de CSS vacía debajo. Escribe reglas de CSS ahí y mira cómo tu página cambia al instante en el resultado.</p>
+
+  <div class="lab-holder">
+    <div class="lab-stack">
+      <div class="lab-panel">
+        <div class="lab-panel-label">📄 TU HTML (fijo, no se edita)</div>
+        <textarea id="labHtml" class="short" spellcheck="false" readonly></textarea>
+      </div>
+      <div class="lab-panel">
+        <div class="lab-panel-label">🎨 TU CSS (edítalo aquí)</div>
+        <textarea id="labCss" class="short" spellcheck="false"></textarea>
+      </div>
+    </div>
+    <div class="lab-panel">
+      <div class="lab-preview-label">🖥 RESULTADO EN VIVO</div>
+      <div class="lab-preview"><iframe id="labFrame" style="height:100%; min-height:440px;"></iframe></div>
+    </div>
+  </div>
+
+  <p style="margin-top:1rem; font-size:.85rem; color:var(--muted); font-weight:600;">Prueba agregar estas reglas de CSS y observa qué cambia:</p>
+  <div class="lab-try-row">
+    <button onclick="labAdd('body {\n  background-color: #fdf3e5;\n}')">+ color de fondo a toda la página</button>
+    <button onclick="labAdd('a {\n  color: tomato;\n}')">+ color a todos los enlaces</button>
+    <button onclick="labAdd('.destacado {\n  background-color: yellow;\n}')">+ estilo a .destacado</button>
+    <button onclick="labAdd('h2 {\n  font-size: 40px;\n}')">+ h2 gigante (mira qué tan grande)</button>
+  </div>
+  <button class="lab-reset" onclick="labReset()">↺ Restaurar código original</button>
+
+  <div class="tip" style="margin-top:1.25rem">
+    <h4>💡 Qué observar</h4>
+    <ul>
+      <li>El botón de <code>.destacado</code> solo va a funcionar si ese elemento existe con esa clase en el HTML — fíjate que ya está puesta en uno de los párrafos.</li>
+      <li>Si escribes mal una propiedad (ej. <code>colorr</code> en vez de <code>color</code>), CSS no da error visible — simplemente ignora esa línea. Por eso hay que revisar con calma si algo "no hace nada".</li>
+    </ul>
+  </div>
+</section>
+
+<section class="module" id="retos">
+  <div class="module-header">
+    <div class="module-icon">🏆</div>
+    <div>
+      <div class="module-title">PARTE 5 — Retos para practicar</div>
+      <div class="module-sub">Resuélvelos directo en el laboratorio de arriba</div>
+    </div>
+  </div>
+
+  <div class="reto-grid">
+    <div class="reto-card">
+      <span class="nivel nivel-f">🟡 Fácil</span>
+      <h4>Reto 1 — Colorea tus títulos</h4>
+      <p>Dale un <code>color</code> distinto a <code>h1</code> y a <code>h2</code>, y un <code>background-color</code> a <code>body</code>.</p>
+    </div>
+    <div class="reto-card">
+      <span class="nivel nivel-m">🟠 Medio</span>
+      <h4>Reto 2 — Usa una clase</h4>
+      <p>En tu HTML, agrégale <code>class="importante"</code> a uno de tus párrafos, y en el CSS créale una regla <code>.importante</code> con color y tamaño de letra distintos.</p>
+    </div>
+    <div class="reto-card">
+      <span class="nivel nivel-a">🔴 Avanzado</span>
+      <h4>Reto 3 — Encuentra el error a propósito</h4>
+      <p>Escribe una regla CSS con la propiedad mal escrita (ej. <code>colr</code> en vez de <code>color</code>). Confirma que no pasa nada visualmente, y explica con tus palabras por qué CSS no te avisa del error como sí lo hace JavaScript.</p>
+    </div>
+  </div>
+</section>
+
+<section class="module" id="resumen">
+  <div class="module-header">
+    <div class="module-icon">📋</div>
+    <div>
+      <div class="module-title">Resumen: lo que aprendiste en este bloque</div>
+      <div class="module-sub">Todo en un vistazo</div>
+    </div>
+  </div>
+
+  <div>
+    <span class="chip">&lt;style&gt;</span>
+    <span class="chip">selector { propiedad: valor; }</span>
+    <span class="chip">p</span>
+    <span class="chip">.clase</span>
+    <span class="chip">color</span>
+    <span class="chip">background-color</span>
+    <span class="chip">font-size</span>
+  </div>
+
+  <div class="concept" style="margin-top:1.5rem">
+    <h4>💡 ¿Qué sigue?</h4>
+    <p>En el <strong>Bloque 2</strong> vamos a aprender el <strong>modelo de caja</strong> (box model): márgenes, padding y bordes — con eso vas a poder controlar el espacio alrededor de cada elemento, no solo su color.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Fase 2 · Bloque 1 — Selectores y Colores · CSS desde cero · Jacqui 2026
+</footer>
+
+<script>
+const STARTER_HTML = `<section>
+  <h1>Hola, soy Jacqui</h1>
+  <p class="destacado">Estoy aprendiendo a programar desde cero.</p>
+</section>
+
+<section>
+  <h2>Mis bebidas favoritas</h2>
+  <ul>
+    <li>Café</li>
+    <li>Té</li>
+  </ul>
+  <a href="https://www.google.com">Ir a Google</a>
+</section>`;
+
+const STARTER_CSS = `h1 {
+  color: #4338ca;
+}`;
+
+function renderLab() {
+  const html = document.getElementById('labHtml').value;
+  const css = document.getElementById('labCss').value;
+  const doc = '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{font-family:sans-serif;padding:16px;color:#16211d;line-height:1.6}' + css + '</style></head><body>' + html + '</body></html>';
+  document.getElementById('labFrame').srcdoc = doc;
+}
+
+function labAdd(snippet) {
+  const ta = document.getElementById('labCss');
+  ta.value = ta.value + '\n\n' + snippet;
+  renderLab();
+}
+
+function labReset() {
+  document.getElementById('labHtml').value = STARTER_HTML;
+  document.getElementById('labCss').value = STARTER_CSS;
+  renderLab();
+}
+
+document.getElementById('labHtml').value = STARTER_HTML;
+document.getElementById('labCss').value = STARTER_CSS;
+document.getElementById('labCss').addEventListener('input', renderLab);
+renderLab();
+</script>
+
+</body>
+</html>
