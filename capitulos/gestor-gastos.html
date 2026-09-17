@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestor de Gastos — Proyecto final</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --primary: #0f766e;
+    --primary-light: #e6f5f3;
+    --secondary: #b45309;
+    --bg: #f5f7f6;
+    --surface: #ffffff;
+    --text: #14231f;
+    --muted: #6b7f7a;
+    --border: #dce8e5;
+    --danger: #b91c1c;
+    --recurrente: #7c3aed;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; justify-content: center; padding: 3rem 1.25rem; }
+  .app { width: 100%; max-width: 640px; }
+  .app-header { text-align: center; margin-bottom: 1.75rem; }
+  .app-header h1 { font-family: 'Space Grotesk', sans-serif; font-size: 1.9rem; color: var(--primary); }
+  .app-header p { color: var(--muted); font-size: .92rem; margin-top: .3rem; }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.1rem; margin-bottom: 1rem; }
+
+  .form-row { display: grid; grid-template-columns: 2fr 1fr; gap: 8px; margin-bottom: 8px; }
+  .form-row.dos { grid-template-columns: 1fr 1fr; }
+  .form-row input, .form-row select { padding: 11px 12px; border-radius: 10px; border: 1px solid var(--border); font-family: 'DM Sans', sans-serif; font-size: .92rem; background: var(--bg); width: 100%; }
+  .form-row input:focus, .form-row select:focus { outline: 2px solid var(--primary); background: var(--surface); }
+
+  .check-recurrente { display: flex; align-items: center; gap: 8px; font-size: .85rem; color: var(--muted); margin-bottom: 10px; }
+
+  .btn-agregar { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: .95rem; width: 100%; }
+  .btn-agregar:hover { opacity: .92; }
+
+  .error-msg { background: #fef2f2; border: 1px solid #fecaca; color: var(--danger); padding: 8px 12px; border-radius: 8px; font-size: .85rem; margin-bottom: 8px; display: none; }
+  .error-msg.visible { display: block; }
+
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 1rem; }
+  .stat-box { background: var(--primary); color: white; border-radius: 12px; padding: .9rem; }
+  .stat-box.alt { background: var(--secondary); }
+  .stat-box .label { font-size: .72rem; opacity: .85; text-transform: uppercase; letter-spacing: .04em; }
+  .stat-box .valor { font-family: 'DM Mono', monospace; font-size: 1.3rem; margin-top: 2px; }
+
+  .cats-resumen { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 1rem; }
+  .cat-chip { font-size: .78rem; background: var(--primary-light); color: var(--primary); border-radius: 999px; padding: 5px 12px; font-family: 'DM Mono', monospace; }
+
+  .filtro-row { display: flex; gap: 8px; margin-bottom: .8rem; }
+  .filtro-row select { flex: 1; padding: 9px 10px; border-radius: 10px; border: 1px solid var(--border); font-size: .88rem; background: var(--surface); }
+
+  ul.gastos { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  ul.gastos li { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--primary); border-radius: 10px; padding: 12px 14px; display: flex; align-items: center; gap: 10px; }
+  ul.gastos li.recurrente { border-left-color: var(--recurrente); }
+  ul.gastos li .info { flex: 1; }
+  ul.gastos li .desc { font-size: .95rem; font-weight: 500; }
+  ul.gastos li .meta { font-size: .78rem; color: var(--muted); margin-top: 2px; }
+  ul.gastos li .monto { font-family: 'DM Mono', monospace; font-weight: 700; color: var(--text); font-size: .95rem; }
+  ul.gastos li .del { background: none; border: none; color: var(--danger); font-size: 1.1rem; cursor: pointer; line-height: 1; opacity: .55; padding: 0 4px; }
+  ul.gastos li .del:hover { opacity: 1; }
+
+  .empty { text-align: center; color: var(--muted); font-size: .9rem; padding: 2rem 0; }
+  .footer-note { text-align: center; margin-top: 1.5rem; font-size: .78rem; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="app-header">
+    <h1>💰 Gestor de Gastos</h1>
+    <p>Tu proyecto final — clases, herencia, try/catch, map/filter/reduce y más, trabajando juntos</p>
+  </div>
+
+  <div class="card">
+    <div id="errorMsg" class="error-msg"></div>
+
+    <div class="form-row">
+      <input type="text" id="inputDesc" placeholder="¿En qué gastaste?">
+      <input type="number" id="inputMonto" placeholder="Monto" step="0.01">
+    </div>
+    <div class="form-row dos">
+      <select id="inputCategoria">
+        <option value="Comida">🍔 Comida</option>
+        <option value="Transporte">🚗 Transporte</option>
+        <option value="Entretenimiento">🎮 Entretenimiento</option>
+        <option value="Servicios">💡 Servicios</option>
+        <option value="Otros">📦 Otros</option>
+      </select>
+      <input type="date" id="inputFecha">
+    </div>
+    <label class="check-recurrente">
+      <input type="checkbox" id="inputRecurrente">
+      🔁 Es un gasto recurrente (suscripción, renta, etc.)
+    </label>
+    <button class="btn-agregar" id="btnAgregar">Agregar gasto</button>
+  </div>
+
+  <div class="stats">
+    <div class="stat-box">
+      <div class="label">Total (filtro actual)</div>
+      <div class="valor" id="statTotal">$0.00</div>
+    </div>
+    <div class="stat-box alt">
+      <div class="label">Cantidad de gastos</div>
+      <div class="valor" id="statCantidad">0</div>
+    </div>
+  </div>
+
+  <div class="cats-resumen" id="catsResumen"></div>
+
+  <div class="filtro-row">
+    <select id="filtroCategoria">
+      <option value="todas">Todas las categorías</option>
+      <option value="Comida">🍔 Comida</option>
+      <option value="Transporte">🚗 Transporte</option>
+      <option value="Entretenimiento">🎮 Entretenimiento</option>
+      <option value="Servicios">💡 Servicios</option>
+      <option value="Otros">📦 Otros</option>
+    </select>
+  </div>
+
+  <ul class="gastos" id="listaGastos"></ul>
+
+  <p class="footer-note">Tus gastos se guardan solos en este navegador — ciérralo y vuelve a abrirlo, seguirán aquí.</p>
+</div>
+
+<script>
+/* ================================================================
+   MÓDULO: DATOS
+   (En un proyecto grande esto viviría en su propio archivo,
+   por ejemplo "datos.js", y se importaría con "import { Gasto,
+   GastoRecurrente } from './datos.js'". Aquí, para mantenerlo en
+   un solo archivo, lo separamos igual con comentarios — la idea
+   es la misma: cada módulo tiene una responsabilidad clara.)
+   ================================================================ */
+
+// ---- Clase base: un gasto normal ----
+class Gasto {
+  constructor(descripcion, monto, categoria, fecha) {
+    this.descripcion = descripcion;
+    this.monto = monto;
+    this.categoria = categoria;
+    this.fecha = fecha;
+    this.tipo = "normal";
+  }
+
+  // Método que arma el texto secundario ("meta") de cada tarjeta
+  etiqueta() {
+    return `${this.categoria} · ${this.fecha}`;
+  }
+}
+
+// ---- Clase que HEREDA de Gasto: un gasto recurrente ----
+// "extends" dice "GastoRecurrente ES UN Gasto, pero con algo extra".
+class GastoRecurrente extends Gasto {
+  constructor(descripcion, monto, categoria, fecha) {
+    super(descripcion, monto, categoria, fecha); // llama al constructor de Gasto
+    this.tipo = "recurrente";
+  }
+
+  // Sobreescribimos etiqueta() para agregar el ícono de recurrente,
+  // pero reutilizamos la versión original con super.etiqueta()
+  etiqueta() {
+    return `🔁 Recurrente · ${super.etiqueta()}`;
+  }
+}
+
+// ---- Guardar y cargar desde localStorage ----
+// JSON.parse nos devuelve objetos "planos" (sin las clases de arriba),
+// así que los reconstruimos como Gasto o GastoRecurrente según su tipo.
+function cargarGastos() {
+  try {
+    const guardado = localStorage.getItem("gastos");
+    if (!guardado) return [];
+
+    const datos = JSON.parse(guardado);
+
+    return datos.map(function (g) {
+      // Destructuring: sacamos las propiedades que necesitamos
+      const { descripcion, monto, categoria, fecha, tipo } = g;
+
+      if (tipo === "recurrente") {
+        return new GastoRecurrente(descripcion, monto, categoria, fecha);
+      }
+      return new Gasto(descripcion, monto, categoria, fecha);
+    });
+  } catch (error) {
+    console.error("No se pudieron cargar los gastos guardados:", error);
+    return [];
+  }
+}
+
+function guardarGastos(gastos) {
+  try {
+    localStorage.setItem("gastos", JSON.stringify(gastos));
+  } catch (error) {
+    console.error("No se pudieron guardar los gastos:", error);
+  }
+}
+
+
+/* ================================================================
+   MÓDULO: UTILIDADES
+   (Este sería un "utils.js" aparte en un proyecto real — funciones
+   pequeñas y reutilizables que no dependen de la pantalla.)
+   ================================================================ */
+
+function formatoMoneda(numero) {
+  return "$" + numero.toFixed(2);
+}
+
+// reduce: suma todos los montos en un solo número
+function calcularTotal(gastos) {
+  return gastos.reduce(function (acumulado, gasto) {
+    return acumulado + gasto.monto;
+  }, 0);
+}
+
+// reduce: arma un objeto { Comida: 120, Transporte: 40, ... }
+function totalPorCategoria(gastos) {
+  return gastos.reduce(function (acumulado, gasto) {
+    const categoriaActual = acumulado[gasto.categoria] || 0;
+    acumulado[gasto.categoria] = categoriaActual + gasto.monto;
+    return acumulado;
+  }, {});
+}
+
+
+/* ================================================================
+   MÓDULO: INTERFAZ (UI)
+   (El "main.js" — conecta los datos y utilidades con la pantalla.)
+   ================================================================ */
+
+let gastos = cargarGastos();
+
+const lista = document.querySelector("#listaGastos");
+const errorMsg = document.querySelector("#errorMsg");
+const statTotal = document.querySelector("#statTotal");
+const statCantidad = document.querySelector("#statCantidad");
+const catsResumen = document.querySelector("#catsResumen");
+const filtroCategoria = document.querySelector("#filtroCategoria");
+
+const inputDesc = document.querySelector("#inputDesc");
+const inputMonto = document.querySelector("#inputMonto");
+const inputCategoria = document.querySelector("#inputCategoria");
+const inputFecha = document.querySelector("#inputFecha");
+const inputRecurrente = document.querySelector("#inputRecurrente");
+
+// Fecha de hoy como valor inicial del campo fecha
+inputFecha.value = new Date().toISOString().split("T")[0];
+
+function mostrarError(mensaje) {
+  errorMsg.textContent = "⚠️ " + mensaje;
+  errorMsg.classList.add("visible");
+}
+
+function limpiarError() {
+  errorMsg.classList.remove("visible");
+}
+
+function render() {
+  // filter: solo los gastos de la categoría elegida (o todas)
+  const categoriaElegida = filtroCategoria.value;
+  const gastosFiltrados = gastos.filter(function (g) {
+    return categoriaElegida === "todas" || g.categoria === categoriaElegida;
+  });
+
+  // map: de la lista filtrada, solo nos quedamos con los montos
+  const montos = gastosFiltrados.map(function (g) { return g.monto; });
+
+  lista.innerHTML = "";
+
+  if (gastosFiltrados.length === 0) {
+    lista.innerHTML = '<p class="empty">No hay gastos en esta categoría todavía. ¡Agrega uno arriba! 🎉</p>';
+  }
+
+  gastosFiltrados.forEach(function (gasto, index) {
+    // Destructuring: sacamos lo que necesitamos para pintar la tarjeta
+    const { descripcion, monto } = gasto;
+
+    const li = document.createElement("li");
+    if (gasto.tipo === "recurrente") li.classList.add("recurrente");
+
+    const info = document.createElement("div");
+    info.className = "info";
+    info.innerHTML = `<div class="desc">${descripcion}</div><div class="meta">${gasto.etiqueta()}</div>`;
+
+    const montoSpan = document.createElement("span");
+    montoSpan.className = "monto";
+    montoSpan.textContent = formatoMoneda(monto);
+
+    const del = document.createElement("button");
+    del.className = "del";
+    del.textContent = "✕";
+    del.addEventListener("click", function () {
+      // encontramos el gasto real (no el filtrado) y lo quitamos
+      const indiceReal = gastos.indexOf(gasto);
+      gastos = gastos.filter(function (_, i) { return i !== indiceReal; });
+      guardarGastos(gastos);
+      render();
+    });
+
+    li.appendChild(info);
+    li.appendChild(montoSpan);
+    li.appendChild(del);
+    lista.appendChild(li);
+  });
+
+  // reduce, sobre los montos ya filtrados con map
+  const total = montos.reduce(function (acc, m) { return acc + m; }, 0);
+  statTotal.textContent = formatoMoneda(total);
+  statCantidad.textContent = gastosFiltrados.length;
+
+  // Resumen por categoría (sobre TODOS los gastos, no solo los filtrados)
+  const porCategoria = totalPorCategoria(gastos);
+  catsResumen.innerHTML = "";
+  Object.entries(porCategoria).forEach(function ([categoria, monto]) {
+    const chip = document.createElement("span");
+    chip.className = "cat-chip";
+    chip.textContent = `${categoria}: ${formatoMoneda(monto)}`;
+    catsResumen.appendChild(chip);
+  });
+}
+
+function agregarGasto() {
+  limpiarError();
+
+  try {
+    // Spread para armar un objeto con los valores crudos del formulario
+    const valoresForm = {
+      descripcion: inputDesc.value.trim(),
+      monto: parseFloat(inputMonto.value),
+      categoria: inputCategoria.value,
+      fecha: inputFecha.value
+    };
+    const { descripcion, monto, categoria, fecha } = valoresForm;
+
+    if (descripcion === "") {
+      throw new Error("Escribe en qué gastaste.");
+    }
+    if (isNaN(monto) || monto <= 0) {
+      throw new Error("El monto debe ser un número mayor a cero.");
+    }
+    if (fecha === "") {
+      throw new Error("Elige una fecha.");
+    }
+
+    const nuevoGasto = inputRecurrente.checked
+      ? new GastoRecurrente(descripcion, monto, categoria, fecha)
+      : new Gasto(descripcion, monto, categoria, fecha);
+
+    // spread: creamos un array nuevo en vez de modificar el original
+    gastos = [...gastos, nuevoGasto];
+    guardarGastos(gastos);
+
+    inputDesc.value = "";
+    inputMonto.value = "";
+    inputRecurrente.checked = false;
+
+    render();
+  } catch (error) {
+    mostrarError(error.message);
+  }
+}
+
+document.querySelector("#btnAgregar").addEventListener("click", agregarGasto);
+inputMonto.addEventListener("keydown", function (evento) {
+  if (evento.key === "Enter") agregarGasto();
+});
+filtroCategoria.addEventListener("change", render);
+
+render();
+</script>
+
+</body>
+</html>

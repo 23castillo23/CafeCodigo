@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Fase 5, Bloque 2 — JavaScript: clases y POO, con instanciador interactivo.">
+<title>Bloque 2 — Clases (POO) | Manejo de Errores y más</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #b91c1c;
+    --primary-light:  #fdf0f0;
+    --secondary:      #0f766e;
+    --secondary-light:#eafaf7;
+    --accent:         #b45309;
+    --accent-light:   #fdf3e5;
+    --danger:         #b91c1c;
+    --danger-light:   #fdf0f0;
+    --bg:             #faf6f5;
+    --surface:        #ffffff;
+    --text:           #241818;
+    --muted:          #8c7a7a;
+    --border:         #f0e2e2;
+    --code-bg:        #241818;
+    --code-text:      #f8ecec;
+  }
+
+  body { font-family: 'DM Sans', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  .cafe-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; gap: 14px; position: sticky; top: 0; z-index: 200; height: 45px; }
+  .cafe-bar a { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); text-decoration: none; padding: 6px 14px; border: 1px solid var(--border); border-radius: 999px; transition: all 0.15s; }
+  .cafe-bar a:hover { color: var(--text); border-color: var(--muted); }
+  .cafe-bar span { font-size: 13px; color: var(--muted); }
+
+  header { background: #241818; color: #faf6f5; padding: 3rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: '⬡'; position: absolute; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 10rem; right: -.5rem; top: -2rem; opacity: .08; line-height: 1; }
+  header .ex-label { display: inline-block; background: var(--primary); color: white; border-radius: 20px; padding: 4px 16px; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 1rem; }
+  header h1 { font-family: 'Space Grotesk', sans-serif; font-size: 2.4rem; font-weight: 700; letter-spacing: -1px; }
+  header p.sub { font-size: 1.05rem; opacity: .8; margin-top: .5rem; font-style: italic; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  .course-nav { background: #150a0a; display: flex; overflow-x: auto; gap: 6px; padding: 10px 14px; align-items: center; }
+  .course-nav a { flex-shrink: 0; font-family: 'DM Mono', monospace; font-size: .74rem; font-weight: 700; color: #c9a9a9; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 14px; padding: 5px 11px; text-decoration: none; white-space: nowrap; transition: background .15s, color .15s; }
+  .course-nav a:hover { background: rgba(255,255,255,.14); color: #fff; }
+  .course-nav a.current { background: var(--primary); color: white; border-color: var(--primary); }
+
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 45px; z-index: 100; display: flex; overflow-x: auto; gap: 0; }
+  nav a { flex-shrink: 0; padding: .75rem 1.1rem; text-decoration: none; color: var(--muted); font-size: .82rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: white; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2.5rem; scroll-margin-top:100px; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.3rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  .analogy { background: #FFF7ED; border: 1px solid #FDE68A; border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: #92400E; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; color: #78350F; }
+
+  .concept { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+
+  .tip { background: var(--accent-light); border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--accent); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p, .tip ul { font-size: .95rem; }
+  .tip ul { padding-left: 1.2rem; }
+  .tip li { margin-bottom: .3rem; }
+
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  .code-block { background: var(--code-bg); color: var(--code-text); border-radius: 10px; padding: 1.25rem 1.5rem; font-family: 'DM Mono', 'Courier New', monospace; font-size: .88rem; line-height: 1.9; overflow-x: auto; margin: 1rem 0; position: relative; white-space: pre; }
+  .code-block .ck { color: #c4b5fd; }
+  .code-block .cv { color: #86efac; }
+  .code-block .cs { color: #fde68a; }
+  .code-block .cn { color: #93c5fd; }
+  .code-block .cf { color: #67e8f9; }
+  .code-block .cc { color: #9a8787; font-style: italic; }
+  .code-block .co { color: #f8ecec; }
+  .code-block .th { color: #fca5a5; }
+  .lang { position: absolute; top: .6rem; right: .75rem; background: rgba(255,255,255,.1); color: rgba(255,255,255,.5); font-size: .68rem; padding: 2px 8px; border-radius: 4px; font-family: sans-serif; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  .glos { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .glos-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; }
+  .glos-item dt { font-weight: 700; color: var(--primary); font-size: .92rem; margin-bottom: .3rem; }
+  .glos-item dd { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+  .glos-item .emoji { font-size: 1.4rem; display: block; margin-bottom: .4rem; }
+
+  /* INSTANCIADOR EN VIVO */
+  .instance-wrap { border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; background: var(--bg); margin: 1.1rem 0; }
+  .instance-form { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 1rem; }
+  .instance-form .fin { flex: 1; min-width: 120px; }
+  .instance-form label { display: block; font-family: 'DM Mono', monospace; font-size: .74rem; font-weight: 700; margin-bottom: .3rem; }
+  .instance-form input { width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); font-family: 'DM Mono', monospace; font-size: .85rem; }
+  .instance-form button { align-self: flex-end; background: var(--primary); color: white; border: none; padding: 9px 18px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: .85rem; }
+  .instance-list { display: flex; flex-direction: column; gap: 8px; }
+  .instance-card { background: var(--surface); border: 2px solid var(--secondary); border-radius: 10px; padding: 10px 14px; font-family: 'DM Mono', monospace; font-size: .85rem; }
+  .instance-card .icard-title { font-weight: 700; color: var(--secondary); margin-bottom: 4px; }
+  .instance-card button { background: none; border: none; color: var(--danger); cursor: pointer; float: right; font-size: .9rem; }
+
+  .console-wrap { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin: 1rem 0; }
+  .console-editor-label, .console-output-label { background: #241818; color: #f8ecec; font-family: 'DM Mono', monospace; font-size: .72rem; padding: 6px 12px; letter-spacing: .04em; display: flex; justify-content: space-between; align-items: center; }
+  .console-wrap textarea { width: 100%; height: 230px; border: none; resize: vertical; background: var(--code-bg); color: var(--code-text); font-family: 'DM Mono', monospace; font-size: .87rem; line-height: 1.7; padding: 1rem; outline: none; border-bottom: 1px solid #3d2424; }
+  .run-btn { background: var(--primary); color: white; border: none; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: .76rem; padding: 4px 12px; border-radius: 20px; cursor: pointer; }
+  .console-output { background: #180c0c; min-height: 90px; padding: 1rem; font-family: 'DM Mono', monospace; font-size: .85rem; }
+  .console-line { color: #86efac; padding: 2px 0; }
+  .console-line.error { color: #fca5a5; }
+  .console-line.muted { color: #6b6060; font-style: italic; }
+
+  .lab-try-row { display: flex; flex-wrap: wrap; gap: 8px; margin: .9rem 0; }
+  .lab-try-row button { font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: .8rem; cursor: pointer; padding: 7px 14px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface); color: var(--text); }
+  .lab-try-row button:hover { border-color: var(--primary); color: var(--primary); }
+  .lab-reset { display: block; margin-top: .7rem; font-size: .78rem; color: var(--muted); background: none; border: none; text-decoration: underline; cursor: pointer; padding: 0; }
+
+  .reto-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin: 1.25rem 0; }
+  .reto-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+  .reto-card .nivel { display: inline-block; font-size: .72rem; font-weight: 700; padding: 2px 10px; border-radius: 20px; margin-bottom: .6rem; text-transform: uppercase; letter-spacing: .06em; }
+  .nivel-f { background: #FEF3C7; color: #92400E; }
+  .nivel-m { background: #FFEDD5; color: #C2410C; }
+  .nivel-a { background: #FEE2E2; color: #B91C1C; }
+  .reto-card h4 { font-size: .95rem; font-weight: 700; margin-bottom: .5rem; }
+  .reto-card p { font-size: .88rem; color: var(--muted); margin-bottom: .5rem; }
+
+  .chip { display: inline-block; background: var(--primary-light); color: var(--primary); font-size: .8rem; padding: 3px 12px; border-radius: 20px; font-weight: 600; margin: 3px; font-family: 'DM Mono', monospace; }
+
+  h2 { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; color: var(--text); }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: #f5e7e7; color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  strong { font-weight: 700; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); }
+</style>
+</head>
+<body>
+
+<!-- BARRA CAFÉ -->
+<div class="cafe-bar">
+  <a href="../capitulos.html">← Capítulos</a>
+  <span>☕ Fase 5 · Bloque 2 · Clases (POO)</span>
+</div>
+
+<header>
+  <div class="ex-label">✏️ Fase 5 · Bloque 2</div>
+  <h1>Clases (POO)</h1>
+  <p class="sub">Un molde para crear muchos objetos parecidos</p>
+  <span class="badge">🎯 JavaScript · class · constructor · this · new</span>
+</header>
+
+<div class="course-nav">
+  <a href="fase1-bloque1-estructura-texto.html">F1.1</a>
+  <a href="fase1-bloque2-listas-enlaces-imagenes.html">F1.2</a>
+  <a href="fase1-bloque3-div-section.html">F1.3</a>
+  <a href="fase2-bloque1-selectores-colores.html">F2.1</a>
+  <a href="fase2-bloque2-espaciado-cajas.html">F2.2</a>
+  <a href="fase2-bloque3-id-flexbox-responsive.html">F2.3</a>
+  <a href="fase3-bloque1-variables-tipos.html">F3.1</a>
+  <a href="fase3-bloque2-operadores-condicionales.html">F3.2</a>
+  <a href="fase3-bloque3-bucles.html">F3.3</a>
+  <a href="fase3-bloque4-funciones.html">F3.4</a>
+  <a href="fase3-bloque5-arreglos-objetos.html">F3.5</a>
+  <a href="fase3-bloque6-dom.html">F3.6</a>
+  <a href="fase3-bloque7-formularios-validacion.html">F3.7</a>
+  <a href="fase3-bloque8-async-apis.html">F3.8</a>  
+  <a href="fase4-bloque1-arrow-template-literals.html">F4.1</a>
+  <a href="fase4-bloque2-map-filter-reduce.html">F4.2</a>
+  <a href="fase4-bloque3-destructuring-spread.html">F4.3</a>
+  <a href="fase5-bloque1-try-catch.html">F5.1</a>
+  <a href="fase5-bloque2-clases-poo.html" class="current">F5.2</a>  
+  <a href="fase5-bloque3-herencia-extends.html">F5.3</a>
+  <a href="fase5-bloque4-modulos.html">F5.4</a>
+  <a href="mi-lista-de-tareas.html">🏁 Proyecto</a>
+</div>
+
+<nav>
+  <a href="#recordatorio">🔁 Recordatorio</a>
+  <a href="#vocabulario">📖 Vocabulario nuevo</a>
+  <a href="#class">⬡ class y constructor</a>
+  <a href="#instanciador">🏭 Instanciador en vivo</a>
+  <a href="#metodos">⚙️ Métodos</a>
+  <a href="#consola">🧪 Consola en vivo</a>
+  <a href="#retos">🏆 Retos</a>
+  <a href="#resumen">📋 Resumen</a>
+</nav>
+
+<main>
+
+<div class="parte-badge">⬡ Fase 5 · Bloque 2 — JavaScript: clases (POO)</div>
+
+<section class="module" id="recordatorio">
+  <div class="module-header">
+    <div class="module-icon">🔁</div>
+    <div>
+      <div class="module-title">Antes de empezar: recordatorio rápido</div>
+      <div class="module-sub">Lo que ya sabes de objetos</div>
+    </div>
+  </div>
+  <p>Ya sabes crear un objeto directo: <code>{ nombre: "Jacqui", edad: 25 }</code>. El problema es que, si necesitas crear 50 objetos "tarea" o "usuario" parecidos, escribirlos uno por uno a mano es repetitivo y propenso a errores. Una <strong>clase</strong> es un molde: la defines UNA vez, y después creas tantos objetos como quieras a partir de ella.</p>
+</section>
+
+<section class="module" id="vocabulario">
+  <div class="module-header">
+    <div class="module-icon">📖</div>
+    <div>
+      <div class="module-title">Vocabulario nuevo</div>
+      <div class="module-sub">Cuatro palabras que definen la POO</div>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <h4>🧠 Piénsalo así</h4>
+    <p>Una <strong>clase</strong> es como el molde de las galletas: define la FORMA (qué propiedades va a tener toda galleta: sabor, tamaño). Cada galleta que sacas del molde es una <strong>instancia</strong> — todas comparten la misma forma, pero cada una puede tener su propio sabor.</p>
+  </div>
+
+  <div class="glos">
+    <div class="glos-item">
+      <span class="emoji">⬡</span>
+      <dt>class</dt>
+      <dd>El molde: define qué propiedades y comportamientos va a tener cada objeto</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🏭</span>
+      <dt>Instancia</dt>
+      <dd>Un objeto concreto creado a partir de la clase, con <code>new</code></dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🛠</span>
+      <dt>constructor</dt>
+      <dd>El método especial que se ejecuta al crear cada instancia nueva</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">👉</span>
+      <dt>this</dt>
+      <dd>"Esta instancia en concreto" — se refiere al objeto que se está creando o usando</dd>
+    </div>
+  </div>
+</section>
+
+<section class="module" id="class">
+  <div class="module-header">
+    <div class="module-icon">⬡</div>
+    <div>
+      <div class="module-title">PARTE 1 — class y constructor</div>
+      <div class="module-sub">La sintaxis básica</div>
+    </div>
+  </div>
+
+  <div class="code-block"><span class="lang">JS</span><span class="ck">class</span> <span class="cf">Tarea</span> <span class="co">{</span>
+  <span class="cf">constructor</span><span class="co">(</span><span class="cv">texto</span><span class="co">) {</span>
+    <span class="th">this</span><span class="co">.</span><span class="cf">texto</span> <span class="co">=</span> <span class="cv">texto</span><span class="co">;</span>
+    <span class="th">this</span><span class="co">.</span><span class="cf">completada</span> <span class="co">=</span> <span class="cb">false</span><span class="co">;</span>
+  <span class="co">}</span>
+<span class="co">}</span>
+
+<span class="ck">const</span> <span class="cv">t1</span> <span class="co">=</span> <span class="ck">new</span> <span class="cf">Tarea</span><span class="co">(</span><span class="cs">"Estudiar JS"</span><span class="co">);</span>
+<span class="cf">console.log</span><span class="co">(</span><span class="cv">t1</span><span class="co">.</span><span class="cf">texto</span><span class="co">);</span> <span class="cc">// "Estudiar JS"</span></div>
+
+  <table class="tbl">
+    <thead><tr><th>Parte</th><th>¿Qué hace?</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">class Tarea</span></td><td>Define el molde. Por convención, el nombre de una clase empieza con MAYÚSCULA.</td></tr>
+      <tr><td><span class="tag">constructor(texto)</span></td><td>Se ejecuta automáticamente cada vez que creas una instancia nueva — recibe los datos iniciales.</td></tr>
+      <tr><td><span class="tag">this.texto = texto</span></td><td><code>this</code> es "esta tarea en particular". Le está diciendo: "guarda el parámetro <code>texto</code> como una propiedad DE ESTA instancia".</td></tr>
+      <tr><td><span class="tag">new Tarea("...")</span></td><td>La palabra <code>new</code> es lo que realmente CREA la instancia — sin ella, <code>Tarea(...)</code> no funciona como esperas.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="warn">
+    <h4>⚠️ No olvides new</h4>
+    <p>Escribir <code>Tarea("Estudiar")</code> sin <code>new</code> da un error. <code>new</code> es la palabra que le dice a JavaScript "quiero una instancia nueva de este molde", no solo llamar la función.</p>
+  </div>
+</section>
+
+<section class="module" id="instanciador">
+  <div class="module-header">
+    <div class="module-icon">🏭</div>
+    <div>
+      <div class="module-title">PARTE 2 — Instanciador en vivo</div>
+      <div class="module-sub">Crea varias instancias de la misma clase y compáralas</div>
+    </div>
+  </div>
+
+  <p>Esta es la clase que vas a instanciar, tal cual, varias veces:</p>
+
+  <div class="code-block"><span class="lang">JS</span><span class="ck">class</span> <span class="cf">Tarea</span> <span class="co">{</span>
+  <span class="cf">constructor</span><span class="co">(</span><span class="cv">texto</span><span class="co">,</span> <span class="cv">prioridad</span><span class="co">) {</span>
+    <span class="th">this</span><span class="co">.</span><span class="cf">texto</span> <span class="co">=</span> <span class="cv">texto</span><span class="co">;</span>
+    <span class="th">this</span><span class="co">.</span><span class="cf">prioridad</span> <span class="co">=</span> <span class="cv">prioridad</span><span class="co">;</span>
+    <span class="th">this</span><span class="co">.</span><span class="cf">completada</span> <span class="co">=</span> <span class="cb">false</span><span class="co">;</span>
+  <span class="co">}</span>
+<span class="co">}</span></div>
+
+  <div class="instance-wrap">
+    <div class="instance-form">
+      <div class="fin">
+        <label>texto</label>
+        <input type="text" id="instTexto" value="Repasar clases">
+      </div>
+      <div class="fin">
+        <label>prioridad</label>
+        <input type="text" id="instPrioridad" value="alta">
+      </div>
+      <button onclick="crearInstancia()">new Tarea(...)</button>
+    </div>
+    <div class="instance-list" id="instanceList"></div>
+  </div>
+
+  <div class="concept">
+    <h4>💡 Qué observar</h4>
+    <p>Cada tarjeta de abajo es una instancia DISTINTA e INDEPENDIENTE, aunque todas vengan del mismo molde <code>Tarea</code>. Cambiar una no afecta a las demás — cada <code>new Tarea(...)</code> crea su propia copia de <code>texto</code>, <code>prioridad</code> y <code>completada</code>.</p>
+  </div>
+</section>
+
+<section class="module" id="metodos">
+  <div class="module-header">
+    <div class="module-icon">⚙️</div>
+    <div>
+      <div class="module-title">PARTE 3 — Métodos: comportamiento dentro de la clase</div>
+      <div class="module-sub">No solo datos — también funciones que le pertenecen al objeto</div>
+    </div>
+  </div>
+
+  <div class="code-block"><span class="lang">JS</span><span class="ck">class</span> <span class="cf">Tarea</span> <span class="co">{</span>
+  <span class="cf">constructor</span><span class="co">(</span><span class="cv">texto</span><span class="co">) {</span>
+    <span class="th">this</span><span class="co">.</span><span class="cf">texto</span> <span class="co">=</span> <span class="cv">texto</span><span class="co">;</span>
+    <span class="th">this</span><span class="co">.</span><span class="cf">completada</span> <span class="co">=</span> <span class="cb">false</span><span class="co">;</span>
+  <span class="co">}</span>
+
+  <span class="cf">completar</span><span class="co">() {</span>
+    <span class="th">this</span><span class="co">.</span><span class="cf">completada</span> <span class="co">=</span> <span class="cb">true</span><span class="co">;</span>
+  <span class="co">}</span>
+<span class="co">}</span>
+
+<span class="ck">const</span> <span class="cv">t1</span> <span class="co">=</span> <span class="ck">new</span> <span class="cf">Tarea</span><span class="co">(</span><span class="cs">"Estudiar"</span><span class="co">);</span>
+<span class="cv">t1</span><span class="co">.</span><span class="cf">completar</span><span class="co">();</span>
+<span class="cf">console.log</span><span class="co">(</span><span class="cv">t1</span><span class="co">.</span><span class="cf">completada</span><span class="co">);</span> <span class="cc">// true</span></div>
+
+  <table class="tbl">
+    <thead><tr><th>Parte</th><th>¿Qué hace?</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">completar() { }</span></td><td>Un método — una función que vive DENTRO de la clase, disponible en cada instancia.</td></tr>
+      <tr><td><span class="tag">t1.completar()</span></td><td>Se llama igual que cualquier método que ya conocías (como <code>.push()</code> o <code>.map()</code>) — porque, de hecho, son el mismo concepto.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="concept">
+    <h4>💡 ¿Te suena familiar?</h4>
+    <p>Sí — <code>.push()</code>, <code>.map()</code>, <code>.toUpperCase()</code> que ya usabas en arreglos y strings, son justamente métodos de las clases <code>Array</code> y <code>String</code> que ya vienen integradas en JavaScript. Ahora sabes cómo se construyen por dentro.</p>
+  </div>
+</section>
+
+<section class="module" id="consola">
+  <div class="module-header">
+    <div class="module-icon">🧪</div>
+    <div>
+      <div class="module-title">PARTE 4 — Consola interactiva</div>
+      <div class="module-sub">Crea tu propia clase aquí mismo</div>
+    </div>
+  </div>
+
+  <div class="console-wrap">
+    <div class="console-editor-label">
+      <span>✏️ TU CÓDIGO</span>
+      <button class="run-btn" onclick="runConsole()">▶ Ejecutar</button>
+    </div>
+    <textarea id="consoleCode" spellcheck="false"></textarea>
+    <div class="console-output-label"><span>▸ SALIDA (console.log)</span></div>
+    <div class="console-output" id="consoleOutput"></div>
+  </div>
+
+  <p style="margin-top:1rem; font-size:.85rem; color:var(--muted); font-weight:600;">Prueba agregar esto y presiona Ejecutar otra vez:</p>
+  <div class="lab-try-row">
+    <button onclick="consoleAdd('t1.completar();\nconsole.log(t1.completada);')">+ llamar completar()</button>
+    <button onclick="consoleAdd('const t2 = new Tarea(&quot;Otra tarea&quot;);\nconsole.log(t1.completada, t2.completada);')">+ crear segunda instancia (independiente)</button>
+  </div>
+  <button class="lab-reset" onclick="consoleReset()">↺ Restaurar código original</button>
+</section>
+
+<section class="module" id="retos">
+  <div class="module-header">
+    <div class="module-icon">🏆</div>
+    <div>
+      <div class="module-title">PARTE 5 — Retos para practicar</div>
+      <div class="module-sub">Resuélvelos directo en la consola de arriba</div>
+    </div>
+  </div>
+
+  <div class="reto-grid">
+    <div class="reto-card">
+      <span class="nivel nivel-f">🟡 Fácil</span>
+      <h4>Reto 1 — Clase Persona</h4>
+      <p>Crea una clase <code>Persona</code> con <code>nombre</code> y <code>edad</code> en el constructor. Crea 2 instancias distintas e imprime sus datos.</p>
+    </div>
+    <div class="reto-card">
+      <span class="nivel nivel-m">🟠 Medio</span>
+      <h4>Reto 2 — Método esMayorDeEdad</h4>
+      <p>Agrégale a <code>Persona</code> un método <code>esMayorDeEdad()</code> que regrese <code>true</code> o <code>false</code> usando <code>this.edad</code>.</p>
+    </div>
+    <div class="reto-card">
+      <span class="nivel nivel-a">🔴 Avanzado</span>
+      <h4>Reto 3 — Clase CarritoDeCompras</h4>
+      <p>Crea una clase <code>Carrito</code> con un arreglo vacío <code>this.productos = []</code> en el constructor, y dos métodos: <code>agregar(producto)</code> (usa <code>this.productos.push(...)</code>) y <code>total()</code> (usa <code>.reduce()</code> sobre <code>this.productos</code>).</p>
+    </div>
+  </div>
+</section>
+
+<section class="module" id="resumen">
+  <div class="module-header">
+    <div class="module-icon">📋</div>
+    <div>
+      <div class="module-title">Resumen: lo que aprendiste en este bloque</div>
+      <div class="module-sub">Todo en un vistazo</div>
+    </div>
+  </div>
+
+  <div>
+    <span class="chip">class Nombre { }</span>
+    <span class="chip">constructor()</span>
+    <span class="chip">this.propiedad</span>
+    <span class="chip">new Nombre()</span>
+    <span class="chip">método() { }</span>
+  </div>
+
+  <div class="concept" style="margin-top:1.5rem">
+    <h4>🎉 ¿Qué sigue?</h4>
+    <p>Con esto tienes las herramientas para organizar proyectos más grandes: podrías reescribir tu lista de tareas usando una clase <code>Tarea</code> en vez de objetos sueltos. Dime si quieres hacer eso, ver un tema nuevo, o practicar con un proyecto que combine clases + fetch + manejo de errores.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Fase 5 · Bloque 2 — Clases (POO) · Jacqui 2026
+</footer>
+
+<script>
+/* Instanciador en vivo */
+class Tarea {
+  constructor(texto, prioridad) {
+    this.texto = texto;
+    this.prioridad = prioridad;
+    this.completada = false;
+  }
+}
+
+let instancias = [];
+
+function crearInstancia() {
+  const texto = document.getElementById('instTexto').value || 'Sin texto';
+  const prioridad = document.getElementById('instPrioridad').value || 'normal';
+  const nueva = new Tarea(texto, prioridad);
+  instancias.push(nueva);
+  renderInstances();
+}
+
+function eliminarInstancia(idx) {
+  instancias.splice(idx, 1);
+  renderInstances();
+}
+
+function renderInstances() {
+  const list = document.getElementById('instanceList');
+  if (instancias.length === 0) {
+    list.innerHTML = '<p style="color:var(--muted); font-size:.85rem;">Aún no has creado ninguna instancia. Usa el formulario de arriba.</p>';
+    return;
+  }
+  list.innerHTML = instancias.map((t, idx) =>
+    '<div class="instance-card">' +
+      '<button onclick="eliminarInstancia(' + idx + ')">✕</button>' +
+      '<div class="icard-title">instancia #' + (idx + 1) + ' de Tarea</div>' +
+      'texto: "' + t.texto + '"<br>' +
+      'prioridad: "' + t.prioridad + '"<br>' +
+      'completada: ' + t.completada +
+    '</div>'
+  ).join('');
+}
+renderInstances();
+
+/* Consola interactiva */
+const CONSOLE_STARTER = `class Tarea {
+  constructor(texto) {
+    this.texto = texto;
+    this.completada = false;
+  }
+
+  completar() {
+    this.completada = true;
+  }
+}
+
+const t1 = new Tarea("Estudiar clases");
+console.log(t1.texto, t1.completada);`;
+
+function runConsole() {
+  const code = document.getElementById('consoleCode').value;
+  const outputDiv = document.getElementById('consoleOutput');
+  outputDiv.innerHTML = '';
+  const logs = [];
+  const originalLog = console.log;
+  console.log = function(...args) {
+    logs.push(args.map(a => {
+      try { return typeof a === 'string' ? a : JSON.stringify(a); }
+      catch(e) { return String(a); }
+    }).join(' '));
+  };
+  try {
+    new Function(code)();
+    if (logs.length === 0) {
+      const div = document.createElement('div');
+      div.className = 'console-line muted';
+      div.textContent = '(no hubo console.log — agrega uno para ver resultados)';
+      outputDiv.appendChild(div);
+    } else {
+      logs.forEach(line => {
+        const div = document.createElement('div');
+        div.className = 'console-line';
+        div.textContent = '▸ ' + line;
+        outputDiv.appendChild(div);
+      });
+    }
+  } catch (err) {
+    logs.forEach(line => {
+      const div = document.createElement('div');
+      div.className = 'console-line';
+      div.textContent = '▸ ' + line;
+      outputDiv.appendChild(div);
+    });
+    const errDiv = document.createElement('div');
+    errDiv.className = 'console-line error';
+    errDiv.textContent = '⚠ ' + err.message;
+    outputDiv.appendChild(errDiv);
+  }
+  console.log = originalLog;
+}
+
+function consoleAdd(snippet) {
+  const ta = document.getElementById('consoleCode');
+  ta.value = ta.value + '\n' + snippet;
+}
+
+function consoleReset() {
+  document.getElementById('consoleCode').value = CONSOLE_STARTER;
+  document.getElementById('consoleOutput').innerHTML = '';
+}
+
+document.getElementById('consoleCode').value = CONSOLE_STARTER;
+</script>
+
+</body>
+</html>

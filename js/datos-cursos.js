@@ -186,7 +186,7 @@ const TEMAS = [
     capitulos: [
       {
         id:        'cap14-estructura-texto',
-        numero:    '14',
+        numero:    '14 F1.1',
         titulo:    'Estructura y Texto',
         desc:      'Tu primera página HTML, explicada y en vivo — estructura del documento, títulos y párrafos, con laboratorio interactivo.',
         lang:      'html',
@@ -196,7 +196,7 @@ const TEMAS = [
       },
       {
         id:        'cap15-listas-enlaces-imagenes',
-        numero:    '15',
+        numero:    '15 F1.2',
         titulo:    'Listas, Enlaces e Imágenes',
         desc:      'Ahora tu página va a poder mostrar más que solo texto — listas, enlaces, imágenes y atributos.',
         lang:      'html',
@@ -206,7 +206,7 @@ const TEMAS = [
       },
       {
         id:        'cap16-organizar-contenido',
-        numero:    '16',
+        numero:    '16 F1.3',
         titulo:    'Organizar el Contenido',
         desc:      'El último paso de HTML antes de pasar a CSS — div, section, bloque vs línea y cómo ver los contornos.',
         lang:      'html',
@@ -216,7 +216,7 @@ const TEMAS = [
       },
       {
         id:        'cap17-selectores-colores',
-        numero:    '17',
+        numero:    '17 F2.1',
         titulo:    'Selectores y Colores',
         desc:      'Ahora tu HTML por fin va a tener estilo — conectar CSS, selectores, color y font-size.',
         lang:      'css',
@@ -226,7 +226,7 @@ const TEMAS = [
       },
       {
         id:        'cap18-espaciado-cajas',
-        numero:    '18',
+        numero:    '18 F2.2',
         titulo:    'Espaciado y Cajas',
         desc:      'El modelo de caja: por qué cada elemento tiene aire a su alrededor — margin, padding, border y box model.',
         lang:      'css',
@@ -236,7 +236,7 @@ const TEMAS = [
       },
       {
         id:        'cap19-flexbox-responsive',
-        numero:    '19',
+        numero:    '19 F2.3',
         titulo:    'id, Flexbox y Responsive',
         desc:      'El último bloque de CSS: acomodar y adaptar tu página — #id, display: flex y media queries.',
         lang:      'css',
@@ -246,7 +246,7 @@ const TEMAS = [
       },
       {
         id:        'cap20-variables-tipos',
-        numero:    '20',
+        numero:    '20 F3.1',
         titulo:    'Variables y Tipos de Datos',
         desc:      'Empieza la lógica real: tu primer código JavaScript — let/const, tipos de datos y consola interactiva.',
         lang:      'js',
@@ -256,7 +256,7 @@ const TEMAS = [
       },
       {
         id:        'cap21-operadores-condicionales',
-        numero:    '21',
+        numero:    '21 F3.2',
         titulo:    'Operadores y Condicionales',
         desc:      'Tu código empieza a tomar decisiones — comparaciones, if/else y operadores lógicos.',
         lang:      'js',
@@ -266,7 +266,7 @@ const TEMAS = [
       },
       {
         id:        'cap22-bucles',
-        numero:    '22',
+        numero:    '22 F3.3',
         titulo:    'Bucles (for)',
         desc:      'Repite código sin copiar y pegar la misma línea — bucles for, while y el clásico ejercicio FizzBuzz.',
         lang:      'js',
@@ -276,7 +276,7 @@ const TEMAS = [
       },
       {
         id:        'cap23-funciones',
-        numero:    '23',
+        numero:    '23 F3.4',
         titulo:    'Funciones',
         desc:      'Empaqueta código para reutilizarlo cuando quieras — function, parámetros y return.',
         lang:      'js',
@@ -286,7 +286,7 @@ const TEMAS = [
       },
       {
         id:        'cap24-arreglos-objetos',
-        numero:    '24',
+        numero:    '24 F3.5',
         titulo:    'Arreglos y Objetos',
         desc:      'Guarda varios datos juntos, organizados — arrays, índices, objetos y propiedades.',
         lang:      'js',
@@ -296,7 +296,7 @@ const TEMAS = [
       },
       {
         id:        'cap25-dom',
-        numero:    '25',
+        numero:    '25 F3.6',
         titulo:    'El DOM',
         desc:      'Por fin: JavaScript tomando control de tu HTML y CSS — querySelector, addEventListener y el DOM.',
         lang:      'js',
@@ -306,7 +306,7 @@ const TEMAS = [
       },
       {
         id:        'cap26-formularios-validacion',
-        numero:    '26',
+        numero:    '26 F3.7',
         titulo:    'Formularios y Validación',
         desc:      'Captura lo que escribe el usuario, y revísalo antes de aceptarlo — submit, preventDefault y validación.',
         lang:      'js',
@@ -316,7 +316,7 @@ const TEMAS = [
       },
       {
         id:        'cap27-async-apis',
-        numero:    '27',
+        numero:    '27 F3.8',
         titulo:    'Async y APIs',
         desc:      'Trae datos reales de internet a tu página — fetch, async/await y JSON.',
         lang:      'js',
@@ -326,7 +326,7 @@ const TEMAS = [
       },
       {
         id:        'cap28-arrow-template-literals',
-        numero:    '28',
+        numero:    '28 F4.1',
         titulo:    'Arrow Functions y Template Literals',
         desc:      'Las mismas ideas que ya sabes, escritas de forma más corta y moderna — arrow functions y template literals.',
         lang:      'js',
@@ -335,13 +335,73 @@ const TEMAS = [
         bloqueado: false
       },
       {
-        id:        'cap29-proyecto-final',
-        numero:    '29',
-        titulo:    'Proyecto Final — Lista de Tareas',
+        id:        'cap29-map-filter-reduce',
+        numero:    '29 F4.2',
+        titulo:    'Map, Filter y Reduce',
+        desc:      'Transforma, filtra y reduce arrays sin escribir un solo bucle for — los tres métodos que más vas a usar en código moderno.',
+        lang:      'js',
+        archivo:   'capitulos/fase4-bloque2-map-filter-reduce.html',
+        lecciones: ['🗺️ map', '🔍 filter', '➕ reduce', '🧪 Laboratorio'],
+        bloqueado: false
+      },
+      {
+        id:        'cap30-destructuring-spread',
+        numero:    '30 F4.3',
+        titulo:    'Destructuring y Spread',
+        desc:      'Extrae valores de arrays y objetos en una sola línea, y combina o expande colecciones con los operadores modernos.',
+        lang:      'js',
+        archivo:   'capitulos/fase4-bloque3-destructuring-spread.html',
+        lecciones: ['📦 Destructuring', '🌊 Spread (...)', '📥 Rest', '🧪 Laboratorio'],
+        bloqueado: false
+      },
+      {
+        id:        'cap31-try-catch',
+        numero:    '31 F5.1',
+        titulo:    'Manejo de Errores (try/catch)',
+        desc:      'Cuando algo puede fallar, tu código no tiene por qué romperse del todo — try, catch, finally y lanzar tus propios errores.',
+        lang:      'js',
+        archivo:   'capitulos/fase5-bloque1-try-catch.html',
+        lecciones: ['🎯 try', '🚨 catch', '🔚 finally', '🧪 Laboratorio'],
+        bloqueado: false
+      },
+      {
+        id:        'cap32-clases-poo',
+        numero:    '32 F5.2',
+        titulo:    'Clases y POO',
+        desc:      'La forma moderna de organizar código relacionado — class, constructor, propiedades y métodos.',
+        lang:      'js',
+        archivo:   'capitulos/fase5-bloque2-clases-poo.html',
+        lecciones: ['🏗️ class', '🔧 constructor', '📌 Propiedades', '⚙️ Métodos'],
+        bloqueado: false
+      },
+      {
+        id:        'cap33-herencia-extends',
+        numero:    '33 F5.3',
+        titulo:    'Herencia (extends)',
+        desc:      'Una clase puede heredar el comportamiento de otra — extends, super y cómo evitar repetir código.',
+        lang:      'js',
+        archivo:   'capitulos/fase5-bloque3-herencia-extends.html',
+        lecciones: ['🧬 extends', '⬆️ super', '♻️ Reutilizar', '🧪 Laboratorio'],
+        bloqueado: false
+      },
+      {
+        id:        'cap34-modulos',
+        numero:    '34 F5.4',
+        titulo:    'Módulos (import/export)',
+        desc:      'Divide tu código en archivos separados y conéctalos entre sí — export, import y cómo organizar un proyecto real.',
+        lang:      'js',
+        archivo:   'capitulos/fase5-bloque4-modulos.html',
+        lecciones: ['📤 export', '📥 import', '📁 Archivos', '🧩 Organización'],
+        bloqueado: false
+      },
+      {
+        id:        'cap35-proyecto-final',
+        numero:    '35',
+        titulo:    'Proyecto Final — Gestor de gastos',
         desc:      'Tu proyecto final — HTML, CSS y JavaScript trabajando juntos en una app completa con localStorage.',
         lang:      'js',
-        archivo:   'capitulos/mi-lista-de-tareas.html',
-        lecciones: ['✅ Tareas', '💾 localStorage', '🎯 Proyecto integrador'],
+        archivo:   'capitulos/gestor-gastos.html',
+        lecciones: ['✅ Presupuesto', '💾 Gastos', '🎯 Ingresos'],
         bloqueado: false
       }
     ]

@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linux desde Cero · N24 · Herramientas de Terminal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root,[data-theme="light"]{--primary:#c44a2a;--primary-light:#fdf0ec;--primary-mid:rgba(196,74,42,.25);--secondary:#1a7a5a;--secondary-light:#edf7f3;--accent:#b07010;--accent-light:#fdf6e8;--bg:#f7f4ef;--surface:#ffffff;--text:#1a1814;--muted:#8a8480;--border:#e8e4de;--code-bg:#1a1814;--code-text:#e8e4de;--header-bg:#1a1814;--analogy-bg:#fff7ed;--analogy-border:#fde68a;--analogy-text:#78350f;--analogy-head:#92400e;--diagram-bg:#f0f4ff;--diagram-border:#c7d2fe;--note-bg:#f0f4ff;--note-border:#6366f1;--note-head:#4338ca;}
+[data-theme="dark"]{--primary:#ff7a57;--primary-light:rgba(255,122,87,.14);--primary-mid:rgba(255,122,87,.3);--secondary:#3ddc84;--secondary-light:rgba(61,220,132,.12);--accent:#f0c040;--accent-light:rgba(240,192,64,.12);--bg:#0d1117;--surface:#161b22;--text:#c9d8f0;--muted:#5a7090;--border:#21262d;--code-bg:#060a10;--code-text:#c9d8f0;--header-bg:#0a0e14;--analogy-bg:rgba(240,192,64,.07);--analogy-border:rgba(240,192,64,.3);--analogy-text:#e6d4a0;--analogy-head:#f0c040;--diagram-bg:#161b22;--diagram-border:#21262d;--note-bg:rgba(99,102,241,.1);--note-border:#818cf8;--note-head:#818cf8;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.75;font-size:16px;transition:background .25s,color .25s;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:300;height:45px;}
+.topbar-back{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);text-decoration:none;padding:5px 14px;border:1px solid var(--border);border-radius:999px;transition:all .15s;}
+.topbar-back:hover{color:var(--text);border-color:var(--muted);}
+.topbar-info{font-size:13px;color:var(--muted);}
+.theme-btn{margin-left:auto;background:none;border:1px solid var(--border);border-radius:999px;padding:4px 13px;font-size:13px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:.35rem;transition:all .15s;font-family:'DM Sans',sans-serif;}
+.theme-btn:hover{color:var(--text);border-color:var(--muted);}
+header{background:var(--header-bg);color:#f7f4ef;padding:3rem 2rem 2.5rem;text-align:center;position:relative;overflow:hidden;}
+header::before{content:'N24';position:absolute;font-family:'DM Mono',monospace;font-size:11rem;font-weight:900;color:rgba(255,255,255,.04);right:-1rem;top:-1.5rem;line-height:1;pointer-events:none;}
+.header-eyebrow{display:inline-flex;align-items:center;gap:.5rem;background:rgba(176,112,16,.28);border:1px solid rgba(176,112,16,.5);border-radius:20px;padding:3px 14px;font-size:.78rem;font-weight:700;color:#f0c862;margin-bottom:.85rem;}
+header h1{font-size:2.5rem;font-weight:800;letter-spacing:-1px;color:#f7f4ef;line-height:1.2;}
+header h1 em{font-style:normal;color:#ff8a6a;}
+header p{font-size:1.05rem;opacity:.8;margin-top:.5rem;max-width:580px;margin-left:auto;margin-right:auto;}
+.header-chips{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap;margin-top:.9rem;}
+.header-chip{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:20px;padding:3px 13px;font-size:.76rem;color:rgba(255,255,255,.75);}
+.niveles-nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:45px;z-index:110;display:flex;align-items:center;height:38px;padding:0 1rem;}
+.nn-prev,.nn-next{flex-shrink:0;display:flex;align-items:center;gap:.3rem;padding:0 .75rem;height:100%;text-decoration:none;color:var(--muted);font-size:.78rem;font-weight:500;border-right:1px solid var(--border);transition:color .15s;white-space:nowrap;}
+.nn-next{border-right:none;border-left:1px solid var(--border);}
+.nn-prev:hover,.nn-next:hover{color:var(--primary);}
+.nn-list{flex:1;display:flex;align-items:center;justify-content:center;gap:.15rem;overflow-x:auto;padding:0 .5rem;}
+.nn-list::-webkit-scrollbar{display:none;}
+.nn-list a{flex-shrink:0;padding:2px 9px;border-radius:20px;text-decoration:none;font-size:.73rem;font-weight:600;color:var(--muted);font-family:'DM Mono',monospace;transition:color .15s,background .15s;}
+.nn-list a:hover{color:var(--text);background:var(--bg);}
+.nn-list a.activa{background:var(--primary-light);color:var(--primary);}
+.nn-list .sep{color:var(--border);font-size:.7rem;padding:0 1px;flex-shrink:0;pointer-events:none;}
+.sec-nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:83px;z-index:100;display:flex;overflow-x:auto;}
+.sec-nav::-webkit-scrollbar{display:none;}
+.sec-nav a{flex-shrink:0;padding:.75rem 1.1rem;text-decoration:none;color:var(--muted);font-size:.82rem;font-weight:500;border-bottom:2px solid transparent;white-space:nowrap;transition:color .2s,border-color .2s;}
+.sec-nav a:hover{color:var(--primary);border-bottom-color:var(--primary);}
+main{max-width:920px;margin:0 auto;padding:2rem 1.5rem;}
+.nivel-badge{display:inline-flex;align-items:center;gap:.5rem;background:var(--primary);color:white;border-radius:20px;padding:5px 16px;font-size:.82rem;font-weight:700;margin-bottom:1.75rem;}
+.module{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;margin-bottom:2.5rem;scroll-margin-top:135px;transition:background .25s,border-color .25s;}
+.module-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border);}
+.module-icon{font-size:1.8rem;flex-shrink:0;}
+.module-title{font-size:1.35rem;font-weight:700;}
+.module-sub{font-size:.85rem;color:var(--muted);margin-top:2px;}
+.module h2{font-size:1.15rem;font-weight:700;margin:1.75rem 0 .75rem;}
+.module p{margin-bottom:.85rem;font-size:.97rem;}
+.module ul,.module ol{padding-left:1.4rem;margin-bottom:.85rem;}
+.module li{margin-bottom:.4rem;font-size:.96rem;}
+.analogy{background:var(--analogy-bg);border:1px solid var(--analogy-border);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0;}
+.analogy h4{color:var(--analogy-head);font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+.analogy p{font-size:.95rem;color:var(--analogy-text);margin:0;}
+.concept,.tip,.warn,.note{border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0;border-left-width:4px;border-left-style:solid;}
+.concept h4,.tip h4,.warn h4,.note h4{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;}
+.concept p,.tip p,.warn p,.note p{font-size:.95rem;margin:0;}
+.tip ul,.warn ul{font-size:.95rem;padding-left:1.2rem;margin-top:.3rem;}
+.concept{background:var(--primary-light);border-color:var(--primary);}.concept h4{color:var(--primary);}
+.tip{background:var(--secondary-light);border-color:var(--secondary);}.tip h4{color:var(--secondary);}
+.warn{background:var(--primary-light);border-color:var(--primary);}.warn h4{color:var(--primary);}
+.note{background:var(--note-bg);border-color:var(--note-border);}.note h4{color:var(--note-head);}
+.terminal{background:#0a0e14;border:1px solid #21262d;border-radius:10px;overflow:hidden;margin:1rem 0;}
+.term-bar{background:#161b22;padding:.42rem .85rem;display:flex;align-items:center;gap:.35rem;border-bottom:1px solid #21262d;}
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.dot-r{background:#ff5f57;}.dot-y{background:#ffbd2e;}.dot-g{background:#28c840;}
+.term-label{font-family:'DM Mono',monospace;font-size:.69rem;color:#3a5070;margin-left:.4rem;}
+.term-body{padding:1.1rem 1.3rem;font-family:'DM Mono',monospace;font-size:.85rem;line-height:2.1;color:#c9d8f0;overflow-x:auto;}
+.t-p{color:#3ddc84;}.t-o{color:#5a7090;display:block;}.t-h{color:#253550;font-style:italic;display:block;}
+.diagram{background:var(--diagram-bg);border:1px solid var(--diagram-border);border-radius:12px;padding:1.5rem;margin:1.1rem 0;font-family:'DM Mono',monospace;font-size:.87rem;line-height:2;overflow-x:auto;}
+.d-r{color:var(--primary);font-weight:700;}.d-g{color:var(--secondary);font-weight:700;}.d-y{color:var(--accent);font-weight:700;}.d-b{color:#6366f1;font-weight:700;}.d-m{color:var(--muted);font-style:italic;}
+.tbl{width:100%;border-collapse:collapse;margin:1rem 0;font-size:.9rem;display:block;overflow-x:auto;}
+.tbl th{background:var(--primary-light);color:var(--primary);padding:.65rem 1rem;text-align:left;font-weight:600;white-space:nowrap;}
+.tbl td{padding:.65rem 1rem;border-bottom:1px solid var(--border);vertical-align:top;}
+.tbl td:first-child{font-family:'DM Mono',monospace;font-size:.85rem;color:var(--primary);font-weight:600;white-space:nowrap;}
+.tbl tr:hover td{background:var(--bg);}
+.cmd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:.75rem;margin:1rem 0;}
+.cmd-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:1rem;}
+.cmd-title{font-family:'DM Mono',monospace;font-size:.82rem;font-weight:700;color:var(--primary);margin-bottom:.3rem;}
+.cmd-desc{font-size:.83rem;color:var(--muted);margin-bottom:.5rem;}
+.cmd-ex{font-family:'DM Mono',monospace;font-size:.79rem;background:var(--code-bg);color:var(--code-text);padding:.45rem .75rem;border-radius:6px;display:block;overflow-x:auto;}
+/* TARJETA DE HERRAMIENTA */
+.tool{border:1px solid var(--border);border-radius:14px;padding:1.5rem;margin:1.25rem 0;background:var(--bg);}
+.tool-head{display:flex;align-items:center;gap:.85rem;margin-bottom:.75rem;flex-wrap:wrap;}
+.tool-name{font-family:'DM Mono',monospace;font-size:1.15rem;font-weight:700;color:var(--primary);}
+.tool-tag{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:2px 12px;font-size:.72rem;color:var(--muted);font-weight:600;}
+.tool-desc{font-size:.94rem;margin-bottom:.9rem;}
+.tool-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.6rem;margin-bottom:.9rem;}
+.tm-item{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.6rem .8rem;}
+.tm-label{font-size:.68rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700;margin-bottom:2px;}
+.tm-val{font-size:.85rem;font-family:'DM Mono',monospace;}
+/* DISTRO CHIPS */
+.distro-row{display:flex;gap:.5rem;flex-wrap:wrap;margin:1rem 0 1.4rem;}
+.distro-chip{background:var(--secondary-light);border:1px solid rgba(26,122,90,.3);color:var(--secondary);border-radius:20px;padding:4px 14px;font-size:.8rem;font-weight:700;display:inline-flex;align-items:center;gap:.4rem;}
+.ejercicio{background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:1.5rem;margin:1.5rem 0;}
+[data-theme="dark"] .ejercicio{background:rgba(240,192,64,.06);border-color:rgba(240,192,64,.22);}
+.ej-hd{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;font-weight:700;font-size:1rem;color:#78350F;flex-wrap:wrap;}
+[data-theme="dark"] .ej-hd{color:#f0c040;}
+.ej-badge{background:var(--accent);color:#fff;font-size:.68rem;padding:2px 9px;border-radius:20px;font-weight:700;text-transform:uppercase;}
+.ejercicio ol{padding-left:1.4rem;}
+.ejercicio ol li{margin-bottom:.6rem;font-size:.95rem;}
+.ejercicio p{font-size:.95rem;margin-bottom:.6rem;}
+.resumen{background:var(--primary-light);border:1px solid var(--primary-mid);border-radius:14px;padding:1.6rem;margin-bottom:1.5rem;}
+.resumen h3{color:var(--primary);margin-bottom:.75rem;font-size:1.05rem;}
+.resumen ul{padding-left:1.4rem;}
+.resumen li{font-size:.92rem;margin-bottom:.45rem;}
+.cierre{background:var(--header-bg);color:#f7f4ef;border-radius:16px;padding:2.25rem 2rem;text-align:center;margin-bottom:2rem;}
+.cierre h2{font-size:1.6rem;margin-bottom:.6rem;}
+.cierre h2 em{font-style:normal;color:#ff8a6a;}
+.cierre p{opacity:.85;font-size:.96rem;max-width:600px;margin:0 auto .5rem;}
+.back-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.25rem 1.5rem;display:flex;align-items:center;gap:1rem;text-decoration:none;transition:border-color .2s;margin-bottom:2rem;}
+.back-card:hover{border-color:var(--primary);}
+.bc-label{font-size:.72rem;color:var(--muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.2rem;}
+.bc-name{font-weight:700;color:var(--text);font-size:.97rem;}
+.bc-arrow{font-size:1.4rem;color:var(--primary);margin-left:auto;}
+code{font-family:'DM Mono',monospace;background:#f0ece6;color:var(--primary);padding:1px 5px;border-radius:4px;font-size:.9em;}
+[data-theme="dark"] code{background:#1c2128;}
+strong{font-weight:700;}
+p{margin-bottom:.8rem;}ul,ol{padding-left:1.4rem;margin-bottom:.8rem;}li{margin-bottom:.4rem;font-size:.96rem;}
+h2{font-size:1.2rem;font-weight:700;margin:1.75rem 0 .75rem;}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.85rem;border-top:1px solid var(--border);margin-top:1rem;background:var(--bg);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="topbar-back" href="../explorando-capitulos.html">← Explorando</a>
+  <span class="topbar-info">🐧 Linux desde Cero · Nivel 24 de 24 · Bonus</span>
+  <button class="theme-btn" onclick="toggleTheme()">
+    <span id="themeIcon">🌙</span><span id="themeLabel">Oscuro</span>
+  </button>
+</div>
+
+<header>
+  <div class="header-eyebrow">🎁 Nivel 24 — Bonus</div>
+  <h1>Herramientas de <em>terminal</em></h1>
+  <p>Las apps de consola que hacen que trabajar en Linux Mint, Zorin OS, Voyager (o cualquier distro) sea más rápido, más bonito y más cómodo</p>
+  <div class="header-chips">
+    <span class="header-chip">Nivel 24 de 24</span>
+    <span class="header-chip">🧰 Herramientas</span>
+    <span class="header-chip">10 subtemas</span>
+    <span class="header-chip">~35 min</span>
+  </div>
+</header>
+
+<div class="niveles-nav">
+  <a class="nn-prev" href="linux-nivel-23.html">← N23</a>
+  <div class="nn-list">
+    <a href="linux-nivel-01.html">N1</a><a href="linux-nivel-02.html">N2</a><a href="linux-nivel-03.html">N3</a>
+    <a href="linux-nivel-04.html">N4</a><a href="linux-nivel-05.html">N5</a><span class="sep">·</span>
+    <a href="linux-nivel-06.html">N6</a><a href="linux-nivel-07.html">N7</a><a href="linux-nivel-08.html">N8</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-09.html">N9</a><a href="linux-nivel-10.html">N10</a><a href="linux-nivel-11.html">N11</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-12.html">N12</a><a href="linux-nivel-13.html">N13</a><a href="linux-nivel-14.html">N14</a>
+    <a href="linux-nivel-15.html">N15</a><span class="sep">·</span>
+    <a href="linux-nivel-16.html">N16</a>
+    <a href="linux-nivel-17.html">N17</a><a href="linux-nivel-18.html">N18</a><a href="linux-nivel-19.html">N19</a>
+    <a href="linux-nivel-20.html">N20</a><a href="linux-nivel-21.html">N21</a>
+    <a href="linux-nivel-22.html">N22</a><a href="linux-nivel-23.html">N23</a>
+    <span class="sep">·</span>
+    <a href="linux-nivel-24.html" class="activa">N24</a>
+  </div>
+  <a class="nn-next" href="../explorando-capitulos.html">Portal →</a>
+</div>
+
+<nav class="sec-nav">
+  <a href="#intro">🧰 Por qué estas herramientas</a>
+  <a href="#instalar">📦 Instalación según tu distro</a>
+  <a href="#monitores">📊 Monitores del sistema</a>
+  <a href="#explorar">🔎 Explorar tu hardware</a>
+  <a href="#disco">💾 Disco y almacenamiento</a>
+  <a href="#productividad">⚡ Productividad en la shell</a>
+  <a href="#reemplazos">🔁 Reemplazos modernos</a>
+  <a href="#multiplexor">🪟 tmux</a>
+  <a href="#diversion">🎉 Solo por diversión</a>
+  <a href="#ejercicio">✏️ Ejercicio</a>
+</nav>
+
+<main>
+<div class="nivel-badge">🧰 Nivel 24 — Herramientas de Terminal</div>
+
+
+<!-- INTRO -->
+<section class="module" id="intro">
+  <div class="module-header">
+    <div class="module-icon">🧰</div>
+    <div>
+      <div class="module-title">¿Por qué instalar más herramientas de terminal?</div>
+      <div class="module-sub">Los comandos clásicos (ps, df, ls, find, grep) funcionan siempre — pero hay alternativas que ahorran tiempo</div>
+    </div>
+  </div>
+
+  <p>Linux trae de fábrica todo lo necesario para trabajar: <code>ls</code>, <code>cat</code>, <code>find</code>, <code>grep</code>, <code>df</code>, <code>top</code>... Esos comandos existen desde hace más de 40 años y no van a desaparecer. Pero alrededor de ellos ha crecido una generación de <strong>herramientas de terminal modernas</strong>: más rápidas, con colores, con información visual, escritas en Rust o Go, pensadas para que un humano las lea cómodamente en vez de solo procesarlas con scripts.</p>
+
+  <div class="analogy">
+    <h4>🔧 Analogía — La caja de herramientas del mecánico</h4>
+    <p>Un mecánico puede aflojar cualquier tornillo con una llave inglesa universal. Funciona siempre, en cualquier coche. Pero si tiene el destornillador exacto, la llave de vaso del tamaño correcto o la pistola de impacto, el mismo trabajo le toma la mitad de tiempo y con menos esfuerzo. Los comandos clásicos (<code>ps</code>, <code>df</code>, <code>find</code>) son la llave universal: siempre están ahí. Las herramientas de este nivel son el resto de la caja: no imprescindibles, pero una vez las pruebas, no quieres volver atrás.</p>
+  </div>
+
+  <div class="concept">
+    <h4>💡 No sustituyen, complementan</h4>
+    <p>Ninguna herramienta de este nivel reemplaza a la que ya conoces de niveles anteriores. <code>btop</code> no reemplaza a <code>top</code>/<code>htop</code>, simplemente los mejora visualmente. Aprende primero el comando clásico (que estará en cualquier servidor al que te conectes por SSH) y usa estas herramientas modernas en <strong>tu propio equipo</strong>, donde sí puedes instalar lo que quieras.</p>
+  </div>
+</section>
+
+
+<!-- INSTALACIÓN -->
+<section class="module" id="instalar">
+  <div class="module-header">
+    <div class="module-icon">📦</div>
+    <div>
+      <div class="module-title">Instalación según tu distro</div>
+      <div class="module-sub">Linux Mint, Zorin OS y Voyager comparten gestor de paquetes — el resto varía</div>
+    </div>
+  </div>
+
+  <p><strong>Linux Mint</strong>, <strong>Zorin OS</strong> y <strong>Voyager</strong> son las tres distros de las que hablas, y las tres están construidas sobre <strong>Ubuntu/Debian</strong>. Eso significa que las tres usan exactamente el mismo gestor de paquetes: <code>apt</code>. Todo lo que instales con <code>sudo apt install</code> en una, funciona igual en las otras dos.</p>
+
+  <div class="distro-row">
+    <span class="distro-chip">🟢 Linux Mint → apt (base Ubuntu)</span>
+    <span class="distro-chip">🟢 Zorin OS → apt (base Ubuntu)</span>
+    <span class="distro-chip">🟢 Voyager → apt (base Debian)</span>
+  </div>
+
+  <table class="tbl">
+    <tr><th>Familia de distro</th><th>Gestor</th><th>Instalar</th><th>Actualizar lista</th></tr>
+    <tr><td>Mint / Zorin / Voyager / Ubuntu / Debian</td><td>APT</td><td><code>sudo apt install paquete</code></td><td><code>sudo apt update</code></td></tr>
+    <tr><td>Fedora / Nobara</td><td>DNF</td><td><code>sudo dnf install paquete</code></td><td><code>sudo dnf check-update</code></td></tr>
+    <tr><td>Arch / Manjaro / EndeavourOS</td><td>Pacman</td><td><code>sudo pacman -S paquete</code></td><td><code>sudo pacman -Sy</code></td></tr>
+    <tr><td>openSUSE</td><td>Zypper</td><td><code>sudo zypper install paquete</code></td><td><code>sudo zypper refresh</code></td></tr>
+  </table>
+
+  <div class="warn">
+    <h4>⚠️ No todo está en los repos oficiales de Mint/Zorin/Voyager</h4>
+    <p>Como estas tres distros se basan en versiones de Ubuntu/Debian que priorizan la estabilidad sobre la novedad, algunos paquetes muy recientes (por ejemplo <code>eza</code> o versiones nuevas de <code>fastfetch</code>) pueden no estar en <code>apt</code> todavía o venir en una versión antigua. Para esos casos usarás <strong>snap</strong>, <strong>flatpak</strong> o el paquete <code>.deb</code> descargado directamente de GitHub — se indica en cada herramienta de abajo.</p>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-label">rutina antes de instalar cualquier cosa</span>
+    </div>
+    <div class="term-body">
+<span class="t-h"># Siempre primero: refrescar la lista de paquetes disponibles</span>
+<span class="t-p">$</span> sudo apt update
+
+<span class="t-h"># Buscar si un paquete existe en los repos antes de instalar a ciegas</span>
+<span class="t-p">$</span> apt search fastfetch
+<span class="t-p">$</span> apt-cache policy btop   <span class="t-h"># ver qué versión te daría apt</span>
+
+<span class="t-h"># Snap y Flatpak — alternativas cuando apt no tiene el paquete o está desactualizado</span>
+<span class="t-p">$</span> sudo apt install snapd      <span class="t-h"># Mint/Zorin lo suelen traer ya</span>
+<span class="t-p">$</span> sudo apt install flatpak
+<span class="t-p">$</span> flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+    </div>
+  </div>
+</section>
+
+
+<!-- MONITORES -->
+<section class="module" id="monitores">
+  <div class="module-header">
+    <div class="module-icon">📊</div>
+    <div>
+      <div class="module-title">Monitores del sistema</div>
+      <div class="module-sub">Para ver de un vistazo cómo está tu CPU, RAM, temperatura y qué hardware tienes</div>
+    </div>
+  </div>
+
+  <div class="tool">
+    <div class="tool-head">
+      <span class="tool-name">top</span>
+      <span class="tool-tag">comando clásico</span>
+    </div>
+    <p class="tool-desc">El monitor de procesos original, presente en cualquier Linux sin instalar nada. Muestra en tiempo real la carga del sistema, uso de CPU y RAM, y la lista de procesos ordenada por consumo. No es tan bonito como btop, pero es el que vas a encontrar siempre que te conectes a un servidor por SSH — por eso conviene dominarlo aunque uses btop a diario en tu propio equipo (ya lo viste a fondo en el <strong>Nivel 16 — Procesos</strong>).</p>
+    <div class="tool-meta">
+      <div class="tm-item"><div class="tm-label">Para qué sirve</div><div class="tm-val">Ver carga, CPU, RAM y procesos en tiempo real</div></div>
+      <div class="tm-item"><div class="tm-label">Cómo se ejecuta</div><div class="tm-val">top</div></div>
+      <div class="tm-item"><div class="tm-label">Teclas útiles</div><div class="tm-val">M ordena por RAM, P por CPU, q para salir</div></div>
+      <div class="tm-item"><div class="tm-label">Instalar</div><div class="tm-val">ya viene instalado siempre</div></div>
+    </div>
+    <div class="terminal">
+      <div class="term-bar"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div><span class="term-label">top</span></div>
+      <div class="term-body">
+<span class="t-p">$</span> top
+<span class="t-h"># Dentro de top: "M" ordena por memoria, "P" por CPU, "1" muestra cada núcleo</span>
+<span class="t-h"># por separado, "k" mata un proceso pidiendo su PID, "q" sale</span>
+<span class="t-h"># Truco: "top -o %MEM" arranca ya ordenado por memoria</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="tool">
+    <div class="tool-head">
+      <span class="tool-name">btop</span>
+      <span class="tool-tag">monitor de recursos</span>
+    </div>
+    <p class="tool-desc">El sucesor visual de <code>top</code>/<code>htop</code>. Muestra CPU (por núcleo), RAM, swap, disco, red y procesos con gráficas de barras en tiempo real, todo con el ratón y el teclado. Es prácticamente el estándar hoy en día para monitorizar un sistema Linux desde la terminal.</p>
+    <div class="tool-meta">
+      <div class="tm-item"><div class="tm-label">Para qué sirve</div><div class="tm-val">Ver CPU/RAM/disco/red/procesos en vivo, con gráficas</div></div>
+      <div class="tm-item"><div class="tm-label">Cómo se ejecuta</div><div class="tm-val">btop</div></div>
+      <div class="tm-item"><div class="tm-label">Salir</div><div class="tm-val">tecla q</div></div>
+      <div class="tm-item"><div class="tm-label">Instalar (Mint/Zorin/Voyager)</div><div class="tm-val">sudo apt install btop</div></div>
+    </div>
+    <div class="terminal">
+      <div class="term-bar"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div><span class="term-label">btop</span></div>
+      <div class="term-body">
+<span class="t-p">$</span> sudo apt update && sudo apt install btop
+<span class="t-p">$</span> btop
+<span class="t-h"># Dentro de btop: flechas para moverte por los procesos, "k" mata un proceso,</span>
+<span class="t-h"># "m" cambia el modo de vista, "+/-" ajusta el zoom del panel, "esc" abre el menú de opciones</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="tool">
+    <div class="tool-head">
+      <span class="tool-name">fastfetch</span>
+      <span class="tool-tag">info del sistema</span>
+    </div>
+    <p class="tool-desc">Muestra un resumen bonito de tu sistema (distro, kernel, CPU, GPU, RAM, resolución, tema, uptime...) junto al logo ASCII de tu distro, en cuanto abres la terminal. Es el sustituto moderno y mucho más rápido de <strong>neofetch</strong> (que dejó de mantenerse activamente).</p>
+    <div class="tool-meta">
+      <div class="tm-item"><div class="tm-label">Para qué sirve</div><div class="tm-val">Resumen visual del hardware y software instalado</div></div>
+      <div class="tm-item"><div class="tm-label">Cómo se ejecuta</div><div class="tm-val">fastfetch</div></div>
+      <div class="tm-item"><div class="tm-label">Instalar (Mint/Zorin/Voyager)</div><div class="tm-val">sudo apt install fastfetch</div></div>
+      <div class="tm-item"><div class="tm-label">Si tu versión es antigua</div><div class="tm-val">añade el PPA/repo oficial de fastfetch en GitHub</div></div>
+    </div>
+    <div class="terminal">
+      <div class="term-bar"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div><span class="term-label">fastfetch — presumir tu setup</span></div>
+      <div class="term-body">
+<span class="t-p">$</span> sudo apt install fastfetch
+<span class="t-p">$</span> fastfetch
+<span class="t-h"># Truco: añade "fastfetch" al final de tu ~/.bashrc para verlo</span>
+<span class="t-h"># cada vez que abras una terminal nueva</span>
+<span class="t-p">$</span> echo "fastfetch" >> ~/.bashrc
+      </div>
+    </div>
+  </div>
+
+  <div class="tool">
+    <div class="tool-head">
+      <span class="tool-name">neofetch</span>
+      <span class="tool-tag">info del sistema (clásico)</span>
+    </div>
+    <p class="tool-desc">El clásico que popularizó eso de mostrar el logo de tu distro en ASCII junto a los datos del sistema al abrir la terminal — durante años fue LA herramienta para esto. Su desarrollo se detuvo en 2024, por lo que hoy se recomienda <code>fastfetch</code> (mismo resultado visual, más rápido y mantenido), pero sigue funcionando perfectamente y muchísimos tutoriales y configuraciones (dotfiles) que encontrarás en internet todavía lo usan, así que vale la pena conocerlo.</p>
+    <div class="tool-meta">
+      <div class="tm-item"><div class="tm-label">Para qué sirve</div><div class="tm-val">Lo mismo que fastfetch: resumen visual del sistema</div></div>
+      <div class="tm-item"><div class="tm-label">Cómo se ejecuta</div><div class="tm-val">neofetch</div></div>
+      <div class="tm-item"><div class="tm-label">Instalar (Mint/Zorin/Voyager)</div><div class="tm-val">sudo apt install neofetch</div></div>
+      <div class="tm-item"><div class="tm-label">Estado</div><div class="tm-val">sin mantenimiento activo desde 2024</div></div>
+    </div>
+    <div class="terminal">
+      <div class="term-bar"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div><span class="term-label">neofetch vs fastfetch</span></div>
+      <div class="term-body">
+<span class="t-p">$</span> sudo apt install neofetch
+<span class="t-p">$</span> neofetch
+<span class="t-h"># Personalizar qué información muestra:</span>
+<span class="t-p">$</span> nano ~/.config/neofetch/config.conf
+<span class="t-h"># Si el paquete no existe o quieres el reemplazo moderno, usa fastfetch</span>
+<span class="t-h"># (misma idea, más rápido y con mantenimiento activo — ver tarjeta anterior)</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="tool">
+    <div class="tool-head">
+      <span class="tool-name">glances</span>
+      <span class="tool-tag">monitor todo-en-uno</span>
+    </div>
+    <p class="tool-desc">Como btop pero orientado a diagnóstico y a servidores: en una sola pantalla resume CPU, RAM, disco, red, sensores de temperatura, procesos y hasta contenedores Docker. Incluso puedes exponerlo como servidor web para monitorizar una máquina remota desde el navegador.</p>
+    <div class="tool-meta">
+      <div class="tm-item"><div class="tm-label">Cómo se ejecuta</div><div class="tm-val">glances</div></div>
+      <div class="tm-item"><div class="tm-label">Instalar</div><div class="tm-val">sudo apt install glances</div></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- EXPLORAR HARDWARE -->
+<section class="module" id="explorar">
+  <div class="module-header">
+    <div class="module-icon">🔎</div>
+    <div>
+      <div class="module-title">Explorar y conocer tu sistema</div>
+      <div class="module-sub">Comandos para saber exactamente qué hardware tienes y cuánto llevas encendido, sin abrir ninguna app gráfica</div>
+    </div>
+  </div>
+
+  <p>Antes de instalar nada extra, Linux ya trae comandos que te dicen con detalle qué CPU, discos, memoria y dispositivos tiene tu equipo. Son ideales para "entender" de verdad tu sistema, comparar especificaciones o diagnosticar un problema de hardware.</p>
+
+  <div class="cmd-grid">
+    <div class="cmd-card">
+      <div class="cmd-title">lscpu</div>
+      <div class="cmd-desc">Toda la información de tu procesador: modelo, núcleos, hilos, frecuencia, caché y arquitectura.</div>
+      <span class="cmd-ex">lscpu</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">lsblk</div>
+      <div class="cmd-desc">Lista discos y particiones en forma de árbol, con tamaño y dónde está montado cada uno.</div>
+      <span class="cmd-ex">lsblk -f</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">lsusb</div>
+      <div class="cmd-desc">Lista todos los dispositivos conectados por USB (ratón, teclado, pendrives, webcam...).</div>
+      <span class="cmd-ex">lsusb</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">lspci</div>
+      <div class="cmd-desc">Lista el hardware conectado por PCI: tarjeta gráfica, red, sonido, chipset.</div>
+      <span class="cmd-ex">lspci | grep -i vga</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">free -h</div>
+      <div class="cmd-desc">Memoria RAM y swap: total, usada, libre y en caché, en formato legible.</div>
+      <span class="cmd-ex">free -h</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">uname -a</div>
+      <div class="cmd-desc">Versión del kernel, arquitectura (x86_64/arm64) y nombre del equipo, todo en una línea.</div>
+      <span class="cmd-ex">uname -a</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">uptime</div>
+      <div class="cmd-desc">Cuánto tiempo lleva encendido el sistema y la carga media (load average) del 1, 5 y 15 min.</div>
+      <span class="cmd-ex">uptime -p</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">tree</div>
+      <div class="cmd-desc">Dibuja la estructura de carpetas y archivos como un árbol visual, en vez de listar plano.</div>
+      <span class="cmd-ex">tree -L 2 ~/Proyectos</span>
+    </div>
+  </div>
+
+  <div class="tool">
+    <div class="tool-head">
+      <span class="tool-name">inxi</span>
+      <span class="tool-tag">ficha técnica completa</span>
+    </div>
+    <p class="tool-desc">El comando definitivo para conocer tu equipo a fondo: junta en un solo reporte CPU, GPU, RAM, discos, red, temperaturas y hasta la versión exacta de tu escritorio (Cinnamon, GNOME, XFCE...). Es lo primero que piden en foros de soporte de Linux Mint/Zorin cuando reportas un problema, porque describe el sistema completo en un solo comando.</p>
+    <div class="tool-meta">
+      <div class="tm-item"><div class="tm-label">Para qué sirve</div><div class="tm-val">Ficha técnica completa del equipo, ideal para pedir ayuda en foros</div></div>
+      <div class="tm-item"><div class="tm-label">Cómo se ejecuta</div><div class="tm-val">inxi -Fxz</div></div>
+      <div class="tm-item"><div class="tm-label">Instalar (Mint/Zorin/Voyager)</div><div class="tm-val">sudo apt install inxi</div></div>
+    </div>
+    <div class="terminal">
+      <div class="term-bar"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div><span class="term-label">inxi — informe completo del sistema</span></div>
+      <div class="term-body">
+<span class="t-p">$</span> sudo apt install inxi
+<span class="t-p">$</span> inxi -Fxz
+<span class="t-h"># -F = full report, -x = detalles extra, -z = oculta datos sensibles (MAC, serie)</span>
+<span class="t-h"># Solo la tarjeta gráfica y el driver que está usando:</span>
+<span class="t-p">$</span> inxi -G
+      </div>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div><span class="term-label">combinar varios de un tirón</span></div>
+    <div class="term-body">
+<span class="t-p">$</span> lscpu | grep "Model name"
+<span class="t-p">$</span> lsblk -f
+<span class="t-o">NAME   FSTYPE  LABEL   SIZE MOUNTPOINT</span>
+<span class="t-o">sda</span>
+<span class="t-o">├─sda1 vfat            512M /boot/efi</span>
+<span class="t-o">└─sda2 ext2             118G /</span>
+<span class="t-p">$</span> free -h
+<span class="t-o">               total   used   free  shared  buff/cache  available</span>
+<span class="t-o">Mem:            15Gi   5.2Gi  4.1Gi    412Mi        5.7Gi       9.3Gi</span>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>💡 watch — repetir un comando en vivo</h4>
+    <p>Si quieres ver cómo cambia la salida de un comando cada pocos segundos sin instalar nada nuevo, antepón <code>watch</code>: por ejemplo <code>watch -n 2 free -h</code> repite <code>free -h</code> cada 2 segundos, refrescando la pantalla. Funciona con cualquier comando (<code>watch -n 1 sensors</code>, <code>watch df -h</code>...) y es una alternativa rápida cuando no quieres abrir btop solo para vigilar un valor.</p>
+  </div>
+</section>
+
+
+<!-- DISCO -->
+<section class="module" id="disco">
+  <div class="module-header">
+    <div class="module-icon">💾</div>
+    <div>
+      <div class="module-title">Disco y almacenamiento</div>
+      <div class="module-sub">df -h ya lo conoces del nivel 18 — estas herramientas te dicen exactamente qué se está comiendo el espacio</div>
+    </div>
+  </div>
+
+  <div class="tool">
+    <div class="tool-head">
+      <span class="tool-name">df -h</span>
+      <span class="tool-tag">comando clásico</span>
+    </div>
+    <p class="tool-desc">Viene instalado siempre, sin excepción. Muestra el espacio total, usado y libre de cada partición o punto de montaje, en formato legible (<code>-h</code> = human-readable: GB/MB en vez de bloques). Es lo primero que ejecutas cuando sospechas que te estás quedando sin espacio.</p>
+    <div class="terminal">
+      <div class="term-bar"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div><span class="term-label">df -h</span></div>
+      <div class="term-body">
+<span class="t-p">$</span> df -h
+<span class="t-o">Filesystem      Size  Used Avail Use% Mounted on</span>
+<span class="t-o">/dev/sda2       118G   42G   70G   38% /</span>
+<span class="t-o">/dev/sda1       512M   88M  424M   18% /boot/efi</span>
+<span class="t-o">tmpfs           7.8G  1.2M  7.8G   1% /run</span>
+
+<span class="t-h"># Solo el sistema de archivos donde vive tu carpeta actual</span>
+<span class="t-p">$</span> df -h .
+
+<span class="t-h"># Excluir tmpfs/udev para ver solo discos reales</span>
+<span class="t-p">$</span> df -h -x tmpfs -x devtmpfs
+      </div>
+    </div>
+  </div>
+
+  <div class="tool">
+    <div class="tool-head">
+      <span class="tool-name">ncdu</span>
+      <span class="tool-tag">analizador de espacio interactivo</span>
+    </div>
+    <p class="tool-desc"><code>df -h</code> te dice CUÁNTO espacio libre tienes. <code>ncdu</code> (NCurses Disk Usage) te dice QUÉ carpeta se lo está comiendo — navegas visualmente por tu disco, ordenado de mayor a menor, y puedes borrar archivos directamente desde ahí. Es la herramienta número uno cuando el disco se llena y no sabes por qué.</p>
+    <div class="tool-meta">
+      <div class="tm-item"><div class="tm-label">Cómo se ejecuta</div><div class="tm-val">ncdu /ruta (o ncdu / con sudo)</div></div>
+      <div class="tm-item"><div class="tm-label">Instalar</div><div class="tm-val">sudo apt install ncdu</div></div>
+      <div class="tm-item"><div class="tm-label">Borrar dentro de ncdu</div><div class="tm-val">tecla d sobre el archivo/carpeta</div></div>
+    </div>
+    <div class="terminal">
+      <div class="term-bar"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div><span class="term-label">ncdu — encontrar qué ocupa el disco</span></div>
+      <div class="term-body">
+<span class="t-p">$</span> sudo apt install ncdu
+<span class="t-p">$</span> sudo ncdu /            <span class="t-h"># analiza todo el sistema (tarda un poco)</span>
+<span class="t-p">$</span> ncdu ~                 <span class="t-h"># solo tu carpeta personal, más rápido</span>
+<span class="t-h"># Flechas para navegar, Enter para entrar a una carpeta,</span>
+<span class="t-h"># "d" para borrar lo seleccionado, "q" para salir</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="tool">
+    <div class="tool-head">
+      <span class="tool-name">duf</span>
+      <span class="tool-tag">df moderno</span>
+    </div>
+    <p class="tool-desc">Un <code>df -h</code> con colores, agrupado por tipo de disco (local, red, temporal) y con barras de uso. No reemplaza a <code>ncdu</code> (ese busca archivos grandes), pero da un vistazo más claro que <code>df -h</code> cuando tienes muchas particiones o discos montados.</p>
+    <div class="tool-meta">
+      <div class="tm-item"><div class="tm-label">Cómo se ejecuta</div><div class="tm-val">duf</div></div>
+      <div class="tm-item"><div class="tm-label">Instalar</div><div class="tm-val">sudo apt install duf</div></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- PRODUCTIVIDAD -->
+<section class="module" id="productividad">
+  <div class="module-header">
+    <div class="module-icon">⚡</div>
+    <div>
+      <div class="module-title">Productividad en la shell</div>
+      <div class="module-sub">Herramientas que te ahorran teclas y te salvan de tus propios typos</div>
+    </div>
+  </div>
+
+  <div class="tool">
+    <div class="tool-head">
+      <span class="tool-name">thefuck</span>
+      <span class="tool-tag">corrector de comandos</span>
+    </div>
+    <p class="tool-desc">Escribes mal un comando (<code>get status</code> en vez de <code>git status</code>, o te olvidas del <code>sudo</code>), lo ejecutas, falla — y en vez de reescribirlo, tecleas <code>fuck</code> y te sugiere el comando corregido para que solo pulses Enter. Aprende de tus errores más frecuentes con el tiempo.</p>
+    <div class="tool-meta">
+      <div class="tm-item"><div class="tm-label">Para qué sirve</div><div class="tm-val">Corregir automáticamente el último comando fallido</div></div>
+      <div class="tm-item"><div class="tm-label">Cómo se ejecuta</div><div class="tm-val">fuck (tras un comando fallido)</div></div>
+      <div class="tm-item"><div class="tm-label">Instalar</div><div class="tm-val">sudo apt install thefuck</div></div>
+      <div class="tm-item"><div class="tm-label">Requiere</div><div class="tm-val">añadir una línea a ~/.bashrc para activarlo</div></div>
+    </div>
+    <div class="terminal">
+      <div class="term-bar"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div><span class="term-label">thefuck</span></div>
+      <div class="term-body">
+<span class="t-p">$</span> sudo apt install thefuck
+<span class="t-h"># Activarlo — añade esta línea al final de ~/.bashrc</span>
+<span class="t-p">$</span> echo 'eval $(thefuck --alias)' >> ~/.bashrc
+<span class="t-p">$</span> source ~/.bashrc
+
+<span class="t-h"># Ejemplo de uso real:</span>
+<span class="t-p">$</span> sudo pacman -Syu
+<span class="t-o">bash: sudo: command not found... o falla por permisos</span>
+<span class="t-p">$</span> fuck
+<span class="t-o">sudo apt update && sudo apt upgrade [enter/↑/↓/ctrl+c]</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="tool">
+    <div class="tool-head">
+      <span class="tool-name">fzf</span>
+      <span class="tool-tag">buscador difuso</span>
+    </div>
+    <p class="tool-desc">Un buscador interactivo de "fuzzy finding": escribes unas pocas letras y filtra en tiempo real entre archivos, historial de comandos o lo que le pases por tubería. Se integra con <code>Ctrl+R</code> (buscar en el historial de bash) y <code>Ctrl+T</code> (buscar archivos) una vez configurado.</p>
+    <div class="tool-meta">
+      <div class="tm-item"><div class="tm-label">Cómo se ejecuta</div><div class="tm-val">fzf (o Ctrl+R / Ctrl+T tras configurarlo)</div></div>
+      <div class="tm-item"><div class="tm-label">Instalar</div><div class="tm-val">sudo apt install fzf</div></div>
+    </div>
+    <div class="terminal">
+      <div class="term-bar"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div><span class="term-label">fzf</span></div>
+      <div class="term-body">
+<span class="t-p">$</span> sudo apt install fzf
+<span class="t-h"># Buscar un archivo entre miles y abrirlo con nano</span>
+<span class="t-p">$</span> nano $(find ~ -type f | fzf)
+<span class="t-h"># Ctrl+R ahora abre un buscador difuso de tu historial de comandos</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="tool">
+    <div class="tool-head">
+      <span class="tool-name">zoxide</span>
+      <span class="tool-tag">cd inteligente</span>
+    </div>
+    <p class="tool-desc">Sustituye a <code>cd</code>. Recuerda las carpetas que más visitas y te deja saltar a ellas escribiendo solo un fragmento del nombre, sin importar en qué punto del sistema estés. Después de usarlo un par de semanas, escribes <code>z proyecto</code> en vez de <code>cd ~/Documentos/trabajo/2026/proyecto</code>.</p>
+    <div class="tool-meta">
+      <div class="tm-item"><div class="tm-label">Cómo se ejecuta</div><div class="tm-val">z nombre-parcial-de-carpeta</div></div>
+      <div class="tm-item"><div class="tm-label">Instalar</div><div class="tm-val">sudo apt install zoxide</div></div>
+    </div>
+  </div>
+
+  <div class="tool">
+    <div class="tool-head">
+      <span class="tool-name">tldr</span>
+      <span class="tool-tag">manuales resumidos</span>
+    </div>
+    <p class="tool-desc"><code>man comando</code> es completísimo pero denso. <code>tldr comando</code> muestra 5-8 ejemplos prácticos de uso real, sin rodeos. Perfecto cuando ya sabes lo que hace un comando pero no recuerdas la sintaxis exacta.</p>
+    <div class="tool-meta">
+      <div class="tm-item"><div class="tm-label">Cómo se ejecuta</div><div class="tm-val">tldr tar</div></div>
+      <div class="tm-item"><div class="tm-label">Instalar</div><div class="tm-val">sudo apt install tldr</div></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- REEMPLAZOS MODERNOS -->
+<section class="module" id="reemplazos">
+  <div class="module-header">
+    <div class="module-icon">🔁</div>
+    <div>
+      <div class="module-title">Reemplazos modernos de comandos clásicos</div>
+      <div class="module-sub">Mismo trabajo, con colores, resaltado de sintaxis y mejor rendimiento</div>
+    </div>
+  </div>
+
+  <p>Existe toda una familia de herramientas escritas en Rust que reimplementan comandos de toda la vida, casi siempre con el mismo nombre corto de una letra distinta. No son obligatorias, pero una vez las pruebas cuesta volver.</p>
+
+  <div class="cmd-grid">
+    <div class="cmd-card">
+      <div class="cmd-title">eza — reemplaza a ls</div>
+      <div class="cmd-desc">Listado de archivos con colores por tipo, iconos, árbol de directorios y estado de git integrado.</div>
+      <span class="cmd-ex">eza -la --icons --git</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">bat — reemplaza a cat</div>
+      <div class="cmd-desc">Muestra archivos con resaltado de sintaxis, números de línea y paginado automático.</div>
+      <span class="cmd-ex">bat script.sh</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">ripgrep (rg) — reemplaza a grep</div>
+      <div class="cmd-desc">Búsqueda de texto en archivos, muchísimo más rápida, respeta .gitignore automáticamente.</div>
+      <span class="cmd-ex">rg "TODO" --type py</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">fd — reemplaza a find</div>
+      <div class="cmd-desc">Buscar archivos por nombre con sintaxis simple, sin necesidad de flags raros como -name.</div>
+      <span class="cmd-ex">fd informe .pdf</span>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div><span class="term-label">instalar los reemplazos modernos</span></div>
+    <div class="term-body">
+<span class="t-h"># En apt, ripgrep y fd-find suelen estar con nombre distinto:</span>
+<span class="t-p">$</span> sudo apt install ripgrep fd-find bat
+<span class="t-h"># En Debian/Ubuntu el binario de fd-find se llama "fdfind", no "fd"</span>
+<span class="t-p">$</span> fdfind informe.pdf
+<span class="t-h"># En Debian/Ubuntu el binario de bat se llama "batcat"</span>
+<span class="t-p">$</span> batcat script.sh
+
+<span class="t-h"># eza normalmente no está en los repos base de Mint/Zorin/Voyager todavía,</span>
+<span class="t-h"># se instala desde su repo oficial (ver instrucciones en github.com/eza-community/eza)</span>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>💡 Crea alias para no escribir el nombre largo</h4>
+    <p>Añade esto a tu <code>~/.bashrc</code> para que <code>ls</code> y <code>find</code> usen las versiones modernas sin cambiar tu costumbre: <code>alias ls='eza --icons'</code> y <code>alias find='fdfind'</code>. Así sigues escribiendo lo de siempre pero obtienes la herramienta nueva por debajo.</p>
+  </div>
+</section>
+
+
+<!-- TMUX -->
+<section class="module" id="multiplexor">
+  <div class="module-header">
+    <div class="module-icon">🪟</div>
+    <div>
+      <div class="module-title">tmux — multiplexor de terminal</div>
+      <div class="module-sub">Varias terminales dentro de una sola ventana, que sobreviven aunque cierres la sesión</div>
+    </div>
+  </div>
+
+  <p><strong>tmux</strong> te deja dividir una terminal en paneles, crear varias "pestañas" (ventanas) y, sobre todo, dejar procesos corriendo en segundo plano y volver a conectarte más tarde exactamente donde lo dejaste — imprescindible cuando trabajas por SSH en un servidor y no quieres que se corte el proceso si se cae la conexión.</p>
+
+  <div class="tool-meta">
+    <div class="tm-item"><div class="tm-label">Cómo se ejecuta</div><div class="tm-val">tmux</div></div>
+    <div class="tm-item"><div class="tm-label">Instalar</div><div class="tm-val">sudo apt install tmux</div></div>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div><span class="term-label">tmux — lo esencial</span></div>
+    <div class="term-body">
+<span class="t-p">$</span> tmux new -s trabajo       <span class="t-h"># crea una sesión llamada "trabajo"</span>
+<span class="t-h"># Ctrl+b luego "         → divide el panel horizontalmente</span>
+<span class="t-h"># Ctrl+b luego %         → divide el panel verticalmente</span>
+<span class="t-h"># Ctrl+b luego flechas   → moverte entre paneles</span>
+<span class="t-h"># Ctrl+b luego d         → desconectar (detach) sin cerrar nada</span>
+
+<span class="t-p">$</span> tmux ls                    <span class="t-h"># ver sesiones activas</span>
+<span class="t-p">$</span> tmux attach -t trabajo     <span class="t-h"># volver a conectar donde lo dejaste</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- DIVERSIÓN -->
+<section class="module" id="diversion">
+  <div class="module-header">
+    <div class="module-icon">🎉</div>
+    <div>
+      <div class="module-title">Solo por diversión</div>
+      <div class="module-sub">No hacen nada útil, pero son parte de la cultura de la terminal — y sirven para practicar apt</div>
+    </div>
+  </div>
+
+  <div class="cmd-grid">
+    <div class="cmd-card">
+      <div class="cmd-title">cmatrix</div>
+      <div class="cmd-desc">La lluvia de caracteres verdes de "The Matrix" corriendo en tu terminal.</div>
+      <span class="cmd-ex">sudo apt install cmatrix && cmatrix</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">cowsay</div>
+      <div class="cmd-desc">Una vaca ASCII (o pingüino, dragón...) que "dice" el texto que le pases.</div>
+      <span class="cmd-ex">cowsay "Hola Hugo"</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">lolcat</div>
+      <div class="cmd-desc">Colorea de arcoíris cualquier salida de texto que le pases por tubería.</div>
+      <span class="cmd-ex">fortune | cowsay | lolcat</span>
+    </div>
+    <div class="cmd-card">
+      <div class="cmd-title">figlet</div>
+      <div class="cmd-desc">Convierte texto en letras gigantes hechas de caracteres ASCII.</div>
+      <span class="cmd-ex">figlet "Cafe"</span>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="term-bar"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div><span class="term-label">combo clásico</span></div>
+    <div class="term-body">
+<span class="t-p">$</span> sudo apt install cmatrix cowsay lolcat figlet fortune-mod
+<span class="t-p">$</span> fortune | cowsay | lolcat
+<span class="t-o">(una frase random, dicha por una vaca ASCII, en arcoíris)</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- EJERCICIO -->
+<div class="ejercicio" id="ejercicio">
+  <div class="ej-hd">
+    ✏️ Ejercicio del Nivel 24
+    <span class="ej-badge">Práctica</span>
+  </div>
+  <p>Monta tu propia caja de herramientas de terminal:</p>
+  <ol>
+    <li><strong>Instala tres:</strong> ejecuta <code>sudo apt update</code> y luego instala <code>btop</code>, <code>fastfetch</code> y <code>ncdu</code>. Abre cada uno y explóralos un par de minutos.</li>
+    <li><strong>Diagnóstico real:</strong> usa <code>ncdu ~</code> para encontrar qué carpeta de tu directorio personal ocupa más espacio. Compáralo con lo que te dice <code>df -h .</code></li>
+    <li><strong>Automatiza tu bienvenida:</strong> añade <code>fastfetch</code> al final de tu <code>~/.bashrc</code> para que se muestre cada vez que abras una terminal.</li>
+    <li><strong>thefuck en acción:</strong> instálalo, actívalo en <code>~/.bashrc</code>, escribe intencionadamente mal un comando (por ejemplo <code>sl -la</code> en vez de <code>ls -la</code>) y corrígelo con <code>fuck</code>.</li>
+    <li><strong>Elige tu favorita:</strong> de todas las herramientas de este nivel, instala la que más te llamó la atención y créale un alias corto en <code>~/.bashrc</code> para usarla sin escribir el nombre completo.</li>
+  </ol>
+  <p><strong>Reto:</strong> combina <code>fortune | cowsay | lolcat</code> y añádelo también a tu <code>~/.bashrc</code>, justo antes de <code>fastfetch</code>, para tener una terminal con personalidad propia cada vez que la abras.</p>
+</div>
+
+<!-- RESUMEN -->
+<div class="resumen">
+  <h3>🟥 Resumen del Nivel 24</h3>
+  <ul>
+    <li>En <strong>Linux Mint, Zorin OS y Voyager</strong> todo se instala igual, con <code>sudo apt install paquete</code>, porque los tres comparten base Ubuntu/Debian.</li>
+    <li><strong>Monitores</strong>: <code>top</code> (el clásico, siempre disponible), <code>btop</code> (su versión visual moderna), <code>fastfetch</code> y <code>neofetch</code> (resumen del sistema al abrir terminal — fastfetch es el reemplazo activo de neofetch), <code>glances</code> (todo-en-uno, útil en servidores).</li>
+    <li><strong>Explorar hardware</strong>: <code>lscpu</code>, <code>lsblk</code>, <code>lsusb</code>, <code>lspci</code>, <code>free -h</code>, <code>uname -a</code> y <code>uptime</code> para datos puntuales; <code>inxi -Fxz</code> para una ficha técnica completa del equipo de un solo comando.</li>
+    <li><strong>Disco</strong>: <code>df -h</code> dice cuánto espacio libre queda, <code>ncdu</code> dice qué carpeta se lo está comiendo, <code>duf</code> es un <code>df</code> con colores.</li>
+    <li><strong>Productividad</strong>: <code>thefuck</code> corrige el último comando fallido, <code>fzf</code> busca de forma difusa, <code>zoxide</code> es un <code>cd</code> con memoria, <code>tldr</code> da ejemplos rápidos de cualquier comando.</li>
+    <li><strong>Reemplazos modernos</strong>: <code>eza</code> (ls), <code>bat</code>/<code>batcat</code> (cat), <code>rg</code>/ripgrep (grep), <code>fdfind</code> (find) — en Debian/Ubuntu algunos cambian de nombre de binario.</li>
+    <li><code>tmux</code> — paneles y sesiones de terminal que sobreviven aunque se corte la conexión SSH.</li>
+    <li>Ninguna de estas herramientas es obligatoria: los comandos clásicos del nivel 12-19 siempre funcionan, en cualquier máquina, aunque no puedas instalar nada.</li>
+  </ul>
+</div>
+
+<!-- CIERRE -->
+<div class="cierre">
+  <h2>🎁 Nivel <em>bonus</em> completado</h2>
+  <p>Con esto tu caja de herramientas de terminal está lista para trabajar cómodo en Linux Mint, Zorin OS, Voyager o cualquier distro basada en Ubuntu/Debian.</p>
+</div>
+
+<a class="back-card" href="../explorando-capitulos.html">
+  <div>
+    <div class="bc-label">Volver al portal</div>
+    <div class="bc-name">Café &lt;/&gt; — Explorar otras guías del portal</div>
+  </div>
+  <div class="bc-arrow">↩</div>
+</a>
+
+</main>
+
+<footer>
+  Linux desde Cero · Nivel 24 · Herramientas de Terminal · Café &lt;/&gt; · Hugo 2025
+</footer>
+
+<script>
+(function(){const s=localStorage.getItem('cafe-theme');const sys=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';const t=s||sys;document.documentElement.setAttribute('data-theme',t);updateUI(t);})();
+function toggleTheme(){const c=document.documentElement.getAttribute('data-theme');const n=c==='light'?'dark':'light';document.documentElement.setAttribute('data-theme',n);localStorage.setItem('cafe-theme',n);updateUI(n);}
+function updateUI(t){const i=document.getElementById('themeIcon');const l=document.getElementById('themeLabel');if(!i||!l)return;i.textContent=t==='dark'?'☀️':'🌙';l.textContent=t==='dark'?'Claro':'Oscuro';}
+</script>
+</body>
+</html>

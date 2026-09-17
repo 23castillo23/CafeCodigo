@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Fase 4, Bloque 2 — JavaScript moderno: map, filter y reduce, con visualizadores interactivos.">
+<title>Bloque 2 — map, filter y reduce | JavaScript moderno</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --primary:        #be185d;
+    --primary-light:  #fdf0f6;
+    --secondary:      #4338ca;
+    --secondary-light:#eef0fd;
+    --accent:         #b45309;
+    --accent-light:   #fdf3e5;
+    --danger:         #b91c1c;
+    --danger-light:   #fdf0f0;
+    --bg:             #fbf5f8;
+    --surface:        #ffffff;
+    --text:           #241220;
+    --muted:          #8c7a89;
+    --border:         #f0e2ec;
+    --code-bg:        #241220;
+    --code-text:      #f8ecf5;
+  }
+
+  body { font-family: 'DM Sans', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
+
+  header { background: #241220; color: #fbf5f8; padding: 3rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: '[ ]'; position: absolute; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 10rem; right: -.5rem; top: -2rem; opacity: .08; line-height: 1; }
+  header .ex-label { display: inline-block; background: var(--primary); color: white; border-radius: 20px; padding: 4px 16px; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 1rem; }
+  header h1 { font-family: 'Space Grotesk', sans-serif; font-size: 2.4rem; font-weight: 700; letter-spacing: -1px; }
+  header p.sub { font-size: 1.05rem; opacity: .8; margin-top: .5rem; font-style: italic; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
+
+  .course-nav { background: #150a13; display: flex; overflow-x: auto; gap: 6px; padding: 10px 14px; align-items: center; }
+  .course-nav a { flex-shrink: 0; font-family: 'DM Mono', monospace; font-size: .74rem; font-weight: 700; color: #c9a9c1; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 14px; padding: 5px 11px; text-decoration: none; white-space: nowrap; transition: background .15s, color .15s; }
+  .course-nav a:hover { background: rgba(255,255,255,.14); color: #fff; }
+  .course-nav a.current { background: var(--primary); color: white; border-color: var(--primary); }
+
+  .cafe-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; gap: 14px; position: sticky; top: 0; z-index: 200; height: 45px; }
+  .cafe-bar a { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); text-decoration: none; padding: 6px 14px; border: 1px solid var(--border); border-radius: 999px; transition: all 0.15s; }
+  .cafe-bar a:hover { color: var(--text); border-color: var(--muted); }
+  .cafe-bar span { font-size: 13px; color: var(--muted); }
+
+  nav { background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 45px; z-index: 100; display: flex; overflow-x: auto; gap: 0; }
+  nav a { flex-shrink: 0; padding: .75rem 1.1rem; text-decoration: none; color: var(--muted); font-size: .82rem; font-weight: 500; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; }
+  nav a:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  main { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: white; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
+
+  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2.5rem; scroll-margin-top:80px; }
+  .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .module-icon { font-size: 1.8rem; flex-shrink: 0; }
+  .module-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.3rem; font-weight: 700; }
+  .module-sub { font-size: .85rem; color: var(--muted); margin-top: 2px; }
+
+  .analogy { background: #FFF7ED; border: 1px solid #FDE68A; border-left: 4px solid var(--accent); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .analogy h4 { color: #92400E; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .analogy p { font-size: .95rem; color: #78350F; }
+
+  .concept { background: var(--secondary-light); border-left: 4px solid var(--secondary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .concept h4 { color: var(--secondary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .concept p { font-size: .95rem; }
+
+  .tip { background: var(--primary-light); border-left: 4px solid var(--primary); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .tip h4 { color: var(--primary); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .tip p, .tip ul { font-size: .95rem; }
+  .tip ul { padding-left: 1.2rem; }
+  .tip li { margin-bottom: .3rem; }
+
+  .warn { background: var(--danger-light); border-left: 4px solid var(--danger); border-radius: 0 10px 10px 0; padding: 1.1rem 1.25rem; margin: 1.1rem 0; }
+  .warn h4 { color: var(--danger); font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; }
+  .warn p { font-size: .95rem; }
+
+  .code-block { background: var(--code-bg); color: var(--code-text); border-radius: 10px; padding: 1.25rem 1.5rem; font-family: 'DM Mono', 'Courier New', monospace; font-size: .88rem; line-height: 1.9; overflow-x: auto; margin: 1rem 0; position: relative; white-space: pre; }
+  .code-block .ck { color: #c4b5fd; }
+  .code-block .cv { color: #86efac; }
+  .code-block .cs { color: #fde68a; }
+  .code-block .cn { color: #93c5fd; }
+  .code-block .cf { color: #67e8f9; }
+  .code-block .cc { color: #9a8697; font-style: italic; }
+  .code-block .co { color: #f8ecf5; }
+  .lang { position: absolute; top: .6rem; right: .75rem; background: rgba(255,255,255,.1); color: rgba(255,255,255,.5); font-size: .68rem; padding: 2px 8px; border-radius: 4px; font-family: sans-serif; }
+
+  .tbl { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .9rem; }
+  .tbl th { background: var(--primary-light); color: var(--primary); padding: .65rem 1rem; text-align: left; font-weight: 600; }
+  .tbl td { padding: .65rem 1rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .tbl tr:hover td { background: var(--bg); }
+  .tag { display: inline-block; background: var(--primary-light); color: var(--primary); font-family: 'DM Mono', monospace; font-size: .84rem; padding: 1px 7px; border-radius: 4px; font-weight: 600; }
+
+  .glos { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin: 1rem 0; }
+  .glos-item { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.1rem; }
+  .glos-item dt { font-weight: 700; color: var(--primary); font-size: .92rem; margin-bottom: .3rem; }
+  .glos-item dd { font-size: .85rem; color: var(--muted); line-height: 1.5; }
+  .glos-item .emoji { font-size: 1.4rem; display: block; margin-bottom: .4rem; }
+
+  /* VISUALIZADOR DE ARRAY ANTES/DESPUÉS */
+  .arr-transform { border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; background: var(--bg); margin: 1.1rem 0; }
+  .arr-transform-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 1rem; }
+  .arr-transform-boxes { display: flex; gap: 6px; flex-wrap: wrap; }
+  .arr-transform-boxes .box { background: var(--surface); border: 2px solid var(--border); border-radius: 8px; padding: 8px 12px; font-family: 'DM Mono', monospace; font-weight: 700; font-size: .85rem; min-width: 30px; text-align: center; transition: all .2s; }
+  .arr-transform-boxes .box.kept { border-color: var(--secondary); color: var(--secondary); }
+  .arr-transform-boxes .box.removed { border-color: var(--danger); color: var(--danger); opacity: .4; text-decoration: line-through; }
+  .arr-transform-boxes .box.changed { border-color: var(--primary); color: var(--primary); }
+  .arr-arrow { font-size: 1.3rem; color: var(--muted); }
+  .arr-transform-controls { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: .5rem; }
+  .arr-transform-controls select, .arr-transform-controls input { padding: 7px 10px; border-radius: 8px; border: 1px solid var(--border); font-family: 'DM Mono', monospace; font-size: .85rem; }
+  .arr-transform-controls label { font-family: 'DM Mono', monospace; font-size: .78rem; font-weight: 700; }
+
+  /* VISUALIZADOR REDUCE PASO A PASO */
+  .reduce-stepper { border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; background: var(--bg); margin: 1.1rem 0; }
+  .reduce-row { display: flex; gap: 10px; margin-bottom: 1rem; }
+  .reduce-row button { font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: .82rem; cursor: pointer; padding: 8px 16px; border-radius: 20px; border: none; background: var(--primary); color: white; }
+  .reduce-row button.secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+  .reduce-track { display: flex; gap: 6px; margin-bottom: 1rem; flex-wrap: wrap; }
+  .reduce-track .rbox { padding: 7px 12px; border-radius: 8px; background: var(--surface); border: 1px solid var(--border); font-family: 'DM Mono', monospace; font-size: .82rem; }
+  .reduce-track .rbox.used { background: var(--primary-light); border-color: var(--primary); color: var(--primary); font-weight: 700; }
+  .reduce-acc { background: var(--surface); border: 2px solid var(--primary); border-radius: 8px; padding: 10px 18px; font-family: 'DM Mono', monospace; font-weight: 700; color: var(--primary); font-size: 1.1rem; display: inline-block; }
+
+  .console-wrap { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin: 1rem 0; }
+  .console-editor-label, .console-output-label { background: #241220; color: #f8ecf5; font-family: 'DM Mono', monospace; font-size: .72rem; padding: 6px 12px; letter-spacing: .04em; display: flex; justify-content: space-between; align-items: center; }
+  .console-wrap textarea { width: 100%; height: 210px; border: none; resize: vertical; background: var(--code-bg); color: var(--code-text); font-family: 'DM Mono', monospace; font-size: .87rem; line-height: 1.7; padding: 1rem; outline: none; border-bottom: 1px solid #3d2438; }
+  .run-btn { background: var(--primary); color: white; border: none; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: .76rem; padding: 4px 12px; border-radius: 20px; cursor: pointer; }
+  .console-output { background: #180c16; min-height: 90px; padding: 1rem; font-family: 'DM Mono', monospace; font-size: .85rem; }
+  .console-line { color: #86efac; padding: 2px 0; }
+  .console-line.error { color: #fca5a5; }
+  .console-line.muted { color: #6b6068; font-style: italic; }
+
+  .lab-try-row { display: flex; flex-wrap: wrap; gap: 8px; margin: .9rem 0; }
+  .lab-try-row button { font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: .8rem; cursor: pointer; padding: 7px 14px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface); color: var(--text); }
+  .lab-try-row button:hover { border-color: var(--primary); color: var(--primary); }
+  .lab-reset { display: block; margin-top: .7rem; font-size: .78rem; color: var(--muted); background: none; border: none; text-decoration: underline; cursor: pointer; padding: 0; }
+
+  .reto-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin: 1.25rem 0; }
+  .reto-card { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+  .reto-card .nivel { display: inline-block; font-size: .72rem; font-weight: 700; padding: 2px 10px; border-radius: 20px; margin-bottom: .6rem; text-transform: uppercase; letter-spacing: .06em; }
+  .nivel-f { background: #FEF3C7; color: #92400E; }
+  .nivel-m { background: #FFEDD5; color: #C2410C; }
+  .nivel-a { background: #FEE2E2; color: #B91C1C; }
+  .reto-card h4 { font-size: .95rem; font-weight: 700; margin-bottom: .5rem; }
+  .reto-card p { font-size: .88rem; color: var(--muted); margin-bottom: .5rem; }
+
+  .chip { display: inline-block; background: var(--primary-light); color: var(--primary); font-size: .8rem; padding: 3px 12px; border-radius: 20px; font-weight: 600; margin: 3px; font-family: 'DM Mono', monospace; }
+
+  h2 { font-family: 'Space Grotesk', sans-serif; font-size: 1.2rem; font-weight: 700; margin: 1.75rem 0 .75rem; color: var(--text); }
+  p { margin-bottom: .8rem; }
+  ul, ol { padding-left: 1.4rem; margin-bottom: .8rem; }
+  li { margin-bottom: .4rem; font-size: .96rem; }
+  code { font-family: 'DM Mono', monospace; background: #f5e7f0; color: var(--primary); padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  strong { font-weight: 700; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
+
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--border); margin-top: 1rem; background: var(--bg); }
+</style>
+</head>
+<body>
+
+<!-- BARRA CAFÉ -->
+<div class="cafe-bar">
+  <a href="../capitulos.html">← Capítulos</a>
+  <span>☕ Fase 4 · Bloque 2 · map, filter y reduce</span>
+</div>
+
+
+<header>
+  <div class="ex-label">✏️ Fase 4 · Bloque 2</div>
+  <h1>map, filter y reduce</h1>
+  <p class="sub">Recorre arreglos sin escribir un for</p>
+  <span class="badge">🎯 JavaScript moderno · .map() · .filter() · .reduce()</span>
+</header>
+
+<div class="course-nav">
+  <a href="fase1-bloque1-estructura-texto.html">F1.1</a>
+  <a href="fase1-bloque2-listas-enlaces-imagenes.html">F1.2</a>
+  <a href="fase1-bloque3-div-section.html">F1.3</a>
+  <a href="fase2-bloque1-selectores-colores.html">F2.1</a>
+  <a href="fase2-bloque2-espaciado-cajas.html">F2.2</a>
+  <a href="fase2-bloque3-id-flexbox-responsive.html">F2.3</a>
+  <a href="fase3-bloque1-variables-tipos.html">F3.1</a>
+  <a href="fase3-bloque2-operadores-condicionales.html">F3.2</a>
+  <a href="fase3-bloque3-bucles.html">F3.3</a>
+  <a href="fase3-bloque4-funciones.html">F3.4</a>
+  <a href="fase3-bloque5-arreglos-objetos.html">F3.5</a>
+  <a href="fase3-bloque6-dom.html">F3.6</a>
+  <a href="fase3-bloque7-formularios-validacion.html">F3.7</a>
+  <a href="fase3-bloque8-async-apis.html">F3.8</a>  
+  <a href="fase4-bloque1-arrow-template-literals.html">F4.1</a>
+  <a href="fase4-bloque2-map-filter-reduce.html" class="current">F4.2</a>  
+  <a href="fase4-bloque3-destructuring-spread.html">F4.3</a>
+  <a href="fase5-bloque1-try-catch.html">F5.1</a>
+  <a href="fase5-bloque2-clases-poo.html">F5.2</a>
+  <a href="fase5-bloque3-herencia-extends.html">F5.3</a>
+  <a href="fase5-bloque4-modulos.html">F5.4</a>
+  <a href="mi-lista-de-tareas.html">🏁 Proyecto</a>
+</div>
+
+<nav>
+  <a href="#recordatorio">🔁 Recordatorio</a>
+  <a href="#vocabulario">📖 Vocabulario nuevo</a>
+  <a href="#map">🔄 .map()</a>
+  <a href="#filter">🔍 .filter()</a>
+  <a href="#reduce">➕ .reduce()</a>
+  <a href="#consola">🧪 Consola en vivo</a>
+  <a href="#retos">🏆 Retos</a>
+  <a href="#resumen">📋 Resumen</a>
+</nav>
+
+<main>
+
+<div class="parte-badge">🔄 Fase 4 · Bloque 2 — JavaScript moderno: map, filter y reduce</div>
+
+<section class="module" id="recordatorio">
+  <div class="module-header">
+    <div class="module-icon">🔁</div>
+    <div>
+      <div class="module-title">Antes de empezar: recordatorio rápido</div>
+      <div class="module-sub">Lo que ya sabes del Bloque 1</div>
+    </div>
+  </div>
+  <p>Ya sabes recorrer un arreglo con <code>for</code>, y escribir arrow functions cortas. Este bloque une ambas cosas: <code>.map()</code>, <code>.filter()</code> y <code>.reduce()</code> son métodos que YA incluyen el bucle por dentro — tú solo les dices, con una arrow function, qué hacer con cada elemento.</p>
+</section>
+
+<section class="module" id="vocabulario">
+  <div class="module-header">
+    <div class="module-icon">📖</div>
+    <div>
+      <div class="module-title">Vocabulario nuevo</div>
+      <div class="module-sub">Tres métodos, un patrón en común</div>
+    </div>
+  </div>
+
+  <div class="analogy">
+    <h4>🧠 Piénsalo así</h4>
+    <p>Imagina una fábrica con una banda transportadora de cajas (tu arreglo). <code>.map()</code> es una estación que ABRE cada caja y la transforma (le cambia el contenido). <code>.filter()</code> es un inspector que deja pasar solo algunas cajas y descarta otras. <code>.reduce()</code> es la estación final que junta TODAS las cajas en un solo resultado.</p>
+  </div>
+
+  <div class="glos">
+    <div class="glos-item">
+      <span class="emoji">🔄</span>
+      <dt>.map()</dt>
+      <dd>Transforma cada elemento y regresa un arreglo NUEVO del mismo tamaño</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">🔍</span>
+      <dt>.filter()</dt>
+      <dd>Deja solo los elementos que cumplen una condición</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">➕</span>
+      <dt>.reduce()</dt>
+      <dd>Combina todo el arreglo en UN SOLO valor</dd>
+    </div>
+    <div class="glos-item">
+      <span class="emoji">📞</span>
+      <dt>Callback</dt>
+      <dd>La función que le pasas a estos métodos para decirles qué hacer</dd>
+    </div>
+  </div>
+</section>
+
+<section class="module" id="map">
+  <div class="module-header">
+    <div class="module-icon">🔄</div>
+    <div>
+      <div class="module-title">PARTE 1 — .map()</div>
+      <div class="module-sub">Cambia la operación y mira el arreglo transformarse</div>
+    </div>
+  </div>
+
+  <div class="code-block"><span class="lang">JS</span><span class="ck">const</span> <span class="cv">numeros</span> <span class="co">=</span> <span class="co">[</span><span class="cn">1</span><span class="co">,</span> <span class="cn">2</span><span class="co">,</span> <span class="cn">3</span><span class="co">,</span> <span class="cn">4</span><span class="co">];</span>
+
+<span class="ck">const</span> <span class="cv">dobles</span> <span class="co">=</span> <span class="cv">numeros</span><span class="co">.</span><span class="cf">map</span><span class="co">((</span><span class="cv">n</span><span class="co">)</span> <span class="co">=&gt;</span> <span class="cv">n</span> <span class="co">*</span> <span class="cn">2</span><span class="co">);</span>
+
+<span class="cf">console.log</span><span class="co">(</span><span class="cv">dobles</span><span class="co">);</span> <span class="cc">// [2, 4, 6, 8]</span></div>
+
+  <table class="tbl">
+    <thead><tr><th>Parte</th><th>¿Qué hace?</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">.map((n) => n * 2)</span></td><td>Por cada elemento <code>n</code> del arreglo, ejecuta esa arrow function y guarda el resultado en un arreglo NUEVO.</td></tr>
+      <tr><td><span class="tag">numeros</span></td><td>Queda EXACTAMENTE igual — <code>.map()</code> nunca modifica el arreglo original, siempre crea uno nuevo.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="arr-transform">
+    <div class="arr-transform-controls">
+      <label for="mapOp">Operación:</label>
+      <select id="mapOp">
+        <option value="x2">n * 2</option>
+        <option value="x10">n * 10</option>
+        <option value="plus1">n + 1</option>
+        <option value="square">n * n</option>
+      </select>
+    </div>
+    <div class="arr-transform-row">
+      <div class="arr-transform-boxes" id="mapBefore"></div>
+      <div class="arr-arrow">.map() →</div>
+      <div class="arr-transform-boxes" id="mapAfter"></div>
+    </div>
+  </div>
+</section>
+
+<section class="module" id="filter">
+  <div class="module-header">
+    <div class="module-icon">🔍</div>
+    <div>
+      <div class="module-title">PARTE 2 — .filter()</div>
+      <div class="module-sub">Cambia la condición y observa qué se queda y qué se va</div>
+    </div>
+  </div>
+
+  <div class="code-block"><span class="lang">JS</span><span class="ck">const</span> <span class="cv">numeros</span> <span class="co">=</span> <span class="co">[</span><span class="cn">1</span><span class="co">,</span> <span class="cn">2</span><span class="co">,</span> <span class="cn">3</span><span class="co">,</span> <span class="cn">4</span><span class="co">,</span> <span class="cn">5</span><span class="co">,</span> <span class="cn">6</span><span class="co">];</span>
+
+<span class="ck">const</span> <span class="cv">pares</span> <span class="co">=</span> <span class="cv">numeros</span><span class="co">.</span><span class="cf">filter</span><span class="co">((</span><span class="cv">n</span><span class="co">)</span> <span class="co">=&gt;</span> <span class="cv">n</span> <span class="co">%</span> <span class="cn">2</span> <span class="co">===</span> <span class="cn">0</span><span class="co">);</span>
+
+<span class="cf">console.log</span><span class="co">(</span><span class="cv">pares</span><span class="co">);</span> <span class="cc">// [2, 4, 6]</span></div>
+
+  <table class="tbl">
+    <thead><tr><th>Parte</th><th>¿Qué hace?</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">.filter((n) => n % 2 === 0)</span></td><td>Por cada elemento, revisa si la condición da <code>true</code>. Si es <code>true</code>, lo mantiene; si es <code>false</code>, lo descarta.</td></tr>
+      <tr><td>Diferencia con <span class="tag">.map()</span></td><td><code>.map()</code> SIEMPRE regresa el mismo número de elementos (transformados). <code>.filter()</code> puede regresar MENOS elementos (o ninguno).</td></tr>
+    </tbody>
+  </table>
+
+  <div class="arr-transform">
+    <div class="arr-transform-controls">
+      <label for="filterOp">Condición:</label>
+      <select id="filterOp">
+        <option value="even">n % 2 === 0 (pares)</option>
+        <option value="odd">n % 2 !== 0 (impares)</option>
+        <option value="gt3">n &gt; 3</option>
+        <option value="lt3">n &lt; 3</option>
+      </select>
+    </div>
+    <div class="arr-transform-row">
+      <div class="arr-transform-boxes" id="filterBefore"></div>
+      <div class="arr-arrow">.filter() →</div>
+      <div class="arr-transform-boxes" id="filterAfter"></div>
+    </div>
+  </div>
+
+  <div class="tip">
+    <h4>💡 Se ven tachados los que no pasaron</h4>
+    <p>En el arreglo de "antes", los números tachados en rojo son los que <code>.filter()</code> descarta con la condición actual — así ves exactamente cuáles sí cumplen y cuáles no, antes de ver el resultado final.</p>
+  </div>
+</section>
+
+<section class="module" id="reduce">
+  <div class="module-header">
+    <div class="module-icon">➕</div>
+    <div>
+      <div class="module-title">PARTE 3 — .reduce()</div>
+      <div class="module-sub">El más distinto de los tres — míralo paso a paso</div>
+    </div>
+  </div>
+
+  <div class="code-block"><span class="lang">JS</span><span class="ck">const</span> <span class="cv">numeros</span> <span class="co">=</span> <span class="co">[</span><span class="cn">1</span><span class="co">,</span> <span class="cn">2</span><span class="co">,</span> <span class="cn">3</span><span class="co">,</span> <span class="cn">4</span><span class="co">];</span>
+
+<span class="ck">const</span> <span class="cv">total</span> <span class="co">=</span> <span class="cv">numeros</span><span class="co">.</span><span class="cf">reduce</span><span class="co">((</span><span class="cv">acumulador</span><span class="co">,</span> <span class="cv">actual</span><span class="co">)</span> <span class="co">=&gt;</span> <span class="cv">acumulador</span> <span class="co">+</span> <span class="cv">actual</span><span class="co">,</span> <span class="cn">0</span><span class="co">);</span>
+
+<span class="cf">console.log</span><span class="co">(</span><span class="cv">total</span><span class="co">);</span> <span class="cc">// 10</span></div>
+
+  <table class="tbl">
+    <thead><tr><th>Parte</th><th>¿Qué hace?</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">acumulador</span></td><td>Va guardando el resultado acumulado hasta el momento — como una "bolsa" que va creciendo.</td></tr>
+      <tr><td><span class="tag">actual</span></td><td>El elemento del arreglo en el que va la vuelta actual.</td></tr>
+      <tr><td><span class="tag">, 0</span></td><td>El SEGUNDO argumento de <code>.reduce()</code> — el valor inicial del acumulador, antes de empezar.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="reduce-stepper">
+    <div class="reduce-row">
+      <button onclick="reduceStep()">▶ Siguiente paso</button>
+      <button class="secondary" onclick="reduceReset()">↺ Reiniciar</button>
+    </div>
+    <div class="reduce-track" id="reduceTrack"></div>
+    <p style="font-family:'DM Mono',monospace; font-size:.8rem; color:var(--muted); margin-bottom:.5rem;">acumulador:</p>
+    <div class="reduce-acc" id="reduceAcc">0</div>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ Es el que más cuesta entender al principio</h4>
+    <p>Es normal que <code>.reduce()</code> te tome más tiempo que los otros dos — hasta programadores con experiencia a veces lo tienen que revisar dos veces. Presiona "Siguiente paso" varias veces seguidas y verás el patrón: el acumulador siempre carga el resultado de la vuelta anterior.</p>
+  </div>
+</section>
+
+<section class="module" id="consola">
+  <div class="module-header">
+    <div class="module-icon">🧪</div>
+    <div>
+      <div class="module-title">PARTE 4 — Consola interactiva</div>
+      <div class="module-sub">Combina los tres métodos aquí mismo</div>
+    </div>
+  </div>
+
+  <div class="console-wrap">
+    <div class="console-editor-label">
+      <span>✏️ TU CÓDIGO</span>
+      <button class="run-btn" onclick="runConsole()">▶ Ejecutar</button>
+    </div>
+    <textarea id="consoleCode" spellcheck="false"></textarea>
+    <div class="console-output-label"><span>▸ SALIDA (console.log)</span></div>
+    <div class="console-output" id="consoleOutput"></div>
+  </div>
+
+  <p style="margin-top:1rem; font-size:.85rem; color:var(--muted); font-weight:600;">Prueba agregar esto y presiona Ejecutar otra vez:</p>
+  <div class="lab-try-row">
+    <button onclick="consoleAdd('const pares = numeros.filter((n) =&gt; n % 2 === 0);\nconsole.log(pares);')">+ filtrar pares</button>
+    <button onclick="consoleAdd('const suma = numeros.reduce((acc, n) =&gt; acc + n, 0);\nconsole.log(suma);')">+ sumar todo con reduce</button>
+    <button onclick="consoleAdd('const resultado = numeros.filter((n) =&gt; n % 2 === 0).map((n) =&gt; n * 10);\nconsole.log(resultado);')">+ encadenar filter + map</button>
+  </div>
+  <button class="lab-reset" onclick="consoleReset()">↺ Restaurar código original</button>
+
+  <div class="concept" style="margin-top:1.25rem">
+    <h4>💡 Se pueden encadenar</h4>
+    <p>Como cada uno regresa un arreglo nuevo, puedes conectarlos uno después de otro: <code>numeros.filter(...).map(...)</code> — primero filtra, y al resultado le aplica map. Pruébalo con el tercer botón de arriba.</p>
+  </div>
+</section>
+
+<section class="module" id="retos">
+  <div class="module-header">
+    <div class="module-icon">🏆</div>
+    <div>
+      <div class="module-title">PARTE 5 — Retos para practicar</div>
+      <div class="module-sub">Resuélvelos directo en la consola de arriba</div>
+    </div>
+  </div>
+
+  <div class="reto-grid">
+    <div class="reto-card">
+      <span class="nivel nivel-f">🟡 Fácil</span>
+      <h4>Reto 1 — Triplica todo</h4>
+      <p>Usa <code>.map()</code> para crear un arreglo con cada número del original multiplicado por 3.</p>
+    </div>
+    <div class="reto-card">
+      <span class="nivel nivel-m">🟠 Medio</span>
+      <h4>Reto 2 — Solo los mayores a 10</h4>
+      <p>Usa <code>.filter()</code> para quedarte solo con los números mayores a 10 de un arreglo que tú definas.</p>
+    </div>
+    <div class="reto-card">
+      <span class="nivel nivel-a">🔴 Avanzado</span>
+      <h4>Reto 3 — El precio total del carrito</h4>
+      <p>Crea un array de objetos <code>{ nombre, precio }</code> (como un carrito de compras). Usa <code>.reduce()</code> para calcular el precio total de todos los productos juntos.</p>
+    </div>
+  </div>
+</section>
+
+<section class="module" id="resumen">
+  <div class="module-header">
+    <div class="module-icon">📋</div>
+    <div>
+      <div class="module-title">Resumen: lo que aprendiste en este bloque</div>
+      <div class="module-sub">Todo en un vistazo</div>
+    </div>
+  </div>
+
+  <div>
+    <span class="chip">.map()</span>
+    <span class="chip">.filter()</span>
+    <span class="chip">.reduce()</span>
+    <span class="chip">acumulador</span>
+  </div>
+
+  <div class="concept" style="margin-top:1.5rem">
+    <h4>💡 ¿Qué sigue?</h4>
+    <p>En el <strong>Bloque 3</strong> vamos a ver <strong>destructuring y spread</strong> (<code>{ }</code> y <code>...</code>) — dos atajos más para sacar datos de objetos/arreglos y para copiarlos o combinarlos sin escribir tanto código.</p>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  Fase 4 · Bloque 2 — map, filter y reduce · JavaScript moderno · Jacqui 2026
+</footer>
+
+<script>
+const DEMO_NUMS = [1, 2, 3, 4, 5];
+
+/* Visualizador .map() */
+function updateMap() {
+  const op = document.getElementById('mapOp').value;
+  const fns = {
+    x2: n => n * 2,
+    x10: n => n * 10,
+    plus1: n => n + 1,
+    square: n => n * n
+  };
+  const fn = fns[op];
+  const before = document.getElementById('mapBefore');
+  const after = document.getElementById('mapAfter');
+  before.innerHTML = DEMO_NUMS.map(n => '<div class="box">' + n + '</div>').join('');
+  after.innerHTML = DEMO_NUMS.map(n => '<div class="box changed">' + fn(n) + '</div>').join('');
+}
+document.getElementById('mapOp').addEventListener('change', updateMap);
+updateMap();
+
+/* Visualizador .filter() */
+function updateFilter() {
+  const op = document.getElementById('filterOp').value;
+  const fns = {
+    even: n => n % 2 === 0,
+    odd: n => n % 2 !== 0,
+    gt3: n => n > 3,
+    lt3: n => n < 3
+  };
+  const fn = fns[op];
+  const before = document.getElementById('filterBefore');
+  const after = document.getElementById('filterAfter');
+  before.innerHTML = DEMO_NUMS.map(n => '<div class="box ' + (fn(n) ? 'kept' : 'removed') + '">' + n + '</div>').join('');
+  const kept = DEMO_NUMS.filter(fn);
+  after.innerHTML = kept.length
+    ? kept.map(n => '<div class="box kept">' + n + '</div>').join('')
+    : '<div class="box" style="opacity:.5;">(vacío)</div>';
+}
+document.getElementById('filterOp').addEventListener('change', updateFilter);
+updateFilter();
+
+/* Visualizador .reduce() paso a paso */
+let reduceState = { i: 0, acc: 0 };
+function renderReduceTrack() {
+  const track = document.getElementById('reduceTrack');
+  track.innerHTML = DEMO_NUMS.map((n, idx) =>
+    '<div class="rbox' + (idx < reduceState.i ? ' used' : '') + '">' + n + '</div>'
+  ).join('');
+  document.getElementById('reduceAcc').textContent = reduceState.acc;
+}
+function reduceStep() {
+  if (reduceState.i >= DEMO_NUMS.length) return;
+  reduceState.acc += DEMO_NUMS[reduceState.i];
+  reduceState.i++;
+  renderReduceTrack();
+}
+function reduceReset() {
+  reduceState = { i: 0, acc: 0 };
+  renderReduceTrack();
+}
+reduceReset();
+
+/* Consola interactiva */
+const CONSOLE_STARTER = `const numeros = [1, 2, 3, 4, 5, 6];
+
+const dobles = numeros.map((n) => n * 2);
+console.log(dobles);`;
+
+function runConsole() {
+  const code = document.getElementById('consoleCode').value;
+  const outputDiv = document.getElementById('consoleOutput');
+  outputDiv.innerHTML = '';
+  const logs = [];
+  const originalLog = console.log;
+  console.log = function(...args) {
+    logs.push(args.map(a => {
+      try { return typeof a === 'string' ? a : JSON.stringify(a); }
+      catch(e) { return String(a); }
+    }).join(' '));
+  };
+  try {
+    new Function(code)();
+    if (logs.length === 0) {
+      const div = document.createElement('div');
+      div.className = 'console-line muted';
+      div.textContent = '(no hubo console.log — agrega uno para ver resultados)';
+      outputDiv.appendChild(div);
+    } else {
+      logs.forEach(line => {
+        const div = document.createElement('div');
+        div.className = 'console-line';
+        div.textContent = '▸ ' + line;
+        outputDiv.appendChild(div);
+      });
+    }
+  } catch (err) {
+    logs.forEach(line => {
+      const div = document.createElement('div');
+      div.className = 'console-line';
+      div.textContent = '▸ ' + line;
+      outputDiv.appendChild(div);
+    });
+    const errDiv = document.createElement('div');
+    errDiv.className = 'console-line error';
+    errDiv.textContent = '⚠ ' + err.message;
+    outputDiv.appendChild(errDiv);
+  }
+  console.log = originalLog;
+}
+
+function consoleAdd(snippet) {
+  const ta = document.getElementById('consoleCode');
+  ta.value = ta.value + '\n' + snippet;
+}
+
+function consoleReset() {
+  document.getElementById('consoleCode').value = CONSOLE_STARTER;
+  document.getElementById('consoleOutput').innerHTML = '';
+}
+
+document.getElementById('consoleCode').value = CONSOLE_STARTER;
+</script>
+
+</body>
+</html>

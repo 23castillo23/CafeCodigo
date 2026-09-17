@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Fase 4, Bloque 1 — JavaScript moderno: arrow functions y template literals, con laboratorio interactivo.">
-<title>Bloque 1 — Arrow Functions y Template Literals | JavaScript moderno</title>
+<meta name="description" content="Fase 4, Bloque 3 — JavaScript moderno: destructuring y spread, con laboratorio interactivo.">
+<title>Bloque 3 — Destructuring y Spread | JavaScript moderno</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=DM+Sans:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -30,18 +30,17 @@
 
   body { font-family: 'DM Sans', 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; font-size: 16px; }
 
-  header { background: #241220; color: #fbf5f8; padding: 3rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
-  header::before { content: '=>'; position: absolute; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 10rem; right: -.5rem; top: -2rem; opacity: .08; line-height: 1; }
-  header .ex-label { display: inline-block; background: var(--primary); color: white; border-radius: 20px; padding: 4px 16px; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 1rem; }
-  header h1 { font-family: 'Space Grotesk', sans-serif; font-size: 2.4rem; font-weight: 700; letter-spacing: -1px; }
-  header p.sub { font-size: 1.05rem; opacity: .8; margin-top: .5rem; font-style: italic; }
-  header .badge { display: inline-block; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
-
-  /* BARRA CAFÉ */
   .cafe-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; gap: 14px; position: sticky; top: 0; z-index: 200; height: 45px; }
   .cafe-bar a { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); text-decoration: none; padding: 6px 14px; border: 1px solid var(--border); border-radius: 999px; transition: all 0.15s; }
   .cafe-bar a:hover { color: var(--text); border-color: var(--muted); }
   .cafe-bar span { font-size: 13px; color: var(--muted); }
+
+  header { background: #241220; color: #fbf5f8; padding: 3rem 2rem 2rem; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: '{...}'; position: absolute; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 8rem; right: -.5rem; top: -1.5rem; opacity: .08; line-height: 1; }
+  header .ex-label { display: inline-block; background: var(--primary); color: white; border-radius: 20px; padding: 4px 16px; font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 1rem; }
+  header h1 { font-family: 'Space Grotesk', sans-serif; font-size: 2.4rem; font-weight: 700; letter-spacing: -1px; }
+  header p.sub { font-size: 1.05rem; opacity: .8; margin-top: .5rem; font-style: italic; }
+  header .badge { display: inline-block; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25); border-radius: 20px; padding: 4px 14px; font-size: .8rem; margin-top: .75rem; }
 
   .course-nav { background: #150a13; display: flex; overflow-x: auto; gap: 6px; padding: 10px 14px; align-items: center; }
   .course-nav a { flex-shrink: 0; font-family: 'DM Mono', monospace; font-size: .74rem; font-weight: 700; color: #c9a9c1; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 14px; padding: 5px 11px; text-decoration: none; white-space: nowrap; transition: background .15s, color .15s; }
@@ -56,7 +55,7 @@
 
   .parte-badge { display: inline-flex; align-items: center; gap: .5rem; background: var(--primary); color: white; border-radius: 20px; padding: 5px 16px; font-size: .82rem; font-weight: 700; margin-bottom: 1.5rem; }
 
-  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2.5rem; scroll-margin-top:80px; }
+  .module { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2rem; margin-bottom: 2.5rem; scroll-margin-top:100px; }
   .module-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
   .module-icon { font-size: 1.8rem; flex-shrink: 0; }
   .module-title { font-family: 'Space Grotesk', sans-serif; font-size: 1.3rem; font-weight: 700; }
@@ -102,26 +101,26 @@
   .glos-item dd { font-size: .85rem; color: var(--muted); line-height: 1.5; }
   .glos-item .emoji { font-size: 1.4rem; display: block; margin-bottom: .4rem; }
 
-  /* CONVERTIDOR ARROW FUNCTION */
-  .convert-wrap { border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; background: var(--bg); margin: 1.1rem 0; }
-  .convert-toggle { display: flex; gap: 8px; margin-bottom: 1rem; }
-  .convert-toggle button { flex: 1; padding: 9px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: .85rem; cursor: pointer; color: var(--text); }
-  .convert-toggle button.active { background: var(--primary); color: white; border-color: var(--primary); }
-  .convert-code { background: var(--code-bg); color: var(--code-text); border-radius: 8px; padding: 1rem 1.25rem; font-family: 'DM Mono', monospace; font-size: .88rem; white-space: pre; }
+  /* DESTRUCTURING EXPLORER */
+  .destr-wrap { border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; background: var(--bg); margin: 1.1rem 0; }
+  .destr-obj { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1rem; }
+  .destr-obj .pill { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; font-family: 'DM Mono', monospace; font-size: .85rem; cursor: pointer; transition: all .15s; }
+  .destr-obj .pill.picked { background: var(--primary-light); border-color: var(--primary); color: var(--primary); font-weight: 700; }
+  .destr-code { background: var(--code-bg); color: var(--code-text); border-radius: 8px; padding: .9rem 1.1rem; font-family: 'DM Mono', monospace; font-size: .85rem; }
+  .destr-code .hl { color: #fde68a; }
 
-  /* TEMPLATE LITERAL BUILDER */
-  .tpl-wrap { border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; background: var(--bg); margin: 1.1rem 0; }
-  .tpl-inputs { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 1rem; }
-  .tpl-inputs .tin { flex: 1; min-width: 120px; }
-  .tpl-inputs label { display: block; font-family: 'DM Mono', monospace; font-size: .74rem; font-weight: 700; margin-bottom: .3rem; }
-  .tpl-inputs input { width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--border); font-family: 'DM Mono', monospace; font-size: .85rem; }
-  .tpl-code { background: var(--code-bg); color: var(--code-text); border-radius: 8px; padding: .9rem 1.1rem; font-family: 'DM Mono', monospace; font-size: .85rem; margin-bottom: .6rem; }
-  .tpl-code .hl { color: #fde68a; }
-  .tpl-out { background: var(--surface); border: 2px solid var(--primary); border-radius: 8px; padding: .8rem 1.1rem; font-family: 'DM Mono', monospace; font-size: .9rem; color: var(--primary); font-weight: 700; }
+  /* SPREAD VISUALIZER */
+  .spread-wrap { border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; background: var(--bg); margin: 1.1rem 0; }
+  .spread-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: .8rem; }
+  .spread-boxes { display: flex; gap: 6px; }
+  .spread-boxes .box { background: var(--surface); border: 2px solid var(--border); border-radius: 8px; padding: 8px 12px; font-family: 'DM Mono', monospace; font-weight: 700; font-size: .85rem; }
+  .spread-boxes .box.a { border-color: var(--secondary); color: var(--secondary); }
+  .spread-boxes .box.b { border-color: var(--primary); color: var(--primary); }
+  .spread-plus { font-size: 1.2rem; color: var(--muted); }
 
   .console-wrap { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin: 1rem 0; }
   .console-editor-label, .console-output-label { background: #241220; color: #f8ecf5; font-family: 'DM Mono', monospace; font-size: .72rem; padding: 6px 12px; letter-spacing: .04em; display: flex; justify-content: space-between; align-items: center; }
-  .console-wrap textarea { width: 100%; height: 200px; border: none; resize: vertical; background: var(--code-bg); color: var(--code-text); font-family: 'DM Mono', monospace; font-size: .87rem; line-height: 1.7; padding: 1rem; outline: none; border-bottom: 1px solid #3d2438; }
+  .console-wrap textarea { width: 100%; height: 210px; border: none; resize: vertical; background: var(--code-bg); color: var(--code-text); font-family: 'DM Mono', monospace; font-size: .87rem; line-height: 1.7; padding: 1rem; outline: none; border-bottom: 1px solid #3d2438; }
   .run-btn { background: var(--primary); color: white; border: none; font-family: 'DM Sans', sans-serif; font-weight: 700; font-size: .76rem; padding: 4px 12px; border-radius: 20px; cursor: pointer; }
   .console-output { background: #180c16; min-height: 90px; padding: 1rem; font-family: 'DM Mono', monospace; font-size: .85rem; }
   .console-line { color: #86efac; padding: 2px 0; }
@@ -160,14 +159,14 @@
 <!-- BARRA CAFÉ -->
 <div class="cafe-bar">
   <a href="../capitulos.html">← Capítulos</a>
-  <span>☕ Fase 4 · Bloque 1 · Arrow Functions y Template Literals</span>
+  <span>☕ Fase 4 · Bloque 3 · Destructuring y Spread</span>
 </div>
 
 <header>
-  <div class="ex-label">✏️ Fase 4 · Bloque 1</div>
-  <h1>Arrow Functions y Template Literals</h1>
-  <p class="sub">Las mismas ideas que ya sabes, escritas de forma más corta y moderna</p>
-  <span class="badge">🎯 JavaScript moderno · => · texto con backticks</span>
+  <div class="ex-label">✏️ Fase 4 · Bloque 3</div>
+  <h1>Destructuring y Spread</h1>
+  <p class="sub">Saca datos y combina arreglos/objetos sin tanto código</p>
+  <span class="badge">🎯 JavaScript moderno · { } destructuring · ...spread</span>
 </header>
 
 <div class="course-nav">
@@ -184,10 +183,10 @@
   <a href="fase3-bloque5-arreglos-objetos.html">F3.5</a>
   <a href="fase3-bloque6-dom.html">F3.6</a>
   <a href="fase3-bloque7-formularios-validacion.html">F3.7</a>
-  <a href="fase3-bloque8-async-apis.html">F3.8</a>
-  <a href="fase4-bloque1-arrow-template-literals.html" class="current">F4.1</a>
+  <a href="fase3-bloque8-async-apis.html">F3.8</a>  
+  <a href="fase4-bloque1-arrow-template-literals.html">F4.1</a>
   <a href="fase4-bloque2-map-filter-reduce.html">F4.2</a>
-  <a href="fase4-bloque3-destructuring-spread.html">F4.3</a>
+  <a href="fase4-bloque3-destructuring-spread.html" class="current">F4.3</a>  
   <a href="fase5-bloque1-try-catch.html">F5.1</a>
   <a href="fase5-bloque2-clases-poo.html">F5.2</a>
   <a href="fase5-bloque3-herencia-extends.html">F5.3</a>
@@ -198,8 +197,8 @@
 <nav>
   <a href="#recordatorio">🔁 Recordatorio</a>
   <a href="#vocabulario">📖 Vocabulario nuevo</a>
-  <a href="#arrow">➡️ Arrow functions</a>
-  <a href="#template">🧵 Template literals</a>
+  <a href="#destructuring">📤 Destructuring</a>
+  <a href="#spread">🌟 Spread</a>
   <a href="#consola">🧪 Consola en vivo</a>
   <a href="#retos">🏆 Retos</a>
   <a href="#resumen">📋 Resumen</a>
@@ -207,17 +206,17 @@
 
 <main>
 
-<div class="parte-badge">➡️ Fase 4 · Bloque 1 — JavaScript moderno: arrow functions y template literals</div>
+<div class="parte-badge">📤 Fase 4 · Bloque 3 — JavaScript moderno: destructuring y spread</div>
 
 <section class="module" id="recordatorio">
   <div class="module-header">
     <div class="module-icon">🔁</div>
     <div>
       <div class="module-title">Antes de empezar: recordatorio rápido</div>
-      <div class="module-sub">Completaste toda la ruta base — este es un nivel extra</div>
+      <div class="module-sub">Lo que ya sabes de los bloques anteriores</div>
     </div>
   </div>
-  <p>Ya sabes construir páginas completas con HTML, CSS y JavaScript: variables, funciones, arreglos, el DOM, formularios y fetch. Todo lo que viene ahora NO son conceptos nuevos — son <strong>formas más cortas de escribir cosas que ya sabes hacer</strong>. Vas a reconocerlas constantemente si lees código de otras personas, tutoriales o documentación.</p>
+  <p>Ya sabes crear objetos y arreglos, y acceder a sus datos con <code>objeto.propiedad</code> o <code>arreglo[indice]</code>. Este bloque te da dos atajos: uno para sacar varios datos de golpe (destructuring), y otro para copiar o combinar arreglos/objetos sin escribir un bucle (spread).</p>
 </section>
 
 <section class="module" id="vocabulario">
@@ -225,118 +224,103 @@
     <div class="module-icon">📖</div>
     <div>
       <div class="module-title">Vocabulario nuevo</div>
-      <div class="module-sub">Dos atajos de sintaxis muy usados</div>
+      <div class="module-sub">Dos símbolos que vas a ver constantemente</div>
     </div>
   </div>
 
   <div class="glos">
     <div class="glos-item">
-      <span class="emoji">➡️</span>
-      <dt>Arrow function</dt>
-      <dd>Una forma más corta de escribir <code>function</code>, con <code>=&gt;</code></dd>
+      <span class="emoji">📤</span>
+      <dt>Destructuring</dt>
+      <dd>Sacar propiedades de un objeto (o elementos de un array) en variables, de un solo golpe</dd>
     </div>
     <div class="glos-item">
-      <span class="emoji">🧵</span>
-      <dt>Template literal</dt>
-      <dd>Texto entre comillas invertidas (`) que permite meter variables adentro</dd>
-    </div>
-    <div class="glos-item">
-      <span class="emoji">💉</span>
-      <dt>Interpolación</dt>
-      <dd>Insertar el valor de una variable directo dentro de un texto</dd>
+      <span class="emoji">🌟</span>
+      <dt>Spread (...)</dt>
+      <dd>"Desparrama" los elementos de un arreglo u objeto — para copiar o combinar</dd>
     </div>
   </div>
 </section>
 
-<section class="module" id="arrow">
+<section class="module" id="destructuring">
   <div class="module-header">
-    <div class="module-icon">➡️</div>
+    <div class="module-icon">📤</div>
     <div>
-      <div class="module-title">PARTE 1 — Arrow functions</div>
-      <div class="module-sub">Cambia entre las dos formas y compara</div>
+      <div class="module-title">PARTE 1 — Destructuring de objetos</div>
+      <div class="module-sub">Haz clic en las propiedades que quieras "sacar" y mira el código generarse</div>
     </div>
   </div>
 
-  <div class="code-block"><span class="lang">JS — forma tradicional</span><span class="ck">function</span> <span class="cf">sumar</span><span class="co">(</span><span class="cv">a</span><span class="co">,</span> <span class="cv">b</span><span class="co">) {</span>
-  <span class="ck">return</span> <span class="cv">a</span> <span class="co">+</span> <span class="cv">b</span><span class="co">;</span>
-<span class="co">}</span></div>
+  <div class="code-block"><span class="lang">JS — forma tradicional</span><span class="ck">const</span> <span class="cv">contacto</span> <span class="co">=</span> <span class="co">{</span> <span class="cf">nombre</span><span class="co">:</span> <span class="cs">"Jacqui"</span><span class="co">,</span> <span class="cf">edad</span><span class="co">:</span> <span class="cn">25</span><span class="co">,</span> <span class="cf">ciudad</span><span class="co">:</span> <span class="cs">"Orizaba"</span> <span class="co">};</span>
 
-  <div class="code-block"><span class="lang">JS — arrow function</span><span class="ck">const</span> <span class="cf">sumar</span> <span class="co">=</span> <span class="co">(</span><span class="cv">a</span><span class="co">,</span> <span class="cv">b</span><span class="co">)</span> <span class="co">=&gt;</span> <span class="cv">a</span> <span class="co">+</span> <span class="cv">b</span><span class="co">;</span></div>
+<span class="ck">const</span> <span class="cv">nombre</span> <span class="co">=</span> <span class="cv">contacto</span><span class="co">.</span><span class="cf">nombre</span><span class="co">;</span>
+<span class="ck">const</span> <span class="cv">edad</span> <span class="co">=</span> <span class="cv">contacto</span><span class="co">.</span><span class="cf">edad</span><span class="co">;</span></div>
 
-  <table class="tbl">
-    <thead><tr><th>Cambio</th><th>¿Qué pasó?</th></tr></thead>
-    <tbody>
-      <tr><td>Se quita <span class="tag">function</span></td><td>Ya no se escribe la palabra <code>function</code>.</td></tr>
-      <tr><td>Se agrega <span class="tag">=&gt;</span></td><td>La "flecha" va después de los parámetros — de ahí el nombre "arrow function".</td></tr>
-      <tr><td>Se quitan <span class="tag">{ } y return</span></td><td>Si la función es UNA sola línea que solo regresa un valor, puedes quitar las llaves y el <code>return</code> — el resultado se regresa automáticamente ("return implícito").</td></tr>
-    </tbody>
-  </table>
-
-  <div class="convert-wrap">
-    <div class="convert-toggle">
-      <button class="active" id="btnTrad" onclick="showConvert('trad')">Forma tradicional</button>
-      <button id="btnArrow" onclick="showConvert('arrow')">Arrow function</button>
-    </div>
-    <div class="convert-code" id="convertCode"></div>
-  </div>
-
-  <div class="warn">
-    <h4>⚠️ ¿Cuándo SÍ necesitas las llaves?</h4>
-    <p>Si tu función tiene MÁS de una línea (por ejemplo, un <code>if</code> adentro), sí necesitas <code>{ }</code> y <code>return</code> explícito, igual que antes:</p>
-  </div>
-
-  <div class="code-block"><span class="lang">JS</span><span class="ck">const</span> <span class="cf">esMayorDeEdad</span> <span class="co">=</span> <span class="co">(</span><span class="cv">edad</span><span class="co">)</span> <span class="co">=&gt; {</span>
-  <span class="ck">return</span> <span class="cv">edad</span> <span class="co">&gt;=</span> <span class="cn">18</span><span class="co">;</span>
-<span class="co">};</span></div>
-
-  <div class="tip">
-    <h4>💡 ¿Debo dejar de usar function?</h4>
-    <p>No es obligatorio — ambas formas funcionan igual. Pero las arrow functions son hoy el estilo más común, sobre todo para funciones cortas. Vale la pena que sepas LEERLAS aunque sigas escribiendo <code>function</code> cuando te sientas más cómoda.</p>
-  </div>
-</section>
-
-<section class="module" id="template">
-  <div class="module-header">
-    <div class="module-icon">🧵</div>
-    <div>
-      <div class="module-title">PARTE 2 — Template literals</div>
-      <div class="module-sub">Escribe valores y mira el texto armarse en vivo</div>
-    </div>
-  </div>
-
-  <div class="code-block"><span class="lang">JS — forma tradicional (+)</span><span class="ck">let</span> <span class="cv">nombre</span> <span class="co">=</span> <span class="cs">"Jacqui"</span><span class="co">;</span>
-<span class="ck">let</span> <span class="cv">edad</span> <span class="co">=</span> <span class="cn">25</span><span class="co">;</span>
-
-<span class="cf">console.log</span><span class="co">(</span><span class="cs">"Hola, me llamo "</span> <span class="co">+</span> <span class="cv">nombre</span> <span class="co">+</span> <span class="cs">" y tengo "</span> <span class="co">+</span> <span class="cv">edad</span> <span class="co">+</span> <span class="cs">" años."</span><span class="co">);</span></div>
-
-  <div class="code-block"><span class="lang">JS — template literal</span><span class="cf">console.log</span><span class="co">(`</span>Hola, me llamo <span class="cs">${</span><span class="cv">nombre</span><span class="cs">}</span> y tengo <span class="cs">${</span><span class="cv">edad</span><span class="cs">}</span> años.<span class="co">`);</span></div>
+  <div class="code-block"><span class="lang">JS — destructuring</span><span class="ck">const</span> <span class="co">{</span> <span class="cv">nombre</span><span class="co">,</span> <span class="cv">edad</span> <span class="co">}</span> <span class="co">=</span> <span class="cv">contacto</span><span class="co">;</span></div>
 
   <table class="tbl">
     <thead><tr><th>Parte</th><th>¿Qué hace?</th></tr></thead>
     <tbody>
-      <tr><td><span class="tag">` `</span></td><td>Comillas invertidas (backticks) — la tecla suele estar junto al 1, arriba del Tab. Reemplazan las comillas normales.</td></tr>
-      <tr><td><span class="tag">${ }</span></td><td>Adentro de esto puedes poner CUALQUIER variable o expresión de JavaScript, y su valor se inserta directo en el texto.</td></tr>
+      <tr><td><span class="tag">{ nombre, edad }</span></td><td>Crea DOS variables de golpe, con el MISMO nombre que las propiedades del objeto — así de simple.</td></tr>
+      <tr><td><span class="tag">= contacto</span></td><td>El objeto de donde se sacan esas propiedades.</td></tr>
     </tbody>
   </table>
 
-  <div class="tpl-wrap">
-    <div class="tpl-inputs">
-      <div class="tin">
-        <label>nombre</label>
-        <input type="text" id="tplNombre" value="Jacqui">
-      </div>
-      <div class="tin">
-        <label>edad</label>
-        <input type="text" id="tplEdad" value="25">
-      </div>
-    </div>
-    <div class="tpl-code" id="tplCodeDisplay"></div>
-    <div class="tpl-out" id="tplOut"></div>
+  <div class="destr-wrap">
+    <p style="font-size:.85rem; color:var(--muted); margin-bottom:.6rem;">Haz clic en las propiedades que quieras sacar:</p>
+    <div class="destr-obj" id="destrPills"></div>
+    <div class="destr-code" id="destrCode"></div>
   </div>
 
   <div class="concept">
-    <h4>💡 Por qué es mejor que +</h4>
-    <p>Con <code>+</code> es fácil perder un espacio o una comilla. Con template literals escribes el texto casi normal, y solo marcas dónde va cada variable — más fácil de leer y de corregir.</p>
+    <h4>💡 También funciona con arreglos</h4>
+    <p>Con corchetes en vez de llaves, y por posición en vez de nombre: <code>const [primero, segundo] = ["Café", "Té"];</code> — <code>primero</code> vale "Café", <code>segundo</code> vale "Té".</p>
+  </div>
+</section>
+
+<section class="module" id="spread">
+  <div class="module-header">
+    <div class="module-icon">🌟</div>
+    <div>
+      <div class="module-title">PARTE 2 — Spread (...)</div>
+      <div class="module-sub">Combina dos arreglos en uno solo</div>
+    </div>
+  </div>
+
+  <div class="code-block"><span class="lang">JS</span><span class="ck">const</span> <span class="cv">bebidasCalientes</span> <span class="co">=</span> <span class="co">[</span><span class="cs">"Café"</span><span class="co">,</span> <span class="cs">"Té"</span><span class="co">];</span>
+<span class="ck">const</span> <span class="cv">bebidasFrias</span> <span class="co">=</span> <span class="co">[</span><span class="cs">"Limonada"</span><span class="co">,</span> <span class="cs">"Agua"</span><span class="co">];</span>
+
+<span class="ck">const</span> <span class="cv">todas</span> <span class="co">=</span> <span class="co">[...</span><span class="cv">bebidasCalientes</span><span class="co">, ...</span><span class="cv">bebidasFrias</span><span class="co">];</span>
+
+<span class="cf">console.log</span><span class="co">(</span><span class="cv">todas</span><span class="co">);</span> <span class="cc">// ["Café", "Té", "Limonada", "Agua"]</span></div>
+
+  <table class="tbl">
+    <thead><tr><th>Parte</th><th>¿Qué hace?</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag">...bebidasCalientes</span></td><td>Los tres puntos "abren" el arreglo y vuelcan cada uno de sus elementos, en lugar del arreglo completo como una sola cosa.</td></tr>
+      <tr><td><span class="tag">[...a, ...b]</span></td><td>Al poner ambos dentro de <code>[ ]</code>, terminas con UN arreglo nuevo que contiene todos los elementos de los dos.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="spread-wrap">
+    <div class="spread-row">
+      <div class="spread-boxes" id="spreadA"></div>
+      <div class="spread-plus">+</div>
+      <div class="spread-boxes" id="spreadB"></div>
+      <div class="spread-plus">=</div>
+      <div class="spread-boxes" id="spreadC"></div>
+    </div>
+    <p style="font-size:.82rem; color:var(--muted);">[...bebidasCalientes, ...bebidasFrias] → un solo arreglo con los 4 elementos</p>
+  </div>
+
+  <div class="warn">
+    <h4>⚠️ También sirve para copiar sin modificar el original</h4>
+    <p><code>const copia = [...original];</code> crea un arreglo NUEVO con los mismos elementos. Es distinto a <code>const copia = original;</code>, que NO copia — ambas variables terminarían apuntando al mismo arreglo, y cambiar una cambiaría la otra.</p>
+  </div>
+
+  <div class="tip">
+    <h4>💡 Con objetos funciona igual, con { }</h4>
+    <p><code>const copiaContacto = { ...contacto, edad: 26 };</code> — copia todas las propiedades de <code>contacto</code>, y sobrescribe <code>edad</code> con un valor nuevo. Muy usado para "actualizar" un objeto sin tocar el original.</p>
   </div>
 </section>
 
@@ -345,7 +329,7 @@
     <div class="module-icon">🧪</div>
     <div>
       <div class="module-title">PARTE 3 — Consola interactiva</div>
-      <div class="module-sub">Combina arrow functions y template literals aquí mismo</div>
+      <div class="module-sub">Combina destructuring y spread aquí mismo</div>
     </div>
   </div>
 
@@ -361,8 +345,8 @@
 
   <p style="margin-top:1rem; font-size:.85rem; color:var(--muted); font-weight:600;">Prueba agregar esto y presiona Ejecutar otra vez:</p>
   <div class="lab-try-row">
-    <button onclick="consoleAdd('const doble = (n) =&gt; n * 2;\nconsole.log(doble(4));')">+ arrow function de una línea</button>
-    <button onclick="consoleAdd('let ciudad = &quot;Orizaba&quot;;\nconsole.log(`Vivo en ${ciudad}`);')">+ template literal</button>
+    <button onclick="consoleAdd('const copiaContacto = { ...contacto, edad: 26 };\nconsole.log(copiaContacto);')">+ copiar objeto y actualizar edad</button>
+    <button onclick="consoleAdd('const [primero, segundo] = [&quot;Café&quot;, &quot;Té&quot;];\nconsole.log(primero, segundo);')">+ destructuring de array</button>
   </div>
   <button class="lab-reset" onclick="consoleReset()">↺ Restaurar código original</button>
 </section>
@@ -379,18 +363,18 @@
   <div class="reto-grid">
     <div class="reto-card">
       <span class="nivel nivel-f">🟡 Fácil</span>
-      <h4>Reto 1 — Convierte tus funciones viejas</h4>
-      <p>Toma tu función <code>sumar(a, b)</code> del Bloque 4 de la Fase 3 y reescríbela como arrow function.</p>
+      <h4>Reto 1 — Destructura tu propio objeto</h4>
+      <p>Crea un objeto con 4 propiedades sobre ti, y saca 3 de ellas con destructuring en una sola línea.</p>
     </div>
     <div class="reto-card">
       <span class="nivel nivel-m">🟠 Medio</span>
-      <h4>Reto 2 — Preséntate con template literal</h4>
-      <p>Crea variables <code>nombre</code>, <code>edad</code> y <code>ciudad</code>, e imprime una presentación completa usando UN SOLO template literal (sin ningún <code>+</code>).</p>
+      <h4>Reto 2 — Combina dos listas</h4>
+      <p>Crea dos arreglos de nombres distintos y únelos en uno solo usando spread.</p>
     </div>
     <div class="reto-card">
       <span class="nivel nivel-a">🔴 Avanzado</span>
-      <h4>Reto 3 — FizzBuzz con arrow function</h4>
-      <p>Reescribe tu función <code>fizzBuzz(numero)</code> de la Fase 3 como arrow function con llaves y <code>return</code> explícito (no cabe en una sola línea, así que necesitas la versión con <code>{ }</code>).</p>
+      <h4>Reto 3 — Actualiza sin mutar</h4>
+      <p>Crea un objeto <code>producto</code> con <code>nombre</code> y <code>precio</code>. Usa spread para crear un <code>productoConDescuento</code> que tenga el mismo nombre pero un precio distinto — sin modificar el objeto original. Imprime ambos para confirmar que el original no cambió.</p>
     </div>
   </div>
 </section>
@@ -405,53 +389,77 @@
   </div>
 
   <div>
-    <span class="chip">(a, b) =&gt; a + b</span>
-    <span class="chip">return implícito</span>
-    <span class="chip">` `</span>
-    <span class="chip">${ }</span>
+    <span class="chip">{ nombre, edad } = obj</span>
+    <span class="chip">[a, b] = arr</span>
+    <span class="chip">...spread</span>
   </div>
 
   <div class="concept" style="margin-top:1.5rem">
-    <h4>💡 ¿Qué sigue?</h4>
-    <p>En el <strong>Bloque 2</strong> vamos a ver los <strong>métodos modernos de arreglos</strong>: <code>.map()</code>, <code>.filter()</code> y <code>.reduce()</code> — formas más cortas y usadas hoy en día para recorrer y transformar arrays, en vez de siempre escribir un <code>for</code>.</p>
+    <h4>🎉 ¿Qué sigue?</h4>
+    <p>Con esto terminas los atajos modernos más usados de JavaScript. El siguiente paso natural, cuando quieras, es aplicar todo esto para <strong>mejorar tu proyecto de la lista de tareas</strong> (reescribir partes con arrow functions, map/filter, spread), o empezar un proyecto nuevo más grande. Dime cómo quieres seguir.</p>
   </div>
 </section>
 
 </main>
 
 <footer>
-  Fase 4 · Bloque 1 — Arrow Functions y Template Literals · JavaScript moderno · Jacqui 2026
+  Fase 4 · Bloque 3 — Destructuring y Spread · JavaScript moderno · Jacqui 2026
 </footer>
 
 <script>
-/* Convertidor arrow function */
-const TRAD_CODE = `function sumar(a, b) {
-  return a + b;
-}`;
-const ARROW_CODE = `const sumar = (a, b) => a + b;`;
+/* Explorador de destructuring */
+const demoContact = { nombre: "Jacqui", edad: 25, ciudad: "Orizaba" };
+let pickedProps = ["nombre", "edad"];
 
-function showConvert(mode) {
-  document.getElementById('btnTrad').classList.toggle('active', mode === 'trad');
-  document.getElementById('btnArrow').classList.toggle('active', mode === 'arrow');
-  document.getElementById('convertCode').textContent = mode === 'trad' ? TRAD_CODE : ARROW_CODE;
+function renderDestrPills() {
+  const wrap = document.getElementById('destrPills');
+  wrap.innerHTML = '';
+  Object.keys(demoContact).forEach(key => {
+    const pill = document.createElement('div');
+    pill.className = 'pill' + (pickedProps.includes(key) ? ' picked' : '');
+    pill.textContent = key;
+    pill.onclick = () => {
+      if (pickedProps.includes(key)) {
+        pickedProps = pickedProps.filter(k => k !== key);
+      } else {
+        pickedProps.push(key);
+      }
+      renderDestrPills();
+      renderDestrCode();
+    };
+    wrap.appendChild(pill);
+  });
 }
-showConvert('trad');
 
-/* Template literal builder en vivo */
-function updateTpl() {
-  const nombre = document.getElementById('tplNombre').value || '...';
-  const edad = document.getElementById('tplEdad').value || '...';
-  document.getElementById('tplCodeDisplay').innerHTML =
-    '`Hola, me llamo <span class="hl">${nombre}</span> y tengo <span class="hl">${edad}</span> años.`';
-  document.getElementById('tplOut').textContent = 'Hola, me llamo ' + nombre + ' y tengo ' + edad + ' años.';
+function renderDestrCode() {
+  const codeEl = document.getElementById('destrCode');
+  if (pickedProps.length === 0) {
+    codeEl.textContent = 'Haz clic en al menos una propiedad arriba';
+    return;
+  }
+  const inner = pickedProps.map(p => '<span class="hl">' + p + '</span>').join(', ');
+  codeEl.innerHTML = 'const { ' + inner + ' } = contacto;';
 }
-document.getElementById('tplNombre').addEventListener('input', updateTpl);
-document.getElementById('tplEdad').addEventListener('input', updateTpl);
-updateTpl();
+renderDestrPills();
+renderDestrCode();
+
+/* Visualizador de spread */
+function renderSpread() {
+  const a = ["Café", "Té"];
+  const b = ["Limonada", "Agua"];
+  document.getElementById('spreadA').innerHTML = a.map(v => '<div class="box a">' + v + '</div>').join('');
+  document.getElementById('spreadB').innerHTML = b.map(v => '<div class="box b">' + v + '</div>').join('');
+  document.getElementById('spreadC').innerHTML =
+    a.map(v => '<div class="box a">' + v + '</div>').join('') +
+    b.map(v => '<div class="box b">' + v + '</div>').join('');
+}
+renderSpread();
 
 /* Consola interactiva */
-const CONSOLE_STARTER = `const saludar = (nombre) => \`Hola, \${nombre}!\`;
-console.log(saludar("Jacqui"));`;
+const CONSOLE_STARTER = `const contacto = { nombre: "Jacqui", edad: 25, ciudad: "Orizaba" };
+
+const { nombre, edad } = contacto;
+console.log(nombre, edad);`;
 
 function runConsole() {
   const code = document.getElementById('consoleCode').value;
