@@ -423,7 +423,7 @@ const GUIAS = [
     items: [
       {
         tipo:       'link',
-        href:       'guia-html-css/guia-html-css.html',
+        href:       'guias/guia-html-css/guia-html-css.html',
         icono:      '🏗️',
         gradiente:  'linear-gradient(135deg,#1a0f1a 60%,#2a1230)',
         badge:      'HTML + CSS',
@@ -434,7 +434,7 @@ const GUIAS = [
       },
       {
         tipo:       'link',
-        href:       'guia-holamundo-html/holamundo-html-parte-A.html',
+        href:       'guias/guia-holamundo-html/holamundo-html-parte-A.html',
         icono:      '📺',
         gradiente:  'linear-gradient(135deg, #1a1408 60%, #241c08)',
         badge:      'REPASO HTML',
@@ -456,7 +456,7 @@ const GUIAS = [
     items: [
       {
         tipo:       'link',
-        href:       'guia-js/guia-js-parte-1.html',
+        href:       'guias/guia-js/guia-js-parte-1.html',
         icono:      '⚡',
         gradiente:  'linear-gradient(135deg, #1a1408 60%, #241c08)',
         badge:      'JavaScript',
@@ -478,7 +478,7 @@ const GUIAS = [
     items: [
       {
         tipo:       'link',
-        href:       'guia-vscode/guia-vscode.html',
+        href:       'guias/guia-vscode/guia-vscode.html',
         icono:      '✏️',
         gradiente:  'linear-gradient(135deg, #0d1a20 60%, #102028)',
         badge:      'HERRAMIENTA',
@@ -489,7 +489,7 @@ const GUIAS = [
       },
       {
         tipo:       'link',
-        href:       'guia-linux-terminal/guia-linux-parte-A.html',
+        href:       'guias/guia-linux-terminal/guia-linux-parte-A.html',
         icono:      '🐧',
         gradiente:  'linear-gradient(135deg, #0a1a12 60%, #0e2418)',
         badge:      'TERMINAL',
@@ -528,7 +528,7 @@ const EJERCICIOS = [
     grupo: '💾 Realizados',
     items: [
       {
-        tipo: 'link', href: 'Mis-Ejercicios-Realizados/Mis-Ejercicios-Realizados.html',
+        tipo: 'link', href: 'ejercicios/Mis-Ejercicios-Realizados/Mis-Ejercicios-Realizados.html',
         icono: '📁', gradiente: 'linear-gradient(135deg, #2a1008 60%, #3a1a10)',
         badge: 'MIS PROYECTOS', badgeEstilo: 'background:rgba(196,74,42,0.25);color:#f4a68a;border:1px solid rgba(196,74,42,0.35);',
         titulo: 'Mis Ejercicios Realizados',
