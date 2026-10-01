@@ -444,6 +444,28 @@ const GUIAS = [
         stats:      ['Parte A · Etiquetas y estructura']
       },
       {
+        tipo:       'link',
+        href:       'guias/guia-etiquetas-estilos/etiquetas-html-cafe.html',
+        icono:      '🏷️',
+        gradiente:  'linear-gradient(135deg,#1a0f1a 60%,#2a1230)',
+        badge:      'HTML',
+        badgeEstilo:'background:rgba(230,80,80,0.2);color:#f4a0a0;border:1px solid rgba(230,80,80,0.3);',
+        titulo:     'Etiquetas HTML con imágenes',
+        desc:       'Cada etiqueta explicada con una imagen, una analogía y un ejemplo para entender para qué sirve.',
+        stats:      ['Imagen', 'Analogía', 'Ejemplo']
+      },
+      {
+        tipo:       'link',
+        href:       'guias/guia-etiquetas-estilos/estilos-css-cafe.html',
+        icono:      '🎨',
+        gradiente:  'linear-gradient(135deg,#1a0f1a 60%,#2a1230)',
+        badge:      'CSS',
+        badgeEstilo:'background:rgba(230,80,80,0.2);color:#f4a0a0;border:1px solid rgba(230,80,80,0.3);',
+        titulo:     'Estilos CSS para tus etiquetas',
+        desc:       'Demos editables, analogías y retos para dar estilo a las etiquetas que ya conoces.',
+        stats:      ['Demo editable', 'Analogía', 'Reto']
+      },
+      {
         tipo:   'soon',
         icono:  '➕',
         titulo: 'Próxima guía HTML/CSS',
@@ -622,6 +644,13 @@ const EJERCICIOS = [
 // ============================================
 
 const PRACTICA = [
+  {
+    tipo: 'link', href: 'practica/fase1-html/fase1-bloque1-primera-pagina.html',
+    icono: '🌐', gradiente: 'linear-gradient(135deg, #1f0e0a 60%, #2c140e)',
+    badge: 'HTML', badgeEstilo: 'background:rgba(230,80,50,0.25);color:#f4a090;border:1px solid rgba(230,80,50,0.35);',
+    titulo: '00 · HTML — Fase 1', desc: 'Tu primera página HTML paso a paso: textos, listas, formularios, tablas y multimedia en 7 bloques.',
+    stats: ['7 bloques', 'Código en vivo'], cta: 'Ir al nivel'
+  },
   {
     tipo: 'link', href: 'practica/nivel-01-variables.html',
     icono: '📦', gradiente: 'linear-gradient(135deg, #1a1408 60%, #241c08)',
