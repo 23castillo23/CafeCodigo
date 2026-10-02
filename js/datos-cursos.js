@@ -648,8 +648,15 @@ const PRACTICA = [
     tipo: 'link', href: 'practica/fase1-html/fase1-bloque1-primera-pagina.html',
     icono: '🌐', gradiente: 'linear-gradient(135deg, #1f0e0a 60%, #2c140e)',
     badge: 'HTML', badgeEstilo: 'background:rgba(230,80,50,0.25);color:#f4a090;border:1px solid rgba(230,80,50,0.35);',
-    titulo: '00 · HTML — Fase 1', desc: 'Tu primera página HTML paso a paso: textos, listas, formularios, tablas y multimedia en 7 bloques.',
+    titulo: '00 · HTML — Fase 1 - Café Aroma', desc: 'Tu primera página HTML paso a paso: textos, listas, formularios, tablas y multimedia en 7 bloques.',
     stats: ['7 bloques', 'Código en vivo'], cta: 'Ir al nivel'
+  },
+  {
+    tipo: 'link', href: 'practica/fase2-css/css-bloque1-conectar-y-seleccionar.html',
+    icono: '🎨', gradiente: 'linear-gradient(135deg, #0a1820 60%, #0e2030)',
+    badge: 'CSS', badgeEstilo: 'background:rgba(40,140,220,0.25);color:#80c8f0;border:1px solid rgba(40,140,220,0.35);',
+    titulo: '00 · CSS — Fase 2 - Café Aroma con estilo', desc: 'Dale estilo a tu misma página de la Fase 1, paso a paso: selectores, texto y color, cajas, flexbox y responsive.',
+    stats: ['5 bloques', 'HTML + CSS en vivo'], cta: 'Ir al nivel'
   },
   {
     tipo: 'link', href: 'practica/nivel-01-variables.html',

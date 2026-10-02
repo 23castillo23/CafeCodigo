@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSS · Bloque 2 — Texto y colores — Café &lt;/&gt;</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --primary:#c44a2a; --primary-light:#fdf0ec; --secondary:#1a7a5a; --secondary-light:#edf7f3;
+    --accent:#b07010; --accent-light:#fdf6e8; --danger:#c44a2a; --danger-light:#fdf0ec;
+    --bg:#f7f4ef; --surface:#ffffff; --text:#1a1814; --muted:#8a8480; --border:#e8e4de;
+    --code-bg:#1a1814; --code-text:#e8e4de;
+  }
+  html { scroll-behavior: smooth; }
+  body { font-family:'DM Sans','Segoe UI',sans-serif; background:var(--bg); color:var(--text); line-height:1.7; font-size:16px; }
+  [hidden] { display:none !important; }
+  p { margin-bottom:.8rem; }
+  ul, ol { padding-left:1.4rem; }
+  code { font-family:'DM Mono',monospace; background:#f0ece6; color:var(--primary); padding:1px 5px; border-radius:4px; font-size:.9em; }
+  strong { font-weight:700; }
+
+  /* BARRA CAFÉ */
+  .cafe-bar { background:#fff; border-bottom:1px solid #e8e4de; padding:0 24px; display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:200; height:45px; overflow-x:auto; white-space:nowrap; }
+  .cafe-bar a { display:inline-flex; align-items:center; gap:6px; font-size:13px; color:#8a8480; text-decoration:none; padding:6px 14px; border:1px solid #e8e4de; border-radius:999px; transition:all .15s; }
+  .cafe-bar a:hover { color:#1a1814; border-color:#8a8480; }
+  .cafe-bar span { font-size:13px; color:#8a8480; }
+  .theme-btn { margin-left:auto; background:none; border:1px solid #e8e4de; border-radius:999px; padding:4px 12px; cursor:pointer; font-size:13px; color:#8a8480; }
+
+  header { background:#1a1814; color:#f7f4ef; padding:3rem 2rem 2rem; text-align:center; position:relative; overflow:hidden; }
+  header::before { content:'</>'; position:absolute; font-size:14rem; font-weight:900; color:rgba(255,255,255,.04); right:-2rem; top:-3rem; font-family:monospace; line-height:1; }
+  header h1 { font-size:2.5rem; font-weight:800; letter-spacing:-1px; font-family:'Fraunces',serif; }
+  header p { font-size:1.1rem; opacity:.85; margin:.5rem 0 0; }
+  header .badge { display:inline-block; background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.3); border-radius:20px; padding:4px 14px; font-size:.8rem; margin-top:.75rem; }
+
+  .course-nav { background:var(--bg); border-bottom:1px solid var(--border); display:flex; flex-wrap:wrap; gap:.5rem; justify-content:center; padding:.75rem 1rem; }
+  .course-nav a { font-size:.82rem; text-decoration:none; color:var(--text); background:var(--surface); border:1px solid var(--border); border-radius:999px; padding:4px 14px; }
+  .course-nav a:hover { border-color:var(--primary); }
+  .course-nav a.on { background:var(--primary); border-color:var(--primary); color:#fff; }
+  .course-nav a.ext { color:var(--secondary); border-color:var(--secondary); }
+
+  nav.sec { background:var(--surface); border-bottom:1px solid var(--border); position:sticky; top:45px; z-index:100; display:flex; overflow-x:auto; }
+  nav.sec a { flex-shrink:0; padding:.75rem 1rem; text-decoration:none; color:var(--muted); font-size:.78rem; font-weight:500; border-bottom:2px solid transparent; transition:color .2s,border-color .2s; white-space:nowrap; }
+  nav.sec a:hover { color:var(--primary); border-bottom-color:var(--primary); }
+
+  main { max-width:920px; margin:0 auto; padding:2rem 1.5rem; }
+  .module { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:2rem; margin-bottom:2.5rem; scroll-margin-top:115px; }
+  .module-header { display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--border); }
+  .module-icon { font-size:1.8rem; flex-shrink:0; }
+  .module-title { font-size:1.35rem; font-weight:700; }
+  .module-sub { font-size:.85rem; color:var(--muted); margin-top:2px; }
+
+  .tag { display:inline-block; background:var(--primary-light); color:var(--primary); font-family:'DM Mono',monospace; font-size:.84rem; padding:1px 7px; border-radius:4px; font-weight:600; }
+  .tag-lg { font-size:1.05rem; padding:2px 10px; }
+  .num { background:var(--primary); color:#fff; font-size:.78rem; font-weight:700; width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-family:'DM Mono',monospace; }
+  .xl { display:inline-block; font-size:.78rem; text-decoration:none; color:var(--primary); background:var(--primary-light); border-radius:999px; padding:2px 10px; }
+  .xl:hover { text-decoration:underline; }
+
+  /* Editor */
+  .editor { border:1px solid var(--border); border-radius:12px; overflow:hidden; background:var(--surface); }
+  .ed-top { display:flex; align-items:center; gap:.5rem; padding:.5rem .9rem; background:var(--bg); border-bottom:1px solid var(--border); font:500 .8rem 'DM Sans',sans-serif; color:var(--muted); }
+  .ed-top .dot { width:10px; height:10px; border-radius:3px; background:var(--primary); }
+  .ed { position:relative; height:290px; background:var(--code-bg); }
+  .ed pre, .ed textarea { position:absolute; inset:0; margin:0; padding:1rem 1.1rem; border:0; font:.88rem/22px 'DM Mono','Courier New',monospace; white-space:pre; overflow:auto; tab-size:2; width:100%; height:100%; }
+  .ed pre { color:var(--code-text); pointer-events:none; }
+  .ed textarea { background:transparent; color:transparent; caret-color:#fff; resize:none; outline:none; }
+  .ct { color:#89B4FA; } .cn { color:#FAB387; } .cv { color:#A6E3A1; } .cc { color:#585B70; font-style:italic; }
+  .nw { background:rgba(196,74,42,.38); border-radius:3px; }
+  .ed-bar { display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; padding:.5rem .9rem; background:var(--bg); border-top:1px solid var(--border); border-bottom:1px solid var(--border); font-size:.8rem; }
+  .ed-bar .live { color:var(--secondary); margin-right:auto; font-weight:600; }
+  .ed-bar button { background:var(--surface); color:var(--text); border:1px solid var(--border); border-radius:999px; padding:3px 12px; font:500 .8rem 'DM Sans',sans-serif; cursor:pointer; }
+  .ed-bar button:hover { border-color:var(--primary); }
+  iframe { display:block; width:100%; height:340px; border:0; background:#fff; }
+  .linknote { font-size:.82rem; color:var(--muted); padding:.4rem .9rem; margin:0; border-top:1px solid var(--border); background:var(--bg); min-height:2rem; }
+
+  /* Reproductor */
+  .controls { display:flex; gap:.5rem; flex-wrap:wrap; margin-top:1.1rem; }
+  .ver { background:var(--primary); color:#fff; border:0; border-radius:999px; padding:7px 18px; font:600 .85rem 'DM Sans',sans-serif; cursor:pointer; transition:opacity .15s; }
+  .ver:hover { opacity:.85; }
+  .ver:disabled { opacity:.35; cursor:default; }
+  .ver.alt { background:var(--surface); color:var(--text); border:1px solid var(--border); }
+  .ver:focus-visible, textarea:focus-visible { outline:2px solid var(--primary); outline-offset:2px; }
+  .dots { display:flex; gap:.4rem; flex-wrap:wrap; margin:1rem 0 .9rem; }
+  .dots button { width:26px; height:26px; border-radius:50%; border:1px solid var(--border); background:var(--surface); color:var(--muted); font:500 .72rem 'DM Mono',monospace; cursor:pointer; padding:0; }
+  .dots button.done { background:var(--secondary); border-color:var(--secondary); color:#fff; }
+  .dots button.cur { background:var(--primary); border-color:var(--primary); color:#fff; }
+  .cap { background:var(--bg); border:1px solid var(--border); border-radius:12px; padding:1.1rem 1.25rem; min-height:70px; }
+  .cap-t { margin-bottom:0; }
+  .tagcard { margin-top:1rem; padding-top:1rem; border-top:1px dashed var(--border); }
+  .tc-head { display:flex; align-items:center; gap:.75rem; flex-wrap:wrap; margin-bottom:.6rem; }
+  .tagcard p { margin-bottom:.5rem; font-size:.95rem; }
+
+  .analogy { background:#FFF7ED; border:1px solid #FDE68A; border-left:4px solid var(--accent); border-radius:0 10px 10px 0; padding:1rem 1.25rem; margin:.6rem 0 0; }
+  .analogy h4 { color:#92400E; font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:.35rem; }
+  .analogy p { font-size:.95rem; color:#78350F; margin-bottom:0 !important; }
+
+  /* Pruébalo / Escríbela tú */
+  .ideas li { margin-bottom:.4rem; }
+  .item { padding:1.4rem 0; border-bottom:1px solid var(--border); }
+  .item:first-of-type { padding-top:0; }
+  .item:last-of-type { border-bottom:0; padding-bottom:0; }
+  .item-head { display:flex; align-items:center; gap:.75rem; margin-bottom:.8rem; flex-wrap:wrap; }
+  .ex { background:#FFFBEB; border:1px solid #FDE68A; border-radius:12px; padding:1.25rem; margin:1rem 0 0; }
+  .ex-hd { display:flex; align-items:center; gap:.75rem; margin-bottom:.75rem; font-weight:700; font-size:1rem; color:#78350F; flex-wrap:wrap; }
+  .ex-badge { background:var(--accent); color:#fff; font-size:.68rem; padding:2px 9px; border-radius:20px; font-weight:700; text-transform:uppercase; }
+  .ex p { font-size:.95rem; margin-bottom:.6rem; }
+  .code-block { background:var(--code-bg); color:var(--code-text); border-radius:10px; padding:1.1rem 1.4rem; font-family:'DM Mono','Courier New',monospace; font-size:.88rem; line-height:1.85; overflow-x:auto; margin:.9rem 0 0; white-space:pre; }
+
+  .check { display:flex; gap:.7rem; align-items:flex-start; margin:.6rem 0; }
+  .check input { margin-top:.45rem; accent-color:var(--primary); }
+  .meta { margin-top:1rem; padding:.6rem .9rem; border-radius:10px; border:1px dashed var(--secondary); font-size:.9rem; background:var(--secondary-light); }
+  .meta.done { border-style:solid; font-weight:700; color:var(--secondary); }
+
+  footer { text-align:center; padding:2rem; color:var(--muted); font-size:.85rem; border-top:1px solid var(--border); margin-top:1rem; background:var(--bg); }
+  @media (max-width:680px) { .module { padding:1.25rem; } header h1 { font-size:2rem; } main { padding:1.25rem .75rem; } }
+
+  [data-theme=dark]{--bg:#16130f;--surface:#221e19;--text:#f3eee6;--muted:#a79f95;--border:#3a342c;--primary-light:#3a211a;--secondary-light:#16302a;--danger-light:#3a211a;--code-bg:#0e0c0a}
+  [data-theme=dark] .cafe-bar{background:#221e19;border-color:#3a342c}
+  [data-theme=dark] .cafe-bar a,[data-theme=dark] .cafe-bar span,[data-theme=dark] .theme-btn{color:#a79f95;border-color:#3a342c}
+  [data-theme=dark] .analogy,[data-theme=dark] .ex{background:#2e2514;border-color:#5a4520}
+  [data-theme=dark] .analogy h4,[data-theme=dark] .analogy p,[data-theme=dark] .ex-hd,[data-theme=dark] .ex p{color:#f0d9a8}
+  [data-theme=dark] code{background:#2c2620}
+
+  .tabs { display:flex; gap:2px; margin:-.5rem 0 -.5rem -.4rem; align-self:flex-end; }
+  .tab { background:none; border:0; border-radius:8px 8px 0 0; padding:.45rem .9rem; font:500 .8rem 'DM Mono',monospace; color:var(--muted); cursor:pointer; }
+  .tab.on { background:var(--code-bg); color:#fff; }
+  .tab::before { content:''; display:inline-block; width:8px; height:8px; border-radius:2px; margin-right:7px; background:var(--primary); }
+  .tab[data-t=css]::before { background:var(--secondary); }
+  .rel { display:flex; flex-wrap:wrap; align-items:center; gap:.5rem; margin-top:.9rem; font-size:.8rem; color:var(--muted); }
+  .chip { font:500 .82rem 'DM Mono',monospace; padding:3px 10px; border-radius:6px; border:1px solid; }
+  .chip.css { background:var(--secondary-light); color:var(--secondary); border-color:var(--secondary); }
+  .chip.html { background:var(--primary-light); color:var(--primary); border-color:var(--primary); }
+  .chip[data-sel] { cursor:pointer; }
+  .soon { font-size:.82rem; color:var(--muted); border:1px dashed var(--border); border-radius:999px; padding:4px 14px; }
+  .map { width:100%; border-collapse:collapse; font-size:.9rem; }
+  .map th, .map td { text-align:left; padding:.55rem .7rem; border-bottom:1px solid var(--border); }
+  .map th { font-size:.75rem; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); }
+  .lab p { background:var(--bg); border:1px dashed var(--border); border-radius:10px; padding:1rem; transition:all .15s; }
+  .ctl { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:.7rem 1.5rem; margin:1rem 0; }
+  .ctl label { display:flex; gap:.6rem; align-items:center; font:500 .82rem 'DM Mono',monospace; }
+  .ctl input[type=range] { flex:1; accent-color:var(--primary); }
+  .ctl b { min-width:3.4rem; color:var(--secondary); }
+</style>
+</head>
+<body>
+
+<div class="cafe-bar">
+  <a href="../../capitulos.html?tab=practica">← Volver a Práctica</a>
+  <span>CSS · Bloque 2 — Texto y colores</span>
+  <button class="theme-btn" id="themeBtn" type="button">🌙 Tema</button>
+</div>
+
+<header>
+  <h1>Texto y colores</h1>
+  <p>Letras, tamaños, colores y alineación sobre tu misma página de Café Aroma.</p>
+  <span class="badge">✦ HTML y CSS lado a lado ✦</span>
+</header>
+
+<div class="course-nav"><a class="ext" href="../fase1-html/fase1-bloque7-multimedia-y-codigo.html">← HTML · Fase 1</a><a href="css-bloque1-conectar-y-seleccionar.html">CSS·B1 Conectar y seleccionar</a><a class="on" href="css-bloque2-texto-y-colores.html">CSS·B2 Texto y colores</a><a href="css-bloque3-modelo-de-caja.html">CSS·B3 Modelo de caja</a><a href="css-bloque4-flexbox.html">CSS·B4 Flexbox</a><a href="css-bloque5-responsive.html">CSS·B5 Responsive</a></div>
+
+<nav class="sec"><a href="#mira">▶ Mira cómo se arma</a><a href="#lab">🎛️ Prueba los valores</a><a href="#tuyo">✏️ Pruébalo tú</a><a href="#reto">🏁 Reto final</a></nav>
+
+<main>
+
+<section class="module" id="mira">
+  <div class="module-header">
+    <div class="module-icon">▶</div>
+    <div>
+      <div class="module-title">Mira cómo se arma</div>
+      <div class="module-sub">10 pasos · tu misma página, ahora con texto y color</div>
+    </div>
+  </div>
+  <p>Pulsa <strong>Reproducir</strong> o ve paso a paso. Lo naranja es lo que se acaba de escribir y el editor cambia solo de pestaña según dónde toque escribir. Pasa el mouse sobre las <strong>etiquetas de colores</strong> de cada paso y verás en la vista previa a qué elementos se aplica.</p>
+
+  <div class="editor">
+    <div class="ed-top">
+      <div class="tabs"><button class="tab on" data-t="html" type="button">index.html</button><button class="tab" data-t="css" type="button">estilos.css</button></div>
+    </div>
+    <div class="ed">
+      <pre id="hl" aria-hidden="true"></pre>
+      <textarea id="code" spellcheck="false" aria-label="Editor de código"></textarea>
+    </div>
+    <div class="ed-bar">
+      <span class="live">● EN VIVO</span>
+      <button type="button" id="dl">Descargar ambos</button>
+      <button type="button" id="rst">Reiniciar</button>
+    </div>
+    <iframe id="preview" title="Vista previa"></iframe>
+    <p class="linknote" id="linkNote"></p>
+  </div>
+
+  <div class="controls">
+    <button type="button" class="ver alt" id="prev">← Anterior</button>
+    <button type="button" class="ver" id="play">▶ Reproducir</button>
+    <button type="button" class="ver alt" id="next">Siguiente →</button>
+  </div>
+  <div class="dots" id="dots" aria-label="Pasos"></div>
+  <div class="cap" id="cap"></div>
+</section>
+
+<section class="module" id="lab">
+  <div class="module-header">
+    <div class="module-icon">🎛️</div>
+    <div>
+      <div class="module-title">Prueba los valores</div>
+      <div class="module-sub">Mueve los controles y mira el texto y el CSS cambiar al instante</div>
+    </div>
+  </div>
+  <div class="lab">
+    <p id="muestra">Café Aroma: espresso recién molido cada mañana. Pasa por una taza y quédate a conversar un rato.</p>
+    <div class="ctl">
+      <label>font-size <input type="range" id="fs" min="12" max="40" value="18"><b id="fsv"></b></label>
+      <label>letter-spacing <input type="range" id="ls" min="0" max="8" step="0.5" value="0"><b id="lsv"></b></label>
+      <label>line-height <input type="range" id="lh" min="1" max="2.4" step="0.1" value="1.6"><b id="lhv"></b></label>
+      <label>color <input type="color" id="cl" value="#c44a2a"><b id="clv" style="min-width:0"></b></label>
+    </div>
+    <div class="controls" style="margin:0 0 1rem"><span style="font:500 .85rem 'DM Mono',monospace;align-self:center">text-align:</span><button class="ver alt" data-al="left" type="button">left</button><button class="ver alt" data-al="center" type="button">center</button><button class="ver alt" data-al="right" type="button">right</button></div>
+    <div class="code-block" id="out"></div>
+  </div>
+  <div class="analogy" style="margin-top:1.2rem"><h4>☕ Analogía</h4><p>El texto es el letrero del café: <code>font-size</code> es qué tan grande lo pintas, <code>letter-spacing</code> el aire entre letras, <code>line-height</code> el aire entre renglones y <code>color</code> la pintura.</p></div>
+</section>
+
+<section class="module" id="tuyo">
+  <div class="module-header">
+    <div class="module-icon">✏️</div>
+    <div>
+      <div class="module-title">Pruébalo tú</div>
+      <div class="module-sub">Los dos editores son tuyos en cualquier momento</div>
+    </div>
+  </div>
+  <ul class="ideas"><li>Cambia <code>uppercase</code> por <code>capitalize</code> en los <code>h2</code>.</li><li>Prueba <code>text-align: right</code> en el <code>footer</code>.</li><li>Cambia <code>Georgia, serif</code> por un nombre de fuente que no exista. ¿Qué letra usa el navegador?</li></ul>
+  <p style="margin-top:.8rem;color:var(--muted);font-size:.9rem">Si rompes algo, <strong>Reiniciar</strong> vuelve al inicio del bloque.</p>
+</section>
+
+<section class="module" id="reto">
+  <div class="module-header">
+    <div class="module-icon">🏁</div>
+    <div>
+      <div class="module-title">Reto final</div>
+      <div class="module-sub">Hazlo en los editores, sin copiar</div>
+    </div>
+  </div>
+  <label class="check"><input type="checkbox" class="rt"> <span>Cambia el fondo de los <code>th</code> a otro hexadecimal.</span></label><label class="check"><input type="checkbox" class="rt"> <span>Centra el <code>#saludo</code> con <code>text-align</code>.</span></label><label class="check"><input type="checkbox" class="rt"> <span>Haz los precios de <code>20px</code>.</span></label><label class="check"><input type="checkbox" class="rt"> <span>Pinta los <code>h2</code> con un color escrito con <code>rgb()</code>.</span></label>
+  <div class="meta" id="retoMsg"></div>
+</section>
+
+</main>
+
+<footer>Café &lt;/&gt; · CSS · Bloque 2</footer>
+
+<script>
+var T_H=`<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">‹101:
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">›
+    <title>Café Aroma</title>‹21:
+    <link rel="stylesheet" href="estilos.css">›
+  </head>
+  <body>
+    <header>
+      <h1>Café Aroma</h1>
+      <p id="saludo"></p>
+      <nav>
+        <ul>
+          <li><a href="inicio.html">Inicio</a></li>
+          <li><a href="menu.html">Menú</a></li>
+          <li><a href="contacto.html">Contacto</a></li>
+        </ul>
+      </nav>
+    </header>
+    <main>
+      <section>
+        <h2>Conócenos</h2>
+        <video src="cafe.mp4" width="320" controls poster="portada.jpg"></video>
+        <p>Escucha el ambiente de nuestra cafetería:</p>
+        <audio src="ambiente.mp3" controls></audio>
+      </section>
+      <section>
+        <h2>Nuestro menú</h2>‹86:
+        <div class="tarjetas">›
+        <article‹25-27: class="tarjeta"›‹28: class="tarjeta destacada"›>
+          <h3>Capuchino</h3>
+          <p>Espresso con leche espumada.</p>
+        </article>
+        <article‹25: class="tarjeta"›>
+          <h3>Latte</h3>
+          <p>Suave, cremoso y con leche vaporizada.</p>
+        </article>‹86:
+        </div>›
+      </section>
+      <section>
+        <h2>Precios y horario</h2>
+        <h3>Bebidas</h3>
+        <table>
+          <tr>
+            <th>Bebida</th>
+            <th>Chica</th>
+            <th>Grande</th>
+          </tr>
+          <tr>
+            <td>Capuchino</td>
+            <td‹49: class="precio"›>$45</td>
+            <td‹49: class="precio"›>$55</td>
+          </tr>
+          <tr>
+            <td>Latte</td>
+            <td‹49: class="precio"›>$50</td>
+            <td‹49: class="precio"›>$60</td>
+          </tr>
+          <tr>
+            <td colspan="3">Pregunta por la bebida del día</td>
+          </tr>
+        </table>
+        <h3>Horario</h3>
+        <table>
+          <tr>
+            <th scope="row">Lunes a sábado</th>
+            <td>8:00 a 20:00</td>
+          </tr>
+          <tr>
+            <th scope="row">Domingo</th>
+            <td>Cerrado</td>
+          </tr>
+        </table>
+      </section>
+      <section>
+        <h2>Reserva tu mesa</h2>
+        <form action="reservar.html" method="post">
+          <p>
+            <label for="nombre">Nombre</label><br>
+            <input type="text" id="nombre" name="nombre" placeholder="Tu nombre">
+          </p>
+          <p>
+            <label for="correo">Correo</label><br>
+            <input type="email" id="correo" name="correo" required>
+          </p>
+          <p>
+            <label for="personas">Personas</label><br>
+            <input type="number" id="personas" name="personas" min="1" max="10" value="2">
+          </p>
+          <p>
+            <label for="notas">Notas</label><br>
+            <textarea id="notas" name="notas" rows="3"></textarea>
+          </p>
+          <button type="submit">Reservar</button>
+        </form>
+      </section>
+      <aside>
+        <p>Hoy: <span‹30: class="oferta"›>2x1</span> en galletas.</p>
+      </aside>
+    </main>
+    <footer>
+      <p>© 2026 Café Aroma</p>
+      <div‹84: class="info"›>
+        <p>Lunes a sábado, de 8:00 a 20:00</p>
+        <p>Calle Principal 12</p>
+      </div>
+    </footer>
+    <script>
+      var hora = new Date().getHours();
+      var saludo = hora < 12 ? "Buenos días" : hora < 19 ? "Buenas tardes" : "Buenas noches";
+      document.getElementById("saludo").textContent = saludo + ", bienvenido a Café Aroma";
+    <\/script>
+  </body>
+</html>`;
+var T_C=`/* estilos.css · aquí vive todo el CSS */
+‹22:
+h1 {›‹22:
+  color: #c44a2a;›‹44:
+  font-family: Georgia, serif;›‹44:
+  font-size: 48px;›‹22:
+}
+›‹23:
+body {›‹23:
+  font-family: sans-serif;›‹23:
+  background: #f7f4ef;›‹23:
+  color: #1a1814;›‹43:
+  line-height: 1.6;›‹23:
+}
+›‹24:
+header {›‹24:
+  background: #1a1814;›‹24:
+  color: #f7f4ef;›‹44:
+  text-align: center;›‹24:
+}
+›‹26:
+.tarjeta {›‹26:
+  background: #fffdf8;›‹26:
+  border: 1px solid #e8e4de;›‹26:
+  border-radius: 10px;›‹67:
+  padding: 12px 16px;›‹67:
+  margin-bottom: 12px;›‹87:
+  flex: 1;›‹26:
+}
+›‹27:
+#saludo {›‹27:
+  font-style: italic;›‹27:
+  color: #d8d0c4;›‹27:
+}
+›‹29:
+.destacada {›‹29:
+  border-color: #b07010;›‹29:
+}
+›‹31:
+.oferta {›‹31:
+  background: #fdf6e8;›‹31:
+  color: #b07010;›‹31:
+  font-weight: bold;›‹31:
+}
+›‹41:
+h2 {›‹41:
+  color: #1a7a5a;›‹41:
+  font-size: 22px;›‹41:
+  text-transform: uppercase;›‹41:
+  letter-spacing: 2px;›‹41:
+}
+›‹42:
+h3 {›‹42:
+  color: sienna;›‹42:
+  font-size: 18px;›‹42:
+}
+›‹45:
+nav a {›‹45:
+  color: #f7f4ef;›‹45:
+  text-decoration: none;›‹45:
+  font-weight: bold;›‹45:
+}
+›‹46:
+th {›‹46:
+  background-color: #1a7a5a;›‹46:
+  color: white;›‹46:
+}
+›‹47:
+footer {›‹47:
+  font-size: 14px;›‹47:
+  color: gray;›‹47:
+  text-align: center;›‹47:
+}
+›‹48:
+button {›‹48:
+  background-color: #c44a2a;›‹48:
+  color: white;›‹48:
+  font-weight: bold;›‹69:
+  padding: 10px 20px;›‹69:
+  border: 0;›‹69:
+  border-radius: 8px;›‹48:
+}
+›‹50:
+.precio {›‹50:
+  color: rgb(196, 74, 42);›‹50:
+  font-weight: bold;›‹50:
+}
+›‹61:
+section {›‹61:
+  background: #fff;›‹61:
+  padding: 20px;›‹62:
+  border: 1px solid #e8e4de;›‹62:
+  border-radius: 12px;›‹63:
+  margin-bottom: 20px;›‹61:
+}
+›‹64:
+main {›‹64:
+  max-width: 800px;›‹64:
+  margin: 0 auto;›‹64:
+}
+›‹65:
+input, textarea {›‹65:
+  width: 100%;›‹65:
+  padding: 8px;›‹65:
+  border: 1px solid #ccc;›‹65:
+  border-radius: 6px;›‹65:
+}
+›‹66:
+* {›‹66:
+  box-sizing: border-box;›‹66:
+}
+›‹68:
+table {›‹68:
+  border-collapse: collapse;›‹68:
+  width: 100%;›‹68:
+}
+›‹68:
+th, td {›‹68:
+  padding: 8px 12px;›‹68:
+  border: 1px solid #e8e4de;›‹68:
+  text-align: left;›‹68:
+}
+›‹69:
+header, footer {›‹69:
+  padding: 24px;›‹69:
+}
+›‹81:
+nav ul {›‹81:
+  display: flex;›‹82:
+  gap: 20px;›‹82:
+  list-style: none;›‹82:
+  padding: 0;›‹83:
+  justify-content: center;›‹81:
+}
+›‹85:
+.info {›‹85:
+  display: flex;›‹85:
+  justify-content: space-between;›‹85:
+}
+›‹87:
+.tarjetas {›‹87:
+  display: flex;›‹87:
+  gap: 16px;›‹87:
+}
+›‹102:
+video {›‹102:
+  max-width: 100%;›‹102:
+  height: auto;›‹102:
+}
+›‹103:
+@media (max-width: 480px) {
+  nav ul {
+    flex-direction: column;
+    align-items: center;
+  }›‹104:
+
+  .tarjetas {
+    flex-direction: column;
+  }›‹105:
+
+  .info {
+    flex-direction: column;
+    gap: 6px;
+  }›‹106:
+
+  h1 {
+    font-size: 32px;
+  }›‹103:
+}
+›‹107:
+@media (min-width: 700px) {
+  h1 {
+    font-size: 56px;
+  }
+
+  .tarjetas {
+    gap: 24px;
+  }
+}
+›`;
+var OFF=40;
+var CAFE={"color": {"qh": "un color se escribe de tres formas: hexadecimal (<code>#1a7a5a</code>), por nombre (<code>sienna</code>) o con <code>rgb()</code>.", "an": "Pedir la misma pintura de tres maneras: por su código de la tienda, por su nombre o por su receta.", "oj": "<code>text-transform</code> cambia las mayúsculas sin tocar el HTML y <code>letter-spacing</code> separa las letras."}, "nombre": {"qh": "CSS conoce unos 140 colores por nombre (<code>sienna</code>, <code>gray</code>, <code>white</code>...).", "an": "Pedir \"rojo teja\" en vez de dar el código de la pintura.", "oj": "Si no recuerdas el hexadecimal, el nombre es una forma rápida de probar."}, "linea": {"qh": "<code>line-height</code> es el espacio entre renglones; <code>1.6</code> significa 1.6 veces el tamaño de la letra.", "an": "El aire entre renglones de un menú: apretado cansa, con espacio se lee a gusto.", "oj": "Como está en <code>body</code>, todos los textos de la página lo heredan."}, "alinear": {"qh": "<code>text-align</code> acomoda el texto dentro de su caja (<code>left</code>, <code>center</code>, <code>right</code>) y <code>font-family</code> elige la letra con una lista de respaldo.", "an": "Dónde cuelgas el letrero, y de qué letra lo pintas: si no hay Georgia, sirve cualquier letra con remates (<code>serif</code>).", "oj": "La última letra de la lista debe ser genérica: <code>serif</code>, <code>sans-serif</code> o <code>monospace</code>."}, "descend": {"qh": "un selector con <strong>espacio</strong> (<code>nav a</code>) elige las etiquetas que están <em>dentro</em> de otra.", "an": "\"Los enlaces que están dentro del menú\", no todos los enlaces del edificio.", "oj": "Se lee de derecha a izquierda: \"las <code>a</code> dentro de <code>nav</code>\"."}, "rgb": {"qh": "<code>rgb(196, 74, 42)</code> mezcla rojo, verde y azul, cada uno de 0 a 255.", "an": "La receta del color: tanto rojo, tanto verde, tanto azul.", "oj": "El hexadecimal es la misma receta en otra forma: <code>#c44a2a</code> = <code>rgb(196, 74, 42)</code>. Compruébalo en la sección de abajo."}};
+var STEPS=[{"tab": "css", "k": "color", "rel": [["h2 { }", "&lt;h2&gt;", "h2"]], "t": "Los <code>&lt;h2&gt;</code> de cada sección: <code>color: #1a7a5a</code> es un color en <strong>hexadecimal</strong>, <code>font-size: 22px</code> el tamaño, <code>text-transform: uppercase</code> pasa a mayúsculas y <code>letter-spacing</code> separa las letras."}, {"tab": "css", "k": "nombre", "rel": [["h3 { }", "&lt;h3&gt;", "h3"]], "t": "Los <code>&lt;h3&gt;</code> (Capuchino, Latte, Bebidas, Horario): <code>color: sienna</code> es un color por <strong>nombre</strong> y <code>font-size: 18px</code> los deja más pequeños que los h2."}, {"tab": "css", "k": "linea", "rel": [["body { }", "&lt;body&gt;", "body"]], "t": "Dentro de <code>body</code> agregamos <code>line-height: 1.6</code>: todo el texto de la página gana espacio entre renglones."}, {"tab": "css", "k": "alinear", "rel": [["header { }", "&lt;header&gt;", "header"], ["h1 { }", "&lt;h1&gt;", "h1"]], "t": "En <code>header</code>, <code>text-align: center</code> centra el título y el menú. En <code>h1</code>, <code>font-family: Georgia, serif</code> elige la letra y <code>font-size: 48px</code> la agranda."}, {"tab": "css", "k": "descend", "rel": [["nav a { }", "&lt;nav&gt; … &lt;a&gt;", "nav a"]], "t": "<code>nav a</code> elige solo las <code>&lt;a&gt;</code> que están <em>dentro</em> del <code>&lt;nav&gt;</code>: color claro, <code>text-decoration: none</code> quita el subrayado y <code>font-weight: bold</code> pone negritas."}, {"tab": "css", "rel": [["th { }", "&lt;th&gt;", "th"]], "t": "En las tablas, <code>th { }</code> pinta los encabezados: <code>background-color</code> es el fondo y <code>color: white</code> la letra."}, {"tab": "css", "rel": [["footer { }", "&lt;footer&gt;", "footer"]], "t": "El pie de página más discreto: letra de <code>14px</code>, <code>color: gray</code> y centrado."}, {"tab": "css", "rel": [["button { }", "&lt;button&gt;", "button"]], "t": "El botón \"Reservar\": fondo rojo con <code>background-color</code>, texto blanco y negritas."}, {"tab": "html", "rel": [[".precio", "class=\"precio\"", ".precio"]], "t": "Para resaltar solo los precios de la tabla, agregamos <code>class=\"precio\"</code> a cada <code>&lt;td&gt;</code> que lleva un precio ($45, $55, $50 y $60)."}, {"tab": "css", "k": "rgb", "rel": [[".precio { }", "class=\"precio\"", ".precio"]], "t": "<code>rgb(196, 74, 42)</code> pinta los precios con la receta de rojo, verde y azul y <code>font-weight: bold</code> los pone en negritas. Cambian todos a la vez."}];
+var EMPTY="Esta es tu página como quedó en el bloque 1. Ahora trabajamos el <strong>texto y los colores</strong>. Pulsa Reproducir o Siguiente.";
+
+function tpl(s,n){return s.replace(/‹(\d+)(?:-(\d+))?:([^›]*)›/g,function(_,a,b,x){return n>=+a&&(b===undefined||n<=+b)?x:'';});}
+function build(i){var n=OFF+i+1;return {html:tpl(T_H,n),css:tpl(T_C,n)};}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;');}
+function hlHTML(src,a,b,kind){
+  var c=[],m,i;
+  function mk(re,cls,g){re.lastIndex=0;while((m=re.exec(src))){var s=m.index+(g?m[0].indexOf(m[g]):0),l=g?m[g].length:m[0].length;for(i=s;i<s+l;i++)c[i]=cls;if(!m[0].length)re.lastIndex++;}}
+  if(kind==='html'){mk(/<\/?[a-zA-Z!][^>]*>/g,'ct');mk(/\s([a-z-]+)(?==")/g,'cn',1);mk(/"[^"]*"/g,'cv');}
+  else{mk(/[^{}]+(?=\{)/g,'ct');mk(/([a-z-]+)\s*:/g,'cn',1);mk(/:\s*([^;{}]+);/g,'cv',1);mk(/\/\*[\s\S]*?\*\//g,'cc');}
+  var out='',cur='',cc='',k;
+  for(i=0;i<src.length;i++){
+    k=(c[i]||'')+((a!==undefined&&i>=a&&i<b)?' nw':'');k=k.trim();
+    if(k!==cc){if(cur)out+=cc?'<span class="'+cc+'">'+cur+'</span>':cur;cur='';cc=k;}
+    cur+=esc(src[i]);
+  }
+  if(cur)out+=cc?'<span class="'+cc+'">'+cur+'</span>':cur;
+  return out;
+}
+
+var ta=document.getElementById('code'),hl=document.getElementById('hl'),fr=document.getElementById('preview'),
+    cap=document.getElementById('cap'),dotsBox=document.getElementById('dots'),linkNote=document.getElementById('linkNote'),
+    btnPlay=document.getElementById('play'),btnNext=document.getElementById('next'),btnPrev=document.getElementById('prev'),
+    tabBtns=document.querySelectorAll('.tab');
+var code=build(-1),tab='html',idx=-1,runId=0,playing=false,newA=0,newB=0,SPEED=26,PAUSE=1500;
+ta.value=code.html;
+
+function paint(){hl.innerHTML=hlHTML(ta.value,newA,newB,tab)+'\n';hl.scrollTop=ta.scrollTop;hl.scrollLeft=ta.scrollLeft;}
+ta.addEventListener('scroll',function(){hl.scrollTop=ta.scrollTop;hl.scrollLeft=ta.scrollLeft;});
+function render(){
+  code[tab]=ta.value;
+  var linked=/<link[^>]*estilos\.css/i.test(code.html);
+  var h=code.html.replace(/<link[^>]*stylesheet[^>]*>/i,'');
+  var st=linked?'<style>'+code.css+'</style>':'';
+  var d=fr.contentDocument;d.open();
+  d.write(h.indexOf('</head>')<0?st+h:h.replace('</head>',st+'</head>'));d.close();
+  d.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('a');if(a)e.preventDefault();});
+  linkNote.textContent=(!linked&&/\{/.test(code.css))?'⚠️ Tu HTML no tiene el <link> a estilos.css: por eso el CSS no se aplica.':'';
+}
+function refresh(){paint();render();}
+function setTab(t){
+  if(t===tab)return;
+  code[tab]=ta.value;tab=t;ta.value=code[t];newA=newB=0;ta.scrollTop=0;
+  tabBtns.forEach(function(b){b.className='tab'+(b.dataset.t===t?' on':'');});
+}
+tabBtns.forEach(function(b){b.addEventListener('click',function(){runId++;playing=false;btnPlay.textContent='▶ Reproducir';setTab(b.dataset.t);refresh();});});
+
+function sleep(ms){return new Promise(function(r){setTimeout(r,ms);});}
+function diff(from,to){
+  var p=0,m=Math.min(from.length,to.length);
+  while(p<m&&from[p]===to[p])p++;
+  var s=0;
+  while(s<m-p&&from[from.length-1-s]===to[to.length-1-s])s++;
+  return {p:p,s:s,del:from.length-s-p,ins:to.slice(p,to.length-s)};
+}
+function scrollToPos(pos){var line=ta.value.slice(0,pos).split('\n').length-1;ta.scrollTop=Math.max(0,(line-6)*22);}
+async function typeTo(target,my){
+  var from=ta.value,d=diff(from,target);
+  var head=from.slice(0,d.p),tail=d.s>0?from.slice(from.length-d.s):'';
+  if(d.del>0){ta.value=head+tail;newA=newB=d.p;refresh();await sleep(200);if(my!==runId)return false;}
+  for(var k=1;k<=d.ins.length;k++){
+    ta.value=head+d.ins.slice(0,k)+tail;newA=d.p;newB=d.p+k;scrollToPos(d.p+k);refresh();
+    await sleep(SPEED);if(my!==runId)return false;
+  }
+  return true;
+}
+function setInstant(i){
+  runId++;playing=false;btnPlay.textContent='▶ Reproducir';
+  var cur=build(i),t=i>=0?STEPS[i].tab:'html';
+  code[tab]=ta.value;code.html=cur.html;code.css=cur.css;
+  tab=t;tabBtns.forEach(function(b){b.className='tab'+(b.dataset.t===t?' on':'');});
+  ta.value=code[t];newA=newB=0;ta.scrollTop=0;
+  if(i>=0){var d=diff(build(i-1)[t],cur[t]);newA=d.p;newB=d.p+d.ins.length;scrollToPos(newB);}
+  idx=i;(function(){
+  var m=document.getElementById('muestra'),o=document.getElementById('out'),al='left';
+  function q(i){return document.getElementById(i);}
+  function up(){
+    var fs=q('fs').value,ls=q('ls').value,lh=q('lh').value,c=q('cl').value;
+    var r=parseInt(c.slice(1,3),16),g=parseInt(c.slice(3,5),16),b=parseInt(c.slice(5,7),16);
+    m.style.cssText='font-size:'+fs+'px;letter-spacing:'+ls+'px;line-height:'+lh+';color:'+c+';text-align:'+al;
+    q('fsv').textContent=fs+'px';q('lsv').textContent=ls+'px';q('lhv').textContent=lh;q('clv').textContent=c+' = rgb('+r+', '+g+', '+b+')';
+    o.textContent='p {\n  font-size: '+fs+'px;\n  letter-spacing: '+ls+'px;\n  line-height: '+lh+';\n  color: '+c+';\n  text-align: '+al+';\n}';
+  }
+  ['fs','ls','lh','cl'].forEach(function(i){q(i).addEventListener('input',up);});
+  document.querySelectorAll('[data-al]').forEach(function(b){b.addEventListener('click',function(){al=b.dataset.al;up();});});
+  up();
+})();
+
+refresh();updateUI();
+}
+function capHTML(i){
+  var s=STEPS[i];
+  var h='<p class="cap-t"><b>Paso '+(i+1)+' de '+STEPS.length+'.</b> '+s.t+'</p><div class="rel">';
+  s.rel.forEach(function(r){h+='<span class="chip css"'+(r[2]?' data-sel="'+r[2]+'"':'')+'>'+r[0]+'</span> ↔ <span class="chip html"'+(r[2]?' data-sel="'+r[2]+'"':'')+'>'+r[1]+'</span>';});
+  h+='<small>pasa el mouse para ver a quién afecta</small></div>';
+  if(s.k){var c=CAFE[s.k];h+='<div class="tagcard"><p><strong>Qué hace:</strong> '+c.qh+'</p><div class="analogy"><h4>☕ Analogía</h4><p>'+c.an+'</p></div><p style="margin-top:.9rem"><strong>Ojo:</strong> '+c.oj+'</p></div>';}
+  return h;
+}
+function updateUI(){
+  for(var j=0;j<STEPS.length;j++)dotsBox.children[j].className=j<idx?'done':(j===idx?'cur':'');
+  cap.innerHTML=idx>=0?capHTML(idx):'<p class="cap-t">'+EMPTY+'</p>';
+  btnPrev.disabled=idx<0;btnNext.disabled=idx>=STEPS.length-1;
+}
+async function goNext(){
+  if(idx>=STEPS.length-1)return false;
+  var my=++runId,target=idx+1,cur=build(target),t=STEPS[target].tab;
+  code[tab]=ta.value;code[tab]=ta.value;
+  setTab(t);idx=target;updateUI();
+  var ok=await typeTo(cur[t],my);
+  if(ok){var other=t==='html'?'css':'html';code[other]=cur[other];}
+  return ok;
+}
+btnNext.addEventListener('click',function(){playing=false;btnPlay.textContent='▶ Reproducir';goNext();});
+btnPrev.addEventListener('click',function(){if(idx>=0)setInstant(idx-1);});
+btnPlay.addEventListener('click',async function(){
+  if(playing){runId++;playing=false;btnPlay.textContent='▶ Reproducir';return;}
+  if(idx>=STEPS.length-1)setInstant(-1);
+  playing=true;btnPlay.textContent='⏸ Pausar';
+  while(playing&&idx<STEPS.length-1){
+    var ok=await goNext();if(!ok||!playing)break;
+    var my=runId;await sleep(PAUSE);if(my!==runId||!playing)break;
+  }
+  if(idx>=STEPS.length-1&&playing){playing=false;btnPlay.textContent='↻ Ver de nuevo';}
+});
+document.getElementById('rst').addEventListener('click',function(){setInstant(-1);});
+STEPS.forEach(function(_,j){
+  var b=document.createElement('button');b.type='button';b.textContent=j+1;b.title='Ir al paso '+(j+1);
+  b.addEventListener('click',function(){setInstant(j);});dotsBox.appendChild(b);
+});
+ta.addEventListener('input',function(){runId++;playing=false;btnPlay.textContent='▶ Reproducir';newA=newB=0;refresh();});
+ta.addEventListener('keydown',function(e){
+  if(e.key==='Tab'){e.preventDefault();var s=ta.selectionStart;ta.value=ta.value.slice(0,s)+'  '+ta.value.slice(ta.selectionEnd);ta.selectionStart=ta.selectionEnd=s+2;runId++;playing=false;newA=newB=0;refresh();}
+});
+
+/* Resaltar en la vista previa a quién afecta un selector */
+function lit(sel,on){
+  try{fr.contentDocument.querySelectorAll(sel).forEach(function(el){el.style.outline=on?'3px dashed #c44a2a':'';el.style.outlineOffset=on?'3px':'';});}catch(e){}
+}
+cap.addEventListener('mouseover',function(e){var c=e.target.closest('.chip[data-sel]');if(c)lit(c.dataset.sel,true);});
+cap.addEventListener('mouseout',function(e){var c=e.target.closest('.chip[data-sel]');if(c)lit(c.dataset.sel,false);});
+
+function save(name,txt){
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type:'text/plain'}));a.download=name;
+  document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href);},500);
+}
+document.getElementById('dl').addEventListener('click',function(){
+  code[tab]=ta.value;save('index.html',code.html);setTimeout(function(){save('estilos.css',code.css);},300);
+});
+
+document.getElementById('themeBtn').addEventListener('click',function(){
+  var r=document.documentElement;r.dataset.theme=r.dataset.theme==='dark'?'light':'dark';
+  this.textContent=r.dataset.theme==='dark'?'☀️ Tema':'🌙 Tema';
+});
+
+(function(){
+  var cs=document.querySelectorAll('.rt'),msg=document.getElementById('retoMsg');
+  function upd(){var n=0;cs.forEach(function(c){if(c.checked)n++;});var done=n===cs.length;
+    msg.textContent=done?'¡Listo! Terminaste el bloque 2 de CSS.':n+' de '+cs.length+' completados';msg.className='meta'+(done?' done':'');}
+  cs.forEach(function(c){c.addEventListener('change',upd);});upd();
+})();
+
+refresh();updateUI();
+</script>
+</body>
+</html>
