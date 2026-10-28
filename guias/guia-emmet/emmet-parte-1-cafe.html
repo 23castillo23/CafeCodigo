@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emmet · Parte 1 — Café &lt;/&gt;</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700&family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--primary:#c44a2a;--pl:#fdf0ec;--sec:#1a7a5a;--accent:#b07010;--bg:#f7f4ef;--surface:#fff;--text:#1a1814;--muted:#8a8480;--border:#e8e4de}
+:root[data-theme=dark]{--bg:#14110f;--surface:#1f1b18;--text:#f0ebe4;--muted:#a39d96;--border:#33302b;--pl:#3a1f18}
+body{font-family:'DM Sans','Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:16px}
+[hidden]{display:none!important}
+.cafe-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:200;height:45px}
+.cafe-bar a,.cafe-bar button{font:inherit;font-size:13px;color:var(--muted);text-decoration:none;padding:6px 14px;border:1px solid var(--border);border-radius:999px;background:none;cursor:pointer}
+.cafe-bar a:hover,.cafe-bar button:hover{color:var(--text);border-color:var(--muted)}
+.cafe-bar span{font-size:13px;color:var(--muted);flex:1}
+header{background:#1a1814;color:#f7f4ef;padding:3rem 2rem 2rem;text-align:center;position:relative;overflow:hidden}
+header::before{content:'</>';position:absolute;font-size:14rem;font-weight:900;color:rgba(255,255,255,.04);right:-2rem;top:-3rem;font-family:monospace;line-height:1}
+header h1{font-size:2.5rem;letter-spacing:-1px;font-family:'Fraunces',serif}
+header p{font-size:1.1rem;opacity:.85;margin-top:.5rem}
+.badge{display:inline-block;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:4px 14px;font-size:.8rem;margin-top:.75rem}
+nav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:45px;z-index:100;display:flex;overflow-x:auto}
+nav a{flex-shrink:0;padding:.75rem 1rem;text-decoration:none;color:var(--muted);font-size:.78rem;font-weight:500;border-bottom:2px solid transparent;white-space:nowrap}
+nav a:hover{color:var(--primary);border-bottom-color:var(--primary)}
+main{max-width:920px;margin:0 auto;padding:2rem 1.5rem}
+.module{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;margin-bottom:2.5rem;scroll-margin-top:115px}
+.mh{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border)}
+.mi{font-size:1.8rem}.mt{font-size:1.35rem;font-weight:700}.ms{font-size:.85rem;color:var(--muted)}
+p{margin-bottom:.8rem}h3{margin:1.4rem 0 .5rem;font-size:1.05rem}
+code{font-family:'DM Mono',monospace;background:var(--bg);color:var(--primary);padding:1px 5px;border-radius:4px;font-size:.9em}
+ol.steps{margin:.5rem 0 1rem 1.4rem}ol.steps li{margin-bottom:.4rem}
+.analogy{background:#FFF7ED;border:1px solid #FDE68A;border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0}
+.analogy h4{color:#92400E;font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem}
+.analogy p{font-size:.95rem;color:#78350F;margin:0}
+.note{background:var(--pl);border-left:4px solid var(--primary);border-radius:0 10px 10px 0;padding:.9rem 1.2rem;margin:1rem 0;font-size:.93rem}
+.code-block{background:#1a1814;color:#e8e4de;border-radius:10px;padding:1.1rem 1.3rem;font-family:'DM Mono',monospace;font-size:.86rem;line-height:1.8;overflow-x:auto;margin:.5rem 0;position:relative;white-space:pre-wrap;word-break:break-word;max-width:100%}
+.code-block::before{content:attr(data-l);position:absolute;top:.4rem;right:.7rem;background:rgba(255,255,255,.1);color:rgba(255,255,255,.5);font-size:.65rem;padding:1px 8px;border-radius:4px;font-family:sans-serif}
+.ct{color:#89B4FA}.ca{color:#CBA6F7}.cs{color:#A6E3A1}.cp{color:#FAB387;font-weight:700}.cn{color:#F9E2AF}
+.pair>div{min-width:0}
+.pair{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:1rem;align-items:start;margin:1rem 0}
+@media(max-width:680px){.pair{grid-template-columns:minmax(0,1fr)}.module{padding:1.25rem}}
+.ql{font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:.6rem 0 .2rem}
+.lab,.ex{background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:1.3rem;margin:1.3rem 0;color:#78350F}
+.lab-in{width:100%;padding:.65rem 1rem;border:1px solid #d9c98a;border-radius:10px;font:500 1rem 'DM Mono',monospace;background:#fff;color:#1a1814;margin:.3rem 0}
+.lab iframe{width:100%;height:150px;border:1px dashed #d9c98a;border-radius:10px;background:#fff;margin-top:.4rem}
+.ex-hd{display:flex;gap:.7rem;align-items:center;font-weight:700;margin-bottom:.8rem;flex-wrap:wrap}
+.ex-badge{background:var(--accent);color:#fff;font-size:.68rem;padding:2px 9px;border-radius:20px;text-transform:uppercase}
+.ver{background:var(--primary);color:#fff;border:0;border-radius:999px;padding:6px 16px;font:600 .82rem 'DM Sans',sans-serif;cursor:pointer;margin:.3rem .3rem .3rem 0}
+.ver.alt{background:#fff;color:var(--primary);border:1px solid var(--primary)}
+.okline{font-weight:600;font-size:.92rem;margin-top:.4rem}.good{color:var(--sec)}.bad{color:var(--primary)}
+.glos{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:.9rem;margin:1rem 0}
+.gi{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.9rem 1rem;font-size:.88rem}
+.gi b{display:block;font-family:'DM Mono',monospace;color:var(--primary);margin-bottom:.2rem;font-size:.84rem}
+table{width:100%;border-collapse:collapse;font-size:.9rem;margin:1rem 0}
+th,td{border:1px solid var(--border);padding:.5rem .7rem;text-align:left}th{background:var(--bg)}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.85rem;border-top:1px solid var(--border)}
+.cafe-bar{overflow-x:auto;white-space:nowrap}
+.cafe-bar a.on{background:var(--primary);color:#fff;border-color:var(--primary)}
+.pn{display:flex;gap:6px}.pn a{padding:6px 12px!important}
+@media(max-width:700px){.cafe-bar{padding:0 12px;gap:8px}.cafe-bar span{display:none}}
+.pager{max-width:920px;margin:0 auto 2rem;padding:0 1.5rem;display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.pager a{display:block;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1rem 1.2rem;text-decoration:none;color:var(--text);transition:.15s}
+.pager a:hover{border-color:var(--primary);transform:translateY(-2px)}
+.pager small{display:block;color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.07em}
+.pager .next{text-align:right;grid-column:2}
+@media(max-width:600px){.pager{grid-template-columns:1fr}.pager .next{grid-column:1}}
+</style>
+</head>
+<body>
+<div class="cafe-bar"><a href="emmet-indice-cafe.html">📚 Índice</a><div class="pn"><a href="emmet-parte-1-cafe.html" title="Parte 1 · Fundamentos" class="on" aria-current="page">1</a><a href="emmet-parte-2-cafe.html" title="Parte 2 · Subir, agrupar y numerar">2</a><a href="emmet-parte-3-cafe.html" title="Parte 3 · Emmet para CSS">3</a><a href="emmet-parte-4-cafe.html" title="Parte 4 · Formularios, listas y tablas">4</a><a href="emmet-parte-5-cafe.html" title="Parte 5 · Proyecto final">5</a></div><span>Café &lt;/&gt; · Emmet</span><a href="../../capitulos.html?tab=guias">Portal</a><button type="button" id="tm">🌙 / ☀️</button></div>
+<header><h1>Emmet — Parte 1</h1><p>Escribe menos, haz más: tu primer atajo para HTML</p><span class="badge">☕ Fundamentos · Parte 1 de 5</span></header>
+<nav><a href="#que">¿Qué es?</a><a href="#esqueleto">El esqueleto !</a><a href="#etiquetas">Etiquetas</a><a href="#clase">Clases .</a><a href="#id">Id #</a><a href="#hijo">Hijo &gt;</a><a href="#hermano">Hermano +</a><a href="#mult">Multiplicar *</a><a href="#combo">Combinar</a><a href="#retos">Retos</a><a href="#chuleta">Chuleta</a></nav>
+<main>
+
+<section class="module" id="que">
+<div class="mh"><span class="mi">⚡</span><div><div class="mt">¿Qué es Emmet?</div><div class="ms">La idea completa en 2 minutos</div></div></div>
+<p><strong>Emmet</strong> es una herramienta que convierte una <strong>abreviatura</strong> (una frase corta) en código HTML completo. Tú escribes poquito, presionas <code>Tab</code> y el editor lo <strong>expande</strong> a las líneas largas. No es un lenguaje nuevo: es un atajo para escribir lo HTML que ya conoces.</p>
+<div class="analogy"><h4>☕ Analogía</h4><p>Es como pedir un <em>"combo 3"</em> en una cafetería. No dictas cada ingrediente (pan, queso, jamón, refresco): dices dos palabras y la cocina arma todo. Emmet es el "combo" y el editor es la cocina.</p></div>
+<div class="pair" data-e="ul>li*3"></div>
+<p>Arriba: escribiste 8 caracteres y obtuviste 5 líneas ya indentadas y con todas las etiquetas cerradas. Sin Emmet tendrías que teclear cada <code>&lt;</code>, <code>&gt;</code> y <code>/</code> a mano.</p>
+<h3>Cómo usarlo en VS Code (ya viene instalado)</h3>
+<ol class="steps">
+<li><strong>Guarda tu archivo con extensión <code>.html</code></strong> (por ejemplo <code>index.html</code>). Si es <code>.txt</code>, Emmet no se activa.</li>
+<li><strong>Escribe la abreviatura</strong> sin espacios, por ejemplo <code>p.texto</code>.</li>
+<li><strong>Presiona <code>Tab</code></strong> (o <code>Enter</code> si ves el menú de sugerencias con la opción "Emmet Abbreviation").</li>
+<li>¡Listo! El cursor queda dentro de la etiqueta para que escribas el contenido.</li>
+</ol>
+<div class="note"><strong>¿No pasa nada al presionar Tab?</strong> Revisa que abajo a la derecha de VS Code diga <em>HTML</em>, o presiona <code>Ctrl + Espacio</code> para forzar el menú de sugerencias.</div>
+<h3>🧪 Tu laboratorio (funciona igual que el editor)</h3>
+<p>En esta página hay cuadros como el de abajo: escribe una abreviatura y verás el código y cómo se ve. Todo lo que aprendas aquí lo puedes probar al instante.</p>
+<div class="lab" data-v="div"></div>
+</section>
+
+<section class="module" id="esqueleto">
+<div class="mh"><span class="mi">🏠</span><div><div class="mt">El esqueleto con <code>!</code></div><div class="ms">Una página completa con un solo carácter</div></div></div>
+<p>Toda página HTML empieza con una estructura obligatoria. En un archivo vacío escribe solo el signo de exclamación y presiona <code>Tab</code>:</p>
+<div class="pair" data-e="!"></div>
+<p>(También sirve <code>html:5</code>, hace exactamente lo mismo; <code>!</code> solo es más corto.)</p>
+<div class="analogy"><h4>☕ Analogía</h4><p>Es como construir una casa: <code>&lt;html&gt;</code> es el terreno, <code>&lt;head&gt;</code> son los planos y los cimientos (no se ven, pero hacen que todo funcione) y <code>&lt;body&gt;</code> son las habitaciones, lo que la gente ve y usa.</p></div>
+<h3>Qué significa cada línea</h3>
+<div class="glos">
+<div class="gi"><b>&lt;!DOCTYPE html&gt;</b>Le avisa al navegador: "esto es HTML moderno (HTML5)". Sin esta línea el navegador entra en un modo antiguo y raro.</div>
+<div class="gi"><b>&lt;html lang="en"&gt;</b>La raíz: todo va dentro. <code>lang</code> es el idioma de la página. <strong>Cámbialo a <code>"es"</code></strong> si escribes en español (ayuda a lectores de pantalla y al traductor).</div>
+<div class="gi"><b>&lt;head&gt;</b>La "trastienda": información sobre la página que no se muestra en pantalla.</div>
+<div class="gi"><b>&lt;meta charset="UTF-8"&gt;</b>Define el alfabeto. Con esto las ñ, los acentos y los emojis se ven bien y no como símbolos raros.</div>
+<div class="gi"><b>&lt;meta name="viewport" ...&gt;</b>Para celulares. <code>width=device-width</code> usa el ancho real de la pantalla; <code>initial-scale=1.0</code> evita zoom inicial. Sin esto, la página se vería miniatura en el móvil.</div>
+<div class="gi"><b>&lt;title&gt;</b>El texto que aparece en la pestaña del navegador. Cámbialo de "Document" a algo con sentido.</div>
+<div class="gi"><b>&lt;body&gt;</b>El cuerpo: aquí va TODO lo visible (títulos, párrafos, imágenes). Aquí escribirás casi siempre.</div>
+</div>
+<div class="note">Las etiquetas <code>&lt;meta&gt;</code> no llevan cierre (<code>&lt;/meta&gt;</code>) porque no contienen nada dentro: se llaman <strong>etiquetas vacías</strong>.</div>
+</section>
+
+<section class="module" id="etiquetas">
+<div class="mh"><span class="mi">🏷️</span><div><div class="mt">Etiquetas simples</div><div class="ms">Escribe el nombre, Emmet pone el resto</div></div></div>
+<p>La regla más básica: escribes <strong>solo el nombre</strong> de la etiqueta y Emmet agrega la apertura <code>&lt;p&gt;</code> y el cierre <code>&lt;/p&gt;</code>.</p>
+<div class="pair" data-e="p"></div>
+<div class="pair" data-e="h1"></div>
+<div class="analogy"><h4>☕ Analogía</h4><p>Es como un frasco con tapa: Emmet siempre pone la tapa (el cierre) por ti. Olvidar un cierre es de los errores más comunes en HTML; con Emmet casi nunca pasa.</p></div>
+<h3>Atributos automáticos</h3>
+<p>Algunas etiquetas necesitan atributos obligatorios. Emmet los pone vacíos para que solo los rellenes:</p>
+<div class="pair" data-e="a"></div>
+<div class="pair" data-e="img"></div>
+<div class="pair" data-e="input"></div>
+<ul style="margin:0 0 1rem 1.4rem"><li><code>a</code> → <code>href=""</code>: la dirección a donde lleva el enlace.</li><li><code>img</code> → <code>src=""</code> (ruta de la imagen) y <code>alt=""</code> (texto descriptivo, importante para accesibilidad).</li><li><code>input</code> → <code>type="text"</code>: un campo de texto por defecto.</li></ul>
+<h3>Etiquetas vacías (sin cierre)</h3>
+<div class="pair" data-e="br"></div>
+<p><code>br</code> (salto de línea), <code>hr</code> (línea horizontal), <code>img</code> e <code>input</code> no llevan cierre porque no envuelven contenido. Emmet ya sabe cuáles son.</p>
+<div class="lab" data-v="h2"></div>
+</section>
+
+<section class="module" id="clase">
+<div class="mh"><span class="mi">👕</span><div><div class="mt">Clases con punto <code>.</code></div><div class="ms">Etiqueta + class en un paso</div></div></div>
+<p>El punto <code>.</code> significa <strong>"agrégale esta clase"</strong>. Primero va la etiqueta y luego <code>.nombre</code>:</p>
+<div class="pair" data-e="div.caja"></div>
+<p>Lee: "un <code>div</code> con la clase <code>caja</code>". Pegado, sin espacios.</p>
+<h3>Varias clases</h3>
+<div class="pair" data-e="p.aviso.grande"></div>
+<p>Cada <code>.</code> agrega una clase más. Emmet las junta en un solo atributo <code>class</code>, separadas por espacio (así lo exige HTML).</p>
+<h3>Sin etiqueta = <code>div</code></h3>
+<div class="pair" data-e=".caja"></div>
+<p>Si escribes solo <code>.caja</code>, Emmet entiende que quieres un <code>div</code> (la caja más común). Dentro de una lista adivina más: <code>ul&gt;.item</code> crea un <code>li</code>.</p>
+<div class="pair" data-e="ul>.item"></div>
+<div class="analogy"><h4>☕ Analogía</h4><p>Una clase es la <strong>camiseta de un equipo</strong>. Muchos jugadores pueden usar la misma camiseta roja, y luego en CSS dices "todos los de la camiseta roja hacen esto". Una etiqueta puede llevar varias camisetas a la vez.</p></div>
+<div class="note">En CSS también se usa el punto: <code>.caja { ... }</code>. Así aprendes dos cosas con un solo símbolo.</div>
+<div class="lab" data-v="p.aviso.grande"></div>
+</section>
+
+<section class="module" id="id">
+<div class="mh"><span class="mi">🪪</span><div><div class="mt">Id con numeral <code>#</code></div><div class="ms">El nombre único de un elemento</div></div></div>
+<p>El <code>#</code> significa <strong>"ponle este id"</strong>:</p>
+<div class="pair" data-e="div#menu"></div>
+<p>Se puede combinar con clases, en cualquier orden. Lo mejor es escribirlo así: etiqueta, luego <code>#id</code>, luego <code>.clases</code>.</p>
+<div class="pair" data-e="header#top.oscuro"></div>
+<div class="pair" data-e="#app"></div>
+<div class="analogy"><h4>☕ Analogía</h4><p>El <strong>id</strong> es tu CURP: es único, nadie más en el país lo tiene. La <strong>clase</strong> es tu equipo de fútbol: muchas personas pueden compartirlo. Por eso un id no puede repetirse en la misma página, pero una clase sí.</p></div>
+<table><tr><th></th><th>Clase <code>.</code></th><th>Id <code>#</code></th></tr><tr><td>¿Se repite?</td><td>Sí, en muchos elementos</td><td>No, uno por página</td></tr><tr><td>¿Cuántos por elemento?</td><td>Varios</td><td>Solo uno</td></tr><tr><td>Uso típico</td><td>Estilos repetidos</td><td>Una pieza única (menú, app)</td></tr></table>
+<div class="lab" data-v="header#top.oscuro"></div>
+</section>
+
+<section class="module" id="hijo">
+<div class="mh"><span class="mi">🪆</span><div><div class="mt">Hijo con <code>&gt;</code></div><div class="ms">"Dentro de"</div></div></div>
+<p>El signo <code>&gt;</code> significa <strong>"y dentro de él va..."</strong>. Pone una etiqueta dentro de otra:</p>
+<div class="pair" data-e="ul>li"></div>
+<p>Lee de izquierda a derecha: "una <code>ul</code> que contiene un <code>li</code>". Fíjate en la <strong>sangría</strong> (los 2 espacios): el <code>li</code> está más a la derecha porque está <em>dentro</em>.</p>
+<h3>Se puede encadenar</h3>
+<div class="pair" data-e="div>p>strong"></div>
+<p>Es un <code>div</code> que contiene un <code>p</code> que contiene un <code>strong</code>.</p>
+<div class="analogy"><h4>☕ Analogía</h4><p>Son <strong>muñecas rusas</strong>: cada una vive dentro de la anterior. <code>&gt;</code> te dice "la siguiente muñeca va adentro".</p></div>
+<div class="lab" data-v="div>p>strong"></div>
+</section>
+
+<section class="module" id="hermano">
+<div class="mh"><span class="mi">🏘️</span><div><div class="mt">Hermano con <code>+</code></div><div class="ms">Uno al lado del otro</div></div></div>
+<p>El <code>+</code> significa <strong>"y al lado va..."</strong>. Las etiquetas quedan al mismo nivel, una tras otra:</p>
+<div class="pair" data-e="h1+p"></div>
+<div class="pair" data-e="header>h1+p"></div>
+<p>En el segundo ejemplo, <code>h1</code> y <code>p</code> son hermanos y <strong>los dos</strong> están dentro de <code>header</code>.</p>
+<h3>El error clásico: confundir <code>&gt;</code> con <code>+</code></h3>
+<div class="pair" data-e="h1>p"></div>
+<p>Aquí el <code>p</code> quedó <em>dentro</em> del <code>h1</code>, que casi nunca es lo que quieres. Si buscabas que estuvieran lado a lado, usa <code>+</code>.</p>
+<div class="analogy"><h4>☕ Analogía</h4><p>Los hermanos <strong>viven en la misma casa</strong> (mismo padre) pero cada uno en su cuarto. <code>+</code> = "vecino de al lado", mismo nivel. <code>&gt;</code> = "adentro".</p></div>
+<div class="lab" data-v="header>h1+p"></div>
+</section>
+
+<section class="module" id="mult">
+<div class="mh"><span class="mi">🖨️</span><div><div class="mt">Multiplicar con <code>*</code></div><div class="ms">Copias de un elemento</div></div></div>
+<p>El asterisco <code>*</code> seguido de un número significa <strong>"repite esto N veces"</strong>:</p>
+<div class="pair" data-e="li*3"></div>
+<p>Lo más común es multiplicar dentro de otro elemento:</p>
+<div class="pair" data-e="ul>li*3"></div>
+<div class="pair" data-e="ul>li.item*2"></div>
+<div class="note"><strong>Cuidado:</strong> el <code>*</code> solo afecta al elemento <em>inmediato a su izquierda</em>. <code>ul&gt;li*3</code> da <strong>1 lista con 3 ítems</strong>; en cambio <code>ul*3</code> da 3 listas vacías. (En la Parte 2 verás cómo repetir grupos enteros.)</div>
+<div class="analogy"><h4>☕ Analogía</h4><p>Es una <strong>fotocopiadora</strong>: pones una hoja (<code>li</code>) y pides 3 copias (<code>*3</code>). Solo copia la hoja que pusiste, no toda la oficina.</p></div>
+<div class="lab" data-v="ul>li*3"></div>
+</section>
+
+<section class="module" id="combo">
+<div class="mh"><span class="mi">🧩</span><div><div class="mt">Combinar todo</div><div class="ms">Lee las abreviaturas por piezas</div></div></div>
+<p>La clave para entender abreviaturas largas es <strong>partirlas en piezas</strong> y leerlas de izquierda a derecha. Ejemplo, un menú de navegación:</p>
+<div class="pair" data-e="nav.menu>ul>li*3>a"></div>
+<ol class="steps">
+<li><code>nav.menu</code> → una etiqueta <code>nav</code> con clase <code>menu</code>.</li>
+<li><code>&gt;ul</code> → dentro, una lista.</li>
+<li><code>&gt;li*3</code> → dentro de la lista, 3 ítems.</li>
+<li><code>&gt;a</code> → dentro de <strong>cada</strong> ítem, un enlace (por eso aparece 3 veces).</li>
+</ol>
+<p>Otro ejemplo: una sección con título y dos párrafos.</p>
+<div class="pair" data-e="section#about>h2+p*2"></div>
+<p>Pieza por pieza: <code>section#about</code> → <code>&gt;h2</code> dentro → <code>+p*2</code> al lado del <code>h2</code>, dos párrafos.</p>
+<div class="lab" data-v="nav.menu>ul>li*3>a"></div>
+</section>
+
+<section class="module" id="retos">
+<div class="mh"><span class="mi">🎯</span><div><div class="mt">Retos</div><div class="ms">Escribe la abreviatura que genera el código objetivo</div></div></div>
+<p>Se muestra el HTML que debes lograr. Escribe tu abreviatura Emmet: si genera <strong>el mismo código</strong>, ¡ganaste! Puedes usar "Ver solución" si te atoras.</p>
+<div class="ex reto" data-sol="p.aviso" data-t="Un párrafo con una clase"></div>
+<div class="ex reto" data-sol="#menu" data-t="Un div con id (¡sin escribir 'div'!)"></div>
+<div class="ex reto" data-sol="ul>li*3" data-t="Una lista de 3 ítems"></div>
+<div class="ex reto" data-sol="header>h1+p" data-t="Un encabezado con título y párrafo hermanos"></div>
+<div class="ex reto" data-sol="nav.barra>a*2" data-t="Una barra de navegación con 2 enlaces"></div>
+</section>
+
+<section class="module" id="chuleta">
+<div class="mh"><span class="mi">📋</span><div><div class="mt">Chuleta de la Parte 1</div><div class="ms">Para tener a la mano</div></div></div>
+<table>
+<tr><th>Símbolo</th><th>Significa</th><th>Ejemplo</th><th>Se lee</th></tr>
+<tr><td><code>!</code></td><td>Esqueleto HTML</td><td><code>!</code></td><td>"página completa"</td></tr>
+<tr><td><code>.</code></td><td>Clase</td><td><code>div.caja</code></td><td>"div con clase caja"</td></tr>
+<tr><td><code>#</code></td><td>Id</td><td><code>div#menu</code></td><td>"div con id menu"</td></tr>
+<tr><td><code>&gt;</code></td><td>Hijo (dentro)</td><td><code>ul&gt;li</code></td><td>"ul que contiene li"</td></tr>
+<tr><td><code>+</code></td><td>Hermano (al lado)</td><td><code>h1+p</code></td><td>"h1 y al lado p"</td></tr>
+<tr><td><code>*</code></td><td>Multiplicar</td><td><code>li*3</code></td><td>"li repetido 3 veces"</td></tr>
+</table>
+<div class="note"><strong>Próxima parada · Parte 2:</strong> subir de nivel con <code>^</code>, agrupar con <code>( )</code>, numerar con <code>$</code>, atributos con <code>[ ]</code>, texto con <code>{ }</code> y texto de relleno con <code>lorem</code>.</div>
+</section>
+</main>
+<div class="pager" role="navigation" aria-label="Navegación entre partes"><a class="prev" href="emmet-indice-cafe.html"><small>← Inicio</small><b>Índice de la guía</b></a><a class="next" href="emmet-parte-2-cafe.html"><small>Siguiente →</small><b>Parte 2 · Subir, agrupar y numerar</b></a></div>
+<footer>Café &lt;/&gt; · Emmet Parte 1 · ¡Sigue practicando en tu editor!</footer>
+
+<script>
+(function(){
+const VOID=new Set('img br hr input meta link'.split(' '));
+const INL=new Set('a abbr b br button cite code del dfn em i iframe img input ins kbd label q s samp select small span strong sub sup textarea u var'.split(' '));
+const IMP={ul:'li',ol:'li',table:'tr',tbody:'tr',thead:'tr',tr:'td',select:'option',p:'span',em:'span',strong:'span',span:'span'};
+const DEF={a:{href:''},img:{src:'',alt:''},input:{type:'text'},form:{action:''},label:{for:''}};
+const BOILER='<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>Document<\/title>\n<\/head>\n<body>\n  \n<\/body>\n<\/html>';
+function expand(ab){
+ ab=(ab||'').trim();if(!ab)return'';
+ if(ab==='!'||ab==='html:5')return BOILER;
+ let i=0;const ch=()=>ab[i];
+ function el(){
+  const n={tag:'',id:'',cls:[],at:[],text:null,kids:[]};
+  while(i<ab.length&&/[\w$:-]/.test(ch()))n.tag+=ab[i++];
+  while(i<ab.length){
+   const c=ch();
+   if(c==='.'||c==='#'){i++;let v='';while(i<ab.length&&/[\w$-]/.test(ch()))v+=ab[i++];if(c==='.')n.cls.push(v);else n.id=v;}
+   else if(c==='['){const e=ab.indexOf(']',i),b=ab.slice(i+1,e<0?ab.length:e);i=e<0?ab.length:e+1;b.replace(/([\w-]+)(?:=("[^"]*"|'[^']*'|\S+))?/g,(m,k,v)=>{n.at.push([k,v==null?'':v.replace(/^["']|["']$/g,'')]);return m;});}
+   else if(c==='{'){const e=ab.indexOf('}',i);n.text=ab.slice(i+1,e<0?ab.length:e);i=e<0?ab.length:e+1;}
+   else break;
+  }
+  return n;
+ }
+ function item(){
+  let n;
+  if(ch()==='('){i++;n={group:chain(),kids:[]};if(ch()===')')i++;}else n=el();
+  if(ch()==='*'){i++;let m='';while(/\d/.test(ch()||''))m+=ab[i++];n.rep=+m||1;}
+  return n;
+ }
+ function chain(){
+  const roots=[];let cur=item();roots.push(cur);const path=[cur];
+  while(i<ab.length&&ch()!==')'){
+   const op=ab[i++];
+   if(op==='>'){const n=item();cur.kids.push(n);path.push(n);cur=n;}
+   else if(op==='+'||op==='^'){
+    if(op==='^'){path.pop();while(ch()==='^'){i++;path.pop();}}
+    const n=item(),p=path[path.length-2];(p?p.kids:roots).push(n);
+    if(op==='+'||path.length)path[path.length-1]=n;else path.push(n);cur=n;
+   }
+  }
+  return roots;
+ }
+ function gen(nodes,par,ix){
+  const out=[];
+  for(const n of nodes){const T=n.rep||1;
+   for(let k=1;k<=T;k++){const x=n.rep?k:ix;if(n.group)out.push(...gen(n.group,par,x));else out.push(one(n,par,x));}}
+  return out;
+ }
+ function one(n,par,x){
+  const S=s=>String(s).replace(/\$+/g,m=>String(x).padStart(m.length,'0'));
+  let tag=n.tag;
+  if(!tag){
+   if(!n.id&&!n.cls.length&&!n.at.length&&n.text!=null)return{t:null,lines:[S(n.text)]};
+   tag=IMP[par]||(INL.has(par)?'span':'div');
+  }
+  if(tag==='btn')tag='button';tag=S(tag);
+  const M=new Map(Object.entries(DEF[tag]||{}));
+  if(n.id)M.set('id',S(n.id));
+  if(n.cls.length)M.set('class',n.cls.map(S).join(' '));
+  n.at.forEach(([k,v])=>M.set(k,S(v)));
+  let a='';M.forEach((v,k)=>{a+=' '+k+'="'+v+'"';});
+  const open='<'+tag+a+'>';
+  if(VOID.has(tag))return{t:tag,lines:[open]};
+  const kids=gen(n.kids,tag,x),txt=n.text!=null?S(n.text):'',close='<\/'+tag+'>';
+  if(!kids.length)return{t:tag,lines:[open+txt+close]};
+  if(kids.every(k=>(k.t===null||INL.has(k.t))&&k.lines.length===1)&&kids.filter(k=>k.t!==null).length<2)return{t:tag,lines:[open+txt+kids.map(k=>k.lines[0]).join('')+close]};
+  return{t:tag,lines:[open+txt,...kids.flatMap(k=>k.lines.map(l=>'  '+l)),close]};
+ }
+ try{return gen(chain(),'',1).flatMap(k=>k.lines).join('\n');}catch(e){return'';}
+}
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const hlH=s=>esc(s).replace(/&lt;(\/?)([\w!-]+)((?:\s(?:(?!&gt;).)*?)?)&gt;/g,(m,sl,t,a)=>'<span class="ct">&lt;'+sl+t+'<\/span>'+a.replace(/([\w-]+)=("[^"]*")/g,'<span class="ca">$1<\/span>=<span class="cs">$2<\/span>')+'<span class="ct">&gt;<\/span>');
+const hlE=s=>[...s].map(c=>'.#>+*^()$[]{}'.includes(c)?'<span class="cp">'+esc(c)+'<\/span>':'<span class="cn">'+esc(c)+'<\/span>').join('');
+const norm=s=>s.replace(/\s+/g,'');
+const ph=h=>h.replace(/<([a-z][\w-]*)([^>]*)><\/\1>/g,'<$1$2><i style=\"color:#b0a89c;font:11px monospace\">$1<\/i><\/$1>');
+const frame=h=>/^<!DOCTYPE/.test(h)?h:'<body style="font-family:sans-serif;margin:8px"><style>body *{outline:1px dashed #c44a2a88;margin:3px;padding:3px;min-height:14px}<\/style>'+ph(h)+'<\/body>';
+const blk=(l,h)=>{const d=document.createElement('div');d.className='code-block';d.dataset.l=l;d.innerHTML=h;return d;};
+document.querySelectorAll('.pair').forEach(p=>{
+ const e=p.dataset.e,L=document.createElement('div'),R=document.createElement('div');
+ L.innerHTML='<div class="ql">Escribes<\/div>';L.appendChild(blk('EMMET',hlE(e)));
+ R.innerHTML='<div class="ql">Obtienes (al presionar Tab)<\/div>';R.appendChild(blk('HTML',hlH(expand(e))));
+ p.append(L,R);
+});
+document.querySelectorAll('.lab').forEach(L=>{
+ L.innerHTML='<div class="ql" style="color:#92400E">✍️ Laboratorio · escribe una abreviatura (se expande sola)<\/div><input class="lab-in" spellcheck="false" autocomplete="off"><div class="out"><\/div><div class="ql" style="color:#92400E">👁️ Vista previa · así se vería en el navegador<\/div><iframe sandbox="" title="Vista previa"><\/iframe><p style="font-size:.8rem;margin:.4rem 0 0">Las líneas punteadas rojas marcan cada etiqueta. Si una etiqueta está vacía solo ves su nombre en gris; agrega texto con <code>{ }<\/code> para verlo.<\/p>';
+ const inp=L.querySelector('input'),out=L.querySelector('.out'),fr=L.querySelector('iframe');
+ const up=()=>{const h=expand(inp.value);out.innerHTML='';out.appendChild(blk('HTML',h?hlH(h):'<span class="cc">(escribe algo arriba…)<\/span>'));fr.srcdoc=frame(h);};
+ inp.value=L.dataset.v;inp.addEventListener('input',up);up();
+});
+document.querySelectorAll('.reto').forEach((R,k)=>{
+ const sol=R.dataset.sol,tg=expand(sol);
+ R.innerHTML='<div class="ex-hd"><span class="ex-badge">Reto '+(k+1)+'<\/span>'+R.dataset.t+'<\/div><div class="ql" style="color:#92400E">HTML que debes lograr<\/div><div class="tg"><\/div><input class="lab-in" placeholder="Tu abreviatura Emmet…" spellcheck="false" autocomplete="off"><button class="ver" type="button">Comprobar<\/button><button class="ver alt" type="button">💡 Ver solución<\/button><div class="res"><\/div><p class="okline"><\/p>';
+ R.querySelector('.tg').appendChild(blk('HTML objetivo',hlH(tg)));
+ const inp=R.querySelector('input'),ms=R.querySelector('.okline'),res=R.querySelector('.res'),b=R.querySelectorAll('button');
+ b[0].onclick=()=>{
+  const g=expand(inp.value),ok=g&&norm(g)===norm(tg);
+  ms.className='okline '+(ok?'good':'bad');
+  ms.textContent=ok?'✅ ¡Correcto! Tu abreviatura genera el código objetivo.':(inp.value.trim()?'❌ Todavía no coincide. Mira abajo qué genera tu abreviatura:':'Escribe tu abreviatura primero.');
+  res.innerHTML='';if(!ok&&g)res.appendChild(blk('TU RESULTADO',hlH(g)));
+ };
+ b[1].onclick=()=>{inp.value=sol;b[0].click();};
+ inp.addEventListener('keydown',e=>{if(e.key==='Enter')b[0].click();});
+});
+const T=document.documentElement;
+try{T.dataset.theme=localStorage.getItem('cafe-theme')||'light';}catch(e){}
+document.getElementById('tm').onclick=()=>{const m=T.dataset.theme==='dark'?'light':'dark';T.dataset.theme=m;try{localStorage.setItem('cafe-theme',m);}catch(e){}};
+})();
+</script>
+<script>try{const k='emmet-visited',v=JSON.parse(localStorage.getItem(k)||'[]');if(!v.includes(1)){v.push(1);localStorage.setItem(k,JSON.stringify(v));}}catch(e){}</script>
+</body>
+</html>

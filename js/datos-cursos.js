@@ -521,6 +521,17 @@ const GUIAS = [
         stats:      ['Parte A · Terminal y rutas']
       },
       {
+        tipo:       'link',
+        href:       'guias/guia-emmet/emmet-indice-cafe.html',
+        icono:      '⚡',
+        gradiente:  'linear-gradient(135deg, #1f0e0a 60%, #2e140e)',
+        badge:      'EMMET',
+        badgeEstilo:'background:rgba(196,74,42,0.2);color:#ff9d80;border:1px solid rgba(196,74,42,0.3);',
+        titulo:     'Emmet: HTML y CSS más rápido',
+        desc:       'Abreviaturas para escribir HTML y CSS en segundos: clases, anidado, formularios, tablas, flexbox y un proyecto final para descargar.',
+        stats:      ['5 partes · Laboratorios y retos']
+      },
+      {
         tipo:   'soon',
         icono:  '➕',
         titulo: 'Guía Git desde Cero',
