@@ -488,6 +488,17 @@ const GUIAS = [
         stats:      ['Parte 1 · Fundamentos', 'Parte 2 · Funciones', 'Parte 3 · DOM', 'Parte 4 · Async']
       },
       {
+        tipo:       'link',
+        href:       'guias/guia-javascript-practico/js-practico-indice-cafe.html',
+        icono:      '⚡',
+        gradiente:  'linear-gradient(135deg, #071a1f 60%, #0a262e)',
+        badge:      'JAVASCRIPT',
+        badgeEstilo:'background:rgba(34,211,238,0.2);color:#67e8f9;border:1px solid rgba(34,211,238,0.3);',
+        titulo:     'JavaScript práctico',
+        desc:       'Construye 3 proyectos reales paso a paso: lista de tareas, calculadora y quiz, con vista previa en vivo y retos que se comprueban solos.',
+        stats:      ['3 proyectos · 17 retos interactivos']
+      },
+      {
         tipo:   'soon',
         icono:  '➕',
         titulo: 'Próxima guía JavaScript',
@@ -542,6 +553,17 @@ const GUIAS = [
   {
     grupo: '💡 General',
     items: [
+      {
+        tipo:       'link',
+        href:       'guias/guia-python/python-indice-cafe.html',
+        icono:      '🐍',
+        gradiente:  'linear-gradient(135deg, #0f1a2e 60%, #14233f)',
+        badge:      'PYTHON',
+        badgeEstilo:'background:rgba(255,212,59,0.2);color:#ffd43b;border:1px solid rgba(255,212,59,0.3);',
+        titulo:     'Python desde cero',
+        desc:       'De no saber nada a tu primer programa: variables, decisiones, bucles, listas, funciones, errores, archivos y clases. Con código que ejecutas en el navegador.',
+        stats:      ['8 partes · Ejemplos y retos interactivos']
+      },
       {
         tipo:   'soon',
         icono:  '➕',

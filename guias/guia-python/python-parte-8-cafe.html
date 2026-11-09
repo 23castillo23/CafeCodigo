@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python desde cero · Parte 8 — Café &lt;/&gt;</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700&family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--primary:#c44a2a;--pl:#fdf0ec;--sec:#1a7a5a;--accent:#b07010;--bg:#f7f4ef;--surface:#fff;--text:#1a1814;--muted:#8a8480;--border:#e8e4de}
+:root[data-theme=dark]{--bg:#14110f;--surface:#1f1b18;--text:#f0ebe4;--muted:#a39d96;--border:#33302b;--pl:#3a1f18}
+body{font-family:'DM Sans','Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:16px}
+[hidden]{display:none!important}
+.cafe-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:200;height:45px}
+.cafe-bar a,.cafe-bar button{font:inherit;font-size:13px;color:var(--muted);text-decoration:none;padding:6px 14px;border:1px solid var(--border);border-radius:999px;background:none;cursor:pointer}
+.cafe-bar a:hover,.cafe-bar button:hover{color:var(--text);border-color:var(--muted)}
+.cafe-bar span{font-size:13px;color:var(--muted);flex:1}
+header{background:#1a1814;color:#f7f4ef;padding:3rem 2rem 2rem;text-align:center;position:relative;overflow:hidden}
+header::before{content:'>>>';position:absolute;font-size:12rem;font-weight:900;color:rgba(255,255,255,.04);right:-1rem;top:-2rem;font-family:monospace;line-height:1}
+header h1{font-size:2.5rem;letter-spacing:-1px;font-family:'Fraunces',serif}
+header p{font-size:1.1rem;opacity:.85;margin-top:.5rem}
+.badge{display:inline-block;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:4px 14px;font-size:.8rem;margin-top:.75rem}
+.topnav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:45px;z-index:100;display:flex;overflow-x:auto}
+.topnav a{flex-shrink:0;padding:.75rem 1rem;text-decoration:none;color:var(--muted);font-size:.78rem;font-weight:500;border-bottom:2px solid transparent;white-space:nowrap}
+.topnav a:hover{color:var(--primary);border-bottom-color:var(--primary)}
+main{max-width:920px;margin:0 auto;padding:2rem 1.5rem}
+.module{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;margin-bottom:2.5rem;scroll-margin-top:115px}
+@media(max-width:680px){.module{padding:1.25rem}}
+.mh{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border)}
+.mi{font-size:1.8rem}.mt{font-size:1.35rem;font-weight:700}.ms{font-size:.85rem;color:var(--muted)}
+p{margin-bottom:.8rem}h3{margin:1.4rem 0 .5rem;font-size:1.05rem}
+code{font-family:'DM Mono',monospace;background:var(--bg);color:var(--primary);padding:1px 5px;border-radius:4px;font-size:.9em}
+ol.steps{margin:.5rem 0 1rem 1.4rem}ol.steps li{margin-bottom:.4rem}
+.analogy{background:#FFF7ED;border:1px solid #FDE68A;border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0}
+.analogy h4{color:#92400E;font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem}
+.analogy p{font-size:.95rem;color:#78350F;margin:0}
+.note{background:var(--pl);border-left:4px solid var(--primary);border-radius:0 10px 10px 0;padding:.9rem 1.2rem;margin:1rem 0;font-size:.93rem}
+.code-block,.ed{background:#1a1814;color:#e8e4de;border-radius:10px;font-family:'DM Mono',monospace;font-size:.86rem;line-height:1.7;margin:.5rem 0;position:relative}
+.code-block{padding:1rem 1.3rem;overflow-x:auto;white-space:pre-wrap;overflow-wrap:anywhere}
+.code-block::before,.ed::before{content:attr(data-l);position:absolute;top:.4rem;right:.7rem;background:rgba(255,255,255,.1);color:rgba(255,255,255,.5);font-size:.65rem;padding:1px 8px;border-radius:4px;font-family:sans-serif;z-index:2;pointer-events:none}
+.ed{display:grid}
+.ed pre,.ed textarea{grid-area:1/1;margin:0;padding:1rem 1.3rem;font:inherit;line-height:inherit;letter-spacing:0;white-space:pre-wrap;overflow-wrap:anywhere;tab-size:4;border:0;background:transparent;min-width:0;width:100%}
+.ed pre{pointer-events:none}
+.ed textarea{color:transparent;-webkit-text-fill-color:transparent;caret-color:#fff;resize:none;overflow:hidden;outline:none;height:100%}
+.ed textarea::selection{background:rgba(137,180,250,.35)}
+.ed:focus-within{box-shadow:0 0 0 2px #c44a2a88}
+.ck{color:#F38BA8}.ct{color:#89B4FA}.cs{color:#A6E3A1}.cn{color:#F9E2AF}.cc{color:#6c7086;font-style:italic}.ca{color:#CBA6F7}
+.bar{display:flex;gap:.3rem;flex-wrap:wrap}
+.ver{background:var(--primary);color:#fff;border:0;border-radius:999px;padding:7px 18px;font:600 .85rem 'DM Sans',sans-serif;cursor:pointer;margin:.3rem .3rem .3rem 0}
+.ver.alt{background:#fff;color:var(--primary);border:1px solid var(--primary)}
+.out{background:#0d1117;color:#c9d1d9;border-radius:10px;padding:1rem 1.3rem;font:.84rem/1.6 'DM Mono',monospace;white-space:pre-wrap;overflow-wrap:anywhere;margin:.4rem 0}
+.out::before{content:'SALIDA';display:block;font:700 .62rem sans-serif;letter-spacing:.1em;color:#6e7681;margin-bottom:.3rem}
+.out.bad{color:#ffb4a8;border-left:4px solid #e5533d}.out.off{color:#e9d8a6}
+.hint{font:.84rem/1.5 'DM Sans',sans-serif;margin-top:.6rem;color:#e9d8a6;white-space:normal}
+.ex{background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:1.3rem;margin:1.3rem 0;color:#78350F}
+.ex-hd{display:flex;gap:.7rem;align-items:center;font-weight:700;margin-bottom:.6rem;flex-wrap:wrap}
+.ex-badge{background:var(--accent);color:#fff;font-size:.68rem;padding:2px 9px;border-radius:20px;text-transform:uppercase}
+.ex-p{margin-bottom:.6rem}.ex code{background:#fff}
+.okline{font-weight:600;font-size:.92rem;margin-top:.4rem;white-space:pre-wrap}.good{color:var(--sec)}.bad{color:var(--primary)}
+.glos{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:.9rem;margin:1rem 0}
+.gi{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.9rem 1rem;font-size:.9rem}
+.gi b{display:block;font-family:'DM Mono',monospace;color:var(--primary);margin-bottom:.2rem;font-size:.86rem}
+table{width:100%;border-collapse:collapse;font-size:.9rem;margin:1rem 0;display:block;overflow-x:auto}
+th,td{border:1px solid var(--border);padding:.5rem .7rem;text-align:left}th{background:var(--bg)}
+.pager{max-width:920px;margin:0 auto 2rem;padding:0 1.5rem;display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.pager a,.pager .soon{display:block;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1rem 1.2rem;text-decoration:none;color:var(--text)}
+.pager .soon{grid-column:2;text-align:right;opacity:.65;border-style:dashed}
+.pager small{display:block;color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.07em}
+@media(max-width:600px){.pager{grid-template-columns:1fr}.pager .soon{grid-column:1}}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.85rem;border-top:1px solid var(--border)}
+.cafe-bar{overflow-x:auto;white-space:nowrap}
+.cafe-bar a.on{background:var(--primary);color:#fff;border-color:var(--primary)}
+.pn{display:flex;gap:6px}.pn a{padding:6px 12px!important}
+@media(max-width:700px){.cafe-bar{padding:0 12px;gap:8px}.cafe-bar span{display:none}}
+.pager a:hover{border-color:var(--primary)}.pager .next{text-align:right;grid-column:2}
+@media(max-width:600px){.pager .next{grid-column:1}}
+</style>
+</head>
+<body>
+<div class="cafe-bar"><a href="python-indice-cafe.html">📚 Índice</a><div class="pn"><a href="python-parte-1-cafe.html" title="Parte 1 · Primeros pasos">1</a><a href="python-parte-2-cafe.html" title="Parte 2 · Datos y operaciones">2</a><a href="python-parte-3-cafe.html" title="Parte 3 · Decisiones">3</a><a href="python-parte-4-cafe.html" title="Parte 4 · Repeticiones">4</a><a href="python-parte-5-cafe.html" title="Parte 5 · Colecciones">5</a><a href="python-parte-6-cafe.html" title="Parte 6 · Funciones">6</a><a href="python-parte-7-cafe.html" title="Parte 7 · Archivos y errores">7</a><a href="python-parte-8-cafe.html" title="Parte 8 · Objetos y proyecto final" class="on" aria-current="page">8</a></div><span>Café &lt;/&gt; · Python</span><a href="capitulos.html">Portal</a><button type="button" id="tm">🌙 / ☀️</button></div>
+<header><h1>Python desde cero — Parte 8</h1><p>Objetos y proyecto final: clases, herencia y una agenda completa</p><span class="badge">🐍 Principiante · Parte 8 de 8</span></header>
+<div class="topnav"><a href="#que">¿Qué es la POO?</a><a href="#piezas">Piezas</a><a href="#estado">Atributos</a><a href="#str">__str__</a><a href="#herencia">Herencia</a><a href="#errores">Errores</a><a href="#proyecto">Proyecto final</a><a href="#retos">Retos</a><a href="#final">¡Terminaste!</a></div>
+<main>
+<section class="module" id="que"><div class="mh"><span class="mi">🏭</span><div><div class="mt">¿Qué es la programación orientada a objetos?</div><div class="ms">Clases y objetos: moldes y piezas</div></div></div><p>Hasta ahora tenías <strong>datos</strong> por un lado (variables, listas) y <strong>funciones</strong> por otro. La <strong>programación orientada a objetos (POO)</strong> los junta: un <strong>objeto</strong> guarda sus datos <em>y</em> las acciones que puede hacer. Ya los usas: una lista es un objeto con datos (sus elementos) y acciones (<code>.append()</code>, <code>.sort()</code>...).</p><div class="analogy"><h4>☕ Analogía</h4><p>Una <strong>clase</strong> es un <strong>molde de galletas</strong> y cada <strong>objeto</strong> es una galleta hecha con ese molde. Todas tienen la misma forma, pero cada una puede tener su propio sabor y color. También: la clase es el <em>plano</em> de una casa y los objetos son las casas construidas con él.</p></div><p>Tu primera clase. Ejecútala y fíjate en que cada perro tiene sus propios datos:</p><div class="pyrun" data-out="Firulais
+Firulais dice: ¡Guau!
+Luna dice: ¡Guau!
+5"><textarea class="src" hidden>class Perro:
+    def __init__(self, nombre, edad):
+        self.nombre = nombre
+        self.edad = edad
+
+    def ladrar(self):
+        print(f&quot;{self.nombre} dice: ¡Guau!&quot;)
+
+mi_perro = Perro(&quot;Firulais&quot;, 3)
+print(mi_perro.nombre)
+mi_perro.ladrar()
+
+otro = Perro(&quot;Luna&quot;, 5)
+otro.ladrar()
+print(otro.edad)</textarea></div></section>
+<section class="module" id="piezas"><div class="mh"><span class="mi">🧱</span><div><div class="mt">Las piezas de una clase</div><div class="ms">Vocabulario esencial</div></div></div><div class="glos"><div class="gi"><b>class Perro:</b>Crea la <strong>clase</strong> (el molde). Por convención, su nombre empieza con <strong>Mayúscula</strong>.</div><div class="gi"><b>__init__</b>El <strong>constructor</strong>: se ejecuta solo al crear un objeto. Ahí le das sus datos iniciales. (Dos guiones bajos a cada lado.)</div><div class="gi"><b>self</b>"Yo mismo": el propio objeto. Siempre es el <strong>primer parámetro</strong> de cada método.</div><div class="gi"><b>self.nombre</b>Un <strong>atributo</strong>: un dato que pertenece al objeto.</div><div class="gi"><b>def ladrar(self)</b>Un <strong>método</strong>: una función que pertenece a la clase.</div><div class="gi"><b>Perro("Luna", 5)</b>Crear un <strong>objeto</strong> (<em>instancia</em>): llamas a la clase como si fuera una función.</div></div><div class="analogy"><h4>☕ Analogía</h4><p><code>self</code> es el objeto <strong>hablando de sí mismo</strong>: "<em>mi</em> nombre es...", "<em>mi</em> edad es...". Cuando <code>Luna</code> llama a <code>ladrar()</code>, <code>self</code> es Luna y dice su propio nombre; cuando lo hace Firulais, <code>self</code> es Firulais.</p></div><div class="note"><strong>Al llamar</strong> a un método no escribes <code>self</code>: <code>mi_perro.ladrar()</code>. Python lo pasa solo (el objeto que está antes del punto). Pero <strong>al definir</strong> el método sí debes ponerlo.</div></section>
+<section class="module" id="estado"><div class="mh"><span class="mi">🏦</span><div><div class="mt">Datos que cambian</div><div class="ms">Atributos y métodos en acción</div></div></div><p>Los métodos pueden <strong>modificar los atributos</strong> del objeto. Una cuenta bancaria es el ejemplo clásico:</p><div class="pyrun" data-out="Fondos insuficientes
+Ana: $120"><textarea class="src" hidden>class Cuenta:
+    def __init__(self, titular, saldo=0):
+        self.titular = titular
+        self.saldo = saldo
+
+    def depositar(self, monto):
+        self.saldo += monto
+
+    def retirar(self, monto):
+        if monto &gt; self.saldo:
+            print(&quot;Fondos insuficientes&quot;)
+        else:
+            self.saldo -= monto
+
+    def mostrar(self):
+        print(f&quot;{self.titular}: ${self.saldo}&quot;)
+
+c = Cuenta(&quot;Ana&quot;, 100)
+c.depositar(50)
+c.retirar(30)
+c.retirar(500)
+c.mostrar()</textarea></div><p>Cada objeto lleva <strong>su propio estado</strong>. Dos cuentas no se mezclan:</p><div class="pyrun" data-out="600
+20"><textarea class="src" hidden>class Cuenta:
+    def __init__(self, titular, saldo=0):
+        self.titular = titular
+        self.saldo = saldo
+
+cuenta_a = Cuenta(&quot;Ana&quot;, 100)
+cuenta_b = Cuenta(&quot;Luis&quot;, 20)
+cuenta_a.saldo += 500
+print(cuenta_a.saldo)
+print(cuenta_b.saldo)</textarea></div><div class="analogy"><h4>☕ Analogía</h4><p>Es como dos <strong>tarjetas de débito del mismo banco</strong>: salen del mismo molde (misma clase, mismas funciones) pero cada una tiene su propio saldo. Si gastas con una, la otra no se entera.</p></div><div class="note"><strong>La ventaja:</strong> la lógica de "retirar" (no dejar saldo negativo) está <em>dentro</em> de la clase. Quien use <code>Cuenta</code> no tiene que repetirla ni puede olvidarla.</div></section>
+<section class="module" id="str"><div class="mh"><span class="mi">🖨️</span><div><div class="mt">Mostrar un objeto con __str__</div><div class="ms">Para que print() sea legible</div></div></div><p>Si haces <code>print(objeto)</code> sin más, Python muestra algo poco amigable (el tipo y una dirección de memoria). Con el método especial <code>__str__</code> decides <strong>cómo se ve</strong> tu objeto como texto:</p><div class="pyrun" data-out="(3, 4)
+El punto es (3, 4)"><textarea class="src" hidden>class Punto:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __str__(self):
+        return f&quot;({self.x}, {self.y})&quot;
+
+p = Punto(3, 4)
+print(p)
+print(f&quot;El punto es {p}&quot;)</textarea></div><p>Observa que <code>__str__</code> usa <strong>return</strong> (devuelve el texto) y no <code>print</code>. Python lo llama automáticamente cuando necesita convertir el objeto a texto, ya sea en <code>print</code> o dentro de una f-string.</p><div class="note">Los métodos con dos guiones bajos a cada lado (<code>__init__</code>, <code>__str__</code>) se llaman <strong>métodos especiales</strong>: Python los llama por su cuenta en momentos concretos. Hay muchos más (por ejemplo, para comparar o sumar objetos), pero estos dos son los que usarás todos los días.</div></section>
+<section class="module" id="herencia"><div class="mh"><span class="mi">👪</span><div><div class="mt">Herencia</div><div class="ms">Reutilizar y especializar clases</div></div></div><p>Una clase puede <strong>heredar</strong> de otra: recibe todos sus atributos y métodos y puede añadir o <em>reemplazar</em> los suyos. Se escribe poniendo la clase "padre" entre paréntesis:</p><div class="pyrun" data-out="Bicho hace un sonido
+Firulais dice: ¡Guau!
+Michi dice: ¡Miau!"><textarea class="src" hidden>class Animal:
+    def __init__(self, nombre):
+        self.nombre = nombre
+
+    def hablar(self):
+        print(f&quot;{self.nombre} hace un sonido&quot;)
+
+class Perro(Animal):
+    def hablar(self):
+        print(f&quot;{self.nombre} dice: ¡Guau!&quot;)
+
+class Gato(Animal):
+    def hablar(self):
+        print(f&quot;{self.nombre} dice: ¡Miau!&quot;)
+
+for animal in [Animal(&quot;Bicho&quot;), Perro(&quot;Firulais&quot;), Gato(&quot;Michi&quot;)]:
+    animal.hablar()</textarea></div><p><code>Perro</code> y <code>Gato</code> no escribieron su propio <code>__init__</code>: lo <strong>heredaron</strong> de <code>Animal</code>. Sí <strong>reemplazaron</strong> <code>hablar</code> con su versión. Y el <code>for</code> trata a todos igual, cada uno responde a su manera.</p><div class="analogy"><h4>☕ Analogía</h4><p>Es la <strong>herencia familiar</strong>: un hijo hereda rasgos de sus padres (apellido, color de ojos) sin que los "programen" de nuevo, pero puede tener sus propias características y habilidades.</p></div><h3>Agregar datos nuevos con super()</h3><div class="pyrun" data-out="Firulais Labrador"><textarea class="src" hidden>class Animal:
+    def __init__(self, nombre):
+        self.nombre = nombre
+
+class Perro(Animal):
+    def __init__(self, nombre, raza):
+        super().__init__(nombre)   # usa el __init__ del padre
+        self.raza = raza
+
+p = Perro(&quot;Firulais&quot;, &quot;Labrador&quot;)
+print(p.nombre, p.raza)</textarea></div><p><code>super()</code> es "el padre": llama al constructor de <code>Animal</code> para que guarde el nombre, y luego <code>Perro</code> agrega lo suyo (la raza).</p></section>
+<section class="module" id="errores"><div class="mh"><span class="mi">🩺</span><div><div class="mt">Errores comunes con clases</div><div class="ms">Y cómo arreglarlos</div></div></div><table><tr><th>Problema</th><th>Causa</th><th>Arreglo</th></tr><tr><td><code>AttributeError</code></td><td>Usas un atributo que el objeto no tiene</td><td>Revisa el nombre y que lo crees en <code>__init__</code></td></tr><tr><td><code>TypeError: takes 0 positional arguments but 1 was given</code></td><td>Olvidaste <code>self</code> en la definición del método</td><td>Primer parámetro siempre <code>self</code></td></tr><tr><td><code>NameError</code> dentro de un método</td><td>Escribiste <code>nombre</code> en vez de <code>self.nombre</code></td><td>Los atributos siempre llevan <code>self.</code></td></tr><tr><td>El objeto no guarda los datos</td><td>Escribiste <code>nombre = nombre</code> en vez de <code>self.nombre = nombre</code></td><td>Asigna a <code>self.</code></td></tr><tr><td>Una sola vez en lugar de un objeto nuevo</td><td>Usas <code>Perro</code> sin paréntesis</td><td>Crea con <code>Perro("Luna", 5)</code></td></tr></table><div class="pyrun" data-out="Traceback (most recent call last):
+  File &quot;&lt;exec&gt;&quot;, line 6, in &lt;module&gt;
+    print(p.edad)
+          ^^^^^^
+AttributeError: &#x27;Persona&#x27; object has no attribute &#x27;edad&#x27;" data-err="1"><textarea class="src" hidden>class Persona:
+    def __init__(self, nombre):
+        self.nombre = nombre
+
+p = Persona(&quot;Ana&quot;)
+print(p.edad)</textarea></div><div class="pyrun" data-out="Traceback (most recent call last):
+  File &quot;&lt;exec&gt;&quot;, line 5, in &lt;module&gt;
+    Saludador().hola()
+TypeError: Saludador.hola() takes 0 positional arguments but 1 was given" data-err="1"><textarea class="src" hidden>class Saludador:
+    def hola():
+        print(&quot;Hola&quot;)
+
+Saludador().hola()</textarea></div></section>
+<section class="module" id="proyecto"><div class="mh"><span class="mi">🏆</span><div><div class="mt">Proyecto final: Agenda de contactos</div><div class="ms">Todo lo que aprendiste, en un solo programa</div></div></div><p>Este programa junta <strong>todas las partes</strong> del curso. Léelo con calma y busca cada concepto:</p><ul style="margin:0 0 1rem 1.4rem"><li><strong>Parte 2-3:</strong> textos, f-strings, <code>input</code>, <code>if/elif/else</code>.</li><li><strong>Parte 4:</strong> <code>while True</code> con <code>break</code> (el menú) y <code>for</code>.</li><li><strong>Parte 5:</strong> una lista de objetos (la agenda), <code>enumerate</code>, diccionarios.</li><li><strong>Parte 6:</strong> funciones con parámetros y <code>return</code>.</li><li><strong>Parte 7:</strong> <code>try/except</code>, archivos y JSON.</li><li><strong>Parte 8:</strong> la clase <code>Contacto</code> con <code>__init__</code> y <code>__str__</code>.</li></ul><p>Ejecútalo: te irá pidiendo datos con ventanitas (opciones del <strong>1 al 5</strong>). Agrega contactos, véelos, búscalos, guarda y sal. <strong>Después ejecútalo otra vez</strong> sin cerrar la página: gracias a <code>cargar()</code>, ¡recuerda los contactos que guardaste!</p><div class="pyrun" data-out="
+1) Agregar  2) Ver  3) Buscar  4) Guardar  5) Salir
+Elige: 2
+La agenda está vacía
+
+1) Agregar  2) Ver  3) Buscar  4) Guardar  5) Salir
+Elige: 1
+Nombre: Ana
+Teléfono: 555-1234
+Contacto agregado
+
+1) Agregar  2) Ver  3) Buscar  4) Guardar  5) Salir
+Elige: 1
+Nombre: Luis
+Teléfono: 555-9876
+Contacto agregado
+
+1) Agregar  2) Ver  3) Buscar  4) Guardar  5) Salir
+Elige: 2
+1 Ana - 555-1234
+2 Luis - 555-9876
+
+1) Agregar  2) Ver  3) Buscar  4) Guardar  5) Salir
+Elige: 3
+Buscar: an
+Ana - 555-1234
+
+1) Agregar  2) Ver  3) Buscar  4) Guardar  5) Salir
+Elige: 4
+Agenda guardada
+
+1) Agregar  2) Ver  3) Buscar  4) Guardar  5) Salir
+Elige: 5
+¡Hasta pronto!" data-in="[&quot;2&quot;, &quot;1&quot;, &quot;Ana&quot;, &quot;555-1234&quot;, &quot;1&quot;, &quot;Luis&quot;, &quot;555-9876&quot;, &quot;2&quot;, &quot;3&quot;, &quot;an&quot;, &quot;4&quot;, &quot;5&quot;]"><textarea class="src" hidden>import json
+
+class Contacto:
+    def __init__(self, nombre, telefono):
+        self.nombre = nombre
+        self.telefono = telefono
+
+    def __str__(self):
+        return f&quot;{self.nombre} - {self.telefono}&quot;
+
+def agregar(agenda):
+    nombre = input(&quot;Nombre: &quot;)
+    telefono = input(&quot;Teléfono: &quot;)
+    agenda.append(Contacto(nombre, telefono))
+    print(&quot;Contacto agregado&quot;)
+
+def ver(agenda):
+    if not agenda:
+        print(&quot;La agenda está vacía&quot;)
+        return
+    for i, contacto in enumerate(agenda, start=1):
+        print(i, contacto)
+
+def buscar(agenda):
+    texto = input(&quot;Buscar: &quot;).lower()
+    hubo = False
+    for contacto in agenda:
+        if texto in contacto.nombre.lower():
+            print(contacto)
+            hubo = True
+    if not hubo:
+        print(&quot;Sin resultados&quot;)
+
+def guardar(agenda):
+    datos = []
+    for contacto in agenda:
+        datos.append({&quot;nombre&quot;: contacto.nombre, &quot;telefono&quot;: contacto.telefono})
+    with open(&quot;agenda.json&quot;, &quot;w&quot;) as archivo:
+        json.dump(datos, archivo)
+    print(&quot;Agenda guardada&quot;)
+
+def cargar():
+    try:
+        with open(&quot;agenda.json&quot;) as archivo:
+            datos = json.load(archivo)
+    except FileNotFoundError:
+        return []
+    agenda = []
+    for d in datos:
+        agenda.append(Contacto(d[&quot;nombre&quot;], d[&quot;telefono&quot;]))
+    return agenda
+
+def menu():
+    agenda = cargar()
+    while True:
+        print(&quot;\n1) Agregar  2) Ver  3) Buscar  4) Guardar  5) Salir&quot;)
+        opcion = input(&quot;Elige: &quot;)
+        if opcion == &quot;1&quot;:
+            agregar(agenda)
+        elif opcion == &quot;2&quot;:
+            ver(agenda)
+        elif opcion == &quot;3&quot;:
+            buscar(agenda)
+        elif opcion == &quot;4&quot;:
+            guardar(agenda)
+        elif opcion == &quot;5&quot;:
+            break
+        else:
+            print(&quot;Opción no válida&quot;)
+    print(&quot;¡Hasta pronto!&quot;)
+
+menu()
+</textarea></div><div class="analogy"><h4>☕ Analogía</h4><p>Mira cómo está organizado: <strong>una clase</strong> para el dato (<code>Contacto</code>) y <strong>una función por tarea</strong> (agregar, ver, buscar, guardar, cargar). El <code>menu()</code> solo coordina. Es como un restaurante: el mesero (menú) no cocina; pasa el pedido a la cocina correcta.</p></div><h3>Retos para mejorarlo (hazlos tú)</h3><ol class="steps"><li><strong>Eliminar</strong> un contacto por nombre (opción 6).</li><li><strong>Validar</strong> que el teléfono tenga solo números y guiones, con un <code>while</code> + <code>try/except</code> o <code>if</code>.</li><li>Mostrar la agenda <strong>ordenada</strong> alfabéticamente.</li><li>Guardar <strong>automáticamente</strong> al elegir "Salir".</li><li>Agregar un campo <strong>correo</strong> a la clase <code>Contacto</code>.</li></ol><div class="note"><strong>Consejo para practicar:</strong> copia este código a un archivo <code>agenda.py</code> en tu computadora y ejecútalo con <code>python agenda.py</code>. Ahí el archivo <code>agenda.json</code> se guarda de verdad en tu carpeta.</div></section>
+<section class="module" id="retos"><div class="mh"><span class="mi">🎯</span><div><div class="mt">Retos</div><div class="ms">Crea tus propias clases</div></div></div><div class="ex pyex" data-exp="20" data-sol="class Rectangulo:
+    def __init__(self, base, altura):
+        self.base = base
+        self.altura = altura
+
+    def area(self):
+        return self.base * self.altura
+
+print(Rectangulo(4, 5).area())"><div class="ex-hd"><span class="ex-badge">Reto 1</span>Rectángulo</div><div class="ex-p">Crea la clase <code>Rectangulo</code> con <code>base</code> y <code>altura</code> y un método <code>area()</code> que <strong>devuelva</strong> el área. Imprime el área de un rectángulo de 4 × 5: debe salir <code>20</code>.</div><textarea class="src" hidden># define la clase y pruébala
+</textarea></div><div class="ex pyex" data-exp="3" data-sol="class Contador:
+    def __init__(self):
+        self.valor = 0
+
+    def incrementar(self):
+        self.valor += 1
+
+c = Contador()
+c.incrementar()
+c.incrementar()
+c.incrementar()
+print(c.valor)"><div class="ex-hd"><span class="ex-badge">Reto 2</span>Contador</div><div class="ex-p">Crea la clase <code>Contador</code> con un atributo <code>valor</code> que empiece en 0 y un método <code>incrementar()</code> que le sume 1. Increméntalo 3 veces e imprime el valor: <code>3</code>.</div><textarea class="src" hidden># define Contador
+</textarea></div><div class="ex pyex" data-exp="El Quijote, de Cervantes" data-sol="class Libro:
+    def __init__(self, titulo, autor):
+        self.titulo = titulo
+        self.autor = autor
+
+    def __str__(self):
+        return f&quot;{self.titulo}, de {self.autor}&quot;
+
+print(Libro(&quot;El Quijote&quot;, &quot;Cervantes&quot;))"><div class="ex-hd"><span class="ex-badge">Reto 3</span>Un libro legible</div><div class="ex-p">Crea <code>Libro(titulo, autor)</code> con <code>__str__</code> para que <code>print(libro)</code> muestre: <code>El Quijote, de Cervantes</code>.</div><textarea class="src" hidden># define Libro con __str__
+</textarea></div><div class="ex pyex" data-exp="Auto marca Mazda" data-sol="class Vehiculo:
+    def __init__(self, marca):
+        self.marca = marca
+
+    def describir(self):
+        print(f&quot;Vehículo marca {self.marca}&quot;)
+
+class Auto(Vehiculo):
+    def describir(self):
+        print(f&quot;Auto marca {self.marca}&quot;)
+
+Auto(&quot;Mazda&quot;).describir()"><div class="ex-hd"><span class="ex-badge">Reto 4</span>Herencia</div><div class="ex-p">Con <code>Vehiculo</code> (tiene <code>marca</code> y método <code>describir()</code> que imprime <code>Vehículo marca X</code>), crea <code>Auto</code> que herede y <strong>reemplace</strong> <code>describir()</code> para imprimir <code>Auto marca X</code>. Prueba <code>Auto("Mazda")</code>: debe salir <code>Auto marca Mazda</code>.</div><textarea class="src" hidden>class Vehiculo:
+    def __init__(self, marca):
+        self.marca = marca
+
+    def describir(self):
+        print(f&quot;Vehículo marca {self.marca}&quot;)
+
+# crea Auto y pruébalo
+</textarea></div><div class="ex pyex" data-exp="70
+Fondos insuficientes" data-sol="class Cuenta:
+    def __init__(self, saldo):
+        self.saldo = saldo
+
+    def retirar(self, monto):
+        if monto &gt; self.saldo:
+            print(&quot;Fondos insuficientes&quot;)
+        else:
+            self.saldo -= monto
+
+c = Cuenta(100)
+c.retirar(30)
+print(c.saldo)
+c.retirar(200)"><div class="ex-hd"><span class="ex-badge">Reto 5</span>Retirar dinero</div><div class="ex-p">Usa la clase dada. Retira <code>30</code> y muestra el saldo (<code>70</code>). Luego intenta retirar <code>200</code>: debe imprimir <code>Fondos insuficientes</code>.</div><textarea class="src" hidden>class Cuenta:
+    def __init__(self, saldo):
+        self.saldo = saldo
+
+    def retirar(self, monto):
+        # completa: si no alcanza imprime &quot;Fondos insuficientes&quot;
+        pass
+
+c = Cuenta(100)
+# retira 30, imprime c.saldo, retira 200
+</textarea></div><div class="ex pyex" data-exp="8.0" data-sol="class Alumno:
+    def __init__(self, nombre, nota):
+        self.nombre = nombre
+        self.nota = nota
+
+alumnos = [Alumno(&quot;Ana&quot;, 9), Alumno(&quot;Luis&quot;, 7), Alumno(&quot;Marta&quot;, 8)]
+suma = 0
+for a in alumnos:
+    suma += a.nota
+print(suma / len(alumnos))"><div class="ex-hd"><span class="ex-badge">Reto 6</span>Promedio de alumnos</div><div class="ex-p">Crea la clase <code>Alumno(nombre, nota)</code>, haz una lista con 3 alumnos (notas 9, 7 y 8) y calcula el promedio de sus notas con un <code>for</code>. Debe salir <code>8.0</code>.</div><textarea class="src" hidden># define Alumno, crea la lista y calcula el promedio
+</textarea></div></section>
+<section class="module" id="final"><div class="mh"><span class="mi">🎓</span><div><div class="mt">¡Terminaste el curso!</div><div class="ms">Mira todo lo que ya sabes hacer</div></div></div><table><tr><th>Parte</th><th>Lo que aprendiste</th></tr><tr><td>1 · Primeros pasos</td><td><code>print</code>, comentarios, variables</td></tr><tr><td>2 · Datos y operaciones</td><td>Tipos, operadores, textos, f-strings, <code>input</code></td></tr><tr><td>3 · Decisiones</td><td><code>if / elif / else</code>, <code>and / or / not</code></td></tr><tr><td>4 · Repeticiones</td><td><code>while</code>, <code>for</code>, <code>range</code>, <code>break / continue</code></td></tr><tr><td>5 · Colecciones</td><td>Listas, tuplas, sets y diccionarios</td></tr><tr><td>6 · Funciones</td><td><code>def</code>, parámetros, <code>return</code>, alcance</td></tr><tr><td>7 · Errores y archivos</td><td><code>try / except</code>, archivos, módulos, JSON</td></tr><tr><td>8 · Objetos</td><td>Clases, objetos, <code>__init__</code>, herencia, proyecto</td></tr></table><p><strong>¡Felicidades!</strong> Con esto ya puedes leer y escribir programas de verdad. Lo que sigue es lo más importante: <strong>practicar construyendo cosas</strong>.</p><div class="note"><strong>👉 Para seguir practicando ya mismo:</strong> abre la <a href="python-practica-cafe.html">Práctica de 20 ejercicios guiados</a>, con 4 niveles, pistas y solución explicada. Es la mejor forma de afianzar todo lo que aprendiste.</div><h3>¿Qué estudiar después?</h3><div class="glos"><div class="gi"><b>Comprensiones de listas</b>Una forma corta de crear listas: <code>[n * 2 for n in lista]</code>.</div><div class="gi"><b>Librerías populares</b><code>requests</code> (internet), <code>pandas</code> (datos), <code>matplotlib</code> (gráficas).</div><div class="gi"><b>Web con Python</b><code>Flask</code> o <code>Django</code>: servidores y páginas dinámicas. Se conecta con tu HTML y CSS.</div><div class="gi"><b>Automatización</b>Scripts que renombran archivos, envían correos o leen hojas de Excel.</div><div class="gi"><b>Interfaces gráficas</b><code>tkinter</code>: ventanas con botones.</div><div class="gi"><b>Git y GitHub</b>Guardar el historial de tu código y compartirlo.</div></div><h3>Ideas de proyectos para practicar</h3><ul style="margin:0 0 1rem 1.4rem"><li>Una <strong>lista de tareas</strong> en la terminal que se guarde en un archivo.</li><li>Un <strong>juego de piedra, papel o tijera</strong> contra la computadora (<code>random</code>).</li><li>Un <strong>convertidor</strong> de unidades o de monedas.</li><li>Un <strong>control de gastos</strong> con categorías y totales.</li><li>Un <strong>quiz</strong> de preguntas con puntaje.</li></ul><div class="note"><strong>El mejor consejo:</strong> nadie aprende a programar solo leyendo. Escribe código todos los días, aunque sea poco, rómpelo a propósito, lee los errores con calma y vuelve a intentarlo. ¡Mucho éxito! ☕🐍</div></section>
+</main>
+<div class="pager"><a class="prev" href="python-parte-7-cafe.html"><small>← Anterior</small><b>Parte 7 · Archivos y errores</b></a><a class="next" href="python-practica-cafe.html"><small>¡Terminaste! →</small><b>Práctica · 20 ejercicios guiados</b></a></div>
+<footer>Café &lt;/&gt; · Python desde cero · Parte 8</footer>
+<script>
+(function(){
+const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const KW=new Set('and as break class continue def elif else except finally for from if import in is lambda not or pass return try while with True False None'.split(' '));
+const BI=new Set('print input int float str bool len range type list dict set tuple sum min max abs round sorted open'.split(' '));
+const sp=(c,t)=>'<span class="'+c+'">'+t+'<\/span>';
+function hlPy(s){
+ let o='',i=0,m;
+ const re=/(#.*)|("""[\s\S]*?"""|'''[\s\S]*?'''|[fF]?"(?:\\.|[^"\\\n])*"|[fF]?'(?:\\.|[^'\\\n])*')|(\b\d+(?:\.\d+)?\b)|([A-Za-z_]\w*)/g;
+ while((m=re.exec(s))){
+  o+=esc(s.slice(i,m.index));i=re.lastIndex;const t=m[0];
+  o+=m[1]?sp('cc',esc(t)):m[2]?sp('cs',esc(t)):m[3]?sp('cn',t):KW.has(t)?sp('ck',t):BI.has(t)?sp('ct',t):esc(t);
+ }
+ return o+esc(s.slice(i));
+}
+document.querySelectorAll('pre[data-hl=py]').forEach(p=>{p.innerHTML=hlPy(p.textContent);});
+/* ---------- Python en el navegador (Pyodide) ---------- */
+const PRE=['import builtins,sys','def _input(p=""):','    from js import prompt','    v = prompt(str(p))','    v = "" if v is None else str(v)','    print(str(p) + v)','    return v','builtins.input = _input','_n = [0]','def _tr(f, e, a):','    _n[0] += 1','    if _n[0] > 150000:','        sys.settrace(None)','        raise RuntimeError("BUCLE_INFINITO")','    return _tr','sys.settrace(_tr)'].join('\n');
+let pyP=null;
+function loadPy(){
+ if(!pyP)pyP=new Promise((res,rej)=>{
+  const s=document.createElement('script');
+  s.src='https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js';
+  s.onload=()=>loadPyodide().then(res,rej);
+  s.onerror=()=>{pyP=null;rej(new Error('offline'));};
+  document.head.appendChild(s);
+ });
+ return pyP;
+}
+function clean(m){
+ const L=m.split('\n'),i=L.findIndex(l=>l.includes('File "<exec>"'));
+ if(i<0)return m.trim();
+ const head=(m.startsWith('Traceback')&&!/SyntaxError/.test(m))?'Traceback (most recent call last):\n':'';
+ return (head+L.slice(i).join('\n')).trim();
+}
+async function exec(code){
+ let py;try{py=await loadPy();}catch(e){return{off:true};}
+ const buf=[];py.setStdout({batched:s=>buf.push(s)});py.setStderr({batched:s=>buf.push(s)});
+ const g=py.toPy({});let err=null;
+ try{py.runPython(PRE,{globals:g});await py.runPythonAsync(code,{globals:g});}
+ catch(e){const m=String(e.message||e);err=/BUCLE_INFINITO/.test(m)?'⚠️ Python detuvo tu programa: se ejecutó demasiadas veces seguidas. ¿Hay un bucle infinito? Revisa que la condición del while pueda llegar a ser False (por ejemplo, que la variable del contador sí cambie).':clean(m);}
+ try{py.runPython('import sys\nsys.settrace(None)');}catch(e){}
+ g.destroy();
+ const o=buf.length>200?buf.slice(0,50).join('\n')+'\n… (salida recortada: el programa imprimió '+buf.length+' líneas)':buf.join('\n');
+ return{out:o,err};
+}
+const HINT='<div class="hint">💡 <b>Cómo leer un error:<\/b> empieza por la <b>última línea<\/b>, que dice <i>qué<\/i> pasó. Las líneas de arriba muestran <i>dónde<\/i> (número de línea y una flecha ^).<\/div>';
+const WAIT='⏳ Ejecutando… (la primera vez Python tarda unos segundos en cargar)';
+function mkEd(code){
+ const w=document.createElement('div');w.className='ed';w.dataset.l='PYTHON';
+ const pre=document.createElement('pre'),ta=document.createElement('textarea');
+ ta.spellcheck=false;ta.value=code;ta.setAttribute('aria-label','Editor de código Python');
+ const up=()=>{pre.innerHTML=hlPy(ta.value)+'\n';};
+ ta.addEventListener('input',up);
+ ta.addEventListener('keydown',e=>{if(e.key==='Tab'){e.preventDefault();ta.setRangeText('    ',ta.selectionStart,ta.selectionEnd,'end');up();}});
+ w.append(pre,ta);up();
+ return{w,ta,set:v=>{ta.value=v;up();}};
+}
+const mk=(tag,cls,html)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e;};
+document.querySelectorAll('.pyrun').forEach(el=>{
+ const orig=el.querySelector('.src').value,fb=el.dataset.out||'';
+ const ed=mkEd(orig),bar=mk('div','bar','<button class="ver" type="button">▶ Ejecutar<\/button><button class="ver alt" type="button">↺ Restaurar<\/button>'),out=mk('pre','out');out.hidden=true;
+ el.textContent='';el.append(ed.w,bar,out);
+ const b=bar.querySelectorAll('button');
+ b[0].onclick=async()=>{
+  out.hidden=false;out.className='out';out.textContent=WAIT;
+  const r=await exec(ed.ta.value);
+  if(r.off){out.className='out off';out.textContent=ed.ta.value===orig?'📴 Sin conexión a internet. Esta es la salida esperada:\n\n'+fb:'📴 Para ejecutar código nuevo se necesita internet (Python se descarga una sola vez). Revisa tu conexión.';return;}
+  if(r.err){out.className='out bad';out.innerHTML=esc((r.out?r.out+'\n':'')+r.err)+HINT;}
+  else out.textContent=r.out||'(el programa no imprimió nada)';
+ };
+ b[1].onclick=()=>{ed.set(orig);out.hidden=true;};
+});
+const norm=s=>s.split('\n').map(l=>l.replace(/\s+$/,'')).join('\n').replace(/\n+$/,'');
+document.querySelectorAll('.pyex').forEach(el=>{
+ const st=el.querySelector('.src').value,exp=el.dataset.exp,sol=el.dataset.sol;el.querySelector('.src').remove();
+ const ed=mkEd(st),bar=mk('div','bar','<button class="ver" type="button">✔ Comprobar<\/button><button class="ver alt" type="button">💡 Ver solución<\/button><button class="ver alt" type="button">↺ Restaurar<\/button>'),out=mk('pre','out'),ms=mk('p','okline');out.hidden=true;
+ el.append(ed.w,bar,out,ms);const b=bar.querySelectorAll('button');
+ b[0].onclick=async()=>{
+  out.hidden=false;out.className='out';out.textContent=WAIT;ms.textContent='';ms.className='okline';
+  const r=await exec(ed.ta.value);
+  if(r.off){out.className='out off';out.textContent='📴 Sin conexión: no puedo comprobar tu código ahora. Compáralo con la solución o conéctate a internet.';return;}
+  if(r.err){out.className='out bad';out.innerHTML=esc((r.out?r.out+'\n':'')+r.err)+HINT;ms.className='okline bad';ms.textContent='❌ Tu código tiene un error. Revisa el mensaje de arriba.';return;}
+  out.textContent=r.out||'(el programa no imprimió nada)';
+  if(norm(r.out)===norm(exp)){ms.className='okline good';ms.textContent='✅ ¡Correcto! Tu programa imprime lo esperado.';}
+  else{ms.className='okline bad';ms.textContent='❌ Todavía no. Tu programa imprimió lo de arriba, pero se esperaba:\n'+exp;}
+ };
+ b[1].onclick=()=>{ed.set(sol);out.hidden=true;ms.className='okline';ms.textContent='Esta es una solución posible. Ejecútala con ✔ Comprobar y compárala con tu idea.';};
+ b[2].onclick=()=>{ed.set(st);out.hidden=true;ms.textContent='';};
+});
+const T=document.documentElement;
+try{T.dataset.theme=localStorage.getItem('cafe-theme')||'light';}catch(e){}
+document.getElementById('tm').onclick=()=>{const m=T.dataset.theme==='dark'?'light':'dark';T.dataset.theme=m;try{localStorage.setItem('cafe-theme',m);}catch(e){}};
+})();
+</script>
+</body>
+</html>

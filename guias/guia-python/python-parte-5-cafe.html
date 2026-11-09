@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python desde cero · Parte 5 — Café &lt;/&gt;</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700&family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--primary:#c44a2a;--pl:#fdf0ec;--sec:#1a7a5a;--accent:#b07010;--bg:#f7f4ef;--surface:#fff;--text:#1a1814;--muted:#8a8480;--border:#e8e4de}
+:root[data-theme=dark]{--bg:#14110f;--surface:#1f1b18;--text:#f0ebe4;--muted:#a39d96;--border:#33302b;--pl:#3a1f18}
+body{font-family:'DM Sans','Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:16px}
+[hidden]{display:none!important}
+.cafe-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:200;height:45px}
+.cafe-bar a,.cafe-bar button{font:inherit;font-size:13px;color:var(--muted);text-decoration:none;padding:6px 14px;border:1px solid var(--border);border-radius:999px;background:none;cursor:pointer}
+.cafe-bar a:hover,.cafe-bar button:hover{color:var(--text);border-color:var(--muted)}
+.cafe-bar span{font-size:13px;color:var(--muted);flex:1}
+header{background:#1a1814;color:#f7f4ef;padding:3rem 2rem 2rem;text-align:center;position:relative;overflow:hidden}
+header::before{content:'>>>';position:absolute;font-size:12rem;font-weight:900;color:rgba(255,255,255,.04);right:-1rem;top:-2rem;font-family:monospace;line-height:1}
+header h1{font-size:2.5rem;letter-spacing:-1px;font-family:'Fraunces',serif}
+header p{font-size:1.1rem;opacity:.85;margin-top:.5rem}
+.badge{display:inline-block;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:4px 14px;font-size:.8rem;margin-top:.75rem}
+.topnav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:45px;z-index:100;display:flex;overflow-x:auto}
+.topnav a{flex-shrink:0;padding:.75rem 1rem;text-decoration:none;color:var(--muted);font-size:.78rem;font-weight:500;border-bottom:2px solid transparent;white-space:nowrap}
+.topnav a:hover{color:var(--primary);border-bottom-color:var(--primary)}
+main{max-width:920px;margin:0 auto;padding:2rem 1.5rem}
+.module{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;margin-bottom:2.5rem;scroll-margin-top:115px}
+@media(max-width:680px){.module{padding:1.25rem}}
+.mh{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border)}
+.mi{font-size:1.8rem}.mt{font-size:1.35rem;font-weight:700}.ms{font-size:.85rem;color:var(--muted)}
+p{margin-bottom:.8rem}h3{margin:1.4rem 0 .5rem;font-size:1.05rem}
+code{font-family:'DM Mono',monospace;background:var(--bg);color:var(--primary);padding:1px 5px;border-radius:4px;font-size:.9em}
+ol.steps{margin:.5rem 0 1rem 1.4rem}ol.steps li{margin-bottom:.4rem}
+.analogy{background:#FFF7ED;border:1px solid #FDE68A;border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0}
+.analogy h4{color:#92400E;font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem}
+.analogy p{font-size:.95rem;color:#78350F;margin:0}
+.note{background:var(--pl);border-left:4px solid var(--primary);border-radius:0 10px 10px 0;padding:.9rem 1.2rem;margin:1rem 0;font-size:.93rem}
+.code-block,.ed{background:#1a1814;color:#e8e4de;border-radius:10px;font-family:'DM Mono',monospace;font-size:.86rem;line-height:1.7;margin:.5rem 0;position:relative}
+.code-block{padding:1rem 1.3rem;overflow-x:auto;white-space:pre-wrap;overflow-wrap:anywhere}
+.code-block::before,.ed::before{content:attr(data-l);position:absolute;top:.4rem;right:.7rem;background:rgba(255,255,255,.1);color:rgba(255,255,255,.5);font-size:.65rem;padding:1px 8px;border-radius:4px;font-family:sans-serif;z-index:2;pointer-events:none}
+.ed{display:grid}
+.ed pre,.ed textarea{grid-area:1/1;margin:0;padding:1rem 1.3rem;font:inherit;line-height:inherit;letter-spacing:0;white-space:pre-wrap;overflow-wrap:anywhere;tab-size:4;border:0;background:transparent;min-width:0;width:100%}
+.ed pre{pointer-events:none}
+.ed textarea{color:transparent;-webkit-text-fill-color:transparent;caret-color:#fff;resize:none;overflow:hidden;outline:none;height:100%}
+.ed textarea::selection{background:rgba(137,180,250,.35)}
+.ed:focus-within{box-shadow:0 0 0 2px #c44a2a88}
+.ck{color:#F38BA8}.ct{color:#89B4FA}.cs{color:#A6E3A1}.cn{color:#F9E2AF}.cc{color:#6c7086;font-style:italic}.ca{color:#CBA6F7}
+.bar{display:flex;gap:.3rem;flex-wrap:wrap}
+.ver{background:var(--primary);color:#fff;border:0;border-radius:999px;padding:7px 18px;font:600 .85rem 'DM Sans',sans-serif;cursor:pointer;margin:.3rem .3rem .3rem 0}
+.ver.alt{background:#fff;color:var(--primary);border:1px solid var(--primary)}
+.out{background:#0d1117;color:#c9d1d9;border-radius:10px;padding:1rem 1.3rem;font:.84rem/1.6 'DM Mono',monospace;white-space:pre-wrap;overflow-wrap:anywhere;margin:.4rem 0}
+.out::before{content:'SALIDA';display:block;font:700 .62rem sans-serif;letter-spacing:.1em;color:#6e7681;margin-bottom:.3rem}
+.out.bad{color:#ffb4a8;border-left:4px solid #e5533d}.out.off{color:#e9d8a6}
+.hint{font:.84rem/1.5 'DM Sans',sans-serif;margin-top:.6rem;color:#e9d8a6;white-space:normal}
+.ex{background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:1.3rem;margin:1.3rem 0;color:#78350F}
+.ex-hd{display:flex;gap:.7rem;align-items:center;font-weight:700;margin-bottom:.6rem;flex-wrap:wrap}
+.ex-badge{background:var(--accent);color:#fff;font-size:.68rem;padding:2px 9px;border-radius:20px;text-transform:uppercase}
+.ex-p{margin-bottom:.6rem}.ex code{background:#fff}
+.okline{font-weight:600;font-size:.92rem;margin-top:.4rem;white-space:pre-wrap}.good{color:var(--sec)}.bad{color:var(--primary)}
+.glos{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:.9rem;margin:1rem 0}
+.gi{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.9rem 1rem;font-size:.9rem}
+.gi b{display:block;font-family:'DM Mono',monospace;color:var(--primary);margin-bottom:.2rem;font-size:.86rem}
+table{width:100%;border-collapse:collapse;font-size:.9rem;margin:1rem 0;display:block;overflow-x:auto}
+th,td{border:1px solid var(--border);padding:.5rem .7rem;text-align:left}th{background:var(--bg)}
+.pager{max-width:920px;margin:0 auto 2rem;padding:0 1.5rem;display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.pager a,.pager .soon{display:block;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1rem 1.2rem;text-decoration:none;color:var(--text)}
+.pager .soon{grid-column:2;text-align:right;opacity:.65;border-style:dashed}
+.pager small{display:block;color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.07em}
+@media(max-width:600px){.pager{grid-template-columns:1fr}.pager .soon{grid-column:1}}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.85rem;border-top:1px solid var(--border)}
+.cafe-bar{overflow-x:auto;white-space:nowrap}
+.cafe-bar a.on{background:var(--primary);color:#fff;border-color:var(--primary)}
+.pn{display:flex;gap:6px}.pn a{padding:6px 12px!important}
+@media(max-width:700px){.cafe-bar{padding:0 12px;gap:8px}.cafe-bar span{display:none}}
+.pager a:hover{border-color:var(--primary)}.pager .next{text-align:right;grid-column:2}
+@media(max-width:600px){.pager .next{grid-column:1}}
+</style>
+</head>
+<body>
+<div class="cafe-bar"><a href="python-indice-cafe.html">📚 Índice</a><div class="pn"><a href="python-parte-1-cafe.html" title="Parte 1 · Primeros pasos">1</a><a href="python-parte-2-cafe.html" title="Parte 2 · Datos y operaciones">2</a><a href="python-parte-3-cafe.html" title="Parte 3 · Decisiones">3</a><a href="python-parte-4-cafe.html" title="Parte 4 · Repeticiones">4</a><a href="python-parte-5-cafe.html" title="Parte 5 · Colecciones" class="on" aria-current="page">5</a><a href="python-parte-6-cafe.html" title="Parte 6 · Funciones">6</a><a href="python-parte-7-cafe.html" title="Parte 7 · Archivos y errores">7</a><a href="python-parte-8-cafe.html" title="Parte 8 · Objetos y proyecto final">8</a></div><span>Café &lt;/&gt; · Python</span><a href="capitulos.html">Portal</a><button type="button" id="tm">🌙 / ☀️</button></div>
+<header><h1>Python desde cero — Parte 5</h1><p>Colecciones: listas, tuplas, conjuntos y diccionarios</p><span class="badge">🐍 Principiante · Parte 5 de 8</span></header>
+<div class="topnav"><a href="#listas">Listas</a><a href="#metodos">Métodos</a><a href="#recorrer">Recorrer</a><a href="#tuplas">Tuplas y sets</a><a href="#dict">Diccionarios</a><a href="#combinadas">Combinar</a><a href="#comparar">¿Cuál usar?</a><a href="#errores">Errores</a><a href="#retos">Retos</a><a href="#resumen">Resumen</a></div>
+<main>
+<section class="module" id="listas"><div class="mh"><span class="mi">📃</span><div><div class="mt">Listas</div><div class="ms">Muchos datos en una sola variable</div></div></div><p>Hasta ahora cada variable guardaba <strong>un</strong> dato. Una <strong>lista</strong> guarda <strong>varios</strong>, en orden, entre corchetes y separados por comas:</p><div class="pyrun" data-out="[&#x27;manzana&#x27;, &#x27;pera&#x27;, &#x27;uva&#x27;]
+manzana
+uva
+3
+[&#x27;manzana&#x27;, &#x27;mango&#x27;, &#x27;uva&#x27;]
+[&#x27;manzana&#x27;, &#x27;mango&#x27;]"><textarea class="src" hidden>frutas = [&quot;manzana&quot;, &quot;pera&quot;, &quot;uva&quot;]
+print(frutas)
+print(frutas[0])
+print(frutas[-1])
+print(len(frutas))
+frutas[1] = &quot;mango&quot;
+print(frutas)
+print(frutas[0:2])</textarea></div><div class="analogy"><h4>☕ Analogía</h4><p>Una lista es una <strong>lista de compras</strong>, o un <strong>tren de vagones numerados</strong>: cada vagón (elemento) tiene su número de posición, empezando en el <strong>0</strong>, y puedes cambiar lo que hay dentro de cualquiera.</p></div><ul style="margin:0 0 1rem 1.4rem"><li><code>frutas[0]</code>: el primero. <code>frutas[-1]</code>: el último (igual que con los textos).</li><li><code>len(frutas)</code>: cuántos elementos hay.</li><li><code>frutas[1] = "mango"</code>: <strong>las listas se pueden modificar</strong> (los textos no).</li><li><code>frutas[0:2]</code>: un trozo (del 0 hasta antes del 2).</li></ul><div class="note">Una lista puede mezclar tipos (<code>["Ana", 20, True]</code>) e incluso contener otras listas. Una lista vacía se escribe <code>[]</code> y es el punto de partida para ir agregando cosas.</div></section>
+<section class="module" id="metodos"><div class="mh"><span class="mi">🧰</span><div><div class="mt">Métodos de las listas</div><div class="ms">Agregar, quitar y ordenar</div></div></div><table><tr><th>Método</th><th>Qué hace</th><th>Ejemplo</th></tr><tr><td><code>.append(x)</code></td><td>Agrega al <strong>final</strong></td><td><code>lista.append(4)</code></td></tr><tr><td><code>.insert(i, x)</code></td><td>Agrega en la posición <code>i</code></td><td><code>lista.insert(0, 9)</code></td></tr><tr><td><code>.remove(x)</code></td><td>Quita la primera vez que aparece <code>x</code></td><td><code>lista.remove(2)</code></td></tr><tr><td><code>.pop()</code></td><td>Quita y <strong>devuelve</strong> el último</td><td><code>ultimo = lista.pop()</code></td></tr><tr><td><code>.sort()</code></td><td>Ordena la lista (de menor a mayor)</td><td><code>lista.sort()</code></td></tr><tr><td><code>.reverse()</code></td><td>Invierte el orden</td><td><code>lista.reverse()</code></td></tr></table><div class="pyrun" data-out="[9, 5, 2, 8, 1]
+[9, 5, 8, 1]
+1 [9, 5, 8]
+[5, 8, 9]
+[9, 8, 5]"><textarea class="src" hidden>numeros = [5, 2, 8]
+numeros.append(1)
+numeros.insert(0, 9)
+print(numeros)
+numeros.remove(2)
+print(numeros)
+ultimo = numeros.pop()
+print(ultimo, numeros)
+numeros.sort()
+print(numeros)
+numeros.reverse()
+print(numeros)</textarea></div><h3>Funciones útiles para listas de números</h3><div class="pyrun" data-out="33 6 10
+8.25
+True
+False"><textarea class="src" hidden>notas = [8, 10, 6, 9]
+print(sum(notas), min(notas), max(notas))
+print(sum(notas) / len(notas))
+print(10 in notas)
+print(7 in notas)</textarea></div><h3>Dos trampas clásicas</h3><p><strong>1) <code>.sort()</code> no devuelve nada</strong>: ordena la lista "en su lugar". Si guardas su resultado, obtienes <code>None</code>:</p><div class="pyrun" data-out="None
+[1, 2, 3]
+[7, 8, 9]"><textarea class="src" hidden>numeros = [3, 1, 2]
+resultado = numeros.sort()
+print(resultado)
+print(numeros)
+print(sorted([9, 7, 8]))</textarea></div><p>Si quieres una copia ordenada sin tocar la original, usa la función <code>sorted()</code>.</p><p><strong>2) Copiar una lista con <code>=</code> no la copia</strong>, solo le pone otro nombre:</p><div class="pyrun" data-out="[1, 2, 3, 4]
+[1, 2, 3, 4]
+[1, 2, 3, 4, 5]"><textarea class="src" hidden>a = [1, 2, 3]
+b = a
+b.append(4)
+print(a)
+
+c = a.copy()
+c.append(5)
+print(a)
+print(c)</textarea></div><div class="analogy"><h4>☕ Analogía</h4><p><code>b = a</code> es dar <strong>otra llave de la misma casa</strong>: si alguien mueve un mueble con su llave, el otro lo ve cambiado. <code>a.copy()</code> es <strong>construir una casa nueva</strong> idéntica: los cambios ya no se cruzan.</p></div></section>
+<section class="module" id="recorrer"><div class="mh"><span class="mi">🔁</span><div><div class="mt">Recorrer listas</div><div class="ms">Donde se juntan for y listas</div></div></div><div class="pyrun" data-out="Me gusta la manzana
+Me gusta la pera
+Me gusta la uva"><textarea class="src" hidden>frutas = [&quot;manzana&quot;, &quot;pera&quot;, &quot;uva&quot;]
+for fruta in frutas:
+    print(&quot;Me gusta la&quot;, fruta)</textarea></div><p>Si además quieres el <strong>número de posición</strong>, usa <code>enumerate()</code>:</p><div class="pyrun" data-out="1 manzana
+2 pera
+3 uva"><textarea class="src" hidden>frutas = [&quot;manzana&quot;, &quot;pera&quot;, &quot;uva&quot;]
+for i, fruta in enumerate(frutas, start=1):
+    print(i, fruta)</textarea></div><h3>Patrón: filtrar</h3><p>Empieza con una lista vacía y agrega solo lo que cumpla una condición:</p><div class="pyrun" data-out="[8, 12, 4]"><textarea class="src" hidden>numeros = [3, 8, 5, 12, 7, 4]
+pares = []
+for n in numeros:
+    if n % 2 == 0:
+        pares.append(n)
+print(pares)</textarea></div><h3>De texto a lista y de vuelta</h3><div class="pyrun" data-out="[&#x27;Python&#x27;, &#x27;es&#x27;, &#x27;muy&#x27;, &#x27;divertido&#x27;]
+4
+Python-es-muy-divertido
+[0, 1, 2, 3, 4]"><textarea class="src" hidden>frase = &quot;Python es muy divertido&quot;
+palabras = frase.split()
+print(palabras)
+print(len(palabras))
+print(&quot;-&quot;.join(palabras))
+print(list(range(5)))</textarea></div><p><code>.split()</code> corta un texto en una lista (por espacios, o por lo que pongas entre paréntesis, como <code>.split(",")</code>). <code>"-".join(lista)</code> hace lo contrario: une los elementos usando ese separador.</p></section>
+<section class="module" id="tuplas"><div class="mh"><span class="mi">🔒</span><div><div class="mt">Tuplas y conjuntos</div><div class="ms">Colecciones especiales</div></div></div><p>Una <strong>tupla</strong> es como una lista, pero <strong>no se puede modificar</strong> una vez creada. Se escribe con paréntesis:</p><div class="pyrun" data-out="10
+x=10, y=20
+2"><textarea class="src" hidden>punto = (10, 20)
+print(punto[0])
+x, y = punto
+print(f&quot;x={x}, y={y}&quot;)
+print(len(punto))</textarea></div><p>La segunda línea es el <strong>desempaquetado</strong>: reparte cada valor de la tupla en una variable. ¿Qué pasa si intentas cambiarla?</p><div class="pyrun" data-out="Traceback (most recent call last):
+  File &quot;&lt;exec&gt;&quot;, line 2, in &lt;module&gt;
+    punto[0] = 99
+    ~~~~~^^^
+TypeError: &#x27;tuple&#x27; object does not support item assignment" data-err="1"><textarea class="src" hidden>punto = (10, 20)
+punto[0] = 99</textarea></div><div class="analogy"><h4>☕ Analogía</h4><p>Una <strong>lista es una pizarra</strong> (borras y escribes lo que quieras). Una <strong>tupla es una foto impresa</strong>: sirve para ver los datos, pero no se puede cambiar. Se usa para cosas que no deben cambiar, como coordenadas, fechas o colores RGB.</p></div><h3>Conjuntos (set): sin repetidos</h3><div class="pyrun" data-out="{1, 2, 3}
+3
+True"><textarea class="src" hidden>numeros = [1, 2, 2, 3, 3, 3]
+unicos = set(numeros)
+print(unicos)
+print(len(unicos))
+print(2 in unicos)</textarea></div><p>Un <code>set</code> se escribe con llaves, <strong>elimina duplicados</strong> y no tiene posiciones (no hay <code>unicos[0]</code>). Útil para saber "cuáles valores distintos hay".</p></section>
+<section class="module" id="dict"><div class="mh"><span class="mi">📖</span><div><div class="mt">Diccionarios</div><div class="ms">Datos con nombre: clave → valor</div></div></div><p>En una lista los datos se buscan por <strong>posición</strong>. En un <strong>diccionario</strong> se buscan por un <strong>nombre</strong> (la <em>clave</em>). Se escribe con llaves, y cada pareja es <code>clave: valor</code>:</p><div class="pyrun" data-out="Ana
+20
+sin dato
+3"><textarea class="src" hidden>persona = {&quot;nombre&quot;: &quot;Ana&quot;, &quot;edad&quot;: 20, &quot;pais&quot;: &quot;México&quot;}
+print(persona[&quot;nombre&quot;])
+print(persona[&quot;edad&quot;])
+print(persona.get(&quot;telefono&quot;, &quot;sin dato&quot;))
+print(len(persona))</textarea></div><div class="analogy"><h4>☕ Analogía</h4><p>Un diccionario es un <strong>diccionario de verdad</strong> (buscas la palabra y te da su definición) o una <strong>agenda de contactos</strong> (buscas el nombre y te da el teléfono). No importa en qué posición esté: se busca por su nombre.</p></div><h3>Agregar, cambiar y borrar</h3><div class="pyrun" data-out="{&#x27;edad&#x27;: 21, &#x27;ciudad&#x27;: &#x27;Puebla&#x27;}
+True"><textarea class="src" hidden>persona = {&quot;nombre&quot;: &quot;Ana&quot;, &quot;edad&quot;: 20}
+persona[&quot;edad&quot;] = 21          # cambiar
+persona[&quot;ciudad&quot;] = &quot;Puebla&quot;  # agregar
+del persona[&quot;nombre&quot;]          # borrar
+print(persona)
+print(&quot;edad&quot; in persona)</textarea></div><h3>Recorrer un diccionario</h3><div class="pyrun" data-out="nombre -&gt; Ana
+edad -&gt; 20
+pais -&gt; México
+[&#x27;nombre&#x27;, &#x27;edad&#x27;, &#x27;pais&#x27;]
+[&#x27;Ana&#x27;, 20, &#x27;México&#x27;]"><textarea class="src" hidden>persona = {&quot;nombre&quot;: &quot;Ana&quot;, &quot;edad&quot;: 20, &quot;pais&quot;: &quot;México&quot;}
+for clave, valor in persona.items():
+    print(clave, &quot;-&gt;&quot;, valor)
+print(list(persona.keys()))
+print(list(persona.values()))</textarea></div><ul style="margin:0 0 1rem 1.4rem"><li><code>.items()</code>: pares (clave, valor) para usar en un <code>for</code>.</li><li><code>.keys()</code>: solo las claves. <code>.values()</code>: solo los valores.</li><li><code>.get(clave, valor_por_defecto)</code>: busca sin que truene si no existe.</li></ul><p>Si pides una clave que no existe con corchetes, Python lanza un <code>KeyError</code>:</p><div class="pyrun" data-out="Traceback (most recent call last):
+  File &quot;&lt;exec&gt;&quot;, line 2, in &lt;module&gt;
+    print(persona[&quot;telefono&quot;])
+          ~~~~~~~^^^^^^^^^^^^
+KeyError: &#x27;telefono&#x27;" data-err="1"><textarea class="src" hidden>persona = {&quot;nombre&quot;: &quot;Ana&quot;}
+print(persona[&quot;telefono&quot;])</textarea></div><div class="note">Las claves son únicas: si asignas dos veces la misma clave, la segunda <strong>reemplaza</strong> a la primera.</div></section>
+<section class="module" id="combinadas"><div class="mh"><span class="mi">🧩</span><div><div class="mt">Combinar colecciones</div><div class="ms">Cómo se guardan los datos reales</div></div></div><p>Lo normal en programas reales es <strong>mezclarlas</strong>. Una lista de diccionarios es como una tabla de Excel: cada diccionario es una fila.</p><div class="pyrun" data-out="Ana aprobado
+Luis reprobado
+Marta aprobado
+Promedio: 8.333333333333334"><textarea class="src" hidden>alumnos = [
+    {&quot;nombre&quot;: &quot;Ana&quot;, &quot;nota&quot;: 9},
+    {&quot;nombre&quot;: &quot;Luis&quot;, &quot;nota&quot;: 6},
+    {&quot;nombre&quot;: &quot;Marta&quot;, &quot;nota&quot;: 10},
+]
+suma = 0
+for a in alumnos:
+    estado = &quot;aprobado&quot; if a[&quot;nota&quot;] &gt;= 7 else &quot;reprobado&quot;
+    print(a[&quot;nombre&quot;], estado)
+    suma += a[&quot;nota&quot;]
+print(&quot;Promedio:&quot;, suma / len(alumnos))</textarea></div><h3>Contar con un diccionario</h3><p>Un uso clásico: contar cuántas veces aparece cada palabra.</p><div class="pyrun" data-out="{&#x27;a&#x27;: 3, &#x27;b&#x27;: 2, &#x27;c&#x27;: 1}"><textarea class="src" hidden>texto = &quot;a b a c b a&quot;
+conteo = {}
+for palabra in texto.split():
+    if palabra in conteo:
+        conteo[palabra] += 1
+    else:
+        conteo[palabra] = 1
+print(conteo)</textarea></div><div class="analogy"><h4>☕ Analogía</h4><p>Es como llevar la <strong>cuenta de votos con rayitas</strong> en un pizarrón: si el candidato ya tiene su renglón, le agregas una rayita; si no, le abres un renglón nuevo con su primera rayita.</p></div></section>
+<section class="module" id="comparar"><div class="mh"><span class="mi">⚖️</span><div><div class="mt">¿Cuál colección uso?</div><div class="ms">Comparativa rápida</div></div></div><table><tr><th></th><th>Lista</th><th>Tupla</th><th>Diccionario</th><th>Conjunto</th></tr><tr><td><strong>Se escribe</strong></td><td><code>[1, 2]</code></td><td><code>(1, 2)</code></td><td><code>{"a": 1}</code></td><td><code>{1, 2}</code></td></tr><tr><td><strong>Se busca por</strong></td><td>Posición</td><td>Posición</td><td>Clave</td><td>(solo "¿está?")</td></tr><tr><td><strong>¿Se modifica?</strong></td><td>Sí</td><td>No</td><td>Sí</td><td>Sí</td></tr><tr><td><strong>¿Repetidos?</strong></td><td>Sí</td><td>Sí</td><td>Claves únicas</td><td>No</td></tr><tr><td><strong>Úsala para</strong></td><td>Una secuencia de cosas</td><td>Datos fijos</td><td>Datos con nombre</td><td>Valores únicos</td></tr></table><div class="note"><strong>Regla práctica:</strong> ¿una fila de cosas parecidas (notas, frutas)? → <strong>lista</strong>. ¿Los datos de <em>una</em> persona o cosa (nombre, edad)? → <strong>diccionario</strong>. ¿Algo que no debe cambiar? → <strong>tupla</strong>. ¿Quitar repetidos? → <strong>set</strong>.</div></section>
+<section class="module" id="errores"><div class="mh"><span class="mi">🩺</span><div><div class="mt">Errores comunes</div><div class="ms">Y cómo arreglarlos</div></div></div><table><tr><th>Error</th><th>Causa</th><th>Arreglo</th></tr><tr><td><code>IndexError</code></td><td>Pediste una posición que no existe</td><td>Recuerda que el último índice es <code>len(lista) - 1</code></td></tr><tr><td><code>KeyError</code></td><td>Clave que no existe en el diccionario</td><td>Usa <code>.get()</code> o revisa con <code>in</code></td></tr><tr><td><code>TypeError</code> en tupla</td><td>Intentaste modificar una tupla</td><td>Conviértela en lista o crea otra</td></tr><tr><td>Me salió <code>None</code></td><td>Guardaste el resultado de <code>.sort()</code>/<code>.append()</code></td><td>Esos métodos modifican en su lugar; no guardes su resultado</td></tr><tr><td>Mi copia cambió la original</td><td><code>b = a</code> no copia</td><td>Usa <code>a.copy()</code></td></tr></table><div class="pyrun" data-out="Traceback (most recent call last):
+  File &quot;&lt;exec&gt;&quot;, line 2, in &lt;module&gt;
+    print(frutas[3])
+          ~~~~~~^^^
+IndexError: list index out of range" data-err="1"><textarea class="src" hidden>frutas = [&quot;manzana&quot;, &quot;pera&quot;, &quot;uva&quot;]
+print(frutas[3])</textarea></div><p>La lista tiene 3 elementos, con posiciones <strong>0, 1 y 2</strong>. No existe la posición 3. Cámbiala por <code>frutas[2]</code> o por <code>frutas[-1]</code>.</p></section>
+<section class="module" id="retos"><div class="mh"><span class="mi">🎯</span><div><div class="mt">Retos</div><div class="ms">Guarda y recorre datos</div></div></div><div class="ex pyex" data-exp="rojo
+amarillo" data-sol="colores = [&quot;rojo&quot;, &quot;verde&quot;, &quot;azul&quot;, &quot;amarillo&quot;]
+print(colores[0])
+print(colores[-1])"><div class="ex-hd"><span class="ex-badge">Reto 1</span>Primero y último</div><div class="ex-p">Con la lista dada, imprime el <strong>primer</strong> y el <strong>último</strong> color (uno por línea): <code>rojo</code> y <code>amarillo</code>.</div><textarea class="src" hidden>colores = [&quot;rojo&quot;, &quot;verde&quot;, &quot;azul&quot;, &quot;amarillo&quot;]
+# imprime el primero y el último
+</textarea></div><div class="ex pyex" data-exp="[1, 2, 5, 9]" data-sol="numeros = [5, 2, 9]
+numeros.append(1)
+numeros.sort()
+print(numeros)"><div class="ex-hd"><span class="ex-badge">Reto 2</span>Agrega y ordena</div><div class="ex-p">Agrega el número <code>1</code> a la lista, ordénala y muéstrala. Debe salir <code>[1, 2, 5, 9]</code>.</div><textarea class="src" hidden>numeros = [5, 2, 9]
+# agrega, ordena e imprime
+</textarea></div><div class="ex pyex" data-exp="34
+8.5" data-sol="notas = [8, 9, 10, 7]
+print(sum(notas))
+print(sum(notas) / len(notas))"><div class="ex-hd"><span class="ex-badge">Reto 3</span>Suma y promedio</div><div class="ex-p">Imprime en dos líneas la <strong>suma</strong> y el <strong>promedio</strong> de las notas: <code>34</code> y <code>8.5</code>.</div><textarea class="src" hidden>notas = [8, 9, 10, 7]
+# usa sum() y len()
+</textarea></div><div class="ex pyex" data-exp="[22, 18, 30]" data-sol="edades = [15, 22, 18, 12, 30]
+mayores = []
+for e in edades:
+    if e &gt;= 18:
+        mayores.append(e)
+print(mayores)"><div class="ex-hd"><span class="ex-badge">Reto 4</span>Solo mayores de edad</div><div class="ex-p">Crea una lista nueva con las edades de 18 o más y muéstrala: <code>[22, 18, 30]</code>.</div><textarea class="src" hidden>edades = [15, 22, 18, 12, 30]
+mayores = []
+# recorre y filtra
+</textarea></div><div class="ex pyex" data-exp="5" data-sol="frase = &quot;el perro y el gato&quot;
+print(len(frase.split()))"><div class="ex-hd"><span class="ex-badge">Reto 5</span>Contar palabras</div><div class="ex-p">Imprime cuántas palabras tiene la frase (usa <code>.split()</code> y <code>len()</code>). Debe salir <code>5</code>.</div><textarea class="src" hidden>frase = &quot;el perro y el gato&quot;
+# cuenta las palabras
+</textarea></div><div class="ex pyex" data-exp="Lápiz cuesta $5" data-sol="producto = {&quot;nombre&quot;: &quot;Lápiz&quot;, &quot;precio&quot;: 5}
+print(f&quot;{producto[&#x27;nombre&#x27;]} cuesta ${producto[&#x27;precio&#x27;]}&quot;)"><div class="ex-hd"><span class="ex-badge">Reto 6</span>Un producto</div><div class="ex-p">Crea un diccionario <code>producto</code> con <code>"nombre"</code> = <code>"Lápiz"</code> y <code>"precio"</code> = <code>5</code> e imprime: <code>Lápiz cuesta $5</code>.</div><textarea class="src" hidden># crea el diccionario y usa una f-string
+</textarea></div><div class="ex pyex" data-exp="manzanas: 5
+peras: 3" data-sol="inventario = {&quot;manzanas&quot;: 5, &quot;peras&quot;: 3}
+for fruta, cantidad in inventario.items():
+    print(f&quot;{fruta}: {cantidad}&quot;)"><div class="ex-hd"><span class="ex-badge">Reto 7</span>Inventario</div><div class="ex-p">Recorre el diccionario e imprime cada pareja así: <code>manzanas: 5</code> y <code>peras: 3</code>.</div><textarea class="src" hidden>inventario = {&quot;manzanas&quot;: 5, &quot;peras&quot;: 3}
+# usa .items()
+</textarea></div><div class="ex pyex" data-exp="{&#x27;b&#x27;: 1, &#x27;a&#x27;: 3, &#x27;n&#x27;: 2}" data-sol="palabra = &quot;banana&quot;
+conteo = {}
+for letra in palabra:
+    if letra in conteo:
+        conteo[letra] += 1
+    else:
+        conteo[letra] = 1
+print(conteo)"><div class="ex-hd"><span class="ex-badge">Reto 8</span>Contar letras</div><div class="ex-p">Cuenta cuántas veces aparece cada letra de <code>"banana"</code> en un diccionario e imprímelo. Debe salir <code>{'b': 1, 'a': 3, 'n': 2}</code>.</div><textarea class="src" hidden>palabra = &quot;banana&quot;
+conteo = {}
+# recorre las letras y cuenta
+</textarea></div></section>
+<section class="module" id="resumen"><div class="mh"><span class="mi">📋</span><div><div class="mt">Resumen de la Parte 5</div><div class="ms">Para tener a la mano</div></div></div><table><tr><th>Concepto</th><th>Ejemplo</th><th>Qué hace</th></tr><tr><td>Lista</td><td><code>[1, 2, 3]</code></td><td>Secuencia modificable</td></tr><tr><td>Posición</td><td><code>lista[0]</code> <code>lista[-1]</code> <code>lista[1:3]</code></td><td>Un elemento o un trozo</td></tr><tr><td>Métodos</td><td><code>append insert remove pop sort reverse</code></td><td>Agregar, quitar, ordenar</td></tr><tr><td>Funciones</td><td><code>len sum min max sorted</code></td><td>Medir y resumir</td></tr><tr><td><code>split / join</code></td><td><code>"a b".split()</code></td><td>Texto ↔ lista</td></tr><tr><td>Tupla</td><td><code>(1, 2)</code></td><td>Como lista, pero fija</td></tr><tr><td>Set</td><td><code>{1, 2, 3}</code></td><td>Sin repetidos</td></tr><tr><td>Diccionario</td><td><code>{"a": 1}</code></td><td>Clave → valor; <code>.get .items .keys .values</code></td></tr><tr><td>Recorrer</td><td><code>for x in lista:</code></td><td>Un elemento por vuelta</td></tr></table><div class="note"><strong>Próxima parada · Parte 6:</strong> las <strong>funciones</strong>. Con <code>def</code> crearás tus propios comandos para reutilizar código sin repetirlo: el paso que convierte scripts sueltos en programas de verdad.</div></section>
+</main>
+<div class="pager"><a class="prev" href="python-parte-4-cafe.html"><small>← Anterior</small><b>Parte 4 · Repeticiones</b></a><a class="next" href="python-parte-6-cafe.html"><small>Siguiente →</small><b>Parte 6 · Funciones</b></a></div>
+<footer>Café &lt;/&gt; · Python desde cero · Parte 5</footer>
+<script>
+(function(){
+const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const KW=new Set('and as break class continue def elif else except finally for from if import in is lambda not or pass return try while with True False None'.split(' '));
+const BI=new Set('print input int float str bool len range type list dict set tuple sum min max abs round sorted open'.split(' '));
+const sp=(c,t)=>'<span class="'+c+'">'+t+'<\/span>';
+function hlPy(s){
+ let o='',i=0,m;
+ const re=/(#.*)|("""[\s\S]*?"""|'''[\s\S]*?'''|[fF]?"(?:\\.|[^"\\\n])*"|[fF]?'(?:\\.|[^'\\\n])*')|(\b\d+(?:\.\d+)?\b)|([A-Za-z_]\w*)/g;
+ while((m=re.exec(s))){
+  o+=esc(s.slice(i,m.index));i=re.lastIndex;const t=m[0];
+  o+=m[1]?sp('cc',esc(t)):m[2]?sp('cs',esc(t)):m[3]?sp('cn',t):KW.has(t)?sp('ck',t):BI.has(t)?sp('ct',t):esc(t);
+ }
+ return o+esc(s.slice(i));
+}
+document.querySelectorAll('pre[data-hl=py]').forEach(p=>{p.innerHTML=hlPy(p.textContent);});
+/* ---------- Python en el navegador (Pyodide) ---------- */
+const PRE=['import builtins,sys','def _input(p=""):','    from js import prompt','    v = prompt(str(p))','    v = "" if v is None else str(v)','    print(str(p) + v)','    return v','builtins.input = _input','_n = [0]','def _tr(f, e, a):','    _n[0] += 1','    if _n[0] > 150000:','        sys.settrace(None)','        raise RuntimeError("BUCLE_INFINITO")','    return _tr','sys.settrace(_tr)'].join('\n');
+let pyP=null;
+function loadPy(){
+ if(!pyP)pyP=new Promise((res,rej)=>{
+  const s=document.createElement('script');
+  s.src='https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js';
+  s.onload=()=>loadPyodide().then(res,rej);
+  s.onerror=()=>{pyP=null;rej(new Error('offline'));};
+  document.head.appendChild(s);
+ });
+ return pyP;
+}
+function clean(m){
+ const L=m.split('\n'),i=L.findIndex(l=>l.includes('File "<exec>"'));
+ if(i<0)return m.trim();
+ const head=(m.startsWith('Traceback')&&!/SyntaxError/.test(m))?'Traceback (most recent call last):\n':'';
+ return (head+L.slice(i).join('\n')).trim();
+}
+async function exec(code){
+ let py;try{py=await loadPy();}catch(e){return{off:true};}
+ const buf=[];py.setStdout({batched:s=>buf.push(s)});py.setStderr({batched:s=>buf.push(s)});
+ const g=py.toPy({});let err=null;
+ try{py.runPython(PRE,{globals:g});await py.runPythonAsync(code,{globals:g});}
+ catch(e){const m=String(e.message||e);err=/BUCLE_INFINITO/.test(m)?'⚠️ Python detuvo tu programa: se ejecutó demasiadas veces seguidas. ¿Hay un bucle infinito? Revisa que la condición del while pueda llegar a ser False (por ejemplo, que la variable del contador sí cambie).':clean(m);}
+ try{py.runPython('import sys\nsys.settrace(None)');}catch(e){}
+ g.destroy();
+ const o=buf.length>200?buf.slice(0,50).join('\n')+'\n… (salida recortada: el programa imprimió '+buf.length+' líneas)':buf.join('\n');
+ return{out:o,err};
+}
+const HINT='<div class="hint">💡 <b>Cómo leer un error:<\/b> empieza por la <b>última línea<\/b>, que dice <i>qué<\/i> pasó. Las líneas de arriba muestran <i>dónde<\/i> (número de línea y una flecha ^).<\/div>';
+const WAIT='⏳ Ejecutando… (la primera vez Python tarda unos segundos en cargar)';
+function mkEd(code){
+ const w=document.createElement('div');w.className='ed';w.dataset.l='PYTHON';
+ const pre=document.createElement('pre'),ta=document.createElement('textarea');
+ ta.spellcheck=false;ta.value=code;ta.setAttribute('aria-label','Editor de código Python');
+ const up=()=>{pre.innerHTML=hlPy(ta.value)+'\n';};
+ ta.addEventListener('input',up);
+ ta.addEventListener('keydown',e=>{if(e.key==='Tab'){e.preventDefault();ta.setRangeText('    ',ta.selectionStart,ta.selectionEnd,'end');up();}});
+ w.append(pre,ta);up();
+ return{w,ta,set:v=>{ta.value=v;up();}};
+}
+const mk=(tag,cls,html)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e;};
+document.querySelectorAll('.pyrun').forEach(el=>{
+ const orig=el.querySelector('.src').value,fb=el.dataset.out||'';
+ const ed=mkEd(orig),bar=mk('div','bar','<button class="ver" type="button">▶ Ejecutar<\/button><button class="ver alt" type="button">↺ Restaurar<\/button>'),out=mk('pre','out');out.hidden=true;
+ el.textContent='';el.append(ed.w,bar,out);
+ const b=bar.querySelectorAll('button');
+ b[0].onclick=async()=>{
+  out.hidden=false;out.className='out';out.textContent=WAIT;
+  const r=await exec(ed.ta.value);
+  if(r.off){out.className='out off';out.textContent=ed.ta.value===orig?'📴 Sin conexión a internet. Esta es la salida esperada:\n\n'+fb:'📴 Para ejecutar código nuevo se necesita internet (Python se descarga una sola vez). Revisa tu conexión.';return;}
+  if(r.err){out.className='out bad';out.innerHTML=esc((r.out?r.out+'\n':'')+r.err)+HINT;}
+  else out.textContent=r.out||'(el programa no imprimió nada)';
+ };
+ b[1].onclick=()=>{ed.set(orig);out.hidden=true;};
+});
+const norm=s=>s.split('\n').map(l=>l.replace(/\s+$/,'')).join('\n').replace(/\n+$/,'');
+document.querySelectorAll('.pyex').forEach(el=>{
+ const st=el.querySelector('.src').value,exp=el.dataset.exp,sol=el.dataset.sol;el.querySelector('.src').remove();
+ const ed=mkEd(st),bar=mk('div','bar','<button class="ver" type="button">✔ Comprobar<\/button><button class="ver alt" type="button">💡 Ver solución<\/button><button class="ver alt" type="button">↺ Restaurar<\/button>'),out=mk('pre','out'),ms=mk('p','okline');out.hidden=true;
+ el.append(ed.w,bar,out,ms);const b=bar.querySelectorAll('button');
+ b[0].onclick=async()=>{
+  out.hidden=false;out.className='out';out.textContent=WAIT;ms.textContent='';ms.className='okline';
+  const r=await exec(ed.ta.value);
+  if(r.off){out.className='out off';out.textContent='📴 Sin conexión: no puedo comprobar tu código ahora. Compáralo con la solución o conéctate a internet.';return;}
+  if(r.err){out.className='out bad';out.innerHTML=esc((r.out?r.out+'\n':'')+r.err)+HINT;ms.className='okline bad';ms.textContent='❌ Tu código tiene un error. Revisa el mensaje de arriba.';return;}
+  out.textContent=r.out||'(el programa no imprimió nada)';
+  if(norm(r.out)===norm(exp)){ms.className='okline good';ms.textContent='✅ ¡Correcto! Tu programa imprime lo esperado.';}
+  else{ms.className='okline bad';ms.textContent='❌ Todavía no. Tu programa imprimió lo de arriba, pero se esperaba:\n'+exp;}
+ };
+ b[1].onclick=()=>{ed.set(sol);out.hidden=true;ms.className='okline';ms.textContent='Esta es una solución posible. Ejecútala con ✔ Comprobar y compárala con tu idea.';};
+ b[2].onclick=()=>{ed.set(st);out.hidden=true;ms.textContent='';};
+});
+const T=document.documentElement;
+try{T.dataset.theme=localStorage.getItem('cafe-theme')||'light';}catch(e){}
+document.getElementById('tm').onclick=()=>{const m=T.dataset.theme==='dark'?'light':'dark';T.dataset.theme=m;try{localStorage.setItem('cafe-theme',m);}catch(e){}};
+})();
+</script>
+</body>
+</html>

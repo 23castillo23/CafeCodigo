@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python desde cero · Parte 1 — Café &lt;/&gt;</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700&family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--primary:#c44a2a;--pl:#fdf0ec;--sec:#1a7a5a;--accent:#b07010;--bg:#f7f4ef;--surface:#fff;--text:#1a1814;--muted:#8a8480;--border:#e8e4de}
+:root[data-theme=dark]{--bg:#14110f;--surface:#1f1b18;--text:#f0ebe4;--muted:#a39d96;--border:#33302b;--pl:#3a1f18}
+body{font-family:'DM Sans','Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:16px}
+[hidden]{display:none!important}
+.cafe-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:200;height:45px}
+.cafe-bar a,.cafe-bar button{font:inherit;font-size:13px;color:var(--muted);text-decoration:none;padding:6px 14px;border:1px solid var(--border);border-radius:999px;background:none;cursor:pointer}
+.cafe-bar a:hover,.cafe-bar button:hover{color:var(--text);border-color:var(--muted)}
+.cafe-bar span{font-size:13px;color:var(--muted);flex:1}
+header{background:#1a1814;color:#f7f4ef;padding:3rem 2rem 2rem;text-align:center;position:relative;overflow:hidden}
+header::before{content:'>>>';position:absolute;font-size:12rem;font-weight:900;color:rgba(255,255,255,.04);right:-1rem;top:-2rem;font-family:monospace;line-height:1}
+header h1{font-size:2.5rem;letter-spacing:-1px;font-family:'Fraunces',serif}
+header p{font-size:1.1rem;opacity:.85;margin-top:.5rem}
+.badge{display:inline-block;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:4px 14px;font-size:.8rem;margin-top:.75rem}
+.topnav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:45px;z-index:100;display:flex;overflow-x:auto}
+.topnav a{flex-shrink:0;padding:.75rem 1rem;text-decoration:none;color:var(--muted);font-size:.78rem;font-weight:500;border-bottom:2px solid transparent;white-space:nowrap}
+.topnav a:hover{color:var(--primary);border-bottom-color:var(--primary)}
+main{max-width:920px;margin:0 auto;padding:2rem 1.5rem}
+.module{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;margin-bottom:2.5rem;scroll-margin-top:115px}
+@media(max-width:680px){.module{padding:1.25rem}}
+.mh{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border)}
+.mi{font-size:1.8rem}.mt{font-size:1.35rem;font-weight:700}.ms{font-size:.85rem;color:var(--muted)}
+p{margin-bottom:.8rem}h3{margin:1.4rem 0 .5rem;font-size:1.05rem}
+code{font-family:'DM Mono',monospace;background:var(--bg);color:var(--primary);padding:1px 5px;border-radius:4px;font-size:.9em}
+ol.steps{margin:.5rem 0 1rem 1.4rem}ol.steps li{margin-bottom:.4rem}
+.analogy{background:#FFF7ED;border:1px solid #FDE68A;border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0}
+.analogy h4{color:#92400E;font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem}
+.analogy p{font-size:.95rem;color:#78350F;margin:0}
+.note{background:var(--pl);border-left:4px solid var(--primary);border-radius:0 10px 10px 0;padding:.9rem 1.2rem;margin:1rem 0;font-size:.93rem}
+.code-block,.ed{background:#1a1814;color:#e8e4de;border-radius:10px;font-family:'DM Mono',monospace;font-size:.86rem;line-height:1.7;margin:.5rem 0;position:relative}
+.code-block{padding:1rem 1.3rem;overflow-x:auto;white-space:pre-wrap;overflow-wrap:anywhere}
+.code-block::before,.ed::before{content:attr(data-l);position:absolute;top:.4rem;right:.7rem;background:rgba(255,255,255,.1);color:rgba(255,255,255,.5);font-size:.65rem;padding:1px 8px;border-radius:4px;font-family:sans-serif;z-index:2;pointer-events:none}
+.ed{display:grid}
+.ed pre,.ed textarea{grid-area:1/1;margin:0;padding:1rem 1.3rem;font:inherit;line-height:inherit;letter-spacing:0;white-space:pre-wrap;overflow-wrap:anywhere;tab-size:4;border:0;background:transparent;min-width:0;width:100%}
+.ed pre{pointer-events:none}
+.ed textarea{color:transparent;-webkit-text-fill-color:transparent;caret-color:#fff;resize:none;overflow:hidden;outline:none;height:100%}
+.ed textarea::selection{background:rgba(137,180,250,.35)}
+.ed:focus-within{box-shadow:0 0 0 2px #c44a2a88}
+.ck{color:#F38BA8}.ct{color:#89B4FA}.cs{color:#A6E3A1}.cn{color:#F9E2AF}.cc{color:#6c7086;font-style:italic}.ca{color:#CBA6F7}
+.bar{display:flex;gap:.3rem;flex-wrap:wrap}
+.ver{background:var(--primary);color:#fff;border:0;border-radius:999px;padding:7px 18px;font:600 .85rem 'DM Sans',sans-serif;cursor:pointer;margin:.3rem .3rem .3rem 0}
+.ver.alt{background:#fff;color:var(--primary);border:1px solid var(--primary)}
+.out{background:#0d1117;color:#c9d1d9;border-radius:10px;padding:1rem 1.3rem;font:.84rem/1.6 'DM Mono',monospace;white-space:pre-wrap;overflow-wrap:anywhere;margin:.4rem 0}
+.out::before{content:'SALIDA';display:block;font:700 .62rem sans-serif;letter-spacing:.1em;color:#6e7681;margin-bottom:.3rem}
+.out.bad{color:#ffb4a8;border-left:4px solid #e5533d}.out.off{color:#e9d8a6}
+.hint{font:.84rem/1.5 'DM Sans',sans-serif;margin-top:.6rem;color:#e9d8a6;white-space:normal}
+.ex{background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:1.3rem;margin:1.3rem 0;color:#78350F}
+.ex-hd{display:flex;gap:.7rem;align-items:center;font-weight:700;margin-bottom:.6rem;flex-wrap:wrap}
+.ex-badge{background:var(--accent);color:#fff;font-size:.68rem;padding:2px 9px;border-radius:20px;text-transform:uppercase}
+.ex-p{margin-bottom:.6rem}.ex code{background:#fff}
+.okline{font-weight:600;font-size:.92rem;margin-top:.4rem;white-space:pre-wrap}.good{color:var(--sec)}.bad{color:var(--primary)}
+.glos{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:.9rem;margin:1rem 0}
+.gi{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.9rem 1rem;font-size:.9rem}
+.gi b{display:block;font-family:'DM Mono',monospace;color:var(--primary);margin-bottom:.2rem;font-size:.86rem}
+table{width:100%;border-collapse:collapse;font-size:.9rem;margin:1rem 0;display:block;overflow-x:auto}
+th,td{border:1px solid var(--border);padding:.5rem .7rem;text-align:left}th{background:var(--bg)}
+.pager{max-width:920px;margin:0 auto 2rem;padding:0 1.5rem;display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.pager a,.pager .soon{display:block;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1rem 1.2rem;text-decoration:none;color:var(--text)}
+.pager .soon{grid-column:2;text-align:right;opacity:.65;border-style:dashed}
+.pager small{display:block;color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.07em}
+@media(max-width:600px){.pager{grid-template-columns:1fr}.pager .soon{grid-column:1}}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.85rem;border-top:1px solid var(--border)}
+.cafe-bar{overflow-x:auto;white-space:nowrap}
+.cafe-bar a.on{background:var(--primary);color:#fff;border-color:var(--primary)}
+.pn{display:flex;gap:6px}.pn a{padding:6px 12px!important}
+@media(max-width:700px){.cafe-bar{padding:0 12px;gap:8px}.cafe-bar span{display:none}}
+.pager a:hover{border-color:var(--primary)}.pager .next{text-align:right;grid-column:2}
+@media(max-width:600px){.pager .next{grid-column:1}}
+</style>
+</head>
+<body>
+<div class="cafe-bar"><a href="python-indice-cafe.html">📚 Índice</a><div class="pn"><a href="python-parte-1-cafe.html" title="Parte 1 · Primeros pasos" class="on" aria-current="page">1</a><a href="python-parte-2-cafe.html" title="Parte 2 · Datos y operaciones">2</a><a href="python-parte-3-cafe.html" title="Parte 3 · Decisiones">3</a><a href="python-parte-4-cafe.html" title="Parte 4 · Repeticiones">4</a><a href="python-parte-5-cafe.html" title="Parte 5 · Colecciones">5</a><a href="python-parte-6-cafe.html" title="Parte 6 · Funciones">6</a><a href="python-parte-7-cafe.html" title="Parte 7 · Archivos y errores">7</a><a href="python-parte-8-cafe.html" title="Parte 8 · Objetos y proyecto final">8</a></div><span>Café &lt;/&gt; · Python</span><a href="capitulos.html">Portal</a><button type="button" id="tm">🌙 / ☀️</button></div>
+<header><h1>Python desde cero — Parte 1</h1><p>Primeros pasos: tu primer programa y tus primeras variables</p><span class="badge">🐍 Principiante · Parte 1 de 8</span></header>
+<div class="topnav"><a href="#que">¿Qué es?</a><a href="#instalar">Instalar</a><a href="#print">print()</a><a href="#comentarios">Comentarios</a><a href="#variables">Variables</a><a href="#retos">Retos</a><a href="#resumen">Resumen</a></div>
+<main>
+<section class="module" id="que"><div class="mh"><span class="mi">🐍</span><div><div class="mt">¿Qué es Python?</div><div class="ms">Tu primer vistazo, sin miedo</div></div></div><p><strong>Python</strong> es un lenguaje de programación: una forma de escribir <strong>instrucciones que una computadora entiende</strong>. Con él se crean páginas web, programas de escritorio, juegos, análisis de datos, automatización de tareas y hasta inteligencia artificial.</p><div class="analogy"><h4>☕ Analogía</h4><p>Programar es como escribir una <strong>receta de cocina</strong>. La receta (tu programa) tiene pasos en orden, y la computadora es un cocinero muy obediente pero que <em>no adivina nada</em>: hace exactamente lo que dice la receta, ni más ni menos. Python es el idioma en el que escribes esa receta.</p></div><p><strong>¿Por qué Python para empezar?</strong> Porque se lee casi como inglés, tiene pocas reglas raras y es de los lenguajes más usados del mundo. Mira lo que hace con solo 3 líneas. Presiona <strong>▶ Ejecutar</strong>:</p><div class="pyrun" data-out="Hola, Café
+5"><textarea class="src" hidden>nombre = &quot;Café&quot;
+print(&quot;Hola,&quot;, nombre)
+print(2 + 3)</textarea></div><div class="note"><strong>Cómo funciona esta guía:</strong> todos los cuadros oscuros con el botón ▶ son <strong>ejecutables y editables</strong>. Cambia el código, vuelve a ejecutar y mira qué pasa: <em>romper cosas es la mejor forma de aprender</em>. La primera vez Python tarda unos segundos en cargar (necesita internet); después es instantáneo.</div><h3>La ruta completa (8 partes)</h3><table><tr><th>Parte</th><th>Tema</th><th>Lo que podrás hacer</th></tr><tr><td><strong>1 · Aquí estás</strong></td><td>Primeros pasos</td><td>Instalar, imprimir, comentar, guardar datos en variables</td></tr><tr><td>2</td><td>Datos y operaciones</td><td>Números, textos, cálculos, pedir datos al usuario</td></tr><tr><td>3</td><td>Decisiones</td><td>if / else: que tu programa elija qué hacer</td></tr><tr><td>4</td><td>Repeticiones</td><td>while y for: repetir sin copiar y pegar</td></tr><tr><td>5</td><td>Colecciones</td><td>Listas, diccionarios y tuplas</td></tr><tr><td>6</td><td>Funciones</td><td>Reutilizar código con tus propios comandos</td></tr><tr><td>7</td><td>Archivos y errores</td><td>Leer/guardar archivos y manejar fallos</td></tr><tr><td>8</td><td>Objetos y proyecto final</td><td>Clases y un proyecto completo</td></tr></table></section>
+<section class="module" id="instalar"><div class="mh"><span class="mi">🛠️</span><div><div class="mt">Instalar y ejecutar Python</div><div class="ms">Para cuando quieras practicar en tu computadora</div></div></div><p>Para esta guía <strong>no necesitas instalar nada</strong>: los ejemplos corren en tu navegador. Pero para hacer tus propios programas, conviene tener Python en tu computadora:</p><ol class="steps"><li>Descarga Python de <strong>python.org/downloads</strong> (botón amarillo).</li><li>En Windows, al instalar <strong>marca la casilla "Add Python to PATH"</strong>. Es el paso que más se olvida y sin él la terminal no encuentra Python.</li><li>Abre una terminal y comprueba la instalación:</li></ol><pre class="code-block" data-l="TERMINAL">python --version
+# En Windows también funciona:  py --version</pre><p>Debe responder algo como <code>Python 3.12.4</code> (el número exacto puede variar). Si sale un error, revisa el paso del PATH.</p><h3>Dos formas de usar Python</h3><table><tr><th>Modo</th><th>Cómo</th><th>Para qué sirve</th></tr><tr><td><strong>Interactivo</strong></td><td>Escribes <code>python</code> en la terminal y aparece <code>&gt;&gt;&gt;</code></td><td>Probar una línea rápido. Para salir: <code>exit()</code></td></tr><tr><td><strong>Archivo</strong></td><td>Guardas un archivo <code>hola.py</code> y corres <code>python hola.py</code></td><td>Programas completos (lo que más usarás)</td></tr></table><div class="analogy"><h4>☕ Analogía</h4><p>El modo interactivo es una <strong>conversación</strong>: preguntas algo y te responde al instante. El modo archivo es una <strong>carta larga</strong>: escribes todo el programa y se lo entregas completo para que lo lea de arriba hacia abajo.</p></div><div class="note"><strong>Editor recomendado:</strong> VS Code con la extensión <em>Python</em> de Microsoft. Crea un archivo que termine en <code>.py</code> y ejecútalo con el botón ▶ de arriba a la derecha o con <code>python nombre.py</code>.</div></section>
+<section class="module" id="print"><div class="mh"><span class="mi">📢</span><div><div class="mt">Tu primer programa: print()</div><div class="ms">Hacer que Python hable</div></div></div><p>La instrucción más importante para empezar es <code>print()</code>: <strong>muestra algo en pantalla</strong>. Prueba este programa clásico:</p><div class="pyrun" data-out="Hola, mundo"><textarea class="src" hidden>print(&quot;Hola, mundo&quot;)</textarea></div><div class="analogy"><h4>☕ Analogía</h4><p><code>print</code> es un <strong>megáfono</strong>: lo que pongas dentro de los paréntesis, Python lo dice en voz alta (en pantalla).</p></div><h3>Partes de la instrucción</h3><div class="glos"><div class="gi"><b>print</b>El nombre de la <strong>función</strong> (la acción). Siempre en minúsculas.</div><div class="gi"><b>( )</b>Los paréntesis encierran lo que quieres mostrar.</div><div class="gi"><b>"Hola, mundo"</b>Un <strong>texto</strong> (string). Va entre comillas, dobles <code>" "</code> o simples <code>' '</code>.</div></div><h3>Varias cosas a la vez</h3><p>Puedes imprimir números (sin comillas), hacer cuentas y mezclar cosas separándolas con comas. Python pone un espacio entre ellas:</p><div class="pyrun" data-out="Estoy aprendiendo Python
+2026
+Suma: 5
+Nombre: Ana Edad: 20"><textarea class="src" hidden>print(&quot;Estoy aprendiendo Python&quot;)
+print(2026)
+print(&quot;Suma:&quot;, 2 + 3)
+print(&quot;Nombre:&quot;, &quot;Ana&quot;, &quot;Edad:&quot;, 20)</textarea></div><div class="note">Con comillas es <strong>texto</strong> (<code>"2 + 3"</code> se muestra tal cual). Sin comillas es una <strong>operación</strong> (<code>2 + 3</code> da 5). Pruébalo: cambia lo que imprime la tercera línea.</div><h3>Saltos de línea y separadores</h3><div class="pyrun" data-out="Línea 1
+Línea 2
+a-b-c
+Hola mundo"><textarea class="src" hidden>print(&quot;Línea 1\nLínea 2&quot;)
+print(&quot;a&quot;, &quot;b&quot;, &quot;c&quot;, sep=&quot;-&quot;)
+print(&quot;Hola&quot;, end=&quot; &quot;)
+print(&quot;mundo&quot;)</textarea></div><ul style="margin:0 0 1rem 1.4rem"><li><code>\n</code> dentro de un texto es un <strong>salto de línea</strong>.</li><li><code>sep="-"</code> cambia lo que se pone <em>entre</em> los elementos (por defecto un espacio).</li><li><code>end=" "</code> cambia lo que se pone <em>al final</em> (por defecto un salto de línea).</li></ul><h3>Tus primeros errores (¡son normales!)</h3><p>Todo programador ve errores todo el día. Lo importante es aprender a leerlos. Ejecuta estos dos, que tienen fallos a propósito:</p><div class="pyrun" data-out="File &quot;&lt;exec&gt;&quot;, line 1
+    print(&quot;Hola)
+          ^
+SyntaxError: unterminated string literal (detected at line 1)" data-err="1"><textarea class="src" hidden>print(&quot;Hola)</textarea></div><p>Falta la comilla de cierre. Python avisa <strong>dónde</strong> (la línea y una flecha <code>^</code>) y <strong>qué</strong> pasó (la última línea).</p><div class="pyrun" data-out="Traceback (most recent call last):
+  File &quot;&lt;exec&gt;&quot;, line 1, in &lt;module&gt;
+    Print(&quot;Hola&quot;)
+    ^^^^^
+NameError: name &#x27;Print&#x27; is not defined. Did you mean: &#x27;print&#x27;?" data-err="1"><textarea class="src" hidden>Print(&quot;Hola&quot;)</textarea></div><p>Python distingue <strong>mayúsculas de minúsculas</strong>: <code>Print</code> no existe, <code>print</code> sí. Corrige cada uno y vuelve a ejecutar para ver que funciona.</p></section>
+<section class="module" id="comentarios"><div class="mh"><span class="mi">📝</span><div><div class="mt">Comentarios</div><div class="ms">Notas que Python ignora</div></div></div><p>Un <strong>comentario</strong> empieza con <code>#</code>. Python ignora todo lo que va después en esa línea. Sirven para explicarte (o explicarle a otros) qué hace el código.</p><div class="pyrun" data-out="Hola"><textarea class="src" hidden># Esto es un comentario: Python lo ignora
+print(&quot;Hola&quot;)   # también puedes comentar al final
+# print(&quot;Esta línea NO se ejecuta&quot;)</textarea></div><div class="analogy"><h4>☕ Analogía</h4><p>Los comentarios son <strong>notas al margen</strong> de un libro o post-its pegados en la receta: no cambian el platillo, pero te recuerdan por qué hiciste cada cosa.</p></div><div class="note"><strong>Truco:</strong> para "apagar" una línea sin borrarla, ponle <code>#</code> al inicio (en VS Code: <code>Ctrl + /</code>). Los programadores lo hacen todo el tiempo al probar cosas.</div></section>
+<section class="module" id="variables"><div class="mh"><span class="mi">📦</span><div><div class="mt">Variables</div><div class="ms">Guardar datos para usarlos después</div></div></div><p>Una <strong>variable</strong> es un nombre que guarda un valor. Se crea con el signo <code>=</code>:</p><div class="pyrun" data-out="Ana
+20"><textarea class="src" hidden>nombre = &quot;Ana&quot;
+edad = 20
+print(nombre)
+print(edad)</textarea></div><div class="analogy"><h4>☕ Analogía</h4><p>Una variable es una <strong>caja con etiqueta</strong>. La etiqueta (<code>nombre</code>) es cómo la llamas y adentro va el valor (<code>"Ana"</code>). Cuando escribes <code>print(nombre)</code>, Python busca la caja con esa etiqueta y muestra lo que tiene adentro.</p></div><div class="note"><strong>Ojo:</strong> en programación <code>=</code> <em>no</em> significa "es igual a" como en matemáticas. Significa <strong>"guarda lo de la derecha en lo de la izquierda"</strong>. Se lee: "<code>edad</code> recibe 20".</div><h3>Las variables pueden cambiar</h3><div class="pyrun" data-out="20
+21
+22"><textarea class="src" hidden>edad = 20
+print(edad)
+edad = 21
+print(edad)
+edad = edad + 1
+print(edad)</textarea></div><p>La caja se queda con el <strong>último</strong> valor que le guardaste. La tercera línea de cambio, <code>edad = edad + 1</code>, dice: "toma lo que hay en <code>edad</code>, súmale 1 y guárdalo otra vez en <code>edad</code>".</p><h3>Copiar de una variable a otra</h3><div class="pyrun" data-out="10 5"><textarea class="src" hidden>a = 5
+b = a      # b recibe una COPIA del valor de a
+a = 10
+print(a, b)</textarea></div><p><code>b</code> se quedó con 5 porque copió el valor en ese momento. Cambiar <code>a</code> después no afecta a <code>b</code>.</p><h3>Reglas para nombrar variables</h3><table><tr><th>Nombre</th><th>¿Válido?</th><th>Por qué</th></tr><tr><td><code>edad</code></td><td>✅</td><td>Letras minúsculas</td></tr><tr><td><code>mi_nombre</code></td><td>✅</td><td>Palabras unidas con guion bajo (estilo <em>snake_case</em>, el recomendado)</td></tr><tr><td><code>nombre2</code></td><td>✅</td><td>Puede llevar números, pero no al inicio</td></tr><tr><td><code>2nombre</code></td><td>❌</td><td>No puede empezar con número</td></tr><tr><td><code>mi nombre</code></td><td>❌</td><td>No lleva espacios</td></tr><tr><td><code>mi-nombre</code></td><td>❌</td><td>El guion se confunde con una resta</td></tr><tr><td><code>class</code></td><td>❌</td><td>Es una palabra reservada de Python</td></tr><tr><td><code>Edad</code> y <code>edad</code></td><td>⚠️</td><td>Son variables <strong>distintas</strong> (mayúsculas importan)</td></tr></table><div class="note"><strong>Buena práctica:</strong> usa nombres que expliquen qué guardan. <code>precio_total</code> dice mucho más que <code>x</code> o <code>pt</code>. Tu yo del futuro lo agradecerá.</div></section>
+<section class="module" id="retos"><div class="mh"><span class="mi">🎯</span><div><div class="mt">Retos</div><div class="ms">Escribe el código y comprueba con el botón</div></div></div><p>Cada reto se ejecuta de verdad y compara lo que imprime tu código con lo esperado. Si te atoras, usa <strong>💡 Ver solución</strong>.</p><div class="ex pyex" data-exp="Hola, Python" data-sol="print(&quot;Hola, Python&quot;)"><div class="ex-hd"><span class="ex-badge">Reto 1</span>Tu primer print</div><div class="ex-p">Escribe un programa que imprima exactamente: <code>Hola, Python</code></div><textarea class="src" hidden># Escribe tu código aquí
+</textarea></div><div class="ex pyex" data-exp="Me llamo Ana
+Estoy aprendiendo Python" data-sol="print(&quot;Me llamo Ana&quot;)
+print(&quot;Estoy aprendiendo Python&quot;)"><div class="ex-hd"><span class="ex-badge">Reto 2</span>Dos líneas</div><div class="ex-p">Imprime en <strong>dos líneas</strong>: primero <code>Me llamo Ana</code> y luego <code>Estoy aprendiendo Python</code>.</div><textarea class="src" hidden># Escribe tu código aquí
+</textarea></div><div class="ex pyex" data-exp="mango 3" data-sol="fruta = &quot;mango&quot;
+cantidad = 3
+print(fruta, cantidad)"><div class="ex-hd"><span class="ex-badge">Reto 3</span>Imprime variables</div><div class="ex-p">Ya existen dos variables. Imprímelas en <strong>una sola línea</strong> con <code>print</code> para que salga: <code>mango 3</code></div><textarea class="src" hidden>fruta = &quot;mango&quot;
+cantidad = 3
+# imprime las dos variables aquí
+</textarea></div><div class="ex pyex" data-exp="25" data-sol="puntos = 10
+puntos = 25
+print(puntos)"><div class="ex-hd"><span class="ex-badge">Reto 4</span>Cambia el valor</div><div class="ex-p">La variable empieza en 10. Cámbiale el valor a <strong>25</strong> y luego imprímela. Debe salir: <code>25</code></div><textarea class="src" hidden>puntos = 10
+# cambia el valor de puntos aquí
+print(puntos)
+</textarea></div><div class="ex pyex" data-exp="27-10-2026" data-sol="print(&quot;27&quot;, &quot;10&quot;, &quot;2026&quot;, sep=&quot;-&quot;)"><div class="ex-hd"><span class="ex-badge">Reto 5</span>Separadores</div><div class="ex-p">Usa <code>sep</code> para imprimir la fecha así: <code>27-10-2026</code> (tres textos separados por guiones).</div><textarea class="src" hidden># print(&quot;27&quot;, &quot;10&quot;, &quot;2026&quot;, ...)
+</textarea></div></section>
+<section class="module" id="resumen"><div class="mh"><span class="mi">📋</span><div><div class="mt">Resumen de la Parte 1</div><div class="ms">Para tener a la mano</div></div></div><table><tr><th>Concepto</th><th>Ejemplo</th><th>Qué hace</th></tr><tr><td><code>print()</code></td><td><code>print("Hola")</code></td><td>Muestra algo en pantalla</td></tr><tr><td>Texto (string)</td><td><code>"Hola"</code> o <code>'Hola'</code></td><td>Siempre entre comillas</td></tr><tr><td><code>sep</code> / <code>end</code></td><td><code>print("a","b",sep="-")</code></td><td>Cambia separador / final de línea</td></tr><tr><td>Comentario</td><td><code># nota</code></td><td>Python lo ignora</td></tr><tr><td>Variable</td><td><code>edad = 20</code></td><td>Guarda un valor con un nombre</td></tr><tr><td>Reasignar</td><td><code>edad = edad + 1</code></td><td>Cambia el valor guardado</td></tr><tr><td>Mayúsculas</td><td><code>print</code> ≠ <code>Print</code></td><td>Python distingue mayúsculas</td></tr></table><div class="note"><strong>Próxima parada · Parte 2:</strong> los <strong>tipos de datos</strong> (números, textos, verdadero/falso), operaciones matemáticas, f-strings y cómo <strong>pedirle datos al usuario</strong> con <code>input()</code>.</div></section>
+</main>
+<div class="pager"><span></span><a class="next" href="python-parte-2-cafe.html"><small>Siguiente →</small><b>Parte 2 · Datos y operaciones</b></a></div>
+<footer>Café &lt;/&gt; · Python desde cero · Parte 1</footer>
+<script>
+(function(){
+const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const KW=new Set('and as break class continue def elif else except finally for from if import in is lambda not or pass return try while with True False None'.split(' '));
+const BI=new Set('print input int float str bool len range type list dict set tuple sum min max abs round sorted open'.split(' '));
+const sp=(c,t)=>'<span class="'+c+'">'+t+'<\/span>';
+function hlPy(s){
+ let o='',i=0,m;
+ const re=/(#.*)|("""[\s\S]*?"""|'''[\s\S]*?'''|[fF]?"(?:\\.|[^"\\\n])*"|[fF]?'(?:\\.|[^'\\\n])*')|(\b\d+(?:\.\d+)?\b)|([A-Za-z_]\w*)/g;
+ while((m=re.exec(s))){
+  o+=esc(s.slice(i,m.index));i=re.lastIndex;const t=m[0];
+  o+=m[1]?sp('cc',esc(t)):m[2]?sp('cs',esc(t)):m[3]?sp('cn',t):KW.has(t)?sp('ck',t):BI.has(t)?sp('ct',t):esc(t);
+ }
+ return o+esc(s.slice(i));
+}
+document.querySelectorAll('pre[data-hl=py]').forEach(p=>{p.innerHTML=hlPy(p.textContent);});
+/* ---------- Python en el navegador (Pyodide) ---------- */
+const PRE=['import builtins,sys','def _input(p=""):','    from js import prompt','    v = prompt(str(p))','    v = "" if v is None else str(v)','    print(str(p) + v)','    return v','builtins.input = _input','_n = [0]','def _tr(f, e, a):','    _n[0] += 1','    if _n[0] > 150000:','        sys.settrace(None)','        raise RuntimeError("BUCLE_INFINITO")','    return _tr','sys.settrace(_tr)'].join('\n');
+let pyP=null;
+function loadPy(){
+ if(!pyP)pyP=new Promise((res,rej)=>{
+  const s=document.createElement('script');
+  s.src='https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js';
+  s.onload=()=>loadPyodide().then(res,rej);
+  s.onerror=()=>{pyP=null;rej(new Error('offline'));};
+  document.head.appendChild(s);
+ });
+ return pyP;
+}
+function clean(m){
+ const L=m.split('\n'),i=L.findIndex(l=>l.includes('File "<exec>"'));
+ if(i<0)return m.trim();
+ const head=(m.startsWith('Traceback')&&!/SyntaxError/.test(m))?'Traceback (most recent call last):\n':'';
+ return (head+L.slice(i).join('\n')).trim();
+}
+async function exec(code){
+ let py;try{py=await loadPy();}catch(e){return{off:true};}
+ const buf=[];py.setStdout({batched:s=>buf.push(s)});py.setStderr({batched:s=>buf.push(s)});
+ const g=py.toPy({});let err=null;
+ try{py.runPython(PRE,{globals:g});await py.runPythonAsync(code,{globals:g});}
+ catch(e){const m=String(e.message||e);err=/BUCLE_INFINITO/.test(m)?'⚠️ Python detuvo tu programa: se ejecutó demasiadas veces seguidas. ¿Hay un bucle infinito? Revisa que la condición del while pueda llegar a ser False (por ejemplo, que la variable del contador sí cambie).':clean(m);}
+ try{py.runPython('import sys\nsys.settrace(None)');}catch(e){}
+ g.destroy();
+ const o=buf.length>200?buf.slice(0,50).join('\n')+'\n… (salida recortada: el programa imprimió '+buf.length+' líneas)':buf.join('\n');
+ return{out:o,err};
+}
+const HINT='<div class="hint">💡 <b>Cómo leer un error:<\/b> empieza por la <b>última línea<\/b>, que dice <i>qué<\/i> pasó. Las líneas de arriba muestran <i>dónde<\/i> (número de línea y una flecha ^).<\/div>';
+const WAIT='⏳ Ejecutando… (la primera vez Python tarda unos segundos en cargar)';
+function mkEd(code){
+ const w=document.createElement('div');w.className='ed';w.dataset.l='PYTHON';
+ const pre=document.createElement('pre'),ta=document.createElement('textarea');
+ ta.spellcheck=false;ta.value=code;ta.setAttribute('aria-label','Editor de código Python');
+ const up=()=>{pre.innerHTML=hlPy(ta.value)+'\n';};
+ ta.addEventListener('input',up);
+ ta.addEventListener('keydown',e=>{if(e.key==='Tab'){e.preventDefault();ta.setRangeText('    ',ta.selectionStart,ta.selectionEnd,'end');up();}});
+ w.append(pre,ta);up();
+ return{w,ta,set:v=>{ta.value=v;up();}};
+}
+const mk=(tag,cls,html)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e;};
+document.querySelectorAll('.pyrun').forEach(el=>{
+ const orig=el.querySelector('.src').value,fb=el.dataset.out||'';
+ const ed=mkEd(orig),bar=mk('div','bar','<button class="ver" type="button">▶ Ejecutar<\/button><button class="ver alt" type="button">↺ Restaurar<\/button>'),out=mk('pre','out');out.hidden=true;
+ el.textContent='';el.append(ed.w,bar,out);
+ const b=bar.querySelectorAll('button');
+ b[0].onclick=async()=>{
+  out.hidden=false;out.className='out';out.textContent=WAIT;
+  const r=await exec(ed.ta.value);
+  if(r.off){out.className='out off';out.textContent=ed.ta.value===orig?'📴 Sin conexión a internet. Esta es la salida esperada:\n\n'+fb:'📴 Para ejecutar código nuevo se necesita internet (Python se descarga una sola vez). Revisa tu conexión.';return;}
+  if(r.err){out.className='out bad';out.innerHTML=esc((r.out?r.out+'\n':'')+r.err)+HINT;}
+  else out.textContent=r.out||'(el programa no imprimió nada)';
+ };
+ b[1].onclick=()=>{ed.set(orig);out.hidden=true;};
+});
+const norm=s=>s.split('\n').map(l=>l.replace(/\s+$/,'')).join('\n').replace(/\n+$/,'');
+document.querySelectorAll('.pyex').forEach(el=>{
+ const st=el.querySelector('.src').value,exp=el.dataset.exp,sol=el.dataset.sol;el.querySelector('.src').remove();
+ const ed=mkEd(st),bar=mk('div','bar','<button class="ver" type="button">✔ Comprobar<\/button><button class="ver alt" type="button">💡 Ver solución<\/button><button class="ver alt" type="button">↺ Restaurar<\/button>'),out=mk('pre','out'),ms=mk('p','okline');out.hidden=true;
+ el.append(ed.w,bar,out,ms);const b=bar.querySelectorAll('button');
+ b[0].onclick=async()=>{
+  out.hidden=false;out.className='out';out.textContent=WAIT;ms.textContent='';ms.className='okline';
+  const r=await exec(ed.ta.value);
+  if(r.off){out.className='out off';out.textContent='📴 Sin conexión: no puedo comprobar tu código ahora. Compáralo con la solución o conéctate a internet.';return;}
+  if(r.err){out.className='out bad';out.innerHTML=esc((r.out?r.out+'\n':'')+r.err)+HINT;ms.className='okline bad';ms.textContent='❌ Tu código tiene un error. Revisa el mensaje de arriba.';return;}
+  out.textContent=r.out||'(el programa no imprimió nada)';
+  if(norm(r.out)===norm(exp)){ms.className='okline good';ms.textContent='✅ ¡Correcto! Tu programa imprime lo esperado.';}
+  else{ms.className='okline bad';ms.textContent='❌ Todavía no. Tu programa imprimió lo de arriba, pero se esperaba:\n'+exp;}
+ };
+ b[1].onclick=()=>{ed.set(sol);out.hidden=true;ms.className='okline';ms.textContent='Esta es una solución posible. Ejecútala con ✔ Comprobar y compárala con tu idea.';};
+ b[2].onclick=()=>{ed.set(st);out.hidden=true;ms.textContent='';};
+});
+const T=document.documentElement;
+try{T.dataset.theme=localStorage.getItem('cafe-theme')||'light';}catch(e){}
+document.getElementById('tm').onclick=()=>{const m=T.dataset.theme==='dark'?'light':'dark';T.dataset.theme=m;try{localStorage.setItem('cafe-theme',m);}catch(e){}};
+})();
+</script>
+</body>
+</html>

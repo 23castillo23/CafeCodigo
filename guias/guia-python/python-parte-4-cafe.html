@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python desde cero · Parte 4 — Café &lt;/&gt;</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700&family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--primary:#c44a2a;--pl:#fdf0ec;--sec:#1a7a5a;--accent:#b07010;--bg:#f7f4ef;--surface:#fff;--text:#1a1814;--muted:#8a8480;--border:#e8e4de}
+:root[data-theme=dark]{--bg:#14110f;--surface:#1f1b18;--text:#f0ebe4;--muted:#a39d96;--border:#33302b;--pl:#3a1f18}
+body{font-family:'DM Sans','Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:16px}
+[hidden]{display:none!important}
+.cafe-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:200;height:45px}
+.cafe-bar a,.cafe-bar button{font:inherit;font-size:13px;color:var(--muted);text-decoration:none;padding:6px 14px;border:1px solid var(--border);border-radius:999px;background:none;cursor:pointer}
+.cafe-bar a:hover,.cafe-bar button:hover{color:var(--text);border-color:var(--muted)}
+.cafe-bar span{font-size:13px;color:var(--muted);flex:1}
+header{background:#1a1814;color:#f7f4ef;padding:3rem 2rem 2rem;text-align:center;position:relative;overflow:hidden}
+header::before{content:'>>>';position:absolute;font-size:12rem;font-weight:900;color:rgba(255,255,255,.04);right:-1rem;top:-2rem;font-family:monospace;line-height:1}
+header h1{font-size:2.5rem;letter-spacing:-1px;font-family:'Fraunces',serif}
+header p{font-size:1.1rem;opacity:.85;margin-top:.5rem}
+.badge{display:inline-block;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:4px 14px;font-size:.8rem;margin-top:.75rem}
+.topnav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:45px;z-index:100;display:flex;overflow-x:auto}
+.topnav a{flex-shrink:0;padding:.75rem 1rem;text-decoration:none;color:var(--muted);font-size:.78rem;font-weight:500;border-bottom:2px solid transparent;white-space:nowrap}
+.topnav a:hover{color:var(--primary);border-bottom-color:var(--primary)}
+main{max-width:920px;margin:0 auto;padding:2rem 1.5rem}
+.module{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;margin-bottom:2.5rem;scroll-margin-top:115px}
+@media(max-width:680px){.module{padding:1.25rem}}
+.mh{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border)}
+.mi{font-size:1.8rem}.mt{font-size:1.35rem;font-weight:700}.ms{font-size:.85rem;color:var(--muted)}
+p{margin-bottom:.8rem}h3{margin:1.4rem 0 .5rem;font-size:1.05rem}
+code{font-family:'DM Mono',monospace;background:var(--bg);color:var(--primary);padding:1px 5px;border-radius:4px;font-size:.9em}
+ol.steps{margin:.5rem 0 1rem 1.4rem}ol.steps li{margin-bottom:.4rem}
+.analogy{background:#FFF7ED;border:1px solid #FDE68A;border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0}
+.analogy h4{color:#92400E;font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem}
+.analogy p{font-size:.95rem;color:#78350F;margin:0}
+.note{background:var(--pl);border-left:4px solid var(--primary);border-radius:0 10px 10px 0;padding:.9rem 1.2rem;margin:1rem 0;font-size:.93rem}
+.code-block,.ed{background:#1a1814;color:#e8e4de;border-radius:10px;font-family:'DM Mono',monospace;font-size:.86rem;line-height:1.7;margin:.5rem 0;position:relative}
+.code-block{padding:1rem 1.3rem;overflow-x:auto;white-space:pre-wrap;overflow-wrap:anywhere}
+.code-block::before,.ed::before{content:attr(data-l);position:absolute;top:.4rem;right:.7rem;background:rgba(255,255,255,.1);color:rgba(255,255,255,.5);font-size:.65rem;padding:1px 8px;border-radius:4px;font-family:sans-serif;z-index:2;pointer-events:none}
+.ed{display:grid}
+.ed pre,.ed textarea{grid-area:1/1;margin:0;padding:1rem 1.3rem;font:inherit;line-height:inherit;letter-spacing:0;white-space:pre-wrap;overflow-wrap:anywhere;tab-size:4;border:0;background:transparent;min-width:0;width:100%}
+.ed pre{pointer-events:none}
+.ed textarea{color:transparent;-webkit-text-fill-color:transparent;caret-color:#fff;resize:none;overflow:hidden;outline:none;height:100%}
+.ed textarea::selection{background:rgba(137,180,250,.35)}
+.ed:focus-within{box-shadow:0 0 0 2px #c44a2a88}
+.ck{color:#F38BA8}.ct{color:#89B4FA}.cs{color:#A6E3A1}.cn{color:#F9E2AF}.cc{color:#6c7086;font-style:italic}.ca{color:#CBA6F7}
+.bar{display:flex;gap:.3rem;flex-wrap:wrap}
+.ver{background:var(--primary);color:#fff;border:0;border-radius:999px;padding:7px 18px;font:600 .85rem 'DM Sans',sans-serif;cursor:pointer;margin:.3rem .3rem .3rem 0}
+.ver.alt{background:#fff;color:var(--primary);border:1px solid var(--primary)}
+.out{background:#0d1117;color:#c9d1d9;border-radius:10px;padding:1rem 1.3rem;font:.84rem/1.6 'DM Mono',monospace;white-space:pre-wrap;overflow-wrap:anywhere;margin:.4rem 0}
+.out::before{content:'SALIDA';display:block;font:700 .62rem sans-serif;letter-spacing:.1em;color:#6e7681;margin-bottom:.3rem}
+.out.bad{color:#ffb4a8;border-left:4px solid #e5533d}.out.off{color:#e9d8a6}
+.hint{font:.84rem/1.5 'DM Sans',sans-serif;margin-top:.6rem;color:#e9d8a6;white-space:normal}
+.ex{background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:1.3rem;margin:1.3rem 0;color:#78350F}
+.ex-hd{display:flex;gap:.7rem;align-items:center;font-weight:700;margin-bottom:.6rem;flex-wrap:wrap}
+.ex-badge{background:var(--accent);color:#fff;font-size:.68rem;padding:2px 9px;border-radius:20px;text-transform:uppercase}
+.ex-p{margin-bottom:.6rem}.ex code{background:#fff}
+.okline{font-weight:600;font-size:.92rem;margin-top:.4rem;white-space:pre-wrap}.good{color:var(--sec)}.bad{color:var(--primary)}
+.glos{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:.9rem;margin:1rem 0}
+.gi{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.9rem 1rem;font-size:.9rem}
+.gi b{display:block;font-family:'DM Mono',monospace;color:var(--primary);margin-bottom:.2rem;font-size:.86rem}
+table{width:100%;border-collapse:collapse;font-size:.9rem;margin:1rem 0;display:block;overflow-x:auto}
+th,td{border:1px solid var(--border);padding:.5rem .7rem;text-align:left}th{background:var(--bg)}
+.pager{max-width:920px;margin:0 auto 2rem;padding:0 1.5rem;display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.pager a,.pager .soon{display:block;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1rem 1.2rem;text-decoration:none;color:var(--text)}
+.pager .soon{grid-column:2;text-align:right;opacity:.65;border-style:dashed}
+.pager small{display:block;color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.07em}
+@media(max-width:600px){.pager{grid-template-columns:1fr}.pager .soon{grid-column:1}}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.85rem;border-top:1px solid var(--border)}
+.cafe-bar{overflow-x:auto;white-space:nowrap}
+.cafe-bar a.on{background:var(--primary);color:#fff;border-color:var(--primary)}
+.pn{display:flex;gap:6px}.pn a{padding:6px 12px!important}
+@media(max-width:700px){.cafe-bar{padding:0 12px;gap:8px}.cafe-bar span{display:none}}
+.pager a:hover{border-color:var(--primary)}.pager .next{text-align:right;grid-column:2}
+@media(max-width:600px){.pager .next{grid-column:1}}
+</style>
+</head>
+<body>
+<div class="cafe-bar"><a href="python-indice-cafe.html">📚 Índice</a><div class="pn"><a href="python-parte-1-cafe.html" title="Parte 1 · Primeros pasos">1</a><a href="python-parte-2-cafe.html" title="Parte 2 · Datos y operaciones">2</a><a href="python-parte-3-cafe.html" title="Parte 3 · Decisiones">3</a><a href="python-parte-4-cafe.html" title="Parte 4 · Repeticiones" class="on" aria-current="page">4</a><a href="python-parte-5-cafe.html" title="Parte 5 · Colecciones">5</a><a href="python-parte-6-cafe.html" title="Parte 6 · Funciones">6</a><a href="python-parte-7-cafe.html" title="Parte 7 · Archivos y errores">7</a><a href="python-parte-8-cafe.html" title="Parte 8 · Objetos y proyecto final">8</a></div><span>Café &lt;/&gt; · Python</span><a href="capitulos.html">Portal</a><button type="button" id="tm">🌙 / ☀️</button></div>
+<header><h1>Python desde cero — Parte 4</h1><p>Repeticiones: while, for, range, break y continue</p><span class="badge">🐍 Principiante · Parte 4 de 8</span></header>
+<div class="topnav"><a href="#porque">¿Por qué?</a><a href="#while">while</a><a href="#for">for y range</a><a href="#cual">¿Cuál usar?</a><a href="#break">break/continue</a><a href="#anidados">Anidados</a><a href="#juego">Mini juego</a><a href="#errores">Errores</a><a href="#retos">Retos</a><a href="#resumen">Resumen</a></div>
+<main>
+<section class="module" id="porque"><div class="mh"><span class="mi">🔁</span><div><div class="mt">¿Por qué repetir?</div><div class="ms">El poder de que la computadora haga lo aburrido</div></div></div><p>Imagina que quieres escribir "Hola" cinco veces. Podrías copiar y pegar la línea, pero ¿y si fueran 1000? Para eso existen los <strong>bucles</strong> (o <em>ciclos</em>): instrucciones que <strong>repiten un bloque de código</strong> mientras se cumpla algo o una cantidad de veces.</p><div class="pyrun" data-out="Hola
+Hola
+Hola
+Hola
+Hola
+Hola"><textarea class="src" hidden># Sin bucle: copiar y pegar
+print(&quot;Hola&quot;)
+print(&quot;Hola&quot;)
+print(&quot;Hola&quot;)
+
+# Con bucle: 2 líneas
+for i in range(3):
+    print(&quot;Hola&quot;)</textarea></div><div class="analogy"><h4>☕ Analogía</h4><p>Un bucle es como las <strong>vueltas a una pista de carreras</strong>: el corredor repite el mismo recorrido varias veces. Lo importante es saber <em>cuándo se detiene</em>: después de 5 vueltas (for) o cuando se acabe la gasolina (while).</p></div><p>Python tiene dos tipos de bucles: <code>while</code> ("mientras") y <code>for</code> ("para cada"). Vamos con el primero.</p></section>
+<section class="module" id="while"><div class="mh"><span class="mi">🔄</span><div><div class="mt">while: repetir mientras se cumpla</div><div class="ms">La condición decide cuándo parar</div></div></div><p><code>while</code> funciona como un <code>if</code> que se repite: revisa la condición y, <strong>mientras sea True</strong>, ejecuta el bloque una y otra vez. Cuando se vuelve False, el bucle termina y el programa sigue.</p><div class="pyrun" data-out="Vuelta 1
+Vuelta 2
+Vuelta 3
+Vuelta 4
+Vuelta 5
+Terminó"><textarea class="src" hidden>contador = 1
+while contador &lt;= 5:
+    print(&quot;Vuelta&quot;, contador)
+    contador += 1
+print(&quot;Terminó&quot;)</textarea></div><div class="analogy"><h4>☕ Analogía</h4><p>"<strong>Mientras tengas hambre, sigue comiendo</strong>." Cada bocado cambia algo (tienes menos hambre) y en algún momento la condición deja de cumplirse y paras de comer.</p></div><h3>Las 3 partes de un while bien hecho</h3><div class="glos"><div class="gi"><b>1. Inicio</b><code>contador = 1</code>: la variable que controla el bucle empieza en algún valor.</div><div class="gi"><b>2. Condición</b><code>while contador &lt;= 5:</code>: se revisa <em>antes de cada vuelta</em>. Si es False, se acabó.</div><div class="gi"><b>3. Cambio</b><code>contador += 1</code>: dentro del bloque algo debe cambiar para que la condición <strong>algún día</strong> sea False.</div></div><h3>⚠️ El bucle infinito</h3><p>Si olvidas la parte 3, la condición nunca cambia y el bucle <strong>no termina jamás</strong>. Este código es un ejemplo (no lo copies sin cuidado):</p><pre class="code-block" data-l="PYTHON" data-hl="py">contador = 1
+while contador &lt;= 5:
+    print(&quot;Vuelta&quot;, contador)
+    # ¡Falta contador += 1!  → se repite para siempre</pre><div class="note"><strong>Si te pasa:</strong> en la terminal, detén el programa con <code>Ctrl + C</code>. En esta guía, Python se detiene solo después de un rato y te avisa. Un bucle infinito no daña nada: es un error común y se arregla agregando el cambio que falta.</div><h3>Acumuladores: ir sumando</h3><div class="pyrun" data-out="La suma del 1 al 10 es 55"><textarea class="src" hidden>total = 0
+numero = 1
+while numero &lt;= 10:
+    total += numero
+    numero += 1
+print(&quot;La suma del 1 al 10 es&quot;, total)</textarea></div><p><code>total</code> es un <strong>acumulador</strong>: empieza en 0 y en cada vuelta se le agrega algo. Es un patrón que usarás constantemente.</p><h3>Repetir hasta que el usuario acierte</h3><p><code>while</code> brilla cuando <em>no sabes cuántas veces</em> se repetirá. Prueba escribir mal la contraseña un par de veces (la correcta es <code>python123</code>):</p><div class="pyrun" data-out="Contraseña: hola
+Contraseña: abc
+Contraseña: python123
+Acceso concedido" data-in="[&quot;hola&quot;, &quot;abc&quot;, &quot;python123&quot;]"><textarea class="src" hidden>clave = &quot;&quot;
+while clave != &quot;python123&quot;:
+    clave = input(&quot;Contraseña: &quot;)
+print(&quot;Acceso concedido&quot;)</textarea></div></section>
+<section class="module" id="for"><div class="mh"><span class="mi">🔢</span><div><div class="mt">for y range()</div><div class="ms">Repetir un número exacto de veces o recorrer algo</div></div></div><p><code>for</code> significa "<strong>para cada</strong>". Recorre una serie de valores y en cada vuelta guarda el valor actual en una variable. La serie de números más común se crea con <code>range()</code>:</p><div class="pyrun" data-out="0
+1
+2
+3
+4"><textarea class="src" hidden>for i in range(5):
+    print(i)</textarea></div><p>Dos cosas importantes: empieza en <strong>0</strong> y el 5 <strong>no se incluye</strong> (da 0, 1, 2, 3, 4: cinco números). Igual que con las posiciones de un texto.</p><table><tr><th>Escribes</th><th>Genera</th><th>Se lee</th></tr><tr><td><code>range(5)</code></td><td>0, 1, 2, 3, 4</td><td>de 0 hasta antes de 5</td></tr><tr><td><code>range(1, 6)</code></td><td>1, 2, 3, 4, 5</td><td>de 1 hasta antes de 6</td></tr><tr><td><code>range(0, 10, 2)</code></td><td>0, 2, 4, 6, 8</td><td>de 2 en 2</td></tr><tr><td><code>range(5, 0, -1)</code></td><td>5, 4, 3, 2, 1</td><td>cuenta regresiva (paso negativo)</td></tr></table><div class="pyrun" data-out="1
+2
+3
+4
+5
+0
+2
+4
+6
+8
+5
+4
+3
+2
+1
+¡Despegue!"><textarea class="src" hidden>for i in range(1, 6):
+    print(i)
+
+for i in range(0, 10, 2):
+    print(i)
+
+for i in range(5, 0, -1):
+    print(i)
+print(&quot;¡Despegue!&quot;)</textarea></div><div class="analogy"><h4>☕ Analogía</h4><p><code>for</code> es como <strong>pasar lista en el salón</strong>: el maestro llama a cada alumno, uno por uno, y con cada nombre hace lo mismo ("presente"). La variable (<code>i</code>) es el nombre del alumno al que le toca en ese momento.</p></div><h3>Recorrer un texto</h3><div class="pyrun" data-out="P
+y
+t
+h
+o
+n"><textarea class="src" hidden>for letra in &quot;Python&quot;:
+    print(letra)</textarea></div><p>El <code>for</code> no solo recorre números: recorre <strong>cada elemento</strong> de lo que le des (aquí, cada letra). En la Parte 5 lo usarás con listas.</p><h3>Tabla de multiplicar</h3><div class="pyrun" data-out="7 x 1 = 7
+7 x 2 = 14
+7 x 3 = 21
+7 x 4 = 28
+7 x 5 = 35
+7 x 6 = 42
+7 x 7 = 49
+7 x 8 = 56
+7 x 9 = 63
+7 x 10 = 70"><textarea class="src" hidden>numero = 7
+for i in range(1, 11):
+    print(f&quot;{numero} x {i} = {numero * i}&quot;)</textarea></div></section>
+<section class="module" id="cual"><div class="mh"><span class="mi">⚖️</span><div><div class="mt">¿while o for?</div><div class="ms">Cómo elegir</div></div></div><table><tr><th></th><th>for</th><th>while</th></tr><tr><td><strong>Úsalo cuando...</strong></td><td>Sabes cuántas veces repetir o qué recorrer</td><td>Depende de una condición que no sabes cuándo se cumplirá</td></tr><tr><td><strong>Ejemplo</strong></td><td>Imprimir del 1 al 10; recorrer las letras</td><td>Pedir la contraseña hasta que sea correcta</td></tr><tr><td><strong>Riesgo</strong></td><td>Muy bajo (termina solo)</td><td>Bucle infinito si olvidas el cambio</td></tr><tr><td><strong>Se parece a...</strong></td><td>"Haz esto 10 veces"</td><td>"Haz esto hasta que pase aquello"</td></tr></table><div class="note"><strong>Regla práctica:</strong> si puedes contar las vueltas de antemano, usa <code>for</code>. Si la pregunta es "hasta que...", usa <code>while</code>. Casi todo lo que hace un <code>for</code> se puede hacer con <code>while</code>, pero el <code>for</code> es más corto y más seguro.</div></section>
+<section class="module" id="break"><div class="mh"><span class="mi">🚪</span><div><div class="mt">break y continue</div><div class="ms">Controlar el bucle desde adentro</div></div></div><p><code>break</code> <strong>sale del bucle</strong> inmediatamente. <code>continue</code> <strong>salta el resto de esta vuelta</strong> y pasa a la siguiente.</p><div class="pyrun" data-out="1
+2
+3
+4
+5
+Salí del bucle"><textarea class="src" hidden>for i in range(1, 11):
+    if i == 6:
+        break
+    print(i)
+print(&quot;Salí del bucle&quot;)</textarea></div><div class="analogy"><h4>☕ Analogía</h4><p><code>break</code> es el <strong>botón de salida de emergencia</strong>: en cuanto lo aprietas, te vas de la atracción sin terminar las vueltas.</p></div><div class="pyrun" data-out="1
+3
+5
+7"><textarea class="src" hidden>for i in range(1, 8):
+    if i % 2 == 0:
+        continue
+    print(i)</textarea></div><div class="analogy"><h4>☕ Analogía</h4><p><code>continue</code> es <strong>saltar una canción</strong> en la lista de reproducción: esa no suena, pero la lista sigue con la siguiente. Aquí, los pares se saltan y solo se imprimen los impares.</p></div><div class="note">Ambos casi siempre van dentro de un <code>if</code>: "si pasa tal cosa, salgo (break) o me salto esta vuelta (continue)".</div></section>
+<section class="module" id="anidados"><div class="mh"><span class="mi">🧮</span><div><div class="mt">Bucles dentro de bucles</div><div class="ms">Filas y columnas</div></div></div><p>Un bucle puede contener otro. El de <strong>afuera</strong> da una vuelta y, en cada una, el de <strong>adentro</strong> da <em>todas</em> sus vueltas:</p><div class="pyrun" data-out="1 2 3 
+2 4 6 
+3 6 9 "><textarea class="src" hidden>for fila in range(1, 4):
+    for col in range(1, 4):
+        print(fila * col, end=&quot; &quot;)
+    print()</textarea></div><p>El <code>end=" "</code> evita el salto de línea después de cada número y el <code>print()</code> vacío de la segunda sangría cierra cada fila. Resultado: una tabla de multiplicar 3×3.</p><div class="analogy"><h4>☕ Analogía</h4><p>Es el <strong>reloj</strong>: la manecilla de las horas avanza una vez por cada 60 vueltas de la de los minutos. El bucle de adentro es la manecilla rápida y el de afuera la lenta.</p></div><h3>Dibujar con texto</h3><div class="pyrun" data-out="*
+**
+***
+****
+*****"><textarea class="src" hidden>for i in range(1, 6):
+    print(&quot;*&quot; * i)</textarea></div><div class="note">Ojo con el costo: un bucle de 100 vueltas dentro de otro de 100 hace <strong>10 000</strong> vueltas en total. Se multiplican, no se suman.</div></section>
+<section class="module" id="juego"><div class="mh"><span class="mi">🎮</span><div><div class="mt">Mini juego: adivina el número</div><div class="ms">Todo junto: while, input, if, elif</div></div></div><p>El número secreto es el 7 (en tu versión podrías elegirlo al azar; eso viene más adelante). Intenta adivinarlo (prueba con <code>3</code>, <code>9</code> y <code>7</code>):</p><div class="pyrun" data-out="Adivina el número (1-10): 3
+Muy bajo
+Adivina el número (1-10): 9
+Muy alto
+Adivina el número (1-10): 7
+¡Adivinaste!" data-in="[&quot;3&quot;, &quot;9&quot;, &quot;7&quot;]"><textarea class="src" hidden>secreto = 7
+intento = 0
+while intento != secreto:
+    intento = int(input(&quot;Adivina el número (1-10): &quot;))
+    if intento &lt; secreto:
+        print(&quot;Muy bajo&quot;)
+    elif intento &gt; secreto:
+        print(&quot;Muy alto&quot;)
+print(&quot;¡Adivinaste!&quot;)</textarea></div><p>Fíjate cómo se combinan: <code>while</code> repite hasta acertar, <code>input</code> pide el dato, <code>int</code> lo convierte, e <code>if/elif</code> da la pista. <strong>Reto extra:</strong> agrega un contador de intentos y muéstralo al final.</p></section>
+<section class="module" id="errores"><div class="mh"><span class="mi">🩺</span><div><div class="mt">Errores y trampas comunes</div><div class="ms">Lo que más sale al empezar con bucles</div></div></div><table><tr><th>Problema</th><th>Causa</th><th>Arreglo</th></tr><tr><td>Bucle infinito</td><td>En el <code>while</code> nada cambia la condición</td><td>Agrega el cambio (<code>contador += 1</code>)</td></tr><tr><td>Me faltó una vuelta</td><td><code>range(5)</code> llega hasta el 4</td><td>Usa <code>range(1, 6)</code> para 1 al 5</td></tr><tr><td><code>SyntaxError: expected ':'</code></td><td>Faltan los dos puntos del for/while</td><td>Ponlos al final de la línea</td></tr><tr><td><code>IndentationError</code></td><td>Falta o sobra sangría en el bloque</td><td>4 espacios dentro del bucle</td></tr><tr><td>Todo se imprime una vez</td><td>El <code>print</code> quedó <em>fuera</em> del bucle (sin sangría)</td><td>Dale sangría para que repita</td></tr><tr><td><code>TypeError</code> en <code>range</code></td><td><code>range</code> necesita enteros</td><td>Convierte con <code>int()</code></td></tr></table><div class="pyrun" data-out="File &quot;&lt;exec&gt;&quot;, line 1
+    for i in range(5)
+                     ^
+SyntaxError: expected &#x27;:&#x27;" data-err="1"><textarea class="src" hidden>for i in range(5)
+    print(i)</textarea></div><div class="pyrun" data-out="Traceback (most recent call last):
+  File &quot;&lt;exec&gt;&quot;, line 2, in &lt;module&gt;
+    for i in range(limite):
+             ^^^^^^^^^^^^^
+TypeError: &#x27;str&#x27; object cannot be interpreted as an integer" data-err="1"><textarea class="src" hidden>limite = &quot;5&quot;
+for i in range(limite):
+    print(i)</textarea></div><p>En el segundo, <code>limite</code> es un <strong>texto</strong>. Arréglalo con <code>range(int(limite))</code>.</p></section>
+<section class="module" id="retos"><div class="mh"><span class="mi">🎯</span><div><div class="mt">Retos</div><div class="ms">Repite sin copiar y pegar</div></div></div><div class="ex pyex" data-exp="1
+2
+3
+4
+5" data-sol="for i in range(1, 6):
+    print(i)"><div class="ex-hd"><span class="ex-badge">Reto 1</span>Del 1 al 5</div><div class="ex-p">Usa un <code>for</code> para imprimir los números del 1 al 5, <strong>uno por línea</strong>.</div><textarea class="src" hidden># escribe tu for aquí
+</textarea></div><div class="ex pyex" data-exp="5
+4
+3
+2
+1
+¡Despegue!" data-sol="for i in range(5, 0, -1):
+    print(i)
+print(&quot;¡Despegue!&quot;)"><div class="ex-hd"><span class="ex-badge">Reto 2</span>Cuenta regresiva</div><div class="ex-p">Imprime del 5 al 1 (uno por línea) y al final <code>¡Despegue!</code></div><textarea class="src" hidden># cuenta regresiva
+</textarea></div><div class="ex pyex" data-exp="5050" data-sol="total = 0
+for n in range(1, 101):
+    total += n
+print(total)"><div class="ex-hd"><span class="ex-badge">Reto 3</span>Suma hasta 100</div><div class="ex-p">Calcula la suma de todos los números del 1 al 100 e imprímela. Debe salir <code>5050</code>.</div><textarea class="src" hidden>total = 0
+# recorre y acumula
+</textarea></div><div class="ex pyex" data-exp="5 x 1 = 5
+5 x 2 = 10
+5 x 3 = 15
+5 x 4 = 20
+5 x 5 = 25
+5 x 6 = 30
+5 x 7 = 35
+5 x 8 = 40
+5 x 9 = 45
+5 x 10 = 50" data-sol="numero = 5
+for i in range(1, 11):
+    print(f&quot;{numero} x {i} = {numero * i}&quot;)"><div class="ex-hd"><span class="ex-badge">Reto 4</span>Tabla del 5</div><div class="ex-p">Con <code>numero = 5</code>, imprime su tabla del 1 al 10 con el formato: <code>5 x 1 = 5</code>, <code>5 x 2 = 10</code>, ...</div><textarea class="src" hidden>numero = 5
+# imprime la tabla
+</textarea></div><div class="ex pyex" data-exp="2
+4
+6
+8
+10
+12
+14
+16
+18
+20" data-sol="for n in range(2, 21, 2):
+    print(n)"><div class="ex-hd"><span class="ex-badge">Reto 5</span>Números pares</div><div class="ex-p">Imprime los números pares del 2 al 20, uno por línea (usa el tercer parámetro de <code>range</code>).</div><textarea class="src" hidden># pares del 2 al 20
+</textarea></div><div class="ex pyex" data-exp="5" data-sol="palabra = &quot;programacion&quot;
+cuenta = 0
+for letra in palabra:
+    if letra in &quot;aeiou&quot;:
+        cuenta += 1
+print(cuenta)"><div class="ex-hd"><span class="ex-badge">Reto 6</span>Contar vocales</div><div class="ex-p">Cuenta cuántas vocales tiene <code>palabra = "programacion"</code> e imprime solo el número.</div><textarea class="src" hidden>palabra = &quot;programacion&quot;
+cuenta = 0
+# recorre las letras
+</textarea></div><div class="ex pyex" data-exp="120" data-sol="resultado = 1
+for n in range(1, 6):
+    resultado *= n
+print(resultado)"><div class="ex-hd"><span class="ex-badge">Reto 7</span>Factorial de 5</div><div class="ex-p">El factorial de 5 es 5 × 4 × 3 × 2 × 1. Calcúlalo con un bucle e imprímelo. Debe salir <code>120</code>.</div><textarea class="src" hidden>resultado = 1
+# multiplica del 1 al 5
+</textarea></div><div class="ex pyex" data-exp="*
+**
+***
+****" data-sol="for i in range(1, 5):
+    print(&quot;*&quot; * i)"><div class="ex-hd"><span class="ex-badge">Reto 8</span>Triángulo</div><div class="ex-p">Dibuja un triángulo de 4 filas: <code>*</code>, <code>**</code>, <code>***</code>, <code>****</code> (una fila por línea).</div><textarea class="src" hidden># 4 filas de asteriscos
+</textarea></div></section>
+<section class="module" id="resumen"><div class="mh"><span class="mi">📋</span><div><div class="mt">Resumen de la Parte 4</div><div class="ms">Para tener a la mano</div></div></div><table><tr><th>Concepto</th><th>Ejemplo</th><th>Qué hace</th></tr><tr><td><code>while</code></td><td><code>while x &lt; 5:</code></td><td>Repite mientras la condición sea True</td></tr><tr><td><code>for</code></td><td><code>for i in range(5):</code></td><td>Repite para cada valor de la serie</td></tr><tr><td><code>range(a, b, paso)</code></td><td><code>range(1, 11, 2)</code></td><td>1, 3, 5, 7, 9 (b no se incluye)</td></tr><tr><td><code>break</code></td><td><code>if x == 3: break</code></td><td>Sale del bucle</td></tr><tr><td><code>continue</code></td><td><code>if x == 3: continue</code></td><td>Salta a la siguiente vuelta</td></tr><tr><td>Acumulador</td><td><code>total += n</code></td><td>Va sumando en cada vuelta</td></tr><tr><td>Bucle anidado</td><td><code>for ... for ...</code></td><td>El de adentro hace todas sus vueltas por cada una del de afuera</td></tr></table><div class="note"><strong>Próxima parada · Parte 5:</strong> las <strong>colecciones</strong>. Con <strong>listas</strong>, <strong>tuplas</strong> y <strong>diccionarios</strong> guardarás muchos datos juntos (una lista de compras, los datos de una persona) y los recorrerás con el <code>for</code> que acabas de aprender.</div></section>
+</main>
+<div class="pager"><a class="prev" href="python-parte-3-cafe.html"><small>← Anterior</small><b>Parte 3 · Decisiones</b></a><a class="next" href="python-parte-5-cafe.html"><small>Siguiente →</small><b>Parte 5 · Colecciones</b></a></div>
+<footer>Café &lt;/&gt; · Python desde cero · Parte 4</footer>
+<script>
+(function(){
+const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const KW=new Set('and as break class continue def elif else except finally for from if import in is lambda not or pass return try while with True False None'.split(' '));
+const BI=new Set('print input int float str bool len range type list dict set tuple sum min max abs round sorted open'.split(' '));
+const sp=(c,t)=>'<span class="'+c+'">'+t+'<\/span>';
+function hlPy(s){
+ let o='',i=0,m;
+ const re=/(#.*)|("""[\s\S]*?"""|'''[\s\S]*?'''|[fF]?"(?:\\.|[^"\\\n])*"|[fF]?'(?:\\.|[^'\\\n])*')|(\b\d+(?:\.\d+)?\b)|([A-Za-z_]\w*)/g;
+ while((m=re.exec(s))){
+  o+=esc(s.slice(i,m.index));i=re.lastIndex;const t=m[0];
+  o+=m[1]?sp('cc',esc(t)):m[2]?sp('cs',esc(t)):m[3]?sp('cn',t):KW.has(t)?sp('ck',t):BI.has(t)?sp('ct',t):esc(t);
+ }
+ return o+esc(s.slice(i));
+}
+document.querySelectorAll('pre[data-hl=py]').forEach(p=>{p.innerHTML=hlPy(p.textContent);});
+/* ---------- Python en el navegador (Pyodide) ---------- */
+const PRE=['import builtins,sys','def _input(p=""):','    from js import prompt','    v = prompt(str(p))','    v = "" if v is None else str(v)','    print(str(p) + v)','    return v','builtins.input = _input','_n = [0]','def _tr(f, e, a):','    _n[0] += 1','    if _n[0] > 150000:','        sys.settrace(None)','        raise RuntimeError("BUCLE_INFINITO")','    return _tr','sys.settrace(_tr)'].join('\n');
+let pyP=null;
+function loadPy(){
+ if(!pyP)pyP=new Promise((res,rej)=>{
+  const s=document.createElement('script');
+  s.src='https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js';
+  s.onload=()=>loadPyodide().then(res,rej);
+  s.onerror=()=>{pyP=null;rej(new Error('offline'));};
+  document.head.appendChild(s);
+ });
+ return pyP;
+}
+function clean(m){
+ const L=m.split('\n'),i=L.findIndex(l=>l.includes('File "<exec>"'));
+ if(i<0)return m.trim();
+ const head=(m.startsWith('Traceback')&&!/SyntaxError/.test(m))?'Traceback (most recent call last):\n':'';
+ return (head+L.slice(i).join('\n')).trim();
+}
+async function exec(code){
+ let py;try{py=await loadPy();}catch(e){return{off:true};}
+ const buf=[];py.setStdout({batched:s=>buf.push(s)});py.setStderr({batched:s=>buf.push(s)});
+ const g=py.toPy({});let err=null;
+ try{py.runPython(PRE,{globals:g});await py.runPythonAsync(code,{globals:g});}
+ catch(e){const m=String(e.message||e);err=/BUCLE_INFINITO/.test(m)?'⚠️ Python detuvo tu programa: se ejecutó demasiadas veces seguidas. ¿Hay un bucle infinito? Revisa que la condición del while pueda llegar a ser False (por ejemplo, que la variable del contador sí cambie).':clean(m);}
+ try{py.runPython('import sys\nsys.settrace(None)');}catch(e){}
+ g.destroy();
+ const o=buf.length>200?buf.slice(0,50).join('\n')+'\n… (salida recortada: el programa imprimió '+buf.length+' líneas)':buf.join('\n');
+ return{out:o,err};
+}
+const HINT='<div class="hint">💡 <b>Cómo leer un error:<\/b> empieza por la <b>última línea<\/b>, que dice <i>qué<\/i> pasó. Las líneas de arriba muestran <i>dónde<\/i> (número de línea y una flecha ^).<\/div>';
+const WAIT='⏳ Ejecutando… (la primera vez Python tarda unos segundos en cargar)';
+function mkEd(code){
+ const w=document.createElement('div');w.className='ed';w.dataset.l='PYTHON';
+ const pre=document.createElement('pre'),ta=document.createElement('textarea');
+ ta.spellcheck=false;ta.value=code;ta.setAttribute('aria-label','Editor de código Python');
+ const up=()=>{pre.innerHTML=hlPy(ta.value)+'\n';};
+ ta.addEventListener('input',up);
+ ta.addEventListener('keydown',e=>{if(e.key==='Tab'){e.preventDefault();ta.setRangeText('    ',ta.selectionStart,ta.selectionEnd,'end');up();}});
+ w.append(pre,ta);up();
+ return{w,ta,set:v=>{ta.value=v;up();}};
+}
+const mk=(tag,cls,html)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e;};
+document.querySelectorAll('.pyrun').forEach(el=>{
+ const orig=el.querySelector('.src').value,fb=el.dataset.out||'';
+ const ed=mkEd(orig),bar=mk('div','bar','<button class="ver" type="button">▶ Ejecutar<\/button><button class="ver alt" type="button">↺ Restaurar<\/button>'),out=mk('pre','out');out.hidden=true;
+ el.textContent='';el.append(ed.w,bar,out);
+ const b=bar.querySelectorAll('button');
+ b[0].onclick=async()=>{
+  out.hidden=false;out.className='out';out.textContent=WAIT;
+  const r=await exec(ed.ta.value);
+  if(r.off){out.className='out off';out.textContent=ed.ta.value===orig?'📴 Sin conexión a internet. Esta es la salida esperada:\n\n'+fb:'📴 Para ejecutar código nuevo se necesita internet (Python se descarga una sola vez). Revisa tu conexión.';return;}
+  if(r.err){out.className='out bad';out.innerHTML=esc((r.out?r.out+'\n':'')+r.err)+HINT;}
+  else out.textContent=r.out||'(el programa no imprimió nada)';
+ };
+ b[1].onclick=()=>{ed.set(orig);out.hidden=true;};
+});
+const norm=s=>s.split('\n').map(l=>l.replace(/\s+$/,'')).join('\n').replace(/\n+$/,'');
+document.querySelectorAll('.pyex').forEach(el=>{
+ const st=el.querySelector('.src').value,exp=el.dataset.exp,sol=el.dataset.sol;el.querySelector('.src').remove();
+ const ed=mkEd(st),bar=mk('div','bar','<button class="ver" type="button">✔ Comprobar<\/button><button class="ver alt" type="button">💡 Ver solución<\/button><button class="ver alt" type="button">↺ Restaurar<\/button>'),out=mk('pre','out'),ms=mk('p','okline');out.hidden=true;
+ el.append(ed.w,bar,out,ms);const b=bar.querySelectorAll('button');
+ b[0].onclick=async()=>{
+  out.hidden=false;out.className='out';out.textContent=WAIT;ms.textContent='';ms.className='okline';
+  const r=await exec(ed.ta.value);
+  if(r.off){out.className='out off';out.textContent='📴 Sin conexión: no puedo comprobar tu código ahora. Compáralo con la solución o conéctate a internet.';return;}
+  if(r.err){out.className='out bad';out.innerHTML=esc((r.out?r.out+'\n':'')+r.err)+HINT;ms.className='okline bad';ms.textContent='❌ Tu código tiene un error. Revisa el mensaje de arriba.';return;}
+  out.textContent=r.out||'(el programa no imprimió nada)';
+  if(norm(r.out)===norm(exp)){ms.className='okline good';ms.textContent='✅ ¡Correcto! Tu programa imprime lo esperado.';}
+  else{ms.className='okline bad';ms.textContent='❌ Todavía no. Tu programa imprimió lo de arriba, pero se esperaba:\n'+exp;}
+ };
+ b[1].onclick=()=>{ed.set(sol);out.hidden=true;ms.className='okline';ms.textContent='Esta es una solución posible. Ejecútala con ✔ Comprobar y compárala con tu idea.';};
+ b[2].onclick=()=>{ed.set(st);out.hidden=true;ms.textContent='';};
+});
+const T=document.documentElement;
+try{T.dataset.theme=localStorage.getItem('cafe-theme')||'light';}catch(e){}
+document.getElementById('tm').onclick=()=>{const m=T.dataset.theme==='dark'?'light':'dark';T.dataset.theme=m;try{localStorage.setItem('cafe-theme',m);}catch(e){}};
+})();
+</script>
+</body>
+</html>

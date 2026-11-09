@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python desde cero · Parte 2 — Café &lt;/&gt;</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700&family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--primary:#c44a2a;--pl:#fdf0ec;--sec:#1a7a5a;--accent:#b07010;--bg:#f7f4ef;--surface:#fff;--text:#1a1814;--muted:#8a8480;--border:#e8e4de}
+:root[data-theme=dark]{--bg:#14110f;--surface:#1f1b18;--text:#f0ebe4;--muted:#a39d96;--border:#33302b;--pl:#3a1f18}
+body{font-family:'DM Sans','Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:16px}
+[hidden]{display:none!important}
+.cafe-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:200;height:45px}
+.cafe-bar a,.cafe-bar button{font:inherit;font-size:13px;color:var(--muted);text-decoration:none;padding:6px 14px;border:1px solid var(--border);border-radius:999px;background:none;cursor:pointer}
+.cafe-bar a:hover,.cafe-bar button:hover{color:var(--text);border-color:var(--muted)}
+.cafe-bar span{font-size:13px;color:var(--muted);flex:1}
+header{background:#1a1814;color:#f7f4ef;padding:3rem 2rem 2rem;text-align:center;position:relative;overflow:hidden}
+header::before{content:'>>>';position:absolute;font-size:12rem;font-weight:900;color:rgba(255,255,255,.04);right:-1rem;top:-2rem;font-family:monospace;line-height:1}
+header h1{font-size:2.5rem;letter-spacing:-1px;font-family:'Fraunces',serif}
+header p{font-size:1.1rem;opacity:.85;margin-top:.5rem}
+.badge{display:inline-block;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:4px 14px;font-size:.8rem;margin-top:.75rem}
+.topnav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:45px;z-index:100;display:flex;overflow-x:auto}
+.topnav a{flex-shrink:0;padding:.75rem 1rem;text-decoration:none;color:var(--muted);font-size:.78rem;font-weight:500;border-bottom:2px solid transparent;white-space:nowrap}
+.topnav a:hover{color:var(--primary);border-bottom-color:var(--primary)}
+main{max-width:920px;margin:0 auto;padding:2rem 1.5rem}
+.module{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;margin-bottom:2.5rem;scroll-margin-top:115px}
+@media(max-width:680px){.module{padding:1.25rem}}
+.mh{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border)}
+.mi{font-size:1.8rem}.mt{font-size:1.35rem;font-weight:700}.ms{font-size:.85rem;color:var(--muted)}
+p{margin-bottom:.8rem}h3{margin:1.4rem 0 .5rem;font-size:1.05rem}
+code{font-family:'DM Mono',monospace;background:var(--bg);color:var(--primary);padding:1px 5px;border-radius:4px;font-size:.9em}
+ol.steps{margin:.5rem 0 1rem 1.4rem}ol.steps li{margin-bottom:.4rem}
+.analogy{background:#FFF7ED;border:1px solid #FDE68A;border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0}
+.analogy h4{color:#92400E;font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem}
+.analogy p{font-size:.95rem;color:#78350F;margin:0}
+.note{background:var(--pl);border-left:4px solid var(--primary);border-radius:0 10px 10px 0;padding:.9rem 1.2rem;margin:1rem 0;font-size:.93rem}
+.code-block,.ed{background:#1a1814;color:#e8e4de;border-radius:10px;font-family:'DM Mono',monospace;font-size:.86rem;line-height:1.7;margin:.5rem 0;position:relative}
+.code-block{padding:1rem 1.3rem;overflow-x:auto;white-space:pre-wrap;overflow-wrap:anywhere}
+.code-block::before,.ed::before{content:attr(data-l);position:absolute;top:.4rem;right:.7rem;background:rgba(255,255,255,.1);color:rgba(255,255,255,.5);font-size:.65rem;padding:1px 8px;border-radius:4px;font-family:sans-serif;z-index:2;pointer-events:none}
+.ed{display:grid}
+.ed pre,.ed textarea{grid-area:1/1;margin:0;padding:1rem 1.3rem;font:inherit;line-height:inherit;letter-spacing:0;white-space:pre-wrap;overflow-wrap:anywhere;tab-size:4;border:0;background:transparent;min-width:0;width:100%}
+.ed pre{pointer-events:none}
+.ed textarea{color:transparent;-webkit-text-fill-color:transparent;caret-color:#fff;resize:none;overflow:hidden;outline:none;height:100%}
+.ed textarea::selection{background:rgba(137,180,250,.35)}
+.ed:focus-within{box-shadow:0 0 0 2px #c44a2a88}
+.ck{color:#F38BA8}.ct{color:#89B4FA}.cs{color:#A6E3A1}.cn{color:#F9E2AF}.cc{color:#6c7086;font-style:italic}.ca{color:#CBA6F7}
+.bar{display:flex;gap:.3rem;flex-wrap:wrap}
+.ver{background:var(--primary);color:#fff;border:0;border-radius:999px;padding:7px 18px;font:600 .85rem 'DM Sans',sans-serif;cursor:pointer;margin:.3rem .3rem .3rem 0}
+.ver.alt{background:#fff;color:var(--primary);border:1px solid var(--primary)}
+.out{background:#0d1117;color:#c9d1d9;border-radius:10px;padding:1rem 1.3rem;font:.84rem/1.6 'DM Mono',monospace;white-space:pre-wrap;overflow-wrap:anywhere;margin:.4rem 0}
+.out::before{content:'SALIDA';display:block;font:700 .62rem sans-serif;letter-spacing:.1em;color:#6e7681;margin-bottom:.3rem}
+.out.bad{color:#ffb4a8;border-left:4px solid #e5533d}.out.off{color:#e9d8a6}
+.hint{font:.84rem/1.5 'DM Sans',sans-serif;margin-top:.6rem;color:#e9d8a6;white-space:normal}
+.ex{background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:1.3rem;margin:1.3rem 0;color:#78350F}
+.ex-hd{display:flex;gap:.7rem;align-items:center;font-weight:700;margin-bottom:.6rem;flex-wrap:wrap}
+.ex-badge{background:var(--accent);color:#fff;font-size:.68rem;padding:2px 9px;border-radius:20px;text-transform:uppercase}
+.ex-p{margin-bottom:.6rem}.ex code{background:#fff}
+.okline{font-weight:600;font-size:.92rem;margin-top:.4rem;white-space:pre-wrap}.good{color:var(--sec)}.bad{color:var(--primary)}
+.glos{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:.9rem;margin:1rem 0}
+.gi{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.9rem 1rem;font-size:.9rem}
+.gi b{display:block;font-family:'DM Mono',monospace;color:var(--primary);margin-bottom:.2rem;font-size:.86rem}
+table{width:100%;border-collapse:collapse;font-size:.9rem;margin:1rem 0;display:block;overflow-x:auto}
+th,td{border:1px solid var(--border);padding:.5rem .7rem;text-align:left}th{background:var(--bg)}
+.pager{max-width:920px;margin:0 auto 2rem;padding:0 1.5rem;display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.pager a,.pager .soon{display:block;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1rem 1.2rem;text-decoration:none;color:var(--text)}
+.pager .soon{grid-column:2;text-align:right;opacity:.65;border-style:dashed}
+.pager small{display:block;color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.07em}
+@media(max-width:600px){.pager{grid-template-columns:1fr}.pager .soon{grid-column:1}}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.85rem;border-top:1px solid var(--border)}
+.cafe-bar{overflow-x:auto;white-space:nowrap}
+.cafe-bar a.on{background:var(--primary);color:#fff;border-color:var(--primary)}
+.pn{display:flex;gap:6px}.pn a{padding:6px 12px!important}
+@media(max-width:700px){.cafe-bar{padding:0 12px;gap:8px}.cafe-bar span{display:none}}
+.pager a:hover{border-color:var(--primary)}.pager .next{text-align:right;grid-column:2}
+@media(max-width:600px){.pager .next{grid-column:1}}
+</style>
+</head>
+<body>
+<div class="cafe-bar"><a href="python-indice-cafe.html">📚 Índice</a><div class="pn"><a href="python-parte-1-cafe.html" title="Parte 1 · Primeros pasos">1</a><a href="python-parte-2-cafe.html" title="Parte 2 · Datos y operaciones" class="on" aria-current="page">2</a><a href="python-parte-3-cafe.html" title="Parte 3 · Decisiones">3</a><a href="python-parte-4-cafe.html" title="Parte 4 · Repeticiones">4</a><a href="python-parte-5-cafe.html" title="Parte 5 · Colecciones">5</a><a href="python-parte-6-cafe.html" title="Parte 6 · Funciones">6</a><a href="python-parte-7-cafe.html" title="Parte 7 · Archivos y errores">7</a><a href="python-parte-8-cafe.html" title="Parte 8 · Objetos y proyecto final">8</a></div><span>Café &lt;/&gt; · Python</span><a href="capitulos.html">Portal</a><button type="button" id="tm">🌙 / ☀️</button></div>
+<header><h1>Python desde cero — Parte 2</h1><p>Datos y operaciones: tipos, cálculos, textos y entrada del usuario</p><span class="badge">🐍 Principiante · Parte 2 de 8</span></header>
+<div class="topnav"><a href="#tipos">Tipos</a><a href="#conversion">Conversión</a><a href="#operadores">Operadores</a><a href="#texto">Textos</a><a href="#input">input()</a><a href="#errores">Errores</a><a href="#retos">Retos</a><a href="#resumen">Resumen</a></div>
+<main>
+<section class="module" id="tipos"><div class="mh"><span class="mi">🧪</span><div><div class="mt">Tipos de datos</div><div class="ms">Cada valor tiene su tipo</div></div></div><p>En Python <strong>cada dato tiene un tipo</strong> que decide qué se puede hacer con él. Los cuatro tipos básicos:</p><table><tr><th>Tipo</th><th>Nombre</th><th>Qué guarda</th><th>Ejemplos</th></tr><tr><td><code>int</code></td><td>Entero</td><td>Números sin decimales</td><td><code>10</code>, <code>-3</code>, <code>0</code></td></tr><tr><td><code>float</code></td><td>Decimal</td><td>Números con punto decimal</td><td><code>3.14</code>, <code>-0.5</code>, <code>2.0</code></td></tr><tr><td><code>str</code></td><td>Texto (string)</td><td>Cualquier texto entre comillas</td><td><code>"Hola"</code>, <code>'a'</code>, <code>"123"</code></td></tr><tr><td><code>bool</code></td><td>Booleano</td><td>Verdadero o falso</td><td><code>True</code>, <code>False</code></td></tr></table><div class="analogy"><h4>☕ Analogía</h4><p>Los tipos son como los <strong>formatos de archivo</strong>: un <code>.jpg</code>, un <code>.mp3</code> y un <code>.pdf</code> se abren y se comportan distinto. Igual pasa con los datos: un número se puede sumar, un texto se puede poner en mayúsculas, y no es lo mismo uno que otro.</p></div><p>Para saber el tipo de algo existe <code>type()</code>. Ejecútalo:</p><div class="pyrun" data-out="&lt;class &#x27;int&#x27;&gt;
+&lt;class &#x27;float&#x27;&gt;
+&lt;class &#x27;str&#x27;&gt;
+&lt;class &#x27;bool&#x27;&gt;"><textarea class="src" hidden>entero = 10
+decimal = 3.14
+texto = &quot;Hola&quot;
+verdadero = True
+print(type(entero))
+print(type(decimal))
+print(type(texto))
+print(type(verdadero))</textarea></div><div class="note"><strong>Ojo:</strong> <code>True</code> y <code>False</code> llevan la <strong>primera letra en mayúscula</strong>. <code>true</code> o <code>TRUE</code> no existen en Python.</div><h3>¿"5" es lo mismo que 5?</h3><p>No. Con comillas es <strong>texto</strong>; sin comillas es <strong>número</strong>. Y el mismo <code>+</code> hace cosas distintas:</p><div class="pyrun" data-out="10
+55"><textarea class="src" hidden>print(5 + 5)
+print(&quot;5&quot; + &quot;5&quot;)</textarea></div><p>Con números, <code>+</code> <strong>suma</strong> (10). Con textos, <code>+</code> <strong>pega</strong> uno detrás de otro (55). Por eso importa tanto el tipo.</p><h3>Los booleanos vienen de preguntas</h3><div class="pyrun" data-out="True
+False
+True"><textarea class="src" hidden>print(5 &gt; 3)
+print(5 == 3)
+print(10 != 4)</textarea></div><p>Una comparación es una pregunta y su respuesta es <code>True</code> o <code>False</code>. Ojo con <code>==</code>: <strong>dos</strong> signos igual <em>preguntan</em> "¿son iguales?", mientras que uno solo <em>guarda</em> un valor. Los booleanos serán la base de la Parte 3, donde tu programa tomará decisiones.</p></section>
+<section class="module" id="conversion"><div class="mh"><span class="mi">🔄</span><div><div class="mt">Convertir entre tipos</div><div class="ms">int(), float() y str()</div></div></div><p>A veces necesitas cambiar un dato de un tipo a otro. Para eso están tres funciones con el nombre del tipo:</p><div class="pyrun" data-out="30
+25 años
+7.0
+7
+3.0
+8"><textarea class="src" hidden>print(int(&quot;25&quot;) + 5)
+print(str(25) + &quot; años&quot;)
+print(float(&quot;3.5&quot;) * 2)
+print(int(7.9))
+print(float(3))
+print(round(7.9))</textarea></div><ul style="margin:0 0 1rem 1.4rem"><li><code>int("25")</code> convierte el texto <code>"25"</code> en el número 25 (por eso se le pudo sumar 5).</li><li><code>str(25)</code> convierte el número en texto para poder pegarlo con otro texto.</li><li><code>float("3.5")</code> da un decimal. <code>float(3)</code> da <code>3.0</code>.</li><li><code>int(7.9)</code> da <strong>7</strong>: <code>int</code> <em>corta</em> los decimales, no redondea. Para redondear usa <code>round(7.9)</code>, que da 8.</li></ul><div class="analogy"><h4>☕ Analogía</h4><p>Convertir es como <strong>cambiar de moneda</strong>: el valor "es el mismo", pero antes de pagar en otro país tienes que pasarlo a la moneda que ahí aceptan. <code>int()</code>, <code>float()</code> y <code>str()</code> son las casas de cambio.</p></div><p>Y si el texto no se puede convertir, Python protesta con un <code>ValueError</code>. Ejecuta para verlo:</p><div class="pyrun" data-out="Traceback (most recent call last):
+  File &quot;&lt;exec&gt;&quot;, line 1, in &lt;module&gt;
+    numero = int(&quot;hola&quot;)
+             ^^^^^^^^^^^
+ValueError: invalid literal for int() with base 10: &#x27;hola&#x27;" data-err="1"><textarea class="src" hidden>numero = int(&quot;hola&quot;)
+print(numero)</textarea></div></section>
+<section class="module" id="operadores"><div class="mh"><span class="mi">🧮</span><div><div class="mt">Operadores matemáticos</div><div class="ms">Python es una calculadora muy potente</div></div></div><table><tr><th>Operador</th><th>Operación</th><th>Ejemplo</th><th>Resultado</th></tr><tr><td><code>+</code></td><td>Suma</td><td><code>7 + 3</code></td><td>10</td></tr><tr><td><code>-</code></td><td>Resta</td><td><code>7 - 3</code></td><td>4</td></tr><tr><td><code>*</code></td><td>Multiplicación</td><td><code>7 * 3</code></td><td>21</td></tr><tr><td><code>/</code></td><td>División (siempre da decimal)</td><td><code>7 / 2</code></td><td>3.5</td></tr><tr><td><code>//</code></td><td>División entera (sin decimales)</td><td><code>7 // 2</code></td><td>3</td></tr><tr><td><code>%</code></td><td>Residuo (lo que sobra)</td><td><code>7 % 2</code></td><td>1</td></tr><tr><td><code>**</code></td><td>Potencia</td><td><code>2 ** 3</code></td><td>8</td></tr></table><div class="pyrun" data-out="10
+4
+21
+3.5
+3
+1
+8"><textarea class="src" hidden>print(7 + 3)
+print(7 - 3)
+print(7 * 3)
+print(7 / 2)
+print(7 // 2)
+print(7 % 2)
+print(2 ** 3)</textarea></div><div class="analogy"><h4>☕ Analogía</h4><p>Imagina que repartes <strong>7 galletas entre 2 niños</strong>. Con <code>//</code> averiguas cuántas le tocan a cada uno (3). Con <code>%</code> averiguas cuántas <em>sobran</em> (1). La división normal <code>/</code> sería partir también la galleta sobrante (3.5).</p></div><div class="note"><strong>Truco con <code>%</code>:</strong> si <code>numero % 2</code> da 0, el número es <strong>par</strong>; si da 1, es impar. Lo usarás muchísimo. Pruébalo con <code>8 % 2</code> y con <code>9 % 2</code>.</div><h3>El orden de las operaciones</h3><p>Python respeta la jerarquía de las matemáticas: primero potencias, luego multiplicar/dividir y al final sumar/restar. Los <strong>paréntesis</strong> mandan sobre todo:</p><div class="pyrun" data-out="14
+20
+16"><textarea class="src" hidden>print(2 + 3 * 4)
+print((2 + 3) * 4)
+print(2 ** 3 * 2)</textarea></div><h3>Usarlos con variables</h3><div class="pyrun" data-out="El área es 40
+El perímetro es 26"><textarea class="src" hidden>base = 8
+altura = 5
+area = base * altura
+print(&quot;El área es&quot;, area)
+print(f&quot;El perímetro es {2 * (base + altura)}&quot;)</textarea></div><h3>Atajos para actualizar una variable</h3><div class="pyrun" data-out="15
+12
+24"><textarea class="src" hidden>puntos = 10
+puntos += 5     # igual a: puntos = puntos + 5
+print(puntos)
+puntos -= 3
+print(puntos)
+puntos *= 2
+print(puntos)</textarea></div><h3>Una rareza con decimales</h3><div class="pyrun" data-out="0.30000000000000004
+0.3"><textarea class="src" hidden>print(0.1 + 0.2)
+print(round(0.1 + 0.2, 2))</textarea></div><p>Sí, <code>0.1 + 0.2</code> no da exactamente 0.3. No es un error de Python: la computadora guarda los decimales en binario y algunos no caben de forma exacta (como 1/3 en decimal). Con <code>round(número, cantidad_de_decimales)</code> lo acomodas.</p></section>
+<section class="module" id="texto"><div class="mh"><span class="mi">🔤</span><div><div class="mt">Trabajar con textos</div><div class="ms">Strings: unir, medir, cambiar y rellenar</div></div></div><h3>Unir y repetir</h3><div class="pyrun" data-out="Hola Ana
+jajaja"><textarea class="src" hidden>saludo = &quot;Hola&quot;
+nombre = &quot;Ana&quot;
+print(saludo + &quot; &quot; + nombre)
+print(&quot;ja&quot; * 3)</textarea></div><p><code>+</code> <strong>concatena</strong> (pega) y <code>*</code> <strong>repite</strong>. Ojo: tú tienes que añadir el espacio entre palabras (<code>" "</code>).</p><h3>Medir y transformar</h3><div class="pyrun" data-out="9
+ANA LÓPEZ
+Ana López
+María lópez"><textarea class="src" hidden>nombre = &quot;ana lópez&quot;
+print(len(nombre))
+print(nombre.upper())
+print(nombre.title())
+print(nombre.replace(&quot;ana&quot;, &quot;María&quot;))</textarea></div><ul style="margin:0 0 1rem 1.4rem"><li><code>len()</code>: cuántos caracteres tiene (incluye espacios).</li><li><code>.upper()</code> / <code>.lower()</code>: a mayúsculas / minúsculas.</li><li><code>.title()</code>: Primera Letra De Cada Palabra En Mayúscula.</li><li><code>.replace(viejo, nuevo)</code>: reemplaza una parte del texto.</li></ul><div class="note">Los <strong>métodos</strong> como <code>.upper()</code> se escriben con un <strong>punto</strong> después del dato. Lo verás mucho: es la forma de pedirle "acciones" a un texto (y, más adelante, a listas y más).</div><h3>Posiciones dentro del texto</h3><table><tr><th>P</th><th>y</th><th>t</th><th>h</th><th>o</th><th>n</th></tr><tr><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td></tr><tr><td>-6</td><td>-5</td><td>-4</td><td>-3</td><td>-2</td><td>-1</td></tr></table><div class="pyrun" data-out="P
+y
+n
+Pyt"><textarea class="src" hidden>palabra = &quot;Python&quot;
+print(palabra[0])
+print(palabra[1])
+print(palabra[-1])
+print(palabra[0:3])</textarea></div><div class="analogy"><h4>☕ Analogía</h4><p>Las letras son <strong>asientos de un cine</strong> numerados, pero el primer asiento es el <strong>0</strong>, no el 1. Con un negativo cuentas desde el final: <code>[-1]</code> es el último asiento. Y <code>[0:3]</code> pide los asientos del 0 hasta antes del 3 (el final no se incluye).</p></div><h3>f-strings: plantillas con huecos</h3><p>Poner una <code>f</code> antes de las comillas te permite meter variables y cálculos dentro del texto con <code>{ }</code>. Es la forma más cómoda de armar mensajes:</p><div class="pyrun" data-out="Me llamo Ana y tengo 20 años
+El año que viene tendré 21
+ANA tiene 3 letras"><textarea class="src" hidden>nombre = &quot;Ana&quot;
+edad = 20
+print(f&quot;Me llamo {nombre} y tengo {edad} años&quot;)
+print(f&quot;El año que viene tendré {edad + 1}&quot;)
+print(f&quot;{nombre.upper()} tiene {len(nombre)} letras&quot;)</textarea></div><div class="analogy"><h4>☕ Analogía</h4><p>Es como una <strong>carta con huecos</strong> ("Estimado ____:") que se rellenan automáticamente para cada persona. Lo de afuera es fijo y lo de las llaves cambia según tus variables.</p></div><p>Para controlar los decimales en dinero usa <code>:.2f</code> (dos decimales):</p><div class="pyrun" data-out="Precio: $49.50"><textarea class="src" hidden>precio = 49.5
+print(f&quot;Precio: ${precio:.2f}&quot;)</textarea></div><h3>Comillas dentro de comillas</h3><div class="pyrun" data-out="It&#x27;s easy
+Dijo: &quot;hola&quot;
+Texto en
+varias líneas"><textarea class="src" hidden>print(&quot;It&#x27;s easy&quot;)
+print(&#x27;Dijo: &quot;hola&quot;&#x27;)
+print(&quot;&quot;&quot;Texto en
+varias líneas&quot;&quot;&quot;)</textarea></div><p>Si el texto lleva comillas simples, enciérralo con dobles (y al revés). Las <strong>triples comillas</strong> permiten escribir texto en varias líneas.</p></section>
+<section class="module" id="input"><div class="mh"><span class="mi">⌨️</span><div><div class="mt">Pedir datos con input()</div><div class="ms">Que el usuario también participe</div></div></div><p><code>input()</code> <strong>pausa el programa, muestra una pregunta y espera a que el usuario escriba algo</strong>. Lo que escribe se guarda en una variable. En esta guía te aparecerá una ventanita para escribir.</p><div class="pyrun" data-out="¿Cómo te llamas? Ana
+Mucho gusto, Ana" data-in="[&quot;Ana&quot;]"><textarea class="src" hidden>nombre = input(&quot;¿Cómo te llamas? &quot;)
+print(&quot;Mucho gusto,&quot;, nombre)</textarea></div><div class="analogy"><h4>☕ Analogía</h4><p><code>input()</code> es como llenar un <strong>formulario en papel</strong>: el programa te hace una pregunta y tú escribes la respuesta a mano. Y como todo lo escrito a mano, <strong>siempre llega como texto</strong>, aunque escribas un número.</p></div><h3>El error más común con input()</h3><p>Si pides dos números y los sumas directamente, mira qué pasa (te pedirá <code>3</code> y <code>4</code>):</p><div class="pyrun" data-out="Primer número: 3
+Segundo número: 4
+34" data-in="[&quot;3&quot;, &quot;4&quot;]"><textarea class="src" hidden>a = input(&quot;Primer número: &quot;)
+b = input(&quot;Segundo número: &quot;)
+print(a + b)</textarea></div><p>¡Dio <strong>34</strong>! Como llegaron como texto, <code>+</code> los <em>pegó</em>. La solución: convertirlos con <code>int()</code> (o <code>float()</code> si pueden tener decimales).</p><div class="pyrun" data-out="Primer número: 3
+Segundo número: 4
+La suma es 7" data-in="[&quot;3&quot;, &quot;4&quot;]"><textarea class="src" hidden>a = int(input(&quot;Primer número: &quot;))
+b = int(input(&quot;Segundo número: &quot;))
+print(&quot;La suma es&quot;, a + b)</textarea></div><p>Se lee de adentro hacia afuera: primero <code>input(...)</code> pide el dato (texto) y luego <code>int(...)</code> lo convierte en número.</p><h3>Un mini programa completo</h3><div class="pyrun" data-out="Tu nombre: Luis
+Tu edad: 30
+Hola Luis, el año que viene tendrás 31 años" data-in="[&quot;Luis&quot;, &quot;30&quot;]"><textarea class="src" hidden>nombre = input(&quot;Tu nombre: &quot;)
+edad = int(input(&quot;Tu edad: &quot;))
+print(f&quot;Hola {nombre}, el año que viene tendrás {edad + 1} años&quot;)</textarea></div><div class="note"><strong>Prueba:</strong> escribe una letra donde se espera un número (por ejemplo <code>abc</code> en la edad). Verás un <code>ValueError</code>. En la Parte 7 aprenderás a manejarlo sin que el programa se caiga.</div></section>
+<section class="module" id="errores"><div class="mh"><span class="mi">🩺</span><div><div class="mt">Errores comunes</div><div class="ms">Aprende a leerlos y a arreglarlos</div></div></div><p>Los errores no son fracasos: son Python diciéndote <strong>exactamente</strong> qué no entendió. Estos son los que verás más al empezar:</p><table><tr><th>Error</th><th>Significa</th><th>Causa típica</th></tr><tr><td><code>SyntaxError</code></td><td>Error de escritura</td><td>Falta una comilla, un paréntesis o un <code>:</code></td></tr><tr><td><code>NameError</code></td><td>Ese nombre no existe</td><td>Variable mal escrita o usada antes de crearla</td></tr><tr><td><code>TypeError</code></td><td>Tipo incorrecto</td><td>Mezclar texto con número: <code>"Hola" + 5</code></td></tr><tr><td><code>ValueError</code></td><td>Valor inválido</td><td><code>int("hola")</code></td></tr><tr><td><code>ZeroDivisionError</code></td><td>División entre cero</td><td><code>10 / 0</code></td></tr></table><p>Ejecuta cada uno, lee el mensaje y <strong>arréglalo</strong>:</p><div class="pyrun" data-out="Traceback (most recent call last):
+  File &quot;&lt;exec&gt;&quot;, line 2, in &lt;module&gt;
+    print(&quot;Tengo &quot; + edad + &quot; años&quot;)
+          ~~~~~~~~~^~~~~~
+TypeError: can only concatenate str (not &quot;int&quot;) to str" data-err="1"><textarea class="src" hidden>edad = 20
+print(&quot;Tengo &quot; + edad + &quot; años&quot;)</textarea></div><p>Arreglo: convierte con <code>str(edad)</code> o, mejor, usa una f-string: <code>print(f"Tengo {edad} años")</code>.</p><div class="pyrun" data-out="Traceback (most recent call last):
+  File &quot;&lt;exec&gt;&quot;, line 2, in &lt;module&gt;
+    print(nombr)
+          ^^^^^
+NameError: name &#x27;nombr&#x27; is not defined. Did you mean: &#x27;nombre&#x27;?" data-err="1"><textarea class="src" hidden>nombre = &quot;Ana&quot;
+print(nombr)</textarea></div><div class="pyrun" data-out="Traceback (most recent call last):
+  File &quot;&lt;exec&gt;&quot;, line 1, in &lt;module&gt;
+    print(10 / 0)
+          ~~~^~~
+ZeroDivisionError: division by zero" data-err="1"><textarea class="src" hidden>print(10 / 0)</textarea></div><div class="note"><strong>Método de 3 pasos:</strong> 1) lee la <strong>última línea</strong> del error, 2) mira el <strong>número de línea</strong> que indica, 3) revisa esa línea (y la anterior) con calma. Casi siempre es una letra, una comilla o un tipo.</div></section>
+<section class="module" id="retos"><div class="mh"><span class="mi">🎯</span><div><div class="mt">Retos</div><div class="ms">Aplica todo lo de la Parte 2</div></div></div><div class="ex pyex" data-exp="40" data-sol="base = 8
+altura = 5
+print(base * altura)"><div class="ex-hd"><span class="ex-badge">Reto 1</span>Área del rectángulo</div><div class="ex-p">Las variables <code>base</code> y <code>altura</code> ya existen. Calcula el área y muéstrala: debe salir <code>40</code>.</div><textarea class="src" hidden>base = 8
+altura = 5
+# calcula e imprime el área
+</textarea></div><div class="ex pyex" data-exp="10" data-sol="a = &quot;7&quot;
+b = &quot;3&quot;
+print(int(a) + int(b))"><div class="ex-hd"><span class="ex-badge">Reto 2</span>Texto a número</div><div class="ex-p"><code>a</code> y <code>b</code> son <strong>textos</strong>. Imprime su <strong>suma como números</strong>: debe salir <code>10</code> (no 73).</div><textarea class="src" hidden>a = &quot;7&quot;
+b = &quot;3&quot;
+# imprime la suma numérica
+</textarea></div><div class="ex pyex" data-exp="3
+2" data-sol="galletas = 17
+ninos = 5
+print(galletas // ninos)
+print(galletas % ninos)"><div class="ex-hd"><span class="ex-badge">Reto 3</span>Repartir galletas</div><div class="ex-p">Hay 17 galletas para 5 niños. Imprime en <strong>dos líneas</strong>: cuántas le tocan a cada uno (<code>3</code>) y cuántas sobran (<code>2</code>).</div><textarea class="src" hidden>galletas = 17
+ninos = 5
+# usa // y %
+</textarea></div><div class="ex pyex" data-exp="Luis tiene 30 años" data-sol="nombre = &quot;Luis&quot;
+edad = 30
+print(f&quot;{nombre} tiene {edad} años&quot;)"><div class="ex-hd"><span class="ex-badge">Reto 4</span>Mensaje con f-string</div><div class="ex-p">Con las variables dadas, imprime exactamente: <code>Luis tiene 30 años</code> usando una f-string.</div><textarea class="src" hidden>nombre = &quot;Luis&quot;
+edad = 30
+# print(f&quot;...&quot;)
+</textarea></div><div class="ex pyex" data-exp="Total: 232.0" data-sol="precio = 200
+total = precio + precio * 0.16
+print(f&quot;Total: {total}&quot;)"><div class="ex-hd"><span class="ex-badge">Reto 5</span>Total con IVA</div><div class="ex-p">El precio es 200 y el IVA es 16%. Calcula <code>total</code> (precio más el IVA) e imprime: <code>Total: 232.0</code></div><textarea class="src" hidden>precio = 200
+# calcula total
+# print(f&quot;Total: {total}&quot;)
+</textarea></div><div class="ex pyex" data-exp="9.0" data-sol="c1 = 8
+c2 = 9
+c3 = 10
+print((c1 + c2 + c3) / 3)"><div class="ex-hd"><span class="ex-badge">Reto 6</span>Promedio</div><div class="ex-p">Calcula el promedio de las tres calificaciones y muéstralo: debe salir <code>9.0</code></div><textarea class="src" hidden>c1 = 8
+c2 = 9
+c3 = 10
+# calcula e imprime el promedio
+</textarea></div><div class="ex pyex" data-exp="PYTHON tiene 6 letras" data-sol="palabra = &quot;python&quot;
+print(f&quot;{palabra.upper()} tiene {len(palabra)} letras&quot;)"><div class="ex-hd"><span class="ex-badge">Reto 7</span>Texto transformado</div><div class="ex-p">Con <code>palabra = "python"</code>, imprime: <code>PYTHON tiene 6 letras</code> (usa <code>.upper()</code> y <code>len()</code>).</div><textarea class="src" hidden>palabra = &quot;python&quot;
+# imprime el mensaje
+</textarea></div></section>
+<section class="module" id="resumen"><div class="mh"><span class="mi">📋</span><div><div class="mt">Resumen de la Parte 2</div><div class="ms">Para tener a la mano</div></div></div><table><tr><th>Concepto</th><th>Ejemplo</th><th>Qué hace</th></tr><tr><td>Tipos</td><td><code>int float str bool</code></td><td>Entero, decimal, texto, verdadero/falso</td></tr><tr><td><code>type()</code></td><td><code>type(5)</code></td><td>Dice el tipo de un dato</td></tr><tr><td>Conversión</td><td><code>int("5")</code> <code>str(5)</code> <code>float("2.5")</code></td><td>Cambia de tipo</td></tr><tr><td>Matemáticas</td><td><code>+ - * / // % **</code></td><td>Suma, resta, multiplica, divide, entera, residuo, potencia</td></tr><tr><td>Redondear</td><td><code>round(3.14159, 2)</code></td><td>3.14</td></tr><tr><td>Texto</td><td><code>len() .upper() .lower() .title() .replace()</code></td><td>Medir y transformar</td></tr><tr><td>Posiciones</td><td><code>palabra[0]</code> <code>palabra[-1]</code> <code>palabra[0:3]</code></td><td>Letra concreta o trozo</td></tr><tr><td>f-string</td><td><code>f"Hola {nombre}"</code></td><td>Texto con variables adentro</td></tr><tr><td><code>input()</code></td><td><code>int(input("Edad: "))</code></td><td>Pide un dato (llega como texto)</td></tr></table><div class="note"><strong>Próxima parada · Parte 3:</strong> las <strong>decisiones</strong>. Con <code>if</code>, <code>elif</code> y <code>else</code> tu programa podrá elegir qué hacer según lo que pase (por ejemplo: "si la calificación es mayor o igual a 6, aprobado").</div></section>
+</main>
+<div class="pager"><a class="prev" href="python-parte-1-cafe.html"><small>← Anterior</small><b>Parte 1 · Primeros pasos</b></a><a class="next" href="python-parte-3-cafe.html"><small>Siguiente →</small><b>Parte 3 · Decisiones</b></a></div>
+<footer>Café &lt;/&gt; · Python desde cero · Parte 2</footer>
+<script>
+(function(){
+const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const KW=new Set('and as break class continue def elif else except finally for from if import in is lambda not or pass return try while with True False None'.split(' '));
+const BI=new Set('print input int float str bool len range type list dict set tuple sum min max abs round sorted open'.split(' '));
+const sp=(c,t)=>'<span class="'+c+'">'+t+'<\/span>';
+function hlPy(s){
+ let o='',i=0,m;
+ const re=/(#.*)|("""[\s\S]*?"""|'''[\s\S]*?'''|[fF]?"(?:\\.|[^"\\\n])*"|[fF]?'(?:\\.|[^'\\\n])*')|(\b\d+(?:\.\d+)?\b)|([A-Za-z_]\w*)/g;
+ while((m=re.exec(s))){
+  o+=esc(s.slice(i,m.index));i=re.lastIndex;const t=m[0];
+  o+=m[1]?sp('cc',esc(t)):m[2]?sp('cs',esc(t)):m[3]?sp('cn',t):KW.has(t)?sp('ck',t):BI.has(t)?sp('ct',t):esc(t);
+ }
+ return o+esc(s.slice(i));
+}
+document.querySelectorAll('pre[data-hl=py]').forEach(p=>{p.innerHTML=hlPy(p.textContent);});
+/* ---------- Python en el navegador (Pyodide) ---------- */
+const PRE=['import builtins,sys','def _input(p=""):','    from js import prompt','    v = prompt(str(p))','    v = "" if v is None else str(v)','    print(str(p) + v)','    return v','builtins.input = _input','_n = [0]','def _tr(f, e, a):','    _n[0] += 1','    if _n[0] > 150000:','        sys.settrace(None)','        raise RuntimeError("BUCLE_INFINITO")','    return _tr','sys.settrace(_tr)'].join('\n');
+let pyP=null;
+function loadPy(){
+ if(!pyP)pyP=new Promise((res,rej)=>{
+  const s=document.createElement('script');
+  s.src='https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js';
+  s.onload=()=>loadPyodide().then(res,rej);
+  s.onerror=()=>{pyP=null;rej(new Error('offline'));};
+  document.head.appendChild(s);
+ });
+ return pyP;
+}
+function clean(m){
+ const L=m.split('\n'),i=L.findIndex(l=>l.includes('File "<exec>"'));
+ if(i<0)return m.trim();
+ const head=(m.startsWith('Traceback')&&!/SyntaxError/.test(m))?'Traceback (most recent call last):\n':'';
+ return (head+L.slice(i).join('\n')).trim();
+}
+async function exec(code){
+ let py;try{py=await loadPy();}catch(e){return{off:true};}
+ const buf=[];py.setStdout({batched:s=>buf.push(s)});py.setStderr({batched:s=>buf.push(s)});
+ const g=py.toPy({});let err=null;
+ try{py.runPython(PRE,{globals:g});await py.runPythonAsync(code,{globals:g});}
+ catch(e){const m=String(e.message||e);err=/BUCLE_INFINITO/.test(m)?'⚠️ Python detuvo tu programa: se ejecutó demasiadas veces seguidas. ¿Hay un bucle infinito? Revisa que la condición del while pueda llegar a ser False (por ejemplo, que la variable del contador sí cambie).':clean(m);}
+ try{py.runPython('import sys\nsys.settrace(None)');}catch(e){}
+ g.destroy();
+ const o=buf.length>200?buf.slice(0,50).join('\n')+'\n… (salida recortada: el programa imprimió '+buf.length+' líneas)':buf.join('\n');
+ return{out:o,err};
+}
+const HINT='<div class="hint">💡 <b>Cómo leer un error:<\/b> empieza por la <b>última línea<\/b>, que dice <i>qué<\/i> pasó. Las líneas de arriba muestran <i>dónde<\/i> (número de línea y una flecha ^).<\/div>';
+const WAIT='⏳ Ejecutando… (la primera vez Python tarda unos segundos en cargar)';
+function mkEd(code){
+ const w=document.createElement('div');w.className='ed';w.dataset.l='PYTHON';
+ const pre=document.createElement('pre'),ta=document.createElement('textarea');
+ ta.spellcheck=false;ta.value=code;ta.setAttribute('aria-label','Editor de código Python');
+ const up=()=>{pre.innerHTML=hlPy(ta.value)+'\n';};
+ ta.addEventListener('input',up);
+ ta.addEventListener('keydown',e=>{if(e.key==='Tab'){e.preventDefault();ta.setRangeText('    ',ta.selectionStart,ta.selectionEnd,'end');up();}});
+ w.append(pre,ta);up();
+ return{w,ta,set:v=>{ta.value=v;up();}};
+}
+const mk=(tag,cls,html)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e;};
+document.querySelectorAll('.pyrun').forEach(el=>{
+ const orig=el.querySelector('.src').value,fb=el.dataset.out||'';
+ const ed=mkEd(orig),bar=mk('div','bar','<button class="ver" type="button">▶ Ejecutar<\/button><button class="ver alt" type="button">↺ Restaurar<\/button>'),out=mk('pre','out');out.hidden=true;
+ el.textContent='';el.append(ed.w,bar,out);
+ const b=bar.querySelectorAll('button');
+ b[0].onclick=async()=>{
+  out.hidden=false;out.className='out';out.textContent=WAIT;
+  const r=await exec(ed.ta.value);
+  if(r.off){out.className='out off';out.textContent=ed.ta.value===orig?'📴 Sin conexión a internet. Esta es la salida esperada:\n\n'+fb:'📴 Para ejecutar código nuevo se necesita internet (Python se descarga una sola vez). Revisa tu conexión.';return;}
+  if(r.err){out.className='out bad';out.innerHTML=esc((r.out?r.out+'\n':'')+r.err)+HINT;}
+  else out.textContent=r.out||'(el programa no imprimió nada)';
+ };
+ b[1].onclick=()=>{ed.set(orig);out.hidden=true;};
+});
+const norm=s=>s.split('\n').map(l=>l.replace(/\s+$/,'')).join('\n').replace(/\n+$/,'');
+document.querySelectorAll('.pyex').forEach(el=>{
+ const st=el.querySelector('.src').value,exp=el.dataset.exp,sol=el.dataset.sol;el.querySelector('.src').remove();
+ const ed=mkEd(st),bar=mk('div','bar','<button class="ver" type="button">✔ Comprobar<\/button><button class="ver alt" type="button">💡 Ver solución<\/button><button class="ver alt" type="button">↺ Restaurar<\/button>'),out=mk('pre','out'),ms=mk('p','okline');out.hidden=true;
+ el.append(ed.w,bar,out,ms);const b=bar.querySelectorAll('button');
+ b[0].onclick=async()=>{
+  out.hidden=false;out.className='out';out.textContent=WAIT;ms.textContent='';ms.className='okline';
+  const r=await exec(ed.ta.value);
+  if(r.off){out.className='out off';out.textContent='📴 Sin conexión: no puedo comprobar tu código ahora. Compáralo con la solución o conéctate a internet.';return;}
+  if(r.err){out.className='out bad';out.innerHTML=esc((r.out?r.out+'\n':'')+r.err)+HINT;ms.className='okline bad';ms.textContent='❌ Tu código tiene un error. Revisa el mensaje de arriba.';return;}
+  out.textContent=r.out||'(el programa no imprimió nada)';
+  if(norm(r.out)===norm(exp)){ms.className='okline good';ms.textContent='✅ ¡Correcto! Tu programa imprime lo esperado.';}
+  else{ms.className='okline bad';ms.textContent='❌ Todavía no. Tu programa imprimió lo de arriba, pero se esperaba:\n'+exp;}
+ };
+ b[1].onclick=()=>{ed.set(sol);out.hidden=true;ms.className='okline';ms.textContent='Esta es una solución posible. Ejecútala con ✔ Comprobar y compárala con tu idea.';};
+ b[2].onclick=()=>{ed.set(st);out.hidden=true;ms.textContent='';};
+});
+const T=document.documentElement;
+try{T.dataset.theme=localStorage.getItem('cafe-theme')||'light';}catch(e){}
+document.getElementById('tm').onclick=()=>{const m=T.dataset.theme==='dark'?'light':'dark';T.dataset.theme=m;try{localStorage.setItem('cafe-theme',m);}catch(e){}};
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python desde cero · Parte 7 — Café &lt;/&gt;</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700&family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--primary:#c44a2a;--pl:#fdf0ec;--sec:#1a7a5a;--accent:#b07010;--bg:#f7f4ef;--surface:#fff;--text:#1a1814;--muted:#8a8480;--border:#e8e4de}
+:root[data-theme=dark]{--bg:#14110f;--surface:#1f1b18;--text:#f0ebe4;--muted:#a39d96;--border:#33302b;--pl:#3a1f18}
+body{font-family:'DM Sans','Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:16px}
+[hidden]{display:none!important}
+.cafe-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:200;height:45px}
+.cafe-bar a,.cafe-bar button{font:inherit;font-size:13px;color:var(--muted);text-decoration:none;padding:6px 14px;border:1px solid var(--border);border-radius:999px;background:none;cursor:pointer}
+.cafe-bar a:hover,.cafe-bar button:hover{color:var(--text);border-color:var(--muted)}
+.cafe-bar span{font-size:13px;color:var(--muted);flex:1}
+header{background:#1a1814;color:#f7f4ef;padding:3rem 2rem 2rem;text-align:center;position:relative;overflow:hidden}
+header::before{content:'>>>';position:absolute;font-size:12rem;font-weight:900;color:rgba(255,255,255,.04);right:-1rem;top:-2rem;font-family:monospace;line-height:1}
+header h1{font-size:2.5rem;letter-spacing:-1px;font-family:'Fraunces',serif}
+header p{font-size:1.1rem;opacity:.85;margin-top:.5rem}
+.badge{display:inline-block;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:4px 14px;font-size:.8rem;margin-top:.75rem}
+.topnav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:45px;z-index:100;display:flex;overflow-x:auto}
+.topnav a{flex-shrink:0;padding:.75rem 1rem;text-decoration:none;color:var(--muted);font-size:.78rem;font-weight:500;border-bottom:2px solid transparent;white-space:nowrap}
+.topnav a:hover{color:var(--primary);border-bottom-color:var(--primary)}
+main{max-width:920px;margin:0 auto;padding:2rem 1.5rem}
+.module{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;margin-bottom:2.5rem;scroll-margin-top:115px}
+@media(max-width:680px){.module{padding:1.25rem}}
+.mh{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border)}
+.mi{font-size:1.8rem}.mt{font-size:1.35rem;font-weight:700}.ms{font-size:.85rem;color:var(--muted)}
+p{margin-bottom:.8rem}h3{margin:1.4rem 0 .5rem;font-size:1.05rem}
+code{font-family:'DM Mono',monospace;background:var(--bg);color:var(--primary);padding:1px 5px;border-radius:4px;font-size:.9em}
+ol.steps{margin:.5rem 0 1rem 1.4rem}ol.steps li{margin-bottom:.4rem}
+.analogy{background:#FFF7ED;border:1px solid #FDE68A;border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0}
+.analogy h4{color:#92400E;font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem}
+.analogy p{font-size:.95rem;color:#78350F;margin:0}
+.note{background:var(--pl);border-left:4px solid var(--primary);border-radius:0 10px 10px 0;padding:.9rem 1.2rem;margin:1rem 0;font-size:.93rem}
+.code-block,.ed{background:#1a1814;color:#e8e4de;border-radius:10px;font-family:'DM Mono',monospace;font-size:.86rem;line-height:1.7;margin:.5rem 0;position:relative}
+.code-block{padding:1rem 1.3rem;overflow-x:auto;white-space:pre-wrap;overflow-wrap:anywhere}
+.code-block::before,.ed::before{content:attr(data-l);position:absolute;top:.4rem;right:.7rem;background:rgba(255,255,255,.1);color:rgba(255,255,255,.5);font-size:.65rem;padding:1px 8px;border-radius:4px;font-family:sans-serif;z-index:2;pointer-events:none}
+.ed{display:grid}
+.ed pre,.ed textarea{grid-area:1/1;margin:0;padding:1rem 1.3rem;font:inherit;line-height:inherit;letter-spacing:0;white-space:pre-wrap;overflow-wrap:anywhere;tab-size:4;border:0;background:transparent;min-width:0;width:100%}
+.ed pre{pointer-events:none}
+.ed textarea{color:transparent;-webkit-text-fill-color:transparent;caret-color:#fff;resize:none;overflow:hidden;outline:none;height:100%}
+.ed textarea::selection{background:rgba(137,180,250,.35)}
+.ed:focus-within{box-shadow:0 0 0 2px #c44a2a88}
+.ck{color:#F38BA8}.ct{color:#89B4FA}.cs{color:#A6E3A1}.cn{color:#F9E2AF}.cc{color:#6c7086;font-style:italic}.ca{color:#CBA6F7}
+.bar{display:flex;gap:.3rem;flex-wrap:wrap}
+.ver{background:var(--primary);color:#fff;border:0;border-radius:999px;padding:7px 18px;font:600 .85rem 'DM Sans',sans-serif;cursor:pointer;margin:.3rem .3rem .3rem 0}
+.ver.alt{background:#fff;color:var(--primary);border:1px solid var(--primary)}
+.out{background:#0d1117;color:#c9d1d9;border-radius:10px;padding:1rem 1.3rem;font:.84rem/1.6 'DM Mono',monospace;white-space:pre-wrap;overflow-wrap:anywhere;margin:.4rem 0}
+.out::before{content:'SALIDA';display:block;font:700 .62rem sans-serif;letter-spacing:.1em;color:#6e7681;margin-bottom:.3rem}
+.out.bad{color:#ffb4a8;border-left:4px solid #e5533d}.out.off{color:#e9d8a6}
+.hint{font:.84rem/1.5 'DM Sans',sans-serif;margin-top:.6rem;color:#e9d8a6;white-space:normal}
+.ex{background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:1.3rem;margin:1.3rem 0;color:#78350F}
+.ex-hd{display:flex;gap:.7rem;align-items:center;font-weight:700;margin-bottom:.6rem;flex-wrap:wrap}
+.ex-badge{background:var(--accent);color:#fff;font-size:.68rem;padding:2px 9px;border-radius:20px;text-transform:uppercase}
+.ex-p{margin-bottom:.6rem}.ex code{background:#fff}
+.okline{font-weight:600;font-size:.92rem;margin-top:.4rem;white-space:pre-wrap}.good{color:var(--sec)}.bad{color:var(--primary)}
+.glos{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:.9rem;margin:1rem 0}
+.gi{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.9rem 1rem;font-size:.9rem}
+.gi b{display:block;font-family:'DM Mono',monospace;color:var(--primary);margin-bottom:.2rem;font-size:.86rem}
+table{width:100%;border-collapse:collapse;font-size:.9rem;margin:1rem 0;display:block;overflow-x:auto}
+th,td{border:1px solid var(--border);padding:.5rem .7rem;text-align:left}th{background:var(--bg)}
+.pager{max-width:920px;margin:0 auto 2rem;padding:0 1.5rem;display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.pager a,.pager .soon{display:block;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1rem 1.2rem;text-decoration:none;color:var(--text)}
+.pager .soon{grid-column:2;text-align:right;opacity:.65;border-style:dashed}
+.pager small{display:block;color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.07em}
+@media(max-width:600px){.pager{grid-template-columns:1fr}.pager .soon{grid-column:1}}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.85rem;border-top:1px solid var(--border)}
+.cafe-bar{overflow-x:auto;white-space:nowrap}
+.cafe-bar a.on{background:var(--primary);color:#fff;border-color:var(--primary)}
+.pn{display:flex;gap:6px}.pn a{padding:6px 12px!important}
+@media(max-width:700px){.cafe-bar{padding:0 12px;gap:8px}.cafe-bar span{display:none}}
+.pager a:hover{border-color:var(--primary)}.pager .next{text-align:right;grid-column:2}
+@media(max-width:600px){.pager .next{grid-column:1}}
+</style>
+</head>
+<body>
+<div class="cafe-bar"><a href="python-indice-cafe.html">📚 Índice</a><div class="pn"><a href="python-parte-1-cafe.html" title="Parte 1 · Primeros pasos">1</a><a href="python-parte-2-cafe.html" title="Parte 2 · Datos y operaciones">2</a><a href="python-parte-3-cafe.html" title="Parte 3 · Decisiones">3</a><a href="python-parte-4-cafe.html" title="Parte 4 · Repeticiones">4</a><a href="python-parte-5-cafe.html" title="Parte 5 · Colecciones">5</a><a href="python-parte-6-cafe.html" title="Parte 6 · Funciones">6</a><a href="python-parte-7-cafe.html" title="Parte 7 · Archivos y errores" class="on" aria-current="page">7</a><a href="python-parte-8-cafe.html" title="Parte 8 · Objetos y proyecto final">8</a></div><span>Café &lt;/&gt; · Python</span><a href="capitulos.html">Portal</a><button type="button" id="tm">🌙 / ☀️</button></div>
+<header><h1>Python desde cero — Parte 7</h1><p>Errores y archivos: try/except, validación, archivos, módulos y JSON</p><span class="badge">🐍 Principiante · Parte 7 de 8</span></header>
+<div class="topnav"><a href="#excepciones">try/except</a><a href="#variantes">else y finally</a><a href="#validar">Validar</a><a href="#archivos">Archivos</a><a href="#modulos">Módulos y JSON</a><a href="#errores">Errores</a><a href="#retos">Retos</a><a href="#resumen">Resumen</a></div>
+<main>
+<section class="module" id="excepciones"><div class="mh"><span class="mi">🛟</span><div><div class="mt">Excepciones: try / except</div><div class="ms">Que tu programa no se caiga cuando algo falla</div></div></div><p>Cuando Python encuentra un error en plena ejecución, lanza una <strong>excepción</strong> y el programa <strong>se detiene</strong>. Ya viste muchas: <code>ValueError</code>, <code>ZeroDivisionError</code>, <code>KeyError</code>... Con <code>try / except</code> puedes <strong>atraparlas</strong> y decidir qué hacer en vez de caerte:</p><div class="pyrun" data-out="Eso no es un número
+El programa sigue"><textarea class="src" hidden>try:
+    numero = int(&quot;hola&quot;)
+    print(numero)
+except ValueError:
+    print(&quot;Eso no es un número&quot;)
+print(&quot;El programa sigue&quot;)</textarea></div><div class="glos"><div class="gi"><b>try:</b>"Intenta esto". Aquí va el código que <em>podría</em> fallar.</div><div class="gi"><b>except ValueError:</b>"Si falla con este tipo de error, haz esto otro". Solo corre si hubo excepción de ese tipo.</div><div class="gi"><b>Después</b>El programa <strong>continúa normal</strong>, sin traceback ni cierre inesperado.</div></div><div class="analogy"><h4>☕ Analogía</h4><p>Es la <strong>red de seguridad de un trapecista</strong>: si todo sale bien, nunca se usa. Si se cae (hay una excepción), la red lo atrapa y puede seguir con el show en vez de terminar en el suelo.</p></div><div class="note">Cuando hay una excepción, <strong>el resto del bloque try se salta</strong>. En el ejemplo, el <code>print(numero)</code> nunca se ejecutó porque <code>int("hola")</code> ya había fallado.</div></section>
+<section class="module" id="variantes"><div class="mh"><span class="mi">🎛️</span><div><div class="mt">except, else y finally</div><div class="ms">Más control sobre el manejo de errores</div></div></div><p>Puedes atrapar <strong>distintos errores</strong> con respuestas distintas, usar <code>else</code> (corre si <em>no</em> hubo error) y <code>finally</code> (corre <em>siempre</em>):</p><div class="pyrun" data-out="(división intentada)
+5.0
+(división intentada)
+No se puede dividir entre cero
+(división intentada)
+Solo se pueden dividir números"><textarea class="src" hidden>def dividir(a, b):
+    try:
+        resultado = a / b
+    except ZeroDivisionError:
+        return &quot;No se puede dividir entre cero&quot;
+    except TypeError:
+        return &quot;Solo se pueden dividir números&quot;
+    else:
+        return resultado
+    finally:
+        print(&quot;(división intentada)&quot;)
+
+print(dividir(10, 2))
+print(dividir(10, 0))
+print(dividir(10, &quot;a&quot;))</textarea></div><ul style="margin:0 0 1rem 1.4rem"><li>Cada llamada imprime <code>(división intentada)</code>: <strong><code>finally</code> se ejecuta siempre</strong>, haya error o no (incluso si hay un <code>return</code>). Sirve para "limpiar": cerrar cosas, avisar que terminó.</li><li><code>else</code> es el camino feliz: solo corre si el <code>try</code> salió sin excepciones.</li></ul><h3>Ver el mensaje del error: as e</h3><div class="pyrun" data-out="Ocurrió un error: list index out of range
+IndexError"><textarea class="src" hidden>try:
+    lista = [1, 2, 3]
+    print(lista[10])
+except Exception as e:
+    print(&quot;Ocurrió un error:&quot;, e)
+    print(type(e).__name__)</textarea></div><p><code>except Exception as e</code> atrapa <strong>cualquier</strong> error común y guarda el objeto del error en <code>e</code>, para mostrar su mensaje o su tipo.</p><table><tr><th>Excepción</th><th>Cuándo ocurre</th></tr><tr><td><code>ValueError</code></td><td>Valor correcto en tipo pero inválido: <code>int("abc")</code></td></tr><tr><td><code>TypeError</code></td><td>Tipo equivocado: <code>"a" + 1</code></td></tr><tr><td><code>ZeroDivisionError</code></td><td>Dividir entre cero</td></tr><tr><td><code>IndexError</code></td><td>Posición de lista inexistente</td></tr><tr><td><code>KeyError</code></td><td>Clave de diccionario inexistente</td></tr><tr><td><code>FileNotFoundError</code></td><td>El archivo no existe</td></tr><tr><td><code>NameError</code></td><td>Variable que no existe</td></tr></table><div class="note"><strong>Buena práctica:</strong> atrapa el error <em>más específico</em> que esperas (<code>ValueError</code>) en vez de uno genérico. Y <strong>nunca</strong> escribas un <code>except</code> que ignore todo en silencio: ocultarías errores reales y sería muy difícil encontrarlos después.</div></section>
+<section class="module" id="validar"><div class="mh"><span class="mi">✅</span><div><div class="mt">Validar datos del usuario</div><div class="ms">El uso más común de try/except</div></div></div><p>Si pides un número con <code>int(input(...))</code> y el usuario escribe una letra, el programa se cae. La solución clásica: un <code>while True</code> que <strong>repite hasta que el dato sea válido</strong>. Prueba escribir <code>abc</code>, luego <code>x</code> y al final <code>25</code>:</p><div class="pyrun" data-out="Edad: abc
+Escribe solo números, intenta de nuevo
+Edad: x
+Escribe solo números, intenta de nuevo
+Edad: 25
+Tu edad es 25" data-in="[&quot;abc&quot;, &quot;x&quot;, &quot;25&quot;]"><textarea class="src" hidden>while True:
+    texto = input(&quot;Edad: &quot;)
+    try:
+        edad = int(texto)
+        break
+    except ValueError:
+        print(&quot;Escribe solo números, intenta de nuevo&quot;)
+print(f&quot;Tu edad es {edad}&quot;)</textarea></div><p>Se combinan tres cosas que ya conoces: <code>while True</code> (repite sin parar), <code>try/except</code> (atrapa el fallo) y <code>break</code> (sale cuando todo salió bien).</p><h3>Lanzar tus propios errores: raise</h3><div class="pyrun" data-out="Error: La edad no puede ser negativa"><textarea class="src" hidden>def verificar_edad(edad):
+    if edad &lt; 0:
+        raise ValueError(&quot;La edad no puede ser negativa&quot;)
+    return edad
+
+try:
+    verificar_edad(-5)
+except ValueError as e:
+    print(&quot;Error:&quot;, e)</textarea></div><div class="analogy"><h4>☕ Analogía</h4><p><code>raise</code> es <strong>tocar la alarma de incendios</strong> a propósito: avisas "aquí hay un problema" para que quien llamó a la función se entere y decida qué hacer (atraparlo con <code>except</code>).</p></div></section>
+<section class="module" id="archivos"><div class="mh"><span class="mi">🗂️</span><div><div class="mt">Leer y escribir archivos</div><div class="ms">Guardar información más allá del programa</div></div></div><p>Hasta ahora, todo lo que tu programa guardaba en variables <strong>desaparece al terminar</strong>. Los archivos permiten guardar datos de forma permanente. Se abren con <code>open(nombre, modo)</code>:</p><table><tr><th>Modo</th><th>Significa</th><th>Cuidado</th></tr><tr><td><code>"r"</code></td><td>Leer (read). Es el modo por defecto</td><td>El archivo debe existir o hay <code>FileNotFoundError</code></td></tr><tr><td><code>"w"</code></td><td>Escribir (write)</td><td><strong>Borra</strong> todo lo que había y empieza de cero</td></tr><tr><td><code>"a"</code></td><td>Agregar al final (append)</td><td>Conserva lo anterior</td></tr></table><div class="analogy"><h4>☕ Analogía</h4><p>Un archivo es un <strong>cuaderno</strong>. <code>"r"</code> es abrirlo solo para leer. <code>"w"</code> es sacar un cuaderno <em>nuevo</em> (¡tirando el anterior!). <code>"a"</code> es abrir tu cuaderno donde ibas y seguir escribiendo en la siguiente hoja.</p></div><div class="note"><strong>En esta guía</strong> los archivos viven dentro de la memoria de la página y <strong>desaparecen al recargar</strong>. En tu computadora, el mismo código crea archivos reales en la carpeta de tu programa.</div><h3>Escribir y leer</h3><div class="pyrun" data-out="Primera línea
+Segunda línea"><textarea class="src" hidden>with open(&quot;notas.txt&quot;, &quot;w&quot;) as archivo:
+    archivo.write(&quot;Primera línea\n&quot;)
+    archivo.write(&quot;Segunda línea\n&quot;)
+
+with open(&quot;notas.txt&quot;, &quot;r&quot;) as archivo:
+    contenido = archivo.read()
+print(contenido)</textarea></div><p><code>with</code> abre el archivo y lo <strong>cierra automáticamente</strong> al terminar el bloque, incluso si hay errores. Es la forma recomendada. El <code>\n</code> es un salto de línea: <code>write</code> no lo agrega solo.</p><div class="analogy"><h4>☕ Analogía</h4><p><code>with</code> es como <strong>pedir un libro prestado</strong> en la biblioteca con devolución automática: lo usas dentro del bloque y, al salir, se devuelve solo. Sin <code>with</code> tendrías que acordarte de cerrarlo tú.</p></div><h3>Leer línea por línea</h3><div class="pyrun" data-out="pan
+leche
+huevos"><textarea class="src" hidden>with open(&quot;compras.txt&quot;, &quot;w&quot;) as f:
+    f.write(&quot;pan\nleche\nhuevos\n&quot;)
+
+with open(&quot;compras.txt&quot;) as f:
+    for linea in f:
+        print(linea.strip())</textarea></div><p>Un archivo se puede recorrer con <code>for</code>: cada vuelta trae una línea. <code>.strip()</code> quita el salto de línea sobrante del final de cada una.</p><h3>Agregar sin borrar</h3><div class="pyrun" data-out="Día 1
+Día 2"><textarea class="src" hidden>with open(&quot;diario.txt&quot;, &quot;w&quot;) as f:
+    f.write(&quot;Día 1\n&quot;)
+
+with open(&quot;diario.txt&quot;, &quot;a&quot;) as f:
+    f.write(&quot;Día 2\n&quot;)
+
+with open(&quot;diario.txt&quot;) as f:
+    print(f.read())</textarea></div><h3>Cuando el archivo no existe</h3><div class="pyrun" data-out="Traceback (most recent call last):
+  File &quot;&lt;exec&gt;&quot;, line 1, in &lt;module&gt;
+    with open(&quot;no_existe.txt&quot;) as f:
+         ^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: &#x27;no_existe.txt&#x27;" data-err="1"><textarea class="src" hidden>with open(&quot;no_existe.txt&quot;) as f:
+    print(f.read())</textarea></div><div class="pyrun" data-out="Ese archivo no existe todavía"><textarea class="src" hidden>try:
+    with open(&quot;no_existe.txt&quot;) as f:
+        print(f.read())
+except FileNotFoundError:
+    print(&quot;Ese archivo no existe todavía&quot;)</textarea></div><p>Aquí se junta lo de esta parte: <code>try/except</code> convierte un error que tumba el programa en un mensaje amable.</p></section>
+<section class="module" id="modulos"><div class="mh"><span class="mi">📦</span><div><div class="mt">Módulos y JSON</div><div class="ms">Usar código que ya escribieron otros</div></div></div><p>Python trae decenas de <strong>módulos</strong> listos para usar. Se cargan con <code>import</code>:</p><div class="pyrun" data-out="4.0
+3.141592653589793
+5
+4
+120"><textarea class="src" hidden>import math
+print(math.sqrt(16))
+print(math.pi)
+print(math.ceil(4.2))
+print(math.floor(4.9))
+
+from math import factorial
+print(factorial(5))</textarea></div><ul style="margin:0 0 1rem 1.4rem"><li><code>import math</code> y luego <code>math.sqrt(...)</code>: usas el nombre del módulo como prefijo.</li><li><code>from math import factorial</code>: traes solo lo que necesitas y lo usas directo.</li></ul><div class="analogy"><h4>☕ Analogía</h4><p>Importar un módulo es como <strong>pedir prestada una caja de herramientas</strong> a un vecino: no tienes que fabricar tu propio martillo. <code>math</code> trae las herramientas de matemáticas; <code>random</code>, las de azar; <code>json</code>, las de guardar datos.</p></div><h3>random: azar (¡para mejorar el juego de la Parte 4!)</h3><div class="pyrun" data-out="6
+rojo"><textarea class="src" hidden>import random
+random.seed(7)   # fija la &quot;semilla&quot; para que el resultado sea repetible
+print(random.randint(1, 10))
+print(random.choice([&quot;rojo&quot;, &quot;verde&quot;, &quot;azul&quot;]))</textarea></div><p>Sin <code>seed</code>, cada ejecución da resultados distintos. Para el juego de adivinar usarías <code>secreto = random.randint(1, 10)</code>, y cada partida sería diferente.</p><h3>json: guardar datos estructurados</h3><p><strong>JSON</strong> es un formato de texto para guardar diccionarios y listas (lo usan casi todas las aplicaciones y APIs). Convertir entre Python y JSON:</p><div class="pyrun" data-out="{&quot;nombre&quot;: &quot;Ana&quot;, &quot;edad&quot;: 20, &quot;notas&quot;: [9, 8, 10]}
+&lt;class &#x27;str&#x27;&gt;
+9
+&lt;class &#x27;dict&#x27;&gt;"><textarea class="src" hidden>import json
+datos = {&quot;nombre&quot;: &quot;Ana&quot;, &quot;edad&quot;: 20, &quot;notas&quot;: [9, 8, 10]}
+texto = json.dumps(datos, ensure_ascii=False)
+print(texto)
+print(type(texto))
+
+recuperado = json.loads(texto)
+print(recuperado[&quot;notas&quot;][0])
+print(type(recuperado))</textarea></div><ul style="margin:0 0 1rem 1.4rem"><li><code>json.dumps(datos)</code>: de Python a <strong>texto</strong> JSON (<em>dump string</em>).</li><li><code>json.loads(texto)</code>: de texto JSON a Python (<em>load string</em>).</li><li>Con archivos existen <code>json.dump(datos, archivo)</code> y <code>json.load(archivo)</code>.</li></ul></section>
+<section class="module" id="errores"><div class="mh"><span class="mi">🩺</span><div><div class="mt">Errores y trampas comunes</div><div class="ms">Lo que más sale en esta parte</div></div></div><table><tr><th>Problema</th><th>Causa</th><th>Arreglo</th></tr><tr><td>Mi archivo quedó vacío o perdí datos</td><td>Abriste con <code>"w"</code> (borra todo)</td><td>Usa <code>"a"</code> para agregar</td></tr><tr><td><code>FileNotFoundError</code></td><td>Nombre o carpeta incorrectos</td><td>Revisa la ruta; atrápalo con <code>try/except</code></td></tr><tr><td>Las líneas salen pegadas</td><td><code>write</code> no agrega salto de línea</td><td>Incluye <code>"\n"</code></td></tr><tr><td>El <code>except</code> "no atrapa" mi error</td><td>El tipo no coincide</td><td>Usa el tipo correcto (mira el nombre en el error)</td></tr><tr><td>Nunca veo los errores</td><td><code>except: pass</code> los silencia</td><td>Muestra o registra el mensaje</td></tr><tr><td>Olvidé cerrar el archivo</td><td>No usaste <code>with</code></td><td>Usa siempre <code>with open(...)</code></td></tr></table><div class="pyrun" data-out="Traceback (most recent call last):
+  File &quot;&lt;exec&gt;&quot;, line 2, in &lt;module&gt;
+    resultado = int(texto)
+                ^^^^^^^^^^
+ValueError: invalid literal for int() with base 10: &#x27;abc&#x27;" data-err="1"><textarea class="src" hidden>texto = &quot;abc&quot;
+resultado = int(texto)</textarea></div><p>Ese error se atrapa con <code>except ValueError</code>. Pruébalo: envuelve esas líneas en un <code>try</code> y muestra un mensaje amigable.</p></section>
+<section class="module" id="retos"><div class="mh"><span class="mi">🎯</span><div><div class="mt">Retos</div><div class="ms">Programas a prueba de fallos</div></div></div><div class="ex pyex" data-exp="No es un número" data-sol="texto = &quot;abc&quot;
+try:
+    numero = int(texto)
+    print(numero)
+except ValueError:
+    print(&quot;No es un número&quot;)"><div class="ex-hd"><span class="ex-badge">Reto 1</span>Conversión segura</div><div class="ex-p">Convierte <code>texto</code> a número dentro de un <code>try</code>. Si falla, imprime <code>No es un número</code>.</div><textarea class="src" hidden>texto = &quot;abc&quot;
+# usa try / except ValueError
+</textarea></div><div class="ex pyex" data-exp="5.0
+No se puede dividir entre cero" data-sol="def dividir(a, b):
+    try:
+        return a / b
+    except ZeroDivisionError:
+        return &quot;No se puede dividir entre cero&quot;
+
+print(dividir(10, 2))
+print(dividir(5, 0))"><div class="ex-hd"><span class="ex-badge">Reto 2</span>División segura</div><div class="ex-p">Crea <code>dividir(a, b)</code> que devuelva el resultado o el texto <code>No se puede dividir entre cero</code> si <code>b</code> es 0. Imprime <code>dividir(10, 2)</code> y <code>dividir(5, 0)</code>.</div><textarea class="src" hidden># define dividir con try / except
+</textarea></div><div class="ex pyex" data-exp="Sin edad registrada" data-sol="persona = {&quot;nombre&quot;: &quot;Ana&quot;}
+try:
+    print(persona[&quot;edad&quot;])
+except KeyError:
+    print(&quot;Sin edad registrada&quot;)"><div class="ex-hd"><span class="ex-badge">Reto 3</span>Clave faltante</div><div class="ex-p">Intenta leer <code>persona["edad"]</code>; si no existe, imprime <code>Sin edad registrada</code>.</div><textarea class="src" hidden>persona = {&quot;nombre&quot;: &quot;Ana&quot;}
+# usa try / except KeyError
+</textarea></div><div class="ex pyex" data-exp="Posición inválida" data-sol="lista = [10, 20, 30]
+try:
+    print(lista[5])
+except IndexError:
+    print(&quot;Posición inválida&quot;)"><div class="ex-hd"><span class="ex-badge">Reto 4</span>Posición inválida</div><div class="ex-p">Intenta imprimir <code>lista[5]</code>; si la posición no existe, imprime <code>Posición inválida</code>.</div><textarea class="src" hidden>lista = [10, 20, 30]
+# usa try / except IndexError
+</textarea></div><div class="ex pyex" data-exp="uno
+dos
+tres" data-sol="with open(&quot;lista.txt&quot;, &quot;w&quot;) as f:
+    f.write(&quot;uno\ndos\ntres\n&quot;)
+
+with open(&quot;lista.txt&quot;) as f:
+    for linea in f:
+        print(linea.strip())"><div class="ex-hd"><span class="ex-badge">Reto 5</span>Escribir y leer</div><div class="ex-p">Guarda en <code>lista.txt</code> las líneas <code>uno</code>, <code>dos</code>, <code>tres</code> y luego léelas e imprímelas con <code>.strip()</code> (una por línea).</div><textarea class="src" hidden># 1) escribe el archivo  2) léelo e imprime cada línea
+</textarea></div><div class="ex pyex" data-exp="4" data-sol="with open(&quot;datos.txt&quot;, &quot;w&quot;) as f:
+    f.write(&quot;a\nb\nc\nd\n&quot;)
+
+with open(&quot;datos.txt&quot;) as f:
+    print(len(f.readlines()))"><div class="ex-hd"><span class="ex-badge">Reto 6</span>Contar líneas</div><div class="ex-p">Guarda 4 líneas en <code>datos.txt</code> (cualquier texto) y luego imprime cuántas líneas tiene. Debe salir <code>4</code> (usa <code>.readlines()</code> y <code>len</code>).</div><textarea class="src" hidden># escribe 4 líneas y cuéntalas
+</textarea></div><div class="ex pyex" data-exp="Error: Nota inválida" data-sol="def verificar(nota):
+    if nota &lt; 0 or nota &gt; 10:
+        raise ValueError(&quot;Nota inválida&quot;)
+    return nota
+
+try:
+    verificar(11)
+except ValueError as e:
+    print(&quot;Error:&quot;, e)"><div class="ex-hd"><span class="ex-badge">Reto 7</span>Tu propio error</div><div class="ex-p">Crea <code>verificar(nota)</code> que lance <code>ValueError("Nota inválida")</code> si la nota es menor que 0 o mayor que 10. Pruébala con 11 y atrapa el error para imprimir <code>Error: Nota inválida</code>.</div><textarea class="src" hidden># define verificar y pruébala con try / except
+</textarea></div><div class="ex pyex" data-exp="{&quot;nombre&quot;: &quot;Ana&quot;, &quot;edad&quot;: 20}" data-sol="import json
+datos = {&quot;nombre&quot;: &quot;Ana&quot;, &quot;edad&quot;: 20}
+print(json.dumps(datos))"><div class="ex-hd"><span class="ex-badge">Reto 8</span>A JSON</div><div class="ex-p">Convierte el diccionario a texto JSON con <code>json.dumps</code> e imprímelo. Debe salir <code>{"nombre": "Ana", "edad": 20}</code>.</div><textarea class="src" hidden>import json
+datos = {&quot;nombre&quot;: &quot;Ana&quot;, &quot;edad&quot;: 20}
+# imprime el JSON
+</textarea></div></section>
+<section class="module" id="resumen"><div class="mh"><span class="mi">📋</span><div><div class="mt">Resumen de la Parte 7</div><div class="ms">Para tener a la mano</div></div></div><table><tr><th>Concepto</th><th>Ejemplo</th><th>Qué hace</th></tr><tr><td><code>try / except</code></td><td><code>except ValueError:</code></td><td>Atrapa un error y evita que el programa se caiga</td></tr><tr><td><code>else</code> / <code>finally</code></td><td>—</td><td>Si no hubo error / siempre se ejecuta</td></tr><tr><td><code>as e</code></td><td><code>except Exception as e:</code></td><td>Guarda el error para mostrarlo</td></tr><tr><td><code>raise</code></td><td><code>raise ValueError("...")</code></td><td>Lanza tu propio error</td></tr><tr><td>Abrir archivo</td><td><code>with open("a.txt", "w") as f:</code></td><td>Se cierra solo al terminar</td></tr><tr><td>Modos</td><td><code>"r"  "w"  "a"</code></td><td>Leer / escribir (borra) / agregar</td></tr><tr><td>Leer</td><td><code>f.read()</code>  <code>for linea in f:</code></td><td>Todo el texto / línea por línea</td></tr><tr><td>Módulos</td><td><code>import math</code>  <code>from math import sqrt</code></td><td>Usar código de la biblioteca estándar</td></tr><tr><td>JSON</td><td><code>json.dumps()</code>  <code>json.loads()</code></td><td>Python ↔ texto JSON</td></tr></table><div class="note"><strong>Próxima parada · Parte 8 (¡la final!):</strong> <strong>clases y objetos</strong> (programación orientada a objetos) y un <strong>proyecto final</strong> que junta todo lo que aprendiste: variables, decisiones, bucles, colecciones, funciones, errores y archivos.</div></section>
+</main>
+<div class="pager"><a class="prev" href="python-parte-6-cafe.html"><small>← Anterior</small><b>Parte 6 · Funciones</b></a><a class="next" href="python-parte-8-cafe.html"><small>Siguiente →</small><b>Parte 8 · Objetos y proyecto final</b></a></div>
+<footer>Café &lt;/&gt; · Python desde cero · Parte 7</footer>
+<script>
+(function(){
+const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const KW=new Set('and as break class continue def elif else except finally for from if import in is lambda not or pass return try while with True False None'.split(' '));
+const BI=new Set('print input int float str bool len range type list dict set tuple sum min max abs round sorted open'.split(' '));
+const sp=(c,t)=>'<span class="'+c+'">'+t+'<\/span>';
+function hlPy(s){
+ let o='',i=0,m;
+ const re=/(#.*)|("""[\s\S]*?"""|'''[\s\S]*?'''|[fF]?"(?:\\.|[^"\\\n])*"|[fF]?'(?:\\.|[^'\\\n])*')|(\b\d+(?:\.\d+)?\b)|([A-Za-z_]\w*)/g;
+ while((m=re.exec(s))){
+  o+=esc(s.slice(i,m.index));i=re.lastIndex;const t=m[0];
+  o+=m[1]?sp('cc',esc(t)):m[2]?sp('cs',esc(t)):m[3]?sp('cn',t):KW.has(t)?sp('ck',t):BI.has(t)?sp('ct',t):esc(t);
+ }
+ return o+esc(s.slice(i));
+}
+document.querySelectorAll('pre[data-hl=py]').forEach(p=>{p.innerHTML=hlPy(p.textContent);});
+/* ---------- Python en el navegador (Pyodide) ---------- */
+const PRE=['import builtins,sys','def _input(p=""):','    from js import prompt','    v = prompt(str(p))','    v = "" if v is None else str(v)','    print(str(p) + v)','    return v','builtins.input = _input','_n = [0]','def _tr(f, e, a):','    _n[0] += 1','    if _n[0] > 150000:','        sys.settrace(None)','        raise RuntimeError("BUCLE_INFINITO")','    return _tr','sys.settrace(_tr)'].join('\n');
+let pyP=null;
+function loadPy(){
+ if(!pyP)pyP=new Promise((res,rej)=>{
+  const s=document.createElement('script');
+  s.src='https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js';
+  s.onload=()=>loadPyodide().then(res,rej);
+  s.onerror=()=>{pyP=null;rej(new Error('offline'));};
+  document.head.appendChild(s);
+ });
+ return pyP;
+}
+function clean(m){
+ const L=m.split('\n'),i=L.findIndex(l=>l.includes('File "<exec>"'));
+ if(i<0)return m.trim();
+ const head=(m.startsWith('Traceback')&&!/SyntaxError/.test(m))?'Traceback (most recent call last):\n':'';
+ return (head+L.slice(i).join('\n')).trim();
+}
+async function exec(code){
+ let py;try{py=await loadPy();}catch(e){return{off:true};}
+ const buf=[];py.setStdout({batched:s=>buf.push(s)});py.setStderr({batched:s=>buf.push(s)});
+ const g=py.toPy({});let err=null;
+ try{py.runPython(PRE,{globals:g});await py.runPythonAsync(code,{globals:g});}
+ catch(e){const m=String(e.message||e);err=/BUCLE_INFINITO/.test(m)?'⚠️ Python detuvo tu programa: se ejecutó demasiadas veces seguidas. ¿Hay un bucle infinito? Revisa que la condición del while pueda llegar a ser False (por ejemplo, que la variable del contador sí cambie).':clean(m);}
+ try{py.runPython('import sys\nsys.settrace(None)');}catch(e){}
+ g.destroy();
+ const o=buf.length>200?buf.slice(0,50).join('\n')+'\n… (salida recortada: el programa imprimió '+buf.length+' líneas)':buf.join('\n');
+ return{out:o,err};
+}
+const HINT='<div class="hint">💡 <b>Cómo leer un error:<\/b> empieza por la <b>última línea<\/b>, que dice <i>qué<\/i> pasó. Las líneas de arriba muestran <i>dónde<\/i> (número de línea y una flecha ^).<\/div>';
+const WAIT='⏳ Ejecutando… (la primera vez Python tarda unos segundos en cargar)';
+function mkEd(code){
+ const w=document.createElement('div');w.className='ed';w.dataset.l='PYTHON';
+ const pre=document.createElement('pre'),ta=document.createElement('textarea');
+ ta.spellcheck=false;ta.value=code;ta.setAttribute('aria-label','Editor de código Python');
+ const up=()=>{pre.innerHTML=hlPy(ta.value)+'\n';};
+ ta.addEventListener('input',up);
+ ta.addEventListener('keydown',e=>{if(e.key==='Tab'){e.preventDefault();ta.setRangeText('    ',ta.selectionStart,ta.selectionEnd,'end');up();}});
+ w.append(pre,ta);up();
+ return{w,ta,set:v=>{ta.value=v;up();}};
+}
+const mk=(tag,cls,html)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e;};
+document.querySelectorAll('.pyrun').forEach(el=>{
+ const orig=el.querySelector('.src').value,fb=el.dataset.out||'';
+ const ed=mkEd(orig),bar=mk('div','bar','<button class="ver" type="button">▶ Ejecutar<\/button><button class="ver alt" type="button">↺ Restaurar<\/button>'),out=mk('pre','out');out.hidden=true;
+ el.textContent='';el.append(ed.w,bar,out);
+ const b=bar.querySelectorAll('button');
+ b[0].onclick=async()=>{
+  out.hidden=false;out.className='out';out.textContent=WAIT;
+  const r=await exec(ed.ta.value);
+  if(r.off){out.className='out off';out.textContent=ed.ta.value===orig?'📴 Sin conexión a internet. Esta es la salida esperada:\n\n'+fb:'📴 Para ejecutar código nuevo se necesita internet (Python se descarga una sola vez). Revisa tu conexión.';return;}
+  if(r.err){out.className='out bad';out.innerHTML=esc((r.out?r.out+'\n':'')+r.err)+HINT;}
+  else out.textContent=r.out||'(el programa no imprimió nada)';
+ };
+ b[1].onclick=()=>{ed.set(orig);out.hidden=true;};
+});
+const norm=s=>s.split('\n').map(l=>l.replace(/\s+$/,'')).join('\n').replace(/\n+$/,'');
+document.querySelectorAll('.pyex').forEach(el=>{
+ const st=el.querySelector('.src').value,exp=el.dataset.exp,sol=el.dataset.sol;el.querySelector('.src').remove();
+ const ed=mkEd(st),bar=mk('div','bar','<button class="ver" type="button">✔ Comprobar<\/button><button class="ver alt" type="button">💡 Ver solución<\/button><button class="ver alt" type="button">↺ Restaurar<\/button>'),out=mk('pre','out'),ms=mk('p','okline');out.hidden=true;
+ el.append(ed.w,bar,out,ms);const b=bar.querySelectorAll('button');
+ b[0].onclick=async()=>{
+  out.hidden=false;out.className='out';out.textContent=WAIT;ms.textContent='';ms.className='okline';
+  const r=await exec(ed.ta.value);
+  if(r.off){out.className='out off';out.textContent='📴 Sin conexión: no puedo comprobar tu código ahora. Compáralo con la solución o conéctate a internet.';return;}
+  if(r.err){out.className='out bad';out.innerHTML=esc((r.out?r.out+'\n':'')+r.err)+HINT;ms.className='okline bad';ms.textContent='❌ Tu código tiene un error. Revisa el mensaje de arriba.';return;}
+  out.textContent=r.out||'(el programa no imprimió nada)';
+  if(norm(r.out)===norm(exp)){ms.className='okline good';ms.textContent='✅ ¡Correcto! Tu programa imprime lo esperado.';}
+  else{ms.className='okline bad';ms.textContent='❌ Todavía no. Tu programa imprimió lo de arriba, pero se esperaba:\n'+exp;}
+ };
+ b[1].onclick=()=>{ed.set(sol);out.hidden=true;ms.className='okline';ms.textContent='Esta es una solución posible. Ejecútala con ✔ Comprobar y compárala con tu idea.';};
+ b[2].onclick=()=>{ed.set(st);out.hidden=true;ms.textContent='';};
+});
+const T=document.documentElement;
+try{T.dataset.theme=localStorage.getItem('cafe-theme')||'light';}catch(e){}
+document.getElementById('tm').onclick=()=>{const m=T.dataset.theme==='dark'?'light':'dark';T.dataset.theme=m;try{localStorage.setItem('cafe-theme',m);}catch(e){}};
+})();
+</script>
+</body>
+</html>

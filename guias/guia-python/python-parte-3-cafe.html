@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python desde cero · Parte 3 — Café &lt;/&gt;</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,700&family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--primary:#c44a2a;--pl:#fdf0ec;--sec:#1a7a5a;--accent:#b07010;--bg:#f7f4ef;--surface:#fff;--text:#1a1814;--muted:#8a8480;--border:#e8e4de}
+:root[data-theme=dark]{--bg:#14110f;--surface:#1f1b18;--text:#f0ebe4;--muted:#a39d96;--border:#33302b;--pl:#3a1f18}
+body{font-family:'DM Sans','Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.7;font-size:16px}
+[hidden]{display:none!important}
+.cafe-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:200;height:45px}
+.cafe-bar a,.cafe-bar button{font:inherit;font-size:13px;color:var(--muted);text-decoration:none;padding:6px 14px;border:1px solid var(--border);border-radius:999px;background:none;cursor:pointer}
+.cafe-bar a:hover,.cafe-bar button:hover{color:var(--text);border-color:var(--muted)}
+.cafe-bar span{font-size:13px;color:var(--muted);flex:1}
+header{background:#1a1814;color:#f7f4ef;padding:3rem 2rem 2rem;text-align:center;position:relative;overflow:hidden}
+header::before{content:'>>>';position:absolute;font-size:12rem;font-weight:900;color:rgba(255,255,255,.04);right:-1rem;top:-2rem;font-family:monospace;line-height:1}
+header h1{font-size:2.5rem;letter-spacing:-1px;font-family:'Fraunces',serif}
+header p{font-size:1.1rem;opacity:.85;margin-top:.5rem}
+.badge{display:inline-block;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:20px;padding:4px 14px;font-size:.8rem;margin-top:.75rem}
+.topnav{background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:45px;z-index:100;display:flex;overflow-x:auto}
+.topnav a{flex-shrink:0;padding:.75rem 1rem;text-decoration:none;color:var(--muted);font-size:.78rem;font-weight:500;border-bottom:2px solid transparent;white-space:nowrap}
+.topnav a:hover{color:var(--primary);border-bottom-color:var(--primary)}
+main{max-width:920px;margin:0 auto;padding:2rem 1.5rem}
+.module{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2rem;margin-bottom:2.5rem;scroll-margin-top:115px}
+@media(max-width:680px){.module{padding:1.25rem}}
+.mh{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border)}
+.mi{font-size:1.8rem}.mt{font-size:1.35rem;font-weight:700}.ms{font-size:.85rem;color:var(--muted)}
+p{margin-bottom:.8rem}h3{margin:1.4rem 0 .5rem;font-size:1.05rem}
+code{font-family:'DM Mono',monospace;background:var(--bg);color:var(--primary);padding:1px 5px;border-radius:4px;font-size:.9em}
+ol.steps{margin:.5rem 0 1rem 1.4rem}ol.steps li{margin-bottom:.4rem}
+.analogy{background:#FFF7ED;border:1px solid #FDE68A;border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:1.1rem 1.25rem;margin:1.1rem 0}
+.analogy h4{color:#92400E;font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem}
+.analogy p{font-size:.95rem;color:#78350F;margin:0}
+.note{background:var(--pl);border-left:4px solid var(--primary);border-radius:0 10px 10px 0;padding:.9rem 1.2rem;margin:1rem 0;font-size:.93rem}
+.code-block,.ed{background:#1a1814;color:#e8e4de;border-radius:10px;font-family:'DM Mono',monospace;font-size:.86rem;line-height:1.7;margin:.5rem 0;position:relative}
+.code-block{padding:1rem 1.3rem;overflow-x:auto;white-space:pre-wrap;overflow-wrap:anywhere}
+.code-block::before,.ed::before{content:attr(data-l);position:absolute;top:.4rem;right:.7rem;background:rgba(255,255,255,.1);color:rgba(255,255,255,.5);font-size:.65rem;padding:1px 8px;border-radius:4px;font-family:sans-serif;z-index:2;pointer-events:none}
+.ed{display:grid}
+.ed pre,.ed textarea{grid-area:1/1;margin:0;padding:1rem 1.3rem;font:inherit;line-height:inherit;letter-spacing:0;white-space:pre-wrap;overflow-wrap:anywhere;tab-size:4;border:0;background:transparent;min-width:0;width:100%}
+.ed pre{pointer-events:none}
+.ed textarea{color:transparent;-webkit-text-fill-color:transparent;caret-color:#fff;resize:none;overflow:hidden;outline:none;height:100%}
+.ed textarea::selection{background:rgba(137,180,250,.35)}
+.ed:focus-within{box-shadow:0 0 0 2px #c44a2a88}
+.ck{color:#F38BA8}.ct{color:#89B4FA}.cs{color:#A6E3A1}.cn{color:#F9E2AF}.cc{color:#6c7086;font-style:italic}.ca{color:#CBA6F7}
+.bar{display:flex;gap:.3rem;flex-wrap:wrap}
+.ver{background:var(--primary);color:#fff;border:0;border-radius:999px;padding:7px 18px;font:600 .85rem 'DM Sans',sans-serif;cursor:pointer;margin:.3rem .3rem .3rem 0}
+.ver.alt{background:#fff;color:var(--primary);border:1px solid var(--primary)}
+.out{background:#0d1117;color:#c9d1d9;border-radius:10px;padding:1rem 1.3rem;font:.84rem/1.6 'DM Mono',monospace;white-space:pre-wrap;overflow-wrap:anywhere;margin:.4rem 0}
+.out::before{content:'SALIDA';display:block;font:700 .62rem sans-serif;letter-spacing:.1em;color:#6e7681;margin-bottom:.3rem}
+.out.bad{color:#ffb4a8;border-left:4px solid #e5533d}.out.off{color:#e9d8a6}
+.hint{font:.84rem/1.5 'DM Sans',sans-serif;margin-top:.6rem;color:#e9d8a6;white-space:normal}
+.ex{background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:1.3rem;margin:1.3rem 0;color:#78350F}
+.ex-hd{display:flex;gap:.7rem;align-items:center;font-weight:700;margin-bottom:.6rem;flex-wrap:wrap}
+.ex-badge{background:var(--accent);color:#fff;font-size:.68rem;padding:2px 9px;border-radius:20px;text-transform:uppercase}
+.ex-p{margin-bottom:.6rem}.ex code{background:#fff}
+.okline{font-weight:600;font-size:.92rem;margin-top:.4rem;white-space:pre-wrap}.good{color:var(--sec)}.bad{color:var(--primary)}
+.glos{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:.9rem;margin:1rem 0}
+.gi{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.9rem 1rem;font-size:.9rem}
+.gi b{display:block;font-family:'DM Mono',monospace;color:var(--primary);margin-bottom:.2rem;font-size:.86rem}
+table{width:100%;border-collapse:collapse;font-size:.9rem;margin:1rem 0;display:block;overflow-x:auto}
+th,td{border:1px solid var(--border);padding:.5rem .7rem;text-align:left}th{background:var(--bg)}
+.pager{max-width:920px;margin:0 auto 2rem;padding:0 1.5rem;display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.pager a,.pager .soon{display:block;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1rem 1.2rem;text-decoration:none;color:var(--text)}
+.pager .soon{grid-column:2;text-align:right;opacity:.65;border-style:dashed}
+.pager small{display:block;color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.07em}
+@media(max-width:600px){.pager{grid-template-columns:1fr}.pager .soon{grid-column:1}}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.85rem;border-top:1px solid var(--border)}
+.cafe-bar{overflow-x:auto;white-space:nowrap}
+.cafe-bar a.on{background:var(--primary);color:#fff;border-color:var(--primary)}
+.pn{display:flex;gap:6px}.pn a{padding:6px 12px!important}
+@media(max-width:700px){.cafe-bar{padding:0 12px;gap:8px}.cafe-bar span{display:none}}
+.pager a:hover{border-color:var(--primary)}.pager .next{text-align:right;grid-column:2}
+@media(max-width:600px){.pager .next{grid-column:1}}
+</style>
+</head>
+<body>
+<div class="cafe-bar"><a href="python-indice-cafe.html">📚 Índice</a><div class="pn"><a href="python-parte-1-cafe.html" title="Parte 1 · Primeros pasos">1</a><a href="python-parte-2-cafe.html" title="Parte 2 · Datos y operaciones">2</a><a href="python-parte-3-cafe.html" title="Parte 3 · Decisiones" class="on" aria-current="page">3</a><a href="python-parte-4-cafe.html" title="Parte 4 · Repeticiones">4</a><a href="python-parte-5-cafe.html" title="Parte 5 · Colecciones">5</a><a href="python-parte-6-cafe.html" title="Parte 6 · Funciones">6</a><a href="python-parte-7-cafe.html" title="Parte 7 · Archivos y errores">7</a><a href="python-parte-8-cafe.html" title="Parte 8 · Objetos y proyecto final">8</a></div><span>Café &lt;/&gt; · Python</span><a href="capitulos.html">Portal</a><button type="button" id="tm">🌙 / ☀️</button></div>
+<header><h1>Python desde cero — Parte 3</h1><p>Decisiones: if, elif, else y operadores lógicos</p><span class="badge">🐍 Principiante · Parte 3 de 8</span></header>
+<div class="topnav"><a href="#comparar">Comparaciones</a><a href="#if">if</a><a href="#else">else</a><a href="#elif">elif</a><a href="#logicos">and/or/not</a><a href="#input-if">Con input</a><a href="#anidados">Anidados</a><a href="#errores">Errores</a><a href="#retos">Retos</a><a href="#resumen">Resumen</a></div>
+<main>
+<section class="module" id="comparar"><div class="mh"><span class="mi">⚖️</span><div><div class="mt">Comparaciones</div><div class="ms">Preguntas cuya respuesta es Sí (True) o No (False)</div></div></div><p>Para decidir, un programa primero necesita <strong>hacer una pregunta</strong>. En Python esas preguntas son <strong>comparaciones</strong> y siempre responden <code>True</code> (sí) o <code>False</code> (no):</p><table><tr><th>Operador</th><th>Pregunta</th><th>Ejemplo</th><th>Resultado</th></tr><tr><td><code>==</code></td><td>¿Es igual?</td><td><code>5 == 5</code></td><td>True</td></tr><tr><td><code>!=</code></td><td>¿Es distinto?</td><td><code>5 != 3</code></td><td>True</td></tr><tr><td><code>&gt;</code></td><td>¿Es mayor?</td><td><code>3 &gt; 5</code></td><td>False</td></tr><tr><td><code>&lt;</code></td><td>¿Es menor?</td><td><code>3 &lt; 5</code></td><td>True</td></tr><tr><td><code>&gt;=</code></td><td>¿Es mayor o igual?</td><td><code>5 &gt;= 5</code></td><td>True</td></tr><tr><td><code>&lt;=</code></td><td>¿Es menor o igual?</td><td><code>6 &lt;= 5</code></td><td>False</td></tr></table><div class="pyrun" data-out="True
+True
+False
+True
+True
+False"><textarea class="src" hidden>print(5 == 5)
+print(5 != 3)
+print(3 &gt; 5)
+print(5 &gt;= 5)
+print(&quot;hola&quot; == &quot;hola&quot;)
+print(&quot;hola&quot; == &quot;Hola&quot;)</textarea></div><div class="analogy"><h4>☕ Analogía</h4><p>Una comparación es una <strong>pregunta de sí o no</strong> que le haces a Python: "¿5 es mayor que 3?". Y Python solo contesta <code>True</code> o <code>False</code>, nunca "tal vez".</p></div><div class="note"><strong>La confusión número 1:</strong> <code>=</code> (un igual) <em>guarda</em> un valor: <code>edad = 18</code>. <code>==</code> (dos iguales) <em>pregunta</em> si son iguales: <code>edad == 18</code>. Y con textos, las mayúsculas cuentan: <code>"hola"</code> no es igual a <code>"Hola"</code>.</div></section>
+<section class="module" id="if"><div class="mh"><span class="mi">🚦</span><div><div class="mt">La decisión if</div><div class="ms">Ejecutar código solo si algo es verdadero</div></div></div><p><code>if</code> significa "<strong>si</strong>". El código que va debajo solo se ejecuta <strong>si la condición es True</strong>. Ejecuta este y luego cambia <code>edad = 20</code> por <code>edad = 15</code>:</p><div class="pyrun" data-out="Eres mayor de edad
+Fin del programa"><textarea class="src" hidden>edad = 20
+if edad &gt;= 18:
+    print(&quot;Eres mayor de edad&quot;)
+print(&quot;Fin del programa&quot;)</textarea></div><div class="analogy"><h4>☕ Analogía</h4><p>Es una <strong>regla de la vida diaria</strong>: "si llueve, llevo paraguas". Si la condición se cumple, haces lo de adentro; si no, te lo saltas y sigues con tu día.</p></div><h3>Las 3 piezas de un if</h3><div class="glos"><div class="gi"><b>if edad &gt;= 18</b>La palabra <code>if</code> y la <strong>condición</strong> (una comparación que da True o False).</div><div class="gi"><b>:</b>Los <strong>dos puntos</strong> al final de la línea. Sin ellos, error. Significan "lo que sigue es el bloque".</div><div class="gi"><b>    print(...)</b>El <strong>bloque</strong>: líneas con <strong>sangría</strong> (4 espacios). Solo ellas dependen del if.</div></div><div class="note"><strong>La sangría es obligatoria en Python.</strong> Es lo que le dice a Python qué líneas están "dentro" del if. Mira que <code>print("Fin del programa")</code> no tiene sangría, así que se ejecuta <em>siempre</em>. En VS Code, la tecla <code>Tab</code> pone la sangría.</div><div class="analogy"><h4>☕ Analogía</h4><p>La sangría es como <strong>entrar a una habitación</strong>: las líneas con sangría están "dentro del cuarto" del if. Si la puerta del if está cerrada (condición False), nada de lo que hay en el cuarto se ejecuta.</p></div><h3>Los dos errores típicos al empezar</h3><div class="pyrun" data-out="File &quot;&lt;exec&gt;&quot;, line 3
+    print(&quot;Mayor de edad&quot;)
+    ^
+IndentationError: expected an indented block after &#x27;if&#x27; statement on line 2" data-err="1"><textarea class="src" hidden>edad = 20
+if edad &gt;= 18:
+print(&quot;Mayor de edad&quot;)</textarea></div><p>Python dice <em>"expected an indented block"</em>: esperaba una línea con sangría después de los dos puntos. Ahora, sin los dos puntos:</p><div class="pyrun" data-out="File &quot;&lt;exec&gt;&quot;, line 2
+    if edad &gt;= 18
+                 ^
+SyntaxError: expected &#x27;:&#x27;" data-err="1"><textarea class="src" hidden>edad = 20
+if edad &gt;= 18
+    print(&quot;Mayor de edad&quot;)</textarea></div><p>Arréglalos agregando la sangría y los dos puntos, y comprueba que ya funcionan.</p></section>
+<section class="module" id="else"><div class="mh"><span class="mi">↔️</span><div><div class="mt">else: el plan B</div><div class="ms">Qué hacer cuando la condición NO se cumple</div></div></div><p><code>else</code> significa "<strong>si no</strong>". Su bloque se ejecuta cuando la condición del <code>if</code> es False. Siempre va <strong>alineado con el if</strong> y también lleva dos puntos:</p><div class="pyrun" data-out="Eres menor de edad"><textarea class="src" hidden>edad = 15
+if edad &gt;= 18:
+    print(&quot;Puedes entrar&quot;)
+else:
+    print(&quot;Eres menor de edad&quot;)</textarea></div><div class="analogy"><h4>☕ Analogía</h4><p>Es una <strong>bifurcación en el camino</strong>: o tomas el camino de la izquierda (if) o el de la derecha (else). Nunca se recorren los dos.</p></div><div class="note"><code>else</code> <strong>no lleva condición</strong>. No escribas <code>else edad &lt; 18:</code>; simplemente es "todo lo demás".</div><h3>Forma corta (una sola línea)</h3><p>Cuando solo necesitas elegir entre dos valores existe una forma compacta:</p><div class="pyrun" data-out="Aprobado"><textarea class="src" hidden>nota = 8
+resultado = &quot;Aprobado&quot; if nota &gt;= 6 else &quot;Reprobado&quot;
+print(resultado)</textarea></div></section>
+<section class="module" id="elif"><div class="mh"><span class="mi">🪜</span><div><div class="mt">elif: varias opciones</div><div class="ms">Cuando hay más de dos caminos</div></div></div><p><code>elif</code> es "<strong>si no, y si...</strong>". Sirve para encadenar más condiciones. Python las revisa <strong>de arriba hacia abajo</strong> y ejecuta solo <strong>la primera que sea True</strong>:</p><div class="pyrun" data-out="Aprobado"><textarea class="src" hidden>nota = 85
+if nota &gt;= 90:
+    print(&quot;Excelente&quot;)
+elif nota &gt;= 70:
+    print(&quot;Aprobado&quot;)
+elif nota &gt;= 60:
+    print(&quot;Suficiente&quot;)
+else:
+    print(&quot;Reprobado&quot;)</textarea></div><div class="analogy"><h4>☕ Analogía</h4><p>Es como una <strong>ventanilla con filtros</strong>: "¿Tienes 90 o más? Pasa por aquí. ¿No? ¿70 o más? Por esta otra ventanilla...". En cuanto una te acepta, te atienden ahí y ya no sigues revisando las demás.</p></div><h3>El orden importa</h3><p>Mira este código con las condiciones en mal orden. La nota es 95, ¡pero no sale "Excelente"!</p><div class="pyrun" data-out="Aprobado"><textarea class="src" hidden>nota = 95
+if nota &gt;= 70:
+    print(&quot;Aprobado&quot;)
+elif nota &gt;= 90:
+    print(&quot;Excelente&quot;)</textarea></div><p>Como 95 ya cumple <code>nota &gt;= 70</code>, Python se detuvo ahí y jamás llegó al <code>elif</code>. <strong>Regla:</strong> pon primero las condiciones <em>más específicas</em> (la más exigente) y al final las generales. Intercambia el orden y compruébalo.</p><div class="note">Puedes tener <strong>un</strong> <code>if</code>, <strong>los</strong> <code>elif</code> que quieras y <strong>un</strong> <code>else</code> opcional al final.</div></section>
+<section class="module" id="logicos"><div class="mh"><span class="mi">🔗</span><div><div class="mt">and, or y not</div><div class="ms">Combinar condiciones</div></div></div><table><tr><th>Operador</th><th>Significa</th><th>Es True cuando...</th></tr><tr><td><code>and</code></td><td>Y</td><td><strong>las dos</strong> condiciones son True</td></tr><tr><td><code>or</code></td><td>O</td><td><strong>al menos una</strong> es True</td></tr><tr><td><code>not</code></td><td>NO</td><td>la condición es False (invierte el resultado)</td></tr></table><div class="pyrun" data-out="Puedes manejar"><textarea class="src" hidden>edad = 25
+tiene_licencia = True
+if edad &gt;= 18 and tiene_licencia:
+    print(&quot;Puedes manejar&quot;)
+else:
+    print(&quot;No puedes manejar&quot;)</textarea></div><div class="analogy"><h4>☕ Analogía</h4><p><code>and</code>: para entrar al cine necesitas <strong>boleto Y ser mayor</strong> de la edad de la película; si falta una, no pasas. <code>or</code>: puedes pagar con <strong>efectivo O tarjeta</strong>; con cualquiera de las dos es suficiente. <code>not</code> es un <strong>interruptor inverso</strong>: lo que era sí pasa a no y viceversa.</p></div><h3>Tablas de verdad</h3><table><tr><th>A</th><th>B</th><th>A and B</th><th>A or B</th><th>not A</th></tr><tr><td>True</td><td>True</td><td>True</td><td>True</td><td>False</td></tr><tr><td>True</td><td>False</td><td>False</td><td>True</td><td>False</td></tr><tr><td>False</td><td>True</td><td>False</td><td>True</td><td>True</td></tr><tr><td>False</td><td>False</td><td>False</td><td>False</td><td>True</td></tr></table><div class="pyrun" data-out="Fin de semana
+Sin paraguas"><textarea class="src" hidden>dia = &quot;sábado&quot;
+if dia == &quot;sábado&quot; or dia == &quot;domingo&quot;:
+    print(&quot;Fin de semana&quot;)
+else:
+    print(&quot;Día de trabajo&quot;)
+
+llueve = False
+if not llueve:
+    print(&quot;Sin paraguas&quot;)</textarea></div><div class="note"><strong>Error clásico:</strong> <code>if dia == "sábado" or "domingo":</code> <em>no</em> hace lo que parece (siempre es verdadero). Cada lado del <code>or</code> debe ser una comparación completa: <code>dia == "sábado" or dia == "domingo"</code>.</div><h3>Rangos y la palabra in</h3><div class="pyrun" data-out="True
+True
+e es una vocal"><textarea class="src" hidden>edad = 30
+print(18 &lt;= edad &lt;= 65)
+print(&quot;py&quot; in &quot;python&quot;)
+letra = &quot;e&quot;
+if letra in &quot;aeiou&quot;:
+    print(letra, &quot;es una vocal&quot;)</textarea></div><p>Python permite encadenar comparaciones como en matemáticas (<code>18 &lt;= edad &lt;= 65</code>). Y <code>in</code> pregunta "<strong>¿está esto dentro de aquello?</strong>"; con listas (Parte 5) lo usarás muchísimo.</p></section>
+<section class="module" id="input-if"><div class="mh"><span class="mi">⌨️</span><div><div class="mt">Decisiones con datos del usuario</div><div class="ms">Combina input() con if</div></div></div><p>Aquí se junta todo lo aprendido. Un programa de acceso con contraseña (te pedirá un dato; prueba con <code>python123</code> y luego con otra cosa):</p><div class="pyrun" data-out="Contraseña: python123
+Acceso concedido" data-in="[&quot;python123&quot;]"><textarea class="src" hidden>clave = input(&quot;Contraseña: &quot;)
+if clave == &quot;python123&quot;:
+    print(&quot;Acceso concedido&quot;)
+else:
+    print(&quot;Acceso denegado&quot;)</textarea></div><p>Y un clásico de los programadores: ¿el número es par o impar? (recuerda el truco del <code>%</code>):</p><div class="pyrun" data-out="Dame un número: 7
+Es impar" data-in="[&quot;7&quot;]"><textarea class="src" hidden>numero = int(input(&quot;Dame un número: &quot;))
+if numero % 2 == 0:
+    print(&quot;Es par&quot;)
+else:
+    print(&quot;Es impar&quot;)</textarea></div><div class="note"><strong>Recuerda:</strong> <code>input()</code> siempre devuelve <strong>texto</strong>. Si vas a comparar con <code>&gt;</code> o <code>&lt;</code> o hacer cuentas, conviértelo antes con <code>int()</code> o <code>float()</code>.</div></section>
+<section class="module" id="anidados"><div class="mh"><span class="mi">🪆</span><div><div class="mt">if dentro de if</div><div class="ms">Decisiones anidadas</div></div></div><p>Un <code>if</code> puede contener otro <code>if</code>. Cada nivel adentro lleva <strong>una sangría más</strong>:</p><div class="pyrun" data-out="Pasa a la función"><textarea class="src" hidden>edad = 20
+tiene_boleto = True
+if edad &gt;= 18:
+    if tiene_boleto:
+        print(&quot;Pasa a la función&quot;)
+    else:
+        print(&quot;Compra tu boleto&quot;)
+else:
+    print(&quot;Función solo para mayores&quot;)</textarea></div><div class="analogy"><h4>☕ Analogía</h4><p>Son <strong>muñecas rusas</strong>: primero pasas la puerta de la sala (edad), y adentro hay otra puerta (boleto). Cada puerta es un if y cada cuarto más profundo lleva más sangría.</p></div><div class="note"><strong>Consejo:</strong> si puedes escribir lo mismo con <code>and</code> (<code>if edad &gt;= 18 and tiene_boleto:</code>), el código queda más corto y fácil de leer. Usa anidados cuando cada caso tenga <em>su propio mensaje</em>.</div></section>
+<section class="module" id="errores"><div class="mh"><span class="mi">🩺</span><div><div class="mt">Errores comunes con if</div><div class="ms">Lo que más sale al empezar</div></div></div><table><tr><th>Síntoma</th><th>Causa</th><th>Arreglo</th></tr><tr><td><code>IndentationError</code></td><td>Falta (o sobra) sangría</td><td>4 espacios dentro del bloque, todos iguales</td></tr><tr><td><code>SyntaxError: expected ':'</code></td><td>Faltan los dos puntos</td><td>Pon <code>:</code> al final de if / elif / else</td></tr><tr><td><code>SyntaxError</code> al usar <code>=</code></td><td>Usaste <code>=</code> en vez de <code>==</code></td><td>Para comparar usa dos iguales</td></tr><tr><td><code>TypeError</code> al comparar</td><td>Comparas texto con número</td><td>Convierte con <code>int()</code></td></tr><tr><td>El else "no funciona"</td><td>El else no está alineado con su if</td><td>Misma sangría que el if</td></tr></table><div class="pyrun" data-out="File &quot;&lt;exec&gt;&quot;, line 2
+    if x = 5:
+       ^^^^^
+SyntaxError: invalid syntax. Maybe you meant &#x27;==&#x27; or &#x27;:=&#x27; instead of &#x27;=&#x27;?" data-err="1"><textarea class="src" hidden>x = 5
+if x = 5:
+    print(&quot;Es cinco&quot;)</textarea></div><div class="pyrun" data-out="Traceback (most recent call last):
+  File &quot;&lt;exec&gt;&quot;, line 2, in &lt;module&gt;
+    if edad &gt;= 18:
+       ^^^^^^^^^^
+TypeError: &#x27;&gt;=&#x27; not supported between instances of &#x27;str&#x27; and &#x27;int&#x27;" data-err="1"><textarea class="src" hidden>edad = &quot;20&quot;
+if edad &gt;= 18:
+    print(&quot;Mayor de edad&quot;)</textarea></div><p>En el último, <code>edad</code> es el <strong>texto</strong> <code>"20"</code>, no el número 20. Python no sabe comparar "texto mayor que número". Arréglalo con <code>int(edad)</code>.</p></section>
+<section class="module" id="retos"><div class="mh"><span class="mi">🎯</span><div><div class="mt">Retos</div><div class="ms">Haz que tu programa decida</div></div></div><div class="ex pyex" data-exp="Menor de edad" data-sol="edad = 17
+if edad &gt;= 18:
+    print(&quot;Mayor de edad&quot;)
+else:
+    print(&quot;Menor de edad&quot;)"><div class="ex-hd"><span class="ex-badge">Reto 1</span>Mayor o menor de edad</div><div class="ex-p">Con <code>edad = 17</code>, usa <code>if/else</code> para imprimir <code>Menor de edad</code> (o <code>Mayor de edad</code> si fuera 18 o más).</div><textarea class="src" hidden>edad = 17
+# escribe tu if / else
+</textarea></div><div class="ex pyex" data-exp="Par" data-sol="numero = 14
+if numero % 2 == 0:
+    print(&quot;Par&quot;)
+else:
+    print(&quot;Impar&quot;)"><div class="ex-hd"><span class="ex-badge">Reto 2</span>Par o impar</div><div class="ex-p">Con <code>numero = 14</code>, imprime <code>Par</code> o <code>Impar</code> según corresponda (usa <code>%</code>).</div><textarea class="src" hidden>numero = 14
+# escribe tu código
+</textarea></div><div class="ex pyex" data-exp="Aprobado" data-sol="nota = 76
+if nota &gt;= 90:
+    print(&quot;Excelente&quot;)
+elif nota &gt;= 60:
+    print(&quot;Aprobado&quot;)
+else:
+    print(&quot;Reprobado&quot;)"><div class="ex-hd"><span class="ex-badge">Reto 3</span>Calificaciones</div><div class="ex-p">Con <code>nota = 76</code> imprime: <code>Excelente</code> si es 90 o más, <code>Aprobado</code> si es 60 o más, y <code>Reprobado</code> en otro caso.</div><textarea class="src" hidden>nota = 76
+# usa if / elif / else
+</textarea></div><div class="ex pyex" data-exp="Total: 1080.0" data-sol="compra = 1200
+if compra &gt;= 1000:
+    total = compra - compra * 0.10
+else:
+    total = compra
+print(f&quot;Total: {total}&quot;)"><div class="ex-hd"><span class="ex-badge">Reto 4</span>Descuento</div><div class="ex-p">Si la <code>compra</code> es de 1000 o más, aplica 10% de descuento. Imprime <code>Total: 1080.0</code> (con compra = 1200).</div><textarea class="src" hidden>compra = 1200
+# calcula total y muéstralo con print(f&quot;Total: {total}&quot;)
+</textarea></div><div class="ex pyex" data-exp="Puede manejar" data-sol="edad = 25
+tiene_licencia = True
+if edad &gt;= 18 and tiene_licencia:
+    print(&quot;Puede manejar&quot;)
+else:
+    print(&quot;No puede manejar&quot;)"><div class="ex-hd"><span class="ex-badge">Reto 5</span>Licencia</div><div class="ex-p">Con <code>edad = 25</code> y <code>tiene_licencia = True</code>, imprime <code>Puede manejar</code> solo si se cumplen las dos cosas (edad 18+ y licencia); si no, <code>No puede manejar</code>.</div><textarea class="src" hidden>edad = 25
+tiene_licencia = True
+# usa and
+</textarea></div><div class="ex pyex" data-exp="12" data-sol="a = 7
+b = 12
+c = 9
+if a &gt;= b and a &gt;= c:
+    print(a)
+elif b &gt;= c:
+    print(b)
+else:
+    print(c)"><div class="ex-hd"><span class="ex-badge">Reto 6</span>El número mayor</div><div class="ex-p">Con <code>a = 7</code>, <code>b = 12</code>, <code>c = 9</code>, imprime el número <strong>más grande</strong>: debe salir <code>12</code>.</div><textarea class="src" hidden>a = 7
+b = 12
+c = 9
+# imprime el mayor
+</textarea></div><div class="ex pyex" data-exp="Bisiesto" data-sol="anio = 2024
+if (anio % 4 == 0 and anio % 100 != 0) or anio % 400 == 0:
+    print(&quot;Bisiesto&quot;)
+else:
+    print(&quot;No bisiesto&quot;)"><div class="ex-hd"><span class="ex-badge">Reto 7</span>Año bisiesto</div><div class="ex-p">Un año es bisiesto si es divisible entre 4 y <em>no</em> entre 100, <strong>o</strong> si es divisible entre 400. Con <code>anio = 2024</code> imprime <code>Bisiesto</code> o <code>No bisiesto</code>.</div><textarea class="src" hidden>anio = 2024
+# combina and / or con %
+</textarea></div><div class="ex pyex" data-exp="Vocal" data-sol="letra = &quot;e&quot;
+if letra in &quot;aeiou&quot;:
+    print(&quot;Vocal&quot;)
+else:
+    print(&quot;Consonante&quot;)"><div class="ex-hd"><span class="ex-badge">Reto 8</span>Vocal o consonante</div><div class="ex-p">Con <code>letra = "e"</code>, imprime <code>Vocal</code> si está en <code>"aeiou"</code> y <code>Consonante</code> si no (usa <code>in</code>).</div><textarea class="src" hidden>letra = &quot;e&quot;
+# usa in
+</textarea></div></section>
+<section class="module" id="resumen"><div class="mh"><span class="mi">📋</span><div><div class="mt">Resumen de la Parte 3</div><div class="ms">Para tener a la mano</div></div></div><table><tr><th>Concepto</th><th>Ejemplo</th><th>Qué hace</th></tr><tr><td>Comparar</td><td><code>== != &gt; &lt; &gt;= &lt;=</code></td><td>Responde True o False</td></tr><tr><td><code>if</code></td><td><code>if edad &gt;= 18:</code></td><td>Ejecuta el bloque si es True</td></tr><tr><td><code>else</code></td><td><code>else:</code></td><td>Si no se cumplió lo anterior</td></tr><tr><td><code>elif</code></td><td><code>elif nota &gt;= 70:</code></td><td>Otra condición (se revisa en orden)</td></tr><tr><td>Lógicos</td><td><code>and  or  not</code></td><td>Combinan condiciones</td></tr><tr><td><code>in</code></td><td><code>"a" in "casa"</code></td><td>¿Está dentro?</td></tr><tr><td>Sangría</td><td>4 espacios</td><td>Define qué línea está dentro del bloque</td></tr><tr><td>Forma corta</td><td><code>x = "A" if c else "B"</code></td><td>Elegir entre dos valores</td></tr></table><div class="note"><strong>Próxima parada · Parte 4:</strong> las <strong>repeticiones</strong>. Con <code>while</code> y <code>for</code> tu programa podrá repetir tareas cientos de veces sin que copies y pegues el código.</div></section>
+</main>
+<div class="pager"><a class="prev" href="python-parte-2-cafe.html"><small>← Anterior</small><b>Parte 2 · Datos y operaciones</b></a><a class="next" href="python-parte-4-cafe.html"><small>Siguiente →</small><b>Parte 4 · Repeticiones</b></a></div>
+<footer>Café &lt;/&gt; · Python desde cero · Parte 3</footer>
+<script>
+(function(){
+const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const KW=new Set('and as break class continue def elif else except finally for from if import in is lambda not or pass return try while with True False None'.split(' '));
+const BI=new Set('print input int float str bool len range type list dict set tuple sum min max abs round sorted open'.split(' '));
+const sp=(c,t)=>'<span class="'+c+'">'+t+'<\/span>';
+function hlPy(s){
+ let o='',i=0,m;
+ const re=/(#.*)|("""[\s\S]*?"""|'''[\s\S]*?'''|[fF]?"(?:\\.|[^"\\\n])*"|[fF]?'(?:\\.|[^'\\\n])*')|(\b\d+(?:\.\d+)?\b)|([A-Za-z_]\w*)/g;
+ while((m=re.exec(s))){
+  o+=esc(s.slice(i,m.index));i=re.lastIndex;const t=m[0];
+  o+=m[1]?sp('cc',esc(t)):m[2]?sp('cs',esc(t)):m[3]?sp('cn',t):KW.has(t)?sp('ck',t):BI.has(t)?sp('ct',t):esc(t);
+ }
+ return o+esc(s.slice(i));
+}
+document.querySelectorAll('pre[data-hl=py]').forEach(p=>{p.innerHTML=hlPy(p.textContent);});
+/* ---------- Python en el navegador (Pyodide) ---------- */
+const PRE=['import builtins,sys','def _input(p=""):','    from js import prompt','    v = prompt(str(p))','    v = "" if v is None else str(v)','    print(str(p) + v)','    return v','builtins.input = _input','_n = [0]','def _tr(f, e, a):','    _n[0] += 1','    if _n[0] > 150000:','        sys.settrace(None)','        raise RuntimeError("BUCLE_INFINITO")','    return _tr','sys.settrace(_tr)'].join('\n');
+let pyP=null;
+function loadPy(){
+ if(!pyP)pyP=new Promise((res,rej)=>{
+  const s=document.createElement('script');
+  s.src='https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js';
+  s.onload=()=>loadPyodide().then(res,rej);
+  s.onerror=()=>{pyP=null;rej(new Error('offline'));};
+  document.head.appendChild(s);
+ });
+ return pyP;
+}
+function clean(m){
+ const L=m.split('\n'),i=L.findIndex(l=>l.includes('File "<exec>"'));
+ if(i<0)return m.trim();
+ const head=(m.startsWith('Traceback')&&!/SyntaxError/.test(m))?'Traceback (most recent call last):\n':'';
+ return (head+L.slice(i).join('\n')).trim();
+}
+async function exec(code){
+ let py;try{py=await loadPy();}catch(e){return{off:true};}
+ const buf=[];py.setStdout({batched:s=>buf.push(s)});py.setStderr({batched:s=>buf.push(s)});
+ const g=py.toPy({});let err=null;
+ try{py.runPython(PRE,{globals:g});await py.runPythonAsync(code,{globals:g});}
+ catch(e){const m=String(e.message||e);err=/BUCLE_INFINITO/.test(m)?'⚠️ Python detuvo tu programa: se ejecutó demasiadas veces seguidas. ¿Hay un bucle infinito? Revisa que la condición del while pueda llegar a ser False (por ejemplo, que la variable del contador sí cambie).':clean(m);}
+ try{py.runPython('import sys\nsys.settrace(None)');}catch(e){}
+ g.destroy();
+ const o=buf.length>200?buf.slice(0,50).join('\n')+'\n… (salida recortada: el programa imprimió '+buf.length+' líneas)':buf.join('\n');
+ return{out:o,err};
+}
+const HINT='<div class="hint">💡 <b>Cómo leer un error:<\/b> empieza por la <b>última línea<\/b>, que dice <i>qué<\/i> pasó. Las líneas de arriba muestran <i>dónde<\/i> (número de línea y una flecha ^).<\/div>';
+const WAIT='⏳ Ejecutando… (la primera vez Python tarda unos segundos en cargar)';
+function mkEd(code){
+ const w=document.createElement('div');w.className='ed';w.dataset.l='PYTHON';
+ const pre=document.createElement('pre'),ta=document.createElement('textarea');
+ ta.spellcheck=false;ta.value=code;ta.setAttribute('aria-label','Editor de código Python');
+ const up=()=>{pre.innerHTML=hlPy(ta.value)+'\n';};
+ ta.addEventListener('input',up);
+ ta.addEventListener('keydown',e=>{if(e.key==='Tab'){e.preventDefault();ta.setRangeText('    ',ta.selectionStart,ta.selectionEnd,'end');up();}});
+ w.append(pre,ta);up();
+ return{w,ta,set:v=>{ta.value=v;up();}};
+}
+const mk=(tag,cls,html)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e;};
+document.querySelectorAll('.pyrun').forEach(el=>{
+ const orig=el.querySelector('.src').value,fb=el.dataset.out||'';
+ const ed=mkEd(orig),bar=mk('div','bar','<button class="ver" type="button">▶ Ejecutar<\/button><button class="ver alt" type="button">↺ Restaurar<\/button>'),out=mk('pre','out');out.hidden=true;
+ el.textContent='';el.append(ed.w,bar,out);
+ const b=bar.querySelectorAll('button');
+ b[0].onclick=async()=>{
+  out.hidden=false;out.className='out';out.textContent=WAIT;
+  const r=await exec(ed.ta.value);
+  if(r.off){out.className='out off';out.textContent=ed.ta.value===orig?'📴 Sin conexión a internet. Esta es la salida esperada:\n\n'+fb:'📴 Para ejecutar código nuevo se necesita internet (Python se descarga una sola vez). Revisa tu conexión.';return;}
+  if(r.err){out.className='out bad';out.innerHTML=esc((r.out?r.out+'\n':'')+r.err)+HINT;}
+  else out.textContent=r.out||'(el programa no imprimió nada)';
+ };
+ b[1].onclick=()=>{ed.set(orig);out.hidden=true;};
+});
+const norm=s=>s.split('\n').map(l=>l.replace(/\s+$/,'')).join('\n').replace(/\n+$/,'');
+document.querySelectorAll('.pyex').forEach(el=>{
+ const st=el.querySelector('.src').value,exp=el.dataset.exp,sol=el.dataset.sol;el.querySelector('.src').remove();
+ const ed=mkEd(st),bar=mk('div','bar','<button class="ver" type="button">✔ Comprobar<\/button><button class="ver alt" type="button">💡 Ver solución<\/button><button class="ver alt" type="button">↺ Restaurar<\/button>'),out=mk('pre','out'),ms=mk('p','okline');out.hidden=true;
+ el.append(ed.w,bar,out,ms);const b=bar.querySelectorAll('button');
+ b[0].onclick=async()=>{
+  out.hidden=false;out.className='out';out.textContent=WAIT;ms.textContent='';ms.className='okline';
+  const r=await exec(ed.ta.value);
+  if(r.off){out.className='out off';out.textContent='📴 Sin conexión: no puedo comprobar tu código ahora. Compáralo con la solución o conéctate a internet.';return;}
+  if(r.err){out.className='out bad';out.innerHTML=esc((r.out?r.out+'\n':'')+r.err)+HINT;ms.className='okline bad';ms.textContent='❌ Tu código tiene un error. Revisa el mensaje de arriba.';return;}
+  out.textContent=r.out||'(el programa no imprimió nada)';
+  if(norm(r.out)===norm(exp)){ms.className='okline good';ms.textContent='✅ ¡Correcto! Tu programa imprime lo esperado.';}
+  else{ms.className='okline bad';ms.textContent='❌ Todavía no. Tu programa imprimió lo de arriba, pero se esperaba:\n'+exp;}
+ };
+ b[1].onclick=()=>{ed.set(sol);out.hidden=true;ms.className='okline';ms.textContent='Esta es una solución posible. Ejecútala con ✔ Comprobar y compárala con tu idea.';};
+ b[2].onclick=()=>{ed.set(st);out.hidden=true;ms.textContent='';};
+});
+const T=document.documentElement;
+try{T.dataset.theme=localStorage.getItem('cafe-theme')||'light';}catch(e){}
+document.getElementById('tm').onclick=()=>{const m=T.dataset.theme==='dark'?'light':'dark';T.dataset.theme=m;try{localStorage.setItem('cafe-theme',m);}catch(e){}};
+})();
+</script>
+</body>
+</html>
